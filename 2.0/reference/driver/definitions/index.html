@@ -46,6 +46,15 @@
   <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
   <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
   <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.0">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
 </div>
 </div>
 
@@ -584,6 +593,16 @@
 
   
     
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
   
 
 
@@ -595,6 +614,9 @@
         
       
     
+      
+      
+    
     
   
 
@@ -606,6 +628,36 @@
       
     
     
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
   
 
 
@@ -677,7 +729,7 @@
     <li class="toctree-l2">
     <a href="/mongo-csharp-driver/2.0/getting_started/connecting/">
         <i class='fa'></i>
-        Connecting to the Server
+        Connecting
     </a>
   </li>
 
@@ -793,16 +845,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l1 ">
+
+<li class="toctree-l1  current">
   <a href="/mongo-csharp-driver/2.0/reference/" class="">
       <i class='fa fa-book'></i>
       <span>Reference</span>
-      <span class="menu-arrow fa fa-angle-right"></span>
+      <span class="menu-arrow fa fa-angle-down"></span>
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -853,7 +907,7 @@
     <li class="toctree-l3">
     <a href="/mongo-csharp-driver/2.0/reference/bson/bson/">
         <i class='fa'></i>
-        Reading and Writing BSON/JSON
+        BSON/JSON
     </a>
   </li>
 
@@ -1060,16 +1114,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l2 ">
+
+<li class="toctree-l2  current">
   <a href="/mongo-csharp-driver/2.0/reference/driver/" class="">
       <i class='fa'></i>
       <span>Driver</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1245,10 +1301,39 @@
 
 
 
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <li class="toctree-l3 ">
   <a href="/mongo-csharp-driver/2.0/reference/driver/crud/" class="">
       <i class='fa'></i>
-      <span>CRUD Operations</span>
+      <span>Reading and Writing</span>
       
   </a>
     <ul >
@@ -1376,6 +1461,60 @@
 
 
     <li class="toctree-l1">
+    <a href="http://api.mongodb.org/csharp/2.0">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
     <a href="/mongo-csharp-driver/2.0/issues_help/">
         <i class='fa fa-life-ring'></i>
         Issues &amp; Help
@@ -1449,8 +1588,8 @@
   
   
   
-  
-  
+  <li><a href="/mongo-csharp-driver/2.0/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
   <li>Definitions and Builders</li>
 </ul>
 </div>
@@ -1460,92 +1599,64 @@
 
 <h2 id="definitions-and-builders">Definitions and Builders</h2>
 
-<p>The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, etc&hellip; These types are used throughout the <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">API</a>. In addition, most of them have builders as well to aid in their creation.</p>
+<p>The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">API</a>.</p>
+
+<p>Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter <code>TDocument</code> which represents the type of document with which you are working. It will almost always match the generic <code>TDocument</code> parameter used in an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a>.</p>
 
 <h2 id="fields">Fields</h2>
 
 <p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_1.htm
 "><code>FieldDefinition&lt;TDocument&gt;</code></a> and <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_2.htm
-"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&rsquo;d like.</p>
+"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&rsquo;d like. For instance, to use the field named &ldquo;fn&rdquo; with a <code>TDocument</code> of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>, do the following:</p>
 
-<p>For instance, with a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>, the following will be true:</p>
-
-<pre><code class="language-csharp">// method definition
-string GetFieldName&lt;TDocument&gt;(FieldDefinition&lt;TDocument&gt; field);
-
-// invocation
-var fieldName = GetFieldName&lt;BsonDocument&gt;(&quot;fun&quot;);
-
-fieldName.Should().Be(&quot;fun&quot;);
+<pre><code class="language-csharp">FieldDefinition&lt;BsonDocument&gt; field = &quot;fn&quot;;
 </code></pre>
 
-<p>However, if you are working with a <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapped class</a>, then 2 further options exist.</p>
-
-<p>First, most locations that accept a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_1.htm
-"><code>FieldDefinition&lt;TDocument&gt;</code></a> or <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_2.htm
-"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> will also have an overload (via extension method) that accepts a lambda expression. Given the following class definition marked with the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
-"><code>BsonElementAttribute</code></a> instructing the use of a different field name:</p>
+<p>However, if you are working with a <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapped class</a>, then we are able to translate a string that equals the property name. For instance, given the below <code>Person</code> class:</p>
 
 <pre><code class="language-csharp">class Person
 {
     [BsonElement(&quot;fn&quot;)]
     public string FirstName { get; set; }
 
-    [BsonElement(&quot;fn&quot;)]
+    [BsonElement(&quot;ln&quot;)]
     public string LastName { get; set; }
 }
 </code></pre>
 
-<p>Then the following will be true.</p>
+<p>Since we know the type is <code>Person</code>, we can provide the property name, <code>FirstName</code>, from the class and &ldquo;fn&rdquo; will still be used.</p>
 
-<pre><code class="language-csharp">// method definition
-string GetFieldName&lt;TDocument&gt;(Expression&lt;Func&lt;TDocument, object&gt;&gt; field);
-
-// invocation
-var fieldName = GetFieldName&lt;Person&gt;(x =&gt; x.FirstName);
-
-fieldName.Should().Be(&quot;fn&quot;);
+<pre><code class="language-csharp">FieldDefinition&lt;Person&gt; field = &quot;FirstName&quot;;
 </code></pre>
 
-<p>In the same way, since we know the type of document, <code>Person</code> in this case, we can also translate fields names provided as a string.</p>
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>We don&rsquo;t validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn&rsquo;t been mapped:</p>
 
-<pre><code class="language-csharp">// method definition
-string GetFieldName&lt;TDocument&gt;(FieldDefinition&lt;TDocument&gt; field);
-
-// invocation
-var fieldName = GetFieldName&lt;Person&gt;(&quot;FirstName&quot;);
-
-fieldName.Should().Be(&quot;fn&quot;);
+<pre><code class="language-csharp">FieldDefinition&lt;Person&gt; field = &quot;fn&quot;;
 </code></pre>
 
-<p>Finally, we don&rsquo;t validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn&rsquo;t been mapped:</p>
+<p>And the output field name of this will be just &ldquo;fn&rdquo;.</p>
 
-<pre><code class="language-csharp">// method definition
-string GetFieldName&lt;TDocument&gt;(FieldDefinition&lt;TDocument&gt; field);
-
-// invocation
-var fieldName = GetFieldName&lt;Person&gt;(&quot;fn&quot;);
-
-fieldName.Should().Be(&quot;fn&quot;);
-</code></pre>
+</div>
+</p>
 
 <h2 id="filters">Filters</h2>
 
 <p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinition_1.htm
 "><code>FilterDefinition&lt;TDocument&gt;</code></a> defines a filter. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
+"><code>BsonDocument</code></a>.</p>
 
-<pre><code class="language-csharp">// method definition
-BsonDocument Filter(FilterDefinition&lt;BsonDocument&gt; filter);
+<pre><code class="language-csharp">FilterDefinition&lt;BsonDocument&gt; filter = &quot;{ x: 1 }&quot;;
 
-// invocation
-var doc = Filter(&quot;{ x: 1 }&quot;);
-doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
+// or
 
-var doc = Filter(new BsonDocument(&quot;x&quot;, 1));
-doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
+FilterDefinition&lt;BsonDocument&gt; filter = new BsonDocument(&quot;x&quot;, 1);
 </code></pre>
+
+<p>Both of these will render the filter <code>{ x: 1 }</code>.</p>
 
 <h3 id="filter-definition-builder">Filter Definition Builder</h3>
 
@@ -1553,10 +1664,10 @@ doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
-"><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building up both simple and complex <a href="http://docs.mongodb.org/manual/reference/operator/query/
+"><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up both simple and complex <a href="http://docs.mongodb.org/manual/reference/operator/query/
 ">MongoDB queries</a>.</p>
 
-<p>For example, to build up the filter <code>{ x: 10, y: { $lt: 20 } }</code>, the following calls are all comparable.</p>
+<p>For example, to build up the filter <code>{ x: 10, y: { $lt: 20 } }</code>, the following calls are all equivalent.</p>
 
 <pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.Filter;
 var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
@@ -1564,7 +1675,7 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-Note that the <code>&amp;</code> operator is overloaded. Other overloaded operators include the <code>|</code> operator for &ldquo;or&rdquo; and the <code>!</code> operator for &ldquo;not&rdquo;.
+The <code>&amp;</code> operator is overloaded. Other overloaded operators include the <code>|</code> operator for &ldquo;or&rdquo; and the <code>!</code> operator for &ldquo;not&rdquo;.
 </div>
 </p>
 
@@ -1580,23 +1691,21 @@ Note that the <code>&amp;</code> operator is overloaded. Other overloaded operat
 }
 </code></pre>
 
-<p>We can achieve the same result in the typed variant:</p>
+<p>You can achieve the same result in the typed variant:</p>
 
 <pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.Filter;
-var filter = builder.Eq(x =&gt; x.X, 10) &amp; builder.Lt(x =&gt; x.Y, 20);
+var filter = builder.Eq(widget =&gt; widget.X, 10) &amp; builder.Lt(widget =&gt; widget.Y, 20);
+</code></pre>
 
-// or
+<p>The benefits to this form is the compile-time safety inherent in using types. In addition, your IDE can provide refactoring support.</p>
 
-var filter = builder.Eq(&quot;X&quot;, 10) &amp; builder.Lt(&quot;Y&quot;, 20);
+<p>Alternatively, you can elect to use a string-based field name instead.</p>
+
+<pre><code class="language-csharp">var filter = builder.Eq(&quot;X&quot;, 10) &amp; builder.Lt(&quot;Y&quot;, 20);
 
 // or
 
 var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
-</code></pre>
-
-<p>Or via a lambda expression:</p>
-
-<pre><code class="language-csharp">var filter = Builders&lt;Widget&gt;.Filter.Where(x =&gt; x.X == 10 &amp;&amp; x.Y &lt; 20);
 </code></pre>
 
 <p>For more information on valid lambda expressions, see the <a href="/mongo-csharp-driver/2.0/reference/driver/expressions/">expressions documentation</a>.</p>
@@ -1647,9 +1756,21 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 
 <h2 id="projections">Projections</h2>
 
-<p>There are two forms of a projection definition, one where the type of the projection is known (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) and one where the type of the projection is not yet known (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
-"><code>ProjectionDefinition&lt;TDocument&gt;</code></a>). The latter, while implicitly convertible to the first, is merely used as a building block. The <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">high-level APIs</a> that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &ldquo;interpretation instructions&rdquo; for projecting into a custom class.</p>
+<p>There are two forms of a projection definition: one where the type of the projection is known, <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>, and one where the type of the projection is not yet known, <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+"><code>ProjectionDefinition&lt;TDocument&gt;</code></a>. The latter, while implicitly convertible to the first, is merely used as a building block. The <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">high-level APIs</a> that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &ldquo;interpretation instructions&rdquo; for projecting into a custom class.</p>
+
+<p>Each projection definition is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">ProjectionDefinition&lt;BsonDocument&gt; projection = &quot;{ x: 1 }&quot;;
+
+// or
+
+ProjectionDefinition&lt;BsonDocument&gt; projection = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the projection <code>{ x: 1 }</code>.</p>
 
 <h3 id="projection-definition-builder">Projection Definition Builder</h3>
 
@@ -1657,7 +1778,7 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
-"><code>ProjectionDefinitionBuilder&lt;TDocument&gt;</code></a> exists to make it easier to build up projections in MongoDB&rsquo;s syntax. To render the projection <code>{ x: 1, y: 1, _id: 0 }</code>, the following should be done:</p>
+"><code>ProjectionDefinitionBuilder&lt;TDocument&gt;</code></a> exists to make it easier to build up projections in MongoDB&rsquo;s syntax. For the projection <code>{ x: 1, y: 1, _id: 0 }</code>:</p>
 
 <pre><code class="language-csharp">var projection = Builders&lt;BsonDocument&gt;.Projection.Include(&quot;x&quot;).Include(&quot;y&quot;).Exclude(&quot;_id&quot;);
 </code></pre>
@@ -1758,18 +1879,16 @@ var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; (x.X + x.Y
 
 <p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinition_1.htm
 "><code>SortDefinition&lt;TDocument&gt;</code></a> defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
+"><code>BsonDocument</code></a>.</p>
 
-<pre><code class="language-csharp">// method definition
-BsonDocument Sort(SortDefinition&lt;BsonDocument&gt; filter);
+<pre><code class="language-csharp">SortDefinition&lt;BsonDocument&gt; sort = &quot;{ x: 1 }&quot;;
 
-// invocation
-var doc = Sort(&quot;{ x: 1 }&quot;);
-doc.ToJson().Should().Be(&quot;{x : 1 }&quot;);
+// or
 
-var doc = Sort(new BsonDocument(&quot;x&quot;, 1));
-doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
+SortDefinition&lt;BsonDocument&gt; sort = new BsonDocument(&quot;x&quot;, 1);
 </code></pre>
+
+<p>Both of these will render the sort <code>{ x: 1 }</code>.</p>
 
 <h3 id="sort-definition-builder">Sort Definition Builder</h3>
 
@@ -1777,7 +1896,7 @@ doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
-"><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building up <a href="http://docs.mongodb.org/manual/reference/method/cursor.sort/
+"><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up <a href="http://docs.mongodb.org/manual/reference/method/cursor.sort/
 ">MongoDB sort syntax</a>.</p>
 
 <p>For example, to build up the sort <code>{ x: 1, y: -1 }</code>, do the following:</p>
@@ -1816,18 +1935,17 @@ var sort = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
 
 <p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinition_1.htm
 "><code>UpdateDefinition&lt;TDocument&gt;</code></a> defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
+"><code>BsonDocument</code></a>.</p>
 
-<pre><code class="language-csharp">// method definition
-BsonDocument Update(UpdateDefinition&lt;BsonDocument&gt; filter);
+<pre><code class="language-csharp">// invocation
+UpdateDefinition&lt;BsonDocument&gt; update = &quot;{ $set: { x: 1 } }&quot;;
 
-// invocation
-var doc = Update(&quot;{ $set: { x: 1 } }&quot;);
-doc.ToJson().Should().Be(&quot;{ $set: { x: 1 } }&quot;);
+// or
 
-var doc = Sort(new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 1)));
-doc.ToJson().Should().Be(&quot;{ $set: { x: 1 } }&quot;);
+UpdateDefinition&lt;BsonDocument&gt; update = new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 1));
 </code></pre>
+
+<p>Both of these will render the update <code>{ $set: { x: 1 } }</code>.</p>
 
 <h3 id="update-definition-builder">Update Definition Builder</h3>
 
@@ -1835,7 +1953,7 @@ doc.ToJson().Should().Be(&quot;{ $set: { x: 1 } }&quot;);
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
-"><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building the <a href="http://docs.mongodb.org/manual/reference/operator/update/
+"><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building the <a href="http://docs.mongodb.org/manual/reference/operator/update/
 ">MongoDB update specification</a>.</p>
 
 <p>For example, to build up the update <code>{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }</code>, do the following:</p>
@@ -1862,7 +1980,7 @@ var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quo
 <p>We can achieve the same result in a typed variant:</p>
 
 <pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.Update;
-var update = builder.Set(x =&gt; x.X, 1).Set(x =&gt; x.Y, 3).Inc(x =&gt; x.Z, 1);
+var update = builder.Set(widget =&gt; widget.X, 1).Set(widget =&gt; widget.Y, 3).Inc(widget =&gt; widget.Z, 1);
 
 // or
 
@@ -1888,8 +2006,8 @@ var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quo
   
   
   <div class="pull-right">
-  <a class="navigation next" href="/mongo-csharp-driver/2.0/reference/driver/crud/">
-    CRUD Operations <i class="fa fa-long-arrow-right"> </i>
+  <a class="navigation next" href="/mongo-csharp-driver/2.0/reference/driver/admin/">
+    Administration <i class="fa fa-long-arrow-right"> </i>
   </a>
   
 </div>

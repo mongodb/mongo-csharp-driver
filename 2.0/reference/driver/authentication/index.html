@@ -46,6 +46,15 @@
   <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
   <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
   <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.0">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
 </div>
 </div>
 
@@ -546,6 +555,21 @@
 
   
     
+    
+    
+      
+      
+      
+        
+        
+        
+          
+        
+      
+      
+    
+    
+  
   
 
 
@@ -567,6 +591,9 @@
       
       
     
+      
+      
+    
     
   
 
@@ -578,6 +605,36 @@
       
     
     
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
   
 
 
@@ -649,7 +706,7 @@
     <li class="toctree-l2">
     <a href="/mongo-csharp-driver/2.0/getting_started/connecting/">
         <i class='fa'></i>
-        Connecting to the Server
+        Connecting
     </a>
   </li>
 
@@ -765,16 +822,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l1 ">
+
+<li class="toctree-l1  current">
   <a href="/mongo-csharp-driver/2.0/reference/" class="">
       <i class='fa fa-book'></i>
       <span>Reference</span>
-      <span class="menu-arrow fa fa-angle-right"></span>
+      <span class="menu-arrow fa fa-angle-down"></span>
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -825,7 +884,7 @@
     <li class="toctree-l3">
     <a href="/mongo-csharp-driver/2.0/reference/bson/bson/">
         <i class='fa'></i>
-        Reading and Writing BSON/JSON
+        BSON/JSON
     </a>
   </li>
 
@@ -1032,16 +1091,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l2 ">
+
+<li class="toctree-l2  current">
   <a href="/mongo-csharp-driver/2.0/reference/driver/" class="">
       <i class='fa'></i>
       <span>Driver</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1059,16 +1120,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l3 ">
+
+<li class="toctree-l3  current">
   <a href="/mongo-csharp-driver/2.0/reference/driver/connecting/" class="">
       <i class='fa'></i>
       <span>Connecting</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1217,10 +1280,39 @@
 
 
 
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <li class="toctree-l3 ">
   <a href="/mongo-csharp-driver/2.0/reference/driver/crud/" class="">
       <i class='fa'></i>
-      <span>CRUD Operations</span>
+      <span>Reading and Writing</span>
       
   </a>
     <ul >
@@ -1348,6 +1440,60 @@
 
 
     <li class="toctree-l1">
+    <a href="http://api.mongodb.org/csharp/2.0">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
     <a href="/mongo-csharp-driver/2.0/issues_help/">
         <i class='fa fa-life-ring'></i>
         Issues &amp; Help
@@ -1420,9 +1566,9 @@
   
   
   
-  
-  
-  
+  <li><a href="/mongo-csharp-driver/2.0/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/connecting/">Connecting</a> <i class="fa fa-angle-right"></i></li>
   <li>Authentication</li>
 </ul>
 </div>

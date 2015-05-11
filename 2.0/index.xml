@@ -6,8 +6,187 @@
     <description>Recent content on MongoDB .NET Driver</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 18 Mar 2015 16:56:14 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 07 May 2015 15:36:56 +0000</lastBuildDate>
     <atom:link href="/mongo-csharp-driver/2.0/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Administration</title>
+      <link>/mongo-csharp-driver/2.0/reference/driver/admin/</link>
+      <pubDate>Thu, 07 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.0/reference/driver/admin/</guid>
+      <description>
+
+&lt;h2 id=&#34;adminstration&#34;&gt;Adminstration&lt;/h2&gt;
+
+&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method on &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; is available.&lt;/p&gt;
+
+&lt;h2 id=&#34;databases&#34;&gt;Databases&lt;/h2&gt;
+
+&lt;p&gt;These operations exist on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
+&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-a-database&#34;&gt;Getting a database&lt;/h3&gt;
+
+&lt;p&gt;To get a database, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;There is no command for creating a database. The database will be created the first time it is used.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the test database
+var db = client.GetDatabase(&amp;quot;test&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-a-database&#34;&gt;Dropping a database&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+&#34;&gt;&lt;code&gt;DropDatabaseAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the test database
+await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;listing-the-databases&#34;&gt;Listing the databases&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+&#34;&gt;&lt;code&gt;ListDatabasesAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.ListDatabaseAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;collections&#34;&gt;Collections&lt;/h2&gt;
+
+&lt;p&gt;These operations exists on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-a-collection&#34;&gt;Getting a collection&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/bson_document/&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; which provides no schema enforcement or a &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/&#34;&gt;mapped class (POCO)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// gets a collection named &amp;quot;foo&amp;quot; using a BsonDocument
+var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;foo&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For more information on working with collections, see the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/crud/&#34;&gt;CRUD Operations section&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-a-collection&#34;&gt;Creating a collection&lt;/h3&gt;
+
+&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method allows you to specify not only a name, but also &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateCollectionOptions.htm
+&#34;&gt;&lt;code&gt;CreateCollectionOptions&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// creates a capped collection named &amp;quot;foo&amp;quot; with a maximum size of 10,000 bytes
+await db.CreateCollectionAsync(
+    &amp;quot;foo&amp;quot;, 
+    new CreateCollectionOptions
+    {
+        Capped = true,
+        MaxSize = 10000
+    });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-a-collection&#34;&gt;Dropping a collection&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+&#34;&gt;&lt;code&gt;DropCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the &amp;quot;foo&amp;quot; collection
+await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;listing-the-collections&#34;&gt;Listing the collections&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
+&#34;&gt;&lt;code&gt;ListCollectionsAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await db.ListCollectionsAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;renaming-a-collection&#34;&gt;Renaming a collection&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
+&#34;&gt;&lt;code&gt;RenameCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// rename the &amp;quot;foo&amp;quot; collection to &amp;quot;bar&amp;quot;
+await db.RenameCollectionAsync(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;indexes&#34;&gt;Indexes&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
+&#34;&gt;&lt;code&gt;Indexes&lt;/code&gt;&lt;/a&gt; property which gives access to all the index-related operations for a collection.&lt;/p&gt;
+
+&lt;p&gt;A number of the methods take an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. See the documentation on the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/definitions/#index-keys &#34;&gt;index keys builder&lt;/a&gt; for more information.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-an-index&#34;&gt;Creating an index&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
+&#34;&gt;&lt;code&gt;CreateOneAsync&lt;/code&gt;&lt;/a&gt; to create a single index. For instance, to create an ascending index on the &amp;ldquo;x&amp;rdquo; and &amp;ldquo;y&amp;rdquo; fields,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1, y: 1}&amp;quot;);
+
+// or
+
+await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;x&amp;quot;, 1).Add(&amp;quot;y&amp;quot;, 1));
+
+// or
+
+await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;x&amp;quot;).Ascending(&amp;quot;y&amp;quot;));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateIndexOptions.htm
+&#34;&gt;&lt;code&gt;CreateIndexOptions&lt;/code&gt;&lt;/a&gt; parameter. For instance, to create a unique ascending index on &amp;ldquo;x&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1}&amp;quot;, new CreateIndexOptions { Unique = true });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-an-index&#34;&gt;Dropping an index&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
+&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; to drop a single index or the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
+&#34;&gt;&lt;code&gt;DropAllAsync&lt;/code&gt;&lt;/a&gt; to drop all indexes.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop the index named &amp;quot;x_1&amp;quot;;
+await collection.Indexes.DropOneAsync(&amp;quot;x_1&amp;quot;);
+
+// drop all indexes
+await collection.Indexes.DropAllAsync();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;listing-indexes&#34;&gt;Listing indexes&lt;/h3&gt;
+
+&lt;p&gt;To see all the indexes in a collection, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+&#34;&gt;&lt;code&gt;ListAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using(var cursor = await collection.Indexes.ListAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list...
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Issues &amp; Help</title>
@@ -35,7 +214,46 @@
     </item>
     
     <item>
-      <title>Connecting to the Server</title>
+      <title>Getting Started</title>
+      <link>/mongo-csharp-driver/2.0/getting_started/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.0/getting_started/</guid>
+      <description>
+
+&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
+
+&lt;p&gt;This quick-start privides just enough information to get you started using the .NET driver. Refer to the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/&#34;&gt;reference guide&lt;/a&gt; for more complete information.&lt;/p&gt;
+
+&lt;h2 id=&#34;system-requirements&#34;&gt;System Requirements&lt;/h2&gt;
+
+&lt;p&gt;.NET 4.5 or later is required to utilize the libraries. It has also been tested with Mono 3.10 on OS X.&lt;/p&gt;
+
+&lt;h3 id=&#34;core-clr&#34;&gt;Core CLR&lt;/h3&gt;
+
+&lt;p&gt;As the Core CLR hasn&amp;rsquo;t shipped yet, we don&amp;rsquo;t yet have support for it. We run compatibility reports using the &lt;a href=&#34;https://visualstudiogallery.msdn.microsoft.com/1177943e-cfb7-4822-a8a6-e56c7905292b&#34;&gt;.NET Portability Analyzer&lt;/a&gt; to mitigate the need to make public API changes when we are ready to release compatible assemblies.&lt;/p&gt;
+
+&lt;h2 id=&#34;nuget-installation&#34;&gt;Nuget Installation&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.nuget.org/&#34;&gt;Nuget&lt;/a&gt; is the simplest way to get the driver. There are 4 packages available on nuget.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver&#34;&gt;MongoDB.Driver&lt;/a&gt;: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver.core&#34;&gt;MongoDB.Driver.Core&lt;/a&gt;: The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.bson&#34;&gt;MongoDB.Bson&lt;/a&gt;: The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongocsharpdriver&#34;&gt;mongocsharpdriver&lt;/a&gt;: The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the &lt;a href=&#34;http://mongodb.github.io/mongo-csharp-driver/1.x&#34;&gt;1.x documentation&lt;/a&gt;;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;binary-installation&#34;&gt;Binary Installation&lt;/h2&gt;
+
+&lt;p&gt;Alternatively, if you&amp;rsquo;d like to pull down binaries, you can do that from the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/releases&#34;&gt;releases section&lt;/a&gt; on our &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver&#34;&gt;github repository&lt;/a&gt;, which contains zip files for each release.&lt;/p&gt;
+
+&lt;p&gt;The assembly names mostly correlate strongly with the package names above. For new applications, you&amp;rsquo;ll add references to &lt;code&gt;MongoDB.Driver.dll&lt;/code&gt;, &lt;code&gt;MongoDB.Driver.Core.dll&lt;/code&gt;, and &lt;code&gt;MongoDB.Bson.dll&lt;/code&gt;. For those working with legacy applications, you&amp;rsquo;ll also want to add a reference to &lt;code&gt;MongoDB.Driver.Legacy.dll&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Connecting</title>
       <link>/mongo-csharp-driver/2.0/getting_started/connecting/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
       
@@ -94,45 +312,6 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Again, as with database, there is no need to create a collection before it&amp;rsquo;s used. It will get created automatically.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Getting Started</title>
-      <link>/mongo-csharp-driver/2.0/getting_started/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.0/getting_started/</guid>
-      <description>
-
-&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
-
-&lt;p&gt;This quick-start privides just enough information to get you started using the .NET driver. Refer to the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/&#34;&gt;reference guide&lt;/a&gt; for more complete information.&lt;/p&gt;
-
-&lt;h2 id=&#34;system-requirements&#34;&gt;System Requirements&lt;/h2&gt;
-
-&lt;p&gt;.NET 4.5 or later is required to utilize the libraries. It has also been tested with Mono 3.10 on OS X.&lt;/p&gt;
-
-&lt;h3 id=&#34;core-clr&#34;&gt;Core CLR&lt;/h3&gt;
-
-&lt;p&gt;As the Core CLR hasn&amp;rsquo;t shipped yet, we don&amp;rsquo;t yet have support for it. We run compatibility reports using the &lt;a href=&#34;https://visualstudiogallery.msdn.microsoft.com/1177943e-cfb7-4822-a8a6-e56c7905292b&#34;&gt;.NET Portability Analyzer&lt;/a&gt; to mitigate the need to make public API changes when we are ready to release compatible assemblies.&lt;/p&gt;
-
-&lt;h2 id=&#34;nuget-installation&#34;&gt;Nuget Installation&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.nuget.org/&#34;&gt;Nuget&lt;/a&gt; is the simplest way to get the driver. There are 4 packages available on nuget.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver&#34;&gt;MongoDB.Driver&lt;/a&gt;: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver.core&#34;&gt;MongoDB.Driver.Core&lt;/a&gt;: The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.bson&#34;&gt;MongoDB.Bson&lt;/a&gt;: The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongocsharpdriver&#34;&gt;mongocsharpdriver&lt;/a&gt;: The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the &lt;a href=&#34;http://mongodb.github.io/mongo-csharp-driver/1.x&#34;&gt;1.x documentation&lt;/a&gt;;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;binary-installation&#34;&gt;Binary Installation&lt;/h2&gt;
-
-&lt;p&gt;Alternatively, if you&amp;rsquo;d like to pull down binaries, you can do that from the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/releases&#34;&gt;releases section&lt;/a&gt; on our &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver&#34;&gt;github repository&lt;/a&gt;, which contains zip files for each release.&lt;/p&gt;
-
-&lt;p&gt;The assembly names mostly correlate strongly with the package names above. For new applications, you&amp;rsquo;ll add references to &lt;code&gt;MongoDB.Driver.dll&lt;/code&gt;, &lt;code&gt;MongoDB.Driver.Core.dll&lt;/code&gt;, and &lt;code&gt;MongoDB.Bson.dll&lt;/code&gt;. For those working with legacy applications, you&amp;rsquo;ll also want to add a reference to &lt;code&gt;MongoDB.Driver.Legacy.dll&lt;/code&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -254,6 +433,114 @@ Identifiers in MongoDB are immutable, so you can&amp;rsquo;t replace a document 
 &lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
 
 &lt;p&gt;If you are looking for more detailed documentation, see the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/&#34;&gt;Reference&lt;/a&gt; guide.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>BSON/JSON</title>
+      <link>/mongo-csharp-driver/2.0/reference/bson/bson/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.0/reference/bson/bson/</guid>
+      <description>
+
+&lt;h2 id=&#34;reading&#34;&gt;Reading&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonReader.htm
+&#34;&gt;&lt;code&gt;IBsonReader&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to read a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
+
+&lt;h3 id=&#34;bson&#34;&gt;BSON&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryReader.htm
+&#34;&gt;&lt;code&gt;BsonBinaryReader&lt;/code&gt;&lt;/a&gt; is for reading binary BSON. For example, to read a BSON file containing the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize to a file containing BSON
+
+using (var stream = File.OpenRead(inputFileName))
+using (var reader = new BsonBinaryReader(stream))
+{
+    reader.ReadStartDocument();
+    string fieldName = reader.ReadName();
+    int value = reader.ReadInt32();
+    reader.ReadEndDocument();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;json&#34;&gt;JSON&lt;/h3&gt;
+
+&lt;p&gt;In the same way, we can read a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt;. For example, to read the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var jsonString = &amp;quot;{ a: 1 }&amp;quot;;
+using (var reader = new JsonReader(jsonString))
+{
+    reader.ReadStartDocument();
+    string fieldName = reader.ReadName();
+    int value = reader.ReadInt32();
+    reader.ReadEndDocument();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; supports reading strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;writing&#34;&gt;Writing&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonWriter.htm
+&#34;&gt;&lt;code&gt;IBsonWriter&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to write a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
+
+&lt;h3 id=&#34;bson-1&#34;&gt;BSON&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryWriter.htm
+&#34;&gt;&lt;code&gt;BsonBinaryWriter&lt;/code&gt;&lt;/a&gt; is for writing binary BSON. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt; to a BSON file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
+
+using (var stream = File.OpenWrite(outputFileName))
+using (var writer = new BsonBinaryWriter(stream))
+{
+    writer.WriteStartDocument();
+    writer.WriteName(&amp;quot;a&amp;quot;);
+    writer.WriteInt32(1);
+    writer.WriteEndDocument();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;json-1&#34;&gt;JSON&lt;/h3&gt;
+
+&lt;p&gt;In the same way, we can write a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt;. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
+
+using (var output = new StreamWriter(outputFileName))
+using (var writer = new JsonWriter(output))
+{
+    writer.WriteStartDocument();
+    writer.WriteName(&amp;quot;a&amp;quot;);
+    writer.WriteInt32(1);
+    writer.WriteEndDocument();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;settings&#34;&gt;Settings&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; supports writing strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;MongoDB Extended JSON&lt;/a&gt;. This, and other things, can be customized with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriterSettings.htm
+&#34;&gt;&lt;code&gt;JsonWriterSettings&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
+
+&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
+&#34;&gt;&lt;code&gt;OutputMode&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;Shell&lt;/code&gt; and also set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion.htm
+&#34;&gt;&lt;code&gt;ShellVersion&lt;/code&gt;&lt;/a&gt; to the desired shell version.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new JsonWriterSettings
+{
+    OutputMode = JsonOutputMode.Shell,
+    ShellVersion = new Version(3.0) // target the syntax of MongoDB 3.0
+};
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -1208,211 +1495,6 @@ BsonClassMap.RegisterClassMap&amp;lt;Tiger&amp;gt;();
     </item>
     
     <item>
-      <title>Handling Schema Changes</title>
-      <link>/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/</guid>
-      <description>
-
-&lt;h2 id=&#34;handling-schema-changes&#34;&gt;Handling Schema Changes&lt;/h2&gt;
-
-&lt;p&gt;Just because MongoDB is schema-less does not mean that your code can handle a schema-less document. Most likely, if you are using a statically typed language like C# or VB.NET, then your code is not flexible and needs to be mapped to a known schema.&lt;/p&gt;
-
-&lt;p&gt;There are a number of different ways that a schema can change from one version of your application to the next.&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;a href=&#34;#a-member-has-been-added&#34;&gt;A new member is added&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#a-member-has-been-removed&#34;&gt;A member is removed&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#a-member-has-been-renamed&#34;&gt;A member is renamed&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#the-type-of-a-member-is-changed&#34;&gt;The type of a member is changed&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#the-representation-of-a-member-is-changed&#34;&gt;The representation of a member is changed&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;How you handle these is up to you. There are two different strategies:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Write an upgrade script.&lt;/li&gt;
-&lt;li&gt;Incrementally update your documents as they are used.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;The easiest strategy is to write an upgrade script. There is effectively no difference to this method between a relational database (SQL Server, Oracle) and MongoDB. Identify the documents that need to be changed and update them.&lt;/p&gt;
-
-&lt;p&gt;Alternatively, and not supportable in most relational databases, is the incremental upgrade. The idea is that your documents get updated as they are used. Documents that are never used never get updated. Because of this, there are some definite pitfalls you will need to be aware of.&lt;/p&gt;
-
-&lt;p&gt;First, queries against a schema where half the documents are version 1 and half the documents are version 2 could go awry. For instance, if you rename an element, then your query will need to test both the old element name and the new element name to get all the results.&lt;/p&gt;
-
-&lt;p&gt;Second, any incremental upgrade code must stay in the code-base until all the documents have been upgraded. For instance, if there have been 3 versions of a document, [1, 2, and 3] and we remove the upgrade code from version 1 to version 2, any documents that still exist as version 1 are un-upgradeable.&lt;/p&gt;
-
-&lt;h2 id=&#34;a-member-has-been-added&#34;&gt;A Member Has Been Added&lt;/h2&gt;
-
-&lt;p&gt;When a new member is added to an entity, there is nothing that needs to be done other than restarting the application if you are using the auto mapping features. If not, then you will manually need to map the member in the same way all the other members are getting mapped.&lt;/p&gt;
-
-&lt;p&gt;Existing documents will not have this element and it will show up in your class with its default value. You can, of course, specify a default value.&lt;/p&gt;
-
-&lt;h2 id=&#34;a-member-has-been-removed&#34;&gt;A Member Has Been Removed&lt;/h2&gt;
-
-&lt;p&gt;When a member has been removed from am entity, it will continue to exist in the documents. The serializer will throw an exception when this element is seen because it doesn’t know what to do with it. See the sections on &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#supporting-extra-elements&#34;&gt;supporting extra elements&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#ignoring-extra-elements&#34;&gt;ignoring extra elements&lt;/a&gt; for information on how to deal with this.&lt;/p&gt;
-
-&lt;h2 id=&#34;a-member-has-been-renamed&#34;&gt;A Member Has Been Renamed&lt;/h2&gt;
-
-&lt;p&gt;When a member has been renamed, it will exist in old documents with the old name and in new documents with the new name. The way to handle incremental upgrades for this rename would be to implement an &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#supporting-extra-elements&#34;&gt;ExtraElements&lt;/a&gt; member in conjunction with &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#issuportinitialize&#34;&gt;ISupportInitialize&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example, let’s say that a class used to have a &lt;code&gt;Name&lt;/code&gt; property which has now been split into a &lt;code&gt;FirstName&lt;/code&gt; and a &lt;code&gt;LastName&lt;/code&gt; property.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass : ISupportInitialize 
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-
-    [BsonExtraElements]
-    public IDictionary&amp;lt;string, object&amp;gt; ExtraElements { get; set; }
-
-    void ISupportInitialize.BeginInit() 
-    {
-        // nothing to do at beginning
-    }
-
-    void ISupportInitialize.EndInit() 
-    {
-        object nameValue;
-        if (!ExtraElements.TryGetValue(&amp;quot;Name&amp;quot;, out nameValue)) {
-            return;
-        }
-
-        var name = (string)nameValue;
-
-        // remove the Name element so that it doesn&#39;t get persisted back to the database
-        ExtraElements.Remove(&amp;quot;Name&amp;quot;);
-
-        // assuming all names are &amp;quot;First Last&amp;quot;
-        var nameParts = name.Split(&#39; &#39;);
-
-        FirstName = nameParts[0];
-        LastName = nameParts[1];
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;the-type-of-a-member-is-changed&#34;&gt;The Type of a Member Is Changed&lt;/h2&gt;
-
-&lt;p&gt;If the .NET type is compatible with the old type (an integer is changed to a double), then everything will continue to work. Otherwise, a custom serializer or a migration script will be required.&lt;/p&gt;
-
-&lt;h2 id=&#34;the-representation-of-a-member-is-changed&#34;&gt;The Representation of a Member Is Changed&lt;/h2&gt;
-
-&lt;p&gt;If the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#representation&#34;&gt;representation of a member&lt;/a&gt; is changed and the representations are compatible, then everything will continue to work. Otherwise, a custom serializer or a migration script will be required.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Reading and Writing BSON/JSON</title>
-      <link>/mongo-csharp-driver/2.0/reference/bson/bson/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.0/reference/bson/bson/</guid>
-      <description>
-
-&lt;h2 id=&#34;reading&#34;&gt;Reading&lt;/h2&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonReader.htm
-&#34;&gt;&lt;code&gt;IBsonReader&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to read a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
-
-&lt;h3 id=&#34;bson&#34;&gt;BSON&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryReader.htm
-&#34;&gt;&lt;code&gt;BsonBinaryReader&lt;/code&gt;&lt;/a&gt; is for reading binary BSON. For example, to read a BSON file containing the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize to a file containing BSON
-
-using (var stream = File.OpenRead(inputFileName))
-using (var reader = new BsonBinaryReader(stream))
-{
-    reader.ReadStartDocument();
-    string fieldName = reader.ReadName();
-    int value = reader.ReadInt32();
-    reader.ReadEndDocument();
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;json&#34;&gt;JSON&lt;/h3&gt;
-
-&lt;p&gt;In the same way, we can read a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
-&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt;. For example, to read the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var jsonString = &amp;quot;{ a: 1 }&amp;quot;;
-using (var reader = new JsonReader(jsonString))
-{
-    reader.ReadStartDocument();
-    string fieldName = reader.ReadName();
-    int value = reader.ReadInt32();
-    reader.ReadEndDocument();
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
-&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; supports reading strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
-&#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;writing&#34;&gt;Writing&lt;/h2&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonWriter.htm
-&#34;&gt;&lt;code&gt;IBsonWriter&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to write a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
-
-&lt;h3 id=&#34;bson-1&#34;&gt;BSON&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryWriter.htm
-&#34;&gt;&lt;code&gt;BsonBinaryWriter&lt;/code&gt;&lt;/a&gt; is for writing binary BSON. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt; to a BSON file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
-
-using (var stream = File.OpenWrite(outputFileName))
-using (var writer = new BsonBinaryWriter(stream))
-{
-    writer.WriteStartDocument();
-    writer.WriteName(&amp;quot;a&amp;quot;);
-    writer.WriteInt32(1);
-    writer.WriteEndDocument();
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;json-1&#34;&gt;JSON&lt;/h3&gt;
-
-&lt;p&gt;In the same way, we can write a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt;. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
-
-using (var output = new StreamWriter(outputFileName))
-using (var writer = new JsonWriter(output))
-{
-    writer.WriteStartDocument();
-    writer.WriteName(&amp;quot;a&amp;quot;);
-    writer.WriteInt32(1);
-    writer.WriteEndDocument();
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;settings&#34;&gt;Settings&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; supports writing strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
-&#34;&gt;MongoDB Extended JSON&lt;/a&gt;. This, and other things, can be customized with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriterSettings.htm
-&#34;&gt;&lt;code&gt;JsonWriterSettings&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
-
-&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
-&#34;&gt;&lt;code&gt;OutputMode&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;Shell&lt;/code&gt; and also set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion.htm
-&#34;&gt;&lt;code&gt;ShellVersion&lt;/code&gt;&lt;/a&gt; to the desired shell version.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new JsonWriterSettings
-{
-    OutputMode = JsonOutputMode.Shell,
-    ShellVersion = new Version(3.0) // target the syntax of MongoDB 3.0
-};
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Serialization</title>
       <link>/mongo-csharp-driver/2.0/reference/bson/serialization/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
@@ -1618,6 +1700,103 @@ class MyClassSerializer : SerializerBase&amp;lt;MyClass&amp;gt;, IBsonDocumentSe
     </item>
     
     <item>
+      <title>Handling Schema Changes</title>
+      <link>/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/</guid>
+      <description>
+
+&lt;h2 id=&#34;handling-schema-changes&#34;&gt;Handling Schema Changes&lt;/h2&gt;
+
+&lt;p&gt;Just because MongoDB is schema-less does not mean that your code can handle a schema-less document. Most likely, if you are using a statically typed language like C# or VB.NET, then your code is not flexible and needs to be mapped to a known schema.&lt;/p&gt;
+
+&lt;p&gt;There are a number of different ways that a schema can change from one version of your application to the next.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#a-member-has-been-added&#34;&gt;A new member is added&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#a-member-has-been-removed&#34;&gt;A member is removed&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#a-member-has-been-renamed&#34;&gt;A member is renamed&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#the-type-of-a-member-is-changed&#34;&gt;The type of a member is changed&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#the-representation-of-a-member-is-changed&#34;&gt;The representation of a member is changed&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;How you handle these is up to you. There are two different strategies:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Write an upgrade script.&lt;/li&gt;
+&lt;li&gt;Incrementally update your documents as they are used.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The easiest strategy is to write an upgrade script. There is effectively no difference to this method between a relational database (SQL Server, Oracle) and MongoDB. Identify the documents that need to be changed and update them.&lt;/p&gt;
+
+&lt;p&gt;Alternatively, and not supportable in most relational databases, is the incremental upgrade. The idea is that your documents get updated as they are used. Documents that are never used never get updated. Because of this, there are some definite pitfalls you will need to be aware of.&lt;/p&gt;
+
+&lt;p&gt;First, queries against a schema where half the documents are version 1 and half the documents are version 2 could go awry. For instance, if you rename an element, then your query will need to test both the old element name and the new element name to get all the results.&lt;/p&gt;
+
+&lt;p&gt;Second, any incremental upgrade code must stay in the code-base until all the documents have been upgraded. For instance, if there have been 3 versions of a document, [1, 2, and 3] and we remove the upgrade code from version 1 to version 2, any documents that still exist as version 1 are un-upgradeable.&lt;/p&gt;
+
+&lt;h2 id=&#34;a-member-has-been-added&#34;&gt;A Member Has Been Added&lt;/h2&gt;
+
+&lt;p&gt;When a new member is added to an entity, there is nothing that needs to be done other than restarting the application if you are using the auto mapping features. If not, then you will manually need to map the member in the same way all the other members are getting mapped.&lt;/p&gt;
+
+&lt;p&gt;Existing documents will not have this element and it will show up in your class with its default value. You can, of course, specify a default value.&lt;/p&gt;
+
+&lt;h2 id=&#34;a-member-has-been-removed&#34;&gt;A Member Has Been Removed&lt;/h2&gt;
+
+&lt;p&gt;When a member has been removed from am entity, it will continue to exist in the documents. The serializer will throw an exception when this element is seen because it doesn’t know what to do with it. See the sections on &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#supporting-extra-elements&#34;&gt;supporting extra elements&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#ignoring-extra-elements&#34;&gt;ignoring extra elements&lt;/a&gt; for information on how to deal with this.&lt;/p&gt;
+
+&lt;h2 id=&#34;a-member-has-been-renamed&#34;&gt;A Member Has Been Renamed&lt;/h2&gt;
+
+&lt;p&gt;When a member has been renamed, it will exist in old documents with the old name and in new documents with the new name. The way to handle incremental upgrades for this rename would be to implement an &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#supporting-extra-elements&#34;&gt;ExtraElements&lt;/a&gt; member in conjunction with &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#issuportinitialize&#34;&gt;ISupportInitialize&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For example, let’s say that a class used to have a &lt;code&gt;Name&lt;/code&gt; property which has now been split into a &lt;code&gt;FirstName&lt;/code&gt; and a &lt;code&gt;LastName&lt;/code&gt; property.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass : ISupportInitialize 
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+
+    [BsonExtraElements]
+    public IDictionary&amp;lt;string, object&amp;gt; ExtraElements { get; set; }
+
+    void ISupportInitialize.BeginInit() 
+    {
+        // nothing to do at beginning
+    }
+
+    void ISupportInitialize.EndInit() 
+    {
+        object nameValue;
+        if (!ExtraElements.TryGetValue(&amp;quot;Name&amp;quot;, out nameValue)) {
+            return;
+        }
+
+        var name = (string)nameValue;
+
+        // remove the Name element so that it doesn&#39;t get persisted back to the database
+        ExtraElements.Remove(&amp;quot;Name&amp;quot;);
+
+        // assuming all names are &amp;quot;First Last&amp;quot;
+        var nameParts = name.Split(&#39; &#39;);
+
+        FirstName = nameParts[0];
+        LastName = nameParts[1];
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;the-type-of-a-member-is-changed&#34;&gt;The Type of a Member Is Changed&lt;/h2&gt;
+
+&lt;p&gt;If the .NET type is compatible with the old type (an integer is changed to a double), then everything will continue to work. Otherwise, a custom serializer or a migration script will be required.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-representation-of-a-member-is-changed&#34;&gt;The Representation of a Member Is Changed&lt;/h2&gt;
+
+&lt;p&gt;If the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#representation&#34;&gt;representation of a member&lt;/a&gt; is changed and the representations are compatible, then everything will continue to work. Otherwise, a custom serializer or a migration script will be required.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Authentication</title>
       <link>/mongo-csharp-driver/2.0/reference/driver/authentication/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
@@ -1776,160 +1955,6 @@ Note that the username will need to have a REALM associated with it. When used i
 Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
 &lt;/div&gt;
 &lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Connecting</title>
-      <link>/mongo-csharp-driver/2.0/reference/driver/connecting/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.0/reference/driver/connecting/</guid>
-      <description>
-
-&lt;h2 id=&#34;connection-string&#34;&gt;Connection String&lt;/h2&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; is the simplest way to connect to one or more MongoDB servers. A connection string mostly follows &lt;a href=&#34;http://tools.ietf.org/html/rfc3986&#34;&gt;RFC 3986&lt;/a&gt; with the exception of the domain name. For MongoDB, it is possible to list multiple domain names separated by a comma. Below are some example connection strings&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;For a standalone mongod, mongos, or a direct connection to a member of a replica set:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;To connect to multiple mongos or a replica set:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host1:27017,host2:27017
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/authentication/&#34;&gt;authentication guide&lt;/a&gt; contains information on how to provide credentials.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
-When connecting to a replica set, it is highly suggested that you include the replica set name as a connection string option. This will allow the driver to skip the cluster discovery step and ensure that all hosts on the seedlist are connecting to the intended replica set.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;the-database-component&#34;&gt;The Database Component&lt;/h3&gt;
-
-&lt;p&gt;The database component is optional and is used to indicate which database to authenticate against. When the database component is not provided, the &amp;ldquo;admin&amp;rdquo; database is used.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017/mydb
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, the database by the name of &amp;ldquo;mydb&amp;rdquo; is where the credentials are stored for the application.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Some drivers utilize the database component to indicate which database to work with by default. The .NET driver, while it parses the database component, does not use the database component for anything other than authentication.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
-
-&lt;p&gt;Many options can be provided via the connection string. The ones that cannot may be provided in a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; object. To provide an option on the connection string, append a &lt;code&gt;?&lt;/code&gt; and separate multiple options by an &lt;code&gt;&amp;amp;&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017/?replicaSet=rs0&amp;amp;uuidRepresentation=standard
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The above connection string sets the &lt;code&gt;replicaSet&lt;/code&gt; value to &lt;code&gt;rs0&lt;/code&gt; and the &lt;code&gt;uuidRepresentation&lt;/code&gt; to &lt;code&gt;standard&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;For a comprehensive list of the available options, see the MongoDB &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; documentation.&lt;/p&gt;
-
-&lt;h2 id=&#34;mongo-client&#34;&gt;Mongo Client&lt;/h2&gt;
-
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance will connect to &amp;ldquo;localhost&amp;rdquo; port 27017.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var client = new MongoClient();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Alternatively, a connection string may be provided:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var client = new MongoClient(&amp;quot;mongodb://host:27017,host2:27017/?replicaSet=rs0&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Finally, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; provides an in code way to set the same options.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var settings = new MongoClientSettings { ReplicaSetName = &amp;quot;rs0&amp;quot; };
-var client = new MongoClient(settings);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;re-use&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;It is recommended to store a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance in a global place, either as a static variable or in an IoC container with a singleton lifetime.&lt;/p&gt;
-
-&lt;p&gt;However, multiple &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
-&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property is a delegate and only its address is known for comparison. If you wish to construct multiple &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClients&lt;/code&gt;&lt;/a&gt;, ensure that your delegates are all using the same address if the intent is to share connection pools.&lt;/p&gt;
-
-&lt;h3 id=&#34;monitoring&#34;&gt;Monitoring&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; utilizes an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
-&#34;&gt;&lt;code&gt;ICluster&lt;/code&gt;&lt;/a&gt; from &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;MongoDB.Driver.Core&lt;/a&gt; which handles monitoring the cluster.&lt;/p&gt;
-
-&lt;h2 id=&#34;mongo-database&#34;&gt;Mongo Database&lt;/h2&gt;
-
-&lt;p&gt;An &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; represents a database in a MongoDB server. Databases are retrieved from an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
-&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; instance using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
-&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var db = client.GetDatabase(&amp;quot;hr&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, we have gotten the &amp;ldquo;hr&amp;rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
-&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
-
-&lt;h3 id=&#34;re-use-1&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;The implementation of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; provided by a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
-
-&lt;h3 id=&#34;mongo-collection&#34;&gt;Mongo Collection&lt;/h3&gt;
-
-&lt;p&gt;An &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; represents a collection in a MongoDB database. Collections are retrieved from an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;people&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, we have gotten the &amp;ldquo;people&amp;rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
-
-&lt;p&gt;The generic parameter &lt;code&gt;TDocument&lt;/code&gt; is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;BSON library&lt;/a&gt; to handle this mapping. The most common types you will use are:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Custom Class - useful for representing known schemas. See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/&#34;&gt;mapping section&lt;/a&gt; for more information. The majority of applications will not work with dynamic schemas, but rather with something more rigid. In addition, if you work in a static language, it is nice to work with static types that provide compile time type checking.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; - useful for representing dynamic schemas.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;It is possible to mix both these models by utilizing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; inside your custom class.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;A majority of the methods and extension methods for an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; utilize the &lt;code&gt;TDocument&lt;/code&gt; generic parameter in some fashion.&lt;/p&gt;
-
-&lt;h3 id=&#34;re-use-2&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;The implementation of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; ultimately provided by a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
 </description>
     </item>
     

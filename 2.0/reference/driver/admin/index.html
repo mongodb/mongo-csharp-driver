@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/mongo-csharp-driver/2.0/img/favicon.png">
 
-    <title>Issues &amp; Help</title>
+    <title>Administration</title>
 
     <link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
 <link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
@@ -643,140 +643,47 @@
 
 
   
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
 
   
     
     
+    
       
       
+      
         
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
+      
+    
+    
+  
   
 
 
         
-          
-        
       
     
       
       
         
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
       
     
-    
-      
     
   
 
 
         
-          
-        
-      
-    
-    
-      
-    
-  
-
-
-        
-          
-        
       
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
     
-    
-      
     
   
 
@@ -823,17 +730,6 @@
 
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-    
   
 
 
@@ -1006,16 +902,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l1 ">
+
+<li class="toctree-l1  current">
   <a href="/mongo-csharp-driver/2.0/reference/" class="">
       <i class='fa fa-book'></i>
       <span>Reference</span>
-      <span class="menu-arrow fa fa-angle-right"></span>
+      <span class="menu-arrow fa fa-angle-down"></span>
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1273,16 +1171,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l2 ">
+
+<li class="toctree-l2  current">
   <a href="/mongo-csharp-driver/2.0/reference/driver/" class="">
       <i class='fa'></i>
       <span>Driver</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1452,6 +1352,8 @@
 
 
 
+
+  
 
 
 
@@ -1666,8 +1568,6 @@
 
 
 
-  
-
 
 
 
@@ -1728,7 +1628,7 @@
 
 
    
-<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/issues_help.md" target="_blank" title="Edit issues_help.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cadmin.md" target="_blank" title="Edit reference\driver\admin.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
 
 
 
@@ -1745,29 +1645,183 @@
   
   
   
-  
-  
-  <li>Issues &amp; Help</li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li>Administration</li>
 </ul>
 </div>
 
 
 
 
-<h2 id="questions">Questions</h2>
+<h2 id="adminstration">Adminstration</h2>
 
-<ul>
-<li><a href="http://groups.google.com/group/mongodb-user">Discussion Forum</a></li>
-<li><a href="http://stackoverflow.com/questions/tagged/mongodb">Stackoverflow</a></li>
-</ul>
+<p>The administration operations exist in multiple places in the driver&rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&rsquo;t a method for the admin operation you want to use, the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+"><code>RunCommandAsync</code></a> method on <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> is available.</p>
 
-<h2 id="bug-reports">Bug Reports</h2>
+<h2 id="databases">Databases</h2>
 
-<ul>
-<li><a href="https://jira.mongodb.org/browse/CSHARP">JIRA</a></li>
-</ul>
+<p>These operations exist on the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
+"><code>IMongoClient</code></a> interface.</p>
 
-<p>If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the <a href="http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report">instructions here</a>.</p>
+<h3 id="getting-a-database">Getting a database</h3>
+
+<p>To get a database, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+"><code>GetDatabase</code></a>.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>There is no command for creating a database. The database will be created the first time it is used.</p>
+
+</div>
+</p>
+
+<pre><code class="language-csharp">// get the test database
+var db = client.GetDatabase(&quot;test&quot;);
+</code></pre>
+
+<h3 id="dropping-a-database">Dropping a database</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+"><code>DropDatabaseAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">// drops the test database
+await client.DropDatabaseAsync(&quot;test&quot;);
+</code></pre>
+
+<h3 id="listing-the-databases">Listing the databases</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+"><code>ListDatabasesAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">using (var cursor = await client.ListDatabaseAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list
+}
+</code></pre>
+
+<h2 id="collections">Collections</h2>
+
+<p>These operations exists on the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> interface.</p>
+
+<h3 id="getting-a-collection">Getting a collection</h3>
+
+<p>The <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+"><code>GetCollection&lt;TDocument&gt;</code></a> method returns an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a>.</p>
+
+<p>The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a <a href="/mongo-csharp-driver/2.0/reference/bson/bson_document/"><code>BsonDocument</code></a> which provides no schema enforcement or a <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapped class (POCO)</a>.</p>
+
+<pre><code class="language-csharp">// gets a collection named &quot;foo&quot; using a BsonDocument
+var collection = db.GetCollection&lt;BsonDocument&gt;(&quot;foo&quot;);
+</code></pre>
+
+<p>For more information on working with collections, see the <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">CRUD Operations section</a>.</p>
+
+<h3 id="creating-a-collection">Creating a collection</h3>
+
+<p>Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+"><code>CreateCollectionAsync</code></a> method allows you to specify not only a name, but also <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateCollectionOptions.htm
+"><code>CreateCollectionOptions</code></a>.</p>
+
+<pre><code class="language-csharp">// creates a capped collection named &quot;foo&quot; with a maximum size of 10,000 bytes
+await db.CreateCollectionAsync(
+    &quot;foo&quot;, 
+    new CreateCollectionOptions
+    {
+        Capped = true,
+        MaxSize = 10000
+    });
+</code></pre>
+
+<h3 id="dropping-a-collection">Dropping a collection</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+"><code>DropCollectionAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">// drops the &quot;foo&quot; collection
+await db.DropCollectionAsync(&quot;test&quot;);
+</code></pre>
+
+<h3 id="listing-the-collections">Listing the collections</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
+"><code>ListCollectionsAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">using (var cursor = await db.ListCollectionsAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list
+}
+</code></pre>
+
+<h3 id="renaming-a-collection">Renaming a collection</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
+"><code>RenameCollectionAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">// rename the &quot;foo&quot; collection to &quot;bar&quot;
+await db.RenameCollectionAsync(&quot;foo&quot;, &quot;bar&quot;);
+</code></pre>
+
+<h2 id="indexes">Indexes</h2>
+
+<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;T&gt;</code></a> contains an <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
+"><code>Indexes</code></a> property which gives access to all the index-related operations for a collection.</p>
+
+<p>A number of the methods take an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+"><code>IndexKeysDefinition&lt;TDocument&gt;</code></a>. See the documentation on the <a href="/mongo-csharp-driver/2.0/reference/driver/definitions/#index-keys ">index keys builder</a> for more information.</p>
+
+<h3 id="creating-an-index">Creating an index</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
+"><code>CreateOneAsync</code></a> to create a single index. For instance, to create an ascending index on the &ldquo;x&rdquo; and &ldquo;y&rdquo; fields,</p>
+
+<pre><code class="language-csharp">await collection.Indexes.CreateOneAsync(&quot;{x: 1, y: 1}&quot;);
+
+// or
+
+await collection.Indexes.CreateOneAsync(new BsonDocument(&quot;x&quot;, 1).Add(&quot;y&quot;, 1));
+
+// or
+
+await collection.Indexes.CreateOneAsync(Builders&lt;BsonDocument&gt;.IndexKeys.Ascending(&quot;x&quot;).Ascending(&quot;y&quot;));
+</code></pre>
+
+<p>In addition, there are a number of options available when creating index. These are present on the optional <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateIndexOptions.htm
+"><code>CreateIndexOptions</code></a> parameter. For instance, to create a unique ascending index on &ldquo;x&rdquo;:</p>
+
+<pre><code class="language-csharp">await collection.Indexes.CreateOneAsync(&quot;{x: 1}&quot;, new CreateIndexOptions { Unique = true });
+</code></pre>
+
+<h3 id="dropping-an-index">Dropping an index</h3>
+
+<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
+"><code>DropOneAsync</code></a> to drop a single index or the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
+"><code>DropAllAsync</code></a> to drop all indexes.</p>
+
+<pre><code class="language-csharp">// drop the index named &quot;x_1&quot;;
+await collection.Indexes.DropOneAsync(&quot;x_1&quot;);
+
+// drop all indexes
+await collection.Indexes.DropAllAsync();
+</code></pre>
+
+<h3 id="listing-indexes">Listing indexes</h3>
+
+<p>To see all the indexes in a collection, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+"><code>ListAsync</code></a> method.</p>
+
+<pre><code class="language-csharp">using(var cursor = await collection.Indexes.ListAsync())
+{
+    var list = await cursor.ToListAsync();
+    // do something with the list...
+}
+</code></pre>
 
 
 
@@ -1776,6 +1830,17 @@
 
 <div id="btnv">
   
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.0/reference/driver/definitions/">
+      <i class="fa fa-long-arrow-left"> </i> Definitions and Builders
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.0/reference/driver/crud/">
+    Reading and Writing <i class="fa fa-long-arrow-right"> </i>
+  </a>
   
 </div>
 </div>
@@ -1791,8 +1856,27 @@
 <ul>
 <li>
 <ul>
-<li><a href="#questions">Questions</a></li>
-<li><a href="#bug-reports">Bug Reports</a></li>
+<li><a href="#adminstration">Adminstration</a></li>
+<li><a href="#databases">Databases</a>
+<ul>
+<li><a href="#getting-a-database">Getting a database</a></li>
+<li><a href="#dropping-a-database">Dropping a database</a></li>
+<li><a href="#listing-the-databases">Listing the databases</a></li>
+</ul></li>
+<li><a href="#collections">Collections</a>
+<ul>
+<li><a href="#getting-a-collection">Getting a collection</a></li>
+<li><a href="#creating-a-collection">Creating a collection</a></li>
+<li><a href="#dropping-a-collection">Dropping a collection</a></li>
+<li><a href="#listing-the-collections">Listing the collections</a></li>
+<li><a href="#renaming-a-collection">Renaming a collection</a></li>
+</ul></li>
+<li><a href="#indexes">Indexes</a>
+<ul>
+<li><a href="#creating-an-index">Creating an index</a></li>
+<li><a href="#dropping-an-index">Dropping an index</a></li>
+<li><a href="#listing-indexes">Listing indexes</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </nav>
