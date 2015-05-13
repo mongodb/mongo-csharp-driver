@@ -138,7 +138,7 @@ var filter = Builders<Post>.Filter.AnyEq(x => x.Tags, "mongodb");
 
 ## Pipelines
 
-A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument[]`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
+A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
 
 For example:
 
@@ -385,4 +385,61 @@ var update = builder.Set("X", 1).Set("Y", 3).Inc("Z", 1);
 // or
 
 var update = builder.Set("x", 1).Set("y", 3).Inc("z", 1);
+```
+
+
+## Index Keys
+
+[`IndexKeysDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_IndexKeysDefinition_1" >}}) defines the keys for index. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
+
+```csharp
+IndexKeysDefinition<BsonDocument> keys = "{ x: 1 }";
+
+// or
+
+IndexKeysDefinition<BsonDocument> keys = new BsonDocument("x", 1);
+```
+
+Both of these will render the keys `{ x: 1 }`.
+
+
+### Index Keys Definition Builder 
+
+_See the [tests]({{< srcref "MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs" >}}) for examples._
+
+The [`IndexKeysDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_IndexKeysDefinitionBuilder_1" >}}) provides a type-safe API to build an index keys definition.
+
+For example, to build up the keys `{ x: 1, y: -1 }`, do the following:
+
+```csharp
+var builder = Builders<BsonDocument>.IndexKeys;
+var keys = builder.Ascending("x").Descending("y");
+```
+
+Given the following class:
+
+```csharp
+class Widget
+{
+	[BsonElement("x")]
+	public int X { get; set; }
+
+	[BsonElement("y")]
+	public int Y { get; set; }
+}
+```
+
+We can achieve the same result in the typed variant:
+
+```csharp
+var builder = Builders<Widget>.IndexKeys;
+var keys = builder.Ascending(x => x.X).Descending(x => x.Y);
+
+// or
+
+var keys = builder.Ascending("X").Descending("Y");
+
+// or
+
+var keys = builder.Ascending("x").Descending("y");
 ```
