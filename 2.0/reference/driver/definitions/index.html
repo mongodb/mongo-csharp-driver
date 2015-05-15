@@ -157,6 +157,33 @@
         
       
     
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
     
       
     
@@ -727,9 +754,9 @@
 
 
     <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.0/getting_started/connecting/">
+    <a href="/mongo-csharp-driver/2.0/getting_started/installation/">
         <i class='fa'></i>
-        Connecting
+        Installation
     </a>
   </li>
 
@@ -756,9 +783,38 @@
 
 
     <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.0/getting_started/reading_and_writing/">
+    <a href="/mongo-csharp-driver/2.0/getting_started/quick_tour/">
         <i class='fa'></i>
-        Reading and Writing
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
     </a>
   </li>
 
@@ -1734,7 +1790,7 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 
 <p>A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>List&lt;BsonDocument&gt;</code></a>, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument[]</code></a>, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+"><code>BsonDocument</code></a>, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 "><code>List&lt;IPipelineStageDefinition&gt;</code></a> , and a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 "><code>IPipelineStageDefinition[]</code></a>.</p>
 
@@ -1991,6 +2047,61 @@ var update = builder.Set(&quot;X&quot;, 1).Set(&quot;Y&quot;, 3).Inc(&quot;Z&quo
 var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quot;, 1);
 </code></pre>
 
+<h2 id="index-keys">Index Keys</h2>
+
+<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+"><code>IndexKeysDefinition&lt;TDocument&gt;</code></a> defines the keys for index. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">IndexKeysDefinition&lt;BsonDocument&gt; keys = &quot;{ x: 1 }&quot;;
+
+// or
+
+IndexKeysDefinition&lt;BsonDocument&gt; keys = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the keys <code>{ x: 1 }</code>.</p>
+
+<h3 id="index-keys-definition-builder">Index Keys Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
+"><code>IndexKeysDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API to build an index keys definition.</p>
+
+<p>For example, to build up the keys <code>{ x: 1, y: -1 }</code>, do the following:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.IndexKeys;
+var keys = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>We can achieve the same result in the typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.IndexKeys;
+var keys = builder.Ascending(x =&gt; x.X).Descending(x =&gt; x.Y);
+
+// or
+
+var keys = builder.Ascending(&quot;X&quot;).Descending(&quot;Y&quot;);
+
+// or
+
+var keys = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
 
 
 
@@ -2053,6 +2164,10 @@ var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quo
 <li><a href="#updates">Updates</a>
 <ul>
 <li><a href="#update-definition-builder">Update Definition Builder</a></li>
+</ul></li>
+<li><a href="#index-keys">Index Keys</a>
+<ul>
+<li><a href="#index-keys-definition-builder">Index Keys Definition Builder</a></li>
 </ul></li>
 </ul></li>
 </ul>

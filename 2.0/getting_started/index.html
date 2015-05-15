@@ -260,9 +260,9 @@
 
 
     <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.0/getting_started/connecting/">
+    <a href="/mongo-csharp-driver/2.0/getting_started/installation/">
         <i class='fa'></i>
-        Connecting
+        Installation
     </a>
   </li>
 
@@ -289,9 +289,38 @@
 
 
     <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.0/getting_started/reading_and_writing/">
+    <a href="/mongo-csharp-driver/2.0/getting_started/quick_tour/">
         <i class='fa'></i>
-        Reading and Writing
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
     </a>
   </li>
 
@@ -1126,32 +1155,13 @@
 
 <h2 id="getting-started">Getting Started</h2>
 
-<p>This quick-start privides just enough information to get you started using the .NET driver. Refer to the <a href="/mongo-csharp-driver/2.0/reference/">reference guide</a> for more complete information.</p>
-
-<h2 id="system-requirements">System Requirements</h2>
-
-<p>.NET 4.5 or later is required to utilize the libraries. It has also been tested with Mono 3.10 on OS X.</p>
-
-<h3 id="core-clr">Core CLR</h3>
-
-<p>As the Core CLR hasn&rsquo;t shipped yet, we don&rsquo;t yet have support for it. We run compatibility reports using the <a href="https://visualstudiogallery.msdn.microsoft.com/1177943e-cfb7-4822-a8a6-e56c7905292b">.NET Portability Analyzer</a> to mitigate the need to make public API changes when we are ready to release compatible assemblies.</p>
-
-<h2 id="nuget-installation">Nuget Installation</h2>
-
-<p><a href="http://www.nuget.org/">Nuget</a> is the simplest way to get the driver. There are 4 packages available on nuget.</p>
+<p>To help you get started quickly on the new driver, follow:</p>
 
 <ul>
-<li><a href="http://www.nuget.org/packages/mongodb.driver">MongoDB.Driver</a>: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the <a href="/mongo-csharp-driver/2.0/reference/driver/">reference guide</a>.</li>
-<li><a href="http://www.nuget.org/packages/mongodb.driver.core">MongoDB.Driver.Core</a>: The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the <a href="/mongo-csharp-driver/2.0/reference/driver_core/">reference guide</a>.</li>
-<li><a href="http://www.nuget.org/packages/mongodb.bson">MongoDB.Bson</a>: The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the <a href="/mongo-csharp-driver/2.0/reference/bson/">reference guide</a>.</li>
-<li><a href="http://www.nuget.org/packages/mongocsharpdriver">mongocsharpdriver</a>: The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the <a href="http://mongodb.github.io/mongo-csharp-driver/1.x">1.x documentation</a>;</li>
+<li><a href="/mongo-csharp-driver/2.0/getting_started/installation/">Installation</a></li>
+<li><a href="/mongo-csharp-driver/2.0/getting_started/quick_tour/">Quick Tour</a></li>
+<li><a href="/mongo-csharp-driver/2.0/getting_started/admin_quick_tour/">Admin Quick Tour</a></li>
 </ul>
-
-<h2 id="binary-installation">Binary Installation</h2>
-
-<p>Alternatively, if you&rsquo;d like to pull down binaries, you can do that from the <a href="https://github.com/mongodb/mongo-csharp-driver/releases">releases section</a> on our <a href="https://github.com/mongodb/mongo-csharp-driver">github repository</a>, which contains zip files for each release.</p>
-
-<p>The assembly names mostly correlate strongly with the package names above. For new applications, you&rsquo;ll add references to <code>MongoDB.Driver.dll</code>, <code>MongoDB.Driver.Core.dll</code>, and <code>MongoDB.Bson.dll</code>. For those working with legacy applications, you&rsquo;ll also want to add a reference to <code>MongoDB.Driver.Legacy.dll</code>.</p>
 
 
 
@@ -1176,12 +1186,6 @@
 <li>
 <ul>
 <li><a href="#getting-started">Getting Started</a></li>
-<li><a href="#system-requirements">System Requirements</a>
-<ul>
-<li><a href="#core-clr">Core CLR</a></li>
-</ul></li>
-<li><a href="#nuget-installation">Nuget Installation</a></li>
-<li><a href="#binary-installation">Binary Installation</a></li>
 </ul></li>
 </ul>
 </nav>

@@ -205,7 +205,7 @@ await collection.Indexes.DropAllAsync();
 &lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoCredential.htm
 &#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
 &#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/getting_started/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
 
@@ -223,7 +223,7 @@ await collection.Indexes.DropAllAsync();
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/getting_started/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
+The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
 &lt;/div&gt;
 &lt;/p&gt;
 
@@ -907,7 +907,7 @@ var filter = builder.Eq(&amp;quot;x&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quo
 
 &lt;p&gt;A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;List&amp;lt;BsonDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument[]&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 &#34;&gt;&lt;code&gt;List&amp;lt;IPipelineStageDefinition&amp;gt;&lt;/code&gt;&lt;/a&gt; , and a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 &#34;&gt;&lt;code&gt;IPipelineStageDefinition[]&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
@@ -1162,6 +1162,61 @@ var update = builder.Set(&amp;quot;X&amp;quot;, 1).Set(&amp;quot;Y&amp;quot;, 3)
 // or
 
 var update = builder.Set(&amp;quot;x&amp;quot;, 1).Set(&amp;quot;y&amp;quot;, 3).Inc(&amp;quot;z&amp;quot;, 1);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;index-keys&#34;&gt;Index Keys&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines the keys for index. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = &amp;quot;{ x: 1 }&amp;quot;;
+
+// or
+
+IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = new BsonDocument(&amp;quot;x&amp;quot;, 1);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Both of these will render the keys &lt;code&gt;{ x: 1 }&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;index-keys-definition-builder&#34;&gt;Index Keys Definition Builder&lt;/h3&gt;
+
+&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs
+&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
+&#34;&gt;&lt;code&gt;IndexKeysDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API to build an index keys definition.&lt;/p&gt;
+
+&lt;p&gt;For example, to build up the keys &lt;code&gt;{ x: 1, y: -1 }&lt;/code&gt;, do the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys;
+var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Given the following class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
+{
+    [BsonElement(&amp;quot;x&amp;quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&amp;quot;y&amp;quot;)]
+    public int Y { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can achieve the same result in the typed variant:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;Widget&amp;gt;.IndexKeys;
+var keys = builder.Ascending(x =&amp;gt; x.X).Descending(x =&amp;gt; x.Y);
+
+// or
+
+var keys = builder.Ascending(&amp;quot;X&amp;quot;).Descending(&amp;quot;Y&amp;quot;);
+
+// or
+
+var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
