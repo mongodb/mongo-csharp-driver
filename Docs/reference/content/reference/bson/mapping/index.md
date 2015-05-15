@@ -4,6 +4,7 @@ draft = false
 title = "Mapping Classes"
 [menu.main]
   parent = "BSON"
+  identifier = "Mapping Classes"
   weight = 40
   pre = "<i class='fa'></i>"
 +++

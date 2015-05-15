@@ -4,6 +4,7 @@ draft = false
 title = "Conventions"
 [menu.main]
   parent = "Mapping Classes"
+  identifier = "Conventions"
   weight = 20
   pre = "<i class='fa'></i>"
 +++

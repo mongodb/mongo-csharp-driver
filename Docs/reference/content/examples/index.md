@@ -4,6 +4,7 @@ draft = true
 title = "Examples"
 [menu.main]
   weight = 90
+  identifier = "Examples"
   pre = "<i class='fa fa-code'></i>"
 +++
 

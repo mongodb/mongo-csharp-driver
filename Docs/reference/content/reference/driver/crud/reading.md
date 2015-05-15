@@ -3,7 +3,7 @@ date = "2015-03-17T15:36:56Z"
 draft = false
 title = "Reading"
 [menu.main]
-  parent = "CRUD Operations"
+  parent = "Reference Reading and Writing"
   weight = 10
   pre = "<i class='fa'></i>"
 +++

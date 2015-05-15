@@ -4,6 +4,7 @@ draft = false
 title = "Issues & Help"
 [menu.main]
   weight = 100
+  identifier = "Issues & Help"
   pre = "<i class='fa fa-life-ring'></i>"
 +++
 

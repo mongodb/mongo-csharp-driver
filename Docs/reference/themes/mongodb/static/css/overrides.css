@@ -23,8 +23,8 @@
   margin-left: 5px;
 }
 
-.hljsCode pre { padding: 0px; overflow: auto; word-wrap: normal; white-space: nowrap;}
-.hljsCode pre code { padding: 24px 12px; overflow: auto; white-space: pre;}
+.jsEnabled pre { padding: 0px; overflow: auto; word-wrap: normal; white-space: nowrap;}
+.jsEnabled pre code { padding: 24px 12px; overflow: auto; white-space: pre;}
 
 .body blockquote {
   background-color: #edf4e8;
@@ -87,4 +87,31 @@ code {
 
 a code {
   color: #006cbc;
+}
+
+#search {
+  visibility: hidden;
+  display: inline-block;
+  background-color: rgba(255,255,255,0.3);
+  border-radius: 6px;
+  border: 1px solid #3b2920;
+  font-weight: 300;
+  font-size: 15px;
+  padding: 2px;
+}
+
+#search label {
+  padding-right: 5px;
+}
+
+#search input[name="searchQuery"] {
+  background-color: transparent !important;
+  color: white;
+  border: none;
+  padding: 2px 0 0 4px;
+  outline: none;
+}
+
+.jsEnabled #search {
+  visibility: visible;
 }

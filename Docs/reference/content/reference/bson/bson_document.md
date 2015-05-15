@@ -4,6 +4,7 @@ draft = false
 title = "BsonDocument"
 [menu.main]
   parent = "BSON"
+  identifier = "BsonDocument"
   weight = 20
   pre = "<i class='fa'></i>"
 +++

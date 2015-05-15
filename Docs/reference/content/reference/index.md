@@ -4,6 +4,7 @@ draft = false
 title = "Reference"
 [menu.main]
   weight = 80
+  identifier = "Reference"
   pre = "<i class='fa fa-book'></i>"
 +++
 

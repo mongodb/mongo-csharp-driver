@@ -4,6 +4,7 @@ draft = false
 title = "Handling Schema Changes"
 [menu.main]
   parent = "Mapping Classes"
+  identifier = "Handling Schema Changes"
   weight = 30
   pre = "<i class='fa'></i>"
 +++
