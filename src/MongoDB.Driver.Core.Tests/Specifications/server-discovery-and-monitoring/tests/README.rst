@@ -59,7 +59,9 @@ A response is a pair of values:
 - The source, for example "a:27017".
   This is the address the client sent the "ismaster" command to.
 - An ismaster response, for example `{ok: 1, ismaster: true}`.
-  An empty response like `{}` indicates a network error
+  If the response includes an electionId it is shown in extended JSON like
+  `{"$oid": "000000000000000000000002"}`.
+  The empty response `{}` indicates a network error
   when attempting to call "ismaster".
 
 An "outcome" represents the correct TopologyDescription that results from
@@ -75,6 +77,7 @@ current TopologyDescription. It has the following keys:
 
 - type: A ServerType name, like "RSSecondary".
 - setName: A string with the expected replica set name, or null.
+- electionId: null, or an ObjectId.
 
 Use as unittests
 ----------------

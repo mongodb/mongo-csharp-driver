@@ -74,6 +74,7 @@
     <Compile Include="Core\Bindings\IChannelSource.cs" />
     <Compile Include="Core\Bindings\IChannel.cs" />
     <Compile Include="Core\Bindings\ReadPreferenceBinding.cs" />
+    <Compile Include="Core\Clusters\ElectionId.cs" />
     <Compile Include="Core\Configuration\SslStreamSettings.cs" />
     <Compile Include="Core\Connections\SslStreamFactory.cs" />
     <Compile Include="Core\Events\ClusterAfterDescriptionChangedEvent.cs" />

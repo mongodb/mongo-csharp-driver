@@ -47,6 +47,23 @@ namespace MongoDB.Driver.Core.Connections
 
         // properties
         /// <summary>
+        /// Gets the election identifier.
+        /// </summary>
+        public ElectionId ElectionId
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("electionId", out value))
+                {
+                    return new ElectionId((ObjectId)value);
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is an arbiter.
         /// </summary>
         /// <value>

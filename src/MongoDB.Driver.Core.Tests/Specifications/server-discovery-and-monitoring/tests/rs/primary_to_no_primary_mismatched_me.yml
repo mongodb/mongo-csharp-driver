@@ -1,10 +1,9 @@
-description: "New primary with wrong setName"
+description: "Primary to no primary with mismatched me"
 
 uri: "mongodb://a/?replicaSet=rs"
 
 phases: [
 
-    # Primary is discovered normally, and tells us about server B.
     {
         responses: [
 
@@ -13,6 +12,7 @@ phases: [
                     ok: 1,
                     ismaster: true,
                     hosts: ["a:27017", "b:27017"],
+                    me: "a:27017",
                     setName: "rs"
                 }]
         ],
@@ -38,18 +38,16 @@ phases: [
             setName: "rs"
         }
     },
-
-    # B is actually the primary of another replica set. It's removed, and
-    # topologyType remains ReplicaSetWithPrimary.
     {
         responses: [
 
-                ["b:27017", {
+                ["a:27017", {
 
                     ok: 1,
                     ismaster: true,
-                    hosts: ["a:27017"],
-                    setName: "wrong"
+                    hosts: ["c:27017", "d:27017"],
+                    me : "c:27017",
+                    setName: "rs"
                 }]
         ],
 
@@ -57,14 +55,20 @@ phases: [
 
             servers: {
 
-                "a:27017": {
+                "c:27017": {
 
-                    type: "RSPrimary",
-                    setName: "rs"
+                    type: "Unknown",
+                    setName:
+                },
+
+                "d:27017": {
+
+                    type: "Unknown",
+                    setName:
                 }
             },
 
-            topologyType: "ReplicaSetWithPrimary",
+            topologyType: "ReplicaSetNoPrimary",
             setName: "rs"
         }
     }
