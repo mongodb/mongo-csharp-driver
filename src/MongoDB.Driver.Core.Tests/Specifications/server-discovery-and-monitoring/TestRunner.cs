@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             var description = currentDescription.With(
                 state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
                 type: isMasterResult.ServerType,
+                canonicalEndPoint: isMasterResult.Me,
                 electionId: isMasterResult.ElectionId,
                 replicaSetConfig: isMasterResult.GetReplicaSetConfig());
 

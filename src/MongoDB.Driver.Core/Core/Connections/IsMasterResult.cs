@@ -146,6 +146,23 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets the endpoint the server is claiming it is known as.
+        /// </summary>
+        public EndPoint Me
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("me", out value))
+                {
+                    return EndPointHelper.Parse((string)value);
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the type of the server.
         /// </summary>
         /// <value>

@@ -281,6 +281,12 @@ namespace MongoDB.Driver.Core.Clusters
             clusterDescription = clusterDescription.WithServerDescription(args.NewServerDescription);
             clusterDescription = EnsureServers(clusterDescription, args.NewServerDescription);
 
+            if (args.NewServerDescription.CanonicalEndPoint != null &&
+                !EndPointHelper.Equals(args.NewServerDescription.CanonicalEndPoint, args.NewServerDescription.EndPoint))
+            {
+                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, "CanonicalEndPoint is different than seed list EndPoint.");
+            }
+
             if (args.NewServerDescription.Type == ServerType.ReplicaSetPrimary)
             {
                 if (args.NewServerDescription.ElectionId != null)

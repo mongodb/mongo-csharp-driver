@@ -272,6 +272,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 newDescription = _baseDescription.With(
                     averageRoundTripTime: averageRoundTripTimeRounded,
+                    canonicalEndPoint: isMasterResult.Me,
                     electionId: isMasterResult.ElectionId,
                     maxBatchCount: isMasterResult.MaxBatchCount,
                     maxDocumentSize: isMasterResult.MaxDocumentSize,
