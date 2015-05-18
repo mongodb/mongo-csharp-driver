@@ -157,6 +157,11 @@ namespace MongoDB.Driver.Tests.Linq
             public string Field = null;
         }
 
+        public class DerivedRootView : RootView
+        {
+            public string DerivedProperty { get; set; }
+        }
+
         public class Root : IRoot
         {
             public int Id { get; set; }

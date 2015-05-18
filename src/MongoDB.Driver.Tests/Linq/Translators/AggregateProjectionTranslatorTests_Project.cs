@@ -754,6 +754,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public async Task Should_translate_a_derived_class_projection()
+        {
+            var result = await Project(x => new DerivedRootView { Property = x.A, DerivedProperty = x.B });
+
+            result.Projection.Should().Be("{ Property: \"$A\", DerivedProperty: \"$B\", _id: 0 }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.DerivedProperty.Should().Be("Balloon");
+        }
+
+        [Test]
         [Ignore("MongoDB does something weird with this result. It returns F and H as two separate arrays, not an array of documents")]
         public async Task Should_translate_array_projection_complex()
         {

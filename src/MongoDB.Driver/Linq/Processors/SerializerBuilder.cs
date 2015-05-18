@@ -75,9 +75,39 @@ namespace MongoDB.Driver.Linq.Processors
             // the same anonymous type definition in different contexts as long as they 
             // are structurally equatable. As such, it might be that two different queries 
             // projecting the same shape might need to be deserialized differently.
-            var classMapType = typeof(BsonClassMap<>).MakeGenericType(mapping.Expression.Type);
-            BsonClassMap classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-            foreach (var memberMapping in mapping.Members)
+            var classMap = BuildClassMap(mapping.Expression.Type, mapping);
+
+            var mappedParameters = mapping.Members
+                .Where(x => x.Parameter != null)
+                .OrderBy(x => x.Parameter.Position)
+                .Select(x => x.Member)
+                .ToList();
+
+            if (mappedParameters.Count > 0)
+            {
+                classMap.MapConstructor(mapping.Constructor)
+                    .SetArguments(mappedParameters);
+            }
+
+            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(mapping.Expression.Type);
+            return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap.Freeze());
+        }
+
+        private BsonClassMap BuildClassMap(Type type, ProjectionMapping mapping)
+        {
+            if (type == null || type == typeof(object))
+            {
+                return null;
+            }
+
+            var baseClassMap = BuildClassMap(type.BaseType, mapping);
+            if (baseClassMap != null)
+            {
+                baseClassMap.Freeze();
+            }
+            var classMap = new BsonClassMap(type, baseClassMap);
+
+            foreach (var memberMapping in mapping.Members.Where(x => x.Member.DeclaringType == type))
             {
                 var serializationExpression = memberMapping.Expression as ISerializationExpression;
                 if (serializationExpression == null)
@@ -102,20 +132,7 @@ namespace MongoDB.Driver.Linq.Processors
                 }
             }
 
-            var mappedParameters = mapping.Members
-                .Where(x => x.Parameter != null)
-                .OrderBy(x => x.Parameter.Position)
-                .Select(x => x.Member)
-                .ToList();
-
-            if (mappedParameters.Count > 0)
-            {
-                classMap.MapConstructor(mapping.Constructor)
-                    .SetArguments(mappedParameters);
-            }
-
-            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(mapping.Expression.Type);
-            return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap.Freeze());
+            return classMap;
         }
 
         private static Type GetMemberType(MemberInfo member)
