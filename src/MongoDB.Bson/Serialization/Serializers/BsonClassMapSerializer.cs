@@ -30,18 +30,23 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
         // private fields
-        private BsonClassMap<TClass> _classMap;
+        private BsonClassMap _classMap;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the BsonClassMapSerializer class.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public BsonClassMapSerializer(BsonClassMap<TClass> classMap)
+        public BsonClassMapSerializer(BsonClassMap classMap)
         {
             if (classMap == null)
             {
                 throw new ArgumentNullException("classMap");
+            }
+            if (classMap.ClassType != typeof(TClass))
+            {
+                var message = string.Format("Must be a BsonClassMap for the type {0}.", typeof(TClass));
+                throw new ArgumentException(message, "classMap");
             }
 
             _classMap = classMap;
@@ -128,7 +133,7 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 // for mutable classes we deserialize the values directly into the result object
-                document = _classMap.CreateInstance();
+                document = (TClass)_classMap.CreateInstance();
 
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)
