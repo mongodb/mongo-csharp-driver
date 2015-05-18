@@ -286,6 +286,12 @@
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\sec_not_auth.yml" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\unexpected_mongos.yml" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\wrong_set_name.yml" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_mismatched_me.yml" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_to_no_primary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_to_no_primary_mismatched_me.yml" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\secondary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\secondary_mismatched_me.yml" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\sharded\multiple_mongoses.yml" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\sharded\non_mongos_removed.json" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\sharded\non_mongos_removed.yml" />

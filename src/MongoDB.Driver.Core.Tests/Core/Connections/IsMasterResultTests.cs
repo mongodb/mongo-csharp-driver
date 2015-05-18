@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
@@ -128,6 +129,18 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new IsMasterResult(BsonDocument.Parse(json));
 
             subject.MinWireVersion.Should().Be(expected);
+        }
+
+        [Test]
+        [TestCase("{ }", null)]
+        [TestCase("{ me: 'localhost:27018' }", "localhost:27018")]
+        public void Me_should_parse_document_correctly(string json, string expectedEndPoint)
+        {
+            var endPoint = expectedEndPoint == null ? (EndPoint)null : EndPointHelper.Parse(expectedEndPoint);
+
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            subject.Me.Should().Be(endPoint);
         }
 
         [Test]

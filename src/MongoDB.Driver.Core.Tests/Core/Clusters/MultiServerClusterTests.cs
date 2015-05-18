@@ -147,6 +147,25 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
+        public void Should_remove_a_server_whose_canonical_end_point_does_not_match_its_provided_end_point()
+        {
+            var nonCanonicalEndPoint = new DnsEndPoint("wrong", 27017);
+            _settings = _settings.With(endPoints: new[] { nonCanonicalEndPoint, _secondEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+
+            PublishDescription(nonCanonicalEndPoint, ServerType.ReplicaSetPrimary,
+                hosts: new[] { _firstEndPoint, _secondEndPoint },
+                canonicalEndPoint: _firstEndPoint);
+
+            var description = subject.Description;
+            description.State.Should().Be(ClusterState.Disconnected);
+            description.Type.Should().Be(ClusterType.ReplicaSet);
+            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+        }
+
+        [Test]
         public void Should_not_remove_a_server_that_is_no_longer_in_a_secondaries_host_list()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
@@ -449,7 +468,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory.PublishDescription(description);
         }
 
-        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null)
+        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null, EndPoint canonicalEndPoint = null)
         {
             var current = _serverFactory.GetServerDescription(endPoint);
 
@@ -462,6 +481,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = current.With(
                 averageRoundTripTime: TimeSpan.FromMilliseconds(10),
                 replicaSetConfig: serverType.IsReplicaSetMember() ? config : null,
+                canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
                 state: ServerState.Connected,
                 tags: null,
