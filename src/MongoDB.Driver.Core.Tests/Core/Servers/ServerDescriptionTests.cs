@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var subject = new ServerDescription(__serverId, __endPoint);
             subject.AverageRoundTripTime.Should().Be(TimeSpan.Zero);
+            subject.ElectionId.Should().BeNull();
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().BeNull();
             subject.ServerId.Should().Be(__serverId);
@@ -62,13 +63,14 @@ namespace MongoDB.Driver.Core.Servers
         public void Constructor_with_multiple_parameters_should_return_properly_initialized_instance()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var electionId = new ElectionId(ObjectId.GenerateNewId());
             var replicaSetConfig = new ReplicaSetConfig(
-                new [] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
                 new DnsEndPoint("localhost", 27017),
                 1);
             var state = ServerState.Connected;
-            var tags = new TagSet(new [] { new Tag("x", "a") });
+            var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
             var wireVersionRange = new Range<int>(2, 3);
@@ -79,12 +81,14 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
+                electionId: electionId,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
                 wireVersionRange: wireVersionRange);
 
             subject.AverageRoundTripTime.Should().Be(TimeSpan.FromSeconds(1));
+            subject.ElectionId.Should().Be(electionId);
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().Be(replicaSetConfig);
             subject.ServerId.Should().Be(__serverId);
@@ -93,8 +97,8 @@ namespace MongoDB.Driver.Core.Servers
             subject.Type.Should().Be(type);
         }
 
-
         [TestCase("AverageRoundTripTime")]
+        [TestCase("ElectionId")]
         [TestCase("EndPoint")]
         [TestCase("ReplicaSetConfig")]
         [TestCase("ServerId")]
@@ -106,6 +110,7 @@ namespace MongoDB.Driver.Core.Servers
         public void Equals_should_return_false_when_any_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var electionId = new ElectionId(ObjectId.GenerateNewId());
             var endPoint = new DnsEndPoint("localhost", 27017);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
@@ -133,6 +138,7 @@ namespace MongoDB.Driver.Core.Servers
             switch (notEqualField)
             {
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
+                case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); serverId = new ServerId(__clusterId, endPoint); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "State": state = ServerState.Disconnected; break;
@@ -149,6 +155,7 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
+                electionId: electionId,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
@@ -170,6 +177,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [TestCase("AverageRoundTripTime")]
+        [TestCase("ElectionId")]
         [TestCase("ReplicaSetConfig")]
         [TestCase("Tags")]
         [TestCase("Type")]
@@ -178,6 +186,7 @@ namespace MongoDB.Driver.Core.Servers
         public void WithHeartbeat_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var electionId = new ElectionId(ObjectId.GenerateNewId());
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -195,6 +204,7 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
+                electionId: electionId,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
@@ -203,6 +213,7 @@ namespace MongoDB.Driver.Core.Servers
             switch (notEqualField)
             {
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
+                case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
@@ -214,6 +225,7 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 replicaSetConfig: replicaSetConfig,
                 state: ServerState.Connected,
+                electionId: electionId,
                 tags: tags,
                 type: type,
                 version: version,

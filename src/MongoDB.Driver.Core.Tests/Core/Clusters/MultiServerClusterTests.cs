@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
 using NUnit.Framework;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -73,7 +74,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Description_should_be_correct_after_initialization()
         {
-            _settings = _settings.With(endPoints: new [] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Initialize_should_throw_when_already_disposed()
         {
-            _settings = _settings.With(endPoints: new [] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
             var subject = CreateSubject();
             subject.Dispose();
 
@@ -137,7 +138,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
-                hosts: new [] { _firstEndPoint, _secondEndPoint });
+                hosts: new[] { _firstEndPoint, _secondEndPoint });
 
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
@@ -249,7 +250,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetGhost,
-                hosts: new [] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+                hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
@@ -289,7 +290,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up()
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_and_current_election_id_is_null()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
@@ -306,6 +307,57 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_an_election_id_and_current_id_is_null()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
+
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentTo(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }
+                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+        }
+
+        [Test]
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_a_higher_election_id()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
+
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentTo(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }
+                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+        }
+
+        [Test]
+        public void Should_invalidate_new_primary_when_it_shows_up_with_a_lesser_election_id()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
+
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentTo(
+                new[] { GetDisconnectedDescription(_secondEndPoint) }
+                .Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)));
+        }
+
+        [Test]
         public void Should_ignore_a_notification_from_a_server_which_has_been_removed()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
@@ -314,7 +366,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
-                hosts: new [] { _firstEndPoint, _secondEndPoint });
+                hosts: new[] { _firstEndPoint, _secondEndPoint });
 
             PublishDescription(_thirdEndPoint, ServerType.ReplicaSetPrimary);
 
@@ -335,7 +387,7 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
-            foreach(var endPoint in new [] { _firstEndPoint, _secondEndPoint, _thirdEndPoint })
+            foreach (var endPoint in new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint })
             {
                 var server = _serverFactory.GetServer(endPoint);
                 server.Received().Initialize();
@@ -397,7 +449,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory.PublishDescription(description);
         }
 
-        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null)
+        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null)
         {
             var current = _serverFactory.GetServerDescription(endPoint);
 
@@ -410,6 +462,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = current.With(
                 averageRoundTripTime: TimeSpan.FromMilliseconds(10),
                 replicaSetConfig: serverType.IsReplicaSetMember() ? config : null,
+                electionId: electionId,
                 state: ServerState.Connected,
                 tags: null,
                 type: serverType,

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
+        private volatile ElectionId _maxElectionId;
         private volatile string _replicaSetName;
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
@@ -279,9 +281,25 @@ namespace MongoDB.Driver.Core.Clusters
             clusterDescription = clusterDescription.WithServerDescription(args.NewServerDescription);
             clusterDescription = EnsureServers(clusterDescription, args.NewServerDescription);
 
-            if (args.NewServerDescription.Type == ServerType.ReplicaSetPrimary &&
-                args.OldServerDescription.Type != ServerType.ReplicaSetPrimary)
+            if (args.NewServerDescription.Type == ServerType.ReplicaSetPrimary)
             {
+                if (args.NewServerDescription.ElectionId != null)
+                {
+                    if (_maxElectionId != null && _maxElectionId.CompareTo(args.NewServerDescription.ElectionId) > 0)
+                    {
+                        // ignore this change because we've already seen this election id
+                        lock (_serversLock)
+                        {
+                            var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
+                            server.Invalidate();
+                            return clusterDescription.WithServerDescription(
+                                new ServerDescription(server.ServerId, server.EndPoint));
+                        }
+                    }
+
+                    _maxElectionId = args.NewServerDescription.ElectionId;
+                }
+
                 var currentPrimaryEndPoints = clusterDescription.Servers
                     .Where(x => x.Type == ServerType.ReplicaSetPrimary)
                     .Where(x => !EndPointHelper.Equals(x.EndPoint, args.NewServerDescription.EndPoint))

@@ -64,6 +64,17 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
+        [TestCase("{ }", null)]
+        [TestCase("{ electionId: ObjectId('555925bfb69aa7d5be29126b') }", "555925bfb69aa7d5be29126b")]
+        public void ElectionId_should_parse_document_correctly(string json, string expectedObjectId)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var expected = expectedObjectId == null ? (ElectionId)null : new ElectionId(ObjectId.Parse(expectedObjectId));
+
+            subject.ElectionId.Should().Be(expected);
+        }
+
+        [Test]
         [TestCase("{ maxWriteBatchSize: 100 }", 100)]
         [TestCase("{ maxWriteBatchSize: 0 }", 0)]
         [TestCase("{ }", 1000)]
