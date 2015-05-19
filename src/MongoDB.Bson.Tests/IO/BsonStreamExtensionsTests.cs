@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,6 +47,21 @@ namespace MongoDB.Bson.Tests.IO
 
                 memoryStream.ToArray().Should().Equal(expectedBytes);
                 stream.Position.Should().Be(position);
+            }
+        }
+
+        [Test]
+        public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
+        {
+            using (var stream = Substitute.For<BsonStream>())
+            {
+                var position = (long)int.MaxValue + 1;
+                stream.Position.Returns(position);
+                stream.Length.Returns(position);
+
+                Action action = () => stream.BackpatchSize(0);
+
+                action.ShouldThrow<FormatException>();
             }
         }
 

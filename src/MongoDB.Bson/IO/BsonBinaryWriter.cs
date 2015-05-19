@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -705,7 +705,7 @@ namespace MongoDB.Bson.IO
         // private methods
         private void BackpatchSize()
         {
-            int size = (int)(_bsonStream.Position - _context.StartPosition);
+            var size = _bsonStream.Position - _context.StartPosition;
             if (size > _maxDocumentSizeStack.Peek())
             {
                 var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, _maxDocumentSizeStack.Peek());
@@ -714,7 +714,7 @@ namespace MongoDB.Bson.IO
 
             var currentPosition = _bsonStream.Position;
             _bsonStream.Position = _context.StartPosition;
-            _bsonStream.WriteInt32(size);
+            _bsonStream.WriteInt32((int)size);
             _bsonStream.Position = currentPosition;
         }
 
