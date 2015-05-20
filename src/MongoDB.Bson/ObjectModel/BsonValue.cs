@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -569,7 +569,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(bool value)
         {
-            return value ? BsonBoolean.True : BsonBoolean.False;
+            return (BsonBoolean)value;
         }
 
         /// <summary>
@@ -579,7 +579,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(bool? value)
         {
-            return value.HasValue ? (BsonValue)(value.Value ? BsonBoolean.True : BsonBoolean.False) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)(BsonBoolean)value.Value : BsonNull.Value;
         }
 
         /// <summary>
@@ -619,7 +619,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(double value)
         {
-            return new BsonDouble(value);
+            return (BsonDouble)value;
         }
 
         /// <summary>
@@ -629,7 +629,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(double? value)
         {
-            return value.HasValue ? (BsonValue)new BsonDouble(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)(BsonDouble)value.Value : BsonNull.Value;
         }
 
         /// <summary>
@@ -669,7 +669,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(int value)
         {
-            return new BsonInt32(value);
+            return (BsonInt32)value;
         }
 
         /// <summary>
@@ -679,7 +679,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(int? value)
         {
-            return value.HasValue ? (BsonValue)new BsonInt32(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)(BsonInt32)value.Value : BsonNull.Value;
         }
 
         /// <summary>
@@ -689,7 +689,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(long value)
         {
-            return new BsonInt64(value);
+            return (BsonInt64)value;
         }
 
         /// <summary>
@@ -699,7 +699,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(long? value)
         {
-            return value.HasValue ? (BsonValue)new BsonInt64(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)(BsonInt64)value.Value : BsonNull.Value;
         }
 
         /// <summary>
@@ -739,7 +739,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(string value)
         {
-            return (value != null) ? (BsonValue)new BsonString(value) : null;
+            return (value != null) ? (BsonValue)(BsonString)value : null;
         }
 
         /// <summary>

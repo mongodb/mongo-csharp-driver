@@ -105,6 +105,11 @@
     <Compile Include="Jira\CSharp648Tests.cs" />
     <Compile Include="Jira\CSharp783Tests.cs" />
     <Compile Include="Jira\CSharp803Tests.cs" />
+    <Compile Include="ObjectModel\BsonBooleanTests.cs" />
+    <Compile Include="ObjectModel\BsonDoubleTests.cs" />
+    <Compile Include="ObjectModel\BsonInt32Tests.cs" />
+    <Compile Include="ObjectModel\BsonInt64Tests.cs" />
+    <Compile Include="ObjectModel\BsonStringTests.cs" />
     <Compile Include="ObjectModel\LazyBsonArrayTests.cs" />
     <Compile Include="ObjectModel\LazyBsonDocumentTests.cs" />
     <Compile Include="ObjectModel\RawBsonArrayTests.cs" />

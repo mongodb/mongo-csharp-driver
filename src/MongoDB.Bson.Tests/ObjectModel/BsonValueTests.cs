@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests
@@ -24,6 +25,105 @@ namespace MongoDB.Bson.Tests
     [TestFixture]
     public class BsonValueTests
     {
+        [Test]
+        public void implicit_conversion_from_bool_should_return_precreated_instance(
+            [Values(false, true)]
+            bool value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().BeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_double_should_return_new_instance(
+            [Values(-101.0, 101.0)]
+            double value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().NotBeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_double_should_return_precreated_instance(
+            [Range(-100.0, 100.0, 1.0)]
+            double value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().BeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_int_should_return_new_instance(
+            [Values(-101, 101)]
+            int value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().NotBeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_int_should_return_precreated_instance(
+            [Range(-100, 100)]
+            int value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().BeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_long_should_return_new_instance(
+            [Values(-101L, 101L)]
+            long value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().NotBeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_long_should_return_precreated_instance(
+            [Range(-100L, 100L, 1L)]
+            long value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().BeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_string_should_return_new_instance(
+            [Values("x")]
+            string value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().NotBeSameAs(result1);
+        }
+
+        [Test]
+        public void implicit_conversion_from_string_should_return_precreated_instance(
+            [Values("")]
+            string value)
+        {
+            var result1 = (BsonValue)value;
+            var result2 = (BsonValue)value;
+
+            result2.Should().BeSameAs(result1);
+        }
+
         [Test]
         public void TestAsBoolean()
         {
