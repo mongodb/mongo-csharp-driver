@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,16 +20,16 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Base class for serialization providers.
     /// </summary>
-    public abstract class BsonSerializationProviderBase : IBsonSerializationProvider
+    public abstract class BsonSerializationProviderBase : IRegistryAwareBsonSerializationProvider
     {
-        /// <summary>
-        /// Gets a serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>
-        /// A serializer.
-        /// </returns>
-        public abstract IBsonSerializer GetSerializer(Type type);
+        /// <inheritdoc/>
+        public virtual IBsonSerializer GetSerializer(Type type)
+        {
+            return GetSerializer(type, BsonSerializer.SerializerRegistry);
+        }
+
+        /// <inheritdoc/>
+        public abstract IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
         /// Creates the serializer from a serializer type definition and type arguments.
@@ -39,8 +39,22 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
         {
+            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.SerializerRegistry);
+        }
+
+        /// <summary>
+        /// Creates the serializer from a serializer type definition and type arguments.
+        /// </summary>
+        /// <param name="serializerTypeDefinition">The serializer type definition.</param>
+        /// <param name="typeArguments">The type arguments.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>
+        /// A serializer.
+        /// </returns>
+        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, Type[] typeArguments, IBsonSerializerRegistry serializerRegistry)
+        {
             var serializerType = serializerTypeDefinition.MakeGenericType(typeArguments);
-            return CreateSerializer(serializerType);
+            return CreateSerializer(serializerType, serializerRegistry);
         }
 
         /// <summary>
@@ -50,7 +64,34 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
-            return (IBsonSerializer)Activator.CreateInstance(serializerType);
+            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);
+        }
+
+        /// <summary>
+        /// Creates the serializer.
+        /// </summary>
+        /// <param name="serializerType">The serializer type.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>
+        /// A serializer.
+        /// </returns>
+        protected virtual IBsonSerializer CreateSerializer(Type serializerType, IBsonSerializerRegistry serializerRegistry)
+        {
+            var constructorInfo = serializerType.GetConstructor(new[] { typeof(IBsonSerializerRegistry) });
+            if (constructorInfo != null)
+            {
+                return (IBsonSerializer)constructorInfo.Invoke(new object[] { serializerRegistry });
+            }
+
+            constructorInfo = serializerType.GetConstructor(new Type[0]);
+            if (constructorInfo != null)
+            {
+                return (IBsonSerializer)constructorInfo.Invoke(new object[0]);
+            }
+
+            throw new MissingMethodException(string.Format(
+                "No suitable constructor found for serializer type: '{0}'.",
+                serializerType.FullName));
         }
     }
 }

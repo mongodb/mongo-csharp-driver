@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,14 +20,10 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the class map serialization provider.
     /// </summary>
-    internal class BsonClassMapSerializationProvider : IBsonSerializationProvider
+    internal class BsonClassMapSerializationProvider : BsonSerializationProviderBase
     {
-        /// <summary>
-        /// Gets the serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer(Type type)
+        /// <inheritdoc/>
+        public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
             if (type == null)
             {

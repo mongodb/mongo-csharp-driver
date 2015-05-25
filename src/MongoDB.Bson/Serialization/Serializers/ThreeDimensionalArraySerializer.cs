@@ -163,14 +163,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ThreeDimensionalArraySerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == _itemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new ThreeDimensionalArraySerializer<TItem>(itemSerializer);
-            }
+            return new ThreeDimensionalArraySerializer<TItem>(itemSerializer);
         }
 
         // explicit interface implementations

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -46,6 +43,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArraySerializer{TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public ArraySerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -54,14 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ArraySerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new ArraySerializer<TItem>(itemSerializer);
-            }
+            return new ArraySerializer<TItem>(itemSerializer);
         }
 
         // protected methods

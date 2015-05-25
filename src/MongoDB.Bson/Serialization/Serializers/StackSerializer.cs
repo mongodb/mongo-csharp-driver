@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,7 +47,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-         // public methods
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StackSerializer" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public StackSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
+        // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
         /// </summary>
@@ -55,14 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public StackSerializer WithItemSerializer(IBsonSerializer itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new StackSerializer(itemSerializer);
-            }
+            return new StackSerializer(itemSerializer);
         }
 
        // protected methods
@@ -143,6 +145,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StackSerializer{TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public StackSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -151,14 +162,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public StackSerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new StackSerializer<TItem>(itemSerializer);
-            }
+            return new StackSerializer<TItem>(itemSerializer);
         }
 
         // protected methods

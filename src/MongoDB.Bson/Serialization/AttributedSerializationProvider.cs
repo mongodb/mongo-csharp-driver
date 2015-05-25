@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,14 +23,8 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public class AttributedSerializationProvider : BsonSerializationProviderBase
     {
-        /// <summary>
-        /// Gets a serializer for a type that has been annotated with a <see cref="BsonSerializerAttribute"/> specifying which serializer to use.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>
-        /// A serializer.
-        /// </returns>
-        public override IBsonSerializer GetSerializer(Type type)
+        /// <inheritdoc/>
+        public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
             if (type == null)
             {

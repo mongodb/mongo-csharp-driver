@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="itemSerializer">The item serializer.</param>
         protected EnumerableInterfaceImplementerSerializerBase(IBsonSerializer itemSerializer)
             : base(itemSerializer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializerBase{TValue}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        protected EnumerableInterfaceImplementerSerializerBase(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
         {
         }
 
@@ -94,6 +103,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="itemSerializer">The item serializer.</param>
         public EnumerableInterfaceImplementerSerializerBase(IBsonSerializer<TItem> itemSerializer)
             : base(itemSerializer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializerBase{TValue, TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public EnumerableInterfaceImplementerSerializerBase(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
         {
         }
 

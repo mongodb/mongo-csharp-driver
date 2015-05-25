@@ -140,14 +140,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public TwoDimensionalArraySerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == _itemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new TwoDimensionalArraySerializer<TItem>(itemSerializer);
-            }
+            return new TwoDimensionalArraySerializer<TItem>(itemSerializer);
         }
 
         // explicit interface implementations
