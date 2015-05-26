@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             where TImplementation : class, TInterface
     {
         // private fields
-        private readonly IBsonSerializer<TImplementation> _implementationSerializer;
+        private readonly Lazy<IBsonSerializer<TImplementation>> _lazyImplementationSerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ImpliedImplementationInterfaceSerializer{TInterface, TImplementation}"/> class.
         /// </summary>
         public ImpliedImplementationInterfaceSerializer()
-            : this(BsonSerializer.LookupSerializer<TImplementation>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -50,6 +50,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="implementationSerializer">The implementation serializer.</param>
         public ImpliedImplementationInterfaceSerializer(IBsonSerializer<TImplementation> implementationSerializer)
+            : this(new Lazy<IBsonSerializer<TImplementation>>(() => implementationSerializer))
+        {
+            if (implementationSerializer == null)
+            {
+                throw new ArgumentNullException("implementationSerializer");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImpliedImplementationInterfaceSerializer{TInterface, TImplementation}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public ImpliedImplementationInterfaceSerializer(IBsonSerializerRegistry serializerRegistry)
+            : this(new Lazy<IBsonSerializer<TImplementation>>(() => serializerRegistry.GetSerializer<TImplementation>()))
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+        }
+
+        private ImpliedImplementationInterfaceSerializer(Lazy<IBsonSerializer<TImplementation>> lazyImplementationSerializer)
         {
             if (!typeof(TInterface).IsInterface)
             {
@@ -57,7 +79,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "<TInterface>");
             }
 
-            _implementationSerializer = implementationSerializer;
+            _lazyImplementationSerializer = lazyImplementationSerializer;
         }
 
         // public properties
@@ -72,7 +94,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get
             {
-                var dictionarySerializer = _implementationSerializer as IBsonDictionarySerializer;
+                var dictionarySerializer = _lazyImplementationSerializer.Value as IBsonDictionarySerializer;
                 if (dictionarySerializer != null)
                 {
                     return dictionarySerializer.DictionaryRepresentation;
@@ -80,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var message = string.Format(
                     "{0} does not have a DictionaryRepresentation.",
-                    BsonUtils.GetFriendlyTypeName(_implementationSerializer.GetType()));
+                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
                 throw new NotSupportedException(message);
             }
         }
@@ -96,7 +118,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get
             {
-                var dictionarySerializer = _implementationSerializer as IBsonDictionarySerializer;
+                var dictionarySerializer = _lazyImplementationSerializer.Value as IBsonDictionarySerializer;
                 if (dictionarySerializer != null)
                 {
                     return dictionarySerializer.KeySerializer;
@@ -104,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var message = string.Format(
                     "{0} does not have a KeySerializer.",
-                    BsonUtils.GetFriendlyTypeName(_implementationSerializer.GetType()));
+                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
                 throw new NotSupportedException(message);
             }
         }
@@ -117,7 +139,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TImplementation> ImplementationSerializer
         {
-            get { return _implementationSerializer; }
+            get { return _lazyImplementationSerializer.Value; }
         }
 
         /// <summary>
@@ -131,7 +153,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get
             {
-                var dictionarySerializer = _implementationSerializer as IBsonDictionarySerializer;
+                var dictionarySerializer = _lazyImplementationSerializer.Value as IBsonDictionarySerializer;
                 if (dictionarySerializer != null)
                 {
                     return dictionarySerializer.ValueSerializer;
@@ -139,7 +161,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var message = string.Format(
                     "{0} does not have a ValueSerializer.",
-                    BsonUtils.GetFriendlyTypeName(_implementationSerializer.GetType()));
+                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
                 throw new NotSupportedException(message);
             }
         }
@@ -163,7 +185,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return _implementationSerializer.Deserialize(context);
+                return _lazyImplementationSerializer.Value.Deserialize(context);
             }
         }
 
@@ -176,7 +198,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </returns>
         public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            var arraySerializer = _implementationSerializer as IBsonArraySerializer;
+            var arraySerializer = _lazyImplementationSerializer.Value as IBsonArraySerializer;
             if (arraySerializer != null)
             {
                 return arraySerializer.TryGetItemSerializationInfo(out serializationInfo);
@@ -196,7 +218,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </returns>
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            var documentSerializer = _implementationSerializer as IBsonDocumentSerializer;
+            var documentSerializer = _lazyImplementationSerializer.Value as IBsonDocumentSerializer;
             if (documentSerializer != null)
             {
                 return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
@@ -225,7 +247,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 if (actualType == typeof(TImplementation))
                 {
-                    _implementationSerializer.Serialize(context, (TImplementation)value);
+                    _lazyImplementationSerializer.Value.Serialize(context, (TImplementation)value);
                 }
                 else
                 {
@@ -257,7 +279,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
-            get { return _implementationSerializer; }
+            get { return ImplementationSerializer; }
         }
 
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)

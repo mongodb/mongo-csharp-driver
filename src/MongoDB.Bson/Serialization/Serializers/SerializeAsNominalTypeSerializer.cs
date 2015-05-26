@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializerBase<TActualType> where TActualType : class, TNominalType
     {
         // private fields
-        private readonly IBsonSerializer<TNominalType> _nominalTypeSerializer;
+        private readonly Lazy<IBsonSerializer<TNominalType>> _lazyNominalTypeSerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializeAsNominalTypeSerializer{TActualType, TNominalType}"/> class.
         /// </summary>
         public SerializeAsNominalTypeSerializer()
-            : this(BsonSerializer.LookupSerializer<TNominalType>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -40,7 +40,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="SerializeAsNominalTypeSerializer{TActualType, TNominalType}"/> class.
         /// </summary>
         /// <param name="nominalTypeSerializer">The base class serializer.</param>
-        /// <exception cref="System.ArgumentNullException">baseClassSerializer</exception>
         public SerializeAsNominalTypeSerializer(IBsonSerializer<TNominalType> nominalTypeSerializer)
         {
             if (nominalTypeSerializer == null)
@@ -48,7 +47,21 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("nominalTypeSerializer");
             }
 
-            _nominalTypeSerializer = nominalTypeSerializer;
+            _lazyNominalTypeSerializer = new Lazy<IBsonSerializer<TNominalType>>(() => nominalTypeSerializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SerializeAsNominalTypeSerializer{TActualType, TNominalType}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public SerializeAsNominalTypeSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+
+            _lazyNominalTypeSerializer = new Lazy<IBsonSerializer<TNominalType>>(() => serializerRegistry.GetSerializer<TNominalType>());
         }
 
         // public methods
@@ -69,7 +82,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 args.NominalType = typeof(TNominalType);
                 args.SerializeAsNominalType = true;
-                _nominalTypeSerializer.Serialize(context, args, value);
+                _lazyNominalTypeSerializer.Value.Serialize(context, args, value);
             }
         }
     }
