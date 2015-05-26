@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -477,7 +477,7 @@ namespace MongoDB.Driver.GridFS
                     {
                         { "_id", ObjectId.GenerateNewId() },
                         { "files_id", _fileInfo.Id },
-                        { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
+                        { "n", n < int.MaxValue ? (BsonValue)(BsonInt32)(int)n : (BsonInt64)n },
                         { "data", zeros }
                     };
                         chunksCollection.Insert(missingChunk);
@@ -686,7 +686,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     { "_id", _chunkId },
                     { "files_id", _fileInfo.Id },
-                    { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)new BsonInt32((int)_chunkIndex) : new BsonInt64(_chunkIndex) },
+                    { "n", _chunkIndex < int.MaxValue ? (BsonValue)(BsonInt32)(int)_chunkIndex : (BsonInt64)_chunkIndex },
                     { "data", data }
                 };
                 chunksCollection.Update(query, update, UpdateFlags.Upsert);

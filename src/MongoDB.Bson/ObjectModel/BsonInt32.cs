@@ -57,46 +57,46 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -1.
         /// </summary>
-        [Obsolete("Use new BsonInt32(-1) instead.")]
+        [Obsolete("Use (BsonInt32)(-1) instead.")]
         public static BsonInt32 MinusOne
         {
-            get { return new BsonInt32(-1); }
+            get { return (BsonInt32)(-1); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -0.
         /// </summary>
-        [Obsolete("Use new BsonInt32(0) instead.")]
+        [Obsolete("Use (BsonInt32)0 instead.")]
         public static BsonInt32 Zero
         {
-            get { return new BsonInt32(0); }
+            get { return (BsonInt32)0; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 1.
         /// </summary>
-        [Obsolete("Use new BsonInt32(1) instead.")]
+        [Obsolete("Use (BsonInt32)1 instead.")]
         public static BsonInt32 One
         {
-            get { return new BsonInt32(1); }
+            get { return (BsonInt32)1; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 2.
         /// </summary>
-        [Obsolete("Use new BsonInt32(2) instead.")]
+        [Obsolete("Use (BsonInt32)2 instead.")]
         public static BsonInt32 Two
         {
-            get { return new BsonInt32(2); }
+            get { return (BsonInt32)2; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 3.
         /// </summary>
-        [Obsolete("Use new BsonInt32(3) instead.")]
+        [Obsolete("Use (BsonInt32)3 instead.")]
         public static BsonInt32 Three
         {
-            get { return new BsonInt32(3); }
+            get { return (BsonInt32)3; }
         }
 
         // public properties

@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -1056,11 +1054,11 @@ namespace MongoDB.Bson
             }
             else if (value is int)
             {
-                return new BsonInt32((int)value);
+                return (BsonInt32)(int)value;
             }
             else if (value is string)
             {
-                return new BsonString((string)value);
+                return (BsonString)(string)value;
             }
             else if (value is bool)
             {
@@ -1072,11 +1070,11 @@ namespace MongoDB.Bson
             }
             else if (value is long)
             {
-                return new BsonInt64((long)value);
+                return (BsonInt64)(long)value;
             }
             else if (value is double)
             {
-                return new BsonDouble((double)value);
+                return (BsonDouble)(double)value;
             }
             else
             {

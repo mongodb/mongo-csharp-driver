@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1379,7 +1379,7 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken(")");
-            return new BsonInt32(value);
+            return (BsonInt32)value;
         }
 
         private BsonValue ParseNumberLongConstructor()
@@ -1401,7 +1401,7 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken(")");
-            return new BsonInt64(value);
+            return (BsonInt64)value;
         }
 
         private BsonValue ParseNumberLongExtendedJson()
@@ -1414,7 +1414,7 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken("}");
-            return new BsonInt64(long.Parse(valueToken.StringValue));
+            return (BsonInt64)long.Parse(valueToken.StringValue);
         }
 
         private BsonValue ParseObjectIdConstructor()
@@ -1513,7 +1513,7 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken("}");
-            return new BsonString(nameToken.StringValue); // will be converted to a BsonSymbol at a higher level
+            return (BsonString)nameToken.StringValue; // will be converted to a BsonSymbol at a higher level
         }
 
         private BsonValue ParseTimestampConstructor()

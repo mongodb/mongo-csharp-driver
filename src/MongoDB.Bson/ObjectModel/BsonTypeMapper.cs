@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -509,48 +509,48 @@ namespace MongoDB.Bson
                 case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[])value);
                 case Conversion.ByteArrayToBsonObjectId: return new BsonObjectId(new ObjectId((byte[])value));
                 case Conversion.ByteToBsonBoolean: return (BsonBoolean)((byte)value != 0);
-                case Conversion.ByteToBsonDouble: return new BsonDouble((double)(byte)value);
-                case Conversion.ByteToBsonInt32: return new BsonInt32((int)(byte)value);
-                case Conversion.ByteToBsonInt64: return new BsonInt64((long)(byte)value);
+                case Conversion.ByteToBsonDouble: return (BsonDouble)(double)(byte)value;
+                case Conversion.ByteToBsonInt32: return (BsonInt32)(int)(byte)value;
+                case Conversion.ByteToBsonInt64: return (BsonInt64)(long)(byte)value;
                 case Conversion.CharToBsonBoolean: return (BsonBoolean)((char)value != 0);
-                case Conversion.CharToBsonDouble: return new BsonDouble((double)(char)value);
-                case Conversion.CharToBsonInt32: return new BsonInt32((int)(char)value);
-                case Conversion.CharToBsonInt64: return new BsonInt64((long)(char)value);
+                case Conversion.CharToBsonDouble: return (BsonDouble)(double)(char)value;
+                case Conversion.CharToBsonInt32: return (BsonInt32)(int)(char)value;
+                case Conversion.CharToBsonInt64: return (BsonInt64)(long)(char)value;
                 case Conversion.DateTimeOffsetToBsonDateTime: return new BsonDateTime(((DateTimeOffset)value).UtcDateTime);
                 case Conversion.DateTimeToBsonDateTime: return new BsonDateTime((DateTime)value);
                 case Conversion.DoubleToBsonBoolean: var d = (double)value; return (BsonBoolean)(!(double.IsNaN(d) || d == 0.0));
                 case Conversion.GuidToBsonBinary: return new BsonBinaryData((Guid)value);
                 case Conversion.Int16ToBsonBoolean: return (BsonBoolean)((short)value != 0);
-                case Conversion.Int16ToBsonDouble: return new BsonDouble((double)(short)value);
-                case Conversion.Int16ToBsonInt32: return new BsonInt32((int)(short)value);
-                case Conversion.Int16ToBsonInt64: return new BsonInt64((long)(short)value);
+                case Conversion.Int16ToBsonDouble: return (BsonDouble)(double)(short)value;
+                case Conversion.Int16ToBsonInt32: return (BsonInt32)(int)(short)value;
+                case Conversion.Int16ToBsonInt64: return (BsonInt64)(long)(short)value;
                 case Conversion.Int32ToBsonBoolean: return (BsonBoolean)((int)value != 0);
-                case Conversion.Int32ToBsonDouble: return new BsonDouble((double)(int)value);
-                case Conversion.Int32ToBsonInt64: return new BsonInt64((long)(int)value);
+                case Conversion.Int32ToBsonDouble: return (BsonDouble)(double)(int)value;
+                case Conversion.Int32ToBsonInt64: return (BsonInt64)(long)(int)value;
                 case Conversion.Int64ToBsonBoolean: return (BsonBoolean)((long)value != 0);
-                case Conversion.Int64ToBsonDouble: return new BsonDouble((double)(long)value);
+                case Conversion.Int64ToBsonDouble: return (BsonDouble)(double)(long)value;
                 case Conversion.Int64ToBsonTimestamp: return new BsonTimestamp((long)value);
                 case Conversion.NewBsonBoolean: return (BsonBoolean)((bool)value);
-                case Conversion.NewBsonDouble: return new BsonDouble((double)value);
-                case Conversion.NewBsonInt32: return new BsonInt32((int)value);
-                case Conversion.NewBsonInt64: return new BsonInt64((long)value);
+                case Conversion.NewBsonDouble: return (BsonDouble)(double)value;
+                case Conversion.NewBsonInt32: return (BsonInt32)(int)value;
+                case Conversion.NewBsonInt64: return (BsonInt64)(long)value;
                 case Conversion.NewBsonObjectId: return new BsonObjectId((ObjectId)value);
-                case Conversion.NewBsonString: return new BsonString((string)value);
+                case Conversion.NewBsonString: return (BsonString)(string)value;
                 case Conversion.RegexToBsonRegularExpression: return new BsonRegularExpression((Regex)value);
                 case Conversion.SByteToBsonBoolean: return (BsonBoolean)((sbyte)value != 0);
-                case Conversion.SByteToBsonDouble: return new BsonDouble((double)(sbyte)value);
-                case Conversion.SByteToBsonInt32: return new BsonInt32((int)(sbyte)value);
-                case Conversion.SByteToBsonInt64: return new BsonInt64((long)(sbyte)value);
+                case Conversion.SByteToBsonDouble: return (BsonDouble)(double)(sbyte)value;
+                case Conversion.SByteToBsonInt32: return (BsonInt32)(int)(sbyte)value;
+                case Conversion.SByteToBsonInt64: return (BsonInt64)(long)(sbyte)value;
                 case Conversion.SingleToBsonBoolean: var f = (float)value; return (BsonBoolean)(!(float.IsNaN(f) || f == 0.0f));
-                case Conversion.SingleToBsonDouble: return new BsonDouble((double)(float)value);
+                case Conversion.SingleToBsonDouble: return (BsonDouble)(double)(float)value;
                 case Conversion.StringToBsonBoolean: return (BsonBoolean)((string)value != "");
                 case Conversion.StringToBsonDateTime:
                     var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
                     var dt = DateTime.ParseExact((string)value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     return new BsonDateTime(dt);
-                case Conversion.StringToBsonDouble: return new BsonDouble(JsonConvert.ToDouble((string)value));
-                case Conversion.StringToBsonInt32: return new BsonInt32(JsonConvert.ToInt32((string)value));
-                case Conversion.StringToBsonInt64: return new BsonInt64(JsonConvert.ToInt64((string)value));
+                case Conversion.StringToBsonDouble: return (BsonDouble)JsonConvert.ToDouble((string)value);
+                case Conversion.StringToBsonInt32: return (BsonInt32)JsonConvert.ToInt32((string)value);
+                case Conversion.StringToBsonInt64: return (BsonInt64)JsonConvert.ToInt64((string)value);
                 case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string)value);
                 case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string)value, new BsonDocument());
                 case Conversion.StringToBsonObjectId: return new BsonObjectId(ObjectId.Parse((string)value));
@@ -558,16 +558,16 @@ namespace MongoDB.Bson
                 case Conversion.StringToBsonSymbol: return BsonSymbolTable.Lookup((string)value);
                 case Conversion.StringToBsonTimestamp: return new BsonTimestamp(JsonConvert.ToInt64((string)value));
                 case Conversion.UInt16ToBsonBoolean: return (BsonValue)((ushort)value != 0);
-                case Conversion.UInt16ToBsonDouble: return new BsonDouble((double)(ushort)value);
-                case Conversion.UInt16ToBsonInt32: return new BsonInt32((int)(ushort)value);
-                case Conversion.UInt16ToBsonInt64: return new BsonInt64((long)(ushort)value);
+                case Conversion.UInt16ToBsonDouble: return (BsonDouble)(double)(ushort)value;
+                case Conversion.UInt16ToBsonInt32: return (BsonInt32)(int)(ushort)value;
+                case Conversion.UInt16ToBsonInt64: return (BsonInt64)(long)(ushort)value;
                 case Conversion.UInt32ToBsonBoolean: return (BsonBoolean)((uint)value != 0);
-                case Conversion.UInt32ToBsonDouble: return new BsonDouble((double)(uint)value);
-                case Conversion.UInt32ToBsonInt32: return new BsonInt32((int)(uint)value);
-                case Conversion.UInt32ToBsonInt64: return new BsonInt64((long)(uint)value);
+                case Conversion.UInt32ToBsonDouble: return (BsonDouble)(double)(uint)value;
+                case Conversion.UInt32ToBsonInt32: return (BsonInt32)(int)(uint)value;
+                case Conversion.UInt32ToBsonInt64: return (BsonInt64)(long)(uint)value;
                 case Conversion.UInt64ToBsonBoolean: return (BsonBoolean)((ulong)value != 0);
-                case Conversion.UInt64ToBsonDouble: return new BsonDouble((double)(ulong)value);
-                case Conversion.UInt64ToBsonInt64: return new BsonInt64((long)(ulong)value);
+                case Conversion.UInt64ToBsonDouble: return (BsonDouble)(double)(ulong)value;
+                case Conversion.UInt64ToBsonInt64: return (BsonInt64)(long)(ulong)value;
                 case Conversion.UInt64ToBsonTimestamp: return new BsonTimestamp((long)(ulong)value);
             }
 
