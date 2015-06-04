@@ -5,13 +5,21 @@ title = "index"
 type = "index"
 +++
 
-## Welcome to the Legacy .NET MongoDB Driver Documentation
+## Welcome to the .NET MongoDB Driver Documentation
 
-The [Getting Started]({{< relref "getting_started.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
+The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
-The [Driver Tutorial]({{< relref "driver.md" >}}) contains information on using the driver.
 
-The [Serialization Tutorial]({{< relref "serialization.md" >}}) contains information about serialization and mapping of .NET class to and from BSON.
+## What's new in 2.0
 
-The [LINQ Tutorial]({{< relref "linq.md" >}}) contains information about supported LINQ operations.
+The [What's New]({{< relref "what_is_new.md" >}}) contains the major new features of the driver, the most important of which is full async support.
 
+
+## Upgrading
+
+If you are coming from the 1.x series of the driver, consult the [upgrading]({{< relref "upgrading.md" >}}) documentation on major changes.
+
+
+## Reference
+
+If you are looking for more detailed documentation, see the [Reference]({{< relref "reference\index.md" >}}) guide.

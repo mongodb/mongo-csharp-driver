@@ -1,8 +1,22 @@
-baseurl = "/mongo-csharp-driver/1.10"
+baseurl = "/mongo-csharp-driver/2.0"
 languageCode = "en-us"
-title = "MongoDB CSharp Driver"
+title = "MongoDB .NET Driver"
 theme = "mongodb"
 canonifyurls = false
 
 [blackfriday]
   plainIdAnchors = true
+
+[[menu.main]]
+    name = "API Documentation"
+    pre = "<i class='fa fa-file-text-o'></i>"
+    weight = 90
+    identifier = "apiDocs"
+    url = "http://api.mongodb.org/csharp/2.0"
+
+[[menu.main]]
+    name = "Source Code"
+    pre = "<i class='fa fa-github'></i>"
+    weight = 90
+    identifier = "githubLink"
+    url = "https://github.com/mongodb/mongo-csharp-driver/tree/master"
