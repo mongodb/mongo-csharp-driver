@@ -6,8 +6,336 @@
     <description>Recent content in Examples on MongoDB .NET Driver</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 17 Mar 2015 15:36:56 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 29 May 2015 15:36:56 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/mongo-csharp-driver/2.0/examples/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Managing Users</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/user_management/</link>
+      <pubDate>Fri, 29 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/user_management/</guid>
+      <description>
+
+&lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
+
+&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
+&#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to managed users from the driver by using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase.RunCommandAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+
+&lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/usersInfo/
+&#34;&gt;&lt;code&gt;usersInfo&lt;/code&gt;&lt;/a&gt; will provide information about users in a specific database.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
+var db = client.GetDatabase(&amp;quot;products&amp;quot;);
+
+// construct the usersInfo command
+var command = new BsonDocument(&amp;quot;usersInfo&amp;quot;, 1);
+
+// Run the command. If it fails, an exception will be thrown.
+var result = await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;result&lt;/code&gt; variable will contain a field called &amp;ldquo;users&amp;rdquo; which will contain all the users for the &amp;ldquo;products&amp;rdquo; database.&lt;/p&gt;
+
+&lt;h2 id=&#34;creating-users&#34;&gt;Creating Users&lt;/h2&gt;
+
+&lt;p&gt;Following the example for the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/createUser/
+&#34;&gt;&lt;code&gt;createUser&lt;/code&gt;&lt;/a&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
+var db = client.GetDatabase(&amp;quot;products&amp;quot;);
+
+// Construct the write concern
+var writeConcern = WriteConcern.WMajority
+    .With(wTimeout: TimeSpan.FromMilliseconds(5000);
+
+// Construct the createUser command.
+var command = new BsonDocument
+{
+    { &amp;quot;createUser&amp;quot;, &amp;quot;accountAdmin01&amp;quot; },
+    { &amp;quot;pwd&amp;quot;, &amp;quot;cleartext password&amp;quot; },
+    { &amp;quot;customData&amp;quot;, new BsonDocument(&amp;quot;employeeId&amp;quot;, 12345) },
+    { &amp;quot;roles&amp;quot;, new BsonArray
+               {
+                   new BsonDocument
+                   {
+                       { &amp;quot;role&amp;quot;, &amp;quot;clusterAdmin&amp;quot; },
+                       { &amp;quot;db&amp;quot;, &amp;quot;admin&amp;quot; }   
+                   },
+                   new BsonDocument
+                   {
+                       { &amp;quot;role&amp;quot;, &amp;quot;readAnyDatabase&amp;quot; },
+                       { &amp;quot;db&amp;quot;, &amp;quot;admin&amp;quot; }   
+                   },
+                   &amp;quot;readWrite&amp;quot;
+               }},
+    { &amp;quot;writeConcern&amp;quot;, writeConcern.ToBsonDocument() }
+};
+
+// Run the command. If it fails, an exception will be thrown.
+await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;updating-users&#34;&gt;Updating Users&lt;/h2&gt;
+
+&lt;p&gt;Following the example for the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/updateUser/
+&#34;&gt;&lt;code&gt;updateUser&lt;/code&gt;&lt;/a&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
+var db = client.GetDatabase(&amp;quot;products&amp;quot;);
+
+// Construct the updateUser command.
+var command = new BsonDocument
+{
+    { &amp;quot;updateUser&amp;quot;, &amp;quot;appClient01&amp;quot; },
+    { &amp;quot;customData&amp;quot;, new BsonDocument(&amp;quot;employeeId&amp;quot;, &amp;quot;0x3039&amp;quot;) },
+    { &amp;quot;roles&amp;quot;, new BsonArray
+               {
+                   new BsonDocument
+                   {
+                       { &amp;quot;role&amp;quot;, &amp;quot;read&amp;quot; },
+                       { &amp;quot;db&amp;quot;, &amp;quot;assets&amp;quot; }   
+                   },
+               }}
+};
+
+// Run the command. If it fails, an exception will be thrown.
+await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;dropping-users&#34;&gt;Dropping Users&lt;/h2&gt;
+
+&lt;p&gt;Following the example for the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/dropUser/
+&#34;&gt;&lt;code&gt;dropUser&lt;/code&gt;&lt;/a&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
+var db = client.GetDatabase(&amp;quot;products&amp;quot;);
+
+// Construct the dropUser command.
+var command = @&amp;quot;{ dropUser: &amp;quot;&amp;quot;accountAdmin01&amp;quot;&amp;quot;,
+                  writeConcern: { w: &amp;quot;&amp;quot;majority&amp;quot;&amp;quot;, wtimeout: 5000 }
+                }&amp;quot;;
+
+// Run the command. If it fails, an exception will be thrown.
+await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Even though we used a string here for the command, it could have been a BsonDocument like the other examples. Well-formed strings of valid JSON are interchangeable with BsonDocument.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h2 id=&#34;other-user-management-commands&#34;&gt;Other User Management Commands&lt;/h2&gt;
+
+&lt;p&gt;There are a number of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/nav-user-management/
+&#34;&gt;other commands&lt;/a&gt; that exist for managing users and each would be run in a similar fashion to how ones demonstrated above.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Mixing Static and Dynamic Data</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/mixing_static_and_dynamic/</link>
+      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/mixing_static_and_dynamic/</guid>
+      <description>
+
+&lt;h2 id=&#34;mixing-static-and-dynamic-data&#34;&gt;Mixing Static and Dynamic Data&lt;/h2&gt;
+
+&lt;p&gt;Many applications have the notion of known data and unknown data. One such example would be a Blog application where there exists the known data (content, created date, tags) and unknown data (metadata) which a user is allowed to configure.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-class&#34;&gt;The Class&lt;/h2&gt;
+
+&lt;p&gt;Continuing with the Blog example, below is how we might model the static content for a post.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Post
+{
+    public ObjectId Id { get; set; }
+  
+    public string Content { get; set; }
+  
+    public DateTime CreatedAtUtc { get; set; }
+  
+    public List&amp;lt;string&amp;gt; Tags { get; set; }  
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In order to include dynamic data, we have 2 options.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+It is still possible to filter, sort, project, update, etc&amp;hellip; this dynamic data using the same tooling described in our &lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/definitions/&#34;&gt;reference documentation&lt;/a&gt;.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;bsondocument-property&#34;&gt;BsonDocument Property&lt;/h3&gt;
+
+&lt;p&gt;The first option is to include a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; (or Dictionary&amp;lt;string, object&amp;gt;) as a property. Our class would then look as follows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Post
+{
+    // previous properties
+  
+    public BsonDocument Metadata { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can then put all the dynamic data into the &lt;code&gt;Metadata&lt;/code&gt; property.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var post = new Post
+{
+    Content = &amp;quot;My Post Content&amp;quot;,
+    CreatedAtUtc = DateTime.UtcNow,
+    Tags = new List&amp;lt;string&amp;gt; { &amp;quot;first&amp;quot;, &amp;quot;post&amp;quot; },
+    Metadata = new BsonDocument(&amp;quot;rel&amp;quot;, &amp;quot;mongodb&amp;quot;)
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the above example, we set the static properties, but also added a &lt;code&gt;rel&lt;/code&gt; field with a value of &lt;code&gt;mongodb&lt;/code&gt; to our metadata. Not all documents may have the &lt;code&gt;rel&lt;/code&gt; field because it isn&amp;rsquo;t part of the schema. The above document would look like this in the database:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+    &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5564b6c11de315e733f173cf&amp;quot;),
+    &amp;quot;Content&amp;quot;: &amp;quot;My Post Content&amp;quot;,
+    &amp;quot;CreatedAtUtc&amp;quot; : ISODate(&amp;quot;2015-05-26T18:09:05.883Z&amp;quot;),
+    &amp;quot;Tags&amp;quot; : [&amp;quot;first&amp;quot;, &amp;quot;post&amp;quot;],
+    &amp;quot;Metadata&amp;quot;: {
+        &amp;quot;rel&amp;quot;: &amp;quot;mongodb&amp;quot;   
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using this method, all our &amp;ldquo;dynamic&amp;rdquo; data is stored underneath the &lt;code&gt;Metadata&lt;/code&gt; field.&lt;/p&gt;
+
+&lt;h3 id=&#34;extra-elements&#34;&gt;Extra Elements&lt;/h3&gt;
+
+&lt;p&gt;The other way to store dynamic data would be to use the &lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#supporting-extra-elements&#34;&gt;extra elements&lt;/a&gt; feature in the Bson library.&lt;/p&gt;
+
+&lt;p&gt;Our full class would like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Post
+{
+    public ObjectId Id { get; set; }
+  
+    public string Content { get; set; }
+  
+    public DateTime CreatedAtUtc { get; set; }
+  
+    public List&amp;lt;string&amp;gt; Tags { get; set; }  
+    
+    [BsonExtraElements]
+    public BsonDocument Metadata { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using the following code to create &lt;code&gt;Post&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var post = new Post
+{
+    Content = &amp;quot;My Post Content&amp;quot;,
+    CreatedAtUtc = DateTime.UtcNow,
+    Tags = new List&amp;lt;string&amp;gt; { &amp;quot;first&amp;quot;, &amp;quot;post&amp;quot; },
+    Metadata = new BsonDocument(&amp;quot;rel&amp;quot;, &amp;quot;mongodb&amp;quot;)
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Our document in the database would look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+    &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5564b6c11de315e733f173cf&amp;quot;),
+    &amp;quot;Content&amp;quot;: &amp;quot;My Post Content&amp;quot;,
+    &amp;quot;CreatedAtUtc&amp;quot; : ISODate(&amp;quot;2015-05-26T18:09:05.883Z&amp;quot;),
+    &amp;quot;Tags&amp;quot; : [&amp;quot;first&amp;quot;, &amp;quot;post&amp;quot;],
+    &amp;quot;rel&amp;quot;: &amp;quot;mongodb&amp;quot;   
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using this method, the &lt;code&gt;rel&lt;/code&gt; field is stored inline with the static content.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+There is a danger with this approach in that if you decided to (for instance) introduce a &lt;code&gt;rel&lt;/code&gt; static field later, it might clash with existing dynamic data.
+&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using a Tailable Cursor</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/tailable_cursor/</link>
+      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/tailable_cursor/</guid>
+      <description>
+
+&lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
+
+&lt;p&gt;MongoDB offers the option to use watch a &lt;a href=&#34;http://docs.mongodb.org/manual/&#34;&gt;capped collection&lt;/a&gt; for certain changes by using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
+&#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The below code &amp;ldquo;tails&amp;rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use a defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your defined class.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;private static async Task TailCollectionAsync(IMongoCollection&amp;lt;BsonDocument&amp;gt; collection)
+{
+    // Set lastValue to the smallest value possible
+    BsonValue lastValue = BsonMinKey.Value;
+    
+    var options = new FindOptions&amp;lt;BsonDocument&amp;gt; 
+    { 
+        // Our cursor is a tailable cursor and informs the server to await
+        CursorType = CursorType.TailableAwait,
+        // Use $hint to ensure that the query uses the $natural order...
+        Modifiers = new BsonDocument(&amp;quot;$hint&amp;quot;, new BsonDocument(&amp;quot;$natural&amp;quot;, 1));
+    };
+    
+    // Initially, we don&#39;t have a filter. An empty BsonDocument matches everything.
+    BsonDocument filter = new BsonDocument();
+    
+    // NOTE: This loops forever. It would be prudent to provide some form of 
+    // an escape condition based on your needs; e.g. the user presses a key.
+    while (true)
+    {
+        // Start the cursor and wait for the initial response
+        using (var cursor = await collection.FindAsync(filter, options))
+        {
+            // This callback will get invoked with each new document found
+            await cursor.ForEachAsync(document =&amp;gt;
+            {
+                // Set the last value we saw 
+                lastValue = document[&amp;quot;insertDate&amp;quot;];
+                
+                // Write the document to the console.
+                Console.WriteLine(document.ToString());
+            });
+        }
+
+        // The tailable cursor died so loop through and restart it
+        // Now, we want documents that are strictly greater than the last value we saw
+        filter = new BsonDocument(&amp;quot;$gt&amp;quot;, new BsonDocument(&amp;quot;insertDate&amp;quot;, lastId));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
+you could track all the documents you&amp;rsquo;ve seen by their identifiers for the same &lt;code&gt;lastValue&lt;/code&gt; and ignore them in the callback.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Examples</title>
@@ -22,31 +350,89 @@
 &lt;p&gt;A number of examples have been compiled to show a more thorough usage of certain features and how they interact.&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/import_export/&#34;&gt;Importing and Exporting&lt;/a&gt;: Sample implementations of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoimport/
-&#34;&gt;mongoimport&lt;/a&gt; and &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoexport/
-&#34;&gt;mongoexport&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/importing_json/&#34;&gt;Importing JSON&lt;/a&gt;: How to read JSON from a file and insert it into a collection.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/exporting_json/&#34;&gt;Exporting JSON&lt;/a&gt;: How to read data from a collection and export it to a JSON file.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/mixing_static_and_dynamic/&#34;&gt;Mixing Static and Dynamic Data&lt;/a&gt;: How to have both static and dynamic data inside your classes.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/tailable_cursor/&#34;&gt;Using Tailable Cursors&lt;/a&gt;: How to use a tailable cursor.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/user_management/&#34;&gt;Managing Users&lt;/a&gt;: How to manage users.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
     
     <item>
-      <title>Import and Export</title>
-      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/import_export/</link>
+      <title>Exporting JSON</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/exporting_json/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
       
-      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/import_export/</guid>
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/exporting_json/</guid>
       <description>
 
-&lt;h2 id=&#34;rewriting-mongoimport-and-mongoexport&#34;&gt;Rewriting MongoImport and MongoExport&lt;/h2&gt;
+&lt;h2 id=&#34;exporting-json&#34;&gt;Exporting JSON&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports reading and writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_IO_JsonReader.htm
-&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; classes. Both of these also handle both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
-&#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The .NET BSON library supports writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
-&lt;p&gt;Neither of these implementations are the most performant solutions, but they illustrate using multiple features of the driver together.&lt;/p&gt;
+&lt;p&gt;The below program will export all documents from a collection to a file with one document per line.&lt;/p&gt;
 
-&lt;h2 id=&#34;importing&#34;&gt;Importing&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the output file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
+
+using (var streamWriter = new StreamWriter(outputFileName))
+{
+    await col.Find(new BsonDocument())
+        .ForEachAsync(doc =&amp;gt; streamWriter.WriteLine(doc.ToString()));
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output file should look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even though we used a collection of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocuments&lt;/code&gt;&lt;/a&gt;, it is possible to do this with a static class as well.&lt;/p&gt;
+
+&lt;p&gt;Given the class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Sample
+{
+    public ObjectId Id { get; set; }
+    
+    [BsonElement(&amp;quot;x&amp;quot;)]
+    public int X { get; set; }   
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We would simply change the collection to use &lt;code&gt;Sample&lt;/code&gt; instead of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the output file
+IMongoCollection&amp;lt;Sample&amp;gt; collection; // initialize to the collection to read from.
+
+using (var streamWriter = new StreamWriter(outputFileName))
+{
+    await col.Find(new BsonDocument())
+        .ForEachAsync(doc =&amp;gt; streamWriter.WriteLine(doc.ToString()));
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Importing JSON</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/importing_json/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/importing_json/</guid>
+      <description>
+
+&lt;h2 id=&#34;importing-json&#34;&gt;Importing JSON&lt;/h2&gt;
+
+&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
 &lt;p&gt;The below program will import all documents from a file with one document per line into the collection.&lt;/p&gt;
 
@@ -60,7 +446,7 @@
 
 &lt;p&gt;And the program:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize from to the input file
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize to the input file
 IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to write to.
 
 using (var streamReader = new StreamReader(inputFileName))
@@ -75,26 +461,36 @@ using (var jsonReader = new JsonReader(streamReader))
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;exporting&#34;&gt;Exporting&lt;/h2&gt;
+&lt;p&gt;Even though we used a collection of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocuments&lt;/code&gt;&lt;/a&gt;, it is possible to do this with a static class as well.&lt;/p&gt;
 
-&lt;p&gt;The below program will export all documents from a collection to a file with one document per line.&lt;/p&gt;
+&lt;p&gt;Given the class:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize from to the output file
-IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
-
-using (var streamWriter = new StreamWriter(outputFileName))
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Sample
 {
-    await col.Find(new BsonDocument())
-        .ForEachAsync(doc =&amp;gt; streamWriter.WriteLine(doc.ToString()));
+    public ObjectId Id { get; set; }
+    
+    [BsonElement(&amp;quot;x&amp;quot;)]
+    public int X { get; set; }   
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The result file should look like this:&lt;/p&gt;
+&lt;p&gt;We would simply change the collection to use &lt;code&gt;Sample&lt;/code&gt; instead of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize to the input file
+IMongoCollection&amp;lt;Sample&amp;gt; collection; // initialize to the collection to write to.
+
+using (var streamReader = new StreamReader(inputFileName))
+using (var jsonReader = new JsonReader(streamReader))
+{
+    while (!jsonReader.IsAtEndOfFile())
+    {
+        var context = BsonDeserializationContext.CreateRoot(jsonReader);
+        var doc = collection.DocumentSerializer.Deserialize(context);
+        await collection.InsertOneAsync(doc);
+    }
+}
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>

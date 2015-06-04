@@ -1243,7 +1243,7 @@ var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;q
 &lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/admin/&#34;&gt;Administration&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/definitions/&#34;&gt;Definitions and Builders&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/crud/&#34;&gt;CRUD Operations&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Error Handling&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/error_handling/&#34;&gt;Error Handling&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Experimental Features&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -1284,6 +1284,325 @@ var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;q
 &lt;h3 id=&#34;bindings&#34;&gt;Bindings&lt;/h3&gt;
 
 &lt;p&gt;Bindings glue together server selection and operation execution by influencing how and where operations get executed. It would be possible to construct bindings that, for instance, pipeline multiple operations down the same connection or ensure that OP_GETMORE requests are sent down the same connection as the initial OP_QUERY.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Error Handling</title>
+      <link>/mongo-csharp-driver/2.0/reference/driver/error_handling/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.0/reference/driver/error_handling/</guid>
+      <description>
+
+&lt;h2 id=&#34;error-handling&#34;&gt;Error Handling&lt;/h2&gt;
+
+&lt;p&gt;Error handling using the .NET driver is a requirement for a fault-tolerant system. While MongoDB supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/replica-set-high-availability/
+&#34;&gt;automatic replica set failover&lt;/a&gt; and the driver supports multiple &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongos/
+&#34;&gt;mongos&lt;/a&gt;&amp;rsquo;s, this doesn&amp;rsquo;t make a program immune to errors.&lt;/p&gt;
+
+&lt;p&gt;Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt;, getting a database, or getting a collection. This is because we are connecting to servers in the background and continually trying to reconnect when a problem occurs. Only when you attempt to perform an operation do those errors become apparent.&lt;/p&gt;
+
+&lt;p&gt;There are a few types of errors you will see.&lt;/p&gt;
+
+&lt;h2 id=&#34;server-selection-errors&#34;&gt;Server Selection Errors&lt;/h2&gt;
+
+&lt;p&gt;Even when some servers are available, it might not be possible to satisfy a request. For example, using &lt;a href=&#34;http://docs.mongodb.org/manual/core/read-preference/#tag-sets
+&#34;&gt;tag sets&lt;/a&gt; in a read preference when no server exists with those tags or attempting to write to a &lt;a href=&#34;http://docs.mongodb.org/manual/core/replication-introduction/
+&#34;&gt;replica set&lt;/a&gt; when the Primary is unavailable. Both of these would result in a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.timeoutexception.aspx&#34;&gt;&lt;code&gt;TimeoutException&lt;/code&gt;&lt;/a&gt;. Below is an example exception (formatted for readability) when attempting to insert into a replica set without a primary.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &amp;quot;1&amp;quot;, 
+    Type : &amp;quot;ReplicaSet&amp;quot;, 
+    State : &amp;quot;Connected&amp;quot;, 
+    Servers : [
+        { 
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/clover:30000&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/clover:30000&amp;quot;, 
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot; 
+        }, 
+        { 
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/clover:30001&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/clover:30001&amp;quot;, 
+            State: &amp;quot;Connected&amp;quot;, 
+            Type: &amp;quot;ReplicaSetSecondary&amp;quot;, 
+            WireVersionRange: &amp;quot;[0, 3]&amp;quot; 
+        }, 
+        { 
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/clover:30002&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/clover:30002&amp;quot;, 
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot;
+        }, 
+    ] 
+}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Inspecting this error will tell you that we were attempting to find a writable server. The servers that are known are &lt;code&gt;clover:30000&lt;/code&gt;, &lt;code&gt;clover:30001&lt;/code&gt;, and &lt;code&gt;clover:30002&lt;/code&gt;. Of these, &lt;code&gt;clover:30000&lt;/code&gt; and &lt;code&gt;clover:30002&lt;/code&gt; are disconnected and &lt;code&gt;clover:30001&lt;/code&gt; is connected and a secondary. By default, we wait for 30 seconds to fulfill the request. During this time, we are trying to connect to &lt;code&gt;clover:30000&lt;/code&gt; and &lt;code&gt;clover:30002&lt;/code&gt; in hopes that one of them becomes available and and takes the role of primary. In this case, we timed out waiting.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Even though the above scenario prevents any writes from occuring, reads can still be sent to &lt;code&gt;clover:30001&lt;/code&gt; as long as the read preference is &lt;code&gt;Secondary&lt;/code&gt;, &lt;code&gt;SecondaryPreferred&lt;/code&gt;, or &lt;code&gt;Nearest&lt;/code&gt;.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h2 id=&#34;connection-errors&#34;&gt;Connection Errors&lt;/h2&gt;
+
+&lt;p&gt;A server may be unavailable for a variety of reasons. Each of these reasons will manifest themselves as a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.timeoutexception.aspx&#34;&gt;&lt;code&gt;TimeoutException&lt;/code&gt;&lt;/a&gt;. This is because, over time, it is entirely possible for the state of the servers to change in such a way
+that a matching server becomes available.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+There is nothing that can be done at runtime by your application to resolve these problems. The best thing to do is to catch them, log them, and raise a notification so that someone in your ops team can handle them.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;If you are having trouble discovering why the driver can&amp;rsquo;t connect, &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ty48b824.aspx&#34;&gt;enabling network tracing&lt;/a&gt; on the &lt;code&gt;System.Net.Sockets&lt;/code&gt; source may help discover the problem.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;server-is-unavailable&#34;&gt;Server is unavailable&lt;/h3&gt;
+
+&lt;p&gt;When a server is not listening at the location specified, the driver can&amp;rsquo;t connect to it.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &amp;quot;1&amp;quot;, 
+    Type : &amp;quot;Unknown&amp;quot;, 
+    State : &amp;quot;Disconnected&amp;quot;, 
+    Servers : [
+        { 
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/localhost:27017&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/localhost:27017&amp;quot;, 
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot;, 
+            HeartbeatException: &amp;quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&amp;gt; System.Net.Sockets.SocketException: No connection could be made because the target machine actively refused it 127.0.0.1:27017
+   at System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult).
+   ... snip ...&amp;quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see that we are attempting to connect to &lt;code&gt;localhost:27017&lt;/code&gt;, but &amp;ldquo;No connection could be made because the target machine actively refused it&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Fixing this problem either involves starting a server at the specified location or restarting your application with the correct host and port.&lt;/p&gt;
+
+&lt;h3 id=&#34;dns-problems&#34;&gt;DNS problems&lt;/h3&gt;
+
+&lt;p&gt;When DNS is misconfigured, or the hostname provided is not registered, resolution from hostname to IP address may fail.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &amp;quot;1&amp;quot;, 
+    Type : &amp;quot;Unknown&amp;quot;, 
+    State : &amp;quot;Disconnected&amp;quot;, 
+    Servers : [
+        { 
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/idonotexist:27017&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/idonotexist:27017&amp;quot;, 
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot;, 
+            HeartbeatException: &amp;quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&amp;gt; System.Net.Sockets.SocketException: No such host is known
+   at System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   ... snip ...&amp;quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see that we are attempting to connect to &lt;code&gt;idonotexist:27017&lt;/code&gt;, but &amp;ldquo;No such host is known&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Fixing this problem either involves bringing up a server at the specified location, fixing DNS to resolve the host correctly, or modifing your hosts file.&lt;/p&gt;
+
+&lt;h4 id=&#34;replica-set-misconfiguration&#34;&gt;Replica Set Misconfiguration&lt;/h4&gt;
+
+&lt;p&gt;DNS problems might be seen when a replica set is misconfigured. It is imperative that the hosts in your replica set configuration be DNS resolvable from the client. Just because the replica set members can talk to one another does not mean that your application servers can also talk to the replica set members.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+Even when providing a seed list with resolvable host names, if the replica set configuration uses unresolvable host names, the driver will fail to connect.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;taking-too-long-to-respond&#34;&gt;Taking too long to respond&lt;/h3&gt;
+
+&lt;p&gt;When the latency between the driver and the server is too great, the driver may give up.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}.
+
+Client view of cluster state is 
+{ 
+    ClusterId : &amp;quot;1&amp;quot;, 
+    Type : &amp;quot;Unknown&amp;quot;, 
+    State : &amp;quot;Disconnected&amp;quot;, 
+    Servers : [
+        {
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/somefaroffplace:27017&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/somefaroffplace:27017&amp;quot;, 
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot;,
+            HeartbeatException: &amp;quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&amp;gt; System.TimeoutException: Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.&amp;lt;ConnectAsync&amp;gt;d__7.MoveNext()
+   ... snip ...
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see that attempting to connect to &lt;code&gt;somefaroffplace:27017&lt;/code&gt; failed because we &amp;ldquo;Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;The default connection timeout is 30 seconds and can be changed using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings.ConnectTimeout&lt;/code&gt;&lt;/a&gt; property or the &lt;code&gt;connectTimeout&lt;/code&gt; option on a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/
+&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;authentication-errors&#34;&gt;Authentication Errors&lt;/h3&gt;
+
+&lt;p&gt;When the credentials or the authentication mechanism is incorrect, the application will fail to connect.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+        
+Client view of cluster state is 
+{ 
+    ClusterId : &amp;quot;1&amp;quot;, 
+    Type : &amp;quot;Unknown&amp;quot;, 
+    State : &amp;quot;Disconnected&amp;quot;, 
+    Servers : [
+        {
+            ServerId: &amp;quot;{ ClusterId : 1, EndPoint : &amp;quot;Unspecified/localhost:27017&amp;quot; }&amp;quot;, 
+            EndPoint: &amp;quot;Unspecified/localhost:27017&amp;quot;,
+            State: &amp;quot;Disconnected&amp;quot;, 
+            Type: &amp;quot;Unknown&amp;quot;, 
+            HeartbeatException: &amp;quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+ ---&amp;gt; MongoDB.Driver.MongoAuthenticationException: Unable to authenticate using sasl protocol mechanism SCRAM-SHA-1. 
+ ---&amp;gt; MongoDB.Driver.MongoCommandException: Command saslStart failed: Authentication failed..
+   ... snip ...
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see that attempting to connect to &lt;code&gt;localhost:27017&lt;/code&gt; failed because the driver was &amp;ldquo;Unable to authenticate using sasl protocol mechanism SCRAM-SHA-1.&amp;rdquo; In place of SCRAM-SHA-1 could be any other authentication protocol supported by MongoDB.&lt;/p&gt;
+
+&lt;p&gt;Fixing this problem either involves adding the specified user to the server or restarting the application with the correct credentials and mechanisms.&lt;/p&gt;
+
+&lt;h2 id=&#34;operation-errors&#34;&gt;Operation Errors&lt;/h2&gt;
+
+&lt;p&gt;After successfully selecting a server to run an operation against, errors are still possible. Unlike &lt;a href=&#34;#connection-errors&#34;&gt;connection errors&lt;/a&gt;, it is sometimes possible to take action at runtime.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Most of the exceptions that are thrown from an operation inherit from &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoException.htm&#34;&gt;&lt;code&gt;MongoException&lt;/code&gt;&lt;/a&gt;. In many cases, they also inherit from &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoServerException.htm&#34;&gt;&lt;code&gt;MongoServerException&lt;/code&gt;&lt;/a&gt;. The server exception contains a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm&#34;&gt;&lt;code&gt;ConnectionId&lt;/code&gt;&lt;/a&gt; which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;connection-errors-1&#34;&gt;Connection Errors&lt;/h3&gt;
+
+&lt;p&gt;A server may go down after it was selected, but before the operation was executed. These will always manifest as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+&#34;&gt;&lt;code&gt;MongoConnectionException&lt;/code&gt;&lt;/a&gt;. Inspecting the inner exception will provide the actual details of the error.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoConnectionException: An exception occurred while receiving a message from the server. 
+---&amp;gt; System.IO.IOException: Unable to read data from the transport connection: Anestablished connection was aborted by the software in your host machine. 
+---&amp;gt; System.Net.Sockets.SocketException: An established connection was aborted by the software in your host machine at System.Net.Sockets.Socket.BeginReceive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags, AsyncCallback callback, Object state)
+   at System.Net.Sockets.NetworkStream.BeginRead(Byte[] buffer, Int32 offset, Int32 size, AsyncCallback callback, Object state)
+   --- End of inner exception stack trace ---
+... snip ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see from this exception that a transport connection that was successfully open at one point has been aborted.&lt;/p&gt;
+
+&lt;p&gt;There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+&#34;&gt;&lt;code&gt;MongoConnectionException&lt;/code&gt;&lt;/a&gt; unless the operation was idempotent. Simply getting an exception of this type doesn&amp;rsquo;t give any insight into whether the operations was received by the server or what happened in the server if it was received.&lt;/p&gt;
+
+&lt;h3 id=&#34;write-exceptions&#34;&gt;Write Exceptions&lt;/h3&gt;
+
+&lt;p&gt;When performing a write, it is possible to receive a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoWriteException.htm
+&#34;&gt;&lt;code&gt;MongoWriteException&lt;/code&gt;&lt;/a&gt;. This exception has two important properties, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
+&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
+&#34;&gt;&lt;code&gt;WriteConcernError&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;write-error&#34;&gt;Write Error&lt;/h4&gt;
+
+&lt;p&gt;A write error means that there was an error applying the write. The cause could be many different things. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_WriteError.htm
+&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; contains a number of properties which may help in the diagnosis of the problem. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Code.htm
+&#34;&gt;&lt;code&gt;Code&lt;/code&gt;&lt;/a&gt; property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Category..htm
+&#34;&gt;&lt;code&gt;Category&lt;/code&gt;&lt;/a&gt; property which classifies certain codes.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoWriteException: A write operation resulted in an error. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 } 
+---&amp;gt; MonoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write oeration resulted in one or more errors. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 }
+   at MongoDB.Driver.MongoCollectionImpl`1.&amp;lt;BulkWriteAsync&amp;gt;d__11.MoveNext() in :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 16
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We see from this exception that we&amp;rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ServerErrorCategory.htm
+&#34;&gt;&lt;code&gt;DuplicateKeyError&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;write-concern-error&#34;&gt;Write Concern Error&lt;/h4&gt;
+
+&lt;p&gt;A &lt;a href=&#34;http://docs.mongodb.org/manual/core/write-concern/
+&#34;&gt;write concern&lt;/a&gt; error indicates that the server was unable to guarantee the write operation to the level specified. See the &lt;a href=&#34;http://docs.mongodb.org/manual/core/write-concern/
+&#34;&gt;server&amp;rsquo;s documentation&lt;/a&gt; for more information.&lt;/p&gt;
+
+&lt;h3 id=&#34;bulk-write-exceptions&#34;&gt;Bulk Write Exceptions&lt;/h3&gt;
+
+&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
+&#34;&gt;&lt;code&gt;MongoBulkWriteException&lt;/code&gt;&lt;/a&gt; will occur when using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+&#34;&gt;&lt;code&gt;InsertManyAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
+&#34;&gt;&lt;code&gt;BulkWriteAsync&lt;/code&gt;&lt;/a&gt;. This exception is just a rollup of a bunch of individual &lt;a href=&#34;#write-error&#34;&gt;write errors&lt;/a&gt;. It also includes a &lt;a href=&#34;#write-concern-error&#34;&gt;write concern error&lt;/a&gt; and a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm
+&#34;&gt;&lt;code&gt;Result&lt;/code&gt;&lt;/a&gt; property.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write operation resulted in one or more errors. 
+  E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 }
+   at MongoDB.Driver.MongoCollectionImpl`1.&amp;lt;BulkWriteAsync&amp;gt;d__11.MoveNext() in c :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 166
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
+&#34;&gt;&lt;code&gt;WriteErrors&lt;/code&gt;&lt;/a&gt; property would allow the identification of which write failed.&lt;/p&gt;
+
+&lt;h4 id=&#34;ordered-writes&#34;&gt;Ordered Writes&lt;/h4&gt;
+
+&lt;p&gt;Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
+&#34;&gt;&lt;code&gt;UnprocessedRequests&lt;/code&gt;&lt;/a&gt; property.&lt;/p&gt;
 </description>
     </item>
     
@@ -3049,284 +3368,6 @@ BsonClassMap.RegisterClassMap&amp;lt;Tiger&amp;gt;();
 &lt;p&gt;The main reason you might choose to use hierarchical discriminators is because it makes it possibly to query for all instances of any class in the hierarchy. For example, to read all the &lt;code&gt;Cat&lt;/code&gt; documents we can use the following filter.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filter = new BsonDocument(&amp;quot;_t&amp;quot;, &amp;quot;Cat&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Reading</title>
-      <link>/mongo-csharp-driver/2.0/reference/driver/crud/reading/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.0/reference/driver/crud/reading/</guid>
-      <description>
-
-&lt;h2 id=&#34;counting-documents&#34;&gt;Counting Documents&lt;/h2&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
-&#34;&gt;&lt;code&gt;CountAsync&lt;/code&gt;&lt;/a&gt; method can be used to count all the documents matching a particular filter.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var count = await collection.CountAsync(new BsonDocument(&amp;quot;x&amp;quot;, 10));
-
-// or
-
-var count = await collection.CountAsync(x =&amp;gt; x.Age &amp;gt; 20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Counting all the documents in a collection requires an empty filter:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var count = await collection.CountAsync(new BsonDocument());
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;finding-documents&#34;&gt;Finding Documents&lt;/h2&gt;
-
-&lt;p&gt;Finding all the documents in a collection is done with an empty filter and the method &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1.htm
-&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt;. Once we have a cursor (of type &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IAsyncCursor_1.htm
-&#34;&gt;&lt;code&gt;IAsyncCursor&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;), we can iterate it like we manually iterate an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/9eekhta0.aspx&#34;&gt;&lt;code&gt;IEnumerable&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filter = new BsonDocument();
-using (var cursor = await collection.Find(filter).ToCursorAsync())
-{
-    while (await cursor.MoveNextAsync())
-    {
-        foreach (var doc in cursor.Current)
-        {
-            // do something with the documents
-        }
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-It is imperative that the cursor get disposed once you are finished with it to ensure that resources on the server are cleaned up.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Some options are available in the optional &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FindOptions.htm
-&#34;&gt;&lt;code&gt;FindOptions&lt;/code&gt;&lt;/a&gt; parameter such as setting maxTimeMS, a batch size, or a comment. Others are available as part of the fluent interface such as skip, limit, and sort.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filter = new BsonDocument();
-var options = new FindOptions
-{
-    MaxTime = TimeSpan.FromMilliseconds(20)
-};
-using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20).ToCursorAsync())
-{
-    // etc...
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The order of the chained methods is unimportant. Limit followed by Skip is the same as Skip followed by Limit. In addition, specifying a method multiple times will result in the last one winning.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;iteration&#34;&gt;Iteration&lt;/h3&gt;
-
-&lt;p&gt;Other methods of iteration besides using a cursor directly are available.&lt;/p&gt;
-
-&lt;p&gt;First, &lt;code&gt;ToListAsync&lt;/code&gt; is available. This is useful when the list will be small or you simply need them all as a list. If you are returning a large number of documents, then memory should be considered a factor.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var list = await collection.Find(filter)
-    .Skip(10)
-    .ToListAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Second, &lt;code&gt;ForEachAsync&lt;/code&gt; is available. This method is useful when you just need to process each document and don&amp;rsquo;t need to keep them around.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Find(filter)
-    .Skip(10)
-    .ForEachAsync(doc =&amp;gt; Console.WriteLine(doc));
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To avoid blocking while processing each document you can use an async lambda:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Find(filter)
-    .Skip(10)
-    .ForEachAsync(async (doc) =&amp;gt; await Console.WriteLineAsync(doc));
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-These iteration methods don&amp;rsquo;t require you to dispose of the cursor. That will be handled for you automatically.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;single-results&#34;&gt;Single Results&lt;/h3&gt;
-
-&lt;p&gt;When you only want to find one document, the &lt;code&gt;FirstAsync&lt;/code&gt;, &lt;code&gt;FirstOrDefaultAsync&lt;/code&gt;, &lt;code&gt;SingleAsync&lt;/code&gt;, and &lt;code&gt;SingleOrDefaultAsync&lt;/code&gt; methods are available.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = await collection.Find(filter)
-    .Skip(10)
-    .FirstOrDefaultAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;aggregation&#34;&gt;Aggregation&lt;/h2&gt;
-
-&lt;p&gt;MongoDB offers the &lt;a href=&#34;http://docs.mongodb.org/manual/core/aggregation-pipeline/
-&#34;&gt;aggregation framework&lt;/a&gt; which can be accessed via the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm
-&#34;&gt;&lt;code&gt;Aggregate&lt;/code&gt;&lt;/a&gt; method. The result type is &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IAggregateFluent_1.htm
-&#34;&gt;&lt;code&gt;IAggregateFluent&lt;/code&gt;&lt;/a&gt; and provides access to a fluent API to build up an aggregation pipeline.&lt;/p&gt;
-
-&lt;p&gt;The first example from &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/aggregation-zip-code-data-set/#return-states-with-populations-above-10-million
-&#34;&gt;MongoDB&amp;rsquo;s documentation&lt;/a&gt; is done in a type-safe manner below:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;[BsonIgnoreExtraElements]
-class ZipEntry
-{
-    [BsonId]
-    public string Zip { get; set; }
-
-    [BsonElement(&amp;quot;city&amp;quot;)]
-    public string City { get; set; }
-
-    [BsonElement(&amp;quot;state&amp;quot;)]
-    public string State { get; set; }
-
-    [BsonElement(&amp;quot;pop&amp;quot;)]
-    public int Population { get; set; }
-}
-
-var results = await db.GetCollection&amp;lt;ZipEntry&amp;gt;.Aggregate()
-    .Group(x =&amp;gt; x.State, g =&amp;gt; new { State = g.Key, TotalPopulation = g.Sum(x =&amp;gt; x.Population) })
-    .Match(x =&amp;gt; x.TotalPopulation &amp;gt; 20000)
-    .ToListAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will result in the following aggregation pipeline getting sent to the server:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[{ group: { _id: &#39;$state&#39;, TotalPopulation: { $sum : &#39;$pop&#39; } } },
-{ $match: { TotalPopulation: { $gt: 20000 } } }]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-You can call &lt;code&gt;ToString&lt;/code&gt; on the pipeline to see what would be sent to the server.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;More samples are located in the [source](https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Samples/AggregationSample.cs
-.&lt;/p&gt;
-
-&lt;h3 id=&#34;stage-operators&#34;&gt;Stage Operators&lt;/h3&gt;
-
-&lt;p&gt;All the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/#aggregation-pipeline-operator-reference
-&#34;&gt;stage operators&lt;/a&gt; are supported, however some of them must use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
-&#34;&gt;&lt;code&gt;AppendStage&lt;/code&gt;&lt;/a&gt; method due to lack of support for certain projections in the language.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
-Unlike &lt;code&gt;Find&lt;/code&gt;, the order that stages are defined in matters. &lt;code&gt;Skip(10).Limit(20)&lt;/code&gt; is not the same as &lt;code&gt;Limit(20).Skip(10)&lt;/code&gt;.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h4 id=&#34;project&#34;&gt;$project&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$project&lt;/code&gt; is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Project__1.htm
-&#34;&gt;&lt;code&gt;Project&lt;/code&gt;&lt;/a&gt; method and its overloads. Unlike in &lt;code&gt;Find&lt;/code&gt;, an aggregate projection is not executed client-side and must be fully translatable to the server&amp;rsquo;s supported expressions.  See &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/expressions/#projections&#34;&gt;expressions&lt;/a&gt; for more detail about the expressions available inside a $project.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Project(x =&amp;gt; new { Name = x.FirstName + &amp;quot; &amp;quot; + x.LastName });
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $project: { Name: { $concat: [&#39;$FirstName&#39;, &#39; &#39;, &#39;$LastName&#39;] } } }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-In an aggregation framework projection, a new type, either anonymous or named, must be used.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h4 id=&#34;match&#34;&gt;$match&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$match&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Match.htm
-&#34;&gt;&lt;code&gt;Match&lt;/code&gt;&lt;/a&gt; method and its overloads. It follows the same requirements as that of &lt;code&gt;Find&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Match(x =&amp;gt; x.Age &amp;gt; 21);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $match: { Age: { $gt: 21 } } }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;redact&#34;&gt;$redact&lt;/h4&gt;
-
-&lt;p&gt;There is no method defined for a &lt;code&gt;$redact&lt;/code&gt; stage. However, it can be added using &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
-&#34;&gt;&lt;code&gt;AppendStage&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&#34;limit&#34;&gt;$limit&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$limit&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Limit.htm
-&#34;&gt;&lt;code&gt;Limit&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Limit(20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $limit: 20 }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;skip&#34;&gt;$skip&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$skip&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Skip.htm
-&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Skip(20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $skip: 20 }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;unwind&#34;&gt;$unwind&lt;/h4&gt;
-
-&lt;p&gt;An &lt;code&gt;$unwind&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Unwind__1.htm
-&#34;&gt;&lt;code&gt;Unwind&lt;/code&gt;&lt;/a&gt; method and its overloads. Because $unwind is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Unwind(x =&amp;gt; x.ArrayFieldToUnwind);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $unwind: &#39;ArrayFieldToUnwind&#39; }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;group&#34;&gt;$group&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$group&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Group__1.htm
-&#34;&gt;&lt;code&gt;Group&lt;/code&gt;&lt;/a&gt; method and its overloads. Because $unwind is a type of projection, you must provide a return type. The most useful of the overloads is where two lambda expressions are expressed, the first for the key and the second for the grouping. See &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/expressions/#grouping&#34;&gt;expressions&lt;/a&gt; for more detail about the expressions available inside a $group.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;Group(x =&amp;gt; x.Name, g =&amp;gt; new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $group: { _id: &#39;$Name&#39;, AverageAge: { $avg: &#39;$Age&#39;} } }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;As in project, it is required that the result of the grouping be a new type, either anonymous or named. If the &lt;code&gt;Key&lt;/code&gt; of the grouping is not used, an &lt;code&gt;_id&lt;/code&gt; will still be inserted as this is required by the &lt;code&gt;$group&lt;/code&gt; operator.&lt;/p&gt;
-
-&lt;h4 id=&#34;sort&#34;&gt;$sort&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$sort&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_Sort.htm
-&#34;&gt;&lt;code&gt;Sort&lt;/code&gt;&lt;/a&gt; method. However, &lt;code&gt;SortBy&lt;/code&gt;, &lt;code&gt;SortByDescending&lt;/code&gt;, &lt;code&gt;ThenBy&lt;/code&gt;, and &lt;code&gt;ThenByDescending&lt;/code&gt; are also available.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;SortBy(x =&amp;gt; x.LastName).ThenByDescending(x =&amp;gt; x.Age);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $sort: { LastName: 1, Age: -1 } }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;geonear&#34;&gt;$geoNear&lt;/h4&gt;
-
-&lt;p&gt;There is no method defined for a &lt;code&gt;$geoNear&lt;/code&gt; stage. However, it can be added using &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
-&#34;&gt;&lt;code&gt;AppendStage&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&#34;out&#34;&gt;$out&lt;/h4&gt;
-
-&lt;p&gt;A &lt;code&gt;$out&lt;/code&gt; stage is defined using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAggregateFluent_1_OutAsync.htm
-&#34;&gt;&lt;code&gt;OutAsync&lt;/code&gt;&lt;/a&gt; method. It must be the final stage and it triggers execution of the operation.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;OutAsync(&amp;quot;myNewCollection&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ $out: &#39;myNewCollection&#39; }
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>

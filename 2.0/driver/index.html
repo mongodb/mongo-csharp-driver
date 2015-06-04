@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/1.10/img/favicon.png">
+
+    <title>Driver Tutorial</title>
+
+    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="http://localhost:1313/mongo-csharp-driver/1.10/../">
+        <img src="http://localhost:1313/mongo-csharp-driver/1.10/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/1.10/../">MongoDB CSharp Driver</a>
+          <a class="version pull-right" href="http://localhost:1313/mongo-csharp-driver/1.10">1.10</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="" class="">
+      
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/1.10/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/1.10/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/getting_started/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/driver/">
+        <i class='fa'></i>
+        Driver Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/serialization/">
+        <i class='fa'></i>
+        Serialization Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/linq/">
+        <i class='fa'></i>
+        LINQ Tutorial
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/driver.md" target="_blank" title="Edit driver.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  
+  
+  <li>Driver Tutorial</li>
+</ul>
+</div>
+
+
+
+
+<h1 id="driver-tutorial">Driver Tutorial</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This tutorial introduces the officially supported C# Driver for
+MongoDB. The C# Driver consists of two libraries: the BSON Library and
+the C# Driver. The BSON Library can be used independently of the C#
+Driver if desired. The C# Driver requires the BSON Library.</p>
+
+<p>You may also be interested in the C# Driver Serialization
+Tutorial &lt;/tutorial/serialize-documents-with-the-csharp-driver&gt;. It is
+a separate tutorial because it covers quite a lot of material.</p>
+
+<h2 id="downloading">Downloading</h2>
+
+<p>The C# Driver is available in source and binary form. While the BSON
+Library can be used independently of the C# Driver they are both stored
+in the same repository.</p>
+
+<p>The simplest way to get started is by using the nuget package. The
+<a href="http://www.nuget.org/packages/mongocsharpdriver/">package page</a> will
+provide details on using nuget.</p>
+
+<p>The source may be downloaded from
+<a href="http://github.com/mongodb/mongo-csharp-driver">github.com</a>.</p>
+
+<p>We use <code>msysgit</code> as our Windows git client. It can be downloaded from:
+<a href="http://msysgit.github.com">http://msysgit.github.com</a>.</p>
+
+<p>To clone the repository run the following commands from a git bash
+shell:</p>
+
+<pre><code class="language-sourceCode sh">cd &lt;parentdirectory&gt;
+git config --global core.autocrlf true
+git clone git://github.com/mongodb/mongo-csharp-driver.git
+cd mongo-csharp-driver
+git config core.autocrlf true
+</code></pre>
+
+<p>You must set the global setting for <code>core.autocrlf</code> to <code>true</code> before
+cloning the repository. After you clone the repository, we recommend you
+set the local setting for <code>core.autocrlf</code> to <code>true</code> (as shown above) so
+that future changes to the global setting for <code>core.autocrlf</code> do not
+affect this repository. If you then want to change your global setting
+for <code>core.autocrlf</code> to <code>false</code> run:</p>
+
+<pre><code class="language-sourceCode sh">git config --global core.autocrlf false
+</code></pre>
+
+<p>The typical symptom of problems with the setting for <code>core.autocrlf</code> is
+git reporting that an entire file has been modified (because of
+differences in the line endings). It is rather tedious to change the
+setting of <code>core.autocrlf</code> for a repository after it has been created,
+so it is important to get it right from the start.</p>
+
+<ul>
+<li>You can download a zip file of the source files (without cloning the
+repository) by clicking on the Downloads button at:
+<a href="http://github.com/mongodb/mongo-csharp-driver">http://github.com/mongodb/mongo-csharp-driver</a></li>
+<li>You can download binaries (in both <code>.msi</code> and <code>.zip</code> formats) from:
+<a href="https://github.com/mongodb/mongo-csharp-driver/releases">https://github.com/mongodb/mongo-csharp-driver/releases</a></li>
+</ul>
+
+<h2 id="building">Building</h2>
+
+<p>We are currently building the C# Driver with Visual Studio 2012. The
+name of the solution file is CSharpDriver.sln.</p>
+
+<h2 id="running-unit-tests">Running Unit Tests</h2>
+
+<p>The unit tests depend on NUnit 2.6, which is included in the Tools
+folder of the repository. You can build the C# Driver without
+installing NUnit, but you must have a test runner capable of running
+NUnit tests in order to run the tests.</p>
+
+<p>There are three projects containing unit tests:</p>
+
+<ol>
+<li><code>BsonUnitTests</code></li>
+<li><code>DriverUnitTests</code></li>
+<li><code>DriverUnitTestsVB</code></li>
+</ol>
+
+<p>The <code>BsonUnitTests</code> do not connect to a MongoDB server. The
+<code>DriverUnitTests</code> and <code>DriverUnitTestsVB</code> connect to an instance of
+MongoDB running on the default port (27017) on localhost.</p>
+
+<p>If you are running Visual Studio 2012, you can use the NUnit Test
+Adapter extension to run the unit tests. This is by far the easiest
+solution.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The NUnit Test Adapter for Visual Studio 2012 is an extension that
+must be installed through the Visual Studio Extension Manager.</p>
+</blockquote>
+
+<p>An alternative is to use the NUnit Test Runner. An easy way to use the
+NUnit Test Runner is to set one of the unit test projects as the startup
+project and configure the project settings as follows (using
+<code>BsonUnitTests</code> as an example):</p>
+
+<ul>
+<li>On the <strong>Debug</strong> tab:
+
+<ul>
+<li>Set <code>Start Action</code> to: <code>Start External Program</code></li>
+<li>Set <code>external program</code> to: .\\Tools\\NUnit\\nunit.exe</li>
+<li>Set <code>command line arguments</code> to:
+<code>BsonUnitTests.csproj /config:Debug /run</code></li>
+<li>Set <code>working directory</code> to: the directory where
+BsonUnitTest.csproj is located.</li>
+</ul></li>
+</ul>
+
+<p>Repeat the above steps for the <code>Release</code> configuration (using
+<code>/config:Release</code> instead) if you also want to run unit tests for
+<code>Release</code> builds.</p>
+
+<p>To run the <code>DriverUnitTests</code> and <code>DriverUnitTestsVB</code> perform the same
+steps (modified as necessary).</p>
+
+<h2 id="installing">Installing</h2>
+
+<p>If you want to install the C# Driver on your machine, you can use the
+setup program (see above for download instructions). The setup program
+is very simple and just copies the DLLs to your specified installation
+directory.</p>
+
+<p>If you downloaded the binaries zip file simply extract the files and
+place them wherever you want them to be.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>If you download the <code>.zip</code> file, Windows might require you to
+&ldquo;Unblock&rdquo; the help file. If Windows asks &ldquo;Do you want to open this
+file?&rdquo; when you double click on the CSharpDriverDocs.chm file, clear
+the check box next to &ldquo;Always ask before opening this file&rdquo; before
+pressing the Open button. Alternatively, you can right click on the
+CSharpDriverDocs.chm file and select <code>Properties</code>, and then press the
+<code>Unblock</code> button at the bottom of the <code>General</code> tab. If the <code>Unblock</code>
+button is not present then the help file does not need to be
+unblocked.</p>
+</blockquote>
+
+<h2 id="references-and-namespaces">References and Namespaces</h2>
+
+<p>To use the C# Driver you must add references to the following DLLs:</p>
+
+<ol>
+<li>MongoDB.Bson.dll</li>
+<li>MongoDB.Driver.dll</li>
+</ol>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>If you used nuget to pull down the assemblies, these references likely
+already exist.</p>
+</blockquote>
+
+<p>As a minimum add the following using statements to your source files:</p>
+
+<pre><code class="language-sourceCode csharp">using MongoDB.Bson;
+using MongoDB.Driver;
+</code></pre>
+
+<p>Additionally you will frequently add some of the following using
+statements:</p>
+
+<pre><code class="language-sourceCode csharp">using MongoDB.Driver.Builders;
+using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Linq;
+</code></pre>
+
+<p>In some cases you might add some of the following using statements if
+you are using some of the optional parts of the C# Driver:</p>
+
+<pre><code class="language-sourceCode csharp">using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Wrappers;
+</code></pre>
+
+<h2 id="the-bson-library">The BSON Library</h2>
+
+<p>The C# Driver is built on top of the BSON Library, which handles all
+the details of the BSON specification, including: I/O, serialization,
+and an in-memory object model of BSON documents.</p>
+
+<p>The important classes of the BSON object model are: <code>BsonType</code>,
+<code>BsonValue</code>, <code>BsonElement</code>, <code>BsonDocument</code> and <code>BsonArray</code>.</p>
+
+<h3 id="bsontype"><code>BsonType</code></h3>
+
+<p>This enumeration is used to specify the type of a BSON value. It is
+defined as:</p>
+
+<pre><code class="language-sourceCode csharp">public enum BsonType {
+    Double = 0x01,
+    String = 0x02,
+    Document = 0x03,
+    Array = 0x04,
+    Binary = 0x05,
+    Undefined = 0x06,
+    ObjectId = 0x07,
+    Boolean = 0x08,
+    DateTime = 0x09,
+    Null = 0x0a,
+    RegularExpression = 0x0b,
+    JavaScript = 0x0d,
+    Symbol = 0x0e,
+    JavaScriptWithScope = 0x0f,
+    Int32 = 0x10,
+    Timestamp = 0x11,
+    Int64 = 0x12,
+    MinKey = 0xff,
+    MaxKey = 0x7f
+}
+</code></pre>
+
+<h3 id="bsonvalue-and-subclasses"><code>BsonValue</code> and Subclasses</h3>
+
+<p><code>BsonValue</code> is an abstract class that represents a typed BSON value.
+There is a concrete subclass of <code>BsonValue</code> for each of the values
+defined by the <code>BsonType</code> enum. There are several ways to obtain an
+instance of <code>BsonValue</code>:</p>
+
+<ul>
+<li>Use a public constructor (if available) of a subclass of <code>BsonValue</code></li>
+<li>Use a static <code>Create</code> method of <code>BsonValue</code></li>
+<li>Use a static <code>Create</code> method of a subclass of <code>BsonValue</code></li>
+<li>Use a static property of a subclass of <code>BsonValue</code></li>
+<li>Use an implicit conversion to <code>BsonValue</code></li>
+</ul>
+
+<p>The advantage of using the static <code>Create</code> methods is that they can
+return a pre-created instance for frequently used values. They can also
+return <code>null</code> (which a constructor cannot) which is useful for handling
+optional elements when creating <code>BsonDocuments</code> using functional
+construction. The static properties refer to pre-created instances of
+frequently used values. Implicit conversions allow you to use primitive
+.NET values wherever a <code>BsonValue</code> is expected, and the .NET value will
+automatically be converted to a <code>BsonValue</code>.</p>
+
+<h3 id="bsontype-property"><code>BsonType</code> Property</h3>
+
+<p><code>BsonValue</code> has a property called <code>BsonType</code> that you can use to query
+the actual type of a <code>BsonValue</code>. The following example shows several
+ways to determine the type of a <code>BsonValue</code>:</p>
+
+<pre><code class="language-sourceCode csharp">BsonValue value;
+if (value.BsonType == BsonType.Int32) {
+    // we know value is an instance of BsonInt32
+}
+if (value is BsonInt32) {
+    // another way to tell that value is a BsonInt32
+}
+if (value.IsInt32) {
+    // the easiest way to tell that value is a BsonInt32
+}
+</code></pre>
+
+<h3 id="as-type-properties"><code>As[Type]</code> Properties</h3>
+
+<p><code>BsonValue</code> has a number of properties that cast a <code>BsonValue</code> to one of
+its subclasses or a primitive .NET type. It is important to note that
+these all are casts, not conversions. They will throw an
+<code>InvalidCastException</code> if the <code>BsonValue</code> is not of the corresponding
+type. See also the To[Type] methods
+&lt;totype-conversion-methods&gt; which do conversions, and the
+Is[Type] properties &lt;istype-properties&gt; which you can use to query the
+type of a <code>BsonValue</code> before attempting to use one of the <code>As[Type]</code>
+properties.</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument document;
+string name = document[&quot;name&quot;].AsString;
+int age = document[&quot;age&quot;].AsInt32;
+BsonDocument address = document[&quot;address&quot;].AsBsonDocument;
+string zip = address[&quot;zip&quot;].AsString;
+</code></pre>
+
+<h3 id="is-type-properties"><code>Is[Type]</code> Properties</h3>
+
+<p><code>BsonValue</code> has the following boolean properties, you can use to test
+what kind of <code>BsonValue</code> it is. These can be used as follows:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument document;
+int age = -1;
+if (document.Contains[&quot;age&quot;] &amp;&amp; document[&quot;age&quot;].IsInt32) {
+    age = document[&quot;age&quot;].AsInt32;
+}
+</code></pre>
+
+<h3 id="to-type-conversion-methods"><code>To[Type]</code> Conversion Methods</h3>
+
+<p>Unlike the <code>As[Type]</code> methods, the <code>To[Type]</code> methods perform some
+limited conversion between convertible types, like <code>int</code> and <code>double</code>.</p>
+
+<p>The <code>ToBoolean</code> method never fails. It uses JavaScript&rsquo;s definition of
+truthiness: <code>false</code>, <code>0</code>, <code>0.0</code>, <code>NaN</code>, <code>BsonNull</code>, <code>BsonUndefined</code> and
+<code>&quot;&quot;</code> are <code>false</code>, and everything else is <code>true</code> (include the string
+<code>&quot;false&quot;</code>).</p>
+
+<p>The <code>ToBoolean</code> method is particularly useful when the documents you are
+processing might have inconsistent ways of recording <code>true</code>/<code>false</code>
+values:</p>
+
+<pre><code class="language-sourceCode csharp">if (employee[&quot;ismanager&quot;].ToBoolean()) {
+    // we know the employee is a manager
+    // works with many ways of recording boolean values
+}
+</code></pre>
+
+<p>The <code>ToDouble</code>, <code>ToInt32</code>, and <code>ToInt64</code> methods never fail when
+converting between numeric types, though the value might be truncated if
+it doesn&rsquo;t fit in the target type. A string can be converted to a
+numeric type, but an exception will be thrown if the string cannot be
+parsed as a value of the target type.</p>
+
+<h3 id="static-create-methods">Static Create Methods</h3>
+
+<p>Because <code>BsonValue</code> is an abstract class you cannot create instances of
+<code>BsonValue</code> (only instances of concrete subclasses). <code>BsonValue</code> has a
+static <code>Create</code> method that takes an argument of type <code>object</code> and
+determines at runtime the actual type of <code>BsonValue</code> to create.
+Subclasses of <code>BsonValue</code> also have static <code>Create</code> methods tailored to
+their own needs.</p>
+
+<h4 id="implicit-conversions">Implicit Conversions</h4>
+
+<p>Implicit conversions are defined from the following .NET types to
+<code>BsonValue</code>:</p>
+
+<ul>
+<li><code>bool</code></li>
+<li><code>byte[]</code></li>
+<li><code>DateTime</code></li>
+<li><code>double</code></li>
+<li><code>Enum</code></li>
+<li><code>Guid</code></li>
+<li><code>int</code></li>
+<li><code>long</code></li>
+<li><code>ObjectId</code></li>
+<li><code>Regex</code></li>
+<li><code>string</code></li>
+</ul>
+
+<p>These eliminate the need for almost all calls to <code>BsonValue</code>
+constructors or <code>Create</code> methods. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonValue b = true; // b is an instance of BsonBoolean
+BsonValue d = 3.14159; // d is an instance of BsonDouble
+BsonValue i = 1; // i is an instance of BsonInt32
+BsonValue s = &quot;Hello&quot;; // s is an instance of BsonString
+</code></pre>
+
+<h3 id="bsonmaxkey-bsonminkey-bsonnull-and-bsonundefined"><code>BsonMaxKey</code>, <code>BsonMinKey</code>, <code>BsonNull</code> and <code>BsonUndefined</code></h3>
+
+<p>These classes are singletons, so only a single instance of each class
+exists. You refer to these instances using the static <code>Value</code> property
+of each class:</p>
+
+<pre><code class="language-sourceCode csharp">document[&quot;status&quot;] = BsonNull.Value;
+document[&quot;priority&quot;] = BsonMaxKey.Value;
+</code></pre>
+
+<p>Note that C# <code>null</code> and <code>BsonNull.Value</code> are two different things. The
+latter is an actual C# object that represents a BSON <code>null</code> value (it&rsquo;s
+a subtle difference, but plays an important role in functional
+construction).</p>
+
+<h3 id="objectid-and-bsonobjectid"><code>ObjectId</code> and <code>BsonObjectId</code></h3>
+
+<p><code>ObjectId</code> is a struct that holds the raw value of a BSON <code>ObjectId</code>.
+<code>BsonObjectId</code> is a subclass of <code>BsonValue</code> whose Value property is of
+type <code>ObjectId</code>.</p>
+
+<p>Here are some common ways of creating <code>ObjectId</code> values:</p>
+
+<pre><code class="language-sourceCode csharp">var id1 = new ObjectId(); // same as ObjectId.Empty
+var id2 = ObjectId.Empty; // all zeroes
+var id3 = ObjectId.GenerateNewId(); // generates new unique Id
+var id4 = ObjectId.Parse(&quot;4dad901291c2949e7a5b6aa8&quot;); // parses a 24 hex digit string
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The first example behaves differently in C# than in JavaScript. In
+C# it creates an <code>ObjectId</code> of all zeroes, but in JavaScript it
+generates a new unique <code>Id</code>. This difference can&rsquo;t be avoided because
+in C# the default constructor of a value type always initializes the
+value to all zeros.</p>
+</blockquote>
+
+<h2 id="bsonelement"><code>BsonElement</code></h2>
+
+<p>A <code>BsonElement</code> is a name/value pair, where the value is a <code>BsonValue</code>.
+It is used as the building block of <code>BsonDocument</code>, which consists of
+zero or more elements. You will rarely create <code>BsonElements</code> directly,
+as they are usually created indirectly as needed. For example:</p>
+
+<pre><code class="language-sourceCode csharp">document.Add(new BsonElement(&quot;age&quot;, 21)); // OK, but next line is shorter
+document.Add(&quot;age&quot;, 21); // creates BsonElement automatically
+</code></pre>
+
+<h2 id="bsondocument"><code>BsonDocument</code></h2>
+
+<p>A <code>BsonDocument</code> is a collection of name/value pairs (represented by
+<code>BsonElements</code>). It is an in-memory object model of a BSON document.
+There are three ways to create and populate a <code>BsonDocument</code>:</p>
+
+<ol>
+<li>Create a new document and call <code>Add</code> and <code>Set</code> methods.</li>
+<li>Create a new document and use the fluent interface <code>Add</code> and <code>Set</code>
+methods.</li>
+<li>Create a new document and use C#&rsquo;s collection initializer syntax
+(recommended).</li>
+</ol>
+
+<h3 id="bsondocument-constructor"><code>BsonDocument</code> Constructor</h3>
+
+<p><code>BsonDocument</code> has the following constructors:</p>
+
+<ul>
+<li><code>BsonDocument()</code></li>
+<li><code>BsonDocument(string name, BsonValue value)</code></li>
+<li><code>BsonDocument(BsonElement element)</code></li>
+<li><code>BsonDocument(Dictionary&lt;string, object&gt; dictionary)</code></li>
+<li><code>BsonDocument(Dictionary&lt;string, object&gt; dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>BsonDocument(IDictionary dictionary)</code></li>
+<li><code>BsonDocument(IDictionary dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>BsonDocument(IDictionary&lt;string, object&gt; dictionary)</code></li>
+<li><code>BsonDocument(IDictionary&lt;string, object&gt; dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>BsonDocument(IEnumerable&lt;BsonElement&gt; elements)</code></li>
+<li><code>BsonDocument(params BsonElement[] elements)</code></li>
+<li><code>BsonDocument(bool allowDuplicateNames)</code></li>
+</ul>
+
+<p>The first two are the ones you are most likely to use. The first creates
+an empty document, and the second creates a document with one element
+(in both cases you can of course add more elements).</p>
+
+<p>All the constructors (except the one with <code>allowDuplicateNames</code>) simply
+call the <code>Add</code> method that takes the same parameters, so refer to the
+corresponding <code>Add</code> method for details about how the new document is
+initially populated.</p>
+
+<p>A <code>BsonDocument</code> normally does not allow duplicate names, but if you
+must allow duplicate names call the constructor with the
+<code>allowDuplicateNames</code> parameter and pass in <code>true</code>. It is <em>not</em>
+recommended that you allow duplicate names, and this option exists only
+to allow handling existing BSON documents that might have duplicate
+names. MongoDB makes no particular guarantees about whether it supports
+documents with duplicate names, so be cautious about sending any such
+documents you construct to the server.</p>
+
+<h3 id="create-a-new-document-and-call-add-and-set-methods">Create a New Document and Call <code>Add</code> and <code>Set</code> Methods</h3>
+
+<p>This is a traditional step by step method to create and populate a
+document using multiple C# statements. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument book = new BsonDocument();
+book.Add(&quot;author&quot;, &quot;Ernest Hemingway&quot;);
+book.Add(&quot;title&quot;, &quot;For Whom the Bell Tolls&quot;);
+</code></pre>
+
+<h3 id="create-a-new-document-and-use-the-fluent-interface-add-and-set-methods">Create a New Document and Use the Fluent Interface <code>Add</code> and <code>Set</code> Methods</h3>
+
+<p>This is similar to the previous approach but the fluent interface allows
+you to chain the various calls to <code>Add</code> so that they are all a single
+C# statement. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument book = new BsonDocument()
+    .Add(&quot;author&quot;, &quot;Ernest Hemingway&quot;)
+    .Add(&quot;title&quot;, &quot;For Whom the Bell Tolls&quot;);
+</code></pre>
+
+<h3 id="create-a-new-document-and-use-c-s-collection-initializer-syntax-recommended">Create a New Document and Use C#&rsquo;s Collection Initializer Syntax (Recommended)</h3>
+
+<p>This is the recommended way to create and initialize a <code>BsonDocument</code> in
+one statement. It uses C#&rsquo;s collection initializer syntax:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument book = new BsonDocument {
+    { &quot;author&quot;, &quot;Ernest Hemingway&quot; },
+    { &quot;title&quot;, &quot;For Whom the Bell Tolls&quot; }
+};
+</code></pre>
+
+<p>The compiler translates this into calls to the matching <code>Add</code> method:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument book = new BsonDocument();
+book.Add(&quot;author&quot;, &quot;Ernest Hemingway&quot;);
+book.Add(&quot;title&quot;, &quot;For Whom the Bell Tolls&quot;);
+</code></pre>
+
+<p>A common mistake is to forget the inner set of braces. This will result
+in a compilation error. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument bad = new BsonDocument {
+    &quot;author&quot;, &quot;Ernest Hemingway&quot;
+};
+</code></pre>
+
+<p>is translated by the compiler to:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument bad = new BsonDocument();
+bad.Add(&quot;author&quot;);
+bad.Add(&quot;Ernest Hemingway&quot;);
+</code></pre>
+
+<p>which results in a compilation error because there is no <code>Add</code> method
+that takes a single string argument.</p>
+
+<h3 id="creating-nested-bson-documents">Creating Nested BSON Documents</h3>
+
+<p>Nested BSON documents are created by setting the value of an element to
+a BSON document. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument nested = new BsonDocument {
+    { &quot;name&quot;, &quot;John Doe&quot; },
+    { &quot;address&quot;, new BsonDocument {
+        { &quot;street&quot;, &quot;123 Main St.&quot; },
+        { &quot;city&quot;, &quot;Centerville&quot; },
+        { &quot;state&quot;, &quot;PA&quot; },
+        { &quot;zip&quot;, 12345}
+    }}
+};
+</code></pre>
+
+<p>This creates a top level document with two elements (<code>name</code> and
+<code>address</code>). The value of <code>address</code> is a nested BSON document.</p>
+
+<h3 id="add-methods"><code>Add</code> Methods</h3>
+
+<p><code>BsonDocument</code> has the following overloaded <code>Add</code> methods:</p>
+
+<ul>
+<li><code>Add(BsonElement element)</code></li>
+<li><code>Add(Dictionary&lt;string, object&gt; dictionary)</code></li>
+<li><code>Add(Dictionary&lt;string, object&gt; dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>Add(IDictionary dictionary)</code></li>
+<li><code>Add(IDictionary dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>Add(IDictionary&lt;string, object&gt; dictionary)</code></li>
+<li><code>Add(IDictionary&lt;string, object&gt; dictionary, IEnumerable&lt;string&gt; keys)</code></li>
+<li><code>Add(IEnumerable&lt;BsonElement&gt; elements)</code></li>
+<li><code>Add(string name, BsonValue value)</code></li>
+<li><code>Add(string name, BsonValue value, bool condition)</code></li>
+</ul>
+
+<p>It is important to note that sometimes the <code>Add</code> methods <em>do NOT</em> add a
+new element. If the value supplied is <code>null</code> (or the condition supplied
+in the last overload is <code>false</code>) then the element isn&rsquo;t added. This
+makes it really easy to handle optional elements without having to write
+any if statements or conditional expressions.</p>
+
+<p>For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument document = new BsonDocument {
+    { &quot;name&quot;, name },
+    { &quot;city&quot;, city }, // not added if city is null
+    { &quot;dob&quot;, dob, dobAvailable } // not added if dobAvailable is false
+};
+</code></pre>
+
+<p>is more compact and readable than:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument document = new BsonDocument();
+document.Add(&quot;name&quot;, name);
+if (city != null) {
+    document.Add(&quot;city&quot;, city);
+}
+if (dobAvailable) {
+    document.Add(&quot;dob&quot;, dob);
+}
+</code></pre>
+
+<p>If you want to add a <code>BsonNull</code> if a value is missing you have to say
+so. A convenient way is to use C#&rsquo;s <code>null</code> coalescing operator as
+follows:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument = new BsonDocument {
+    { &quot;city&quot;, city ?? BsonConstants.Null }
+};
+</code></pre>
+
+<p>The <code>IDictionary</code> overloads initialize a <code>BsonDocument</code> from a
+dictionary. Each key in the dictionary becomes the name of a new
+element, and each value is mapped to a matching <code>BsonValue</code> and becomes
+the value of the new element. The overload with the keys parameter lets
+you select which dictionary entries to load (you might also use the keys
+parameter to control the order in which the elements are loaded from the
+dictionary).</p>
+
+<h3 id="accessing-bsondocument-elements">Accessing <code>BsonDocument</code> Elements</h3>
+
+<p>The recommended way to access <code>BsonDocument</code> elements is to use one of
+the following indexers:</p>
+
+<ul>
+<li><code>BsonValue this[int index]</code></li>
+<li><code>BsonValue this[string name]</code></li>
+<li><code>BsonValue this[string name, BsonValue defaultValue]</code></li>
+</ul>
+
+<p>Note that the return value of the indexers is <code>BsonValue</code>, not
+<code>BsonElement</code>. This actually makes <code>BsonDocuments</code> much easier to work
+with (if you ever need to get the actual <code>BsonElements</code> use
+<code>GetElement</code>).</p>
+
+<p>We&rsquo;ve already seen samples of accessing <code>BsonDocument</code> elements. Here
+are some more:</p>
+
+<pre><code class="language-sourceCode csharp">BsonDocument book;
+string author = book[&quot;author&quot;].AsString;
+DateTime publicationDate = book[&quot;publicationDate&quot;].AsDateTime;
+int pages = book[&quot;pages&quot;, -1].AsInt32; // default value is -1
+</code></pre>
+
+<h2 id="bsonarray">BsonArray</h2>
+
+<p>This class is used to represent BSON arrays. While arrays happen to be
+represented externally as BSON documents (with a special naming
+convention for the elements), the <code>BsonArray</code> class is unrelated to the
+<code>BsonDocument</code> class because they are used very differently.</p>
+
+<h3 id="constructors">Constructors</h3>
+
+<p><code>BsonArray</code> has the following constructors:</p>
+
+<ul>
+<li><code>BsonArray()</code></li>
+<li><code>BsonArray(IEnumerable&lt;bool&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;BsonValue&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;DateTime&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;double&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;int&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;long&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;ObjectId&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable&lt;string&gt; values)</code></li>
+<li><code>BsonArray(IEnumerable values)</code></li>
+</ul>
+
+<p>All the constructors with a parameter call the matching <code>Add</code> method.
+The multiple overloads are needed because C# does not provide automatic
+conversions from <code>IEnumerable&lt;T&gt;</code> to <code>IEnumerable&lt;object&gt;</code>.</p>
+
+<h3 id="add-and-addrange-methods"><code>Add</code> and <code>AddRange</code> Methods</h3>
+
+<p><code>BsonArray</code> has the following <code>Add</code> methods:</p>
+
+<ul>
+<li><code>BsonArray Add(BsonValue value)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;bool&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;BsonValue&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;DateTime&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;double&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;int&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;long&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;ObjectId&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable&lt;string&gt; values)</code></li>
+<li><code>BsonArray AddRange(IEnumerable values)</code></li>
+</ul>
+
+<p>Note that the <code>Add</code> method takes a single parameter. To create and
+initialize a <code>BsonArray</code> with multiple values use any of the following
+approaches:</p>
+
+<pre><code class="language-sourceCode csharp">// traditional approach
+BsonArray a1 = new BsonArray();
+a1.Add(1);
+a2.Add(2);
+
+// fluent interface
+BsonArray a2 = new BsonArray().Add(1).Add(2);
+
+// values argument
+int[] values = new int[] { 1, 2 };
+BsonArray a3 = new BsonArray(values);
+
+// collection initializer syntax
+BsonArray a4 = new BsonArray { 1, 2 };
+</code></pre>
+
+<h3 id="indexer">Indexer</h3>
+
+<p>Array elements are accessed using an integer index. Like <code>BsonDocument</code>,
+the type of the elements is <code>BsonValue</code>. For example:</p>
+
+<pre><code class="language-sourceCode csharp">BsonArray array = new BsonArray { &quot;Tom&quot;, 39 };
+string name = array[0].AsString;
+int age = array[1].AsInt32;
+</code></pre>
+
+<h2 id="lazybsondocument-and-lazybsonarray">LazyBsonDocument and LazyBsonArray</h2>
+
+<p>The lazy classes are special in that they defer the deserialiation of
+BSON until it is needed. This is useful for when you only need a field
+or two out of a complex document because it will not incur the cost of
+deserializing the entire document or array, but just the pieces that are
+necessary. This deserialization occurs a level at a time. For example,
+in the following document, asking for field <code>FirstName</code> will deserialize
+<code>LastName</code> and <code>BirthDate</code> as well, but it will leave <code>Addresses</code> in its
+serialized form until they are accessed.</p>
+
+<pre><code class="language-sourceCode javascript">{
+  FirstName: &quot;Jack&quot;,
+  LastName: &quot;McJack&quot;,
+  BirthDate: new ISODate(&quot;...&quot;),
+  Addresses: [
+     { Line1: &quot;123 AnyStreet&quot;, City: &quot;Anytown&quot; }
+  ]
+}
+</code></pre>
+
+<p>It can be used as follows:</p>
+
+<pre><code class="language-sourceCode csharp">var db = server.GetDatabase(&quot;foo&quot;);
+var col = db.GetCollection&lt;LazyBsonDocument&gt;(&quot;bar&quot;);
+
+foreach (var doc in col.Find(Query.GT(&quot;age&quot;, 15)))
+{
+    using (doc)
+    {
+        // the first access will incur the cost of deserializing
+        // FirstName, LastName, and BirthDate.  However,
+        // Addresses will remain in its serialized form.
+        var firstName = doc[&quot;FirstName&quot;];
+
+        // this was already deserialized and is a simple
+        // dictionary lookup.
+        var lastName = doc[&quot;LastName&quot;];
+
+        Console.WriteLine(&quot;{0} {1}&quot;, firstName, lastName);
+    }
+}
+</code></pre>
+
+<blockquote>
+<p><strong>warning</strong></p>
+
+<p>LazyBsonDocument and LazyBsonArray implement IDisposable. It is very
+important that these classes be disposed of to ensure high performance
+and lower memory utilization.</p>
+</blockquote>
+
+<h2 id="rawbsondocument-and-rawbsonarray">RawBsonDocument and RawBsonArray</h2>
+
+<p>The raw classes are special in that they defer the deserialiation of
+BSON until it is needed. This is useful for when you only need a field
+or two out of a document and will not be accessing them repeatedly. The
+Raw documents are best utilized when shuffling data from one database or
+collection to another one in MongoDB or to another, external storage
+location.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The behavior of the RawXXX classes differ from that of the LazyXXX
+classes in that repeated access to the same field in the LazyXXX
+version will not incur repeated deserialization overhead whereas the
+RawXXX version will deserialize the same field without caching on
+repeated requests.</p>
+</blockquote>
+
+<p>It can be used as follows:</p>
+
+<pre><code class="language-sourceCode csharp">var db = server.GetDatabase(&quot;foo&quot;);
+var col = db.GetCollection&lt;RawBsonDocument&gt;(&quot;bar&quot;);
+
+foreach (var doc in col.Find(Query.GT(&quot;age&quot;, 15)))
+{
+    using (doc)
+    {
+        // this access incurs the cost of deserializing
+        // the FirstName element.
+        var firstName = doc[&quot;FirstName&quot;];
+
+        // even though this was deserialized just above,
+        // it will need to get re-deserialized because
+        // we do not store the results of deserialization.
+        var firstNameAgain = doc[&quot;FirstName&quot;];
+
+        Console.WriteLine(&quot;{0} {1}&quot;, doc[&quot;FirstName&quot;], doc[])
+    }
+}
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The Raw classes are readonly and will throw exceptions if attempts are
+made to update them.</p>
+
+<p><strong>warning</strong></p>
+
+<p>RawBsonDocument and RawBsonArray implement IDisposable. It is very
+important that these classes be disposed of to ensure high performance
+and lower memory utilization.</p>
+</blockquote>
+
+<h2 id="the-c-driver">The C# Driver</h2>
+
+<p>Up until now we have been focusing on the BSON Library. The remainder of
+this tutorial focuses on the C# Driver.</p>
+
+<h2 id="thread-safety">Thread Safety</h2>
+
+<p>Only a few of the C# Driver classes are thread safe. Among them:
+<code>MongoClient</code>, <code>MongoServer</code>, <code>MongoDatabase</code>, <code>MongoCollection</code> and
+<code>MongoGridFS</code>. Common classes you will use a lot that are not thread
+safe include <code>MongoCursor</code> and all the classes from the BSON Library
+(except <code>BsonSymbolTable</code> which is thread safe). A class is not thread
+safe unless specifically documented as being thread safe.</p>
+
+<p>All static properties and methods of all classes are thread safe.</p>
+
+<h2 id="mongoclient-class"><code>MongoClient</code> Class</h2>
+
+<p>This class serves as the root object for working with a MongoDB server.
+The connections to the server are handled automatically behind the
+scenes (a connection pool is used to increase efficiency).</p>
+
+<p>When you are connecting to a replica set you will still use only one
+instance of <code>MongoClient</code>, which represents the replica set as a whole.
+The driver automatically finds all the members of the replica set and
+identifies the current primary.</p>
+
+<p>Instances of this class are thread safe.</p>
+
+<p>By default and unless set otherwise, all operations requiring a
+<code>WriteConcern</code> use <code>w=1</code>. In other words, by default, all write
+operations will block until the server has acknowledged the write.</p>
+
+<h3 id="connection-strings">Connection Strings</h3>
+
+<p>The easiest way to connect to a MongoDB server is to use a connection
+string. The standard connection string format is:</p>
+
+<pre><code class="language-sourceCode none">mongodb://[username:password@]hostname[:port][/[database][?options]]
+</code></pre>
+
+<p>The <code>username</code> and <code>password</code> should only be present if you are using
+authentication on the MongoDB server. The <code>database</code> segment indicates
+which database the <code>username</code> is designated. When not specified, the
+default <code>database</code> is <em>admin</em>.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>If you are using the <code>database</code> segment as the initial database to
+use, but the username and password specified are defined in a
+different database, you can use the <code>authSource</code> option to specify the
+database in which the credential is defined. For example,
+mongodb://user:pass@hostname/db1?authSource=userDb would authenticate
+the credential against the userDb database instead of db1.</p>
+
+<p><strong>warning</strong></p>
+
+<p>Versions prior to 1.8 of the driver allowed the specification of an
+<code>admin</code> credential by appending <code>(admin)</code> to the username. This is not
+recognized as of version 1.8. Consult the official <a href="http://docs.mongodb.org/manual/reference/connection-string/">connection string
+documentation</a>
+for more information.</p>
+</blockquote>
+
+<p>The port number is optional and defaults to <code>27017</code>.</p>
+
+<p>To connect to multiple servers, specify the seed list by providing
+multiple hostnames (and port numbers if required) separated by commas.
+For example:</p>
+
+<pre><code class="language-sourceCode none">mongodb://server1,server2:27017,server2:27018
+</code></pre>
+
+<p>This connection string specifies a seed list consisting of three servers
+(two of which are on the same machine but on different port numbers).
+Because specifying multiple servers is ambiguous as to whether or not it
+is a replica set or multiple mongos (in a sharded setup), the driver
+will go through a discovery phase of connecting to the servers to
+determine their type. This has a little overhead at connection time and
+can be avoided by specifying a connection mode in the connection string:</p>
+
+<blockquote>
+<p><strong>warning</strong></p>
+
+<p>It is required that each MongoDB server have a name that is DNS
+resolvable by the client machine. Each MongoDB server reports its
+hostname back through the isMaster command and the driver uses this
+name to talk with the server. This issue can occur when the seed list
+contains an IP address and the MongoDB server reports back a hostname
+that the client machine is unable to resolve.</p>
+</blockquote>
+
+<pre><code class="language-sourceCode none">mongodb://server1,server2:27017,server2:27018/?connect=replicaset
+</code></pre>
+
+<p>The available connection modes are automatic (the default), direct,
+replica set, and shardrouter. The rules for connection mode are as
+follows:</p>
+
+<ol>
+<li>If a connect mode is specified other than automatic, it is used.</li>
+<li>If the option replicaset is specified on the connection string using
+literal <code>?connect=replicaset</code> then replicaset mode is used. Don’t
+use replica set name.</li>
+<li>If there is only one server listed on the connection string, then
+direct mode is used.</li>
+<li>Otherwise, discovery occurs and the first server to respond
+determines the connection mode.</li>
+</ol>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>If you have multiple servers listed, and one is part of a replica set
+and another is not, then the connection mode is non-deterministic. Be
+sure that you are not mixing server types on the connection string.</p>
+</blockquote>
+
+<p>Should the connection mode resolve to a replica set, the driver will
+find the primary server even if it is not in the seed list, as long as
+at least one of the servers in the seed list responds (the response will
+contain the full replica set and the name of the current primary). In
+addition, other secondaries will also be discovered and added (or
+removed) into the mix automatically, even after initial connection. This
+will enable you to add and remove servers from the replica set and the
+driver will handle the changes automatically.</p>
+
+<p>As alluded to above, the options part of the connection string is used
+to set various connection options. Suppose you wanted to connect
+directly to a member of a replica set regardless of whether it was the
+current primary or not (perhaps to monitor its status or to issue read
+only queries against it). You could use:</p>
+
+<pre><code class="language-sourceCode none">mongodb://server2/?connect=direct;readpreference=nearest
+</code></pre>
+
+<p>The full documentation for connection strings can be found at
+<a href="http://docs.mongodb.org/manual/reference/connection-string/">Connection
+String</a> and
+read preferences at
+<a href="http://docs.mongodb.org/manual/applications/replication/#replica-set-read-preference">http://docs.mongodb.org/manual/applications/replication/#replica-set-read-preference</a>.</p>
+
+<h3 id="ssl-support">SSL Support</h3>
+
+<p>Support for SSL is baked into the driver. You can configure this via the
+connection string be adding an <code>ssl=true</code> option to the options.</p>
+
+<pre><code class="language-sourceCode none">mongodb://server2/?ssl=true
+</code></pre>
+
+<p>By default, the server certificate will get validated against the local
+trusted certificate store. This sometimes causes issues in test
+environments where test servers don&rsquo;t have signed certs. To alleviate
+this issue, you can also add an <code>sslverifycertificate=false</code> as another
+connection string option to ignore any certificate errors.</p>
+
+<p>In addition to the above connection string settings, there are a number
+of settings that can be utilized through code. The <code>SslSettings</code> class
+is the container of these settings.</p>
+
+<ul>
+<li>CheckCertificateRevocation: defaults to false. *
+ClientCertificates: see
+<a href="http://msdn.microsoft.com/en-us/library/hh159283.aspx">MSDN</a>.</li>
+<li>ClientCertificateSelectionCallback: see <a href="http://msdn.microsoft.com/en-us/library/system.net.security.localcertificateselectioncallback.aspx">MSDN
+LocalCertificateSelectionCallback</a>.</li>
+<li>EnabledSslProtocols: see
+<a href="http://msdn.microsoft.com/en-us/library/hh159283.aspx">MSDN</a>.</li>
+<li>ServerCertificateValidationCallback: see <a href="http://msdn.microsoft.com/en-us/library/system.net.security.remotecertificatevalidationcallback.aspx">MSDN
+RemoteCertificateValidationCallback</a></li>
+</ul>
+
+<p>To set these values, create a new instance of <code>SslSettings</code>, assign it
+values, and then add it to an instance of <code>MongoClientSettings</code>.</p>
+
+<pre><code class="language-sourceCode csharp">var sslSettings = new SslSettings
+{
+    CheckCertificateRevocation = true
+};
+var clientSettings = new MongoClientSettings
+{
+    SslSettings = sslSettings
+};
+</code></pre>
+
+<h3 id="authentication">Authentication</h3>
+
+<p>The .NET driver supports both MongoDB&rsquo;s authentication simple protocol
+as well as the more complex and robust Kerberos protocol. This enables
+the driver to function with single-sign-on functionality against a
+Kerberose Key Distribution Center. One such KDC is Active Directory. See
+below for more details:</p>
+
+<p>/tutorial/authenticate-with-csharp-driver</p>
+
+<blockquote>
+<p><strong>warning</strong></p>
+
+<p>Version 2.4 of the server supports <a href="http://docs.mongodb.org/manual/reference/privilege-documents/#delegated-credentials-for-mongodb-authentication">Delegated
+Authentication</a>.
+Due to this change, the 1.8 release of the driver has some backwards
+breaking changes in order to support this feature. Most importantly,
+all the credentials supplied in a MongoClientSettings instance will be
+authenticated when a new connection is opened, regardless of the
+database you are currently using.</p>
+</blockquote>
+
+<h3 id="getserver-method"><code>GetServer</code> Method</h3>
+
+<p>You can navigate from an instance of a <code>MongoClient</code> to an instance of
+<code>MongoServer</code> by using the <code>GetServer</code> method.</p>
+
+<h2 id="mongoserver-class"><code>MongoServer</code> Class</h2>
+
+<p>The <code>MongoServer</code> class is used to provide more control over the driver.
+It contains advanced ways of getting a database and pushing a sequence
+of operations through a single socket in order to guarantee consistency.</p>
+
+<h3 id="getdatabase-method"><code>GetDatabase</code> Method</h3>
+
+<p>You can navigate from an instance of <code>MongoServer</code> to an instance of
+<code>MongoDatabase</code> (see next section) using one of the following
+<code>GetDatabase</code> methods or indexers:</p>
+
+<ul>
+<li><code>MongoDatabase GetDatabase(MongoDatabaseSettings settings)</code></li>
+<li><code>MongoDatabase GetDatabase(string databaseName)</code></li>
+<li><code>MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials)</code></li>
+<li><code>MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials, WriteConcern writeConcern)</code></li>
+<li><code>MongoDatabase GetDatabase(string databaseName, WriteConcern writeConcern)</code></li>
+</ul>
+
+<p>Sample code:</p>
+
+<pre><code class="language-sourceCode csharp">MongoClient client = new MongoClient(); // connect to localhost
+MongoServer server = client.GetServer();
+MongoDatabase test = server.GetDatabase(&quot;test&quot;);
+MongoCredentials credentials = new MongoCredentials(&quot;username&quot;, &quot;password&quot;);
+MongoDatabase salaries = server.GetDatabase(&quot;salaries&quot;, credentials);
+</code></pre>
+
+<p>Most of the database settings are inherited from the server object, and
+the provided overloads of <code>GetDatabase</code> let you override a few of the
+most commonly used settings. To override other settings, call
+<code>CreateDatabaseSettings</code> and change any settings you want before calling
+<code>GetDatabase</code>, like this:</p>
+
+<pre><code class="language-sourceCode csharp">var databaseSettings = server.CreateDatabaseSettings(&quot;test&quot;);
+databaseSettings.SlaveOk = true;
+var database = server.GetDatabase(databaseSettings);
+</code></pre>
+
+<p><code>GetDatabase</code> maintains a table of MongoDatabase instances it has
+returned before, so if you call <code>GetDatabase</code> again with the same
+parameters you get the same instance back again.</p>
+
+<h3 id="requeststart-requestdone-methods"><code>RequestStart</code>/<code>RequestDone</code> Methods</h3>
+
+<p>Sometimes a series of operations needs to be performed on the same
+connection in order to guarantee correct results. This is rarely the
+case, and most of the time there is no need to call
+<code>RequestStart</code>/<code>RequestDone</code>. An example of when this might be necessary
+is when a series of <code>Inserts</code> are called in rapid succession with a
+<code>WriteConcern</code> of <code>w=0</code>, and you want to query that data is in a
+consistent manner immediately thereafter (with a <code>WriteConcern</code> of
+<code>w=0</code>, the writes can queue up at the server and might not be
+immediately visible to other connections). Using <code>RequestStart</code> you can
+force a query to be on the same connection as the writes, so the query
+won&rsquo;t execute until the server has caught up with the writes.</p>
+
+<p>A thread can temporarily reserve a connection from the connection pool
+by using <code>RequestStart</code> and <code>RequestDone</code>. For example:</p>
+
+<pre><code class="language-sourceCode csharp">using(server.RequestStart(database)) {
+// a series of operations that must be performed on the same connection
+}
+</code></pre>
+
+<p>The database parameter simply indicates some database which you intend
+to use during this request. This allows the server to pick a connection
+that is already authenticated for that database (if you are not using
+authentication then this optimization won&rsquo;t matter to you). You are free
+to use any other databases as well during the request.</p>
+
+<p><code>RequestStart</code> increments a counter (for this thread) which is
+decremented upon completion. The connection that was reserved is not
+actually returned to the connection pool until the count reaches zero
+again. This means that calls to <code>RequestStart</code> can be nested and the
+right thing will happen.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p><code>RequestStart</code> returns an <code>IDisposable</code>. If you do not use
+<code>RequestStart</code> with a <code>using</code> block, it is imperative that
+<code>RequestDone</code> be called in order to release the connection.</p>
+</blockquote>
+
+<h3 id="other-properties-and-methods">Other Properties and Methods</h3>
+
+<p>For a reference of other properties and method, see the api
+documentation.</p>
+
+<h2 id="mongodatabase-class">MongoDatabase Class</h2>
+
+<p>This class represents a database on a MongoDB server. Normally there
+will be only one instance of this class per database, unless you are
+using different settings to access the same database, in which case
+there will be one instance for each set of settings.</p>
+
+<p>Instances of this class are thread safe.</p>
+
+<h3 id="getcollection-method"><code>GetCollection</code> Method</h3>
+
+<p>This method returns an object representing a collection in a database.
+When we request a collection object, we also specify the default
+document type for the collection. For example:</p>
+
+<pre><code class="language-sourceCode csharp">MongoDatabase hr = server.GetDatabase(&quot;hr&quot;);
+MongoCollection&lt;Employee&gt; employees =
+    hr.GetCollection&lt;Employee&gt;(&quot;employees&quot;);
+</code></pre>
+
+<p>A collection is not restricted to containing only one kind of document.
+The default document type simply makes it more convenient to work with
+that kind of document, but you can always specify a different kind of
+document when required.</p>
+
+<p>Most of the collection settings are inherited from the database object,
+and the provided overloads of <code>GetCollection</code> let you override a few of
+the most commonly used settings. To override other settings, call
+<code>CreateCollectionSettings</code> and change any settings you want before
+calling <code>GetCollection</code> , like this:</p>
+
+<pre><code class="language-sourceCode csharp">var collectionSettings = database.CreateCollectionSettings&lt;TDocument&gt;(&quot;test&quot;);
+collectionSettings.SlaveOk = true;
+var collection = database.GetCollection(collectionSettings);
+</code></pre>
+
+<p><code>GetCollection</code> maintains a table of instances it has returned before,
+so if you call <code>GetCollection</code> again with the same parameters you get
+the same instance back again.</p>
+
+<h3 id="other-properties-and-methods-1">Other Properties and Methods</h3>
+
+<p>For a reference of other properties and method, see the api
+documentation.</p>
+
+<h2 id="mongocollection-tdefaultdocument-class"><code>MongoCollection&lt;TDefaultDocument&gt;</code> Class</h2>
+
+<p>This class represents a collection in a MongoDB database. The
+<code>&lt;TDefaultDocument&gt;</code> type parameter specifies the type of the default
+document for this collection.</p>
+
+<p>Instances of this class are thread safe.</p>
+
+<h3 id="insert-tdocument-method"><code>Insert&lt;TDocument&gt;</code> Method</h3>
+
+<p>To insert a document in the collection create an object representing the
+document and call <code>Insert</code>. The object can be an instance of
+<code>BsonDocument</code> or of any class that can be successfully serialized as a
+BSON document. For example:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books =
+    database.GetCollection&lt;BsonDocument&gt;(&quot;books&quot;);
+BsonDocument book = new BsonDocument {
+    { &quot;author&quot;, &quot;Ernest Hemingway&quot; },
+    { &quot;title&quot;, &quot;For Whom the Bell Tolls&quot; }
+};
+books.Insert(book);
+</code></pre>
+
+<p>If you have a class called <code>Book</code> the code might look like:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;Book&gt; books = database.GetCollection&lt;Book&gt;(&quot;books&quot;);
+Book book = new Book {
+    Author = &quot;Ernest Hemingway&quot;,
+    Title = &quot;For Whom the Bell Tolls&quot;
+};
+books.Insert(book);
+</code></pre>
+
+<h3 id="insertbatch-method"><code>InsertBatch</code> Method</h3>
+
+<p>You can insert more than one document at a time using the <code>InsertBatch</code>
+method. For example:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+BsonDocument[] batch = {
+    new BsonDocument {
+        { &quot;author&quot;, &quot;Kurt Vonnegut&quot; },
+        { &quot;title&quot;, &quot;Cat's Cradle&quot; }
+    },
+    new BsonDocument {
+        { &quot;author&quot;, &quot;Kurt Vonnegut&quot; },
+        { &quot;title&quot;, &quot;Slaughterhouse-Five&quot; }
+    }
+};
+books.InsertBatch(batch);
+</code></pre>
+
+<p>When you are inserting multiple documents <code>InsertBatch</code> can be much more
+efficient than <code>Insert</code>.</p>
+
+<h3 id="findone-and-findoneas-methods"><code>FindOne</code> and <code>FindOneAs</code> Methods</h3>
+
+<p>To retrieve documents from a collection use one of the various <code>Find</code>
+methods. <code>FindOne</code> is the simplest. It returns the first document it
+finds (when there are many documents in a collection you can&rsquo;t be sure
+which one it will be). For example:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;Book&gt; books;
+Book book = books.FindOne();
+</code></pre>
+
+<p>If you want to read a document that is not of the <code>&lt;TDefaultDocument&gt;</code>
+type use the <code>FindOneAs</code> method, which allows you to override the type
+of the returned document. For example:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;Book&gt; books;
+BsonDocument document = books.FindOneAs&lt;BsonDocument&gt;();
+</code></pre>
+
+<p>In this case the default document type of the collection is <code>Book</code>, but
+we are overriding that and specifying that the result be returned as an
+instance of <code>BsonDocument</code>.</p>
+
+<h3 id="find-and-findas-methods"><code>Find</code> and <code>FindAs</code> Methods</h3>
+
+<p>The <code>Find</code> and <code>FindAs</code> methods take a query that tells the server which
+documents to return. The query parameter is of type <code>IMongoQuery</code>.
+<code>IMongoQuery</code> is a marker interface that identifies classes that can be
+used as queries. The most common ways to construct a query are to either
+use the <code>Query</code> builder class or to create a <code>QueryDocument</code> yourself (a
+<code>QueryDocument</code> is a subclass of <code>BsonDocument</code> that also implements
+<code>IMongoQuery</code> and can therefore be used as a query object).</p>
+
+<p>One way to query is to create a <code>QueryDocument</code> object yourself:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = new QueryDocument(&quot;author&quot;, &quot;Kurt Vonnegut&quot;);
+foreach (BsonDocument book in books.Find(query)) {
+    // do something with book
+}
+</code></pre>
+
+<p>Another way to query is to use the Query Builder (recommended):</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = Query.EQ(&quot;author&quot;, &quot;Kurt Vonnegut&quot;);
+foreach (BsonDocument book in books.Find(query)) {
+    // do something with book
+}
+</code></pre>
+
+<p>If you want to read a document of a type that is not the default
+document type use the <code>FindAs</code> method instead:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = Query&lt;Book&gt;.EQ(b =&gt; b.Author, &quot;Kurt Vonnegut&quot;);
+foreach (Book book in books.FindAs&lt;Book&gt;(query)) {
+    // do something with book
+}
+</code></pre>
+
+<h3 id="save-tdocument-method"><code>Save&lt;TDocument&gt;</code> Method</h3>
+
+<p>The <code>Save</code> method is a combination of <code>Insert</code> and <code>Update</code>. If the <code>Id</code>
+member of the document has a value, then it is assumed to be an existing
+document and <code>Save</code> calls <code>Update</code> on the document (setting the <code>Upsert</code>
+flag just in case it actually is a new document after all). Otherwise it
+is assumed to be a new document and <code>Save</code> calls <code>Insert</code> after first
+assigning a newly generated unique value to the <code>Id</code> member.</p>
+
+<p>For example, you could correct an error in the title of a book using:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = Query.And(
+    Query.EQ(&quot;author&quot;, &quot;Kurt Vonnegut&quot;),
+    Query.EQ(&quot;title&quot;, &quot;Cats Craddle&quot;)
+);
+BsonDocument book = books.FindOne(query);
+if (book != null) {
+    book[&quot;title&quot;] = &quot;Cat's Cradle&quot;;
+    books.Save(book);
+}
+</code></pre>
+
+<p>The <code>TDocument</code> class must have an <code>Id</code> member to be used with the
+<code>Save</code> method. If it does not you can call <code>Insert</code> instead of <code>Save</code> to
+insert the document.</p>
+
+<h3 id="update-method"><code>Update</code> Method</h3>
+
+<p>The <code>Update</code> method is used to update existing documents. The code
+sample shown for the <code>Save</code> method could also have been written as:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = new QueryDocument {
+    { &quot;author&quot;, &quot;Kurt Vonnegut&quot; },
+    { &quot;title&quot;, &quot;Cats Craddle&quot; }
+};
+var update = new UpdateDocument {
+    { &quot;$set&quot;, new BsonDocument(&quot;title&quot;, &quot;Cat's Cradle&quot;) }
+};
+BsonDocument updatedBook = books.Update(query, update);
+</code></pre>
+
+<p>or using <code>Query</code> and <code>Update</code> builders:</p>
+
+<pre><code class="language-sourceCode csharp">MongoCollection&lt;BsonDocument&gt; books;
+var query = Query.And(
+    Query.EQ(&quot;author&quot;, &quot;Kurt Vonnegut&quot;),
+    Query.EQ(&quot;title&quot;, &quot;Cats Craddle&quot;)
+);
+var update = Update.Set(&quot;title&quot;, &quot;Cat's Cradle&quot;);
+BsonDocument updatedBook = books.Update(query, update);
+</code></pre>
+
+<h3 id="findandmodify-method"><code>FindAndModify</code> Method</h3>
+
+<p>Use <code>FindAndModify</code> when you want to find a matching document and update
+it in one atomic operation. <code>FindAndModify</code> always updates a single
+document, and you can combine a query that matches multiple documents
+with a sort criteria that will determine exactly which matching document
+is updated. In addition, <code>FindAndModify</code> will return the matching
+document (either as it was before the update or after) and if you wish
+you can specify which fields of the matching document to return.</p>
+
+<p>Using the example documented here, <a href="http://docs.mongodb.org/manual/reference/command/findAndModify/">findAndModify
+Command</a>,
+the call to <code>FindAndModify</code> would be written in C# as:</p>
+
+<pre><code class="language-sourceCode csharp">var jobs = database.GetCollection(&quot;jobs&quot;);
+var query = Query.And(
+    Query.EQ(&quot;inprogress&quot;, false),
+    Query.EQ(&quot;name&quot;, &quot;Biz report&quot;)
+);
+var sortBy = SortBy.Descending(&quot;priority&quot;);
+var update = Update.
+    .Set(&quot;inprogress&quot;, true)
+    .Set(&quot;started&quot;, DateTime.UtcNow);
+var result = jobs.FindAndModify(
+    query,
+    sortBy,
+    update,
+    true // return new document
+);
+var chosenJob = result.ModifiedDocument;
+</code></pre>
+
+<h3 id="mapreduce-method"><code>MapReduce</code> Method</h3>
+
+<p>Map/Reduce is a way of aggregating data from a collection. Every
+document in a collection (or some subset if an optional query is
+provided) is sent to the <code>map</code> function, which calls <code>emit</code> to produce
+intermediate values. The intermediate values are then sent to the
+<code>reduce</code> function to be aggregated.</p>
+
+<p>This example is taken from page 87 of <strong>MongoDB: The Definitive Guide</strong>,
+by Kristina Chodorow and Michael Dirolf. It counts how many times each
+key is found in a collection.</p>
+
+<pre><code class="language-sourceCode csharp">var map =
+    &quot;function() {&quot; +
+    &quot;    for (var key in this) {&quot; +
+    &quot;        emit(key, { count : 1 });&quot; +
+    &quot;    }&quot; +
+    &quot;}&quot;;
+
+var reduce =
+    &quot;function(key, emits) {&quot; +
+    &quot;    total = 0;&quot; +
+    &quot;    for (var i in emits) {&quot; +
+    &quot;        total += emits[i].count;&quot; +
+    &quot;    }&quot; +
+    &quot;    return { count : total };&quot; +
+    &quot;}&quot;;
+
+var mr = collection.MapReduce(map, reduce);
+foreach (var document in mr.GetResults()) {
+    Console.WriteLine(document.ToJson());
+}
+</code></pre>
+
+<h3 id="other-properties-and-methods-2">Other Properties and Methods</h3>
+
+<p>For a reference of other properties and method, see the api
+documentation.</p>
+
+<h2 id="mongocursor-tdocument-class"><code>MongoCursor&lt;TDocument&gt;</code> Class</h2>
+
+<p>The <code>Find</code> method (and its variations) don&rsquo;t immediately return the
+actual results of a query. Instead they return a cursor that can be
+enumerated to retrieve the results of the query. The query isn&rsquo;t
+actually sent to the server until we attempt to retrieve the first
+result (technically, when <code>MoveNext</code> is called for the first time on the
+enumerator returned by <code>GetEnumerator</code>). This means that we can control
+the results of the query in interesting ways by modifying the cursor
+before fetching the results.</p>
+
+<p>Instances of <code>MongoCursor</code> are not thread safe, at least not until they
+are frozen (see below). Once they are frozen they are thread safe
+because they are read-only (in particular, <code>GetEnumerator</code> is thread
+safe so the same cursor <em>could</em> be used by multiple threads).</p>
+
+<h3 id="enumerating-a-cursor">Enumerating a cursor</h3>
+
+<p>The most convenient way to consume the results of a query is to use the
+C# foreach statement. For example:</p>
+
+<pre><code class="language-sourceCode csharp">var query = Query.EQ(&quot;author&quot;, &quot;Ernest Hemingway&quot;);
+var cursor = books.Find(query);
+foreach (var book in cursor) {
+    // do something with book
+}
+</code></pre>
+
+<p>You can also use any of the extensions methods defined by LINQ for
+<code>IEnumerable&lt;T&gt;</code> to enumerate a cursor:</p>
+
+<pre><code class="language-sourceCode csharp">var query = Query.EQ(&quot;author&quot;, &quot;Ernest Hemingway&quot;);
+var cursor = books.Find(query);
+var firstBook = cursor.FirstOrDefault();
+var lastBook = cursor.LastOrDefault();
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>In the above example, the query is actually sent to the server twice
+(once when <code>FirstOrDefault</code> is called and again when <code>LastOrDefault</code>
+is called).</p>
+</blockquote>
+
+<p>It is important that a cursor cleanly release any resources it holds.
+The key to guaranteeing this is to make sure the <code>Dispose</code> method of the
+enumerator is called. The <code>foreach</code> statement and the LINQ extension
+methods all guarantee that <code>Dispose</code> will be called. Only if you
+enumerate the cursor manually are you responsible for calling <code>Dispose</code>.</p>
+
+<h3 id="modifying-a-cursor-before-enumerating-it">Modifying a Cursor Before Enumerating It</h3>
+
+<p>A cursor has several properties that can be modified before it is
+enumerated to control the results returned. There are two ways to modify
+a cursor:</p>
+
+<ol>
+<li>Modify the properties directly.</li>
+<li>Use the fluent interface to set the properties.</li>
+</ol>
+
+<p>For example, if we want to skip the first 100 results and limit the
+results to the next 10, we could write:</p>
+
+<pre><code class="language-sourceCode csharp">var query = Query.EQ(&quot;status&quot;, &quot;pending&quot;);
+var cursor = tasks.Find(query);
+cursor.Skip = 100;
+cursor.Limit = 10;
+foreach (var task in cursor) {
+    // do something with task
+}
+</code></pre>
+
+<p>or using the fluent interface:</p>
+
+<pre><code class="language-sourceCode csharp">var query = Query.EQ(&quot;status&quot;, &quot;pending&quot;);
+foreach (var task in tasks.Find(query).SetSkip(100).SetLimit(10)) {
+    // do something with task
+}
+</code></pre>
+
+<p>The fluent interface works well when you are setting only a few values.
+When setting more than a few you might prefer to use the properties
+approach.</p>
+
+<p>Once you begin enumerating a cursor it becomes &ldquo;frozen&rdquo; and you can no
+longer change any of its properties. So you must set all the properties
+before you start enumerating it.</p>
+
+<h3 id="modifiable-properties-of-a-cursor">Modifiable Properties of a Cursor</h3>
+
+<p>The following properties of a cursor are modifiable:</p>
+
+<ul>
+<li><code>BatchSize</code> (<code>SetBatchSize</code>)</li>
+<li><code>Fields</code> (<code>SetFields</code>)</li>
+<li><code>Flags</code> (<code>SetFlags</code>)</li>
+<li><code>Limit</code> (<code>SetLimit</code>)</li>
+<li><code>Options</code> (<code>SetOption</code> and <code>SetOptions</code>)</li>
+<li><code>SerializationOptions</code> (<code>SetSerializationOptions</code>)</li>
+<li><code>Skip</code> (<code>SetSkip</code>)</li>
+<li><code>SlaveOk</code> (<code>SetSlaveOk</code>)</li>
+</ul>
+
+<p>The names in parenthesis are the corresponding fluent interface method
+names.</p>
+
+<p>The fluent interface also supports additional options that aren&rsquo;t used
+very frequently and are not exposed as properties:</p>
+
+<ul>
+<li><code>SetHint</code></li>
+<li><code>SetMax</code></li>
+<li><code>SetMaxScan</code></li>
+<li><code>SetMaxTime</code></li>
+<li><code>SetMin</code></li>
+<li><code>SetShowDiskLoc</code></li>
+<li><code>SetSnapshot</code></li>
+<li><code>SetSortOrder</code></li>
+</ul>
+
+<h3 id="other-methods">Other Methods</h3>
+
+<p><code>MongoCursor</code> has a few methods used for some special purpose
+operations:</p>
+
+<ul>
+<li><code>Clone</code></li>
+<li><code>Count</code></li>
+<li><code>Explain</code></li>
+<li><code>Size</code></li>
+</ul>
+
+<h2 id="writeconcern-class"><code>WriteConcern</code> Class</h2>
+
+<p>There are various levels of <code>WriteConcern</code>, and this class is used to
+represent those levels. <code>WriteConcern</code> applies only to operations that
+don&rsquo;t already return a value (so it doesn&rsquo;t apply to queries or
+commands). It applies to the following <code>MongoCollection</code> methods:
+<code>Insert</code>, <code>Remove</code>, <code>Save</code> and <code>Update</code>.</p>
+
+<p>The gist of <code>WriteConcern</code> is that after an <code>Insert</code>, <code>Remove</code>, <code>Save</code>
+or <code>Update</code> message is sent to the server it is followed by a
+<code>GetLastError</code> command so the driver can verify that the operation
+succeeded. In addition, when using replica sets it is possible to verify
+that the information has been replicated to some minimum number of
+secondary servers.</p>
+
+<h2 id="maxtime"><code>MaxTime</code></h2>
+
+<p>MongoDB 2.6 introduced the ability to timeout individual queries:</p>
+
+<pre><code class="language-sourceCode csharp">coll.FindAll().SetMaxTime(TimeSpan.FromSeconds(1));
+</code></pre>
+
+<p>In the example above the maxTimeMS is set to one second and the query
+will be aborted after the full second is up.</p>
+
+<h3 id="bulk-operations">Bulk operations</h3>
+
+<p>Under the covers MongoDB is moving away from the combination of a write
+operation followed by get last error (GLE) and towards a write commands
+API. These new commands allow for the execution of bulk
+insert/update/remove operations. There are two types of bulk operations:</p>
+
+<ol>
+<li><p>Ordered bulk operations.</p>
+
+<p>:   Executes all the operations in order and error out on the first
+    write error.</p></li>
+
+<li><p>Unordered bulk operations.</p>
+
+<p>:   Executes all the operations in parallel and aggregates all the
+    errors. Unordered bulk operations do not guarantee order of
+    execution.</p></li>
+</ol>
+
+<p>Let&rsquo;s look at two simple examples using ordered and unordered
+operations:</p>
+
+<pre><code class="language-sourceCode csharp">// 1. Ordered bulk operation
+var bulk = coll.InitializeOrderedBulkOperation();
+bulk.Insert(new BsonDocument(&quot;_id&quot;, 1));
+bulk.Insert(new BsonDocument(&quot;_id&quot;, 2));
+bulk.Insert(new BsonDocument(&quot;_id&quot;, 3));
+
+bulk.Find(Query.EQ(&quot;_id&quot;, 1)).UpdateOne(Update.Set(&quot;x&quot;, 2)));
+bulk.Find(Query.EQ(&quot;_id&quot;, 2)).RemoveOne();
+bulk.Find(Query.EQ(&quot;_id&quot;, 3)).ReplaceOne(Update.Replace(new BsonDocument(&quot;_id&quot;, 3).Add(&quot;x&quot;, 4)));
+
+BulkWriteResult result = bulk.Execute();
+
+// 2. Unordered bulk operation - no guarantee of order of operation
+bulk = coll.InitializeUnorderedBulkOperation();
+bulk.Find(Query.EQ(&quot;_id&quot;, 1)).RemoveOne();
+bulk.Find(Query.EQ(&quot;_id&quot;, 2)).RemoveOne();
+
+result = bulk.Execute();
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>For servers older than 2.6 the API will down-convert the operations.
+To support the correct semantics for BulkWriteResult and
+BulkWriteException, the operations have to be done one at a time. It&rsquo;s
+not possible to down convert 100% so there might be slight edge cases
+where it cannot correctly report the right numbers.</p>
+</blockquote>
+
+<h3 id="parallelscan">ParallelScan</h3>
+
+<p>MongoDB 2.6 added the <code>parallelCollectionScan</code> command that allows
+reading an entire collection using multiple cursors.</p>
+
+<pre><code class="language-sourceCode csharp">var args = new ParallelScanArgs&lt;BsonDocument&gt;
+{
+   NumberOfCursors = 3,
+   BatchSize = 300
+};
+
+var cursors = coll.ParallelScan(args);
+for (var cursor in cursors) 
+{
+    using(cursor) // need to close the cursor when we are done
+    {
+      while (cursor.MoveNext()) 
+      {
+          Console.WriteLine(cursor.Current);
+      }
+    }
+ }
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>In practice, one thread per cursor would be used such that each cursor
+is enumerated in parallel.</p>
+
+<p><strong>note</strong></p>
+
+<p>ParallelScan does not work via mongos.</p>
+</blockquote>
+
+
+
+
+
+
+<div id="btnv">
+  
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#driver-tutorial">Driver Tutorial</a>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#downloading">Downloading</a></li>
+<li><a href="#building">Building</a></li>
+<li><a href="#running-unit-tests">Running Unit Tests</a></li>
+<li><a href="#installing">Installing</a></li>
+<li><a href="#references-and-namespaces">References and Namespaces</a></li>
+<li><a href="#the-bson-library">The BSON Library</a>
+<ul>
+<li><a href="#bsontype"><code>BsonType</code></a></li>
+<li><a href="#bsonvalue-and-subclasses"><code>BsonValue</code> and Subclasses</a></li>
+<li><a href="#bsontype-property"><code>BsonType</code> Property</a></li>
+<li><a href="#as-type-properties"><code>As[Type]</code> Properties</a></li>
+<li><a href="#is-type-properties"><code>Is[Type]</code> Properties</a></li>
+<li><a href="#to-type-conversion-methods"><code>To[Type]</code> Conversion Methods</a></li>
+<li><a href="#static-create-methods">Static Create Methods</a>
+<ul>
+<li><a href="#implicit-conversions">Implicit Conversions</a></li>
+</ul></li>
+<li><a href="#bsonmaxkey-bsonminkey-bsonnull-and-bsonundefined"><code>BsonMaxKey</code>, <code>BsonMinKey</code>, <code>BsonNull</code> and <code>BsonUndefined</code></a></li>
+<li><a href="#objectid-and-bsonobjectid"><code>ObjectId</code> and <code>BsonObjectId</code></a></li>
+</ul></li>
+<li><a href="#bsonelement"><code>BsonElement</code></a></li>
+<li><a href="#bsondocument"><code>BsonDocument</code></a>
+<ul>
+<li><a href="#bsondocument-constructor"><code>BsonDocument</code> Constructor</a></li>
+<li><a href="#create-a-new-document-and-call-add-and-set-methods">Create a New Document and Call <code>Add</code> and <code>Set</code> Methods</a></li>
+<li><a href="#create-a-new-document-and-use-the-fluent-interface-add-and-set-methods">Create a New Document and Use the Fluent Interface <code>Add</code> and <code>Set</code> Methods</a></li>
+<li><a href="#create-a-new-document-and-use-c-s-collection-initializer-syntax-recommended">Create a New Document and Use C#&rsquo;s Collection Initializer Syntax (Recommended)</a></li>
+<li><a href="#creating-nested-bson-documents">Creating Nested BSON Documents</a></li>
+<li><a href="#add-methods"><code>Add</code> Methods</a></li>
+<li><a href="#accessing-bsondocument-elements">Accessing <code>BsonDocument</code> Elements</a></li>
+</ul></li>
+<li><a href="#bsonarray">BsonArray</a>
+<ul>
+<li><a href="#constructors">Constructors</a></li>
+<li><a href="#add-and-addrange-methods"><code>Add</code> and <code>AddRange</code> Methods</a></li>
+<li><a href="#indexer">Indexer</a></li>
+</ul></li>
+<li><a href="#lazybsondocument-and-lazybsonarray">LazyBsonDocument and LazyBsonArray</a></li>
+<li><a href="#rawbsondocument-and-rawbsonarray">RawBsonDocument and RawBsonArray</a></li>
+<li><a href="#the-c-driver">The C# Driver</a></li>
+<li><a href="#thread-safety">Thread Safety</a></li>
+<li><a href="#mongoclient-class"><code>MongoClient</code> Class</a>
+<ul>
+<li><a href="#connection-strings">Connection Strings</a></li>
+<li><a href="#ssl-support">SSL Support</a></li>
+<li><a href="#authentication">Authentication</a></li>
+<li><a href="#getserver-method"><code>GetServer</code> Method</a></li>
+</ul></li>
+<li><a href="#mongoserver-class"><code>MongoServer</code> Class</a>
+<ul>
+<li><a href="#getdatabase-method"><code>GetDatabase</code> Method</a></li>
+<li><a href="#requeststart-requestdone-methods"><code>RequestStart</code>/<code>RequestDone</code> Methods</a></li>
+<li><a href="#other-properties-and-methods">Other Properties and Methods</a></li>
+</ul></li>
+<li><a href="#mongodatabase-class">MongoDatabase Class</a>
+<ul>
+<li><a href="#getcollection-method"><code>GetCollection</code> Method</a></li>
+<li><a href="#other-properties-and-methods-1">Other Properties and Methods</a></li>
+</ul></li>
+<li><a href="#mongocollection-tdefaultdocument-class"><code>MongoCollection&lt;TDefaultDocument&gt;</code> Class</a>
+<ul>
+<li><a href="#insert-tdocument-method"><code>Insert&lt;TDocument&gt;</code> Method</a></li>
+<li><a href="#insertbatch-method"><code>InsertBatch</code> Method</a></li>
+<li><a href="#findone-and-findoneas-methods"><code>FindOne</code> and <code>FindOneAs</code> Methods</a></li>
+<li><a href="#find-and-findas-methods"><code>Find</code> and <code>FindAs</code> Methods</a></li>
+<li><a href="#save-tdocument-method"><code>Save&lt;TDocument&gt;</code> Method</a></li>
+<li><a href="#update-method"><code>Update</code> Method</a></li>
+<li><a href="#findandmodify-method"><code>FindAndModify</code> Method</a></li>
+<li><a href="#mapreduce-method"><code>MapReduce</code> Method</a></li>
+<li><a href="#other-properties-and-methods-2">Other Properties and Methods</a></li>
+</ul></li>
+<li><a href="#mongocursor-tdocument-class"><code>MongoCursor&lt;TDocument&gt;</code> Class</a>
+<ul>
+<li><a href="#enumerating-a-cursor">Enumerating a cursor</a></li>
+<li><a href="#modifying-a-cursor-before-enumerating-it">Modifying a Cursor Before Enumerating It</a></li>
+<li><a href="#modifiable-properties-of-a-cursor">Modifiable Properties of a Cursor</a></li>
+<li><a href="#other-methods">Other Methods</a></li>
+</ul></li>
+<li><a href="#writeconcern-class"><code>WriteConcern</code> Class</a></li>
+<li><a href="#maxtime"><code>MaxTime</code></a>
+<ul>
+<li><a href="#bulk-operations">Bulk operations</a></li>
+<li><a href="#parallelscan">ParallelScan</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/1.10",
+   VERSION:     "1.10",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/jquery.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/navbar.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/scripts.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+<script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+

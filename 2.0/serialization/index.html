@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/1.10/img/favicon.png">
+
+    <title>Serialization Tutorial</title>
+
+    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="http://localhost:1313/mongo-csharp-driver/1.10/../">
+        <img src="http://localhost:1313/mongo-csharp-driver/1.10/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/1.10/../">MongoDB CSharp Driver</a>
+          <a class="version pull-right" href="http://localhost:1313/mongo-csharp-driver/1.10">1.10</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="" class="">
+      
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/1.10/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/1.10/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/getting_started/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/driver/">
+        <i class='fa'></i>
+        Driver Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/serialization/">
+        <i class='fa'></i>
+        Serialization Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/linq/">
+        <i class='fa'></i>
+        LINQ Tutorial
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/serialization.md" target="_blank" title="Edit serialization.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  
+  
+  <li>Serialization Tutorial</li>
+</ul>
+</div>
+
+
+
+
+<h1 id="serialization-tutorial">Serialization Tutorial</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This section of the C# Driver Tutorial discusses serialization (and
+deserialization) of instances of C# classes to and from BSON documents.
+Serialization is the process of mapping an object to a BSON document
+that can be saved in MongoDB, and deserialization is the reverse process
+of reconstructing an object from a BSON document. For that reason the
+serialization process is also often referred to as &ldquo;Object Mapping.&rdquo;</p>
+
+<p>Serialization is handled by the BSON Library. The BSON Library has an
+extensible serialization architecture, so if you need to take control of
+serialization you can. The BSON Library provides a default serializer
+which should meet most of your needs, and you can supplement the default
+serializer in various ways to handle your particular needs.</p>
+
+<p>The main way the default serializer handles serialization is through
+&ldquo;class maps&rdquo;. A class map is a structure that defines the mapping
+between a class and a BSON document. It contains a list of the fields
+and properties of the class that participate in serialization and for
+each one defines the required serialization parameters (e.g., the name
+of the BSON element, representation options, etc&hellip;).</p>
+
+<p>The default serializer also has built in support for many .NET data
+types (primitive values, arrays, lists, dictionaries, etc&hellip;) for which
+class maps are not used.</p>
+
+<p>Before an instance of a class can be serialized a class map must exist.
+You can either create this class map yourself or simply allow the class
+map to be created automatically when first needed (called
+&ldquo;automapping&rdquo;). You can exert some control over the automapping process
+either by decorating your classes with serialization related attributes
+or by using initialization code (attributes are very convenient to use
+but for those who prefer to keep serialization details out of their
+domain classes be assured that anything that can be done with attributes
+can also be done without them).</p>
+
+<h2 id="creating-a-class-map">Creating a Class Map</h2>
+
+<p>To create a class map in your initialization code write:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;();
+</code></pre>
+
+<p>which results in <code>MyClass</code> being automapped and registered. In this case
+you could just as well have allowed the class to be automapped by the
+serializer (when first serialized or deserialized). The one case where
+you must call <code>RegisterClassMap</code> yourself (even without arguments) is
+when you are using a polymorphic class hierarchy: in this case you must
+register all the known subclasses to guarantee that the discriminators
+get registered.</p>
+
+<p>If you want to control the creation of the class map you can provide
+your own initialization code in the form of a lambda expression:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.MapProperty(c =&gt; c.SomeProperty);
+    cm.MapProperty(c =&gt; c.AnotherProperty);
+});
+</code></pre>
+
+<p>When your lambda expression is executed the <code>cm</code> (short for class map)
+parameter is passed an empty class map for you to fill in. In this
+example two properties are added to the class map by calling the
+<code>MapProperty</code> method. The arguments to <code>MapProperty</code> are themselves
+lambda expressions which identify the property of the class. The
+advantage of using a lambda expression instead of just a string
+parameter with the name of the property is that <code>Intellisense</code> and
+compile time checking ensure that you can&rsquo;t misspell the name of the
+property.</p>
+
+<p>It is also possible to use automapping and then override some of the
+results. We will see examples of that later on.</p>
+
+<p>Note that a class map must only be registered once (an exception will be
+thrown if you try to register the same class map more than once).
+Usually you call <code>RegisterClassMap</code> from some code path that is known to
+execute only once (the <code>Main</code> method, the <code>Application_Start</code> event
+handler, etc&hellip;). If you must call <code>RegisterClassMap</code> from a code path
+that executes more than once, you can use <code>IsClassMapRegistered</code> to
+check whether a class map has already been registered for a class:</p>
+
+<pre><code class="language-sourceCode csharp">if (!BsonClassMap.IsClassMapRegistered(typeof(MyClass))) {
+   // register class map for MyClass
+}
+</code></pre>
+
+<h3 id="creator-maps">Creator Maps</h3>
+
+<p>By default, classes must contain a zero-argument constructor that will
+be used to instantiate an instance to hydrate. However, it is possible
+to configure a constructor whose arguments are correlated with mapped
+properties or fields. There are a couple of ways to do this.</p>
+
+<p>Using an expression, you can instruct the driver to use a creator map as
+follows:</p>
+
+<pre><code class="language-sourceCode csharp">public class Person
+{
+  public string FirstName { get; private set; }
+  public string LastName { get; private set; }
+
+  public Person(string firstName, string lastName)
+  {
+    FirstName = firstName;
+    LastName = lastName;
+  }
+}
+
+// snip...
+
+BsonClassMap.RegisterClassMap&lt;Person&gt;(cm =&gt;
+{
+    cm.AutoMap();
+    cm.MapCreator(p =&gt; new Person(p.FirstName, p.LastName));
+});
+</code></pre>
+
+<p>Parsing the expression tree correlates the first constructor argument
+with the <code>FirstName</code> property and the second constructor argument with
+the <code>LastName</code> property. There are other, more complicated ways of
+handling this which can be explored on your own should the need arise.</p>
+
+<p>Using attributes instead:</p>
+
+<pre><code class="language-sourceCode csharp">public class Person
+{
+  public string FirstName { get; set; }
+  public string LastName { get; set; }
+
+  [BsonConstructor]
+  public Person(string firstName, string lastName)
+  {
+    FirstName = firstName;
+    LastName = lastName;
+  }
+}
+</code></pre>
+
+<p>By default, a convention runs on every CreatorMap with no mapped
+arguments and attempts to correlate the names of the constructor
+arguments with the names of mapped members. If your names differ in more
+than just case, there are overloads of BsonConstructor which can be used
+to explicity tell the driver which members to use.</p>
+
+<p>When more than 1 constructor is found, we will use the most parameters
+fulfilled strategy to identify the best match. For example:</p>
+
+<pre><code class="language-sourceCode csharp">public class Person
+{
+  public string FirstName { get; set; }
+  public string LastName { get; set; }
+  public DateTime? BirthDate { get; set; }
+
+  [BsonConstructor]
+  public Person(string firstName, string lastName)
+  {
+    // snip...
+  }
+
+  [BsonConstructor]
+  public Person(string firstName, string lastName, DateTime birthDate)
+  {
+    // snip...
+  }
+}
+</code></pre>
+
+<p>If the document in the database has a BirthDate element, we will choose
+to use the constructor with 3 parameters because it is more specific.</p>
+
+<p>In addition to the above code and attribute forms, mapping a creator can
+be handled via conventions.</p>
+
+<h2 id="conventions">Conventions</h2>
+
+<p>When automapping a class there are a lot of decisions that need to be
+made. For example:</p>
+
+<ul>
+<li>Which fields or properties of the class should be serialized</li>
+<li>Which field or property of the class is the &ldquo;Id&rdquo;</li>
+<li>What element name should be used in the BSON document</li>
+<li>If the class is being used polymorphically what discriminator values
+are used</li>
+<li>What should happen if a BSON document has elements we don&rsquo;t
+recognize</li>
+<li>Does the field or property have a default value</li>
+<li>Should the default value be serialized or ignored</li>
+<li>Should <code>null</code> values be serialized or ignored</li>
+</ul>
+
+<p>Answers to these questions are represented by a set of &ldquo;conventions&rdquo;.
+For each convention there is a default convention that is the most
+likely one you will be using, but you can override individual
+conventions (and even write your own) as necessary.</p>
+
+<p>If you want to use your own conventions that differ from the defaults
+simply create an instance of <code>ConventionPack</code> and add in the conventions
+you want to use and then register that pack (in other words, tell the
+default serializer when your special conventions should be used). For
+example:</p>
+
+<pre><code class="language-sourceCode csharp">var pack = new ConventionPack();
+pack.Add(new CamelCaseElementNameConvention());
+
+ConventionRegistry.Register(
+   &quot;My Custom Conventions&quot;,
+   pack,
+   t =&gt; t.FullName.StartsWith(&quot;MyNamespace.&quot;));
+</code></pre>
+
+<p>The third parameter is a filter function that defines when this
+convention pack should be used. In this case we are saying that any
+classes whose full names begin with <code>&quot;MyNamespace.&quot;</code> should use
+<code>myConventions</code>.</p>
+
+<p>In addition to pre-packaged conventions, it is possible to write your
+own. There are 4 classes of conventions which can be created and
+registered. These 4 classes of conventions correspond with the 4 stages
+in which they will be run.</p>
+
+<ol>
+<li><p><code>Class Stage</code>: <code>IClassMapConvention</code></p>
+
+<p>:   Run against the class map.</p></li>
+
+<li><p><code>Member Stage</code>: <code>IMemberMapConvention</code></p>
+
+<p>:   Run against each member map discovered during the
+    <code>IClassMapConvention</code> stage.</p></li>
+
+<li><p><code>Creator Stage</code>: <code>ICreatorMapConvention</code></p>
+
+<p>:   Run against each CreatorMap discovered during the
+    <code>IClassMapConvention</code> stage.</p></li>
+
+<li><p><code>Post Processing Stage</code>: <code>IPostProcessingConvention</code></p>
+
+<p>:   Run against the class map.</p></li>
+</ol>
+
+<p>Conventions get run in the order they were registered in each stage. The
+default set of conventions is registered first. This allows any user
+registered conventions to override the values applied by the default
+conventions. Hence, it is possible that certain values may get applied
+and overwritten. It is up to the user to ensure that the order is
+correct.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>If a custom implementation of an <code>IPostProcessingConvention</code> is
+registered before a customer implementation of an
+<code>IClassMapConvention</code>, the <code>IClassMapConvention</code> will be run first
+because the <code>Class Stage</code> is before the <code>Post Processing Stage</code>.</p>
+</blockquote>
+
+<h2 id="field-or-property-level-serialization-options">Field or Property Level Serialization Options</h2>
+
+<p>There are many ways you can control serialization. The previous section
+discussed conventions, which are a convenient way to control
+serialization decisions for many classes at once. You can also control
+serialization at the individual class or field or property level using
+code to configure the class and member maps or using attributes to
+decorate the class and members. For each aspect of serialization you can
+control, we will be showing both ways.</p>
+
+<h3 id="opt-in">Opt-In</h3>
+
+<p>A majority of classes will have their properties mapped automatically.
+There are some circumstances where this does not happen. For instance,
+if your property is read-only, it will not get included in the
+automapping of a class by default. In order to include the member, you
+can use the <code>BsonElementAttribute</code>.</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    private readonly string _someProperty;
+
+    [BsonElement]
+    public string SomeProperty
+    {
+        get { return _someProperty; }
+    }
+}
+</code></pre>
+
+<p>The same result can be achieved without using attributes with the
+following initialization code:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.MapProperty(c =&gt; c.SomeProperty);
+});
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>When a readonly property is serialized, it value is persisted to the
+database, but never read back out. This is useful for storing
+&ldquo;computed&rdquo; properties</p>
+</blockquote>
+
+<h3 id="element-name">Element name</h3>
+
+<p>To specify an element name using attributes, write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonElement(&quot;sp&quot;)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>The same result can be achieved without using attributes with the
+following initialization code:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.SomeProperty).SetElementName(&quot;sp&quot;);
+});
+</code></pre>
+
+<p>Note that we are first automapping the class and then overriding one
+particular piece of the class map. If you didn&rsquo;t call <code>AutoMap</code> first
+then GetMemberMap would throw an exception because there would be no
+member maps.</p>
+
+<h3 id="element-order">Element Order</h3>
+
+<p>If you want precise control over the order of the elements in the BSON
+document you can use the <code>Order</code> named parameter to the <code>BsonElement</code>
+attribute:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonElement(&quot;sp&quot;, Order = 1)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.SomeProperty).SetElementName(&quot;sp&quot;).SetOrder(1);
+});
+</code></pre>
+
+<p>Any fields or properties that do not have an explicit <code>Order</code> will occur
+after those that do have an <code>Order</code>.</p>
+
+<h3 id="identifying-the-id-field-or-property">Identifying the Id Field or Property</h3>
+
+<p>To identify which field or property of a class is the Id you can write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonId]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.SetIdMember(cm.GetMemberMap(c =&gt; c.SomeProperty));
+});
+</code></pre>
+
+<p>When not using <code>AutoMap</code>, you can also map a field or property and
+identify it as the Id in one step as follows:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.MapIdProperty(c =&gt; c.SomeProperty);
+    // mappings for other fields and properties
+});
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The default conventions will discover a public property or field with
+the name &ldquo;Id&rdquo;, &ldquo;id&rdquo;, or &ldquo;_id&rdquo;. It is generally unnecessary to
+decorate this field with an attribute or map it explicitly.</p>
+</blockquote>
+
+<h3 id="selecting-an-idgenerator-to-use-for-an-id-field-or-property">Selecting an IdGenerator to Use for an Id Field or Property</h3>
+
+<p>When you Insert a document the C# driver checks to see if the <code>Id</code>
+member has been assigned a value, and if not, generates a new unique
+value for it. Since the <code>Id</code> member can be of any type, the driver
+requires the help of a matching <code>IdGenerator</code> to check whether the <code>Id</code>
+has a value assigned to it and to generate a new value if necessary. The
+driver has the following <code>IdGenerators</code> built-in:</p>
+
+<ul>
+<li><code>BsonObjectIdGenerator</code></li>
+<li><code>CombGuidGenerator</code></li>
+<li><code>GuidGenerator</code></li>
+<li><code>NullIdChecker</code></li>
+<li><code>ObjectIdGenerator</code></li>
+<li><code>StringObjectIdGenerator</code></li>
+<li><code>ZeroIdChecker&lt;T&gt;</code></li>
+</ul>
+
+<p>Some of these <code>IdGenerators</code> are used automatically for commonly used
+<code>Id</code> types:</p>
+
+<ul>
+<li><code>BsonObjectIdGenerator</code> is used for <code>BsonObjectId</code></li>
+<li><code>GuidGenerator</code> is used for <code>Guid</code></li>
+<li><code>ObjectIdGenerator</code> is used for <code>ObjectId</code></li>
+<li><code>StringObjectIdGenerator</code> is used for strings represented externally
+as <code>ObjectId</code></li>
+</ul>
+
+<p>To select an <code>IdGenerator</code> to use for your <code>Id</code> field or property write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonId(IdGenerator = typeof(CombGuidGenerator))]
+    public Guid Id { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.IdMemberMap.SetIdGenerator(CombGuidGenerator.Instance);
+});
+</code></pre>
+
+<p>You could also say that you want to use the <code>CombGuidGenerator</code> for all
+<code>Guids</code>. In this case you would write:</p>
+
+<pre><code class="language-sourceCode csharp">BsonSerializer.RegisterIdGenerator(
+    typeof(Guid),
+    CombGuidGenerator.Instance
+);
+</code></pre>
+
+<p>The <code>NullIdChecker</code> and <code>ZeroIdChecker&lt;T&gt;</code> IdGenerators can be used when
+you don&rsquo;t have an <code>IdGenerator</code> for an <code>Id</code> type but you want to enforce
+that the <code>Id</code> is not null or zero. These pseudo-IdGenerators throw an
+exception if their <code>GenerateId</code> method is called. You can select it for
+an individual member just like a <code>CombGuidGenerator</code> was selected in the
+previous example, or you can turn on one or both of these <code>IdGenerators</code>
+for all types as follows:</p>
+
+<pre><code class="language-sourceCode csharp">BsonSerializer.UseNullIdChecker = true; // used for reference types
+BsonSerializer.UseZeroIdChecker = true; // used for value types
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>In version 1.0 of the C# Driver <code>NullIdChecker</code> and
+<code>ZeroIdChecker&lt;T&gt;</code> were always used, but it was decided that their use
+should be optional, since null and zero are valid values for an <code>Id</code>
+as far as the server is concerned, so they should only be considered
+an error if the developer has specifically said they should be.</p>
+</blockquote>
+
+<h3 id="ignoring-a-field-or-property">Ignoring a Field or Property</h3>
+
+<p>When constructing a class map manually you can ignore a field or
+property simply by not adding it to the class map. When using <code>AutoMap</code>
+you need a way to specify that a field or property should be ignored. To
+do so using attributes write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonIgnore]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.UnmapProperty(c =&gt; c.SomeProperty);
+});
+</code></pre>
+
+<p>In this case <code>AutoMap</code> will have initially added the property to the
+class map automatically but then <code>UnmapProperty</code> will remove it.</p>
+
+<h3 id="ignoring-null-values">Ignoring <code>null</code> Values</h3>
+
+<p>By default <code>null</code> values are serialized to the BSON document as a BSON
+<code>Null</code>. An alternative is to serialize nothing to the BSON document when
+the field or property has a <code>null</code> value. To specify this using
+attributes write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonIgnoreIfNull]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.SomeProperty).SetIgnoreIfNull(true);
+});
+</code></pre>
+
+<h3 id="default-values">Default Values</h3>
+
+<p>You can specify a default value for a field or property as follows:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonDefaultValue(&quot;abc&quot;)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.SomeProperty).SetDefaultValue(&quot;abc&quot;);
+});
+</code></pre>
+
+<p>You can also control whether default values are serialized or not (the
+default is yes). To not serialize default values using attributes write:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonDefaultValue(&quot;abc&quot;)]
+    [BsonIgnoreIfDefault]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.SomeProperty)
+        .SetDefaultValue(&quot;abc&quot;)
+        .SetIgnoreIfDefault(true);
+});
+</code></pre>
+
+<h3 id="ignoring-a-member-based-on-a-shouldserializexyz-method">Ignoring a Member Based on a <em>ShouldSerializeXyz</em> Method</h3>
+
+<p>Sometimes the decision whether to serialize a member or not is more
+complicated than just whether the value is <code>null</code> or equal to the
+default value. You can write a method that determines whether a value
+should be serialized. Usually the method for member <em>Xyz</em> is named
+<em>ShouldSerializeXyz</em>. If you follow this naming convention then
+<code>AutoMap</code> will automatically detect the method and use it. For example:</p>
+
+<pre><code class="language-sourceCode csharp">public class Employee {
+    public ObjectId Id { get; set; }
+    [BsonDateTimeOptions(DateOnly = true)]
+    public DateTime DateOfBirth { get; set; }
+
+    public bool ShouldSerializeDateOfBirth() {
+        return DateOfBirth &gt; new DateTime(1900, 1, 1);
+    }
+}
+</code></pre>
+
+<p>Or using initialization code instead of naming conventions:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.DateOfBirth).SetShouldSerializeMethod(
+        obj =&gt; ((Employee) obj).DateOfBirth &gt; new DateTime(1900, 1, 1)
+    );
+});
+</code></pre>
+
+<h3 id="identifying-required-fields">Identifying Required Fields</h3>
+
+<p>Normally, the deserializer doesn&rsquo;t care if the document being
+deserialized doesn&rsquo;t have a matching element for every field or property
+of the class. The members that don&rsquo;t have a matching element simply get
+assigned their default value.</p>
+
+<p>If you want to make an element in the document be required, you can mark
+an individual field or property like this:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    public ObjectId Id { get; set; }
+    [BsonRequired]
+    public string X { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.X).SetIsRequired(true);
+});
+</code></pre>
+
+<blockquote>
+<p><strong>warning</strong></p>
+
+<p>This will throw an exception during deserialization. The required
+state of a member map does not apply to serialization.</p>
+</blockquote>
+
+<h3 id="specifying-the-serializer">Specifying the Serializer</h3>
+
+<p>There are times when a specific serializer needs to be used rather than
+letting the Bson library choose. This can be done in a couple of ways:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    public ObjectId Id { get; set; }
+    [BsonSerializer(typeof(MyCustomStringSerializer))]
+    public string X { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.X).SetSerializer(new MyCustomStringSerializer());
+});
+</code></pre>
+
+<h3 id="serialization-options">Serialization Options</h3>
+
+<p>Serialization of some classes can be more finely controlled using
+serialization options (which are represented using classes that
+implement the <code>IBsonSerializationOptions</code> interface). Whether a class
+uses serialization options or not, and which ones, depends on the
+particular class involved. The following sections describe the available
+serialization option classes and the classes that use them.</p>
+
+<h4 id="datetimeserializationoptions">DateTimeSerializationOptions</h4>
+
+<p>These serialization options control how a <code>DateTime</code> is serialized. For
+example:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonDateTimeOptions(DateOnly = true)]
+    public DateTime DateOfBirth { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    public DateTime AppointmentTime { get; set; }
+}
+</code></pre>
+
+<p>Here we are specifying that the <code>DateOfBirth</code> value holds a date only
+(so the <code>TimeOfDay</code> component must be zero). Additionally, because this
+is a date only, no timezone conversions at all will be performed. The
+<code>AppointmentTime</code> value is in local time and will be converted to UTC
+when it is serialized and converted back to local time when it is
+deserialized.</p>
+
+<p>You can specify the same options using initialization code instead of
+attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.DateOfBirth)
+        .SetSerializationOptions(
+            new DateTimeSerializationOptions { DateOnly = true });
+    cm.GetMemberMap(c =&gt; c.AppointmentTime)
+        .SetSerializationOptions(
+            new DateTimeSerializationOptions { Kind = DateTimeKind.Local });
+});
+</code></pre>
+
+<p><code>DateTimeSerializationOptions</code> are supported by the serializers for the
+following classes: <code>BsonDateTime</code> and <code>DateTime</code>.</p>
+
+<h4 id="dictionaryserializationoptions">DictionarySerializationOptions</h4>
+
+<p>When serializing dictionaries there are several alternative ways that
+the contents of the dictionary can be represented. The different ways
+are represented by the <code>DictionaryRepresentation</code> enumeration:</p>
+
+<pre><code class="language-sourceCode csharp">public enum DictionaryRepresentation {
+    Dynamic,
+    Document,
+    ArrayOfArrays,
+    ArrayOfDocuments
+}
+</code></pre>
+
+<p>A dictionary represented as a <code>Document</code> will be stored as a
+<code>BsonDocument</code>, and each entry in the dictionary will be represented by
+a <code>BsonElement</code> with the name equal to the key of the dictionary entry
+and the value equal to the value of the dictionary entry. This
+representation can only be used when all the keys in a dictionary are
+strings that are valid element names.</p>
+
+<p>A dictionary represented as an <code>ArrayOfArrays</code> will be stored as a
+<code>BsonArray</code> of key/value pairs, where each key/value pair is stored as a
+nested two-element <code>BsonArray</code> where the two elements are the key and
+the value of the dictionary entry. This representation can be used even
+when the keys of the dictionary are not strings. This representation is
+very general and compact, and is the default representation when
+<code>Document</code> does not apply. One problem with this representation is that
+it is difficult to write queries against it, which motivated the
+introduction in the 1.2 version of the driver of the <code>ArrayOfDocuments</code>
+representation.</p>
+
+<p>A dictionary represented as an <code>ArrayOfDocuments</code> will be stored as a
+<code>BsonArray</code> of key/value pairs, where each key/value pair is stored as a
+nested two-element <code>BsonDocument</code> of the form <code>{ k : key, v : value }</code>.
+This representation is just as general as the <code>ArrayOfArrays</code>
+representation, but because the keys and values are tagged with element
+names it is much easier to write queries against it. For backward
+compatibility reasons this is not the default representation.</p>
+
+<p>If the <code>Dynamic</code> representation is specified, the dictionary key values
+are inspected before serialization, and if all the keys are strings
+which are also valid element names, then the <code>Document</code> representation
+will be used, otherwise the <code>ArrayOfArrays</code> representation will be used.</p>
+
+<p>If no other representation for a dictionary is specified, then <code>Dynamic</code>
+is assumed.</p>
+
+<p>You can specify a <code>DictionarySerializationOption</code> as follows:</p>
+
+<pre><code class="language-sourceCode csharp">public class C {
+    public ObjectId Id;
+    [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+    public Dictionary&lt;string, int&gt; Values;
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;C&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.Values)
+        .SetSerializationOptions(DictionarySerializationOptions.ArrayOfDocuments);
+});
+</code></pre>
+
+<p><code>DictionarySerializationOptions</code> are supported by the serializers for
+the following classes: the generic classes and interfaces <code>Dictionary</code>,
+<code>IDictionary</code>, <code>SortedDictionary</code> and <code>SortedList</code>, and the non-generic
+classes and interfaces <code>Hashtable</code>, <code>IDictionary</code>, <code>ListDictionary</code>,
+<code>OrderedDictionary</code> and <code>SortedList</code>.</p>
+
+<h4 id="representationserializationoptions">RepresentationSerializationOptions</h4>
+
+<p>For some .NET primitive types you can control what BSON type you want
+used to represent the value in the BSON document. For example, you can
+specify whether a char value should be represented as a BSON Int32 or as
+a one-character BSON String:</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass {
+    [BsonRepresentation(BsonType.Int32)]
+    public char RepresentAsInt32 { get; set; }
+    [BsonRepresentation(BsonType.String)]
+    public char RepresentAsString { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.GetMemberMap(c =&gt; c.RepresentAsInt32)
+        .SetRepresentation(BsonType.Int32);
+    cm.GetMemberMap(c =&gt; c.RepresentAsString)
+        .SetRepresentation(BsonType.String);
+});
+</code></pre>
+
+<p>One case that deserves special mention is representing a string
+externally as an <code>ObjectId</code>. For example:</p>
+
+<pre><code class="language-sourceCode csharp">public class Employee {
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
+    // other properties
+}
+</code></pre>
+
+<p>In this case the serializer will convert the <code>ObjectId</code> to a string when
+reading data from the database and will convert the string back to an
+<code>ObjectId</code> when writing data to the database (the string value must be a
+valid <code>ObjectId</code>). Typically this is done when you want to keep your
+domain classes free of any dependencies on the C# driver, so you don&rsquo;t
+want to declare the <code>Id</code> as an <code>ObjectId</code>. String serves as a neutral
+representation that is at the same time easily readable for debugging
+purposes. To keep your domain classes free of dependencies on the C#
+driver you also won&rsquo;t want to use attributes, so you can accomplish the
+same thing using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.IdMemberMap.SetRepresentation(BsonType.ObjectId);
+});
+</code></pre>
+
+<h2 id="class-level-serialization-options">Class Level Serialization Options</h2>
+
+<p>There are several serialization options that are related to the class
+itself instead of to any particular field or property. You can set these
+class level options either by decorating the class with serialization
+related attributes or by writing initialization code. As usual, we will
+show both ways in the examples.</p>
+
+<h3 id="ignoring-extra-elements">Ignoring Extra Elements</h3>
+
+<p>When a BSON document is deserialized the name of each element is used to
+look up a matching field or property in the class map. Normally, if no
+matching field or property is found, an exception will be thrown. If you
+want to ignore extra elements during deserialization, use the following
+attribute:</p>
+
+<pre><code class="language-sourceCode csharp">[BsonIgnoreExtraElements]
+public MyClass {
+    // fields and properties
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.SetIgnoreExtraElements(true);
+});
+</code></pre>
+
+<h3 id="supporting-extra-elements">Supporting Extra Elements</h3>
+
+<p>You can design your class to be capable of handling any extra elements
+that might be found in a BSON document during deserialization. To do so,
+you must have a property of type <code>BsonDocument</code> and you must identify
+that property as the one that should hold any extra elements that are
+found (or you can name the property &ldquo;ExtraElements&rdquo; so that the default
+<code>ExtraElementsMemberConvention</code> will find it automatically). For
+example:</p>
+
+<pre><code class="language-sourceCode csharp">public MyClass {
+    // fields and properties
+    [BsonExtraElements]
+    public BsonDocument CatchAll { get; set; }
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.SetExtraElementsMember(cm.GetMemberMap(c =&gt; c.CatchAll));
+});
+</code></pre>
+
+<p>When a BSON document is deserialized any extra elements found will be
+stored in the extra elements <code>BsonDocument</code> property. When the class is
+serialized the extra elements will be serialized also. One thing to note
+though is that the serialized class will probably not have the elements
+in exactly the same order as the original document. All extra elements
+will be serialized together when the extra elements member is
+serialized.</p>
+
+<h3 id="polymorphic-classes-and-discriminators">Polymorphic Classes and Discriminators</h3>
+
+<p>When you have a class hierarchy and will be serializing instances of
+varying classes to the same collection you need a way to distinguish one
+from another. The normal way to do so is to write some kind of special
+value (called a &ldquo;discriminator&rdquo;) in the document along with the rest of
+the elements that you can later look at to tell them apart. Since there
+are potentially many ways you could discriminate between actual types,
+the default serializer uses conventions for discriminators. The default
+serializer provides two standard discriminators:
+<code>ScalarDiscriminatorConvention</code> and
+<code>HierarchicalDiscriminatorConvention</code>. The default is the
+<code>HierarchicalDiscriminatorConvention</code>, but it behaves just like the
+<code>ScalarDiscriminatorConvention</code> until certain options are set to trigger
+its hierarchical behavior (more on this later).</p>
+
+<p>The default discriminator conventions both use an element named <code>_t</code> to
+store the discriminator value in the BSON document. This element will
+normally be the second element in the BSON document (right after the
+<code>_id</code>). In the case of the <code>ScalarDiscriminatorConvention</code> the value of
+<code>_t</code> will be a single string. In the case of the
+<code>HierarchicalDiscriminatorConvention</code> the value of <code>_t</code> will be an array
+of discriminator values, one for each level of the class inheritance
+tree (again, more on this later).</p>
+
+<p>While you will normally be just fine with the default discriminator
+convention, you might have to write a custom discriminator convention if
+you must inter-operate with data written by another driver or object
+mapper that uses a different convention for its discriminators.</p>
+
+<h3 id="setting-the-discriminator-value">Setting the Discriminator Value</h3>
+
+<p>The default value for the discriminator is the name of the class
+(without the namespace part). You can specify a different value using
+attributes:</p>
+
+<pre><code class="language-sourceCode csharp">[BsonDiscriminator(&quot;myclass&quot;)]
+public MyClass {
+    // fields and properties
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.SetDiscriminator(&quot;myclass&quot;);
+});
+</code></pre>
+
+<h3 id="specifying-known-types">Specifying Known Types</h3>
+
+<p>When deserializing polymorphic classes it is important that the
+serializer know about all the classes in the hierarchy before
+deserialization begins. If you ever see an error message about an
+&ldquo;Unknown discriminator&rdquo; it is because the deserializer can&rsquo;t figure out
+the class for that discriminator. If you are mapping your classes
+programmatically simply make sure that all classes in the hierarchy have
+been mapped before beginning deserialization. When using attributes and
+automapping you will need to inform the serializer about known types
+(i.e. subclasses) it should create class maps for. Here is an example of
+how to do this:</p>
+
+<pre><code class="language-sourceCode csharp">[BsonKnownTypes(typeof(Cat), typeof(Dog)]
+public class Animal {
+}
+
+[BsonKnownTypes(typeof(Lion), typeof(Tiger)]
+public class Cat : Animal {
+}
+
+public class Dog : Animal {
+}
+
+public class Lion : Cat {
+}
+
+public class Tiger : Cat {
+}
+</code></pre>
+
+<p>The <code>BsonKnownTypes</code> attribute lets the serializer know what subclasses
+it might encounter during deserialization, so when <code>Animal</code> is
+automapped the serializer will also automap <code>Cat</code> and <code>Dog</code> (and
+recursively, <code>Lion</code> and <code>Tiger</code> as well).</p>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;Animal&gt;();
+BsonClassMap.RegisterClassMap&lt;Cat&gt;();
+BsonClassMap.RegisterClassMap&lt;Dog&gt;();
+BsonClassMap.RegisterClassMap&lt;Lion&gt;();
+BsonClassMap.RegisterClassMap&lt;Tiger&gt;();
+</code></pre>
+
+<h3 id="scalar-and-hierarchical-discriminators">Scalar and Hierarchical Discriminators</h3>
+
+<p>Normally a discriminator is simply the name of the class (although it
+could be different if you are using a custom discriminator convention or
+have explicitly specified a discriminator for a class). So a collection
+containing a mix of different type of <code>Animal</code> documents might look
+like:</p>
+
+<pre><code class="language-sourceCode csharp">{ _t : &quot;Animal&quot;, ... }
+{ _t : &quot;Cat&quot;, ... }
+{ _t : &quot;Dog&quot;, ... }
+{ _t : &quot;Lion&quot;, ... }
+{ _t : &quot;Tiger&quot;, ... }
+</code></pre>
+
+<p>Sometimes it can be helpful to record a hierarchy of discriminator
+values, one for each level of the hierarchy. To do this, you must first
+mark a base class as being the root of a hierarchy, and then the default
+<code>HierarchicalDiscriminatorConvention</code> will automatically record
+discriminators as array values instead.</p>
+
+<p>To identify <code>Animal</code> as the root of a hierarchy use the
+<code>BsonDiscriminator</code> attribute with the <code>RootClass</code> named parameter:</p>
+
+<pre><code class="language-sourceCode csharp">[BsonDiscriminator(RootClass = true)]
+[BsonKnownTypes(typeof(Cat), typeof(Dog)]
+public class Animal {
+}
+
+// the rest of the hierarchy as before
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;Animal&gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.SetIsRootClass(true);
+});
+BsonClassMap.RegisterClassMap&lt;Cat&gt;();
+BsonClassMap.RegisterClassMap&lt;Dog&gt;();
+BsonClassMap.RegisterClassMap&lt;Lion&gt;();
+BsonClassMap.RegisterClassMap&lt;Tiger&gt;();
+</code></pre>
+
+<p>Now that you have identified <code>Animal</code> as a root class, the discriminator
+values will look a little bit different:</p>
+
+<pre><code class="language-sourceCode csharp">{ _t : &quot;Animal&quot;, ... }
+{ _t : [&quot;Animal&quot;, &quot;Cat&quot;], ... }
+{ _t : [&quot;Animal&quot;, &quot;Dog&quot;], ... }
+{ _t : [&quot;Animal&quot;, &quot;Cat&quot;, &quot;Lion&quot;], ... }
+{ _t : [&quot;Animal&quot;, &quot;Cat&quot;, &quot;Tiger&quot;], ... }
+</code></pre>
+
+<p>The main reason you might choose to use hierarchical discriminators is
+because it makes it possibly to query for all instances of any class in
+the hierarchy. For example, to read all the <code>Cat</code> documents we can
+write:</p>
+
+<pre><code class="language-sourceCode csharp">var query = Query.EQ(&quot;_t&quot;, &quot;Cat&quot;);
+var cursor = collection.FindAs&lt;Animal&gt;(query);
+foreach (var cat in cursor) {
+    // process cat
+}
+</code></pre>
+
+<p>This works because of the way MongoDB handles queries against array
+values.</p>
+
+<h2 id="customizing-serialization">Customizing Serialization</h2>
+
+<p>There are several ways you can customize serialization:</p>
+
+<ol>
+<li>Implement <code>ISupportInitialize</code>.</li>
+<li>Make a class responsible for its own serialization.</li>
+<li>Supplementing the default serializer.</li>
+<li>Write a custom serializer.</li>
+<li>Write a custom attribute.</li>
+<li>Write a custom Id generator.</li>
+<li>Write a custom convention.</li>
+</ol>
+
+<h3 id="implementing-isupportinitialize">Implementing <code>ISupportInitialize</code></h3>
+
+<p>The driver respects an entity implementing <code>ISupportInitialize</code> which
+contains 2 methods, <code>BeginInit</code> and <code>EndInit</code>. These method are called
+before deserialization begins and after it is complete. It is useful for
+running operations before or after deserialization such as handling
+schema changes are pre-calculating some expensive operations.</p>
+
+<h3 id="supplementing-the-default-serializer-provider">Supplementing the Default Serializer Provider</h3>
+
+<p>You can register your own serialization provider to supplement the
+default serializer. Register it like this:</p>
+
+<pre><code class="language-sourceCode csharp">IBsonSerializationProvider myProvider;
+BsonSerializer.RegisterSerializationProvider(myProvider);
+</code></pre>
+
+<p>You should register your provider as early as possible. Your provider
+will be called first before the default serializer. You can delegate
+handling of any types your custom provider isn&rsquo;t prepared to handle to
+the default serializer by returning null from <code>GetSerializer</code>.</p>
+
+<h3 id="write-a-custom-serializer">Write a Custom Serializer</h3>
+
+<p>A custom serializer can handle serialization of your classes without
+requiring any changes to those classes. This is a big advantage when you
+either don&rsquo;t want to modify those classes or can&rsquo;t (perhaps because you
+don&rsquo;t have control over them). You must register your custom serializer
+so that the BSON Library knows of its existence and can call it when
+appropriate.</p>
+
+<p>If you write a custom serializer you will have to become familiar with
+the <code>BsonReader</code> and <code>BsonWriter</code> abstract classes, which are not
+documented here, but are relatively straightforward to use. Look at the
+existing serializers in the driver for examples of how <code>BsonReader</code> and
+<code>BsonWriter</code> are used.</p>
+
+<p>To implement and register a custom serializer you would:</p>
+
+<pre><code class="language-sourceCode csharp">// MyClass is the class for which you are writing a custom serializer
+public MyClass {
+}
+
+// MyClassSerializer is the custom serializer for MyClass
+public MyClassSerializer : IBsonSerializer {
+    // implement Deserialize
+    // implement GetDefaultSerializationOptions
+    // implement Serialize
+}
+
+// register your custom serializer
+BsonSerializer.RegisterSerializer(
+    typeof(MyClass),
+    new MyClassSerializer()
+);
+</code></pre>
+
+<p>You can also decorate the target class with a <code>BsonSerializer</code> attribute
+instead of using the <code>BsonSerializer.RegisterSerializer</code> method:</p>
+
+<pre><code class="language-sourceCode csharp">[BsonSerializer(typeof(MyClassSerializer))]
+public MyClass {
+}
+</code></pre>
+
+<p>The <code>IBsonSerializer</code> interface is all that is necessary for
+serialization. However, there are some extension interfaces that will
+enable further use in other parts of the api such as saving a class or
+LINQ.</p>
+
+<p>If your class is used as a root document, you will need to implement the
+<code>IBsonIdProvider</code> interface in order for &ldquo;Saving&rdquo; the document to
+function. <code>MongoCollection.Save</code> requires a document identity in order
+to know if it should generate an insert or update statement. Below is
+the extension to the above <code>MyClassSerializer</code>.</p>
+
+<pre><code class="language-sourceCode csharp">public MyClassSerializer : IBsonSerializer, IBsonIdProvider {
+    // ...
+
+    // implement GetDocumentId
+    // implement SetDocumentId
+}
+</code></pre>
+
+<p>In order to enable LINQ to properly construct type-safe queries using a
+custom serializer, it needs access to member information or array
+information. If your custom serializer is for a class, as
+<code>MyClassSerializer</code> is above, then you should implement
+<code>IBsonDocumentSerializer</code>.</p>
+
+<pre><code class="language-sourceCode csharp">public MyClassSerializer : IBsonSerializer, IBsonDocumentSerializer {
+    // ...
+
+    // implement GetMemberSerializationInfo
+}
+</code></pre>
+
+<p>If, however, your class is a collection that should be serialized as an
+array, it should implement <code>IBsonArraySerializer</code>.</p>
+
+<pre><code class="language-sourceCode csharp">public MyClassSerializer : IBsonSerializer, IBsonArraySerializer {
+    // ...
+
+    // implement GetItemSerializationInfo
+}
+</code></pre>
+
+<p>To debug a custom serializer you can either Insert a document containing
+a value serialized by your custom serializer into some collection and
+then use the mongo shell to examine what the resulting document looks
+like. Alternatively you can use the <code>ToJson</code> method to see the result of
+the serializer without having to Insert anything into a collection as
+follows:</p>
+
+<pre><code class="language-sourceCode csharp">// assume a custom serializer has been registered for class C
+var c = new C();
+var json = c.ToJson();
+// inspect the json string variable to see how c was serialized
+</code></pre>
+
+<h3 id="write-a-custom-attribute">Write a Custom Attribute</h3>
+
+<p>The auto mapping ability of BSON library utilizes attributes that
+implement <code>IBsonClassMapAttribute</code>, <code>IBsonMemberMapAttribute</code>, or
+<code>IBsonCreatorMapAttribute</code> for class level attributes, member level
+attributes, or creator level attributes respectively. Each of these
+interfaces has a single method called Apply that is passed a
+<code>BsonClassMap</code>, a <code>BsonMemberMap</code>, or a <code>BsonCreatorMap</code> which it can
+modify using public properties and methods. One example of this would be
+to create an attribute called <code>BsonEncryptionAttribute</code> that is used to
+encrypt a string before sending it to the database and decrypt it when
+reading it back out.</p>
+
+<p>View the existing attributes for examples of how these interfaces
+function.</p>
+
+<h3 id="write-a-custom-id-generator">Write a custom Id generator</h3>
+
+<p>You can write your own <code>IdGenerator</code>. For example, suppose you wanted to
+generate integer Employee Ids:</p>
+
+<pre><code class="language-sourceCode csharp">public class EmployeeIdGenerator : IIdGenerator {
+    // implement GenerateId
+    // implement IsEmpty
+}
+</code></pre>
+
+<p>You can specify that this generator be used for Employee Ids using
+attributes:</p>
+
+<pre><code class="language-sourceCode csharp">public class Employee {
+    [BsonId(IdGenerator = typeof(EmployeeIdGenerator)]
+    public int Id { get; set; }
+    // other fields or properties
+}
+</code></pre>
+
+<p>Or using initialization code instead of attributes:</p>
+
+<pre><code class="language-sourceCode csharp">BsonClassMap.RegisterClassMap&lt;Employee &gt;(cm =&gt; {
+    cm.AutoMap();
+    cm.IdMember.SetIdGenerator(new EmployeeIdGenerator());
+});
+</code></pre>
+
+<p>Alternatively, you can get by without an Id generator at all by just
+assigning a value to the <code>Id</code> property before calling <code>Insert</code> or
+<code>Save</code>.</p>
+
+<h3 id="write-a-custom-convention">Write a Custom Convention</h3>
+
+<p>Earlier in this tutorial we discussed replacing one or more of the
+default conventions. You can either replace them with one of the
+provided alternatives or you can write your own convention. Writing your
+own convention varies slightly from convention to convention.</p>
+
+<p>As an example, we will write a custom convention to name all the
+elements the corresponding lower-case version of the member name. We can
+implement this convention as follows:</p>
+
+<pre><code class="language-sourceCode csharp">public class LowerCaseElementNameConvention : IMemberMapConvention {
+    public void Apply(BsonMemberMap memberMap) {
+        memberMap.SetElementName(memberMap.MemberName.ToLower());
+    }
+}
+</code></pre>
+
+<p>When you are doing one-off conventions like this, it might be easier to
+create them with a simple lambda expresion instead. For example:</p>
+
+<pre><code class="language-sourceCode csharp">var pack = new ConventionPack();
+pack.AddMemberMapConvention(
+    &quot;LowerCaseElementName&quot;,
+    m =&gt; m.SetElementName(m.MemberName.ToLower()));
+</code></pre>
+
+<p>For the best examples of writing custom conventions, it is good to
+consult the source for the pre-packaged conventions.</p>
+
+<h2 id="handling-schema-changes">Handling Schema Changes</h2>
+
+<p>Just because MongoDB is schema-less does not mean that your code can
+handle a schema-less document. Most likely, if you are using a
+statically typed language like C# or VB.NET, then your code is
+not-flexible and needs to be mapped to a known schema.</p>
+
+<p>There are a number of different ways that a schema can change from one
+version of your application to the next.</p>
+
+<ol>
+<li>A new member is added.</li>
+<li>A member is deleted.</li>
+<li>A member is renamed.</li>
+<li>The type of a member is changed.</li>
+<li>The representation of a member is changed.</li>
+</ol>
+
+<p>How you handle these is up to you. There primary two different
+strategies.</p>
+
+<ol>
+<li>Write an upgrade script.</li>
+<li>Incrementally update your documents as they are used.</li>
+</ol>
+
+<p>The easiest and most bullet-proof of the strategies is to write an
+upgrade script. There is effectively no difference to this method
+between a relational database (SQL Server, Oracle) and MongoDB. Identify
+the documents that need to be changed and update them.</p>
+
+<p>Alternatively, and not supportable in most relational databases, is the
+incremental upgrade. The idea is that your documents get updated as they
+are used. Documents that are never used never get updated. Because of
+this, there are some definite pitfalls you will need to be aware of.</p>
+
+<p>First, queries against a schema where half the documents are version 1
+and half the documents are version 2 could go awry. For instance, if you
+rename an element, then your query will need to test both the old
+element name and the new element name to get all the results.</p>
+
+<p>Second, any incremental upgrade code must stay in the code-base until
+all the documents have been upgraded. For instance, if there have been 3
+versions of a document, [1, 2, and 3] and we remove the upgrade code
+from version 1 to version 2, any documents that still exist as version 1
+are un-upgradeable.</p>
+
+<p>So, with that being said, let&rsquo;s talk about handling the schema change
+variations.</p>
+
+<h3 id="a-member-has-been-added">A Member Has Been Added</h3>
+
+<p>When a new member is added to an entity, there is nothing that needs to
+be done other than restarting the application if you are using the auto
+mapping features. If not, then you will manually need to map the member
+in the same way all the other members are getting mapped.</p>
+
+<p>Existing documents will not have this element and it will show up in
+your class with its default value. You can, of course, specify a default
+value.</p>
+
+<h3 id="a-member-has-been-removed">A Member Has Been Removed</h3>
+
+<p>When a member has been removed from am entity, it will continue to exist
+in the documents. The serializer will throw an exception when this
+element is seen because it doesn&rsquo;t know what to do with it. The 2
+previously discussed items that can be used to combat this are the
+<code>BsonIgnoreExtraElements</code> class-level attribute and the <code>ExtraElements</code>
+members.</p>
+
+<h3 id="a-member-is-renamed">A Member Is Renamed</h3>
+
+<p>When a member has been renamed, it will exist in old documents with the
+old name and in new documents with the new name. The way to handle
+incremental upgrades for this rename would be to implement an
+<code>ExtraElements</code> member in conjunction with <code>ISupportInitialize</code>. For
+example, let&rsquo;s say that a class used to have a <code>Name</code> property which has
+now been split into a <code>FirstName</code> and a <code>LastName</code> property.</p>
+
+<pre><code class="language-sourceCode csharp">public class MyClass : ISupportInitialize {
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+
+    [BsonExtraElements]
+    public IDictionary&lt;string, object&gt; ExtraElements { get; set; }
+
+    void ISupportInitialize.BeginInit() {
+        // nothing to do at begin
+    }
+
+    void ISupportInitialize.EndInit() {
+        object nameValue;
+        if(!ExtraElements.TryGetValue(&quot;Name&quot;, out nameValue)) {
+            return;
+        }
+
+        var name = (string)nameValue;
+
+        // remove the Name element so that it doesn't get persisted back to the database
+        ExtraElements.Remove(&quot;Name&quot;);
+
+        // assuming all names are &quot;First Last&quot;
+        var nameParts = name.Split(' ');
+
+        FirstName = nameParts[0];
+        LastName = nameParts[1];
+    }
+}
+</code></pre>
+
+<h3 id="the-type-of-a-member-is-changed">The Type of a Member Is Changed</h3>
+
+<p>If the .NET type is compatible with the old type (an integer is changed
+to a double), then everything will continue to work. Otherwise, a custom
+serializer or a migration script will be required.</p>
+
+<h3 id="the-representation-of-a-member-is-changed">The Representation of a Member Is Changed</h3>
+
+<p>If the representation of a member is changed and the representations are
+compatible, then everything will continue to work. Otherwise, a custom
+serializer or a migration script will be required.</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#serialization-tutorial">Serialization Tutorial</a>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#creating-a-class-map">Creating a Class Map</a>
+<ul>
+<li><a href="#creator-maps">Creator Maps</a></li>
+</ul></li>
+<li><a href="#conventions">Conventions</a></li>
+<li><a href="#field-or-property-level-serialization-options">Field or Property Level Serialization Options</a>
+<ul>
+<li><a href="#opt-in">Opt-In</a></li>
+<li><a href="#element-name">Element name</a></li>
+<li><a href="#element-order">Element Order</a></li>
+<li><a href="#identifying-the-id-field-or-property">Identifying the Id Field or Property</a></li>
+<li><a href="#selecting-an-idgenerator-to-use-for-an-id-field-or-property">Selecting an IdGenerator to Use for an Id Field or Property</a></li>
+<li><a href="#ignoring-a-field-or-property">Ignoring a Field or Property</a></li>
+<li><a href="#ignoring-null-values">Ignoring <code>null</code> Values</a></li>
+<li><a href="#default-values">Default Values</a></li>
+<li><a href="#ignoring-a-member-based-on-a-shouldserializexyz-method">Ignoring a Member Based on a <em>ShouldSerializeXyz</em> Method</a></li>
+<li><a href="#identifying-required-fields">Identifying Required Fields</a></li>
+<li><a href="#specifying-the-serializer">Specifying the Serializer</a></li>
+<li><a href="#serialization-options">Serialization Options</a>
+<ul>
+<li><a href="#datetimeserializationoptions">DateTimeSerializationOptions</a></li>
+<li><a href="#dictionaryserializationoptions">DictionarySerializationOptions</a></li>
+<li><a href="#representationserializationoptions">RepresentationSerializationOptions</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#class-level-serialization-options">Class Level Serialization Options</a>
+<ul>
+<li><a href="#ignoring-extra-elements">Ignoring Extra Elements</a></li>
+<li><a href="#supporting-extra-elements">Supporting Extra Elements</a></li>
+<li><a href="#polymorphic-classes-and-discriminators">Polymorphic Classes and Discriminators</a></li>
+<li><a href="#setting-the-discriminator-value">Setting the Discriminator Value</a></li>
+<li><a href="#specifying-known-types">Specifying Known Types</a></li>
+<li><a href="#scalar-and-hierarchical-discriminators">Scalar and Hierarchical Discriminators</a></li>
+</ul></li>
+<li><a href="#customizing-serialization">Customizing Serialization</a>
+<ul>
+<li><a href="#implementing-isupportinitialize">Implementing <code>ISupportInitialize</code></a></li>
+<li><a href="#supplementing-the-default-serializer-provider">Supplementing the Default Serializer Provider</a></li>
+<li><a href="#write-a-custom-serializer">Write a Custom Serializer</a></li>
+<li><a href="#write-a-custom-attribute">Write a Custom Attribute</a></li>
+<li><a href="#write-a-custom-id-generator">Write a custom Id generator</a></li>
+<li><a href="#write-a-custom-convention">Write a Custom Convention</a></li>
+</ul></li>
+<li><a href="#handling-schema-changes">Handling Schema Changes</a>
+<ul>
+<li><a href="#a-member-has-been-added">A Member Has Been Added</a></li>
+<li><a href="#a-member-has-been-removed">A Member Has Been Removed</a></li>
+<li><a href="#a-member-is-renamed">A Member Is Renamed</a></li>
+<li><a href="#the-type-of-a-member-is-changed">The Type of a Member Is Changed</a></li>
+<li><a href="#the-representation-of-a-member-is-changed">The Representation of a Member Is Changed</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/1.10",
+   VERSION:     "1.10",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/jquery.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/navbar.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/scripts.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+<script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+

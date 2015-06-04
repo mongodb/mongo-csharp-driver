@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/1.10/img/favicon.png">
+
+    <title>LINQ Tutorial</title>
+
+    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/1.10/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="http://localhost:1313/mongo-csharp-driver/1.10/../">
+        <img src="http://localhost:1313/mongo-csharp-driver/1.10/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/1.10/../">MongoDB CSharp Driver</a>
+          <a class="version pull-right" href="http://localhost:1313/mongo-csharp-driver/1.10">1.10</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="" class="">
+      
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/1.10/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/1.10/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/getting_started/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/driver/">
+        <i class='fa'></i>
+        Driver Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/serialization/">
+        <i class='fa'></i>
+        Serialization Tutorial
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/1.10/linq/">
+        <i class='fa'></i>
+        LINQ Tutorial
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/linq.md" target="_blank" title="Edit linq.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  
+  
+  <li>LINQ Tutorial</li>
+</ul>
+</div>
+
+
+
+
+<h1 id="linq-tutorial">LINQ Tutorial</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This tutorial covers the support for LINQ queries as of the 1.8 release
+of the C# driver.</p>
+
+<p>You should already have read at least the <a href="/mongo-csharp-driver/1.10/driver/">Driver Tutorial</a>.</p>
+
+<h2 id="quickstart">Quickstart</h2>
+
+<p>First, add the following additional using statement to your program:</p>
+
+<pre><code class="language-sourceCode csharp">using MongoDB.Driver.Linq;
+</code></pre>
+
+<p>Then, get a reference to a collection variable in the usual way:</p>
+
+<pre><code class="language-sourceCode csharp">var collection = database.GetCollection&lt;TDocument&gt;(&quot;collectionname&quot;);
+</code></pre>
+
+<p>The basic idea behind writing a LINQ query is to start from a collection
+variable and begin the LINQ query by calling the
+<code>AsQueryable&lt;TDocument&gt;()</code> method. After that it&rsquo;s all standard LINQ.</p>
+
+<p>For example:</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from e in collection.AsQueryable&lt;Employee&gt;()
+    where e.FirstName == &quot;John&quot;
+    select e;
+
+foreach (var employee in query)
+{
+    // process employees named &quot;John&quot;
+}
+</code></pre>
+
+<p>You can also write queries using lambda syntax. The previous query would
+be written using lambda syntax like this:</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    collection.AsQueryable&lt;Employee&gt;()
+    .Where(e =&gt; e.FirstName == &quot;John&quot;);
+</code></pre>
+
+<p>The C# compiler translates all queries written using query syntax into
+lambda syntax internally anyway, so there is no performance advantage or
+penalty to choosing either style. You can also mix and match the styles,
+which can be useful when using query operators that are not supported by
+the query syntax.</p>
+
+<p>All the code samples in this tutorial show both the query syntax and the
+lambda syntax for each query operator and supported where clauses.</p>
+
+<p>Only LINQ queries that can be translated to an equivalent MongoDB query
+are supported. If you write a LINQ query that can&rsquo;t be translated you
+will get a runtime exception and the error message will indicate which
+part of the query wasn&rsquo;t supported.</p>
+
+<h2 id="supported-linq-query-operators">Supported LINQ query operators</h2>
+
+<p>This section documents the supported LINQ query operators.</p>
+
+<ul>
+<li><p><code>Any</code></p>
+
+<p>Without a predicate <code>Any</code> just tests whether the collection has any
+documents.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Any();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Any();
+</code></pre></li>
+
+<li><p><code>Any (with predicate)</code></p>
+
+<p>With a predicate <code>Any</code> tests whether the collection has any matching
+documents.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Any(c =&gt; c.X == 1);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Any(c =&gt; c.X == 1);
+</code></pre>
+
+<p><code>Any</code> with a predicate is not supported after a projection (at least
+not yet). So the following is not valid:</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.X)
+    .Any(x =&gt; x == 1);
+</code></pre>
+
+<p>You can usually rewrite such a query by putting an equivalent
+<em>where</em> clause before the projection (in which case you can drop the
+projection).</p></li>
+
+<li><p><code>Count</code></p>
+
+<p>Without a predicate <code>Count</code> just returns the number of documents in
+the collection.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Count();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Count();
+</code></pre></li>
+
+<li><p><code>Count (with predicate)</code></p>
+
+<p>With a predicate <code>Count</code> returns the number of documents that match
+the predicate.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Count(c =&gt; c.X == 1);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Count(c =&gt; c.X == 1);
+</code></pre>
+
+<p>Note that the predicate can be provided either by a <em>where</em> clause
+or as an argument to <code>Count</code>, so the following are equivalent to the
+previous query.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X == 1
+    select c)
+    .Count();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X == 1)
+    .Count();
+</code></pre>
+
+<p><code>Count</code> with a predicate is not supported after a projection (at
+least not yet). So the following is not valid:</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.X)
+    .Count(x =&gt; x == 1);
+</code></pre>
+
+<p>You can usually rewrite such a query by putting an equivalent
+<em>where</em> clause before the projection (in which case you can drop the
+projection).</p></li>
+
+<li><p><code>Distinct</code></p>
+
+<p><code>Distinct</code> returns the unique values of a field or property of the
+documents in the collection. You use a projection to identify the
+field or property whose distinct values you want.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.X)
+    .Distinct();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.X)
+    .Distinct();
+</code></pre>
+
+<p>The projection must select a particular field or property of the
+document. If the value of that field or property is represented in
+MongoDB as an array you can also use array indexing to select an
+item from the array.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.A[i])
+    .Distinct();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.A[i])
+    .Distinct();
+</code></pre></li>
+
+<li><p><code>ElementAt</code></p>
+
+<p><code>ElementAt</code> returns a particular document from a result set. Often
+you will combine this with a sort order.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    orderby c.X
+    select c)
+    .ElementAt(index);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0)
+    .OrderBy(c =&gt; c.X)
+    .ElementAt(index);
+</code></pre>
+
+<p>If the result set has fewer documents than index <code>ElementAt</code> throws
+an exception.</p></li>
+
+<li><p><code>ElementAtOrDefault</code></p>
+
+<p><code>ElementAtOrDefault</code> is just like <code>ElementAt</code> except that if there
+are fewer documents than index it returns null instead of throwing
+an exception.</p></li>
+
+<li><p><code>First</code></p>
+
+<p><code>First</code> returns the first document from a result set. Often you will
+combine this with a sort order.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    orderby c.X
+    select c)
+    .First();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0)
+    .OrderBy(c =&gt; c.X)
+    .First();
+</code></pre>
+
+<p>If the result set has no documents <code>First</code> throws an exception.</p></li>
+
+<li><p><code>First (with predicate)</code></p>
+
+<p>This overload of <code>First</code> allows you to provide a predicate as an
+argument to <code>First</code>. This is an alternative to using a <em>where</em>
+clause.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c)
+    .First(c =&gt; c.X &gt; 0);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .First(c =&gt; c.X &gt; 0);
+</code></pre>
+
+<p><code>First</code> with a predicate is not supported after a projection (at
+least not yet). So the following is not valid:</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Select(c =&gt; c.X)
+    .First(x =&gt; x &gt; 0);
+</code></pre>
+
+<p>You can usually rewrite such a query by putting an equivalent
+<em>where</em> clause before the projection.</p>
+
+<p>If the result set has no documents <code>First</code> with a predicate throws
+an exception.</p></li>
+
+<li><p><code>FirstOrDefault</code></p>
+
+<p><code>FirstOrDefault</code> is just like <code>First</code> except that if there are no
+matching documents it returns <code>null</code> instead of throwing an
+exception.</p></li>
+
+<li><p><code>FirstOrDefault (with predicate)</code></p>
+
+<p><code>FirstOrDefault</code> with a predicate is just like <code>First</code> with a
+predicate except that if there are no matching documents it returns
+<code>null</code> instead of throwing an exception.</p></li>
+
+<li><p><code>Last</code></p>
+
+<p><code>Last</code> returns the last document from a result set. Often you will
+combine this with a sort order.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    orderby c.X
+    select c)
+    .Last();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0)
+    .OrderBy(c =&gt; c.X)
+    .Last();
+</code></pre>
+
+<p>If the result set has no documents <code>Last</code> throws an exception.</p></li>
+
+<li><p><code>Last (with predicate)</code></p>
+
+<p>This overload of <code>Last</code> allows you to provide a predicate as an
+argument to <code>Last</code>. This is an alternative to using a <em>where</em>
+clause.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c)
+    .Last(c =&gt; c.X &gt; 0);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Last(c =&gt; c.X &gt; 0);
+</code></pre>
+
+<p><code>Last</code> with a predicate is not supported after a projection (at
+least not yet). So the following is not valid:</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Select(c =&gt; c.X)
+    .Last(x =&gt; x &gt; 0);
+</code></pre>
+
+<p>You can usually rewrite such a query by putting an equivalent
+<em>where</em> clause before the projection.</p>
+
+<p>If the result set has no documents <code>Last</code> throws an exception.</p></li>
+
+<li><p><code>LastOrDefault</code></p>
+
+<p><code>LastOrDefault</code> is just like <code>Last</code> except that if there are no
+matching documents it returns <code>null</code> instead of throwing an
+exception.</p></li>
+
+<li><p><code>LastOrDefault (with predicate)</code></p>
+
+<p><code>LastOrDefault</code> with a predicate is just like <code>Last</code> with a
+predicate except that if there are no matching documents it returns
+<code>null</code> instead of throwing an exception.</p></li>
+
+<li><p><code>LongCount</code></p>
+
+<p><code>LongCount</code> is just like <code>Count</code> except that the return value is a
+64-bit integer instead of a 32-bit integer.</p></li>
+
+<li><p><code>LongCount (with predicate)</code></p>
+
+<p><code>LongCount</code> with a predicate is just like <code>Count</code> with a predicate
+except that the return value is a 64-bit integer instead of a 32-bit
+integer.</p></li>
+
+<li><p><code>Max</code></p>
+
+<p><code>Max</code> returns the maximum value of a field or property of the
+documents in the collection. You use a projection to identify the
+field or property whose maximum value you want.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.X)
+    .Max();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.X)
+    .Max();
+</code></pre>
+
+<p>The projection must select a particular field or property of the
+document. If the value of that field or property is represented in
+MongoDB as an array you can also use array indexing to select an
+item from the array.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.A[i])
+    .Max();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.A[i])
+    .Max();
+</code></pre></li>
+
+<li><p><code>Max (with selector)</code></p>
+
+<p>This overload of <code>Max</code> lets you select the field or property whose
+maximum value you want as an argument to <code>Max</code> instead of to
+<code>Select</code>.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Max(c =&gt; c.X);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Max(c =&gt; c.X);
+</code></pre></li>
+
+<li><p><code>Min</code></p>
+
+<p><code>Min</code> returns the minimum value of a field or property of the
+documents in the collection. You use a projection to identify the
+field or property whose minimum value you want.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.X)
+    .Min();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.X)
+    .Min();
+</code></pre>
+
+<p>The projection must select a particular field or property of the
+document. If the value of that field or property is represented in
+MongoDB as an array you can also use array indexing to select an
+item from the array.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c.A[i])
+    .Min();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; c.A[i])
+    .Min();
+</code></pre></li>
+
+<li><p><code>Min (with selector)</code></p>
+
+<p>This overload of <code>Min</code> lets you select the field or property whose
+minimum value you want as an argument to <code>Min</code> instead of to
+<code>Select</code>.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    select c)
+    .Min(c =&gt; c.X);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Min(c =&gt; c.X);
+</code></pre></li>
+
+<li><p><code>OfType</code></p>
+
+<p>The OfType operator will insert a discriminator into the query in
+order to be more specific about choosing the correct documents.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;().OfType&lt;D&gt;()
+    select c)
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OfType&lt;D&gt;();
+</code></pre></li>
+
+<li><p><code>OrderBy</code></p>
+
+<p><code>OrderBy</code> is used to specify an ascending sort order for the result
+set.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X);
+</code></pre></li>
+
+<li><p><code>OrderByDescending</code></p>
+
+<p><code>OrderByDescending</code> is used to specify a descending sort order for
+the result set.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X descending
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderByDescending(c =&gt; c.X);
+</code></pre></li>
+
+<li><p><code>Select</code></p>
+
+<p><code>Select</code> is used to project a new result type from the matching
+documents. A projection must typically be the last operation (with a
+few exceptions like <code>Distinct</code>, <code>Max</code> and <code>Min</code>).</p>
+
+<blockquote>
+<p><strong>warning</strong></p>
+
+<p><code>Select</code> does not result in fewer fields being returned from the
+server. The entire document is pulled back and passed to the
+native <code>Select</code> method. Therefore, the projection is performed
+client side.</p>
+</blockquote>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    select new { c.X, c.Y };
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Select(c =&gt; new { c.X, c.Y });
+</code></pre></li>
+
+<li><p><code>Single</code></p>
+
+<p><code>Single</code> returns the first and only document from a result set.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    orderby c.X
+    select c)
+    .Single();
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0)
+    .OrderBy(c =&gt; c.X)
+    .Single();
+</code></pre>
+
+<p>If the result set has no documents or multiple documents <code>Single</code>
+throws an exception.</p></li>
+
+<li><p><code>Single (with predicate)</code></p>
+
+<p>This overload of <code>Single</code> allows you to provide a predicate as an
+argument to <code>Single</code> . This is an alternative to using a <em>where</em>
+clause.</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c)
+    .Single(c =&gt; c.X &gt; 0);
+// or
+var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Single(c =&gt; c.X &gt; 0);
+</code></pre>
+
+<p><code>Single</code> with a predicate is not supported after a projection (at
+least not yet). So the following is not valid:</p>
+
+<pre><code class="language-sourceCode csharp">var result =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Select(c =&gt; c.X)
+    .Single(x =&gt; x &gt; 0);
+</code></pre>
+
+<p>You can usually rewrite such a query by putting an equivalent
+<em>where</em> clause before the projection.</p>
+
+<p>If the result set has no documents or multiple documents <code>Single</code>
+throws an exception.</p></li>
+
+<li><p><code>SingleOrDefault</code></p>
+
+<p><code>SingleOrDefault</code> is just like <code>Single</code> except that if there are no
+matching documents it returns <code>null</code> instead of throwing an
+exception.</p></li>
+
+<li><p><code>SingleOrDefault (with predicate)</code></p>
+
+<p><code>SingleOrDefault</code> with a predicate is just like <code>Single</code> with a
+predicate except that if there are no matching documents it returns
+<code>null</code> instead of throwing an exception.</p></li>
+
+<li><p><code>Skip</code></p>
+
+<p>Use <code>Skip</code> to specify how many documents to skip from the beginning
+of the result set. Often you will combine <code>Skip</code> with a sort order.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c)
+    .Skip(100);
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Skip(100);
+</code></pre></li>
+
+<li><p><code>Take</code></p>
+
+<p>Use <code>Take</code> to specify how many documents to return from the server.
+When combining <code>Take</code> with <code>Skip</code> often you will also specify a sort
+order.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X
+    select c)
+    .Skip(100)
+    .Take(100);
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .Skip(100)
+    .Take(100);
+</code></pre></li>
+
+<li><p><code>ThenBy</code></p>
+
+<p><code>ThenBy</code> is used to specify an additional ascending sort order for
+the result set.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X, c.Y
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .ThenBy(c =&gt; c.Y);
+</code></pre></li>
+
+<li><p><code>ThenByDescending</code></p>
+
+<p><code>ThenByDescending</code> is used to specify an additional descending sort
+order for the result set.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    orderby c.X, c.Y descending
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .OrderBy(c =&gt; c.X)
+    .ThenByDescending(c =&gt; c.Y);
+</code></pre></li>
+
+<li><p><code>Where</code></p>
+
+<p>A <em>where</em> clause is used to specify which documents the query should
+return. A <em>where</em> clause is a C# expression that maps the query
+document type to a boolean value. If the expression returns true the
+document &ldquo;matches&rdquo; the query and is included in the result set.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0);
+</code></pre>
+
+<p>Sometimes a predicate can be supplied in other places besides a
+<em>where</em> clause, and it is also possible to have multiple <em>where</em>
+clauses. When multiple predicates are involved they are combined
+into a single composite predicate by combining the individual
+predicates with the <code>&amp;&amp;</code> operator.</p>
+
+<p>For example, the following queries are equivalent:</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0
+    where c.Y &gt; 0)
+    .First(c.Z &gt; 0);
+// or
+var query =
+    (from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0 &amp;&amp; c.Y &gt; 0 &amp;&amp; c.Z &gt; 0)
+    .First();
+</code></pre></li>
+</ul>
+
+<h2 id="supported-where-clauses">Supported where clauses</h2>
+
+<p>This section documents the supported <code>where</code> clauses.</p>
+
+<p>As mentioned earlier, not all C# expressions are supported as a <em>where</em>
+clause. You can use this documentation as a guide to what is supported,
+or you can just try an expression and see if it works (a runtime
+exception is thrown if the <em>where</em> clause is not supported).</p>
+
+<p><em>Where</em> clauses are typically introduced using the <code>Where</code> query
+operator, but the same expressions are supported wherever a predicate is
+called for. In some cases multiple <em>where</em> clauses and predicates will
+be combined, in which case they are combined with the <code>&amp;&amp;</code> operator.</p>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>The 1.4 version of the C# driver requires that all <em>where</em> clauses
+that compare a field or property against a value have the constant on
+the right hand side. This restriction will be lifted in the next
+release.</p>
+</blockquote>
+
+<ul>
+<li><p><code>&amp;&amp;</code> (<strong>And</strong> operator)</p>
+
+<p>Sub-expressions can be combined with the <code>&amp;&amp;</code> operator to test
+whether all of them are true.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0 &amp;&amp; c.Y &gt; 0
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0 &amp;&amp; c.Y &gt; 0);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : { $gt : 0 }, Y : { $gt : 0 } }
+</code></pre>
+
+<p>In some cases the <code>And</code> query can&rsquo;t be flattened as shown, and the
+<code>$and</code> operator will be used. The following example matches
+documents where <code>X</code> is both a multiple of <code>2</code> and a multiple of <code>3</code>:</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where (c.X % 2 == 0) &amp;&amp; (c.X % 3 == 0)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; (c.X % 2 == 0) &amp;&amp; (c.X % 3 == 0));
+</code></pre>
+
+<p>This is translated to the following MongoDB query using <code>$and</code>:</p>
+
+<pre><code class="language-sourceCode javascript">{ $and : [{ X : { $mod : [2, 0] } }, { X : { $mod : [3, 0] } }] }
+</code></pre></li>
+
+<li><p><code>Any</code></p>
+
+<p>This method is used to test whether an array field or property
+contains any items.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.Any()
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.Any());
+</code></pre>
+
+<p>matches any document where <code>A</code> has <code>1</code> or <code>more</code> items.</p>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $ne : null, $not : { $size : 0 } } }
+</code></pre></li>
+
+<li><p><code>Any</code> With Predicate</p>
+
+<p>This method is used to test entries in an array. It will generate an
+\$elemMatch condition.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.Any(a =&gt; a.B == 1)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.Any(a =&gt; a.B == 1));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $elemMatch : { B : 1 } } }
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p>This will only function when the elements of the enumerable are
+serialized as a document. There is a server bug preventing this
+from working against primitives.</p>
+</blockquote></li>
+
+<li><p><strong>Boolean constant</strong></p>
+
+<p>This form is mostly for completeness. You will probably use it
+rarely. It allows a boolean constant to be used to either match or
+not match the document.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where true
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; true);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ _id : { $exists : true } }
+</code></pre>
+
+<p>Which matches all documents since the <code>_id</code> is a mandatory field.</p></li>
+
+<li><p><strong>Boolean field or property</strong></p>
+
+<p>A boolean field or property of the document doesn&rsquo;t have to be
+compared to <code>true</code>, it can just be mentioned in the <em>where</em> clause
+and there is an implied comparison to <code>true</code>.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.B
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.B);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ B : true }
+</code></pre></li>
+
+<li><p><code>Contains</code> (Enumerable method)</p>
+
+<p>There are 2 uses for this method depending on context.</p>
+
+<ol>
+<li><p>To test whether an array (or array-like) field or property
+contains a particular value:</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.Contains(123)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.Contains(123));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : 123 }
+</code></pre>
+
+<p>This translation relies on the way array fields are treated by
+the MongoDB query language.</p></li>
+
+<li><p>To test whether a field or property is contained in an array (or
+array-like) field.</p>
+
+<pre><code class="language-sourceCode csharp">var local = new [] { 1, 2, 3 };
+
+
+var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where local.Contains(c.A)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; local.Contains(c.A));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $in : [1, 2, 3] } }
+</code></pre></li>
+</ol></li>
+
+<li><p><code>Contains</code> (string method)</p>
+
+<p>This method is used to test whether a string field or property of
+the document contains a particular substring.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.S.Contains(&quot;abc&quot;)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.S.Contains(&quot;abc&quot;));
+</code></pre>
+
+<p>This is translated to the following MongoDB query (using regular
+expressions):</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /abc/ }
+</code></pre></li>
+
+<li><p><code>ContainsAll</code> (LINQ to MongoDB extension method)</p>
+
+<p>This method is used to test whether an array (or array-like) field
+or property contains all of the provided values.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.ContainsAll(new[] { 1, 2, 3 })
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.ContainsAll(new[] { 1, 2, 3 }));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $all : [1, 2, 3] } }
+</code></pre></li>
+
+<li><p><code>ContainsAny</code> (LINQ to MongoDB extension method)</p>
+
+<p>This method is used to test whether an array (or array-like) field
+or property contains any of the provided values.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.ContainsAny(new[] { 1, 2, 3 })
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.ContainsAny(new[] { 1, 2, 3 }));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $in : [1, 2, 3] } }
+</code></pre></li>
+
+<li><p><code>Count</code> <em>method</em> (array length)</p>
+
+<p>This method is used to test whether an enumerable field or property
+has a certain count of items.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.L.Count() == 3
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.L.Count() == 3);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ L : { $size: 3 } }
+</code></pre></li>
+
+<li><p><code>Count</code> <em>property</em> (array length)</p>
+
+<p>This property is used to test whether a list (or list-like) field or
+property has a certain count of items.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.L.Count == 3
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.L.Count == 3);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ L : { $size: 3 } }
+</code></pre></li>
+
+<li><p><code>EndsWith</code> (string method)</p>
+
+<p>This method is used to test whether a string field or property of
+the document ends with a particular substring.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.S.EndsWith(&quot;abc&quot;)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.S.EndsWith(&quot;abc&quot;));
+</code></pre>
+
+<p>This is translated to the following MongoDB query (using regular
+expressions):</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /abc$/ }
+</code></pre></li>
+
+<li><p><code>enum</code> comparisons (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>)</p>
+
+<p><code>enum</code> fields or properties can be compared to constants of the same
+<code>enum</code> type. The relative comparison are based on the value of the
+underlying integer type.</p>
+
+<pre><code class="language-sourceCode csharp">public enum E { None, A, B };
+
+
+var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.E == E.A
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.E == E.A);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ E : 1 }
+</code></pre>
+
+<p>The LINQ implementation takes the representation of serialized
+values into account, so if you have configured your class map to
+store enums as string values instead of integer values the MongoDB
+query would instead be:</p>
+
+<pre><code class="language-sourceCode javascript">{ E : &quot;A&quot; }
+</code></pre></li>
+
+<li><p><code>GetType</code> (Type method)</p>
+
+<p>This is exactly like the OfType method. It will generate a
+discriminator &ldquo;and&rdquo;ed with the other predicates.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.GetType() == typeof(D)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.GetType() == typeof(D));
+</code></pre>
+
+<p>This is translated roughly to the following MongoDB query depending
+on how your discriminators are created.</p>
+
+<pre><code class="language-sourceCode javascript">{ _t : &quot;D&quot; }
+</code></pre></li>
+
+<li><p><code>In</code> (LINQ to MongoDB extension method)</p>
+
+<p>The <code>In</code> method is used to test whether a field or property is equal
+any of a set of provided values.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X.In(new [] { 1, 2, 3 })
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c.X.In(new [] { 1, 2, 3 }));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : { $in : [1, 2, 3] } }
+</code></pre></li>
+
+<li><p><code>Inject</code></p>
+
+<p><code>Inject</code> is a pseudo-method that is used to inject a lower level
+MongoDB query into a LINQ query. The following query looks for <code>X</code>
+values that are larger than 0 and are 64-bit integers.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0 &amp;&amp; Query.Type(&quot;X&quot;, BsonType.Int64).Inject()
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0 &amp;&amp; Query.Type(&quot;X&quot;, BsonType.Int64).Inject());
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : { $gt : 0, $type : 18 } }
+</code></pre></li>
+
+<li><p><code>is</code> C# keyword</p>
+
+<p>This is exactly like the OfType method. It will generate a
+discriminator &ldquo;and&rdquo;ed with the other predicates.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c is D &amp;&amp; ((D)c).B == 1
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c is D &amp;&amp; ((D)c).B == 1);
+</code></pre>
+
+<p>This is translated to the something similar to the following,
+depending on how your discriminators are setup.</p>
+
+<pre><code class="language-sourceCode javascript">{ _t : &quot;D&quot;, B : 1 }
+</code></pre></li>
+
+<li><p><code>IsMatch</code> (regular expression method)</p>
+
+<p>This method is used to test whether a string field or property
+matches a regular expression.</p>
+
+<pre><code class="language-sourceCode csharp">var regex = new Regex(&quot;^abc&quot;);
+var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where regex.IsMatch(c.S)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; regex.IsMatch(c.S));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /^abc/ }
+</code></pre>
+
+<p>You can also use the static <code>IsMatch</code> method.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where Regex.IsMatch(c.S, &quot;^abc&quot;)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; Regex.IsMatch(c.S, &quot;^abc&quot;));
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /^abc/ }
+</code></pre></li>
+
+<li><p><code>Length</code> (array length)</p>
+
+<p>This method is used to test whether an array (or array-like) field
+or property has a certain count of items.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.A.Length == 3
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.A.Length == 3);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ A : { $size: 3 } }
+</code></pre></li>
+
+<li><p><code>%</code> (<strong>Mod</strong> operator)</p>
+
+<p>This operator is used to test the result of the mod operator against
+a field or property of the document. The following query matches all
+the documents where <code>X</code> is odd.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X % 2 == 1
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X % 2 == 1);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : { $mod : [2, 1] } }
+</code></pre></li>
+
+<li><p><code>!</code> (<strong>Not</strong> operator)</p>
+
+<p>The <code>!</code> operator is used to reverse the sense of a test.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where !(c.X &gt; 1)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; !(c.X &gt; 1));
+</code></pre>
+
+<p>This is translated into the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : { $not : { $gt : 1 } } }
+</code></pre>
+
+<blockquote>
+<p><strong>note</strong></p>
+
+<p><code>!(c.X &gt; 1)</code> is not equivalent to <code>(c.X &lt;= 1)</code> in cases where
+<code>c.X</code> is missing or does not have a numeric type.</p>
+</blockquote></li>
+
+<li><p>Numeric comparisons (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>)</p>
+
+<p>Numeric fields or properties can be compared using any of the above
+operators.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X == 0 &amp;&amp; c.Y &lt; 100
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X == 0 &amp;&amp; c.Y &lt; 100);
+</code></pre>
+
+<p>This is translated into the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ X : 0, Y : { $lt : 100 } }
+</code></pre></li>
+
+<li><p><code>||</code> (<strong>Or</strong> operator)</p>
+
+<p>Sub-expressions can be combined with the <code>||</code> operator to test
+whether any of them is true.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.X &gt; 0 || c.Y &gt; 0
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.X &gt; 0 || c.Y &gt; 0);
+</code></pre>
+
+<p>This is translated to the following MongoDB query:</p>
+
+<pre><code class="language-sourceCode javascript">{ $or : [{ X : { $gt : 0 } }, { Y : { $gt : 0 } }] }
+</code></pre></li>
+
+<li><p><code>StartsWith</code> (string method)</p>
+
+<p>This method is used to test whether a string field or property of
+the document starts with a particular substring.</p>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.S.StartsWith(&quot;abc&quot;)
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.S.StartsWith(&quot;abc&quot;));
+</code></pre>
+
+<p>This is translated to the following MongoDB query (using regular
+expressions):</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /^abc/ }
+</code></pre></li>
+
+<li><p><code>ToLower</code>, <code>ToLowerInvariant</code>, <code>ToUpper</code>, <code>ToUpperInvariant</code> (string
+method)</p>
+
+<p>These methods are used to test whether a string field or property of
+the document matches a value in a case-insensitive manner.</p></li>
+</ul>
+
+<pre><code class="language-sourceCode csharp">var query =
+    from c in collection.AsQueryable&lt;C&gt;()
+    where c.S.ToLower() == &quot;abc&quot;
+    select c;
+// or
+var query =
+    collection.AsQueryable&lt;C&gt;()
+    .Where(c =&gt; c.S.ToLower() == &quot;abc&quot;);
+</code></pre>
+
+<blockquote>
+<p>This is translated to the following MongoDB query (using regular
+expressions):</p>
+
+<pre><code class="language-sourceCode javascript">{ S : /^abc$/i }
+</code></pre>
+</blockquote>
+
+
+
+
+
+
+<div id="btnv">
+  
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#linq-tutorial">LINQ Tutorial</a>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#quickstart">Quickstart</a></li>
+<li><a href="#supported-linq-query-operators">Supported LINQ query operators</a></li>
+<li><a href="#supported-where-clauses">Supported where clauses</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/1.10",
+   VERSION:     "1.10",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/jquery.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/navbar.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/scripts.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/1.10/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+<script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+

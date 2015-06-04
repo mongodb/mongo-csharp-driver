@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.0/img/favicon.png">
+
+    <title>Error Handling</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.0/../">
+        <img src="/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.0">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.0/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.0">2.0</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.0/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.0/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/reference/driver_core/">
+        <i class='fa'></i>
+        Driver Core
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="http://api.mongodb.org/csharp/2.0">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.0/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cerror_handling.md" target="_blank" title="Edit reference\driver\error_handling.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.0/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li>Error Handling</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="error-handling">Error Handling</h2>
+
+<p>Error handling using the .NET driver is a requirement for a fault-tolerant system. While MongoDB supports <a href="http://docs.mongodb.org/manual/core/replica-set-high-availability/
+">automatic replica set failover</a> and the driver supports multiple <a href="http://docs.mongodb.org/manual/reference/program/mongos/
+">mongos</a>&rsquo;s, this doesn&rsquo;t make a program immune to errors.</p>
+
+<p>Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a>, getting a database, or getting a collection. This is because we are connecting to servers in the background and continually trying to reconnect when a problem occurs. Only when you attempt to perform an operation do those errors become apparent.</p>
+
+<p>There are a few types of errors you will see.</p>
+
+<h2 id="server-selection-errors">Server Selection Errors</h2>
+
+<p>Even when some servers are available, it might not be possible to satisfy a request. For example, using <a href="http://docs.mongodb.org/manual/core/read-preference/#tag-sets
+">tag sets</a> in a read preference when no server exists with those tags or attempting to write to a <a href="http://docs.mongodb.org/manual/core/replication-introduction/
+">replica set</a> when the Primary is unavailable. Both of these would result in a <a href="https://msdn.microsoft.com/en-us/library/system.timeoutexception.aspx"><code>TimeoutException</code></a>. Below is an example exception (formatted for readability) when attempting to insert into a replica set without a primary.</p>
+
+<pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;ReplicaSet&quot;, 
+    State : &quot;Connected&quot;, 
+    Servers : [
+        { 
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/clover:30000&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/clover:30000&quot;, 
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot; 
+        }, 
+        { 
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/clover:30001&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/clover:30001&quot;, 
+            State: &quot;Connected&quot;, 
+            Type: &quot;ReplicaSetSecondary&quot;, 
+            WireVersionRange: &quot;[0, 3]&quot; 
+        }, 
+        { 
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/clover:30002&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/clover:30002&quot;, 
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot;
+        }, 
+    ] 
+}.
+</code></pre>
+
+<p>Inspecting this error will tell you that we were attempting to find a writable server. The servers that are known are <code>clover:30000</code>, <code>clover:30001</code>, and <code>clover:30002</code>. Of these, <code>clover:30000</code> and <code>clover:30002</code> are disconnected and <code>clover:30001</code> is connected and a secondary. By default, we wait for 30 seconds to fulfill the request. During this time, we are trying to connect to <code>clover:30000</code> and <code>clover:30002</code> in hopes that one of them becomes available and and takes the role of primary. In this case, we timed out waiting.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Even though the above scenario prevents any writes from occuring, reads can still be sent to <code>clover:30001</code> as long as the read preference is <code>Secondary</code>, <code>SecondaryPreferred</code>, or <code>Nearest</code>.
+</div>
+</p>
+
+<h2 id="connection-errors">Connection Errors</h2>
+
+<p>A server may be unavailable for a variety of reasons. Each of these reasons will manifest themselves as a <a href="https://msdn.microsoft.com/en-us/library/system.timeoutexception.aspx"><code>TimeoutException</code></a>. This is because, over time, it is entirely possible for the state of the servers to change in such a way
+that a matching server becomes available.</p>
+
+<p><div class="admonition important">
+<h5 class="admonition-title">important</h5>
+There is nothing that can be done at runtime by your application to resolve these problems. The best thing to do is to catch them, log them, and raise a notification so that someone in your ops team can handle them.
+</div>
+</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>If you are having trouble discovering why the driver can&rsquo;t connect, <a href="https://msdn.microsoft.com/en-us/library/ty48b824.aspx">enabling network tracing</a> on the <code>System.Net.Sockets</code> source may help discover the problem.</p>
+
+</div>
+</p>
+
+<h3 id="server-is-unavailable">Server is unavailable</h3>
+
+<p>When a server is not listening at the location specified, the driver can&rsquo;t connect to it.</p>
+
+<pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;Unknown&quot;, 
+    State : &quot;Disconnected&quot;, 
+    Servers : [
+        { 
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/localhost:27017&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/localhost:27017&quot;, 
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot;, 
+            HeartbeatException: &quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&gt; System.Net.Sockets.SocketException: No connection could be made because the target machine actively refused it 127.0.0.1:27017
+   at System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult).
+   ... snip ...&quot;
+        }
+    ]
+}
+</code></pre>
+
+<p>We see that we are attempting to connect to <code>localhost:27017</code>, but &ldquo;No connection could be made because the target machine actively refused it&rdquo;.</p>
+
+<p>Fixing this problem either involves starting a server at the specified location or restarting your application with the correct host and port.</p>
+
+<h3 id="dns-problems">DNS problems</h3>
+
+<p>When DNS is misconfigured, or the hostname provided is not registered, resolution from hostname to IP address may fail.</p>
+
+<pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;Unknown&quot;, 
+    State : &quot;Disconnected&quot;, 
+    Servers : [
+        { 
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/idonotexist:27017&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/idonotexist:27017&quot;, 
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot;, 
+            HeartbeatException: &quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&gt; System.Net.Sockets.SocketException: No such host is known
+   at System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   ... snip ...&quot;
+        }
+    ]
+}
+</code></pre>
+
+<p>We see that we are attempting to connect to <code>idonotexist:27017</code>, but &ldquo;No such host is known&rdquo;.</p>
+
+<p>Fixing this problem either involves bringing up a server at the specified location, fixing DNS to resolve the host correctly, or modifing your hosts file.</p>
+
+<h4 id="replica-set-misconfiguration">Replica Set Misconfiguration</h4>
+
+<p>DNS problems might be seen when a replica set is misconfigured. It is imperative that the hosts in your replica set configuration be DNS resolvable from the client. Just because the replica set members can talk to one another does not mean that your application servers can also talk to the replica set members.</p>
+
+<p><div class="admonition warning">
+<h5 class="admonition-title">warning</h5>
+Even when providing a seed list with resolvable host names, if the replica set configuration uses unresolvable host names, the driver will fail to connect.
+</div>
+</p>
+
+<h3 id="taking-too-long-to-respond">Taking too long to respond</h3>
+
+<p>When the latency between the driver and the server is too great, the driver may give up.</p>
+
+<pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}.
+
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;Unknown&quot;, 
+    State : &quot;Disconnected&quot;, 
+    Servers : [
+        {
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/somefaroffplace:27017&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/somefaroffplace:27017&quot;, 
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot;,
+            HeartbeatException: &quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+---&gt; System.TimeoutException: Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.&lt;ConnectAsync&gt;d__7.MoveNext()
+   ... snip ...
+        }
+    ]
+}
+</code></pre>
+
+<p>We see that attempting to connect to <code>somefaroffplace:27017</code> failed because we &ldquo;Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.&rdquo;</p>
+
+<p>The default connection timeout is 30 seconds and can be changed using the <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
+"><code>MongoClientSettings.ConnectTimeout</code></a> property or the <code>connectTimeout</code> option on a <a href="http://docs.mongodb.org/manual/reference/connection-string/
+">connection string</a>.</p>
+
+<h3 id="authentication-errors">Authentication Errors</h3>
+
+<p>When the credentials or the authentication mechanism is incorrect, the application will fail to connect.</p>
+
+<pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using
+CompositeServerSelector{ 
+    Selectors = 
+        WritableServerSelector, 
+        LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } 
+}. 
+        
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;Unknown&quot;, 
+    State : &quot;Disconnected&quot;, 
+    Servers : [
+        {
+            ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/localhost:27017&quot; }&quot;, 
+            EndPoint: &quot;Unspecified/localhost:27017&quot;,
+            State: &quot;Disconnected&quot;, 
+            Type: &quot;Unknown&quot;, 
+            HeartbeatException: &quot;MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. 
+ ---&gt; MongoDB.Driver.MongoAuthenticationException: Unable to authenticate using sasl protocol mechanism SCRAM-SHA-1. 
+ ---&gt; MongoDB.Driver.MongoCommandException: Command saslStart failed: Authentication failed..
+   ... snip ...
+        }
+    ]
+}
+</code></pre>
+
+<p>We see that attempting to connect to <code>localhost:27017</code> failed because the driver was &ldquo;Unable to authenticate using sasl protocol mechanism SCRAM-SHA-1.&rdquo; In place of SCRAM-SHA-1 could be any other authentication protocol supported by MongoDB.</p>
+
+<p>Fixing this problem either involves adding the specified user to the server or restarting the application with the correct credentials and mechanisms.</p>
+
+<h2 id="operation-errors">Operation Errors</h2>
+
+<p>After successfully selecting a server to run an operation against, errors are still possible. Unlike <a href="#connection-errors">connection errors</a>, it is sometimes possible to take action at runtime.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>Most of the exceptions that are thrown from an operation inherit from <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoException.htm"><code>MongoException</code></a>. In many cases, they also inherit from <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoServerException.htm"><code>MongoServerException</code></a>. The server exception contains a <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm"><code>ConnectionId</code></a> which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.</p>
+
+</div>
+</p>
+
+<h3 id="connection-errors-1">Connection Errors</h3>
+
+<p>A server may go down after it was selected, but before the operation was executed. These will always manifest as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+"><code>MongoConnectionException</code></a>. Inspecting the inner exception will provide the actual details of the error.</p>
+
+<pre><code class="language-bash">MongoDB.Driver.MongoConnectionException: An exception occurred while receiving a message from the server. 
+---&gt; System.IO.IOException: Unable to read data from the transport connection: Anestablished connection was aborted by the software in your host machine. 
+---&gt; System.Net.Sockets.SocketException: An established connection was aborted by the software in your host machine at System.Net.Sockets.Socket.BeginReceive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags, AsyncCallback callback, Object state)
+   at System.Net.Sockets.NetworkStream.BeginRead(Byte[] buffer, Int32 offset, Int32 size, AsyncCallback callback, Object state)
+   --- End of inner exception stack trace ---
+... snip ...
+</code></pre>
+
+<p>We see from this exception that a transport connection that was successfully open at one point has been aborted.</p>
+
+<p>There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+"><code>MongoConnectionException</code></a> unless the operation was idempotent. Simply getting an exception of this type doesn&rsquo;t give any insight into whether the operations was received by the server or what happened in the server if it was received.</p>
+
+<h3 id="write-exceptions">Write Exceptions</h3>
+
+<p>When performing a write, it is possible to receive a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoWriteException.htm
+"><code>MongoWriteException</code></a>. This exception has two important properties, <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
+"><code>WriteError</code></a> and <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
+"><code>WriteConcernError</code></a>.</p>
+
+<h4 id="write-error">Write Error</h4>
+
+<p>A write error means that there was an error applying the write. The cause could be many different things. The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_WriteError.htm
+"><code>WriteError</code></a> contains a number of properties which may help in the diagnosis of the problem. The <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Code.htm
+"><code>Code</code></a> property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Category..htm
+"><code>Category</code></a> property which classifies certain codes.</p>
+
+<pre><code class="language-bash">MongoDB.Driver.MongoWriteException: A write operation resulted in an error. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 } 
+---&gt; MonoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write oeration resulted in one or more errors. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 }
+   at MongoDB.Driver.MongoCollectionImpl`1.&lt;BulkWriteAsync&gt;d__11.MoveNext() in :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 16
+</code></pre>
+
+<p>We see from this exception that we&rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ServerErrorCategory.htm
+"><code>DuplicateKeyError</code></a>.</p>
+
+<h4 id="write-concern-error">Write Concern Error</h4>
+
+<p>A <a href="http://docs.mongodb.org/manual/core/write-concern/
+">write concern</a> error indicates that the server was unable to guarantee the write operation to the level specified. See the <a href="http://docs.mongodb.org/manual/core/write-concern/
+">server&rsquo;s documentation</a> for more information.</p>
+
+<h3 id="bulk-write-exceptions">Bulk Write Exceptions</h3>
+
+<p>A <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
+"><code>MongoBulkWriteException</code></a> will occur when using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+"><code>InsertManyAsync</code></a> or <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
+"><code>BulkWriteAsync</code></a>. This exception is just a rollup of a bunch of individual <a href="#write-error">write errors</a>. It also includes a <a href="#write-concern-error">write concern error</a> and a <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm
+"><code>Result</code></a> property.</p>
+
+<pre><code class="language-bash">MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write operation resulted in one or more errors. 
+  E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 }
+   at MongoDB.Driver.MongoCollectionImpl`1.&lt;BulkWriteAsync&gt;d__11.MoveNext() in c :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 166
+</code></pre>
+
+<p>Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
+"><code>WriteErrors</code></a> property would allow the identification of which write failed.</p>
+
+<h4 id="ordered-writes">Ordered Writes</h4>
+
+<p>Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
+"><code>UnprocessedRequests</code></a> property.</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.0/reference/driver/crud/">
+      <i class="fa fa-long-arrow-left"> </i> Reading and Writing
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.0/reference/driver_core/">
+    Driver Core <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#error-handling">Error Handling</a></li>
+<li><a href="#server-selection-errors">Server Selection Errors</a></li>
+<li><a href="#connection-errors">Connection Errors</a>
+<ul>
+<li><a href="#server-is-unavailable">Server is unavailable</a></li>
+<li><a href="#dns-problems">DNS problems</a>
+<ul>
+<li><a href="#replica-set-misconfiguration">Replica Set Misconfiguration</a></li>
+</ul></li>
+<li><a href="#taking-too-long-to-respond">Taking too long to respond</a></li>
+<li><a href="#authentication-errors">Authentication Errors</a></li>
+</ul></li>
+<li><a href="#operation-errors">Operation Errors</a>
+<ul>
+<li><a href="#connection-errors-1">Connection Errors</a></li>
+<li><a href="#write-exceptions">Write Exceptions</a>
+<ul>
+<li><a href="#write-error">Write Error</a></li>
+<li><a href="#write-concern-error">Write Concern Error</a></li>
+</ul></li>
+<li><a href="#bulk-write-exceptions">Bulk Write Exceptions</a>
+<ul>
+<li><a href="#ordered-writes">Ordered Writes</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.0",
+   VERSION:     "2.0",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+
