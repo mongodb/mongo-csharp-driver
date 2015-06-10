@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -21,32 +20,22 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a factory for clusters.
-    /// </summary>
-    public class ClusterFactory : IClusterFactory
+    internal class ClusterFactory : IClusterFactory
     {
         // fields
-        private readonly IClusterListener _listener;
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClusterFactory"/> class.
-        /// </summary>
-        /// <param name="settings">The settings.</param>
-        /// <param name="serverFactory">The server factory.</param>
-        /// <param name="listener">The listener.</param>
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
-            _listener = listener;
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
         }
 
         // methods
-        /// <inheritdoc/>
         public ICluster CreateCluster()
         {
             var connectionMode = _settings.ConnectionMode;
@@ -78,14 +67,14 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            var shardedCluster = new MultiServerCluster(settings, _serverFactory, _listener);
+            var shardedCluster = new MultiServerCluster(settings, _serverFactory, _eventSubscriber);
             shardedCluster.Initialize();
             return shardedCluster;
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            var standaloneCluster = new SingleServerCluster(settings, _serverFactory, _listener);
+            var standaloneCluster = new SingleServerCluster(settings, _serverFactory, _eventSubscriber);
             standaloneCluster.Initialize();
             return standaloneCluster;
         }

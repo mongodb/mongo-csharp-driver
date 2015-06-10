@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Linq;
+using System.Reflection;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -29,13 +31,10 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // fields
-        private IClusterListener _clusterListener = null;
+        private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
-        private IConnectionListener _connectionListener;
-        private IConnectionPoolListener _connectionPoolListener;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
-        private IServerListener _serverListener;
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -53,6 +52,7 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionSettings = new ConnectionSettings();
             _tcpStreamSettings = new TcpStreamSettings();
             _streamFactoryWrapper = inner => inner;
+            _eventAggregator = new EventAggregator();
         }
 
         // methods
@@ -73,24 +73,24 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionFactory = new BinaryConnectionFactory(
                 _connectionSettings,
                 streamFactory,
-                _connectionListener);
+                _eventAggregator);
 
             var connectionPoolFactory = new ExclusiveConnectionPoolFactory(
                 _connectionPoolSettings,
                 connectionFactory,
-                _connectionPoolListener);
+                _eventAggregator);
 
             var serverFactory = new ServerFactory(
                 _clusterSettings.ConnectionMode,
                 _serverSettings,
                 connectionPoolFactory,
                 connectionFactory,
-                _serverListener);
+                _eventAggregator);
 
             var clusterFactory = new ClusterFactory(
                 _clusterSettings,
                 serverFactory,
-                _clusterListener);
+                _eventAggregator);
 
             return clusterFactory.CreateCluster();
         }
@@ -183,36 +183,28 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Adds a listener.
+        /// Subscribes to events of type <typeparamref name="TEvent"/>.
         /// </summary>
-        /// <param name="listener">The listener.</param>
+        /// <typeparam name="TEvent">The type of the event.</typeparam>
+        /// <param name="handler">The handler.</param>
         /// <returns>A reconfigured cluster builder.</returns>
-        public ClusterBuilder AddListener(IListener listener)
+        public ClusterBuilder Subscribe<TEvent>(Action<TEvent> handler)
         {
-            var clusterListener = listener as IClusterListener;
-            if (clusterListener != null)
-            {
-                _clusterListener = ClusterListenerPair.Create(_clusterListener, clusterListener);
-            }
+            Ensure.IsNotNull(handler, "handler");
+            _eventAggregator.Subscribe(handler);
+            return this;
+        }
 
-            var serverListener = listener as IServerListener;
-            if (serverListener != null)
-            {
-                _serverListener = ServerListenerPair.Create(_serverListener, serverListener);
-            }
+        /// <summary>
+        /// Subscribes the specified subscriber.
+        /// </summary>
+        /// <param name="subscriber">The subscriber.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder Subscribe(IEventSubscriber subscriber)
+        {
+            Ensure.IsNotNull(subscriber, "subscriber");
 
-            var connectionPoolListener = listener as IConnectionPoolListener;
-            if (connectionPoolListener != null)
-            {
-                _connectionPoolListener = ConnectionPoolListenerPair.Create(_connectionPoolListener, connectionPoolListener);
-            }
-
-            var connectionListener = listener as IConnectionListener;
-            if (connectionListener != null)
-            {
-                _connectionListener = ConnectionListenerPair.Create(_connectionListener, connectionListener);
-            }
-
+            _eventAggregator.Subscribe(subscriber);
             return this;
         }
     }

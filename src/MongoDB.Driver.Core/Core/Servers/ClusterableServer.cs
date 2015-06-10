@@ -25,7 +25,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -34,7 +33,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
@@ -68,16 +66,24 @@ namespace MongoDB.Driver.Core.Servers
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private IConnection _heartbeatConnection;
         private HeartbeatDelay _heartbeatDelay;
-        private readonly IServerListener _listener;
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
         private readonly InterlockedInt32 _state;
+
+        private readonly Action<ServerOpeningEvent> _openingEventHandler;
+        private readonly Action<ServerOpenedEvent> _openedEventHandler;
+        private readonly Action<ServerClosingEvent> _closingEventHandler;
+        private readonly Action<ServerClosedEvent> _closedEventHandler;
+        private readonly Action<ServerHeartbeatStartedEvent> _heartbeatStartedEventHandler;
+        private readonly Action<ServerHeartbeatSucceededEvent> _heartbeatSucceededEventHandler;
+        private readonly Action<ServerHeartbeatFailedEvent> _heartbeatFailedEventHandler;
+        private readonly Action<ServerDescriptionChangedEvent> _descriptionChangedEventHandler;
 
         // events
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public ClusterableServer(ClusterId clusterId, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ClusterId clusterId, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IEventSubscriber eventSubscriber)
         {
             Ensure.IsNotNull(clusterId, "clusterId");
             _clusterConnectionMode = clusterConnectionMode;
@@ -85,12 +91,21 @@ namespace MongoDB.Driver.Core.Servers
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
-            _listener = listener;
+            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
 
             _serverId = new ServerId(clusterId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(_serverId, endPoint);
             _connectionPool = connectionPoolFactory.CreateConnectionPool(_serverId, endPoint);
             _state = new InterlockedInt32(State.Initial);
+
+            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
+            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
+            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _heartbeatStartedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _heartbeatSucceededEventHandler);
+            eventSubscriber.TryGetEventHandler(out _heartbeatFailedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _descriptionChangedEventHandler);
         }
 
         // properties
@@ -122,9 +137,9 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_listener != null)
+                if (_openingEventHandler != null)
                 {
-                    _listener.ServerBeforeOpening(new ServerBeforeOpeningEvent(_serverId, _settings));
+                    _openingEventHandler(new ServerOpeningEvent(_serverId, _settings));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -132,9 +147,9 @@ namespace MongoDB.Driver.Core.Servers
                 MonitorServer().ConfigureAwait(false);
                 stopwatch.Stop();
 
-                if (_listener != null)
+                if (_openedEventHandler != null)
                 {
-                    _listener.ServerAfterOpening(new ServerAfterOpeningEvent(_serverId, _settings, stopwatch.Elapsed));
+                    _openedEventHandler(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
                 }
             }
         }
@@ -159,9 +174,9 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (disposing)
                 {
-                    if (_listener != null)
+                    if (_closingEventHandler != null)
                     {
-                        _listener.ServerBeforeClosing(new ServerBeforeClosingEvent(_serverId));
+                        _closingEventHandler(new ServerClosingEvent(_serverId));
                     }
 
                     var stopwatch = Stopwatch.StartNew();
@@ -172,11 +187,11 @@ namespace MongoDB.Driver.Core.Servers
                     {
                         _heartbeatConnection.Dispose();
                     }
-
                     stopwatch.Stop();
-                    if (_listener != null)
+
+                    if (_closedEventHandler != null)
                     {
-                        _listener.ServerAfterClosing(new ServerAfterClosingEvent(_serverId, stopwatch.Elapsed));
+                        _closedEventHandler(new ServerClosedEvent(_serverId, stopwatch.Elapsed));
                     }
                 }
             }
@@ -302,9 +317,9 @@ namespace MongoDB.Driver.Core.Servers
         private async Task<HeartbeatInfo> GetHeartbeatInfoAsync(IConnection connection, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (_listener != null)
+            if (_heartbeatStartedEventHandler != null)
             {
-                _listener.ServerBeforeHeartbeating(new ServerBeforeHeartbeatingEvent(connection.ConnectionId));
+                _heartbeatStartedEventHandler(new ServerHeartbeatStartedEvent(connection.ConnectionId));
             }
 
             try
@@ -331,9 +346,9 @@ namespace MongoDB.Driver.Core.Servers
                 var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 var buildInfoResult = new BuildInfoResult(buildInfoResultRocument);
 
-                if (_listener != null)
+                if (_heartbeatSucceededEventHandler != null)
                 {
-                    _listener.ServerAfterHeartbeating(new ServerAfterHeartbeatingEvent(connection.ConnectionId, stopwatch.Elapsed));
+                    _heartbeatSucceededEventHandler(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed));
                 }
 
                 return new HeartbeatInfo
@@ -345,9 +360,9 @@ namespace MongoDB.Driver.Core.Servers
             }
             catch (Exception ex)
             {
-                if (_listener != null)
+                if (_heartbeatFailedEventHandler != null)
                 {
-                    _listener.ServerErrorHeartbeating(new ServerErrorHeartbeatingEvent(connection.ConnectionId, ex));
+                    _heartbeatFailedEventHandler(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex));
                 }
                 throw;
             }
@@ -364,9 +379,9 @@ namespace MongoDB.Driver.Core.Servers
 
             var args = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
 
-            if (_listener != null)
+            if (_descriptionChangedEventHandler != null)
             {
-                _listener.ServerAfterDescriptionChanged(new ServerAfterDescriptionChangedEvent(oldDescription, newDescription));
+                _descriptionChangedEventHandler(new ServerDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             var handler = DescriptionChanged;

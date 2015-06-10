@@ -55,6 +55,9 @@
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
+    <Compile Include="Core\Events\EventAggregatorTests.cs" />
+    <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
+    <Compile Include="Core\Helpers\EventCapturer.cs" />
     <Compile Include="Core\Misc\StreamExtensionMethodsTests.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
@@ -180,7 +183,7 @@
     <Compile Include="Core\Servers\ServerDescriptionTests.cs" />
     <Compile Include="Core\Servers\ServerFactoryTests.cs" />
     <Compile Include="Core\Servers\ServerIdTests.cs" />
-    <Compile Include="Core\Servers\ServerTests.cs" />
+    <Compile Include="Core\Servers\ClusterableServerTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\DeleteMessageTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\BinaryMessageEncoderFactoryTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\DeleteMessageBinaryEncoderTests.cs" />

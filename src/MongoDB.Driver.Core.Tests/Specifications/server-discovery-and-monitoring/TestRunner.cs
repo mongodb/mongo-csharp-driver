@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
     public class TestRunner
     {
         private ICluster _cluster;
-        private IClusterListener _clusterListener;
+        private IEventSubscriber _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
 
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
@@ -182,8 +182,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 replicaSetName: connectionString.ReplicaSet);
 
             _serverFactory = new MockClusterableServerFactory();
-            _clusterListener = Substitute.For<IClusterListener>();
-            return new ClusterFactory(settings, _serverFactory, _clusterListener)
+            _eventSubscriber = Substitute.For<IEventSubscriber>();
+            return new ClusterFactory(settings, _serverFactory, _eventSubscriber)
                 .CreateCluster();
         }
 

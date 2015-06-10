@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Clusters
     [TestFixture]
     public class ClusterTests
     {
-        private IClusterListener _clusterListener;
+        private EventCapturer _capturedEvents;
         private IClusterableServerFactory _serverFactory;
         private ClusterSettings _settings;
 
@@ -45,13 +45,13 @@ namespace MongoDB.Driver.Core.Clusters
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2),
                 postServerSelector: new LatencyLimitingServerSelector(TimeSpan.FromMinutes(2)));
             _serverFactory = Substitute.For<IClusterableServerFactory>();
-            _clusterListener = Substitute.For<IClusterListener>();
+            _capturedEvents = new EventCapturer();
         }
 
         [Test]
         public void Constructor_should_throw_if_settings_is_null()
         {
-            Action act = () => new StubCluster(null, _serverFactory, _clusterListener);
+            Action act = () => new StubCluster(null, _serverFactory, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -59,17 +59,17 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Constructor_should_throw_if_serverFactory_is_null()
         {
-            Action act = () => new StubCluster(_settings, null, _clusterListener);
+            Action act = () => new StubCluster(_settings, null, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_listener_is_null()
+        public void Constructor_should_throw_if_eventSubscriber_is_null()
         {
             Action act = () => new StubCluster(_settings, _serverFactory, null);
 
-            act.ShouldNotThrow();
+            act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
@@ -127,12 +127,16 @@ namespace MongoDB.Driver.Core.Clusters
 
             var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
             subject.SetServerDescriptions(connected);
+            _capturedEvents.Clear();
 
             var selector = new DelegateServerSelector((c, s) => s);
-
             var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -146,12 +150,16 @@ namespace MongoDB.Driver.Core.Clusters
             var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
             var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
             subject.SetServerDescriptions(connected1, connected2);
+            _capturedEvents.Clear();
 
             var selector = new DelegateServerSelector((c, s) => s);
-
             var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -162,12 +170,16 @@ namespace MongoDB.Driver.Core.Clusters
 
             var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
             subject.SetServerDescriptions(connected);
+            _capturedEvents.Clear();
 
             var selector = new DelegateServerSelector((c, s) => Enumerable.Empty<ServerDescription>());
-
             Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<TimeoutException>();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -180,12 +192,16 @@ namespace MongoDB.Driver.Core.Clusters
 
             var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
             subject.SetServerDescriptions(connected);
+            _capturedEvents.Clear();
 
             var selector = new DelegateServerSelector((c, s) => s);
-
             Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<TimeoutException>();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -196,12 +212,16 @@ namespace MongoDB.Driver.Core.Clusters
 
             var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId, wireVersionRange: new Range<int>(10, 12));
             subject.SetServerDescriptions(connected);
+            _capturedEvents.Clear();
 
             var selector = new DelegateServerSelector((c, s) => s);
-
             Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<MongoException>();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -214,11 +234,12 @@ namespace MongoDB.Driver.Core.Clusters
             var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId);
 
             subject.SetServerDescriptions(connecting);
+            _capturedEvents.Clear();
 
             Task.Run(() =>
             {
                 var descriptions = new Queue<ServerDescription>(new[] { connecting, connecting, connecting, connected });
-                while(descriptions.Count > 0)
+                while (descriptions.Count > 0)
                 {
                     Thread.Sleep(TimeSpan.FromMilliseconds(20));
                     var next = descriptions.Dequeue();
@@ -231,6 +252,13 @@ namespace MongoDB.Driver.Core.Clusters
             var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -246,6 +274,10 @@ namespace MongoDB.Driver.Core.Clusters
             subject.SetServerDescriptions(ServerDescriptionHelper.Connected(subject.Description.ClusterId, averageRoundTripTime: TimeSpan.FromMilliseconds(13)));
 
             count.Should().Be(3);
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -267,7 +299,7 @@ namespace MongoDB.Driver.Core.Clusters
                 preServerSelector: preSelector,
                 postServerSelector: postSelector);
 
-            var subject = new StubCluster(settings, _serverFactory, _clusterListener);
+            var subject = new StubCluster(settings, _serverFactory, _capturedEvents);
             subject.Initialize();
 
             subject.SetServerDescriptions(
@@ -275,22 +307,26 @@ namespace MongoDB.Driver.Core.Clusters
                 ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27018)),
                 ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27019)),
                 ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27020)));
+            _capturedEvents.Clear();
 
             var selected = await subject.SelectServerAsync(middleSelector, CancellationToken.None);
             ((DnsEndPoint)selected.EndPoint).Port.Should().Be(27020);
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic)
         {
             _settings = _settings.With(connectionMode: connectionMode);
 
-            return new StubCluster(_settings, _serverFactory, _clusterListener);
+            return new StubCluster(_settings, _serverFactory, _capturedEvents);
         }
 
         private class StubCluster : Cluster
         {
-            public StubCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
-                : base(settings, serverFactory, null)
+            public StubCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
+                : base(settings, serverFactory, eventSubscriber)
             {
 
 
@@ -309,7 +345,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             protected override void RequestHeartbeat()
             {
-               
+
             }
 
             protected override bool TryGetServer(EndPoint endPoint, out IClusterableServer server)

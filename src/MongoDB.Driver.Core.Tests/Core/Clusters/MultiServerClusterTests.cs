@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
     [TestFixture]
     public class MultiServerClusterTests
     {
-        private IClusterListener _clusterListener;
+        private EventCapturer _capturedEvents;
         private MockClusterableServerFactory _serverFactory;
         private ClusterSettings _settings;
         private EndPoint _firstEndPoint = new DnsEndPoint("localhost", 27017);
@@ -46,14 +46,14 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = new ClusterSettings();
             _serverFactory = new MockClusterableServerFactory();
-            _clusterListener = Substitute.For<IClusterListener>();
+            _capturedEvents = new EventCapturer();
         }
 
         [Test]
         public void Constructor_should_throw_if_no_endpoints_are_specified()
         {
             var settings = new ClusterSettings(endPoints: new EndPoint[0]);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents);
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
             var settings = new ClusterSettings(
                 endPoints: new[] { new DnsEndPoint("localhost", 27017) },
                 connectionMode: mode);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -83,6 +83,13 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.Unknown);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterOpeningEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterOpenedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -104,6 +111,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
 
@@ -111,6 +119,13 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -120,6 +135,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetSecondary);
 
@@ -127,6 +143,13 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -136,6 +159,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint });
@@ -144,6 +168,11 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -154,6 +183,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(nonCanonicalEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint },
@@ -163,6 +193,13 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -172,6 +209,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetSecondary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint });
@@ -180,6 +218,9 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -189,6 +230,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
             PublishDisconnectedDescription(_secondEndPoint);
@@ -197,6 +239,10 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -206,6 +252,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint });
@@ -217,6 +264,10 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -229,7 +280,7 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.Standalone)]
-        public void Should_remove_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
+        public void Should_hide_a_seedlist_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
         {
             _settings = _settings.With(
                 endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
@@ -237,27 +288,40 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_secondEndPoint, wrongType);
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [TestCase(ServerType.ShardRouter)]
         [TestCase(ServerType.Standalone)]
-        public void Should_remove_a_discovered_server_of_the_wrong_type(ServerType wrongType)
+        public void Should_hide_a_discovered_server_of_the_wrong_type(ServerType wrongType)
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
             PublishDescription(_secondEndPoint, wrongType);
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -267,12 +331,16 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetGhost,
                 hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -284,6 +352,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetSecondary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
@@ -291,6 +360,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_secondEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -301,11 +375,23 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(alternateEndPoint, ServerType.ReplicaSetPrimary);
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -315,6 +401,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
             PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary);
@@ -323,6 +410,12 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentTo(
                 new[] { GetDisconnectedDescription(_firstEndPoint) }
                 .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_firstEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -332,6 +425,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
             PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
@@ -340,6 +434,12 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentTo(
                 new[] { GetDisconnectedDescription(_firstEndPoint) }
                 .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_firstEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -349,6 +449,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
             PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
@@ -357,6 +458,12 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentTo(
                 new[] { GetDisconnectedDescription(_firstEndPoint) }
                 .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_firstEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -366,6 +473,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
             PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
@@ -374,6 +482,12 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentTo(
                 new[] { GetDisconnectedDescription(_secondEndPoint) }
                 .Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_secondEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -383,6 +497,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint });
@@ -393,6 +508,11 @@ namespace MongoDB.Driver.Core.Clusters
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
             description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -411,6 +531,18 @@ namespace MongoDB.Driver.Core.Clusters
                 var server = _serverFactory.GetServer(endPoint);
                 server.Received().Initialize();
             }
+
+            _capturedEvents.Next().Should().BeOfType<ClusterOpeningEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterOpenedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -420,12 +552,18 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint });
 
             var server = _serverFactory.GetServer(_thirdEndPoint);
             server.Received().Dispose();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -435,6 +573,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var subject = CreateSubject();
             subject.Initialize();
+            _capturedEvents.Clear();
             subject.Dispose();
 
             foreach (var endPoint in new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint })
@@ -442,11 +581,22 @@ namespace MongoDB.Driver.Core.Clusters
                 var server = _serverFactory.GetServer(endPoint);
                 server.Received().Dispose();
             }
+
+            _capturedEvents.Next().Should().BeOfType<ClusterClosingEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterClosedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         private MultiServerCluster CreateSubject()
         {
-            return new MultiServerCluster(_settings, _serverFactory, _clusterListener);
+            return new MultiServerCluster(_settings, _serverFactory, _capturedEvents);
         }
 
         private IEnumerable<ServerDescription> GetDescriptions(params EndPoint[] endPoints)

@@ -13,7 +13,10 @@
 * limitations under the License.
 */
 
+using System;
+using System.IO;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events.Diagnostics;
 
 namespace MongoDB.Driver.TestConsoleApplication
 {
@@ -21,7 +24,7 @@ namespace MongoDB.Driver.TestConsoleApplication
     {
         static void Main(string[] args)
         {
-            FilterMeasuring.TestAsync().GetAwaiter().GetResult();
+            //FilterMeasuring.TestAsync().GetAwaiter().GetResult();
             int numConcurrentWorkers = 50;
             //new CoreApi().Run(numConcurrentWorkers, ConfigureCluster);
 
@@ -32,13 +35,6 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private static void ConfigureCluster(ClusterBuilder cb)
         {
-            //string desktop =
-            //Environment.GetFolderPath(Environment.SpecialFolder.Desktop); var
-            //file = Path.Combine(desktop, "log.txt"); var streamWriter = new
-            //StreamWriter(file); var writer =
-            //TextWriter.Synchronized(streamWriter);
-
-            //cb.AddListener(new LogListener(writer, LogLevel.Error));
             cb.UsePerformanceCounters("test", true);
         }
     }

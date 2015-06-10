@@ -23,41 +23,30 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    /// <summary>
-    /// Represents the default server factory.
-    /// </summary>
-    public class ServerFactory : IClusterableServerFactory
+    internal class ServerFactory : IClusterableServerFactory
     {
         // fields
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
         private readonly IConnectionFactory _heartbeatConnectionFactory;
-        private readonly IServerListener _listener;
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly ServerSettings _settings;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerFactory"/> class.
-        /// </summary>
-        /// <param name="clusterConnectionMode">The cluster connection mode.</param>
-        /// <param name="settings">The settings.</param>
-        /// <param name="connectionPoolFactory">The connection pool factory.</param>
-        /// <param name="heartbeatConnectionFactory">The heartbeat connection factory.</param>
-        /// <param name="listener">The listener.</param>
-        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IEventSubscriber eventSubscriber)
         {
             _clusterConnectionMode = clusterConnectionMode;
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
-            _listener = listener;
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
         }
 
         // methods
         /// <inheritdoc/>
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
         }
     }
 }

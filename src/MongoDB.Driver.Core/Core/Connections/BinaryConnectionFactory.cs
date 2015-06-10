@@ -38,21 +38,16 @@ namespace MongoDB.Driver.Core.Connections
         #endregion
 
         // fields
-        private readonly IConnectionListener _listener;
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnectionFactory()
-            : this(new ConnectionSettings(), new TcpStreamFactory(), null)
-        {
-        }
-
-        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IConnectionListener listener)
+        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IEventSubscriber eventSubscriber)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
-            _listener = listener;
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
         }
 
         // methods
@@ -60,7 +55,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionInitializer, _listener);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionInitializer, _eventSubscriber);
         }
     }
 }

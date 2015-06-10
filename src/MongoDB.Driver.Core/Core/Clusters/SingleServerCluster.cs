@@ -32,42 +32,72 @@ namespace MongoDB.Driver.Core.Clusters
         private IClusterableServer _server;
         private readonly InterlockedInt32 _state;
 
+        private readonly Action<ClusterClosingEvent> _closingEventHandler;
+        private readonly Action<ClusterClosedEvent> _closedEventHandler;
+        private readonly Action<ClusterOpeningEvent> _openingEventHandler;
+        private readonly Action<ClusterOpenedEvent> _openedEventHandler;
+        private readonly Action<ClusterAddingServerEvent> _addingServerEventHandler;
+        private readonly Action<ClusterAddedServerEvent> _addedServerEventHandler;
+        private readonly Action<ClusterRemovingServerEvent> _removingServerEventHandler;
+        private readonly Action<ClusterRemovedServerEvent> _removedServerEventHandler;
+
         // constructor
-        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
-            : base(settings, serverFactory, listener)
+        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
+            : base(settings, serverFactory, eventSubscriber)
         {
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
 
             _state = new InterlockedInt32(State.Initial);
+
+            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
+            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
+            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _addingServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _addedServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _removingServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _removedServerEventHandler);
         }
 
         // methods
         protected override void Dispose(bool disposing)
         {
+            Stopwatch stopwatch = null;
             if (_state.TryChange(State.Disposed))
             {
                 if (disposing)
                 {
-                    if (Listener != null)
+                    if (_closingEventHandler != null)
                     {
-                        Listener.ClusterBeforeClosing(new ClusterBeforeClosingEvent(ClusterId));
+                        _closingEventHandler(new ClusterClosingEvent(ClusterId));
                     }
+                    stopwatch = Stopwatch.StartNew();
 
-                    var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
+                        if (_removingServerEventHandler != null)
+                        {
+                            _removingServerEventHandler(new ClusterRemovingServerEvent(_server.ServerId, "Cluster is closing."));
+                        }
+
                         _server.DescriptionChanged -= ServerDescriptionChanged;
                         _server.Dispose();
+
+                        if (_removedServerEventHandler != null)
+                        {
+                            _removedServerEventHandler(new ClusterRemovedServerEvent(_server.ServerId, "Cluster is closing.", stopwatch.Elapsed));
+                        }
                     }
                     stopwatch.Stop();
-
-                    if (Listener != null)
-                    {
-                        Listener.ClusterAfterClosing(new ClusterAfterClosingEvent(ClusterId, stopwatch.Elapsed));
-                    }
                 }
             }
+
             base.Dispose(disposing);
+
+            if (stopwatch != null && _closedEventHandler != null)
+            {
+                _closedEventHandler(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+            }
         }
 
         public override void Initialize()
@@ -75,23 +105,32 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (Listener != null)
+                if (_openingEventHandler != null)
                 {
-                    Listener.ClusterBeforeOpening(new ClusterBeforeOpeningEvent(ClusterId, Settings));
-                    Listener.ClusterBeforeAddingServer(new ClusterBeforeAddingServerEvent(ClusterId, Settings.EndPoints[0]));
+                    _openingEventHandler(new ClusterOpeningEvent(ClusterId, Settings));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
                 _server = CreateServer(Settings.EndPoints[0]);
+                var newClusterDescription = Description.WithServerDescription(_server.Description);
+                if (_addingServerEventHandler != null)
+                {
+                    _addingServerEventHandler(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
+                }
                 _server.DescriptionChanged += ServerDescriptionChanged;
                 _server.Initialize();
                 stopwatch.Stop();
 
-                if (Listener != null)
+                if (_addedServerEventHandler != null)
                 {
-                    Listener.ClusterAfterAddingServer(new ClusterAfterAddingServerEvent(_server.ServerId, stopwatch.Elapsed));
-                    Listener.ClusterAfterOpening(new ClusterAfterOpeningEvent(ClusterId, Settings, stopwatch.Elapsed));
+                    _addedServerEventHandler(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
                 }
+                if (_openedEventHandler != null)
+                {
+                    _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
+                }
+
+                UpdateClusterDescription(newClusterDescription);
             }
         }
 
