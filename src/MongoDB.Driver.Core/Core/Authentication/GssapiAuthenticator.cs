@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 catch (Win32Exception ex)
                 {
-                    throw  new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
+                    throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
 
                 if (!_context.IsInitialized)
@@ -353,18 +353,6 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
-                // Even though RFC says that clients should specifically check this and raise an error
-                // if it isn't true, this breaks on Windows XP, so we are skipping the check for windows
-                // XP, identified as Win32NT 5.1: http://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
-                if (Environment.OSVersion.Platform != PlatformID.Win32NT ||
-                    Environment.OSVersion.Version.Major != 5)
-                {
-                    if (bytesReceivedFromServer == null || bytesReceivedFromServer.Length != 32) //RFC specifies this must be 4 octets
-                    {
-                        throw new MongoAuthenticationException(conversation.ConnectionId, message: "Invalid server response.");
-                    }
-                }
-
                 byte[] decryptedBytes;
                 try
                 {
