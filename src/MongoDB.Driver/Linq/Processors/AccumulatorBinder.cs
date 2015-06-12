@@ -47,17 +47,9 @@ namespace MongoDB.Driver.Linq.Processors
             _isPotentialAccumulatorMethod = false;
             var newNode = (MethodCallExpression)base.VisitMethodCall(node);
             _isPotentialAccumulatorMethod = oldIsPotentialAccumulatorMethod;
-            AccumulatorExpression accumulator;
+            Expression accumulator;
             if (_isPotentialAccumulatorMethod && newNode.NodeType == ExpressionType.Call && TryBindAccumulatorExpression(newNode, out accumulator))
             {
-                Guid correlationId;
-                if (TryGetCorrelatedGroup(newNode.Arguments[0], out correlationId))
-                {
-                    return new CorrelatedAccumulatorExpression(
-                        correlationId,
-                        accumulator);
-                }
-
                 return accumulator;
             }
 
@@ -73,32 +65,49 @@ namespace MongoDB.Driver.Linq.Processors
                 && newNode.Arguments[0] is AccumulatorExpression
                 && ((AccumulatorExpression)newNode.Arguments[0]).AccumulatorType == AccumulatorType.Push)
             {
-                var accumulator = new AccumulatorExpression(
-                    newNode.Type,
-                    AccumulatorType.AddToSet,
-                    ((AccumulatorExpression)newNode.Arguments[0]).Argument);
-                Guid correlationId;
-                if (TryGetCorrelatedGroup(newNode, out correlationId))
+                Guid correlationId = Guid.Empty;
+                if (_groupMap == null || TryGetCorrelatedGroup(node.Arguments[0], out correlationId))
                 {
-                    return new CorrelatedAccumulatorExpression(
-                        correlationId,
-                        accumulator);
-                }
+                    Expression accumulator = new AccumulatorExpression(
+                        newNode.Type,
+                        AccumulatorType.AddToSet,
+                        ((AccumulatorExpression)newNode.Arguments[0]).Argument);
 
-                return accumulator;
+                    if (_groupMap != null)
+                    {
+                        accumulator = new CorrelatedAccumulatorExpression(
+                            correlationId,
+                            (AccumulatorExpression)accumulator);
+                    }
+
+                    return accumulator;
+                }
             }
 
             return newNode;
         }
 
-        private bool TryBindAccumulatorExpression(MethodCallExpression node, out AccumulatorExpression accumulator)
+        private bool TryBindAccumulatorExpression(MethodCallExpression node, out Expression accumulator)
         {
             AccumulatorType accumulatorType;
             if (TryGetAccumulatorType(node.Method.Name, out accumulatorType))
             {
-                var argument = GetAccumulatorArgument(node);
-                accumulator = new AccumulatorExpression(node.Type, accumulatorType, argument);
-                return true;
+                Guid correlationId = Guid.Empty;
+                if (_groupMap == null || TryGetCorrelatedGroup(node.Arguments[0], out correlationId))
+                {
+                    accumulator = new AccumulatorExpression(node.Type,
+                        accumulatorType,
+                        GetAccumulatorArgument(node));
+
+                    if (_groupMap != null)
+                    {
+                        accumulator = new CorrelatedAccumulatorExpression(
+                            correlationId,
+                            (AccumulatorExpression)accumulator);
+                    }
+
+                    return true;
+                }
             }
 
             accumulator = null;

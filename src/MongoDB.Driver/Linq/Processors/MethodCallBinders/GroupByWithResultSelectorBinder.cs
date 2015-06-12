@@ -76,8 +76,10 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
 
             binder.RegisterParameterReplacement(lambda.Parameters[0], id);
             binder.RegisterParameterReplacement(lambda.Parameters[1], sequenceExpression);
-
-            return binder.Bind(lambda.Body);
+            var correlationId = Guid.NewGuid();
+            context.GroupMap.Add(sequenceExpression, correlationId);
+            var bound = binder.Bind(lambda.Body);
+            return CorrelatedAccumulatorRemover.Remove(bound, correlationId);
         }
 
         private Expression BuildProjector(Expression selector, ProjectionBindingContext context)
@@ -104,6 +106,32 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
             }
 
             return selectorNode;
+        }
+
+        private class CorrelatedAccumulatorRemover : ExtensionExpressionVisitor
+        {
+            public static Expression Remove(Expression node, Guid correlationId)
+            {
+                var remover = new CorrelatedAccumulatorRemover(correlationId);
+                return remover.Visit(node);
+            }
+
+            private readonly Guid _correlationId;
+
+            private CorrelatedAccumulatorRemover(Guid correlationId)
+            {
+                _correlationId = correlationId;
+            }
+
+            protected internal override Expression VisitCorrelatedAccumulator(CorrelatedAccumulatorExpression node)
+            {
+                if(node.CorrelationId == _correlationId)
+                {
+                    return Visit(node.Accumulator);
+                }
+
+                return base.VisitCorrelatedAccumulator(node);
+            }
         }
     }
 }

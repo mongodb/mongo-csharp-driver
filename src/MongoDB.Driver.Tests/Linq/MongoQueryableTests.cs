@@ -583,6 +583,49 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Select_method_array()
+        {
+            var query = CreateQuery().Select(x => x.M);
+
+            Assert(query,
+                2,
+                "{ $project: { M: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void Select_syntax_array()
+        {
+            var query = from x in CreateQuery()
+                        select x.M;
+
+            Assert(query,
+                2,
+                "{ $project: { M: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void Select_method_computed_array()
+        {
+            var query = CreateQuery()
+                .Select(x => x.M.Select(i => i + 1));
+
+            Assert(query,
+                2,
+                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+        }
+
+        [Test]
+        public void Select_syntax_computed_array()
+        {
+            var query = from x in CreateQuery()
+                        select x.M.Select(i => i + 1);
+
+            Assert(query,
+                2,
+                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+        }
+
+        [Test]
         public void SelectMany_with_only_resultSelector()
         {
             var query = CreateQuery()
