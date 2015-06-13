@@ -282,6 +282,21 @@ namespace MongoDB.Driver.Linq.Utils
                 return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
             }
 
+            var dictionarySerializer = serializationInfo.Serializer as MongoDB.Bson.Serialization.Serializers.DictionarySerializer;
+            if (dictionarySerializer != null)
+            {
+                DictionarySerializationOptions dictionarySerializationOptions = serializationInfo.SerializationOptions as DictionarySerializationOptions;
+                if (dictionarySerializationOptions != null)
+                {
+                    var memberSerializationInfo = new BsonSerializationInfo(
+                            indexName,
+                            dictionarySerializer.GetValueSerializer(indexExpression.Value.GetType()),
+                            indexExpression.Value.GetType(),
+                            dictionarySerializationOptions.KeyValuePairSerializationOptions.ValueSerializationOptions);
+                    return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
+                }
+            }
+
             return null;
         }
 

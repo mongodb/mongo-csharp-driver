@@ -274,7 +274,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="actualType">The actual type of the value.</param>
         /// <returns>The serializer for the value type.</returns>
-        private IBsonSerializer GetValueSerializer(Type actualType)
+        internal IBsonSerializer GetValueSerializer(Type actualType)
         {
             // return a cached serializer when possible
             if (actualType == typeof(TValue))

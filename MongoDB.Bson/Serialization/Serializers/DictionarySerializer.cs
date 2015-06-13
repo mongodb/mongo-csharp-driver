@@ -65,6 +65,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        /// <param name="actualType">The actual type of the value.</param>
+        /// <returns>The serializer for the value type.</returns>
+        public IBsonSerializer GetValueSerializer(Type actualType)
+        {
+            return _keyValuePairSerializer.GetValueSerializer(actualType);
+        }
+
         // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.

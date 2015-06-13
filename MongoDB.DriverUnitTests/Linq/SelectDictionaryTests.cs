@@ -240,6 +240,30 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereHHasXEqualToSomeInt()
+        {
+            object someInt = 42;
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.H["x"] == someInt
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.H.get_Item(\"x\") == 42)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"H.x\" : 42 }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, query.ToList().Count());
+        }
+
+        [Test]
         public void TestWhereHContainsKeyZ()
         {
             var query = from c in _collection.AsQueryable<C>()
