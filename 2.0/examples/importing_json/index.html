@@ -7,17 +7,17 @@
 <meta name="author" content="">
 <meta name="keyword" content="">
 
-    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/2.0/img/favicon.png">
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.0/img/favicon.png">
 
     <title>Importing JSON</title>
 
-    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/styles/idea.css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/dn.css" type="text/css" />
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/dn.css" type="text/css" />
 
 
   </head>
@@ -34,8 +34,8 @@
     </div>
     
     <div class="logo pull-left">
-      <a href="http://localhost:1313/mongo-csharp-driver/2.0/../">
-        <img src="http://localhost:1313/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      <a href="/mongo-csharp-driver/2.0/../">
+        <img src="/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
       </a>
     </div>
     
@@ -49,7 +49,7 @@
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
-    <input type="hidden" name="site" value="http://localhost:1313/mongo-csharp-driver/2.0">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.0">
     <input type="hidden" name="q" value="">
     <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
 </form>
@@ -68,8 +68,8 @@
     <div class="ssidebar nav-collapse">
       <div class="ssidebarwrapper">
         <h3>
-          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/2.0/../">MongoDB .NET Driver</a>
-          <a class="version pull-right" href="http://localhost:1313/mongo-csharp-driver/2.0">2.0</a>
+          <a class="index-link" href="/mongo-csharp-driver/2.0/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.0">2.0</a>
         </h3>
 
         
@@ -756,6 +756,33 @@
     
       
     
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
   
 
 
@@ -1700,6 +1727,35 @@
 
         
         
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
     </ul>
   </li>
 
@@ -2080,9 +2136,9 @@
 <p>The .NET BSON library supports reading JSON documents with the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
 "><code>JsonReader</code></a> class.</p>
 
-<p>The below program will import all documents from a file with one document per line into the collection.</p>
+<p>The program below will import all documents from a file with one document per line into the collection.</p>
 
-<p>Given the file&rsquo;s contents:</p>
+<p>Given the input file&rsquo;s contents:</p>
 
 <pre><code class="language-json">{ &quot;_id&quot; : ObjectId(&quot;5513306a2dfd32ffd580e323&quot;), &quot;x&quot; : 1.0 }
 { &quot;_id&quot; : ObjectId(&quot;5513306c2dfd32ffd580e324&quot;), &quot;x&quot; : 2.0 }
@@ -2092,51 +2148,38 @@
 
 <p>And the program:</p>
 
-<pre><code class="language-csharp">string inputFileName; // initialize to the input file
+<pre><code class="language-csharp">using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+
+// ...
+
+string inputFileName; // initialize to the input file
 IMongoCollection&lt;BsonDocument&gt; collection; // initialize to the collection to write to.
 
 using (var streamReader = new StreamReader(inputFileName))
-using (var jsonReader = new JsonReader(streamReader))
 {
-    while (!jsonReader.IsAtEndOfFile())
+    string line;
+    while ((line = await streamReader.ReadLineAsync()) != null)
     {
-        var context = BsonDeserializationContext.CreateRoot(jsonReader);
-        var doc = collection.DocumentSerializer.Deserialize(context);
-        await collection.InsertOneAsync(doc);
+        using (var jsonReader = new JsonReader(line))
+        {
+            var context = BsonDeserializationContext.CreateRoot(jsonReader);
+            var document = collection.DocumentSerializer.Deserialize(context);
+            await collection.InsertOneAsync(document);
+        }
     }
 }
 </code></pre>
 
-<p>Even though we used a collection of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocuments</code></a>, it is possible to do this with a static class as well.</p>
+<p>The collection&rsquo;s contents should look like this:</p>
 
-<p>Given the class:</p>
-
-<pre><code class="language-csharp">class Sample
-{
-    public ObjectId Id { get; set; }
-    
-    [BsonElement(&quot;x&quot;)]
-    public int X { get; set; }   
-}
-</code></pre>
-
-<p>We would simply change the collection to use <code>Sample</code> instead of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>:</p>
-
-<pre><code class="language-csharp">string inputFileName; // initialize to the input file
-IMongoCollection&lt;Sample&gt; collection; // initialize to the collection to write to.
-
-using (var streamReader = new StreamReader(inputFileName))
-using (var jsonReader = new JsonReader(streamReader))
-{
-    while (!jsonReader.IsAtEndOfFile())
-    {
-        var context = BsonDeserializationContext.CreateRoot(jsonReader);
-        var doc = collection.DocumentSerializer.Deserialize(context);
-        await collection.InsertOneAsync(doc);
-    }
-}
+<pre><code class="language-bash">&gt; db.mydata.find()
+{ &quot;_id&quot; : ObjectId(&quot;5513306a2dfd32ffd580e323&quot;), &quot;x&quot; : 1.0 }
+{ &quot;_id&quot; : ObjectId(&quot;5513306c2dfd32ffd580e324&quot;), &quot;x&quot; : 2.0 }
+{ &quot;_id&quot; : ObjectId(&quot;5513306e2dfd32ffd580e325&quot;), &quot;x&quot; : 3.0 }
+{ &quot;_id&quot; : ObjectId(&quot;551330712dfd32ffd580e326&quot;), &quot;x&quot; : 4.0 }
 </code></pre>
 
 
@@ -2192,20 +2235,20 @@ using (var jsonReader = new JsonReader(streamReader))
 
 <script type="text/javascript">
   var DOCUMENTATION_OPTIONS = {
-   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/2.0",
+   URL_ROOT:    "/mongo-csharp-driver/2.0",
    VERSION:     "2.0",
    COLLAPSE_INDEX: false,
    FILE_SUFFIX: '.html',
    HAS_SOURCE:  true
   };
 </script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/jquery.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/navbar.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/scripts.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/dn.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/dn.js"></script>
 
 
 <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
@@ -2230,9 +2273,6 @@ else if (window.attachEvent) window.attachEvent('onload', async_load);
 })();
 </script>
 
-<script>document.write('<script src="http://'
-        + (location.host || 'localhost').split(':')[0]
-		+ ':1313/livereload.js?mindelay=10"></'
-        + 'script>')</script></body>
+</body>
 </html>
 

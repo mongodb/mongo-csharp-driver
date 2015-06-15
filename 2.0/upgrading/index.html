@@ -291,6 +291,40 @@
 
 
   
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
 
 
           
@@ -1163,6 +1197,182 @@
 
 
 
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <li class="toctree-l1">
     <a href="http://api.mongodb.org/csharp/2.0">
         <i class='fa fa-file-text-o'></i>
@@ -1324,6 +1534,7 @@
 <li><a href="https://jira.mongodb.org/browse/CSHARP-933">CSHARP-933</a>: Improved the BSON Serializer infrastructure. Anyone who has written a custom serializer will be affected by this. The changes are minor, but were necessary to support dynamic serializers as well as offering great speed improvements and improved memory management.</li>
 <li>Certain methods, such as <code>BsonMemberMap.SetRepresentation</code> have been removed. The proper way to set a representation, for instance, would be to use <code>SetSerializer</code> and configure the serializer with the appropriate representation.</li>
 <li><a href="https://jira.mongodb.org/browse/CSHARP-939">CSHARP-939</a>: Dynamic DictionaryRepresentation has been removed. Its intent was to store, in some manner, anything in a .NET dictionary. In practice, this leads to the same values getting stored in different ways depending on factors such as a &ldquo;.&rdquo; inside the key name. We made the decision to eliminate this variability. This means that documents that used to serialize correctly may start throwing a BsonSerializationException with a message indicating the key must be a valid string. <a href="https://jira.mongodb.org/browse/CSHARP-1165">CSHARP-1165</a> has a solution to this problem. It should be noted that we will continue to read these disparate representations without error.</li>
+<li><code>null</code> is no longer ignored in BsonValue-derived constructors. Anyone relying on null getting ignored will now receive an <code>ArgumentNullException</code>.</li>
 </ul>
 
 <h3 id="driver">Driver</h3>

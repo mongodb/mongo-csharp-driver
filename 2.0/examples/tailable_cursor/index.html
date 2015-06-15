@@ -7,17 +7,17 @@
 <meta name="author" content="">
 <meta name="keyword" content="">
 
-    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/2.0/img/favicon.png">
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.0/img/favicon.png">
 
     <title>Using a Tailable Cursor</title>
 
-    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/styles/idea.css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
-<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/dn.css" type="text/css" />
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.0/css/dn.css" type="text/css" />
 
 
   </head>
@@ -34,8 +34,8 @@
     </div>
     
     <div class="logo pull-left">
-      <a href="http://localhost:1313/mongo-csharp-driver/2.0/../">
-        <img src="http://localhost:1313/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      <a href="/mongo-csharp-driver/2.0/../">
+        <img src="/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
       </a>
     </div>
     
@@ -49,7 +49,7 @@
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
-    <input type="hidden" name="site" value="http://localhost:1313/mongo-csharp-driver/2.0">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.0">
     <input type="hidden" name="q" value="">
     <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
 </form>
@@ -68,8 +68,8 @@
     <div class="ssidebar nav-collapse">
       <div class="ssidebarwrapper">
         <h3>
-          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/2.0/../">MongoDB .NET Driver</a>
-          <a class="version pull-right" href="http://localhost:1313/mongo-csharp-driver/2.0">2.0</a>
+          <a class="index-link" href="/mongo-csharp-driver/2.0/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.0">2.0</a>
         </h3>
 
         
@@ -756,6 +756,33 @@
     
       
     
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
   
 
 
@@ -1748,6 +1775,35 @@
 
         
         
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
     </ul>
   </li>
 
@@ -2125,14 +2181,15 @@
 
 <h2 id="using-a-tailable-cursor">Using a Tailable Cursor</h2>
 
-<p>MongoDB offers the option to use watch a <a href="http://docs.mongodb.org/manual/">capped collection</a> for certain changes by using a <a href="http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
+<p>MongoDB offers the option to watch a <a href="http://docs.mongodb.org/manual/manual/core/capped-collections/
+">capped collection</a> for changes using a <a href="http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
 ">tailable cursor</a>.</p>
 
-<p>The below code &ldquo;tails&rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field <code>insertDate</code>. New documents are added with increasing values of <code>insertDate</code>.</p>
+<p>The code below &ldquo;tails&rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field <code>insertDate</code>. New documents are added with increasing values of <code>insertDate</code>.</p>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Even though we are using <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> below, it is possible to use a defined class by replacing the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> references with that of your defined class.</p>
+<p>Even though we are using <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> below, it is possible to use an application defined class by replacing the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> references with that of your application defined class.</p>
 
 </div>
 </p>
@@ -2145,9 +2202,7 @@
     var options = new FindOptions&lt;BsonDocument&gt; 
     { 
         // Our cursor is a tailable cursor and informs the server to await
-        CursorType = CursorType.TailableAwait,
-        // Use $hint to ensure that the query uses the $natural order...
-        Modifiers = new BsonDocument(&quot;$hint&quot;, new BsonDocument(&quot;$natural&quot;, 1));
+        CursorType = CursorType.TailableAwait
     };
     
     // Initially, we don't have a filter. An empty BsonDocument matches everything.
@@ -2167,7 +2222,7 @@
                 lastValue = document[&quot;insertDate&quot;];
                 
                 // Write the document to the console.
-                Console.WriteLine(document.ToString());
+                await Console.WriteLineAsync(document.ToString());
             });
         }
 
@@ -2181,10 +2236,10 @@
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
 <p>If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
-you could track all the documents you&rsquo;ve seen by their identifiers for the same <code>lastValue</code> and ignore them in the callback.</p>
+you could track all the documents you&rsquo;ve seen by their identifiers for the same <code>lastValue</code> and ignore them in the callback. In addition, you would need to change the <code>$gt</code> condition to <code>$gte</code></p>
 
 </div>
-</p>
+.</p>
 
 
 
@@ -2239,20 +2294,20 @@ you could track all the documents you&rsquo;ve seen by their identifiers for the
 
 <script type="text/javascript">
   var DOCUMENTATION_OPTIONS = {
-   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/2.0",
+   URL_ROOT:    "/mongo-csharp-driver/2.0",
    VERSION:     "2.0",
    COLLAPSE_INDEX: false,
    FILE_SUFFIX: '.html',
    HAS_SOURCE:  true
   };
 </script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/jquery.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/navbar.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/scripts.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
-<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/dn.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.0/js/dn.js"></script>
 
 
 <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
@@ -2277,9 +2332,6 @@ else if (window.attachEvent) window.attachEvent('onload', async_load);
 })();
 </script>
 
-<script>document.write('<script src="http://'
-        + (location.host || 'localhost').split(':')[0]
-		+ ':1313/livereload.js?mindelay=10"></'
-        + 'script>')</script></body>
+</body>
 </html>
 

@@ -1588,7 +1588,7 @@ Client view of cluster state is
 &lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
 &#34;&gt;&lt;code&gt;MongoBulkWriteException&lt;/code&gt;&lt;/a&gt; will occur when using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
 &#34;&gt;&lt;code&gt;InsertManyAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
-&#34;&gt;&lt;code&gt;BulkWriteAsync&lt;/code&gt;&lt;/a&gt;. This exception is just a rollup of a bunch of individual &lt;a href=&#34;#write-error&#34;&gt;write errors&lt;/a&gt;. It also includes a &lt;a href=&#34;#write-concern-error&#34;&gt;write concern error&lt;/a&gt; and a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm
+&#34;&gt;&lt;code&gt;BulkWriteAsync&lt;/code&gt;&lt;/a&gt;. This exception is just a rollup of a bunch of individual &lt;a href=&#34;#write-error&#34;&gt;write errors&lt;/a&gt;. It also includes a &lt;a href=&#34;#write-concern-error&#34;&gt;write concern error&lt;/a&gt; and a &lt;a href=&#34;No page found with path or logical name &#34;P_MongoDB_Driver_MongoBulkWriteException_1_Result&#34;.
 &#34;&gt;&lt;code&gt;Result&lt;/code&gt;&lt;/a&gt; property.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write operation resulted in one or more errors. 
