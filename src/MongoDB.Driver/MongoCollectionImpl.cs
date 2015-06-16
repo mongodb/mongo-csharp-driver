@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -43,6 +44,11 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+            : this(database, collectionNamespace, settings, cluster, operationExecutor, settings.SerializerRegistry.GetSerializer<TDocument>())
+        {
+        }
+
+        private MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor, IBsonSerializer<TDocument> documentSerializer)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
@@ -50,7 +56,7 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
 
-            _documentSerializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
+            _documentSerializer = Ensure.IsNotNull(documentSerializer, "documentSerializer");
             _messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
@@ -387,6 +393,29 @@ namespace MongoDB.Driver
             }
         }
 
+        public override IFilteredMongoCollection<TNewDocument> OfType<TNewDocument>()
+        {
+            var ofTypeSerializer = _settings.SerializerRegistry.GetSerializer<TNewDocument>();
+            var newSerializer = new OfTypeSerializer<TNewDocument>(ofTypeSerializer);
+            var newCollection = new MongoCollectionImpl<TNewDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, newSerializer);
+            FilterDefinition<TNewDocument> filter = null;
+
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
+            var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TNewDocument));
+            if (discriminator != null)
+            {
+                if (discriminator.IsBsonArray)
+                {
+                    discriminator = discriminator[discriminator.AsBsonArray.Count - 1];
+                }
+
+                var filterDoc = new BsonDocument(discriminatorConvention.ElementName, discriminator);
+                filter = new BsonDocumentFilterDefinition<TNewDocument>(filterDoc);
+            }
+
+            return new OfTypeMongoCollection<TDocument, TNewDocument>(this, newCollection, filter);
+        }
+
         public override IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference)
         {
             var newSettings = _settings.Clone();
@@ -517,6 +546,53 @@ namespace MongoDB.Driver
             }
 
             return _settings.SerializerRegistry.GetSerializer<TResult>();
+        }
+
+        private class OfTypeSerializer<TOfTypeDocument> : SerializerBase<TOfTypeDocument>, IBsonDocumentSerializer
+            where TOfTypeDocument : TDocument
+        {
+            private readonly IBsonSerializer<TOfTypeDocument> _serializer;
+
+            public OfTypeSerializer(IBsonSerializer<TOfTypeDocument> serializer)
+            {
+                _serializer = serializer;
+            }
+
+            public override TOfTypeDocument Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                args.NominalType = typeof(TDocument); // the base type
+                return (TOfTypeDocument)_serializer.Deserialize(context, args);
+            }
+
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TOfTypeDocument value)
+            {
+                args.NominalType = typeof(TDocument); // the base type
+                _serializer.Serialize(context, args, value);
+            }
+
+            public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+            {
+                BsonSerializationInfo serializationInfo;
+                if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
+                {
+                    var message = string.Format("Unable to determine serialization info for {0}.", memberName);
+                    throw new InvalidOperationException(message);
+                }
+
+                return serializationInfo;
+            }
+
+            public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+            {
+                var documentSerializer = _serializer as IBsonDocumentSerializer;
+                if (documentSerializer == null)
+                {
+                    serializationInfo = null;
+                    return false;
+                }
+
+                return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
+            }
         }
 
         private class MongoIndexManager : MongoIndexManagerBase<TDocument>

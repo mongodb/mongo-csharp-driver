@@ -255,6 +255,8 @@
     <Compile Include="Sync\AsyncCursorEnumerableAdapter.cs" />
     <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />
+    <Compile Include="OfTypeMongoCollection.cs" />
+    <Compile Include="IFilteredMongoCollection.cs" />    
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />

@@ -199,6 +199,13 @@ namespace MongoDB.Driver
         Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Changes the type of the collection. Adds a discriminator if one is needed.
+        /// </summary>
+        /// <typeparam name="TNewDocument">The type of the new document.</typeparam>
+        /// <returns>A filtered collection.</returns>
+        IFilteredMongoCollection<TNewDocument> OfType<TNewDocument>() where TNewDocument : TDocument;
+
+        /// <summary>
         /// Replaces a single document.
         /// </summary>
         /// <param name="filter">The filter.</param>

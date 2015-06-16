@@ -99,6 +99,7 @@
     <Compile Include="Linq\Processors\PartialEvaluatorTests.cs" />
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
+    <Compile Include="OfTypeMongoCollectionTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexKeysDefinitionBuilderTests.cs" />

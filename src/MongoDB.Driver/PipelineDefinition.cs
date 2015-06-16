@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -140,6 +141,56 @@ namespace MongoDB.Driver
             }
 
             return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages);
+        }
+    }
+
+    /// <summary>
+    /// A pipeline defined by joined 2 other pipeline definitions.
+    /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TIntermediateOutput">The type of the intermediate output.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public sealed class CombinedPipelineDefinition<TInput, TIntermediateOutput, TOutput> : PipelineDefinition<TInput, TOutput>
+    {
+        private PipelineDefinition<TInput, TIntermediateOutput> _first;
+        private PipelineDefinition<TIntermediateOutput, TOutput> _second;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CombinedPipelineDefinition{TInput, TIntermediateOutput, TOutput}"/> class.
+        /// </summary>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        public CombinedPipelineDefinition(PipelineDefinition<TInput, TIntermediateOutput> first, PipelineDefinition<TIntermediateOutput, TOutput> second)
+        {
+            _first = Ensure.IsNotNull(first, "first");
+            _second = Ensure.IsNotNull(second, "second");
+        }
+
+        /// <summary>
+        /// Gets the first.
+        /// </summary>
+        public PipelineDefinition<TInput, TIntermediateOutput> First
+        {
+            get { return _first; }
+        }
+
+        /// <summary>
+        /// Gets the second.
+        /// </summary>
+        public PipelineDefinition<TIntermediateOutput, TOutput> Second
+        {
+            get { return _second; }
+        }
+
+        /// <inheritdoc />
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedFirst = _first.Render(inputSerializer, serializerRegistry);
+            var renderedSecond = _second.Render(renderedFirst.OutputSerializer, serializerRegistry);
+
+            return new RenderedPipelineDefinition<TOutput>(
+                renderedFirst.Documents.Concat(renderedSecond.Documents),
+                renderedSecond.OutputSerializer);
         }
     }
 
@@ -267,6 +318,42 @@ namespace MongoDB.Driver
             }
 
             return stages;
+        }
+    }
+
+    internal class OptimizingPipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
+    {
+        private readonly PipelineDefinition<TInput, TOutput> _wrapped;
+
+        public OptimizingPipelineDefinition(PipelineDefinition<TInput, TOutput> wrapped)
+        {
+            _wrapped = wrapped;
+        }
+
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var rendered = _wrapped.Render(inputSerializer, serializerRegistry);
+
+            // do some combining of $match documents if possible. This is optimized for the 
+            // OfType case where we've added a discriminator as a match at the beginning of the pipeline.
+            if (rendered.Documents.Count > 1)
+            {
+                var firstOp = rendered.Documents[0].GetElement(0);
+                var secondOp = rendered.Documents[1].GetElement(0);
+                if (firstOp.Name == "$match" && secondOp.Name == "$match")
+                {
+                    var combined = Builders<BsonDocument>.Filter.And(
+                        (BsonDocument)firstOp.Value,
+                        (BsonDocument)secondOp.Value);
+
+                    rendered.Documents.RemoveAt(1);
+                    rendered.Documents.RemoveAt(0);
+                    rendered.Documents.Insert(0, new BsonDocument("$match",
+                        combined.Render(BsonDocumentSerializer.Instance, serializerRegistry)));
+                }
+            }
+
+            return rendered;
         }
     }
 }
