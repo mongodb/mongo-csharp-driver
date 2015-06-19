@@ -145,7 +145,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A pipeline defined by joined 2 other pipeline definitions.
+    /// A pipeline defined by combining two pipeline definitions.
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TIntermediateOutput">The type of the intermediate output.</typeparam>
@@ -158,8 +158,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="CombinedPipelineDefinition{TInput, TIntermediateOutput, TOutput}"/> class.
         /// </summary>
-        /// <param name="first">The first.</param>
-        /// <param name="second">The second.</param>
+        /// <param name="first">The first pipeline.</param>
+        /// <param name="second">The second pipeline.</param>
         public CombinedPipelineDefinition(PipelineDefinition<TInput, TIntermediateOutput> first, PipelineDefinition<TIntermediateOutput, TOutput> second)
         {
             _first = Ensure.IsNotNull(first, "first");
@@ -167,7 +167,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the first.
+        /// Gets the first pipeline.
         /// </summary>
         public PipelineDefinition<TInput, TIntermediateOutput> First
         {
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the second.
+        /// Gets the second pipeline.
         /// </summary>
         public PipelineDefinition<TIntermediateOutput, TOutput> Second
         {
@@ -338,18 +338,17 @@ namespace MongoDB.Driver
             // OfType case where we've added a discriminator as a match at the beginning of the pipeline.
             if (rendered.Documents.Count > 1)
             {
-                var firstOp = rendered.Documents[0].GetElement(0);
-                var secondOp = rendered.Documents[1].GetElement(0);
-                if (firstOp.Name == "$match" && secondOp.Name == "$match")
+                var firstStage = rendered.Documents[0].GetElement(0);
+                var secondStage = rendered.Documents[1].GetElement(0);
+                if (firstStage.Name == "$match" && secondStage.Name == "$match")
                 {
-                    var combined = Builders<BsonDocument>.Filter.And(
-                        (BsonDocument)firstOp.Value,
-                        (BsonDocument)secondOp.Value);
+                    var combinedFilter = Builders<BsonDocument>.Filter.And(
+                        (BsonDocument)firstStage.Value,
+                        (BsonDocument)secondStage.Value);
+                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(BsonDocumentSerializer.Instance, serializerRegistry));
 
+                    rendered.Documents[0] = combinedStage;
                     rendered.Documents.RemoveAt(1);
-                    rendered.Documents.RemoveAt(0);
-                    rendered.Documents.Insert(0, new BsonDocument("$match",
-                        combined.Render(BsonDocumentSerializer.Instance, serializerRegistry)));
                 }
             }
 

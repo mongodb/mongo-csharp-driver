@@ -18,7 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -199,11 +198,12 @@ namespace MongoDB.Driver
         Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Changes the type of the collection. Adds a discriminator if one is needed.
+        /// Returns a filtered collection that appears to contain only documents of the derived type.
+        /// All operations using this filtered collection will automatically use discriminators as necessary.
         /// </summary>
-        /// <typeparam name="TNewDocument">The type of the new document.</typeparam>
+        /// <typeparam name="TDerivedDocument">The type of the derived document.</typeparam>
         /// <returns>A filtered collection.</returns>
-        IFilteredMongoCollection<TNewDocument> OfType<TNewDocument>() where TNewDocument : TDocument;
+        IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TDocument;
 
         /// <summary>
         /// Replaces a single document.

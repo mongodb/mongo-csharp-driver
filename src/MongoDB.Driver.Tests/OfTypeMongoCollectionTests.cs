@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         private BsonDocument _expectedFilter;
         private BsonDocument _providedFilter;
         private IMongoCollection<A> _rootCollection;
-        private IMongoCollection<B> _wrappedCollection;
+        private IMongoCollection<B> _derivedCollection;
 
         [SetUp]
         public void SetUp()
@@ -49,9 +49,9 @@ namespace MongoDB.Driver.Tests
             _rootCollection = Substitute.For<IMongoCollection<A>>();
             _rootCollection.CollectionNamespace.Returns(CollectionNamespace.FromFullName("foo.bar"));
             _rootCollection.Settings.Returns(new MongoCollectionSettings());
-            _wrappedCollection = Substitute.For<IMongoCollection<B>>();
-            _wrappedCollection.CollectionNamespace.Returns(CollectionNamespace.FromFullName("foo.bar"));
-            _wrappedCollection.Settings.Returns(new MongoCollectionSettings());
+            _derivedCollection = Substitute.For<IMongoCollection<B>>();
+            _derivedCollection.CollectionNamespace.Returns(CollectionNamespace.FromFullName("foo.bar"));
+            _derivedCollection.Settings.Returns(new MongoCollectionSettings());
         }
 
         [Test]
@@ -59,9 +59,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new AggregateOptions();
+
             subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().AggregateAsync(
+            _derivedCollection.Received().AggregateAsync(
                 Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
                 options,
                 CancellationToken.None);
@@ -72,11 +73,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new AggregateOptions();
+
             subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
             var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
-
-            _wrappedCollection.Received().AggregateAsync(
+            _derivedCollection.Received().AggregateAsync(
                 Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
                 options,
                 CancellationToken.None);
@@ -88,9 +89,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             var model = new DeleteOneModel<B>(_providedFilter);
             var options = new BulkWriteOptions();
+
             subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().BulkWriteAsync(
+            _derivedCollection.Received().BulkWriteAsync(
                 Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
                     .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
                 options,
@@ -103,9 +105,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             var model = new DeleteManyModel<B>(_providedFilter);
             var options = new BulkWriteOptions();
+
             subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().BulkWriteAsync(
+            _derivedCollection.Received().BulkWriteAsync(
                 Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
                     .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
                 options,
@@ -119,9 +122,10 @@ namespace MongoDB.Driver.Tests
             var replacement = new B();
             var model = new ReplaceOneModel<B>(_providedFilter, replacement) { IsUpsert = true };
             var options = new BulkWriteOptions();
+
             subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().BulkWriteAsync(
+            _derivedCollection.Received().BulkWriteAsync(
                 Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
                     .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                         m.Replacement == model.Replacement &&
@@ -137,9 +141,10 @@ namespace MongoDB.Driver.Tests
             var replacement = new B();
             var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
+
             subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().BulkWriteAsync(
+            _derivedCollection.Received().BulkWriteAsync(
                 Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
                     .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                         RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
@@ -155,9 +160,10 @@ namespace MongoDB.Driver.Tests
             var replacement = new B();
             var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
+
             subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _wrappedCollection.Received().BulkWriteAsync(
+            _derivedCollection.Received().BulkWriteAsync(
                 Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
                     .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                         RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
@@ -171,9 +177,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new CountOptions();
+
             subject.CountAsync(_providedFilter, options, CancellationToken.None);
 
-            _wrappedCollection.Received().CountAsync(
+            _derivedCollection.Received().CountAsync(
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 options,
                 CancellationToken.None);
@@ -184,8 +191,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new DistinctOptions();
+
             subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
-            _wrappedCollection.Received().DistinctAsync(
+
+            _derivedCollection.Received().DistinctAsync(
                 Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 options,
@@ -197,8 +206,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new FindOptions<B>();
+
             subject.FindAsync(_providedFilter, options, CancellationToken.None);
-            _wrappedCollection.Received().FindAsync(
+
+            _derivedCollection.Received().FindAsync(
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 options,
                 CancellationToken.None);
@@ -209,8 +220,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var options = new FindOneAndDeleteOptions<B>();
+
             subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
-            _wrappedCollection.Received().FindOneAndDeleteAsync(
+
+            _derivedCollection.Received().FindOneAndDeleteAsync(
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 options,
                 CancellationToken.None);
@@ -222,8 +235,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             var replacement = new B();
             var options = new FindOneAndReplaceOptions<B>();
+
             subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
-            _wrappedCollection.Received().FindOneAndReplaceAsync(
+
+            _derivedCollection.Received().FindOneAndReplaceAsync(
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 replacement,
                 options,
@@ -236,8 +251,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             var update = new BsonDocument("$set", new BsonDocument("x", 5));
             var options = new FindOneAndUpdateOptions<B>();
+
             subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
-            _wrappedCollection.Received().FindOneAndUpdateAsync(
+
+            _derivedCollection.Received().FindOneAndUpdateAsync(
                 Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
                 Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
                 options,
@@ -248,8 +265,10 @@ namespace MongoDB.Driver.Tests
         public void MapReduceAsync_should_include_the_filter_when_one_was_not_provided()
         {
             var subject = CreateSubject();
+
             subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
-            _wrappedCollection.Received().MapReduceAsync(
+
+            _derivedCollection.Received().MapReduceAsync(
                 "map",
                 "reduce",
                 Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
@@ -264,8 +283,10 @@ namespace MongoDB.Driver.Tests
             {
                 Filter = _providedFilter
             };
+
             subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
-            _wrappedCollection.Received().MapReduceAsync(
+
+            _derivedCollection.Received().MapReduceAsync(
                 "map",
                 "reduce",
                 Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
@@ -276,14 +297,16 @@ namespace MongoDB.Driver.Tests
         public void OfType_should_resort_to_root_collections_OfType()
         {
             var subject = CreateSubject();
-            var next = subject.OfType<C>();
+
+            var result = subject.OfType<C>();
+
             _rootCollection.Received().OfType<C>();
-            _wrappedCollection.DidNotReceive().OfType<C>();
+            _derivedCollection.DidNotReceive().OfType<C>();
         }
 
         private OfTypeMongoCollection<A, B> CreateSubject()
         {
-            return new OfTypeMongoCollection<A, B>(_rootCollection, _wrappedCollection, _ofTypeFilter);
+            return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter);
         }
 
         private string RenderField<TDocument, TField>(FieldDefinition<TDocument, TField> field)
@@ -361,29 +384,39 @@ namespace MongoDB.Driver.Tests
         public async Task CountAsync_should_only_count_derived_types()
         {
             var subject = CreateSubject();
-            var result = await subject.CountAsync("{}");
-            result.Should().Be(6);
 
-            result = await subject.OfType<C>().CountAsync("{}");
-            result.Should().Be(3);
+            var result1 = await subject.CountAsync("{}");
+            var result2 = await subject.OfType<C>().CountAsync("{}");
+
+            result1.Should().Be(6);
+            result2.Should().Be(3);
         }
 
         [Test]
         public async Task CountAsync_should_only_count_derived_types_with_a_filter()
         {
             var subject = CreateSubject();
+
             var result = await subject.CountAsync(x => x.PropB > 2);
+
             result.Should().Be(4);
         }
 
         [Test]
-        public async Task InsertOneAsync_should_include_discriminator()
+        public async Task InsertOneAsync_should_include_discriminator_when_document_is_of_type_B()
         {
             var subject = CreateSubject();
+
             await subject.InsertOneAsync(new B { PropA = 10, PropB = 7 });
 
             var insertedB = await _docsCollection.Find("{PropA: 10}").SingleAsync();
             insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
+        }
+
+        [Test]
+        public async Task InsertOneAsync_should_include_discriminator_when_document_is_of_type_C()
+        {
+            var subject = CreateSubject();
 
             await subject.InsertOneAsync(new C { PropA = 11, PropB = 8, PropC = 4 });
 
@@ -392,16 +425,32 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public async Task ReplaceOneAsync_should_include_discriminator()
+        public async Task ReplaceOneAsync_should_not_match_document_of_wrong_type()
         {
             var subject = CreateSubject();
+
             var result = await subject.ReplaceOneAsync("{PropA: 1}", new B { PropA = 10, PropB = 7 });
-            result.MatchedCount.Should().Be(0); // PropA: 1 is of type A without a discriminator
 
-            result = await subject.ReplaceOneAsync("{PropA: 4}", new B { PropA = 10, PropB = 7 });
+            result.MatchedCount.Should().Be(0); // document matching { PropA : 1 } is not of type B
+        }
 
-            var insertedB = await _docsCollection.Find("{PropA: 10}").SingleAsync();
-            insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
+        [Test]
+        public async Task ReplaceOneAsync_should_match_document_of_right_type()
+        {
+            var subject = CreateSubject();
+            var originalDocument = await _docsCollection.Find("{ PropA : 4 }").SingleAsync();
+
+            var result = await subject.ReplaceOneAsync("{PropA: 4}", new B { PropA = 10, PropB = 7 });
+
+            result.MatchedCount.Should().Be(1); // document matching { PropA : 4 } is of type B
+            var replacedB = await _docsCollection.Find("{ PropA : 10 }").SingleAsync();
+            replacedB.Should().Be(new BsonDocument
+            {
+                { "_id", originalDocument["_id"] },
+                { "_t", new BsonArray { "A", "B" } },
+                { "PropA", 10 },
+                { "PropB", 7 }
+            });
         }
 
         private IMongoCollection<B> CreateSubject()

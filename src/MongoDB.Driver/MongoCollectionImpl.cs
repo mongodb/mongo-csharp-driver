@@ -44,7 +44,7 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
-            : this(database, collectionNamespace, settings, cluster, operationExecutor, settings.SerializerRegistry.GetSerializer<TDocument>())
+            : this(database, collectionNamespace, settings, cluster, operationExecutor, Ensure.IsNotNull(settings, "settings").SerializerRegistry.GetSerializer<TDocument>())
         {
         }
 
@@ -55,8 +55,8 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, nameof(settings)).Freeze();
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
+            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
 
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, "documentSerializer");
             _messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
@@ -393,27 +393,32 @@ namespace MongoDB.Driver
             }
         }
 
-        public override IFilteredMongoCollection<TNewDocument> OfType<TNewDocument>()
+        public override IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>()
         {
-            var ofTypeSerializer = _settings.SerializerRegistry.GetSerializer<TNewDocument>();
-            var newSerializer = new OfTypeSerializer<TNewDocument>(ofTypeSerializer);
-            var newCollection = new MongoCollectionImpl<TNewDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, newSerializer);
-            FilterDefinition<TNewDocument> filter = null;
+            var derivedDocumentSerializer = _settings.SerializerRegistry.GetSerializer<TDerivedDocument>();
+            var ofTypeSerializer = new OfTypeSerializer<TDocument, TDerivedDocument>(derivedDocumentSerializer);
+            var derivedDocumentCollection = new MongoCollectionImpl<TDerivedDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, ofTypeSerializer);
 
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
-            var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TNewDocument));
-            if (discriminator != null)
+            var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerivedDocument));
+            if (discriminator == null)
             {
-                if (discriminator.IsBsonArray)
-                {
-                    discriminator = discriminator[discriminator.AsBsonArray.Count - 1];
-                }
-
-                var filterDoc = new BsonDocument(discriminatorConvention.ElementName, discriminator);
-                filter = new BsonDocumentFilterDefinition<TNewDocument>(filterDoc);
+                throw new NotSupportedException("OfType requires that the root document type have a discriminator.");
             }
 
-            return new OfTypeMongoCollection<TDocument, TNewDocument>(this, newCollection, filter);
+            BsonValue filterValue;
+            if (discriminator.IsBsonArray)
+            {
+                filterValue = discriminator[discriminator.AsBsonArray.Count - 1];
+            }
+            else
+            {
+                filterValue = discriminator;
+            }
+            var filterDocument = new BsonDocument(discriminatorConvention.ElementName, filterValue);
+            var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(filterDocument);
+
+            return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
         }
 
         public override IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference)
@@ -546,53 +551,6 @@ namespace MongoDB.Driver
             }
 
             return _settings.SerializerRegistry.GetSerializer<TResult>();
-        }
-
-        private class OfTypeSerializer<TOfTypeDocument> : SerializerBase<TOfTypeDocument>, IBsonDocumentSerializer
-            where TOfTypeDocument : TDocument
-        {
-            private readonly IBsonSerializer<TOfTypeDocument> _serializer;
-
-            public OfTypeSerializer(IBsonSerializer<TOfTypeDocument> serializer)
-            {
-                _serializer = serializer;
-            }
-
-            public override TOfTypeDocument Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-            {
-                args.NominalType = typeof(TDocument); // the base type
-                return (TOfTypeDocument)_serializer.Deserialize(context, args);
-            }
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TOfTypeDocument value)
-            {
-                args.NominalType = typeof(TDocument); // the base type
-                _serializer.Serialize(context, args, value);
-            }
-
-            public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-            {
-                BsonSerializationInfo serializationInfo;
-                if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
-                {
-                    var message = string.Format("Unable to determine serialization info for {0}.", memberName);
-                    throw new InvalidOperationException(message);
-                }
-
-                return serializationInfo;
-            }
-
-            public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
-            {
-                var documentSerializer = _serializer as IBsonDocumentSerializer;
-                if (documentSerializer == null)
-                {
-                    serializationInfo = null;
-                    return false;
-                }
-
-                return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
-            }
         }
 
         private class MongoIndexManager : MongoIndexManagerBase<TDocument>

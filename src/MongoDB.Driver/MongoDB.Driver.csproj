@@ -78,6 +78,7 @@
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
     <Compile Include="CreateIndexModel.cs" />
+    <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\ExecutionPlanBuilder.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\QueryableTranslator.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
+    <Compile Include="OfTypeSerializer.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />
     <Compile Include="BulkWriteError.cs" />
@@ -256,7 +258,7 @@
     <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />
     <Compile Include="OfTypeMongoCollection.cs" />
-    <Compile Include="IFilteredMongoCollection.cs" />    
+    <Compile Include="IFilteredMongoCollection.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />
