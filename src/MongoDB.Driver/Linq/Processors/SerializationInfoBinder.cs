@@ -139,6 +139,7 @@ namespace MongoDB.Driver.Linq.Processors
                 case "LongCount":
                 case "Max":
                 case "Min":
+                case "Where":
                 case "Select":
                 case "SelectMany":
                 case "Sum":

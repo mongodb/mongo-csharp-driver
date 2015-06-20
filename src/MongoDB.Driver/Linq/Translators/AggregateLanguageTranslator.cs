@@ -453,6 +453,12 @@ namespace MongoDB.Driver.Linq.Translators
                         return true;
                     }
                     break;
+                case "Where":
+                    if (TryBuildFilter(node, out result))
+                    {
+                        return true;
+                    }
+                    break;
                 case "Union":
                     if (node.Arguments.Count == 2)
                     {
@@ -494,6 +500,33 @@ namespace MongoDB.Driver.Linq.Translators
                                 { "input", inputValue },
                                 { "as", asValue },
                                 { "in", inValue }
+                            });
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryBuildFilter(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            var sourceSerializationExpression = node.Arguments[0] as ISerializationExpression;
+            if (sourceSerializationExpression != null)
+            {
+                var lambda = ExtensionExpressionVisitor.GetLambda(node.Arguments[1]);
+
+                var inputValue = BuildValue(node.Arguments[0]);
+                var asValue = lambda.Parameters[0].Name;
+
+                // HACK: need to add a leading $ sign to the replacement because of how we resolve values.
+                var body = FieldNameReplacer.Replace(lambda.Body, sourceSerializationExpression.SerializationInfo.ElementName, "$" + asValue);
+                var conditionValue = BuildValue(body);
+
+                result = new BsonDocument("$filter", new BsonDocument
+                            {
+                                { "input", inputValue },
+                                { "as", asValue },
+                                { "cond", conditionValue }
                             });
                 return true;
             }

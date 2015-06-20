@@ -612,6 +612,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.3")]
+        public async Task Should_translate_where_to_filter()
+        {
+            var result = await Project(x => new { Result = x.G.Where(c => c.E.F == 33) });
+
+            result.Projection.Should().Be("{ Result: { \"$filter\": { \"input\": \"$G\", \"as\": \"c\", \"cond\": { \"$eq\": [\"$$c.E.F\", 33] } } }, _id: 0 }");
+
+            result.Value.Result.Should().HaveCount(1);
+            result.Value.Result.Single().D.Should().Be("Don't");
+        }
+
+        [Test]
         public async Task Should_translate_string_equals()
         {
             var result = await Project(x => new { Result = x.B.Equals("Balloon") });
