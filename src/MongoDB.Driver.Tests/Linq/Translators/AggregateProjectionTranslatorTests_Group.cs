@@ -296,6 +296,19 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Max.Should().Be(333);
         }
 
+        [Test]
+        public async Task Should_translate_aggregate_expressions_with_user_provided_serializer_if_possible()
+        {
+            var result = await Group(x => 1, g => new
+            {
+                Sum = g.Sum(x => x.U)
+            });
+
+            result.Projection.Should().Be("{ _id : 1, Sum : { \"$sum\" : \"$U\" } }");
+
+            result.Value.Sum.Should().Be(2.46913144038016m);
+        }
+
         private async Task<ProjectedResult<TResult>> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();

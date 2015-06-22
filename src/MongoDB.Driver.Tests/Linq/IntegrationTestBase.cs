@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Linq
@@ -87,7 +88,8 @@ namespace MongoDB.Driver.Tests.Linq
                 O = new List<long> { 10, 20, 30 },
                 Q = Q.One,
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
-                T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } }
+                T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
+                U = 1.23456571661743267789m
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -136,7 +138,8 @@ namespace MongoDB.Driver.Tests.Linq
                 L = new HashSet<int>(new[] { 2, 3, 4 }),
                 M = new[] { 3, 5, 6 },
                 O = new List<long> { 100, 200, 300 },
-                P = 1.1
+                P = 1.1,
+                U = 1.234565723762724332233489m
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -189,6 +192,9 @@ namespace MongoDB.Driver.Tests.Linq
             public DateTime? R { get; set; }
 
             public Dictionary<string, int> T { get; set; }
+
+            [BsonRepresentation(Bson.BsonType.Double, AllowTruncation = true)]
+            public decimal U { get; set; }
         }
 
         public class RootDescended : Root
