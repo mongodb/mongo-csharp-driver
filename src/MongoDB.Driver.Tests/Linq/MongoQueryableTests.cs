@@ -8,6 +8,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver.Tests.Linq
 {
@@ -604,6 +605,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public void Select_method_computed_array()
         {
             var query = CreateQuery()
@@ -615,6 +617,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public void Select_syntax_computed_array()
         {
             var query = from x in CreateQuery()
