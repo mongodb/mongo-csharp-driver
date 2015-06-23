@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Linq.Processors
                     return node;
                 }
 
-                return base.Visit(node);
+                return base.VisitSerialization(node);
             }
 
         }
