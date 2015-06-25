@@ -127,7 +127,7 @@ namespace MongoDB.Driver
         /// </summary>
         private static string GenerateDigest(SecureString secureString)
         {
-            using (var sha256 = new SHA256Managed())
+            using (var sha256 = new SHA256CryptoServiceProvider())
             {
                 TransformFinalBlock(sha256, secureString);
                 return BsonUtils.ToHexString(sha256.Hash);
