@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -111,6 +111,21 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson());
         }
 
+        [TestCase("{ $binary : \"AQ==\", $type : 0 }", new byte[] { 1 }, BsonBinarySubType.Binary)]
+        [TestCase("{ $binary : \"AQ==\", $type : \"0\" }", new byte[] { 1 }, BsonBinarySubType.Binary)]
+        [TestCase("{ $binary : \"AQ==\", $type : \"00\" }", new byte[] { 1 }, BsonBinarySubType.Binary)]
+        [TestCase("BinData(0, \"AQ==\")", new byte[] { 1 }, BsonBinarySubType.Binary)]
+        public void TestBinaryData(string json, byte[] expectedBytes, BsonBinarySubType expectedSubType)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadBinaryData();
+
+                result.Should().Be(new BsonBinaryData(expectedBytes, expectedSubType));
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
         [Test]
         public void TestBookmark()
         {
@@ -198,6 +213,39 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.AreEqual(BsonReaderState.Initial, _bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(json).ToJson());
+        }
+
+        [TestCase("{ $date : 0 }", 0L)]
+        [TestCase("{ $date : -9223372036854775808 }", -9223372036854775808L)]
+        [TestCase("{ $date : 9223372036854775807 }", 9223372036854775807L)]
+        [TestCase("{ $date : { $numberLong : 0 } }", 0L)]
+        [TestCase("{ $date : { $numberLong : -9223372036854775808 } }", -9223372036854775808L)]
+        [TestCase("{ $date : { $numberLong : 9223372036854775807 } }", 9223372036854775807L)]
+        [TestCase("{ $date : { $numberLong : \"0\" } }", 0L)]
+        [TestCase("{ $date : { $numberLong : \"-9223372036854775808\" } }", -9223372036854775808L)]
+        [TestCase("{ $date : { $numberLong : \"9223372036854775807\" } }", 9223372036854775807L)]
+        [TestCase("{ $date : \"1970-01-01T00:00:00Z\" }", 0L)]
+        [TestCase("{ $date : \"0001-01-01T00:00:00Z\" }", -62135596800000L)]
+        [TestCase("{ $date : \"1970-01-01T00:00:00.000Z\" }", 0L)]
+        [TestCase("{ $date : \"0001-01-01T00:00:00.000Z\" }", -62135596800000L)]
+        [TestCase("{ $date : \"9999-12-31T23:59:59.999Z\" }", 253402300799999L)]
+        [TestCase("new Date(0)", 0L)]
+        [TestCase("new Date(9223372036854775807)", 9223372036854775807L)]
+        [TestCase("new Date(-9223372036854775808)", -9223372036854775808L)]
+        [TestCase("ISODate(\"1970-01-01T00:00:00Z\")", 0L)]
+        [TestCase("ISODate(\"0001-01-01T00:00:00Z\")", -62135596800000L)]
+        [TestCase("ISODate(\"1970-01-01T00:00:00.000Z\")", 0L)]
+        [TestCase("ISODate(\"0001-01-01T00:00:00.000Z\")", -62135596800000L)]
+        [TestCase("ISODate(\"9999-12-31T23:59:59.999Z\")", 253402300799999L)]
+        public void TestDateTime(string json, long expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadDateTime();
+
+                result.Should().Be(expectedResult);
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
         }
 
         [Test]
@@ -423,6 +471,29 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson());
         }
 
+        [TestCase("{ $numberLong: 1 }", 1L)]
+        [TestCase("{ $numberLong: -9223372036854775808 }", -9223372036854775808L)]
+        [TestCase("{ $numberLong: 9223372036854775807 }", 9223372036854775807L)]
+        [TestCase("{ $numberLong: \"1\" }", 1L)]
+        [TestCase("{ $numberLong: \"-9223372036854775808\" }", -9223372036854775808L)]
+        [TestCase("{ $numberLong: \"9223372036854775807\" }", 9223372036854775807L)]
+        [TestCase("NumberLong(1)", 1L)]
+        [TestCase("NumberLong(-9223372036854775808)", -9223372036854775808L)]
+        [TestCase("NumberLong(9223372036854775807)", 9223372036854775807L)]
+        [TestCase("NumberLong(\"1\")", 1L)]
+        [TestCase("NumberLong(\"-9223372036854775808\")", -9223372036854775808L)]
+        [TestCase("NumberLong(\"9223372036854775807\")", 9223372036854775807L)]
+        public void TestInt64(string json, long expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadInt64();
+
+                result.Should().Be(expectedResult);
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
         [Test]
         public void TestInt64ConstructorQuoted()
         {
@@ -532,6 +603,18 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonJavaScriptWithScope>(json).ToJson());
         }
 
+        [TestCase("{ $maxKey : 1 }")]
+        [TestCase("MaxKey")]
+        public void TestMaxKey(string json)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                reader.ReadMaxKey();
+
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
         [Test]
         public void TestMaxKeyExtendedJson()
         {
@@ -571,6 +654,18 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.AreEqual(BsonReaderState.Initial, _bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
+        }
+
+        [TestCase("{ $minKey : 1 }")]
+        [TestCase("MinKey")]
+        public void TestMinKey(string json)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                reader.ReadMinKey();
+
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
         }
 
         [Test]
@@ -669,6 +764,19 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonNull>(json).ToJson());
         }
 
+        [TestCase("{ $oid : \"0102030405060708090a0b0c\" }", "0102030405060708090a0b0c")]
+        [TestCase("ObjectId(\"0102030405060708090a0b0c\")", "0102030405060708090a0b0c")]
+        public void TestObjectId(string json, string expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadObjectId();
+
+                result.Should().Be(ObjectId.Parse(expectedResult));
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
         [Test]
         public void TestObjectIdShell()
         {
@@ -696,6 +804,21 @@ namespace MongoDB.Bson.Tests.IO
             }
             var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
             Assert.AreEqual(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(jsonSettings));
+        }
+
+        [TestCase("{ $regex : \"abc\", $options : \"i\" }", "abc", "i")]
+        [TestCase("{ $regex : \"abc/\", $options : \"i\" }", "abc/", "i")]
+        [TestCase("/abc/i", "abc", "i")]
+        [TestCase("/abc\\//i", "abc/", "i")]
+        public void TestRegularExpression(string json, string expectedPattern, string expectedOptions)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadRegularExpression();
+
+                result.Should().Be(new BsonRegularExpression(expectedPattern, expectedOptions));
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
         }
 
         [Test]
@@ -768,6 +891,23 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonSymbol>(json).ToJson());
         }
 
+        [TestCase("{ $timestamp : { t : 1, i : 2 } }", 0x100000002L)]
+        [TestCase("{ $timestamp : { t : -2147483648, i : -2147483648 } }", unchecked((long)0x8000000080000000UL))]
+        [TestCase("{ $timestamp : { t : 2147483647, i : 2147483647 } }", 0x7fffffff7fffffff)]
+        [TestCase("Timestamp(1, 2)", 0x100000002L)]
+        [TestCase("Timestamp(-2147483648, -2147483648)", unchecked((long)0x8000000080000000UL))]
+        [TestCase("Timestamp(2147483647, 2147483647)", 0x7fffffff7fffffff)]
+        public void TestTimestamp(string json, long expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadTimestamp();
+
+                result.Should().Be(expectedResult);
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
         [Test]
         public void TestTimestampConstructor()
         {
@@ -807,6 +947,18 @@ namespace MongoDB.Bson.Tests.IO
             }
             var canonicalJson = "Timestamp(0, 1234)";
             Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+        }
+
+        [TestCase("{ $undefined : true }")]
+        [TestCase("undefined")]
+        public void TestUndefined(string json)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                reader.ReadUndefined();
+
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
         }
 
         [Test]

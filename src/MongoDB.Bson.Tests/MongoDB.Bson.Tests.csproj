@@ -110,6 +110,7 @@
     <Compile Include="ObjectModel\BsonInt32Tests.cs" />
     <Compile Include="ObjectModel\BsonInt64Tests.cs" />
     <Compile Include="ObjectModel\BsonStringTests.cs" />
+    <Compile Include="ObjectModel\BsonTimestampTests.cs" />
     <Compile Include="ObjectModel\LazyBsonArrayTests.cs" />
     <Compile Include="ObjectModel\LazyBsonDocumentTests.cs" />
     <Compile Include="ObjectModel\RawBsonArrayTests.cs" />
