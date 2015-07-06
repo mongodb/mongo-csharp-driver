@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Examples
             // @begin: create-compound-index
             // @code: start
             var collection = _database.GetCollection<BsonDocument>("restaurants");
-            var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine").Ascending("address.zipcode");
+            var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine").Descending("address.zipcode");
             await collection.Indexes.CreateOneAsync(keys);
             // @code: end
 
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Examples
             using (var cursor = await collection.Indexes.ListAsync())
             {
                 var indexes = await cursor.ToListAsync();
-                indexes.Should().Contain(index => index["name"] == "cuisine_1_address.zipcode_1");
+                indexes.Should().Contain(index => index["name"] == "cuisine_1_address.zipcode_-1");
             }
             // @results: end
 
