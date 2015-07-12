@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 
@@ -59,6 +60,23 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The number of documents in the collection.
+        /// </returns>
+        public static Task<long> CountAsync<TDocument>(this IMongoCollection<TDocument> collection, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+
+            return collection.CountAsync(new BsonDocument(), options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Counts the number of documents in the collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -71,6 +89,22 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             return collection.CountAsync(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        public static Task<DeleteResult> DeleteManyAsync<TDocument>(this IMongoCollection<TDocument> collection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+
+            return collection.DeleteManyAsync(new BsonDocument(), cancellationToken);
         }
 
         /// <summary>
@@ -192,6 +226,20 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// A fluent find interface.
+        /// </returns>
+        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IMongoCollection<TDocument> collection, FindOptions options = null)
+        {
+            return Find(collection, new BsonDocument(), options);
+        }
+
+        /// <summary>
+        /// Begins a fluent find interface.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <returns>
@@ -237,6 +285,19 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             return collection.Find(new ExpressionFilterDefinition<TDocument>(filter), options);
+        }
+
+        /// <summary>
+        /// Finds the documents matching the filter.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        public static Task<IAsyncCursor<TDocument>> FindAsync<TDocument>(this IMongoCollection<TDocument> collection, FindOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return FindAsync(collection, new BsonDocument(), options, cancellationToken);
         }
 
         /// <summary>
