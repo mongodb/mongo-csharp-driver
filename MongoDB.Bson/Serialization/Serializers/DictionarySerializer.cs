@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -94,12 +94,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 if (nominalType == typeof(object))
                 {
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, options); // recursive call replacing nominalType with actualType
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    var helper = new DiscriminatorValuePairDeserializationHelper("_t", "_v");
+                    return helper.Deserialize(bsonReader, actualType, this, options);
                 }
 
                 var dictionary = CreateInstance(actualType);

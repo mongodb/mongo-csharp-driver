@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,11 +93,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t");
-                    bytes = bsonReader.ReadBytes("bitmap");
-                    bsonReader.ReadEndDocument();
-                    break;
+                    var helper = new DiscriminatorValuePairDeserializationHelper("_t", "bitmap");
+                    return helper.Deserialize(bsonReader, actualType, this, options); 
 
                 default:
                     var message = string.Format("BsonType must be Null, Binary or Document, not {0}.", bsonType);

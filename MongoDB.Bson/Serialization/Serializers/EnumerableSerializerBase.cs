@@ -91,12 +91,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return FinalizeResult(instance, actualType);
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    var helper = new DiscriminatorValuePairDeserializationHelper("_t", "_v");
+                    return helper.Deserialize(bsonReader, actualType, this, options);
 
                 default:
                     var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
@@ -311,12 +307,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return FinalizeResult(instance, actualType);
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    var helper = new DiscriminatorValuePairDeserializationHelper("_t", "_v");
+                    return helper.Deserialize(bsonReader, actualType, this, options);
 
                 default:
                     var message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);

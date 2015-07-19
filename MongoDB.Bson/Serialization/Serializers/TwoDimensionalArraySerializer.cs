@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -127,12 +127,8 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                     return array;
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    var helper = new DiscriminatorValuePairDeserializationHelper("_t", "_v");
+                    return helper.Deserialize(bsonReader, actualType, this, options);
                 default:
                     message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
                     throw new FileFormatException(message);
