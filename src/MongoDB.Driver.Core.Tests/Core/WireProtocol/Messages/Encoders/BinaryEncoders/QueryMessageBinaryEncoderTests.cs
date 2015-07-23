@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly int __flagsOffset;
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
+        private static readonly bool __oplogReplay = true;
         private static readonly bool __partialOk = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
         private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static QueryMessageBinaryEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
 
             __testMessageBytes = new byte[]
             {
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 1, 0, 0, 0, // requestId
                 0, 0, 0, 0, // responseTo
                 212, 7, 0, 0, // opcode = 2004
-                182, 0, 0, 0, // flags
+                190, 0, 0, 0, // flags
                 (byte)'d', (byte)'.', (byte)'c', 0, // fullCollectionName
                 2, 0, 0, 0, // numberToSkip
                 3, 0, 0, 0, // numberToReturn
@@ -86,13 +87,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             action.ShouldThrow<ArgumentException>();
         }
 
-        [TestCase(0, false, false, false, false, false)]
-        [TestCase(2, true, false, false, false, false)]
-        [TestCase(4, false, true, false, false, false)]
-        [TestCase(16, false, false, true, false, false)]
-        [TestCase(32, false, false, false, true, false)]
-        [TestCase(128, false, false, false, false, true)]
-        public void ReadMessage_should_decode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool awaitData, bool partialOk)
+        [TestCase(0, false, false, false, false, false, false)]
+        [TestCase(2, true, false, false, false, false, false)]
+        [TestCase(4, false, true, false, false, false, false)]
+        [TestCase(16, false, false, true, false, false, false)]
+        [TestCase(8, false, false, false, true, false, false)]
+        [TestCase(32, false, false, false, false, true, false)]
+        [TestCase(128, false, false, false, false, false, true)]
+        public void ReadMessage_should_decode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
             bytes[__flagsOffset] = (byte)flags;
@@ -104,6 +106,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.TailableCursor.Should().Be(tailableCursor);
                 message.SlaveOk.Should().Be(slaveOk);
                 message.NoCursorTimeout.Should().Be(noCursorTimeout);
+                message.OplogReplay.Should().Be(oplogReplay);
                 message.AwaitData.Should().Be(awaitData);
                 message.PartialOk.Should().Be(partialOk);
             }
@@ -121,6 +124,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.BatchSize.Should().Be(__batchSize);
                 message.Fields.Should().Be(__fields);
                 message.NoCursorTimeout.Should().Be(__noCursorTimeout);
+                message.OplogReplay.Should().Be(__oplogReplay);
                 message.PartialOk.Should().Be(__partialOk);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
@@ -130,15 +134,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false, false, false, false, false)]
-        [TestCase(2, true, false, false, false, false)]
-        [TestCase(4, false, true, false, false, false)]
-        [TestCase(16, false, false, true, false, false)]
-        [TestCase(32, false, false, false, true, false)]
-        [TestCase(128, false, false, false, false, true)]
-        public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool awaitData, bool partialOk)
+        [TestCase(0, false, false, false, false, false, false)]
+        [TestCase(2, true, false, false, false, false, false)]
+        [TestCase(4, false, true, false, false, false, false)]
+        [TestCase(16, false, false, true, false, false, false)]
+        [TestCase(8, false, false, false, true, false, false)]
+        [TestCase(32, false, false, false, false, true, false)]
+        [TestCase(128, false, false, false, false, false, true)]
+        public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
-            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
 
             using (var stream = new MemoryStream())
             {

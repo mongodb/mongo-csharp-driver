@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
+        private static readonly bool __oplogReplay = true;
         private static readonly bool __partialOk = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
         private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
@@ -48,7 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static QueryMessageJsonEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
 
             __testMessageJson =
                 "{ " +
@@ -62,6 +63,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                     "\"slaveOk\" : true, " +
                     "\"partialOk\" : true, " +
                     "\"noCursorTimeout\" : true, " +
+                    "\"oplogReplay\" : true, " +
                     "\"tailableCursor\" : true, " +
                     "\"awaitData\" : true, " +
                     "\"query\" : { \"x\" : 1 }" +
@@ -119,6 +121,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 message.BatchSize.Should().Be(__batchSize);
                 message.Fields.Should().Be(__fields);
                 message.NoCursorTimeout.Should().Be(__noCursorTimeout);
+                message.OplogReplay.Should().Be(__oplogReplay);
                 message.PartialOk.Should().Be(__partialOk);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);

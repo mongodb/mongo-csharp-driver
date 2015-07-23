@@ -87,6 +87,7 @@ namespace MongoDB.Driver
                 MaxTime = _options.MaxTime,
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
+                OplogReplay = _options.OplogReplay,
                 Projection = projection,
                 Skip = _options.Skip,
                 Sort = _options.Sort,

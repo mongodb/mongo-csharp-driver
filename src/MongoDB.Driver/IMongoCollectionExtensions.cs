@@ -214,7 +214,8 @@ namespace MongoDB.Driver
                     CursorType = options.CursorType,
                     MaxTime = options.MaxTime,
                     Modifiers = options.Modifiers,
-                    NoCursorTimeout = options.NoCursorTimeout
+                    NoCursorTimeout = options.NoCursorTimeout,
+                    OplogReplay = options.OplogReplay
                 };
             }
 

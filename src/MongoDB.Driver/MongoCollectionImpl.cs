@@ -228,6 +228,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Modifiers = options.Modifiers,
                 NoCursorTimeout = options.NoCursorTimeout,
+                OplogReplay = options.OplogReplay,
                 Projection = renderedProjection.Document,
                 Skip = options.Skip,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)

@@ -159,6 +159,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().BeNull();
             operation.NoCursorTimeout.Should().BeFalse();
+            operation.OplogReplay.Should().BeFalse();
             operation.Projection.Should().BeNull();
             operation.Skip.Should().Be(null);
             operation.Sort.Should().BeNull();
@@ -454,6 +455,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
+                OplogReplay = true,
                 Projection = projection,
                 Skip = 40,
                 Sort = sort
@@ -479,6 +481,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
@@ -500,6 +503,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
+                OplogReplay = true,
                 Projection = projection,
                 Skip = 40,
                 Sort = sort
@@ -525,6 +529,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);

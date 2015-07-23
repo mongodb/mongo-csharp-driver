@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
+        private readonly bool _oplogReplay;
         private readonly bool _partialOk;
         private readonly BsonDocument _query;
         private readonly IElementNameValidator _queryValidator;
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
+        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await data (used with tailable cursors).</param>
         /// <param name="shouldBeSent">A delegate that determines whether this message should be sent.</param>
@@ -68,6 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
+            bool oplogReplay,
             bool tailableCursor,
             bool awaitData,
             Func<bool> shouldBeSent = null)
@@ -82,6 +85,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _slaveOk = slaveOk;
             _partialOk = partialOk;
             _noCursorTimeout = noCursorTimeout;
+            _oplogReplay = oplogReplay;
             _tailableCursor = tailableCursor;
             _awaitData = awaitData;
         }
@@ -140,6 +144,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the OplogReplay bit will be set.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the OplogReplay bit will be set; otherwise, <c>false</c>.
+        /// </value>
+        public bool OplogReplay
+        {
+            get { return _oplogReplay; }
         }
 
         /// <summary>

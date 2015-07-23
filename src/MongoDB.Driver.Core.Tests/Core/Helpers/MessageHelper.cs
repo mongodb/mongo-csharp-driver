@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Core.Helpers
                 slaveOk: false,
                 partialOk: false,
                 noCursorTimeout: false,
+                oplogReplay: false,
                 tailableCursor: false,
                 awaitData: false);
         }

@@ -47,6 +47,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 flags |= QueryFlags.NoCursorTimeout;
             }
+            if (message.OplogReplay)
+            {
+                flags |= QueryFlags.OplogReplay;
+            }
             if (message.PartialOk)
             {
                 flags |= QueryFlags.Partial;
@@ -96,6 +100,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var slaveOk = (flags & QueryFlags.SlaveOk) == QueryFlags.SlaveOk;
             var partialOk = (flags & QueryFlags.Partial) == QueryFlags.Partial;
             var noCursorTimeout = (flags & QueryFlags.NoCursorTimeout) == QueryFlags.NoCursorTimeout;
+            var oplogReplay = (flags & QueryFlags.OplogReplay) == QueryFlags.OplogReplay;
             var tailableCursor = (flags & QueryFlags.TailableCursor) == QueryFlags.TailableCursor;
 
             return new QueryMessage(
@@ -109,6 +114,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 slaveOk,
                 partialOk,
                 noCursorTimeout,
+                oplogReplay,
                 tailableCursor,
                 awaitData);
         }
@@ -179,6 +185,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             None = 0,
             TailableCursor = 2,
             SlaveOk = 4,
+            OplogReplay = 8,
             NoCursorTimeout = 16,
             AwaitData = 32,
             Exhaust = 64,

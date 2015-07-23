@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _modifiers;
         private bool _noCursorTimeout;
+        private bool _oplogReplay;
         private BsonDocument _projection;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private int? _skip;
@@ -202,6 +203,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the OplogReplay bit will be set.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the OplogReplay bit will be set; otherwise, <c>false</c>.
+        /// </value>
+        public bool OplogReplay
+        {
+            get { return _oplogReplay; }
+            set { _oplogReplay = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the projection.
         /// </summary>
         /// <value>
@@ -263,6 +276,7 @@ namespace MongoDB.Driver.Core.Operations
                 slaveOk,
                 _allowPartialResults,
                 _noCursorTimeout,
+                _oplogReplay,
                 _cursorType != CursorType.NonTailable, // tailable
                 _cursorType == CursorType.TailableAwait, //await data
                 _resultSerializer,
@@ -346,6 +360,7 @@ namespace MongoDB.Driver.Core.Operations
                 _maxTime = _maxTime,
                 _modifiers = modifiers,
                 _noCursorTimeout = _noCursorTimeout,
+                _oplogReplay = _oplogReplay,
                 _projection = _projection,
                 _skip = _skip,
                 _sort = _sort,

@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
         private bool _noCursorTimeout;
+        private bool _oplogReplay;
 
         // constructors
         /// <summary>
@@ -108,6 +109,15 @@ namespace MongoDB.Driver
         {
             get { return _noCursorTimeout; }
             set { _noCursorTimeout = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the OplogReplay bit will be set.
+        /// </summary>
+        public bool OplogReplay
+        {
+            get { return _oplogReplay; }
+            set { _oplogReplay = value; }
         }
     }
 

@@ -88,6 +88,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                false,
                false,
                false,
+               false,
                _shouldSendGetLastError);
         }
 
