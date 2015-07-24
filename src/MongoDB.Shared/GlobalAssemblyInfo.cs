@@ -14,7 +14,6 @@
 */
 
 using System.Reflection;
-using System.Security;
 
 [assembly: AssemblyCompany("MongoDB Inc.")]
 [assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
