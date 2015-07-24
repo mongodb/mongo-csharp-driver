@@ -1,0 +1,11 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Bson": "",
+        "MongoDB.Driver.Core": "",
+        "MongoDB.Driver": ""
+    },
+    "frameworks": {
+        "dnx451": { }
+    }
+}

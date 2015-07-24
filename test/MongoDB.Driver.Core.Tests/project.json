@@ -1,0 +1,19 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Bson": "",
+        "MongoDB.Bson.TestHelpers": "",
+        "MongoDB.Driver.Core": "",
+        "MongoDB.Driver.Core.TestHelpers": "",
+        "FluentAssertions": "3.2.1",
+        "NSubstitute": "1.8.1.0",
+        "NUnit": "2.6.4"
+    },
+    "frameworks": {
+        "dnx451": { }
+    },
+    "resource": [
+        "Specifications/**/*.json",
+        "Specifications/**/*.yml"
+    ]
+}

@@ -20,7 +20,7 @@ namespace MongoDB.Shared
     /// <summary>
     /// Represents a class derived from an IDisposable class and that itself owns one ore more disposable resources.
     /// </summary>
-    public class CanonicalDisposableDerivedClass : CanonicalDisposableClass
+    internal class CanonicalDisposableDerivedClass : CanonicalDisposableClass
     {
         // private fields
         private IDisposable _anotherDisposableResource;

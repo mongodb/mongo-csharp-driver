@@ -1,0 +1,9 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Shared": { "type": "build" }
+    },
+    "frameworks": {
+        "dnx451": { }
+    }
+}

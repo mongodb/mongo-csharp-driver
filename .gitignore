@@ -54,3 +54,6 @@ src/packages
 artifacts
 packages
 Tools/FAKE
+
+# DNX
+project.lock.json

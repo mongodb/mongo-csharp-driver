@@ -1,0 +1,86 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson", "src\MongoDB.Bson\MongoDB.Bson.xproj", "{B5A6BC41-6335-4F27-8CDC-76F531B31475}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Shared", "src\MongoDB.Shared\MongoDB.Shared.xproj", "{8BA1CBEA-1739-46B4-AB82-C51288EB8937}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver", "src\MongoDB.Driver\MongoDB.Driver.xproj", "{30F04308-E24E-4461-8D3C-C345B02A7CEC}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core", "src\MongoDB.Driver.Core\MongoDB.Driver.Core.xproj", "{4C2EB66D-1C7E-4353-B649-DEFA3EBC185A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Tests", "test\MongoDB.Driver.Tests\MongoDB.Driver.Tests.xproj", "{7856C49B-EC58-46F1-AA15-E2AE443DC6F3}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.TestHelpers", "test\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.xproj", "{63FB0C7C-BC77-434D-B8F6-E658BBAAD422}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.TestHelpers", "test\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.xproj", "{1A1A1FF5-D78D-458C-83C6-67E61205CEFC}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.TestHelpers", "test\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.xproj", "{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.Tests", "test\MongoDB.Driver.Core.Tests\MongoDB.Driver.Core.Tests.xproj", "{8460F35B-BB3E-4354-8B83-DB7FB7D233E0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.Tests", "test\MongoDB.Bson.Tests\MongoDB.Bson.Tests.xproj", "{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5A6BC41-6335-4F27-8CDC-76F531B31475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A6BC41-6335-4F27-8CDC-76F531B31475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A6BC41-6335-4F27-8CDC-76F531B31475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A6BC41-6335-4F27-8CDC-76F531B31475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BA1CBEA-1739-46B4-AB82-C51288EB8937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BA1CBEA-1739-46B4-AB82-C51288EB8937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BA1CBEA-1739-46B4-AB82-C51288EB8937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BA1CBEA-1739-46B4-AB82-C51288EB8937}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30F04308-E24E-4461-8D3C-C345B02A7CEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30F04308-E24E-4461-8D3C-C345B02A7CEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30F04308-E24E-4461-8D3C-C345B02A7CEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30F04308-E24E-4461-8D3C-C345B02A7CEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C2EB66D-1C7E-4353-B649-DEFA3EBC185A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C2EB66D-1C7E-4353-B649-DEFA3EBC185A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C2EB66D-1C7E-4353-B649-DEFA3EBC185A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C2EB66D-1C7E-4353-B649-DEFA3EBC185A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7856C49B-EC58-46F1-AA15-E2AE443DC6F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7856C49B-EC58-46F1-AA15-E2AE443DC6F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7856C49B-EC58-46F1-AA15-E2AE443DC6F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7856C49B-EC58-46F1-AA15-E2AE443DC6F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63FB0C7C-BC77-434D-B8F6-E658BBAAD422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63FB0C7C-BC77-434D-B8F6-E658BBAAD422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63FB0C7C-BC77-434D-B8F6-E658BBAAD422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63FB0C7C-BC77-434D-B8F6-E658BBAAD422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A1A1FF5-D78D-458C-83C6-67E61205CEFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A1A1FF5-D78D-458C-83C6-67E61205CEFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A1A1FF5-D78D-458C-83C6-67E61205CEFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A1A1FF5-D78D-458C-83C6-67E61205CEFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8460F35B-BB3E-4354-8B83-DB7FB7D233E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8460F35B-BB3E-4354-8B83-DB7FB7D233E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8460F35B-BB3E-4354-8B83-DB7FB7D233E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8460F35B-BB3E-4354-8B83-DB7FB7D233E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7856C49B-EC58-46F1-AA15-E2AE443DC6F3} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+		{63FB0C7C-BC77-434D-B8F6-E658BBAAD422} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+		{1A1A1FF5-D78D-458C-83C6-67E61205CEFC} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+		{5BF273AF-02AE-40A8-B08F-E35CC77E8FB8} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+		{8460F35B-BB3E-4354-8B83-DB7FB7D233E0} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+		{9D2AEAF5-CB7D-4C10-A05C-4BA7C46CE599} = {B1E9DE4B-7690-40B8-AAD7-9AFC6368AF27}
+	EndGlobalSection
+EndGlobal

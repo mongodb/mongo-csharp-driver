@@ -1,0 +1,17 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Bson": "",
+        "MongoDB.Bson.TestHelpers": "",
+        "FluentAssertions": "3.2.1",
+        "NSubstitute": "1.8.1.0",
+        "NUnit": "2.6.4"
+    },
+    "frameworks": {
+        "dnx451": {
+            "frameworkAssemblies": {
+                "System.Runtime.Serialization": "4.0.0.0"
+            }
+        }
+    }
+}

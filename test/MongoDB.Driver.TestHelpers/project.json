@@ -1,0 +1,13 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Bson": "",
+        "MongoDB.Bson.TestHelpers": "",
+        "MongoDB.Driver": "",
+        "MongoDB.Driver.Core": "",
+        "MongoDB.Driver.Core.TestHelpers": ""
+    },
+    "frameworks": {
+        "dnx451": { }
+    }
+}

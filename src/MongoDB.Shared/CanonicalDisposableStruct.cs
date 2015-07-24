@@ -20,7 +20,7 @@ namespace MongoDB.Shared
     /// <summary>
     /// Represents a struct that owns one or more disposable resources.
     /// </summary>
-    public struct CanonicalDisposableStruct : IDisposable
+    internal struct CanonicalDisposableStruct : IDisposable
     {
         // private fields
         private bool _disposed;
