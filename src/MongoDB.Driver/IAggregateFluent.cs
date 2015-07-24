@@ -50,6 +50,14 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
+        /// Adds a project stage to the pipeline to project the result to a new type.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="newResultSerializer">The new result serializer.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null);
+
+        /// <summary>
         /// Appends a group stage to the stages.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>

@@ -60,6 +60,12 @@ namespace MongoDB.Driver
                 _options);
         }
 
+        public override IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer)
+        {
+            var projection = Builders<TResult>.Projection.As<TNewResult>(newResultSerializer);
+            return Project(projection);
+        }
+
         public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)
         {
             const string operatorName = "$group";
@@ -103,7 +109,16 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var renderedProjection = projection.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
+                    BsonDocument document;
+                    if (renderedProjection.Document == null)
+                    {
+                        document = new BsonDocument();
+                    }
+                    else
+                    {
+                        document = new BsonDocument(operatorName, renderedProjection.Document);
+                    }
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, document, renderedProjection.ProjectionSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);

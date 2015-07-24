@@ -15,6 +15,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -30,6 +31,9 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract FindOptions<TDocument, TProjection> Options { get; }
+
+        /// <inheritdoc />
+        public abstract IFindFluent<TDocument, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer);
 
         /// <inheritdoc />
         public abstract Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));

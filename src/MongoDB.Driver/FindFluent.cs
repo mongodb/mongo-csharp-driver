@@ -51,6 +51,12 @@ namespace MongoDB.Driver
         }
 
         // methods
+        public override IFindFluent<TDocument, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer)
+        {
+            var projection = Builders<TDocument>.Projection.As<TResult>(resultSerializer);
+            return Project(projection);
+        }
+
         public override Task<long> CountAsync(CancellationToken cancellationToken)
         {
             BsonValue hint = null;

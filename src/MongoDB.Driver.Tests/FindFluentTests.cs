@@ -15,10 +15,10 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -28,6 +28,28 @@ namespace MongoDB.Driver.Tests
     public class FindFluentTests
     {
         private IMongoCollection<Person> _collection;
+
+        [Test]
+        public void As_should_change_the_result_type()
+        {
+            var subject = CreateSubject();
+
+            var result = subject.As<BsonDocument>();
+            var cursor = result.ToCursorAsync().GetAwaiter().GetResult();
+
+            Predicate<FindOptions<Person, BsonDocument>> hasExpectedProjection = options =>
+            {
+                var serializerRegistry = BsonSerializer.SerializerRegistry;
+                var sourceSerializer = serializerRegistry.GetSerializer<Person>();
+                var renderedProjection = options.Projection.Render(sourceSerializer, serializerRegistry);
+                return renderedProjection.Document == null && renderedProjection.ProjectionSerializer is BsonDocumentSerializer;
+            };
+
+            _collection.Received().FindAsync<BsonDocument>(
+                subject.Filter,
+                Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
+                CancellationToken.None);
+        }
 
         [Test]
         public void CountAsync_should_not_throw_a_null_reference_exception()
