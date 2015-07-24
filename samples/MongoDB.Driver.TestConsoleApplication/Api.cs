@@ -15,15 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events.Diagnostics;
 
 namespace MongoDB.Driver.TestConsoleApplication
 {
@@ -112,9 +107,10 @@ namespace MongoDB.Driver.TestConsoleApplication
                 {
                     try
                     {
-                        var filter = new QueryDocument("_id", docs[0]["_id"]);
-                        var update = new UpdateDocument("$set", new BsonDocument("i", i + 1));
-                        await collection.UpdateOneAsync(filter, update, cancellationToken: _cancellationTokenSource.Token);
+                        // DNX-TODO: Not sure what to do.
+                        // var filter = new QueryDocument("_id", docs[0]["_id"]);
+                        // var update = new UpdateDocument("$set", new BsonDocument("i", i + 1));
+                        // await collection.UpdateOneAsync(filter, update, cancellationToken: _cancellationTokenSource.Token);
                         //Console.Write(".");
                     }
                     catch (Exception)
