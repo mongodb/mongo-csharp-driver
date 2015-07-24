@@ -1,0 +1,11 @@
+{
+    "version": "2.0.1",
+    "dependencies": {
+        "MongoDB.Bson": "",
+        "FluentAssertions": "3.2.1",
+        "NUnit": "2.6.4"
+    },
+    "frameworks": {
+        "dnx451": { }
+    }
+}
