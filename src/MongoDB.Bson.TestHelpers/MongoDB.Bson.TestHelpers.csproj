@@ -48,8 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BsonArrayAssertions.cs" />
     <Compile Include="BsonAssertionExtensions.cs" />
     <Compile Include="BsonDocumentAssertions.cs" />
+    <Compile Include="BsonValueAssertions.cs" />
     <Compile Include="EqualityComparers\EnumerableEqualityComparer.cs" />
     <Compile Include="EqualityComparers\EnumerableEqualityComparerFactory.cs" />
     <Compile Include="EqualityComparers\EqualityComparerRegistry.cs" />

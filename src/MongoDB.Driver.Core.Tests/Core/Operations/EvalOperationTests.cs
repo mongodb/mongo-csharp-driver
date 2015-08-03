@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
-            result.Should().Be(1);
+            result.Should().Be(1.0);
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
-            result.Should().Be(1);
+            result.Should().Be(1.0);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
-            result.Should().Be(1);
+            result.Should().Be(1.0);
         }
 
         [Test]
