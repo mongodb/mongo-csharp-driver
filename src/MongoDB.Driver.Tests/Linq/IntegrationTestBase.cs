@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Linq
@@ -60,6 +61,12 @@ namespace MongoDB.Driver.Tests.Linq
                                 F = 33,
                                 H = 44,
                                 I = new [] { "ignanimous"}
+                            },
+                            S = new [] {
+                                    new C
+                                    {
+                                        D = "Delilah"
+                                    }
                             }
                         },
                         new C
@@ -81,6 +88,8 @@ namespace MongoDB.Driver.Tests.Linq
                 O = new List<long> { 10, 20, 30 },
                 Q = Q.One,
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
+                T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
+                U = 1.23456571661743267789m
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -129,7 +138,8 @@ namespace MongoDB.Driver.Tests.Linq
                 L = new HashSet<int>(new[] { 2, 3, 4 }),
                 M = new[] { 3, 5, 6 },
                 O = new List<long> { 100, 200, 300 },
-                P = 1.1
+                P = 1.1,
+                U = 1.234565723762724332233489m
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -148,6 +158,11 @@ namespace MongoDB.Driver.Tests.Linq
             public string Property { get; set; }
 
             public string Field = null;
+        }
+
+        public class DerivedRootView : RootView
+        {
+            public string DerivedProperty { get; set; }
         }
 
         public class Root : IRoot
@@ -175,6 +190,11 @@ namespace MongoDB.Driver.Tests.Linq
             public Q Q { get; set; }
 
             public DateTime? R { get; set; }
+
+            public Dictionary<string, int> T { get; set; }
+
+            [BsonRepresentation(Bson.BsonType.Double, AllowTruncation = true)]
+            public decimal U { get; set; }
         }
 
         public class RootDescended : Root
@@ -187,6 +207,8 @@ namespace MongoDB.Driver.Tests.Linq
             public string D { get; set; }
 
             public E E { get; set; }
+
+            public IEnumerable<C> S { get; set; }
         }
 
         public class E

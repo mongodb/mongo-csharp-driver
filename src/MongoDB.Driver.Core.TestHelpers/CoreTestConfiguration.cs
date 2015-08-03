@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -75,7 +75,9 @@ namespace MongoDB.Driver
         // static methods
         public static ClusterBuilder ConfigureCluster()
         {
-            var builder = new ClusterBuilder().ConfigureWithConnectionString(__connectionString);
+            var builder = new ClusterBuilder()
+                .ConfigureWithConnectionString(__connectionString)
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(500)));
 
             if (__connectionString.Ssl.HasValue && __connectionString.Ssl.Value)
             {

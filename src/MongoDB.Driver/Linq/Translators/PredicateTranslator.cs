@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -161,21 +161,68 @@ namespace MongoDB.Driver.Linq.Translators
                 }
                 else if (arguments.Length == 2)
                 {
-                    var itemSerializationInfo = GetItemSerializationInfo("Any", serializationInfo);
+                    FilterDefinition<BsonDocument> filter;
 
                     var lambda = (LambdaExpression)arguments[1];
-                    var body = PrefixedFieldRenamer.Rename(lambda.Body, serializationInfo.ElementName);
-                    var filter = __builder.ElemMatch(serializationInfo.ElementName, BuildFilter(body));
+                    bool renderWithoutElemMatch = CanAnyBeRenderedWithoutElemMatch(lambda.Body);
 
-                    if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
+                    if (renderWithoutElemMatch)
                     {
-                        filter = new ScalarElementMatchFilterDefinition<BsonDocument>(filter);
+                        filter = BuildFilter(lambda.Body);
+                    }
+                    else
+                    {
+                        var itemSerializationInfo = GetItemSerializationInfo("Any", serializationInfo);
+                        var body = PrefixedFieldRenamer.Rename(lambda.Body, serializationInfo.ElementName);
+                        filter = __builder.ElemMatch(serializationInfo.ElementName, BuildFilter(body));
+                        if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
+                        {
+                            filter = new ScalarElementMatchFilterDefinition<BsonDocument>(filter);
+                        }
                     }
 
                     return filter;
                 }
             }
             return null;
+        }
+
+        private bool CanAnyBeRenderedWithoutElemMatch(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                // this doesn't cover all cases, but absolutely covers
+                // the most common ones. This is opt-in behavior, so
+                // when someone else discovers an Any query that shouldn't
+                // be rendered with $elemMatch, we'll have to add it in.
+                case ExpressionType.Equal:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.NotEqual:
+                    return true;
+                case ExpressionType.Call:
+                    var callNode = (MethodCallExpression)expression;
+                    switch (callNode.Method.Name)
+                    {
+                        case "Any":
+                            return callNode.Arguments.Count == 2;
+                        case "Contains":
+                        case "StartsWith":
+                        case "EndsWith":
+                            return true;
+                        default:
+                            return false;
+                    }
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                case ExpressionType.Not:
+                    var unaryExpression = (UnaryExpression)expression;
+                    return CanAnyBeRenderedWithoutElemMatch(unaryExpression.Operand);
+                default:
+                    return false;
+            }
         }
 
         /// <summary>

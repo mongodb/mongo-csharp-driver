@@ -97,6 +97,7 @@
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="IO\OutputBufferChunkSourceTests.cs" />
     <Compile Include="IO\SingleChunkBufferTests.cs" />
+    <Compile Include="IO\TrieNameDecoderTests.cs" />
     <Compile Include="Jira\CSharp728Tests.cs" />
     <Compile Include="Jira\CSharp708Tests.cs" />
     <Compile Include="Jira\CSharp476Tests.cs" />
@@ -104,6 +105,12 @@
     <Compile Include="Jira\CSharp648Tests.cs" />
     <Compile Include="Jira\CSharp783Tests.cs" />
     <Compile Include="Jira\CSharp803Tests.cs" />
+    <Compile Include="ObjectModel\BsonBooleanTests.cs" />
+    <Compile Include="ObjectModel\BsonDoubleTests.cs" />
+    <Compile Include="ObjectModel\BsonInt32Tests.cs" />
+    <Compile Include="ObjectModel\BsonInt64Tests.cs" />
+    <Compile Include="ObjectModel\BsonStringTests.cs" />
+    <Compile Include="ObjectModel\BsonTimestampTests.cs" />
     <Compile Include="ObjectModel\LazyBsonArrayTests.cs" />
     <Compile Include="ObjectModel\LazyBsonDocumentTests.cs" />
     <Compile Include="ObjectModel\RawBsonArrayTests.cs" />
@@ -138,6 +145,7 @@
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
     <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
+    <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
@@ -263,6 +271,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>MongoDB.Bson</Name>

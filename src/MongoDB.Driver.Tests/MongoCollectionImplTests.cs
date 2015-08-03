@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -159,6 +159,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().BeNull();
             operation.NoCursorTimeout.Should().BeFalse();
+            operation.OplogReplay.Should().BeFalse();
             operation.Projection.Should().BeNull();
             operation.Skip.Should().Be(null);
             operation.Sort.Should().BeNull();
@@ -454,6 +455,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
+                OplogReplay = true,
                 Projection = projection,
                 Skip = 40,
                 Sort = sort
@@ -479,6 +481,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
@@ -500,6 +503,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
+                OplogReplay = true,
                 Projection = projection,
                 Skip = 40,
                 Sort = sort
@@ -525,6 +529,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
@@ -631,9 +636,8 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
-
         [Test]
-        public async Task Indexes_CreateAsync_should_execute_the_CreateIndexesOperation()
+        public async Task Indexes_CreateOneAsync_should_execute_the_CreateIndexesOperation()
         {
             var keys = new BsonDocument("x", 1);
             var weights = new BsonDocument("y", 1);
@@ -687,6 +691,89 @@ namespace MongoDB.Driver
             request.Version.Should().Be(options.Version);
             request.Weights.Should().Be(weights);
             request.GetIndexName().Should().Be(options.Name);
+        }
+
+        [Test]
+        public async Task Indexes_CreateManyAsync_should_execute_the_CreateIndexesOperation()
+        {
+            var keys = new BsonDocument("x", 1);
+            var keys2 = new BsonDocument("z", 1);
+            var weights = new BsonDocument("y", 1);
+            var storageEngine = new BsonDocument("awesome", true);
+            var options = new CreateIndexOptions
+            {
+                Background = true,
+                Bits = 10,
+                BucketSize = 20,
+                DefaultLanguage = "en",
+                ExpireAfter = TimeSpan.FromSeconds(20),
+                LanguageOverride = "es",
+                Max = 30,
+                Min = 40,
+                Name = "awesome",
+                Sparse = false,
+                SphereIndexVersion = 50,
+                StorageEngine = storageEngine,
+                TextIndexVersion = 60,
+                Unique = true,
+                Version = 70,
+                Weights = weights
+            };
+
+            var first = new CreateIndexModel<BsonDocument>(keys, options);
+            var second = new CreateIndexModel<BsonDocument>(keys2);
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.CreateManyAsync(new[] { first, second }, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateIndexesOperation>();
+            var operation = (CreateIndexesOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Requests.Count().Should().Be(2);
+
+            var request1 = operation.Requests.ElementAt(0);
+            request1.AdditionalOptions.Should().BeNull();
+            request1.Background.Should().Be(options.Background);
+            request1.Bits.Should().Be(options.Bits);
+            request1.BucketSize.Should().Be(options.BucketSize);
+            request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
+            request1.ExpireAfter.Should().Be(options.ExpireAfter);
+            request1.Keys.Should().Be(keys);
+            request1.LanguageOverride.Should().Be(options.LanguageOverride);
+            request1.Max.Should().Be(options.Max);
+            request1.Min.Should().Be(options.Min);
+            request1.Name.Should().Be(options.Name);
+            request1.Sparse.Should().Be(options.Sparse);
+            request1.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
+            request1.StorageEngine.Should().Be(storageEngine);
+            request1.TextIndexVersion.Should().Be(options.TextIndexVersion);
+            request1.Unique.Should().Be(options.Unique);
+            request1.Version.Should().Be(options.Version);
+            request1.Weights.Should().Be(weights);
+            request1.GetIndexName().Should().Be(options.Name);
+
+            var request2 = operation.Requests.ElementAt(1);
+            request2.AdditionalOptions.Should().BeNull();
+            request2.Background.Should().NotHaveValue();
+            request2.Bits.Should().NotHaveValue();
+            request2.BucketSize.Should().NotHaveValue();
+            request2.DefaultLanguage.Should().BeNull();
+            request2.ExpireAfter.Should().NotHaveValue();
+            request2.Keys.Should().Be(keys2);
+            request2.LanguageOverride.Should().BeNull();
+            request2.Max.Should().NotHaveValue();
+            request2.Min.Should().NotHaveValue(); ;
+            request2.Name.Should().BeNull();
+            request2.Sparse.Should().NotHaveValue(); ;
+            request2.SphereIndexVersion.Should().NotHaveValue();
+            request2.StorageEngine.Should().BeNull();
+            request2.TextIndexVersion.Should().NotHaveValue();
+            request2.Unique.Should().NotHaveValue();
+            request2.Version.Should().NotHaveValue();
+            request2.Weights.Should().BeNull();
+            request2.GetIndexName().Should().Be("z_1");
         }
 
         [Test]

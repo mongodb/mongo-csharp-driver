@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         /// <param name="mode">The read preference mode.</param>
         /// <param name="tagSets">The tag sets.</param>
         public ReadPreference(
-            ReadPreferenceMode mode, 
+            ReadPreferenceMode mode,
             IEnumerable<TagSet> tagSets = null)
         {
             _mode = mode;
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString()
         {
-            return string.Format("{{ Mode = {0}, TagSets = {1} }}", _mode, _tagSets);
+            return string.Format("{{ Mode = {0}, TagSets = [{1}] }}", _mode, string.Join(", ", _tagSets));
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -46,7 +47,6 @@ namespace MongoDB.Driver.Core.Clusters
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
-        private readonly IClusterListener _listener;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
@@ -54,12 +54,17 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
 
+        private readonly Action<ClusterDescriptionChangedEvent> _descriptionChangedEventHandler;
+        private readonly Action<ClusterSelectingServerEvent> _selectingServerEventHandler;
+        private readonly Action<ClusterSelectedServerEvent> _selectedServerEventHandler;
+        private readonly Action<ClusterSelectingServerFailedEvent> _selectingServerFailedEventHandler;
+
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
-            _listener = listener;
+            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
             _state = new InterlockedInt32(State.Initial);
 
             _clusterId = new ClusterId();
@@ -67,6 +72,11 @@ namespace MongoDB.Driver.Core.Clusters
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
+            eventSubscriber.TryGetEventHandler(out _descriptionChangedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _selectingServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _selectedServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _selectingServerFailedEventHandler);
         }
 
         // events
@@ -87,11 +97,6 @@ namespace MongoDB.Driver.Core.Clusters
                     return _description;
                 }
             }
-        }
-
-        protected IClusterListener Listener
-        {
-            get { return _listener; }
         }
 
         public ClusterSettings Settings
@@ -177,9 +182,9 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
-            if (_listener != null)
+            if (_descriptionChangedEventHandler != null)
             {
-                _listener.ClusterAfterDescriptionChanged(new ClusterAfterDescriptionChangedEvent(oldDescription, newDescription));
+                _descriptionChangedEventHandler(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             var handler = DescriptionChanged;
@@ -217,18 +222,27 @@ namespace MongoDB.Driver.Core.Clusters
                 selector = new CompositeServerSelector(allSelectors);
             }
 
+            ClusterDescription description = null;
             try
             {
+                var stopwatch = Stopwatch.StartNew();
                 while (true)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     Task descriptionChangedTask;
-                    ClusterDescription description;
                     lock (_descriptionLock)
                     {
                         descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
                         description = _description;
+                    }
+
+                    if (!serverSelectionWaitQueueEntered && _selectingServerEventHandler != null)
+                    {
+                        // this is our first time through...
+                        _selectingServerEventHandler(new ClusterSelectingServerEvent(
+                            description,
+                            selector));
                     }
 
                     ThrowIfIncompatible(description);
@@ -245,6 +259,15 @@ namespace MongoDB.Driver.Core.Clusters
                         IClusterableServer selectedServer;
                         if (TryGetServer(server.EndPoint, out selectedServer))
                         {
+                            stopwatch.Stop();
+                            if (_selectedServerEventHandler != null)
+                            {
+                                _selectedServerEventHandler(new ClusterSelectedServerEvent(
+                                    description,
+                                    selector,
+                                    server,
+                                    stopwatch.Elapsed));
+                            }
                             return selectedServer;
                         }
 
@@ -265,6 +288,17 @@ namespace MongoDB.Driver.Core.Clusters
 
                     await WaitForDescriptionChangedAsync(selector, description, descriptionChangedTask, timeoutRemaining, cancellationToken).ConfigureAwait(false);
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_selectingServerFailedEventHandler != null)
+                {
+                    _selectingServerFailedEventHandler(new ClusterSelectingServerFailedEvent(
+                        description,
+                        selector,
+                        ex));
+                }
+                throw;
             }
             finally
             {

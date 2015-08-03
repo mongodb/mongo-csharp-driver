@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
@@ -35,7 +38,18 @@ namespace MongoDB.Driver
         public abstract MongoCollectionSettings Settings { get; }
 
         /// <inheritdoc />
-        public abstract Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public async virtual Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var model = new CreateIndexModel<TDocument>(keys, options);
+            var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
+            return result.Single();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException("CreateManyAsync has not been implemented.");
+        }
 
         /// <inheritdoc />
         public abstract Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));

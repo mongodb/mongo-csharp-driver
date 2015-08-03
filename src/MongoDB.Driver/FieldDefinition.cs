@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -159,6 +159,18 @@ namespace MongoDB.Driver
             }
 
             return new StringFieldDefinition<TDocument, TField>(fieldName, null);
+        }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="FieldDefinition{TDocument, TField}"/> to <see cref="FieldDefinition{TDocument}"/>.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator FieldDefinition<TDocument>(FieldDefinition<TDocument, TField> field)
+        {
+            return new UntypedFieldDefinitionAdapter<TDocument, TField>(field);
         }
     }
 
@@ -405,4 +417,21 @@ namespace MongoDB.Driver
             resolvedFieldName = string.Join(".", nameParts);
         }
     }
+
+    internal class UntypedFieldDefinitionAdapter<TDocument, TField> : FieldDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument, TField> _adaptee;
+
+        public UntypedFieldDefinitionAdapter(FieldDefinition<TDocument, TField> adaptee)
+        {
+            _adaptee = Ensure.IsNotNull(adaptee, "adaptee");
+        }
+
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var rendered = _adaptee.Render(documentSerializer, serializerRegistry);
+            return new RenderedFieldDefinition(rendered.FieldName, rendered.FieldSerializer);
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ draft = false
 title = "Upgrading"
 [menu.main]
   parent = "What's New"
+  identifier = "Upgrading"
   weight = 10
   pre = "<i class='fa'></i>"
 +++
@@ -29,6 +30,7 @@ As 2.0 is a major revision, there are some breaking changes when coming from the
 - [CSHARP-933](https://jira.mongodb.org/browse/CSHARP-933): Improved the BSON Serializer infrastructure. Anyone who has written a custom serializer will be affected by this. The changes are minor, but were necessary to support dynamic serializers as well as offering great speed improvements and improved memory management.
 - Certain methods, such as `BsonMemberMap.SetRepresentation` have been removed. The proper way to set a representation, for instance, would be to use `SetSerializer` and configure the serializer with the appropriate representation.
 - [CSHARP-939](https://jira.mongodb.org/browse/CSHARP-939): Dynamic DictionaryRepresentation has been removed. Its intent was to store, in some manner, anything in a .NET dictionary. In practice, this leads to the same values getting stored in different ways depending on factors such as a "." inside the key name. We made the decision to eliminate this variability. This means that documents that used to serialize correctly may start throwing a BsonSerializationException with a message indicating the key must be a valid string. [CSHARP-1165](https://jira.mongodb.org/browse/CSHARP-1165) has a solution to this problem. It should be noted that we will continue to read these disparate representations without error.
+- `null` is no longer ignored in BsonValue-derived constructors. Anyone relying on null getting ignored will now receive an `ArgumentNullException`.
 
 
 ### Driver

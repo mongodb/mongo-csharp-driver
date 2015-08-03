@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
+        private readonly bool _oplogReplay;
         private readonly bool _partialOk;
         private readonly BsonDocument _query;
         private readonly IElementNameValidator _queryValidator;
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
+            bool oplogReplay,
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
@@ -68,6 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _slaveOk = slaveOk;
             _partialOk = partialOk;
             _noCursorTimeout = noCursorTimeout;
+            _oplogReplay = oplogReplay;
             _tailableCursor = tailableCursor;
             _awaitData = awaitData;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
@@ -88,6 +91,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _slaveOk,
                 _partialOk,
                 _noCursorTimeout,
+                _oplogReplay,
                 _tailableCursor,
                 _awaitData);
         }

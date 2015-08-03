@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ namespace MongoDB.Driver
         private static int __minConnectionPoolSize = 0;
         private static TimeSpan __operationTimeout = TimeSpan.FromSeconds(30);
         private static UTF8Encoding __readEncoding = Utf8Encodings.Strict;
+        private static TimeSpan __serverSelectionTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
@@ -198,6 +199,15 @@ namespace MongoDB.Driver
                 }
                 __readEncoding = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the server selection timeout.
+        /// </summary>
+        public static TimeSpan ServerSelectionTimeout
+        {
+            get { return __serverSelectionTimeout; }
+            set { __serverSelectionTimeout = value; }
         }
 
         /// <summary>

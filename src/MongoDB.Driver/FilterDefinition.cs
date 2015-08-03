@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,16 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public abstract class FilterDefinition<TDocument>
     {
+        private static readonly FilterDefinition<TDocument> __empty = new EmptyFilterDefinition<TDocument>();
+
+        /// <summary>
+        /// Gets an empty filter. An empty filter matches everything.
+        /// </summary>
+        public static FilterDefinition<TDocument> Empty
+        {
+            get { return __empty; }
+        }
+
         /// <summary>
         /// Renders the filter to a <see cref="BsonDocument"/>.
         /// </summary>
@@ -158,6 +168,15 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return _document;
+        }
+    }
+
+    internal sealed class EmptyFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return new BsonDocument();
         }
     }
 

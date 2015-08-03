@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Tests
         [TestCase("ReplicaSetName", true)]
         [TestCase("LocalThreshold", true)]
         [TestCase("Servers", false)]
+        [TestCase("ServerSelectionTimeout", true)]
         [TestCase("SocketTimeout", true)]
         [TestCase("SslSettings", true)]
         [TestCase("UseSsl", true)]
@@ -77,6 +78,7 @@ namespace MongoDB.Driver.Tests
             var minConnectionPoolSize = 5;
             var replicaSetName = "abc";
             var servers = new[] { new MongoServerAddress("localhost") };
+            var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
             var sslSettings = new SslSettings
             {
@@ -101,6 +103,7 @@ namespace MongoDB.Driver.Tests
                 case "MinConnectionPoolSize": minConnectionPoolSize = 99; break;
                 case "ReplicaSetName": replicaSetName = "different"; break;
                 case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
+                case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                 case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
                 case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
                 case "UseSsl": useSsl = !useSsl; break;
@@ -123,6 +126,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = replicaSetName,
                 LocalThreshold = localThreshold,
                 Servers = servers,
+                ServerSelectionTimeout = serverSelectionTimeout,
                 SocketTimeout = socketTimeout,
                 SslSettings = sslSettings,
                 UseSsl = useSsl,

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -660,6 +660,40 @@ namespace MongoDB.Driver.Linq
         public static IMongoQueryable<TResult> Select<TSource, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
             return (IMongoQueryable<TResult>)Queryable.Select(source, selector);
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence to an <see cref="IEnumerable{TResult}" /> and combines the resulting sequences into one sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <typeparam name="TResult">The type of the elements of the sequence returned by the function represented by <paramref name="selector" />.</typeparam>
+        /// <param name="source">A sequence of values to project.</param>
+        /// <param name="selector">A projection function to apply to each element.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TResult}" /> whose elements are the result of invoking a one-to-many projection function on each element of the input sequence.
+        /// </returns>
+        public static IMongoQueryable<TResult> SelectMany<TSource, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
+        {
+            return (IMongoQueryable<TResult>)Queryable.SelectMany(source, selector);
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence to an <see cref="IEnumerable{TCollection}" /> and 
+        /// invokes a result selector function on each element therein. The resulting values from 
+        /// each intermediate sequence are combined into a single, one-dimensional sequence and returned.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <typeparam name="TCollection">The type of the intermediate elements collected by the function represented by <paramref name="collectionSelector" />.</typeparam>
+        /// <typeparam name="TResult">The type of the elements of the resulting sequence.</typeparam>
+        /// <param name="source">A sequence of values to project.</param>
+        /// <param name="collectionSelector">A projection function to apply to each element of the input sequence.</param>
+        /// <param name="resultSelector">A projection function to apply to each element of each intermediate sequence.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TResult}" /> whose elements are the result of invoking the one-to-many projection function <paramref name="collectionSelector" /> on each element of <paramref name="source" /> and then mapping each of those sequence elements and their corresponding <paramref name="source" /> element to a result element.
+        /// </returns>
+        public static IMongoQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
+        {
+            return (IMongoQueryable<TResult>)Queryable.SelectMany(source, collectionSelector, resultSelector);
         }
 
         /// <summary>

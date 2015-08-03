@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
 
             // we are going to rewrite g.Last().Member to g.Select(x => x.Member).Last()
             var call = currentNode as MethodCallExpression;
-            if (call != null && IsAggregateMethod(call.Method.Name))
+            if (call != null && IsAggregateMethod(call.Method.Name) && call.Arguments.Count == 1)
             {
                 var source = call.Arguments[0];
                 var sourceType = call.Method.GetGenericArguments()[0];

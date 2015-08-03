@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Shared;
 
 namespace MongoDB.Bson
@@ -341,7 +339,7 @@ namespace MongoDB.Bson
 
             foreach (var value in values)
             {
-                Add(new BsonDouble(value));
+                Add((BsonDouble)value);
             }
 
             return this;
@@ -361,7 +359,7 @@ namespace MongoDB.Bson
 
             foreach (var value in values)
             {
-                Add(new BsonInt32(value));
+                Add((BsonInt32)value);
             }
 
             return this;
@@ -381,7 +379,7 @@ namespace MongoDB.Bson
 
             foreach (var value in values)
             {
-                Add(new BsonInt64(value));
+                Add((BsonInt64)value);
             }
 
             return this;
@@ -421,7 +419,7 @@ namespace MongoDB.Bson
 
             foreach (var value in values)
             {
-                _values.Add((value == null) ? (BsonValue)BsonNull.Value : new BsonString(value));
+                _values.Add((value == null) ? (BsonValue)BsonNull.Value : (BsonString)value);
             }
 
             return this;

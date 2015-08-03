@@ -1,9 +1,10 @@
 +++
 date = "2015-03-17T15:36:56Z"
 draft = false
-title = "Reading and Writing BSON/JSON"
+title = "BSON/JSON"
 [menu.main]
   parent = "BSON"
+  identifier = "BSON/JSON"
   weight = 10
   pre = "<i class='fa'></i>"
 +++

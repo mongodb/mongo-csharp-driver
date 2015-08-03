@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
@@ -61,6 +62,17 @@ namespace MongoDB.Driver.Core.Connections
             var subject2 = new IsMasterResult(new BsonDocument("x", 2));
 
             subject1.Equals(subject2).Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase("{ }", null)]
+        [TestCase("{ electionId: ObjectId('555925bfb69aa7d5be29126b') }", "555925bfb69aa7d5be29126b")]
+        public void ElectionId_should_parse_document_correctly(string json, string expectedObjectId)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var expected = expectedObjectId == null ? (ElectionId)null : new ElectionId(ObjectId.Parse(expectedObjectId));
+
+            subject.ElectionId.Should().Be(expected);
         }
 
         [Test]
@@ -117,6 +129,18 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new IsMasterResult(BsonDocument.Parse(json));
 
             subject.MinWireVersion.Should().Be(expected);
+        }
+
+        [Test]
+        [TestCase("{ }", null)]
+        [TestCase("{ me: 'localhost:27018' }", "localhost:27018")]
+        public void Me_should_parse_document_correctly(string json, string expectedEndPoint)
+        {
+            var endPoint = expectedEndPoint == null ? (EndPoint)null : EndPointHelper.Parse(expectedEndPoint);
+
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            subject.Me.Should().Be(endPoint);
         }
 
         [Test]

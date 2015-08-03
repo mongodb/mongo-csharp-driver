@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -152,6 +152,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
+        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
         /// <param name="serializer">The serializer.</param>
@@ -168,6 +169,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
+            bool oplogReplay,
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,

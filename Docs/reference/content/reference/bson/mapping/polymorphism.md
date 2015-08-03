@@ -4,6 +4,7 @@ draft = false
 title = "Polymorphism"
 [menu.main]
   parent = "Mapping Classes"
+  identifier = "Polymorphism"
   weight = 10
   pre = "<i class='fa'></i>"
 +++

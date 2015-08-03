@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -415,6 +416,20 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.EnsureCapacity(1);
 
             action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        [Requires64BitProcess]
+        public void ExpandCapacity_should_throw_when_expanded_capacity_exceeds_2GB()
+        {
+            using (var subject = new MultiChunkBuffer(BsonChunkPool.Default))
+            {
+                subject.EnsureCapacity(int.MaxValue - 128 * 1024 * 1024);
+
+                Action action = () => subject.EnsureCapacity(int.MaxValue); // indirectly calls private ExpandCapacity method
+
+                action.ShouldThrow<InvalidOperationException>();
+            }
         }
 
         [TestCase(0, 1)]

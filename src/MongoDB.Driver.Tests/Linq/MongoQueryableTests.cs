@@ -1,4 +1,19 @@
-﻿using System;
+﻿/* Copyright 2015 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +23,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver.Tests.Linq
 {
@@ -580,6 +596,138 @@ namespace MongoDB.Driver.Tests.Linq
             Assert(query,
                 2,
                 "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }");
+        }
+
+        [Test]
+        public void Select_method_array()
+        {
+            var query = CreateQuery().Select(x => x.M);
+
+            Assert(query,
+                2,
+                "{ $project: { M: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void Select_syntax_array()
+        {
+            var query = from x in CreateQuery()
+                        select x.M;
+
+            Assert(query,
+                2,
+                "{ $project: { M: 1, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void Select_method_computed_array()
+        {
+            var query = CreateQuery()
+                .Select(x => x.M.Select(i => i + 1));
+
+            Assert(query,
+                2,
+                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void Select_syntax_computed_array()
+        {
+            var query = from x in CreateQuery()
+                        select x.M.Select(i => i + 1);
+
+            Assert(query,
+                2,
+                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_only_resultSelector()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_simple_scalar()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => c);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_simple_scalar()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select y;
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_computed_scalar()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => x.C.E.F + c.E.F + c.E.H);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_computed_scalar()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select x.C.E.F + y.E.F + y.E.H;
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_anonymous_type()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => new { x.C.E.F, Other = c.D });
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_anonymous_type()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select new { x.C.E.F, Other = y.D };
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
         }
 
         [Test]

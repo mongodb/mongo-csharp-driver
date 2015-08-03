@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ namespace MongoDB.Driver
         /// </summary>
         private static string GenerateDigest(SecureString secureString)
         {
-            using (var sha256 = new SHA256Managed())
+            using (var sha256 = new SHA256CryptoServiceProvider())
             {
                 TransformFinalBlock(sha256, secureString);
                 return BsonUtils.ToHexString(sha256.Hash);

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -71,14 +71,8 @@ namespace MongoDB.Bson.Serialization
             };
         }
 
-        /// <summary>
-        /// Gets a serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>
-        /// A serializer.
-        /// </returns>
-        public override IBsonSerializer GetSerializer(Type type)
+        /// <inheritdoc/>
+        public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
             if (type == null)
             {
@@ -93,7 +87,7 @@ namespace MongoDB.Bson.Serialization
             Type serializerType;
             if (__serializersTypes.TryGetValue(type, out serializerType))
             {
-                return CreateSerializer(serializerType);
+                return CreateSerializer(serializerType, serializerRegistry);
             }
 
             if (type.IsGenericType && !type.ContainsGenericParameters)
@@ -101,13 +95,13 @@ namespace MongoDB.Bson.Serialization
                 Type serializerTypeDefinition;
                 if (__serializersTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments());
+                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments(), serializerRegistry);
                 }
             }
 
             if (type.IsEnum)
             {
-                return CreateGenericSerializer(typeof(EnumSerializer<>), type);
+                return CreateGenericSerializer(typeof(EnumSerializer<>), new[] { type }, serializerRegistry);
             }
 
             return null;

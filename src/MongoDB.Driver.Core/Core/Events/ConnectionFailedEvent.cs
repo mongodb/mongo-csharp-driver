@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
-    /// Represents information about a ConnectionFailed event.
+    /// Occurs when a connection fails.
     /// </summary>
+    /// <preliminary />
     public struct ConnectionFailedEvent
     {
         private readonly ConnectionId _connectionId;
@@ -39,11 +41,16 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        public ClusterId ClusterId
+        {
+            get { return _connectionId.ServerId.ClusterId; }
+        }
+
+        /// <summary>
         /// Gets the connection identifier.
         /// </summary>
-        /// <value>
-        /// The connection identifier.
-        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
@@ -58,6 +65,14 @@ namespace MongoDB.Driver.Core.Events
         public Exception Exception
         {
             get { return _exception; }
+        }
+
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        public ServerId ServerId
+        {
+            get { return _connectionId.ServerId; }
         }
     }
 }

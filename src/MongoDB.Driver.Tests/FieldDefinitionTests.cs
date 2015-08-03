@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -181,6 +181,20 @@ namespace MongoDB.Driver.Tests
             var subject = new ExpressionFieldDefinition<Person>(exp);
 
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("g");
+            renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+        }
+
+        [Test]
+        public void Should_assign_a_non_typed_field_definition_from_a_typed_field_definition()
+        {
+            Expression<Func<Person, object>> exp = x => x.Gender;
+
+            FieldDefinition<Person, Gender> subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);
+            FieldDefinition<Person> subject2 = subject;
+
+            var renderedField = subject2.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("g");
             renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 
@@ -141,6 +142,10 @@ namespace MongoDB.Driver.Core.Configuration
                 builder = builder.ConfigureCluster(s => s.With(
                     replicaSetName: connectionString.ReplicaSet));
             }
+            if (connectionString.ServerSelectionTimeout != null)
+            {
+                builder = builder.ConfigureCluster(s => s.With(serverSelectionTimeout: connectionString.ServerSelectionTimeout.Value));
+            }
 
             return builder;
         }
@@ -225,10 +230,11 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (install)
             {
-                PerformanceCounterListener.InstallPerformanceCounters();
+                PerformanceCounterEventSubscriber.InstallPerformanceCounters();
             }
 
-            return builder.AddListener(new PerformanceCounterListener(applicationName));
+            var subscriber = new PerformanceCounterEventSubscriber(applicationName);
+            return builder.Subscribe(subscriber);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -751,6 +751,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: \"$G.E.F\", _id: 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(33, 55);
+        }
+
+        [Test]
+        public async Task Should_translate_a_derived_class_projection()
+        {
+            var result = await Project(x => new DerivedRootView { Property = x.A, DerivedProperty = x.B });
+
+            result.Projection.Should().Be("{ Property: \"$A\", DerivedProperty: \"$B\", _id: 0 }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.DerivedProperty.Should().Be("Balloon");
         }
 
         [Test]

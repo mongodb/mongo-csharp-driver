@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,7 +63,6 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
 
         private LambdaExpression CreateSyncAggregator()
         {
-            var sourceType = typeof(IEnumerable<int>);
             var sourceParameter = Expression.Parameter(typeof(IEnumerable<int>), "source");
             return Expression.Lambda(
                 Expression.Call(
@@ -76,7 +75,6 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
 
         private static LambdaExpression CreateAsyncAggregator()
         {
-            var sourceType = typeof(IAsyncCursor<int>);
             var sourceParameter = Expression.Parameter(typeof(Task<IAsyncCursor<int>>), "source");
             var cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "ct");
             return Expression.Lambda(

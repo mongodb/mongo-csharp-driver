@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,22 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
     {
+        #region static
+        const int __minPrecreatedValue = -100;
+        const int __maxPrecreatedValue = 100;
+        private static readonly BsonInt32[] __precreatedInstances = new BsonInt32[__maxPrecreatedValue - __minPrecreatedValue + 1];
+
+        static BsonInt32()
+        {
+            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            {
+                var precreatedInstance = new BsonInt32(i);
+                var index = i - __minPrecreatedValue;
+                __precreatedInstances[index] = precreatedInstance;
+            }
+        }
+        #endregion
+
         // private fields
         private int _value;
 
@@ -41,46 +57,46 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -1.
         /// </summary>
-        [Obsolete("Use new BsonInt32(-1) instead.")]
+        [Obsolete("Use (BsonInt32)(-1) instead.")]
         public static BsonInt32 MinusOne
         {
-            get { return new BsonInt32(-1); }
+            get { return (BsonInt32)(-1); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -0.
         /// </summary>
-        [Obsolete("Use new BsonInt32(0) instead.")]
+        [Obsolete("Use (BsonInt32)0 instead.")]
         public static BsonInt32 Zero
         {
-            get { return new BsonInt32(0); }
+            get { return (BsonInt32)0; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 1.
         /// </summary>
-        [Obsolete("Use new BsonInt32(1) instead.")]
+        [Obsolete("Use (BsonInt32)1 instead.")]
         public static BsonInt32 One
         {
-            get { return new BsonInt32(1); }
+            get { return (BsonInt32)1; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 2.
         /// </summary>
-        [Obsolete("Use new BsonInt32(2) instead.")]
+        [Obsolete("Use (BsonInt32)2 instead.")]
         public static BsonInt32 Two
         {
-            get { return new BsonInt32(2); }
+            get { return (BsonInt32)2; }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 3.
         /// </summary>
-        [Obsolete("Use new BsonInt32(3) instead.")]
+        [Obsolete("Use (BsonInt32)3 instead.")]
         public static BsonInt32 Three
         {
-            get { return new BsonInt32(3); }
+            get { return (BsonInt32)3; }
         }
 
         // public properties
@@ -117,6 +133,11 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt32.</returns>
         public static implicit operator BsonInt32(int value)
         {
+            if (value >= __minPrecreatedValue && value <= __maxPrecreatedValue)
+            {
+                var index = value - __minPrecreatedValue;
+                return __precreatedInstances[index];
+            }
             return new BsonInt32(value);
         }
 

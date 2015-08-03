@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
-                "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
@@ -108,6 +108,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(_localHost, settings.Server);
             Assert.AreEqual(_localHost, settings.Servers.First());
             Assert.AreEqual(1, settings.Servers.Count());
+            Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(false, settings.UseSsl);
@@ -181,6 +182,10 @@ namespace MongoDB.Driver.Tests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.ServerSelectionTimeout = new TimeSpan(1, 2, 3);
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.SocketTimeout = new TimeSpan(1, 2, 3);
             Assert.IsFalse(clone.Equals(settings));
 
@@ -233,7 +238,7 @@ namespace MongoDB.Driver.Tests
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
-                "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
@@ -258,6 +263,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
             Assert.AreEqual(url.LocalThreshold, settings.LocalThreshold);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
+            Assert.AreEqual(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(url.UseSsl, settings.UseSsl);
@@ -504,6 +510,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestServerSelectionTimeout()
+        {
+            var settings = new MongoClientSettings();
+            Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
+
+            var serverSelectionTimeout = new TimeSpan(1, 2, 3);
+            settings.ServerSelectionTimeout = serverSelectionTimeout;
+            Assert.AreEqual(serverSelectionTimeout, settings.ServerSelectionTimeout);
+
+            settings.Freeze();
+            Assert.AreEqual(serverSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.ServerSelectionTimeout = serverSelectionTimeout; });
+        }
+
+        [Test]
         public void TestSocketTimeout()
         {
             var settings = new MongoClientSettings();
@@ -633,6 +654,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "rs",
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
+                ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
                 UseSsl = true,
@@ -654,6 +676,7 @@ namespace MongoDB.Driver.Tests
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.Servers.Should().Equal(subject.Servers);
+            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
             result.SslSettings.Should().Be(subject.SslSettings);
             result.UseSsl.Should().Be(subject.UseSsl);

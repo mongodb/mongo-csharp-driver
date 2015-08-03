@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -176,6 +176,14 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Should_throw_an_exception_when_last_is_used_with_a_predicate()
+        {
+            Func<Task> act = () => Group(x => x.A, g => new { g.Last(x => x.A == "bin").B });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Test]
         public async Task Should_translate_max_with_embedded_projector()
         {
             var result = await Group(x => x.A, g => new { Result = g.Max(x => x.C.E.F) });
@@ -286,6 +294,19 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Last.Should().Be(false);
             result.Value.Min.Should().Be(333);
             result.Value.Max.Should().Be(333);
+        }
+
+        [Test]
+        public async Task Should_translate_aggregate_expressions_with_user_provided_serializer_if_possible()
+        {
+            var result = await Group(x => 1, g => new
+            {
+                Sum = g.Sum(x => x.U)
+            });
+
+            result.Projection.Should().Be("{ _id : 1, Sum : { \"$sum\" : \"$U\" } }");
+
+            result.Value.Sum.Should().Be(2.46913144038016m);
         }
 
         private async Task<ProjectedResult<TResult>> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)

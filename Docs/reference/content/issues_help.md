@@ -3,7 +3,8 @@ date = "2015-03-18T16:56:14Z"
 draft = false
 title = "Issues & Help"
 [menu.main]
-  weight = 100
+  weight = 1000
+  identifier = "Issues & Help"
   pre = "<i class='fa fa-life-ring'></i>"
 +++
 

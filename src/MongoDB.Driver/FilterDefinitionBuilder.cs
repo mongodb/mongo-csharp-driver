@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,14 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class FilterDefinitionBuilder<TDocument>
     {
+        /// <summary>
+        /// Gets an empty filter. An empty filter matches everything.
+        /// </summary>
+        public FilterDefinition<TDocument> Empty
+        {
+            get { return FilterDefinition<TDocument>.Empty; }
+        }
+
         /// <summary>
         /// Creates an all filter for an array field.
         /// </summary>
@@ -1258,8 +1266,23 @@ namespace MongoDB.Driver
             var document = _elementMatchFilter.Render(documentSerializer, serializerRegistry);
 
             var elemMatch = (BsonDocument)document[0]["$elemMatch"];
+            Compress(elemMatch);
+
+            return document;
+        }
+
+        private static void Compress(BsonDocument elemMatch)
+        {
             BsonValue condition;
-            if (elemMatch.TryGetValue("", out condition))
+            if (elemMatch.TryGetValue("$and", out condition))
+            {
+                var array = (BsonArray)condition;
+                foreach (BsonDocument singleCondition in array)
+                {
+                    Compress(singleCondition);
+                }
+            }
+            else if (elemMatch.TryGetValue("", out condition))
             {
                 elemMatch.Remove("");
 
@@ -1280,8 +1303,6 @@ namespace MongoDB.Driver
                     elemMatch.Add("$eq", condition);
                 }
             }
-
-            return document;
         }
     }
 

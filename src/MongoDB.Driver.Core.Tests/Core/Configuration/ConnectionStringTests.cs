@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MinPoolSize.Should().Be(15);
             subject.Password.Should().Be("pass");
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
-            subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new [] { new Tag("dc", "1") }));
+            subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
             subject.ReplicaSet.Should().Be("funny");
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
@@ -511,6 +511,20 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost?serverSelectionTimeout=15ms", 15)]
+        [TestCase("mongodb://localhost?serverSelectionTimeoutMS=15", 15)]
+        [TestCase("mongodb://localhost?serverSelectionTimeout=15", 1000 * 15)]
+        [TestCase("mongodb://localhost?serverSelectionTimeout=15s", 1000 * 15)]
+        [TestCase("mongodb://localhost?serverSelectionTimeout=15m", 1000 * 60 * 15)]
+        [TestCase("mongodb://localhost?serverSelectionTimeout=15h", 1000 * 60 * 60 * 15)]
+        public void When_serverSelectionTimeout_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
 
         [Test]

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -46,6 +43,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueueSerializer" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry"></param>
+        public QueueSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -54,14 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public QueueSerializer WithItemSerializer(IBsonSerializer itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new QueueSerializer(itemSerializer);
-            }
+            return new QueueSerializer(itemSerializer);
         }
 
         // protected methods
@@ -142,6 +141,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueueSerializer{TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public QueueSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -150,14 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public QueueSerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new QueueSerializer<TItem>(itemSerializer);
-            }
+            return new QueueSerializer<TItem>(itemSerializer);
         }
 
         // protected methods

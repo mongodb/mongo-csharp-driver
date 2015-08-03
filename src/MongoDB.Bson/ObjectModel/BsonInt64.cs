@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,23 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
-        // private fields
+         #region static
+        const long __minPrecreatedValue = -100L;
+        const long __maxPrecreatedValue = 100L;
+        private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[__maxPrecreatedValue - __minPrecreatedValue + 1];
+
+        static BsonInt64()
+        {
+            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            {
+                var precreatedInstance = new BsonInt64(i);
+                var index = i - __minPrecreatedValue;
+                __precreatedInstances[index] = precreatedInstance;
+            }
+        }
+        #endregion
+
+       // private fields
         private long _value;
 
         // constructors
@@ -71,6 +87,11 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt64.</returns>
         public static implicit operator BsonInt64(long value)
         {
+            if (value >= __minPrecreatedValue && value <= __maxPrecreatedValue)
+            {
+                var index = value - __minPrecreatedValue;
+                return __precreatedInstances[index];
+            }
             return new BsonInt64(value);
         }
 

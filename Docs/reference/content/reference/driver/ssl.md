@@ -3,7 +3,8 @@ date = "2015-03-17T15:36:56Z"
 draft = false
 title = "SSL"
 [menu.main]
-  parent = "Connecting"
+  parent = "Reference Connecting"
+  identifier = "SSL"
   weight = 20
   pre = "<i class='fa'></i>"
 +++

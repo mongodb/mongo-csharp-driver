@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             IReadOnlyList<BulkWriteOperationError> writeErrors,
             BulkWriteConcernError writeConcernError,
             IReadOnlyList<WriteRequest> unprocessedRequests)
-            : base(connectionId, "A bulk write operation resulted in one or more errors.")
+            : base(connectionId, FormatMessage(writeErrors, writeConcernError))
         {
             _result = result;
             _writeErrors = writeErrors;
@@ -123,6 +124,24 @@ namespace MongoDB.Driver.Core.Operations
             info.AddValue("_unprocessedRequests", _unprocessedRequests);
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeErrors", _writeErrors);
+        }
+
+        private static string FormatMessage(IReadOnlyList<BulkWriteOperationError> writeErrors, BulkWriteConcernError writeConcernError)
+        {
+            var sb = new StringBuilder("A bulk write operation resulted in one or more errors.");
+            if (writeErrors != null)
+            {
+                foreach (var writeError in writeErrors)
+                {
+                    sb.AppendLine().Append("  " + writeError.Message);
+                }
+            }
+            if (writeConcernError != null)
+            {
+                sb.AppendLine().Append("  " + writeConcernError.Message);
+            }
+
+            return sb.ToString();
         }
     }
 }

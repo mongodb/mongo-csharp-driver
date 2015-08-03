@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             where T : struct
     {
         // private fields
-        private IBsonSerializer<T> _serializer;
+        private Lazy<IBsonSerializer<T>> _lazySerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
         /// </summary>
         public NullableSerializer()
-            : this(BsonSerializer.LookupSerializer<T>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -46,7 +46,26 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializer">The serializer.</param>
         public NullableSerializer(IBsonSerializer<T> serializer)
         {
-            _serializer = serializer;
+            if (serializer == null)
+            {
+                throw new ArgumentNullException("serializer");
+            }
+
+            _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NullableSerializer{T}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public NullableSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+
+            _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializerRegistry.GetSerializer<T>());
         }
 
         // public methods
@@ -68,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return _serializer.Deserialize(context);
+                return _lazySerializer.Value.Deserialize(context);
             }
         }
 
@@ -88,7 +107,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                _serializer.Serialize(context, value.Value);
+                _lazySerializer.Value.Serialize(context, value.Value);
             }
         }
 
@@ -101,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </returns>
         public NullableSerializer<T> WithSerializer(IBsonSerializer<T> serializer)
         {
-            if (serializer == _serializer)
+            if (serializer == _lazySerializer.Value)
             {
                 return this;
             }
@@ -114,7 +133,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
-            get { return _serializer; }
+            get { return _lazySerializer.Value; }
         }
 
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)

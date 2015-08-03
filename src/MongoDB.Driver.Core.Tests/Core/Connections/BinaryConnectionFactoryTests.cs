@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,12 +37,12 @@ namespace MongoDB.Driver.Core.Connections
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionSettings_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IConnectionListener>();
+            var eventSubscriber = Substitute.For<IEventSubscriber>();
 
             Action act = () => new BinaryConnectionFactory(
                 null,
                 streamFactory,
-                listener);
+                eventSubscriber);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -50,12 +50,12 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_streamFactory_is_null()
         {
-            var listener = Substitute.For<IConnectionListener>();
-            
+            var eventSubscriber = Substitute.For<IEventSubscriber>();
+
             Action act = () => new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 null,
-                listener);
+                eventSubscriber);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -64,11 +64,11 @@ namespace MongoDB.Driver.Core.Connections
         public void CreateConnection_should_throw_an_ArgumentNullException_when_serverId_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IConnectionListener>();
+            var eventSubscriber = Substitute.For<IEventSubscriber>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                listener);
+                eventSubscriber);
 
             Action act = () => subject.CreateConnection(null, new DnsEndPoint("localhost", 27017));
             act.ShouldThrow<ArgumentNullException>();
@@ -78,11 +78,11 @@ namespace MongoDB.Driver.Core.Connections
         public void CreateConnection_should_throw_an_ArgumentNullException_when_endPoint_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IConnectionListener>();
+            var eventSubscriber = Substitute.For<IEventSubscriber>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                listener);
+                eventSubscriber);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 
@@ -94,14 +94,14 @@ namespace MongoDB.Driver.Core.Connections
         public void CreateConnection_should_return_a_BinaryConnection()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IConnectionListener>();
+            var eventSubscriber = Substitute.For<IEventSubscriber>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                listener);
+                eventSubscriber);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
-            
+
             var connection = subject.CreateConnection(serverId, serverId.EndPoint);
             connection.Should().NotBeNull();
             connection.Should().BeOfType<BinaryConnection>();

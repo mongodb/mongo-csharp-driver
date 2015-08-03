@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,6 +87,10 @@ namespace MongoDB.Bson
         /// <returns>A BsonString.</returns>
         public static implicit operator BsonString(string value)
         {
+            if (value != null && value.Length == 0)
+            {
+                return __emptyInstance;
+            }
             return new BsonString(value);
         }
 

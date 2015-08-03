@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.IO;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.IO
@@ -46,6 +48,27 @@ namespace MongoDB.Bson.Tests.IO
 
                 var result = stream.ToArray();
                 result.Should().Equal(expectedResult);
+            }
+        }
+
+        [Test]
+        public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
+        {
+            using (var stream = new NullBsonStream())
+            using (var binaryWriter = new BsonBinaryWriter(stream))
+            {
+                var bytes = new byte[int.MaxValue / 2]; // 1GB
+                var binaryData = new BsonBinaryData(bytes);
+
+                binaryWriter.WriteStartDocument();
+                binaryWriter.WriteName("array");
+                binaryWriter.WriteStartArray();
+                binaryWriter.WriteBinaryData(binaryData);
+                binaryWriter.WriteBinaryData(binaryData);
+
+                Action action = () => binaryWriter.WriteEndArray(); // indirectly calls private BackpatchSize method
+
+                action.ShouldThrow<FormatException>();
             }
         }
     }

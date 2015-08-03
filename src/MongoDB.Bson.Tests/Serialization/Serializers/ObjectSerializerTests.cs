@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Dynamic;
 using System.Linq;
 using MongoDB.Bson;
@@ -138,6 +139,20 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+        [TestCase("{ Obj : {  _v : \"01020304-0506-0708-090a-0b0c0d0e0f10\" } }")]
+        public void TestMissingDiscriminator(string json)
+        {
+            var result = BsonSerializer.Deserialize<C>(json);
+
+            Assert.IsInstanceOf<ExpandoObject>(result.Obj);
+        }
+
+        [TestCase("{ Obj : { _t : \"System.Guid\" } }")]
+        public void TestMissingValue(string json)
+        {
+            Assert.Throws<FormatException>(() => BsonSerializer.Deserialize<C>(json));
+        }
+
         [Test]
         public void TestNull()
         {
@@ -162,6 +177,24 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [TestCase("{ Obj : { _t : \"System.Object[]\", _v : [] } }")]
+        [TestCase("{ Obj : { _v : [], _t : \"System.Object[]\" } }")]
+        public void TestOrderOfElementsDoesNotMatter(string json)
+        {
+            var result = BsonSerializer.Deserialize<C>(json);
+
+            Assert.IsInstanceOf<object[]>(result.Obj);
+        }
+
+        [TestCase("{ Obj : { _t : \"System.Guid\", _v : \"01020304-0506-0708-090a-0b0c0d0e0f10\" } }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [TestCase("{ Obj : { _v : \"01020304-0506-0708-090a-0b0c0d0e0f10\", _t : \"System.Guid\" } }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        public void TestOrderOfElementsDoesNotMatter(string json, string expectedGuid)
+        {
+            var result = BsonSerializer.Deserialize<C>(json);
+
+            Assert.AreEqual(Guid.Parse(expectedGuid), result.Obj);
         }
 
         [Test]

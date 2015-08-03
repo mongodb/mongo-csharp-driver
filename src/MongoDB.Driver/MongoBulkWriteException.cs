@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Support;
@@ -43,7 +44,7 @@ namespace MongoDB.Driver
             ConnectionId connectionId,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError)
-            : base(connectionId, message: "A bulk write operation resulted in one or more errors.")
+            : base(connectionId, message: FormatMessage(writeErrors, writeConcernError))
         {
             _writeErrors = writeErrors.ToList();
             _writeConcernError = writeConcernError;
@@ -90,6 +91,25 @@ namespace MongoDB.Driver
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeErrors", _writeErrors);
         }
+
+        // private static methods
+        private static string FormatMessage(IEnumerable<BulkWriteError> writeErrors, WriteConcernError writeConcernError)
+        {
+            var sb = new StringBuilder("A bulk write operation resulted in one or more errors.");
+            if (writeErrors != null)
+            {
+                foreach (var writeError in writeErrors)
+                {
+                    sb.AppendLine().Append("  " + writeError.Message);
+                }
+            }
+            if (writeConcernError != null)
+            {
+                sb.AppendLine().Append("  " + writeConcernError.Message);
+            }
+
+            return sb.ToString();
+        }
     }
 
     /// <summary>
@@ -114,7 +134,7 @@ namespace MongoDB.Driver
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
         public MongoBulkWriteException(
             ConnectionId connectionId,
-            BulkWriteResult<TDocument> result, 
+            BulkWriteResult<TDocument> result,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
             IEnumerable<WriteModel<TDocument>> unprocessedRequests)

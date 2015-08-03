@@ -1,4 +1,19 @@
-﻿using FluentAssertions;
+﻿/* Copyright 2015 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -164,9 +179,42 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_documents()
         {
             Assert(
+                x => x.G.Any(g => g.D == "Don't"),
+                1,
+                "{\"G.D\": \"Don't\"}");
+
+            Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.E.F == 33),
                 1,
                 "{G: {$elemMatch: {D: \"Don't\", 'E.F': 33}}}");
+        }
+
+        [Test]
+        public void Any_with_a_nested_Any()
+        {
+            Assert(
+                x => x.G.Any(g => g.S.Any()),
+                1,
+                "{G: {$elemMatch: {S: {$ne: null, $not: {$size: 0}}}}}");
+
+            Assert(
+                x => x.G.Any(g => g.S.Any(s => s.D == "Delilah")),
+                1,
+                "{\"G.S.D\": \"Delilah\"}");
+        }
+
+        [Test]
+        public void Any_with_a_not()
+        {
+            Assert(
+                x => x.G.Any(g => !g.S.Any()),
+                2,
+                "{G: {$elemMatch: {$nor: [{S: {$ne: null, $not: {$size: 0}}}]}}}");
+
+            Assert(
+                x => x.G.Any(g => !g.S.Any(s => s.D == "Delilah")),
+                1,
+                "{\"G.S.D\": {$ne: \"Delilah\"}}}");
         }
 
         [Test]
@@ -175,7 +223,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.M.Any(m => m > 5),
                 1,
-                "{M: {$elemMatch: {$gt: 5}}}");
+                "{M: {$gt: 5}}");
 
             Assert(
                 x => x.M.Any(m => m > 2 && m < 6),
@@ -188,14 +236,24 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_scalars()
         {
             Assert(
-                x => x.M.Any(m => m == 6),
-                1,
-                "{M: {$elemMatch: {$eq: 6}}}");
-
-            Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
                 1,
-                new BsonDocument("C.E.I", new BsonDocument("$elemMatch", new BsonDocument("$regex", new BsonRegularExpression("^ick", "s")))));
+                "{\"C.E.I\": /^ick/s}");
+
+            // this isn't a legal query, as in, there isn't any 
+            // way to render this legally for the server...
+            //Assert(
+            //    x => x.C.E.I.Any(i => i.StartsWith("ick") && i == "Jack"),
+            //    1,
+            //    new BsonDocument(
+            //        "C.E.I",
+            //        new BsonDocument(
+            //            "$elemMatch",
+            //            new BsonDocument
+            //            {
+            //                { "$regex", new BsonRegularExpression("^ick", "s") },
+            //                { "$eq", "Jack" }
+            //            })));
         }
 
         [Test]
@@ -377,7 +435,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C == new C { D = "Dexter" },
                 0,
-                "{C: {D: 'Dexter', E: null}}");
+                "{C: {D: 'Dexter', E: null, S: null}}");
         }
 
         [Test]
@@ -386,7 +444,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C.Equals(new C { D = "Dexter" }),
                 0,
-                "{C: {D: 'Dexter', E: null}}");
+                "{C: {D: 'Dexter', E: null, S: null}}");
         }
 
         [Test]
@@ -395,9 +453,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C != new C { D = "Dexter" },
                 2,
-                "{C: {$ne: {D: 'Dexter', E: null}}}");
+                "{C: {$ne: {D: 'Dexter', E: null, S: null}}}");
         }
-        
+
         [Test]
         public void ClassMemberEquals()
         {
@@ -468,6 +526,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 x => x.A.CompareTo("Amazing") != 0,
                 1,
                 "{'A': { $ne: 'Amazing' } }");
+        }
+
+        [Test]
+        public void DictionaryIndexer()
+        {
+            Assert(
+                x => x.T["one"] == 1,
+                1,
+                "{'T.one': 1}");
         }
 
         [Test]

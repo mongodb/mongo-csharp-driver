@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -411,7 +411,12 @@ namespace MongoDB.Bson.IO
             {
                 var chunk = _chunkSource.GetChunk(minimumCapacity);
                 _chunks.Add(chunk);
-                _capacity += chunk.Bytes.Count;
+                var newCapacity = (long)_capacity + (long)chunk.Bytes.Count;
+                if (newCapacity > int.MaxValue)
+                {
+                    throw new InvalidOperationException("Capacity is limited to 2GB.");
+                }
+                _capacity = (int)newCapacity;
                 _positions.Add(_capacity);
             }
         }

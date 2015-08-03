@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Servers
         private IConnectionPoolFactory _connectionPoolFactory;
         private EndPoint _endPoint;
         private IConnectionFactory _heartbeatConnectionFactory;
-        private IServerListener _listener;
+        private IEventSubscriber _eventSubscriber;
         private ServerSettings _settings;
 
         [SetUp]
@@ -46,14 +46,14 @@ namespace MongoDB.Driver.Core.Servers
             _connectionPoolFactory = Substitute.For<IConnectionPoolFactory>();
             _endPoint = new DnsEndPoint("localhost", 27017);
             _heartbeatConnectionFactory = Substitute.For<IConnectionFactory>();
-            _listener = Substitute.For<IServerListener>();
+            _eventSubscriber = Substitute.For<IEventSubscriber>();
             _settings = new ServerSettings();
         }
 
         [Test]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ServerFactory(_clusterConnectionMode, null, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, null, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
-            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, null, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, null, _heartbeatConnectionFactory, _eventSubscriber);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -69,23 +69,23 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_heartbeatConnectionFactory_is_null()
         {
-            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, null, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, null, _eventSubscriber);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_not_throw_when_listener_is_null()
+        public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, null);
 
-            act.ShouldNotThrow();
+            act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void CreateServer_should_throw_if_clusterId_is_null()
         {
-            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
 
             Action act = () => subject.CreateServer(null, _endPoint);
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void CreateServer_should_throw_if_endPoint_is_null()
         {
-            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
 
             Action act = () => subject.CreateServer(_clusterId, null);
 
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void CreateServer_should_return_Server()
         {
-            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
 
             var result = subject.CreateServer(_clusterId, _endPoint);
 

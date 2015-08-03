@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,19 +26,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
-        private readonly IConnectionPoolListener _listener;
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly ConnectionPoolSettings _settings;
 
-        public ExclusiveConnectionPoolFactory()
-            : this(new ConnectionPoolSettings(), new BinaryConnectionFactory(), null)
-        {
-        }
-
-        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IConnectionPoolListener listener)
+        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IEventSubscriber eventSubscriber)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
-            _listener = listener;
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
         }
 
         public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
@@ -46,7 +41,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
 
-            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _listener);
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber);
         }
     }
 }

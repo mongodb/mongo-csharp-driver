@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using NUnit.Framework;
@@ -150,6 +151,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 subject.WriteMessage(__testMessage);
                 var bytes = stream.ToArray();
                 bytes.Should().Equal(__testMessageBytes);
+            }
+        }
+
+        [Test]
+        public void WriteMessage_should_throw_if_the_update_message_is_empty_when_using_the_UpdateElementNameValidator()
+        {
+            var message = new UpdateMessage(__requestId, __collectionNamespace, __query, new BsonDocument(), UpdateElementNameValidator.Instance, false, false);
+            using (var stream = new MemoryStream())
+            {
+                var subject = new UpdateMessageBinaryEncoder(stream, __messageEncoderSettings);
+                Action act = () => subject.WriteMessage(message);
+                act.ShouldThrow<BsonSerializationException>();
             }
         }
     }

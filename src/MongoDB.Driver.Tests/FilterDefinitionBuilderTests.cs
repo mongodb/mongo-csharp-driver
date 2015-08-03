@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -141,6 +141,22 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch<Pet>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+        }
+
+        [Test]
+        public void Empty()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Empty, "{}");
+        }
+
+        [Test]
+        public void Empty_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Empty, "{}");
         }
 
         [Test]

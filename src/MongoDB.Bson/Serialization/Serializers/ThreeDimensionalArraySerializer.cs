@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         IChildSerializerConfigurable
     {
         // private fields
-        private readonly IBsonSerializer<TItem> _itemSerializer;
+        private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreeDimensionalArraySerializer{TItem}"/> class.
         /// </summary>
         public ThreeDimensionalArraySerializer()
-            : this(BsonSerializer.LookupSerializer<TItem>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -44,7 +44,26 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="itemSerializer">The item serializer.</param>
         public ThreeDimensionalArraySerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            _itemSerializer = itemSerializer;
+            if (itemSerializer == null)
+            {
+                throw new ArgumentNullException("itemSerializer");
+            }
+
+            _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => itemSerializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ThreeDimensionalArraySerializer{TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public ThreeDimensionalArraySerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+
+            _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => serializerRegistry.GetSerializer<TItem>());
         }
 
         // public properties
@@ -56,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TItem> ItemSerializer
         {
-            get { return _itemSerializer; }
+            get { return _lazyItemSerializer.Value; }
         }
 
         // public methods
@@ -83,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var innerList = new List<TItem>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var item = _itemSerializer.Deserialize(context);
+                        var item = _lazyItemSerializer.Value.Deserialize(context);
                         innerList.Add(item);
                     }
                     bsonReader.ReadEndArray();
@@ -147,7 +166,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteStartArray();
                     for (int k = 0; k < length3; k++)
                     {
-                        _itemSerializer.Serialize(context, value[i, j, k]);
+                        _lazyItemSerializer.Value.Serialize(context, value[i, j, k]);
                     }
                     bsonWriter.WriteEndArray();
                 }
@@ -163,20 +182,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ThreeDimensionalArraySerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == _itemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new ThreeDimensionalArraySerializer<TItem>(itemSerializer);
-            }
+            return new ThreeDimensionalArraySerializer<TItem>(itemSerializer);
         }
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
-            get { return _itemSerializer; }
+            get { return ItemSerializer; }
         }
 
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)

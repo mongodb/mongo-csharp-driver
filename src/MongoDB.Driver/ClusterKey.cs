@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ namespace MongoDB.Driver
         private readonly string _replicaSetName;
         private readonly int _sendBufferSize;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
+        private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly SslSettings _sslSettings;
         private readonly bool _useSsl;
@@ -82,6 +83,7 @@ namespace MongoDB.Driver
             int minConnectionPoolSize,
             string replicaSetName,
             IReadOnlyList<MongoServerAddress> servers,
+            TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
             SslSettings sslSettings,
             bool useSsl,
@@ -105,6 +107,7 @@ namespace MongoDB.Driver
             _replicaSetName = replicaSetName;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoServerSettings?
             _servers = servers;
+            _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
             _sslSettings = sslSettings;
             _useSsl = useSsl;
@@ -112,7 +115,7 @@ namespace MongoDB.Driver
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
 
-           _hashCode = CalculateHashCode();
+            _hashCode = CalculateHashCode();
         }
 
         // properties
@@ -132,6 +135,7 @@ namespace MongoDB.Driver
         public string ReplicaSetName { get { return _replicaSetName; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
+        public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
         public bool UseSsl { get { return _useSsl; } }
@@ -174,6 +178,7 @@ namespace MongoDB.Driver
                 _replicaSetName == rhs._replicaSetName &&
                 _sendBufferSize == rhs._sendBufferSize &&
                 _servers.SequenceEqual(rhs._servers) &&
+                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&
                 _useSsl == rhs._useSsl &&

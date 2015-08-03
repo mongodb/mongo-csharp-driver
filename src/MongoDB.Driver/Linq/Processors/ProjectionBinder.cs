@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,6 +68,17 @@ namespace MongoDB.Driver.Linq.Processors
                 node.Arguments.Count == 2 &&
                 ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
                 "Select");
+
+            nameBasedBinder.Register(new SelectManyBinder(), node =>
+                node.Arguments.Count == 2 &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "SelectMany");
+
+            nameBasedBinder.Register(new SelectManyBinder(), node =>
+                node.Arguments.Count == 3 &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1) &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[2], 2),
+                "SelectMany");
 
             nameBasedBinder.Register(new SingleBinder(), "Single", "SingleAsync", "SingleOrDefault", "SingleOrDefaultAsync");
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,6 +46,23 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // properties
+        /// <summary>
+        /// Gets the election identifier.
+        /// </summary>
+        public ElectionId ElectionId
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("electionId", out value))
+                {
+                    return new ElectionId((ObjectId)value);
+                }
+
+                return null;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether this instance is an arbiter.
         /// </summary>
@@ -125,6 +142,23 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 return Math.Max(MaxDocumentSize + 1024, 16000000);
+            }
+        }
+
+        /// <summary>
+        /// Gets the endpoint the server is claiming it is known as.
+        /// </summary>
+        public EndPoint Me
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("me", out value))
+                {
+                    return EndPointHelper.Parse((string)value);
+                }
+
+                return null;
             }
         }
 

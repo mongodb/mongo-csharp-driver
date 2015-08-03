@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,10 +56,16 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("startPosition");
             }
 
+            var size = stream.Position - startPosition;
+            if (size > int.MaxValue)
+            {
+                var message = string.Format("Size {0} is larger than {1} (Int32.MaxValue).", size, int.MaxValue);
+                throw new FormatException(message);
+            }
+
             var endPosition = stream.Position;
-            var size = (int)(endPosition - startPosition);
             stream.Position = startPosition;
-            stream.WriteInt32(size);
+            stream.WriteInt32((int)size);
             stream.Position = endPosition;
         }
 

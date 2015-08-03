@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -391,6 +391,16 @@ namespace MongoDB.Driver.Core.Operations
 
             var list = await ReadAllFromCollectionAsync();
             list.Should().HaveCount(4);
+        }
+
+        [Test]
+        public void ExecuteAsync_with_an_empty_update_document_should_throw()
+        {
+            var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), new BsonDocument()) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            Func<Task> act = () => ExecuteOperationAsync(subject);
+            act.ShouldThrow<BsonSerializationException>();
         }
 
         [Test]

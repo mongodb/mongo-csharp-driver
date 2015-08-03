@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Tests
             {
                 clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }
+
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(500);
 
             __client = new MongoClient(clientSettings);
             __databaseNamespace = mongoUrl.DatabaseName == null ? CoreTestConfiguration.DatabaseNamespace : new DatabaseNamespace(mongoUrl.DatabaseName);

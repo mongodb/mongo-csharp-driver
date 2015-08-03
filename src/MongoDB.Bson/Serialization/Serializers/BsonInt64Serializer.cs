@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonInt64 DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return new BsonInt64(bsonReader.ReadInt64());
+            return (BsonInt64)bsonReader.ReadInt64();
         }
 
         /// <summary>

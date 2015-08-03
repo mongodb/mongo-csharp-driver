@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -125,7 +125,18 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var serializationProvider in _serializationProviders)
             {
-                var serializer = serializationProvider.GetSerializer(type);
+                IBsonSerializer serializer;
+
+                var registryAwareSerializationProvider = serializationProvider as IRegistryAwareBsonSerializationProvider;
+                if (registryAwareSerializationProvider != null)
+                {
+                    serializer = registryAwareSerializationProvider.GetSerializer(type, this);
+                }
+                else
+                {
+                    serializer = serializationProvider.GetSerializer(type);
+                }
+
                 if (serializer != null)
                 {
                     return serializer;

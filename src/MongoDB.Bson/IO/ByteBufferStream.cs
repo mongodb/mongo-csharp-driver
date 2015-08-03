@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ namespace MongoDB.Bson.IO
             }
             set
             {
-                if (value < 0)
+                if (value < 0 || value > int.MaxValue)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }
@@ -296,7 +296,13 @@ namespace MongoDB.Bson.IO
 
         private void PrepareToWrite(int count)
         {
-            _buffer.EnsureCapacity(_position + count);
+            var minimumCapacity = (long)_position + (long)count;
+            if (minimumCapacity > int.MaxValue)
+            {
+                throw new IOException("Stream was too long.");
+            }
+
+            _buffer.EnsureCapacity((int)minimumCapacity);
             _buffer.Length = _buffer.Capacity;
             if (_length < _position)
             {
@@ -332,7 +338,8 @@ namespace MongoDB.Bson.IO
 
         private void ThrowIfEndOfStream(int count)
         {
-            if (_position + count > _length)
+            var minimumLength = (long)_position + (long)count;
+            if (_length < minimumLength)
             {
                 if (_position < _length)
                 {

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -77,6 +77,9 @@ namespace MongoDB.Driver.Linq
                             return;
                         case ExtensionExpressionType.Select:
                             VisitSelect((SelectExpression)node);
+                            return;
+                        case ExtensionExpressionType.SelectMany:
+                            VisitSelectMany((SelectManyExpression)node);
                             return;
                         case ExtensionExpressionType.Serialization:
                             return;
@@ -212,6 +215,23 @@ namespace MongoDB.Driver.Linq
             Visit(node.Source);
 
             var projection = AggregateProjectionTranslator.TranslateProject(node.Selector);
+            _stages.Add(new BsonDocument("$project", projection));
+        }
+
+        private void VisitSelectMany(SelectManyExpression node)
+        {
+            Visit(node.Source);
+
+            var field = node.CollectionSelector as ISerializationExpression;
+            if (field == null || field.SerializationInfo.ElementName == null)
+            {
+                var message = string.Format("The collection selector must be an ISerializationExpression: {0}", node.ToString());
+                throw new NotSupportedException(message);
+            }
+
+            _stages.Add(new BsonDocument("$unwind", "$" + field.SerializationInfo.ElementName));
+
+            var projection = AggregateProjectionTranslator.TranslateProject(node.ResultSelector);
             _stages.Add(new BsonDocument("$project", projection));
         }
 

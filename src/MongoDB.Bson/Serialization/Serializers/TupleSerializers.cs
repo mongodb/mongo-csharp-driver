@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,15 +24,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1> : SealedClassSerializerBase<Tuple<T1>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -45,7 +44,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
 
-            _item1Serializer = item1Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
         }
 
         // public properties
@@ -54,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         // public methods
@@ -67,7 +77,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1>(item1);
@@ -82,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
             context.Writer.WriteEndArray();
         }
     }
@@ -95,17 +105,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2> : SealedClassSerializerBase<Tuple<T1, T2>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -121,8 +129,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
             if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
         }
 
         // public properties
@@ -131,7 +151,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -139,7 +159,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         // public methods
@@ -152,8 +172,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2>(item1, item2);
@@ -168,8 +188,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
             context.Writer.WriteEndArray();
         }
     }
@@ -183,19 +203,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3> : SealedClassSerializerBase<Tuple<T1, T2, T3>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -214,9 +231,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
             if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
         }
 
         // public properties
@@ -225,7 +255,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -233,7 +263,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -241,7 +271,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         // public methods
@@ -254,9 +284,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3>(item1, item2, item3);
@@ -271,9 +301,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
             context.Writer.WriteEndArray();
         }
     }
@@ -288,21 +318,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3, T4> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
-        private readonly IBsonSerializer<T4> _item4Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
+        private readonly Lazy<IBsonSerializer<T4>> _lazyItem4Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>(),
-                BsonSerializer.LookupSerializer<T4>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -324,10 +350,24 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
             if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
-            _item4Serializer = item4Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => item4Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
         }
 
         // public properties
@@ -336,7 +376,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -344,7 +384,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -352,7 +392,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         /// <summary>
@@ -360,7 +400,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T4> Item4Serializer
         {
-            get { return _item4Serializer; }
+            get { return _lazyItem4Serializer.Value; }
         }
 
         // public methods
@@ -373,10 +413,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3, T4> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
-            var item4 = _item4Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
+            var item4 = _lazyItem4Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4>(item1, item2, item3, item4);
@@ -391,10 +431,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
-            _item4Serializer.Serialize(context, value.Item4);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
+            _lazyItem4Serializer.Value.Serialize(context, value.Item4);
             context.Writer.WriteEndArray();
         }
     }
@@ -410,23 +450,18 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3, T4, T5> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
-        private readonly IBsonSerializer<T4> _item4Serializer;
-        private readonly IBsonSerializer<T5> _item5Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
+        private readonly Lazy<IBsonSerializer<T4>> _lazyItem4Serializer;
+        private readonly Lazy<IBsonSerializer<T5>> _lazyItem5Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>(),
-                BsonSerializer.LookupSerializer<T4>(),
-                BsonSerializer.LookupSerializer<T5>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -451,11 +486,26 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
             if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
-            _item4Serializer = item4Serializer;
-            _item5Serializer = item5Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => item4Serializer);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => item5Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
         }
 
         // public properties
@@ -464,7 +514,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -472,7 +522,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -480,7 +530,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         /// <summary>
@@ -488,7 +538,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T4> Item4Serializer
         {
-            get { return _item4Serializer; }
+            get { return _lazyItem4Serializer.Value; }
         }
 
         /// <summary>
@@ -496,7 +546,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T5> Item5Serializer
         {
-            get { return _item5Serializer; }
+            get { return _lazyItem5Serializer.Value; }
         }
 
         // public methods
@@ -509,11 +559,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3, T4, T5> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
-            var item4 = _item4Serializer.Deserialize(context);
-            var item5 = _item5Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
+            var item4 = _lazyItem4Serializer.Value.Deserialize(context);
+            var item5 = _lazyItem5Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5>(item1, item2, item3, item4, item5);
@@ -528,11 +578,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
-            _item4Serializer.Serialize(context, value.Item4);
-            _item5Serializer.Serialize(context, value.Item5);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
+            _lazyItem4Serializer.Value.Serialize(context, value.Item4);
+            _lazyItem5Serializer.Value.Serialize(context, value.Item5);
             context.Writer.WriteEndArray();
         }
     }
@@ -549,25 +599,19 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3, T4, T5, T6> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
-        private readonly IBsonSerializer<T4> _item4Serializer;
-        private readonly IBsonSerializer<T5> _item5Serializer;
-        private readonly IBsonSerializer<T6> _item6Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
+        private readonly Lazy<IBsonSerializer<T4>> _lazyItem4Serializer;
+        private readonly Lazy<IBsonSerializer<T5>> _lazyItem5Serializer;
+        private readonly Lazy<IBsonSerializer<T6>> _lazyItem6Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>(),
-                BsonSerializer.LookupSerializer<T4>(),
-                BsonSerializer.LookupSerializer<T5>(),
-                BsonSerializer.LookupSerializer<T6>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -595,12 +639,28 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
             if (item6Serializer == null) { throw new ArgumentNullException("item6Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
-            _item4Serializer = item4Serializer;
-            _item5Serializer = item5Serializer;
-            _item6Serializer = item6Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => item4Serializer);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => item5Serializer);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => item6Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
         }
 
         // public properties
@@ -609,7 +669,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -617,7 +677,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -625,7 +685,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         /// <summary>
@@ -633,7 +693,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T4> Item4Serializer
         {
-            get { return _item4Serializer; }
+            get { return _lazyItem4Serializer.Value; }
         }
 
         /// <summary>
@@ -641,7 +701,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T5> Item5Serializer
         {
-            get { return _item5Serializer; }
+            get { return _lazyItem5Serializer.Value; }
         }
 
         /// <summary>
@@ -649,7 +709,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T6> Item6Serializer
         {
-            get { return _item6Serializer; }
+            get { return _lazyItem6Serializer.Value; }
         }
 
         // public methods
@@ -662,12 +722,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3, T4, T5, T6> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
-            var item4 = _item4Serializer.Deserialize(context);
-            var item5 = _item5Serializer.Deserialize(context);
-            var item6 = _item6Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
+            var item4 = _lazyItem4Serializer.Value.Deserialize(context);
+            var item5 = _lazyItem5Serializer.Value.Deserialize(context);
+            var item6 = _lazyItem6Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6>(item1, item2, item3, item4, item5, item6);
@@ -682,12 +742,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
-            _item4Serializer.Serialize(context, value.Item4);
-            _item5Serializer.Serialize(context, value.Item5);
-            _item6Serializer.Serialize(context, value.Item6);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
+            _lazyItem4Serializer.Value.Serialize(context, value.Item4);
+            _lazyItem5Serializer.Value.Serialize(context, value.Item5);
+            _lazyItem6Serializer.Value.Serialize(context, value.Item6);
             context.Writer.WriteEndArray();
         }
     }
@@ -705,27 +765,20 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3, T4, T5, T6, T7> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
-        private readonly IBsonSerializer<T4> _item4Serializer;
-        private readonly IBsonSerializer<T5> _item5Serializer;
-        private readonly IBsonSerializer<T6> _item6Serializer;
-        private readonly IBsonSerializer<T7> _item7Serializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
+        private readonly Lazy<IBsonSerializer<T4>> _lazyItem4Serializer;
+        private readonly Lazy<IBsonSerializer<T5>> _lazyItem5Serializer;
+        private readonly Lazy<IBsonSerializer<T6>> _lazyItem6Serializer;
+        private readonly Lazy<IBsonSerializer<T7>> _lazyItem7Serializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>(),
-                BsonSerializer.LookupSerializer<T4>(),
-                BsonSerializer.LookupSerializer<T5>(),
-                BsonSerializer.LookupSerializer<T6>(),
-                BsonSerializer.LookupSerializer<T7>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -756,13 +809,30 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item6Serializer == null) { throw new ArgumentNullException("item6Serializer"); }
             if (item7Serializer == null) { throw new ArgumentNullException("item7Serializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
-            _item4Serializer = item4Serializer;
-            _item5Serializer = item5Serializer;
-            _item6Serializer = item6Serializer;
-            _item7Serializer = item7Serializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => item4Serializer);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => item5Serializer);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => item6Serializer);
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => item7Serializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
         }
 
         // public properties
@@ -771,7 +841,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -779,7 +849,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -787,7 +857,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         /// <summary>
@@ -795,7 +865,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T4> Item4Serializer
         {
-            get { return _item4Serializer; }
+            get { return _lazyItem4Serializer.Value; }
         }
 
         /// <summary>
@@ -803,7 +873,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T5> Item5Serializer
         {
-            get { return _item5Serializer; }
+            get { return _lazyItem5Serializer.Value; }
         }
 
         /// <summary>
@@ -811,7 +881,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T6> Item6Serializer
         {
-            get { return _item6Serializer; }
+            get { return _lazyItem6Serializer.Value; }
         }
 
         /// <summary>
@@ -819,7 +889,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T7> Item7Serializer
         {
-            get { return _item7Serializer; }
+            get { return _lazyItem7Serializer.Value; }
         }
 
         // public methods
@@ -832,13 +902,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3, T4, T5, T6, T7> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
-            var item4 = _item4Serializer.Deserialize(context);
-            var item5 = _item5Serializer.Deserialize(context);
-            var item6 = _item6Serializer.Deserialize(context);
-            var item7 = _item7Serializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
+            var item4 = _lazyItem4Serializer.Value.Deserialize(context);
+            var item5 = _lazyItem5Serializer.Value.Deserialize(context);
+            var item6 = _lazyItem6Serializer.Value.Deserialize(context);
+            var item7 = _lazyItem7Serializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6, T7>(item1, item2, item3, item4, item5, item6, item7);
@@ -853,13 +923,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
-            _item4Serializer.Serialize(context, value.Item4);
-            _item5Serializer.Serialize(context, value.Item5);
-            _item6Serializer.Serialize(context, value.Item6);
-            _item7Serializer.Serialize(context, value.Item7);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
+            _lazyItem4Serializer.Value.Serialize(context, value.Item4);
+            _lazyItem5Serializer.Value.Serialize(context, value.Item5);
+            _lazyItem6Serializer.Value.Serialize(context, value.Item6);
+            _lazyItem7Serializer.Value.Serialize(context, value.Item7);
             context.Writer.WriteEndArray();
         }
     }
@@ -878,29 +948,21 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
     {
         // private fields
-        private readonly IBsonSerializer<T1> _item1Serializer;
-        private readonly IBsonSerializer<T2> _item2Serializer;
-        private readonly IBsonSerializer<T3> _item3Serializer;
-        private readonly IBsonSerializer<T4> _item4Serializer;
-        private readonly IBsonSerializer<T5> _item5Serializer;
-        private readonly IBsonSerializer<T6> _item6Serializer;
-        private readonly IBsonSerializer<T7> _item7Serializer;
-        private readonly IBsonSerializer<TRest> _restSerializer;
+        private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
+        private readonly Lazy<IBsonSerializer<T2>> _lazyItem2Serializer;
+        private readonly Lazy<IBsonSerializer<T3>> _lazyItem3Serializer;
+        private readonly Lazy<IBsonSerializer<T4>> _lazyItem4Serializer;
+        private readonly Lazy<IBsonSerializer<T5>> _lazyItem5Serializer;
+        private readonly Lazy<IBsonSerializer<T6>> _lazyItem6Serializer;
+        private readonly Lazy<IBsonSerializer<T7>> _lazyItem7Serializer;
+        private readonly Lazy<IBsonSerializer<TRest>> _lazyRestSerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7, TRest}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(
-                BsonSerializer.LookupSerializer<T1>(),
-                BsonSerializer.LookupSerializer<T2>(),
-                BsonSerializer.LookupSerializer<T3>(),
-                BsonSerializer.LookupSerializer<T4>(),
-                BsonSerializer.LookupSerializer<T5>(),
-                BsonSerializer.LookupSerializer<T6>(),
-                BsonSerializer.LookupSerializer<T7>(),
-                BsonSerializer.LookupSerializer<TRest>())
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -934,14 +996,32 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (item7Serializer == null) { throw new ArgumentNullException("item7Serializer"); }
             if (restSerializer == null) { throw new ArgumentNullException("restSerializer"); }
 
-            _item1Serializer = item1Serializer;
-            _item2Serializer = item2Serializer;
-            _item3Serializer = item3Serializer;
-            _item4Serializer = item4Serializer;
-            _item5Serializer = item5Serializer;
-            _item6Serializer = item6Serializer;
-            _item7Serializer = item7Serializer;
-            _restSerializer = restSerializer;
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => item3Serializer);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => item4Serializer);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => item5Serializer);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => item6Serializer);
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => item7Serializer);
+            _lazyRestSerializer = new Lazy<IBsonSerializer<TRest>>(() => restSerializer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7, TRest}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
+            _lazyRestSerializer = new Lazy<IBsonSerializer<TRest>>(() => serializerRegistry.GetSerializer<TRest>());
         }
 
         // public properties
@@ -950,7 +1030,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T1> Item1Serializer
         {
-            get { return _item1Serializer; }
+            get { return _lazyItem1Serializer.Value; }
         }
 
         /// <summary>
@@ -958,7 +1038,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T2> Item2Serializer
         {
-            get { return _item2Serializer; }
+            get { return _lazyItem2Serializer.Value; }
         }
 
         /// <summary>
@@ -966,7 +1046,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T3> Item3Serializer
         {
-            get { return _item3Serializer; }
+            get { return _lazyItem3Serializer.Value; }
         }
 
         /// <summary>
@@ -974,7 +1054,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T4> Item4Serializer
         {
-            get { return _item4Serializer; }
+            get { return _lazyItem4Serializer.Value; }
         }
 
         /// <summary>
@@ -982,7 +1062,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T5> Item5Serializer
         {
-            get { return _item5Serializer; }
+            get { return _lazyItem5Serializer.Value; }
         }
 
         /// <summary>
@@ -990,7 +1070,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T6> Item6Serializer
         {
-            get { return _item6Serializer; }
+            get { return _lazyItem6Serializer.Value; }
         }
 
         /// <summary>
@@ -998,7 +1078,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<T7> Item7Serializer
         {
-            get { return _item7Serializer; }
+            get { return _lazyItem7Serializer.Value; }
         }
 
         /// <summary>
@@ -1006,7 +1086,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<TRest> RestSerializer
         {
-            get { return _restSerializer; }
+            get { return _lazyRestSerializer.Value; }
         }
 
         // public methods
@@ -1019,14 +1099,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = _item1Serializer.Deserialize(context);
-            var item2 = _item2Serializer.Deserialize(context);
-            var item3 = _item3Serializer.Deserialize(context);
-            var item4 = _item4Serializer.Deserialize(context);
-            var item5 = _item5Serializer.Deserialize(context);
-            var item6 = _item6Serializer.Deserialize(context);
-            var item7 = _item7Serializer.Deserialize(context);
-            var rest = _restSerializer.Deserialize(context);
+            var item1 = _lazyItem1Serializer.Value.Deserialize(context);
+            var item2 = _lazyItem2Serializer.Value.Deserialize(context);
+            var item3 = _lazyItem3Serializer.Value.Deserialize(context);
+            var item4 = _lazyItem4Serializer.Value.Deserialize(context);
+            var item5 = _lazyItem5Serializer.Value.Deserialize(context);
+            var item6 = _lazyItem6Serializer.Value.Deserialize(context);
+            var item7 = _lazyItem7Serializer.Value.Deserialize(context);
+            var rest = _lazyRestSerializer.Value.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, rest);
@@ -1041,14 +1121,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             context.Writer.WriteStartArray();
-            _item1Serializer.Serialize(context, value.Item1);
-            _item2Serializer.Serialize(context, value.Item2);
-            _item3Serializer.Serialize(context, value.Item3);
-            _item4Serializer.Serialize(context, value.Item4);
-            _item5Serializer.Serialize(context, value.Item5);
-            _item6Serializer.Serialize(context, value.Item6);
-            _item7Serializer.Serialize(context, value.Item7);
-            _restSerializer.Serialize(context, value.Rest);
+            _lazyItem1Serializer.Value.Serialize(context, value.Item1);
+            _lazyItem2Serializer.Value.Serialize(context, value.Item2);
+            _lazyItem3Serializer.Value.Serialize(context, value.Item3);
+            _lazyItem4Serializer.Value.Serialize(context, value.Item4);
+            _lazyItem5Serializer.Value.Serialize(context, value.Item5);
+            _lazyItem6Serializer.Value.Serialize(context, value.Item6);
+            _lazyItem7Serializer.Value.Serialize(context, value.Item7);
+            _lazyRestSerializer.Value.Serialize(context, value.Rest);
             context.Writer.WriteEndArray();
         }
     }

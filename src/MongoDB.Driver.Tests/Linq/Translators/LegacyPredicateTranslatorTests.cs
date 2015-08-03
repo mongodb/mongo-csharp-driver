@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -276,7 +276,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Test]
         public void TestWhereDAAnyWithPredicate()
         {
-            Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da\" : { \"$elemMatch\" : { \"z\" : 333 } } }");
+            Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da.z\" : 333 }");
+
+            Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ \"da\" : { \"$elemMatch\" : { \"z\" : { \"$gte\" : 222, \"$lte\" : 444 } } } }");
         }
 
         [Test]

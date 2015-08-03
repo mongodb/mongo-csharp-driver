@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,6 +45,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializer{TValue}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry"></param>
+        public EnumerableInterfaceImplementerSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -53,14 +62,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public EnumerableInterfaceImplementerSerializer<TValue> WithItemSerializer(IBsonSerializer itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new EnumerableInterfaceImplementerSerializer<TValue>(itemSerializer);
-            }
+            return new EnumerableInterfaceImplementerSerializer<TValue>(itemSerializer);
         }
 
         // protected methods
@@ -112,6 +114,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializer{TValue, TItem}" /> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public EnumerableInterfaceImplementerSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified item serializer.
@@ -120,14 +131,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public EnumerableInterfaceImplementerSerializer<TValue, TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            if (itemSerializer == ItemSerializer)
-            {
-                return this;
-            }
-            else
-            {
-                return new EnumerableInterfaceImplementerSerializer<TValue, TItem>(itemSerializer);
-            }
+            return new EnumerableInterfaceImplementerSerializer<TValue, TItem>(itemSerializer);
         }
 
         // protected methods

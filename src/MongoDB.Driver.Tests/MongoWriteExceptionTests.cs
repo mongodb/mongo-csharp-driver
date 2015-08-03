@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
 
             subject.ConnectionId.Should().Be(_connectionId);
             subject.InnerException.Should().Be(_innerException);
-            subject.Message.Should().Be("A write operation resulted in an error.");
+            subject.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  writeError" + Environment.NewLine + "  writeConcernError");
             subject.WriteConcernError.Should().Be(_writeConcernError);
             subject.WriteError.Should().Be(_writeError);
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests
 
             result.ConnectionId.Should().Be(_connectionId);
             result.InnerException.Should().BeSameAs(bulkWriteException);
-            result.Message.Should().Be("A write operation resulted in an error.");
+            result.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  message" + Environment.NewLine + "  message");
             result.WriteConcernError.Should().Be(writeConcernError);
             result.WriteError.Should().Be(writeErrors[0]);
         }

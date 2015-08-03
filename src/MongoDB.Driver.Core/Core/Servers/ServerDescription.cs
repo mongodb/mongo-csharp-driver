@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ namespace MongoDB.Driver.Core.Servers
     {
         // fields
         private readonly TimeSpan _averageRoundTripTime;
+        private readonly EndPoint _canonicalEndPoint;
+        private readonly ElectionId _electionId;
         private readonly EndPoint _endPoint;
         private readonly Exception _heartbeatException;
         private readonly int _maxBatchCount;
@@ -51,11 +53,13 @@ namespace MongoDB.Driver.Core.Servers
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServerDescription"/> class.
+        /// Initializes a new instance of the <see cref="ServerDescription" /> class.
         /// </summary>
         /// <param name="serverId">The server identifier.</param>
         /// <param name="endPoint">The end point.</param>
         /// <param name="averageRoundTripTime">The average round trip time.</param>
+        /// <param name="canonicalEndPoint">The canonical end point.</param>
+        /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
@@ -67,10 +71,13 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
+        /// <exception cref="System.ArgumentException">EndPoint and ServerId.EndPoint must match.</exception>
         public ServerDescription(
             ServerId serverId,
             EndPoint endPoint,
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<EndPoint> canonicalEndPoint = default(Optional<EndPoint>),
+            Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
@@ -91,6 +98,8 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             _averageRoundTripTime = averageRoundTripTime.WithDefault(TimeSpan.Zero);
+            _canonicalEndPoint = canonicalEndPoint.WithDefault(null);
+            _electionId = electionId.WithDefault(null);
             _endPoint = endPoint;
             _heartbeatException = heartbeatException.WithDefault(null);
             _maxBatchCount = maxBatchCount.WithDefault(1000);
@@ -116,6 +125,24 @@ namespace MongoDB.Driver.Core.Servers
         public TimeSpan AverageRoundTripTime
         {
             get { return _averageRoundTripTime; }
+        }
+
+        /// <summary>
+        /// Gets the canonical end point. This is the endpoint that the cluster knows this 
+        /// server by. Currently, it only applies to a replica set config and will match
+        /// what is in the replica set configuration.
+        /// </summary>
+        public EndPoint CanonicalEndPoint
+        {
+            get { return _canonicalEndPoint; }
+        }
+
+        /// <summary>
+        /// Gets the election identifier.
+        /// </summary>
+        public ElectionId ElectionId
+        {
+            get { return _electionId; }
         }
 
         /// <summary>
@@ -278,6 +305,8 @@ namespace MongoDB.Driver.Core.Servers
 
             return
                 _averageRoundTripTime == other._averageRoundTripTime &&
+                object.Equals(_canonicalEndPoint, other._canonicalEndPoint) &&
+                object.Equals(_electionId, other._electionId) &&
                 EndPointHelper.Equals(_endPoint, other._endPoint) &&
                 object.Equals(_heartbeatException, other._heartbeatException) &&
                 _maxBatchCount == other._maxBatchCount &&
@@ -299,6 +328,8 @@ namespace MongoDB.Driver.Core.Servers
             // revision is ignored
             return new Hasher()
                 .Hash(_averageRoundTripTime)
+                .Hash(_canonicalEndPoint)
+                .Hash(_electionId)
                 .Hash(_endPoint)
                 .Hash(_heartbeatException)
                 .Hash(_maxBatchCount)
@@ -325,7 +356,8 @@ namespace MongoDB.Driver.Core.Servers
                 .AppendFormat(", State: \"{0}\"", _state)
                 .AppendFormat(", Type: \"{0}\"", _type)
                 .AppendFormatIf(_tags != null && !_tags.IsEmpty, ", Tags: \"{0}\"", _tags)
-                .AppendFormatIf( _state == ServerState.Connected, ", WireVersionRange: \"{0}\"", _wireVersionRange)
+                .AppendFormatIf(_state == ServerState.Connected, ", WireVersionRange: \"{0}\"", _wireVersionRange)
+                .AppendFormatIf(_electionId != null, ", ElectionId: \"{0}\"", _electionId)
                 .AppendFormatIf(_heartbeatException != null, ", HeartbeatException: \"{0}\"", _heartbeatException)
                 .Append(" }")
                 .ToString();
@@ -335,6 +367,8 @@ namespace MongoDB.Driver.Core.Servers
         /// Returns a new instance of ServerDescription with some values changed.
         /// </summary>
         /// <param name="averageRoundTripTime">The average round trip time.</param>
+        /// <param name="canonicalEndPoint">The canonical end point.</param>
+        /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
@@ -346,9 +380,13 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
-        /// <returns>A new instance of ServerDescription.</returns>
+        /// <returns>
+        /// A new instance of ServerDescription.
+        /// </returns>
         public ServerDescription With(
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<EndPoint> canonicalEndPoint = default(Optional<EndPoint>),
+            Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
@@ -363,6 +401,8 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (
                 averageRoundTripTime.Replaces(_averageRoundTripTime) ||
+                canonicalEndPoint.Replaces(_canonicalEndPoint) ||
+                electionId.Replaces(_electionId) ||
                 heartbeatException.Replaces(_heartbeatException) ||
                 maxBatchCount.Replaces(_maxBatchCount) ||
                 maxDocumentSize.Replaces(_maxDocumentSize) ||
@@ -379,6 +419,8 @@ namespace MongoDB.Driver.Core.Servers
                     _serverId,
                     _endPoint,
                     averageRoundTripTime: averageRoundTripTime.WithDefault(_averageRoundTripTime),
+                    canonicalEndPoint: canonicalEndPoint.WithDefault(_canonicalEndPoint),
+                    electionId: electionId.WithDefault(_electionId),
                     heartbeatException: heartbeatException.WithDefault(_heartbeatException),
                     maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
                     maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),

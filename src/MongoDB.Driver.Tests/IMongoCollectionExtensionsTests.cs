@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -124,7 +124,8 @@ namespace MongoDB.Driver.Tests
                 CursorType = CursorType.TailableAwait,
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
-                NoCursorTimeout = true
+                NoCursorTimeout = true,
+                OplogReplay = true
             };
 
             var fluent = subject.Find(filter, options)
@@ -151,6 +152,7 @@ namespace MongoDB.Driver.Tests
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
+            actualOptions.OplogReplay.Should().Be(fluent.Options.OplogReplay);
             actualOptions.Projection.Should().Be(fluent.Options.Projection);
             actualOptions.Skip.Should().Be(fluent.Options.Skip);
             actualOptions.Sort.Should().Be(fluent.Options.Sort);
@@ -171,7 +173,8 @@ namespace MongoDB.Driver.Tests
                 CursorType = CursorType.TailableAwait,
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
-                NoCursorTimeout = true
+                NoCursorTimeout = true,
+                OplogReplay = true
             };
 
             var fluent = subject.Find(x => x.Age == 1, options)
@@ -199,6 +202,7 @@ namespace MongoDB.Driver.Tests
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
+            actualOptions.OplogReplay.Should().Be(fluent.Options.OplogReplay);
             actualOptions.Projection.Should().Be(fluent.Options.Projection);
             actualOptions.Skip.Should().Be(fluent.Options.Skip);
             actualOptions.Sort.Should().Be(fluent.Options.Sort);

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var slaveOk = messageDocument.GetValue("slaveOk", false).ToBoolean();
             var partialOk = messageDocument.GetValue("partialOk", false).ToBoolean();
             var noCursorTimeout = messageDocument.GetValue("noCursorTimeout", false).ToBoolean();
+            var oplogReplay = messageDocument.GetValue("oplogReplay", false).ToBoolean();
             var tailableCursor = messageDocument.GetValue("tailableCursor", false).ToBoolean();
             var awaitData = messageDocument.GetValue("awaitData", false).ToBoolean();
 
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 slaveOk,
                 partialOk,
                 noCursorTimeout,
+                oplogReplay,
                 tailableCursor,
                 awaitData);
         }
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "slaveOk", true, message.SlaveOk },
                 { "partialOk", true, message.PartialOk },
                 { "noCursorTimeout", true, message.NoCursorTimeout },
+                { "oplogReplay", true, message.OplogReplay },
                 { "tailableCursor", true, message.TailableCursor },
                 { "awaitData", true, message.AwaitData },
                 { "query", message.Query }

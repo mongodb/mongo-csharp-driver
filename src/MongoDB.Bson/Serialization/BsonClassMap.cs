@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
     /// </summary>
-    public abstract class BsonClassMap
+    public class BsonClassMap
     {
         // private static fields
         private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Serialization
         /// Initializes a new instance of the BsonClassMap class.
         /// </summary>
         /// <param name="classType">The class type.</param>
-        protected BsonClassMap(Type classType)
+        public BsonClassMap(Type classType)
         {
             _classType = classType;
             _creatorMaps = new List<BsonCreatorMap>();
@@ -79,6 +79,17 @@ namespace MongoDB.Bson.Serialization
             _elementTrie = new BsonTrie<int>();
 
             Reset();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BsonClassMap"/> class.
+        /// </summary>
+        /// <param name="classType">Type of the class.</param>
+        /// <param name="baseClassMap">The base class map.</param>
+        public BsonClassMap(Type classType, BsonClassMap baseClassMap)
+            : this(classType)
+        {
+            _baseClassMap = baseClassMap;
         }
 
         // public properties
@@ -448,7 +459,10 @@ namespace MongoDB.Bson.Serialization
                         var baseType = _classType.BaseType;
                         if (baseType != null)
                         {
-                            _baseClassMap = LookupClassMap(baseType);
+                            if (_baseClassMap == null)
+                            {
+                                _baseClassMap = LookupClassMap(baseType);
+                            }
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
                             _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);

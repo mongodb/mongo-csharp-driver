@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "rs",
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
+                ServerSelectionTimeout = TimeSpan.FromSeconds(5),
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
                 UseSsl = true,
@@ -81,7 +82,9 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
                 cluster.Settings.EndPoints.Equals(endPoints);
                 cluster.Settings.ReplicaSetName.Should().Be("rs");
+                cluster.Settings.ServerSelectionTimeout.Should().Be(clientSettings.ServerSelectionTimeout);
                 cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
+                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(20);
 
                 var serverDescription = cluster.Description.Servers.Single(s => s.EndPoint.Equals(endPoints[0]));
                 serverDescription.EndPoint.Should().Be(endPoints[0]);

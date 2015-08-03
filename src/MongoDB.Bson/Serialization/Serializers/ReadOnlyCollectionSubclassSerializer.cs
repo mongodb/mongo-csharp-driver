@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,6 +26,32 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TItem">The type of the item.</typeparam>
     public class ReadOnlyCollectionSubclassSerializer<TValue, TItem> : EnumerableInterfaceImplementerSerializerBase<TValue, TItem> where TValue : ReadOnlyCollection<TItem>
     {
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadOnlyCollectionSubclassSerializer{TValue, TItem}"/> class.
+        /// </summary>
+        public ReadOnlyCollectionSubclassSerializer()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadOnlyCollectionSubclassSerializer{TValue, TItem}"/> class.
+        /// </summary>
+        /// <param name="itemSerializer"></param>
+        public ReadOnlyCollectionSubclassSerializer(IBsonSerializer<TItem> itemSerializer)
+            : base(itemSerializer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadOnlyCollectionSubclassSerializer{TValue, TItem}"/> class.
+        /// </summary>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public ReadOnlyCollectionSubclassSerializer(IBsonSerializerRegistry serializerRegistry)
+            : base(serializerRegistry)
+        {
+        }
+
         // protected methods
         /// <summary>
         /// Creates the accumulator.

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // private fields
         private readonly SerializerHelper _helper;
-        private readonly IBsonSerializer<TKey> _keySerializer;
+        private readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
         private readonly BsonType _representation;
-        private readonly IBsonSerializer<TValue> _valueSerializer;
+        private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public KeyValuePairSerializer(BsonType representation)
-            : this(representation, BsonSerializer.LookupSerializer<TKey>(), BsonSerializer.LookupSerializer<TValue>())
+            : this(representation, BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -67,6 +67,39 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="keySerializer">The key serializer.</param>
         /// <param name="valueSerializer">The value serializer.</param>
         public KeyValuePairSerializer(BsonType representation, IBsonSerializer<TKey> keySerializer, IBsonSerializer<TValue> valueSerializer)
+            : this(
+                representation,
+                new Lazy<IBsonSerializer<TKey>>(() => keySerializer),
+                new Lazy<IBsonSerializer<TValue>>(() => valueSerializer))
+        {
+            if (keySerializer == null)
+            {
+                throw new ArgumentNullException("keySerializer");
+            }
+            if (valueSerializer == null)
+            {
+                throw new ArgumentNullException("valueSerializer");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyValuePairSerializer{TKey, TValue}" /> class.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public KeyValuePairSerializer(BsonType representation, IBsonSerializerRegistry serializerRegistry)
+            : this(
+                representation,
+                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
+                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+        }
+
+        private KeyValuePairSerializer(BsonType representation, Lazy<IBsonSerializer<TKey>> lazyKeySerializer, Lazy<IBsonSerializer<TValue>> lazyValueSerializer)
         {
             switch (representation)
             {
@@ -80,8 +113,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
-            _keySerializer = keySerializer;
-            _valueSerializer = valueSerializer;
+            _lazyKeySerializer = lazyKeySerializer;
+            _lazyValueSerializer = lazyValueSerializer;
 
             _helper = new SerializerHelper
             (
@@ -99,7 +132,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TKey> KeySerializer
         {
-            get { return _keySerializer; }
+            get { return _lazyKeySerializer.Value; }
         }
 
         /// <summary>
@@ -121,7 +154,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TValue> ValueSerializer
         {
-            get { return _valueSerializer; }
+            get { return _lazyValueSerializer.Value; }
         }
 
         // public methods
@@ -178,8 +211,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
             bsonReader.ReadStartArray();
-            var key = _keySerializer.Deserialize(context);
-            var value = _valueSerializer.Deserialize(context);
+            var key = _lazyKeySerializer.Value.Deserialize(context);
+            var value = _lazyValueSerializer.Value.Deserialize(context);
             bsonReader.ReadEndArray();
             return new KeyValuePair<TKey, TValue>(key, value);
         }
@@ -192,8 +225,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 switch (flag)
                 {
-                    case Flags.Key: key = _keySerializer.Deserialize(context); break;
-                    case Flags.Value: value = _valueSerializer.Deserialize(context); break;
+                    case Flags.Key: key = _lazyKeySerializer.Value.Deserialize(context); break;
+                    case Flags.Value: value = _lazyValueSerializer.Value.Deserialize(context); break;
                 }
             });
             return new KeyValuePair<TKey, TValue>(key, value);
@@ -203,8 +236,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartArray();
-            _keySerializer.Serialize(context, value.Key);
-            _valueSerializer.Serialize(context, value.Value);
+            _lazyKeySerializer.Value.Serialize(context, value.Key);
+            _lazyValueSerializer.Value.Serialize(context, value.Value);
             bsonWriter.WriteEndArray();
         }
 
@@ -213,9 +246,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("k");
-            _keySerializer.Serialize(context, value.Key);
+            _lazyKeySerializer.Value.Serialize(context, value.Key);
             bsonWriter.WriteName("v");
-            _valueSerializer.Serialize(context, value.Value);
+            _lazyValueSerializer.Value.Serialize(context, value.Value);
             bsonWriter.WriteEndDocument();
         }
     }

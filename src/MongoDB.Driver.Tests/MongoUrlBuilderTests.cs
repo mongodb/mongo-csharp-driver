@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "name",
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
+                ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
                 UseSsl = true,
@@ -87,6 +88,7 @@ namespace MongoDB.Driver.Tests
                 "maxPoolSize=4",
                 "minPoolSize=5",
                 "localThreshold=6s",
+                "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
@@ -115,6 +117,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual("name", builder.ReplicaSetName);
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.LocalThreshold);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
+                Assert.AreEqual(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.AreEqual(TimeSpan.FromSeconds(7), builder.SocketTimeout);
                 Assert.AreEqual("username", builder.Username);
                 Assert.AreEqual(true, builder.UseSsl);
@@ -189,7 +192,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
-        
+
         [Test]
         [TestCase(null, "mongodb://localhost", new[] { "" })]
         [TestCase(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
@@ -221,7 +224,7 @@ namespace MongoDB.Driver.Tests
             var connectTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoUrlBuilder { Server = _localhost };
             if (connectTimeout != null) { built.ConnectTimeout = connectTimeout.Value; }
-            
+
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?connectTimeout=30s", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
@@ -299,6 +302,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(null, builder.ReadPreference);
                 Assert.AreEqual(null, builder.ReplicaSetName);
                 Assert.AreEqual(MongoDefaults.LocalThreshold, builder.LocalThreshold);
+                Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
                 Assert.AreEqual(null, builder.Username);
                 Assert.AreEqual(false, builder.UseSsl);
@@ -779,6 +783,36 @@ namespace MongoDB.Driver.Tests
         public void TestSlaveOk_AfterReadPreference()
         {
             Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
+        }
+
+        [Test]
+        [TestCase(null, "mongodb://localhost", new[] { "" })]
+        [TestCase(500, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [TestCase(20000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
+        [TestCase(1800000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [TestCase(3600000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [TestCase(3723000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestServerSelectionTimeout(int? ms, string formatString, string[] values)
+        {
+            var serverSelectionTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (serverSelectionTimeout != null) { built.ServerSelectionTimeout = serverSelectionTimeout.Value; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]);
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.AreEqual(serverSelectionTimeout ?? MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
+                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        public void TestServerSelectionTimeout_Range()
+        {
+            var builder = new MongoUrlBuilder { Server = _localhost };
+            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.ServerSelectionTimeout = TimeSpan.FromSeconds(-1); });
+            builder.ServerSelectionTimeout = TimeSpan.Zero;
+            builder.ServerSelectionTimeout = TimeSpan.FromSeconds(1);
         }
 
         [Test]

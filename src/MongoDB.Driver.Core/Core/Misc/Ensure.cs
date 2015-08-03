@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -109,6 +109,22 @@ namespace MongoDB.Driver.Core.Misc
             if (value < 0)
             {
                 var message = string.Format("Value is not greater than or equal to 0: {0}.", value);
+                throw new ArgumentOutOfRangeException(paramName, message);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Ensures that the value of a parameter is greater than or equal to zero.
+        /// </summary>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static TimeSpan IsGreaterThanOrEqualToZero(TimeSpan value, string paramName)
+        {
+            if (value < TimeSpan.Zero)
+            {
+                var message = string.Format("Value is not greater than or equal to zero: {0}.", TimeSpanParser.ToString(value));
                 throw new ArgumentOutOfRangeException(paramName, message);
             }
             return value;

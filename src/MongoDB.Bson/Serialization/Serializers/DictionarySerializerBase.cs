@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson.IO;
@@ -24,7 +25,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for dictionaries.
     /// </summary>
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
-    public abstract class DictionarySerializerBase<TDictionary> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
+    public abstract class DictionarySerializerBase<TDictionary> :
+        ClassSerializerBase<TDictionary>,
+        IBsonDocumentSerializer,
+        IBsonDictionarySerializer
+        where TDictionary : class, IDictionary
     {
         // private constants
         private static class Flags
@@ -110,7 +115,24 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return _valueSerializer; }
         }
 
-        // public methods
+        // public methods        
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _valueSerializer,
+                _valueSerializer.ValueType);
+            return true;
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -314,7 +336,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the keys.</typeparam>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary<TKey, TValue>
+    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> :
+        ClassSerializerBase<TDictionary>,
+        IBsonDocumentSerializer,
+        IBsonDictionarySerializer
+        where TDictionary : class, IDictionary<TKey, TValue>
     {
         // private constants
         private static class Flags
@@ -326,8 +352,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
         private readonly SerializerHelper _helper;
-        private readonly IBsonSerializer<TKey> _keySerializer;
-        private readonly IBsonSerializer<TValue> _valueSerializer;
+        private readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
+        private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
         /// <summary>
@@ -343,7 +369,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
-            : this(dictionaryRepresentation, BsonSerializer.LookupSerializer<TKey>(), BsonSerializer.LookupSerializer<TValue>())
+            : this(dictionaryRepresentation, BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -354,10 +380,46 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="keySerializer">The key serializer.</param>
         /// <param name="valueSerializer">The value serializer.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation, IBsonSerializer<TKey> keySerializer, IBsonSerializer<TValue> valueSerializer)
+            : this(
+                dictionaryRepresentation,
+                new Lazy<IBsonSerializer<TKey>>(() => keySerializer),
+                new Lazy<IBsonSerializer<TValue>>(() => valueSerializer))
+        {
+            if (keySerializer == null)
+            {
+                throw new ArgumentNullException("keySerializer");
+            }
+            if (valueSerializer == null)
+            {
+                throw new ArgumentNullException("valueSerializer");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary, TKey, TValue}" /> class.
+        /// </summary>
+        /// <param name="dictionaryRepresentation">The dictionary representation.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation, IBsonSerializerRegistry serializerRegistry)
+            : this(
+                dictionaryRepresentation,
+                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
+                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+        {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException("serializerRegistry");
+            }
+        }
+
+        private DictionarySerializerBase(
+            DictionaryRepresentation dictionaryRepresentation,
+            Lazy<IBsonSerializer<TKey>> lazyKeySerializer,
+            Lazy<IBsonSerializer<TValue>> lazyValueSerializer)
         {
             _dictionaryRepresentation = dictionaryRepresentation;
-            _keySerializer = keySerializer;
-            _valueSerializer = valueSerializer;
+            _lazyKeySerializer = lazyKeySerializer;
+            _lazyValueSerializer = lazyValueSerializer;
 
             _helper = new SerializerHelper
             (
@@ -386,7 +448,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TKey> KeySerializer
         {
-            get { return _keySerializer; }
+            get { return _lazyKeySerializer.Value; }
         }
 
         /// <summary>
@@ -397,10 +459,27 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </value>
         public IBsonSerializer<TValue> ValueSerializer
         {
-            get { return _valueSerializer; }
+            get { return _lazyValueSerializer.Value; }
         }
 
         // public methods
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _lazyValueSerializer.Value,
+                _lazyValueSerializer.Value.ValueType);
+            return true;
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -480,8 +559,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case BsonType.Array:
                         bsonReader.ReadStartArray();
-                        key = _keySerializer.Deserialize(context);
-                        value = _valueSerializer.Deserialize(context);
+                        key = _lazyKeySerializer.Value.Deserialize(context);
+                        value = _lazyValueSerializer.Value.Deserialize(context);
                         bsonReader.ReadEndArray();
                         break;
 
@@ -492,8 +571,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             switch (flag)
                             {
-                                case Flags.Key: key = _keySerializer.Deserialize(context); break;
-                                case Flags.Value: value = _valueSerializer.Deserialize(context); break;
+                                case Flags.Key: key = _lazyKeySerializer.Value.Deserialize(context); break;
+                                case Flags.Value: value = _lazyValueSerializer.Value.Deserialize(context); break;
                             }
                         });
                         break;
@@ -518,7 +597,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var key = DeserializeKeyString(bsonReader.ReadName());
-                var value = _valueSerializer.Deserialize(context);
+                var value = _lazyValueSerializer.Value.Deserialize(context);
                 dictionary.Add(key, value);
             }
             bsonReader.ReadEndDocument();
@@ -534,7 +613,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var context = BsonDeserializationContext.CreateRoot(keyReader);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
-                var key = _keySerializer.Deserialize(context);
+                var key = _lazyKeySerializer.Value.Deserialize(context);
                 keyReader.ReadEndDocument();
                 return key;
             }
@@ -547,8 +626,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (var keyValuePair in value)
             {
                 bsonWriter.WriteStartArray();
-                _keySerializer.Serialize(context, keyValuePair.Key);
-                _valueSerializer.Serialize(context, keyValuePair.Value);
+                _lazyKeySerializer.Value.Serialize(context, keyValuePair.Key);
+                _lazyValueSerializer.Value.Serialize(context, keyValuePair.Value);
                 bsonWriter.WriteEndArray();
             }
             bsonWriter.WriteEndArray();
@@ -562,9 +641,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("k");
-                _keySerializer.Serialize(context, keyValuePair.Key);
+                _lazyKeySerializer.Value.Serialize(context, keyValuePair.Key);
                 bsonWriter.WriteName("v");
-                _valueSerializer.Serialize(context, keyValuePair.Value);
+                _lazyValueSerializer.Value.Serialize(context, keyValuePair.Value);
                 bsonWriter.WriteEndDocument();
             }
             bsonWriter.WriteEndArray();
@@ -577,7 +656,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (var keyValuePair in value)
             {
                 bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key));
-                _valueSerializer.Serialize(context, keyValuePair.Value);
+                _lazyValueSerializer.Value.Serialize(context, keyValuePair.Value);
             }
             bsonWriter.WriteEndDocument();
         }
@@ -590,7 +669,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var context = BsonSerializationContext.CreateRoot(keyWriter);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
-                _keySerializer.Serialize(context, key);
+                _lazyKeySerializer.Value.Serialize(context, key);
                 keyWriter.WriteEndDocument();
             }
 
@@ -606,12 +685,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         // explicit interface implementations
         IBsonSerializer IBsonDictionarySerializer.KeySerializer
         {
-            get { return _keySerializer; }
+            get { return KeySerializer; }
         }
 
         IBsonSerializer IBsonDictionarySerializer.ValueSerializer
         {
-            get { return _valueSerializer; }
+            get { return ValueSerializer; }
         }
     }
 }

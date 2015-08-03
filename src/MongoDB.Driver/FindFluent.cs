@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -84,6 +87,7 @@ namespace MongoDB.Driver
                 MaxTime = _options.MaxTime,
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
+                OplogReplay = _options.OplogReplay,
                 Projection = projection,
                 Skip = _options.Skip,
                 Sort = _options.Sort,
@@ -106,6 +110,74 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<TProjection>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.FindAsync(_filter, _options, cancellationToken);
+        }
+
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder("find(");
+            var renderedFilter = Render(_filter.Render);
+            sb.Append(renderedFilter.ToString());
+
+            if (_options.Projection != null)
+            {
+                var renderedProjection = Render(_options.Projection.Render);
+                if (renderedProjection.Document != null)
+                {
+                    sb.Append(", " + renderedProjection.Document.ToString());
+                }
+            }
+            sb.Append(")");
+
+            if (_options.Sort != null)
+            {
+                var renderedSort = Render(_options.Sort.Render);
+                sb.Append(".sort(" + renderedSort.ToString() + ")");
+            }
+
+            if (_options.Skip.HasValue)
+            {
+                sb.Append(".skip(" + _options.Skip.Value.ToString() + ")");
+            }
+
+            if (_options.Limit.HasValue)
+            {
+                sb.Append(".limit(" + _options.Limit.Value.ToString() + ")");
+            }
+
+            if (_options.MaxTime != null)
+            {
+                sb.Append(".maxTime(" + _options.MaxTime.Value.TotalMilliseconds + ")");
+            }
+
+            if (_options.Comment != null)
+            {
+                sb.Append("._addSpecial(\"$comment\", \"" + _options.Comment + "\")");
+            }
+
+            if (_options.Modifiers != null)
+            {
+                foreach (var modifier in _options.Modifiers)
+                {
+                    sb.Append("._addSpecial(\"" + modifier.Name + "\", ");
+                    if (modifier.Value.BsonType == BsonType.String)
+                    {
+                        sb.Append("\"" + modifier.Value.ToString() + "\"");
+                    }
+                    else
+                    {
+                        sb.Append(modifier.Value.ToString());
+                    }
+                    sb.Append(")");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private TRendered Render<TRendered>(Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, TRendered> renderer)
+        {
+            return renderer(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
         }
     }
 }
