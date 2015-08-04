@@ -360,5 +360,12 @@ namespace MongoDB.Bson
         {
             return _value.ToString();
         }
+
+        // protected methods
+        /// <inheritdoc/>
+        protected override string IConvertibleToStringImplementation(IFormatProvider provider)
+        {
+            return _value.ToString();
+        }
     }
 }
