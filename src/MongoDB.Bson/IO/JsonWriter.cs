@@ -467,7 +467,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteObjectId", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
-            var bytes = ObjectId.Pack(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+            var bytes = objectId.ToByteArray();
 
             WriteNameHelper(Name);
             switch (_jsonWriterSettings.OutputMode)
