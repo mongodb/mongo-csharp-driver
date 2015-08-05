@@ -20,7 +20,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -38,61 +37,74 @@ namespace MongoDB.Driver.Tests.Linq.Translators
     [TestFixture]
     public class PredicateTranslatorTests : IntegrationTestBase
     {
-		private class A1
-		{
+        private class A1
+        {
 
-			public string MyString
-			{ get; set; }
+            public string MyString
+            { get; set; }
 
-			public virtual ICollection<B1> Bs
-			{ get; set; }
-		}
+            public virtual ICollection<B1> Bs
+            { get; set; }
+        }
 
-		[BsonDiscriminator(RootClass = true)]
-		private class B1
-		{
-			public ObjectId Id;
-			public int b;
+        [BsonDiscriminator(RootClass = true)]
+        private class B1
+        {
+            public ObjectId Id;
+            public int b;
 
-			public MyEnum MyEnum
-			{ get; set; }
-		}
+            public MyEnum MyEnum
+            { get; set; }
+        }
 
-		private class C1 : B1
-		{
-			public int c;
-		}
+        private class C1 : B1
+        {
+            public int c;
+        }
 
-		private class D1 : C1
-		{
-			public int D11
-			{
-				get;
-				set;
-			}
-			public MyEnum MyEnum2
-			{ get; set; }
-		}
+        private class D1 : C1
+        {
+            public int D11
+            {
+                get;
+                set;
+            }
+            public MyEnum MyEnum2
+            { get; set; }
+        }
 
-		public enum MyEnum
-		{
-			Enum1 = 1,
-			Enum2 = 2,
-			Enum3 = 4
-		}
+        public enum MyEnum
+        {
+            Enum1 = 1,
+            Enum2 = 2,
+            Enum3 = 4
+        }
 
+        [Test]
+        public void Any_tmp_test()
+        {
+            var dValue = 1;
+            Expression<Func<A1, bool>> where = t => t.Bs.Any(d => d.b == dValue);
 
-		[Test]
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+
+            NUnit.Framework.Assert.IsNotNull(actual);
+            NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"D1\" : 1 } } }", actual.ToJson());
+        }
+       
+
+        [Test]
         public void OfTypeMethod_should_add_discriminator()
         {
             var dValue = 1;
             Expression<Func<A1, bool>> where = t => t.Bs.OfType<D1>().Any(d => d.D11 == dValue);
 
-			var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
-			var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
-			
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+
             NUnit.Framework.Assert.IsNotNull(actual);
-			NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"D1\" : 1 } } }", actual.ToJson());
+            NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"D1\" : 1 } } }", actual.ToJson());
         }
 
         [Test]
@@ -101,11 +113,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var enumValue = MyEnum.Enum1;
             Expression<Func<B1, bool>> where = t => t.MyEnum == enumValue;
 
-			var serializer = BsonSerializer.SerializerRegistry.GetSerializer<B1>();
-			var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<B1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
 
-			NUnit.Framework.Assert.IsNotNull(actual);
-			NUnit.Framework.Assert.AreEqual("{ \"MyEnum\" : 1 }", actual.ToJson());
+            NUnit.Framework.Assert.IsNotNull(actual);
+            NUnit.Framework.Assert.AreEqual("{ \"MyEnum\" : 1 }", actual.ToJson());
         }
 
         [Test]
@@ -114,11 +126,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var myEnumValue = MyEnum.Enum2;
             Expression<Func<A1, bool>> where = t => t.Bs.OfType<D1>().Any(d => d.MyEnum2 == myEnumValue);
 
-			var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
-			var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
 
-			NUnit.Framework.Assert.IsNotNull(actual);
-			NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"MyEnum2\" : 2 } } }", actual.ToJson());
+            NUnit.Framework.Assert.IsNotNull(actual);
+            NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"MyEnum2\" : 2 } } }", actual.ToJson());
         }
 
         [Test]
@@ -128,11 +140,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Expression<Func<A1, bool>> where = t => t.MyString.Contains(val);
 
-			var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
-			var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
 
-			NUnit.Framework.Assert.IsNotNull(actual);
-			NUnit.Framework.Assert.AreEqual("{ \"MyString\" : /aze/s }", actual.ToJson());
+            NUnit.Framework.Assert.IsNotNull(actual);
+            NUnit.Framework.Assert.AreEqual("{ \"MyString\" : /aze/s }", actual.ToJson());
         }
 
         //[Test]
@@ -159,11 +171,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Expression<Func<A1, bool>> where = t => t.MyString.ToLower() == val;
 
-			var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
-			var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<A1>();
+            var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
 
-			NUnit.Framework.Assert.IsNotNull(actual);
-			NUnit.Framework.Assert.AreEqual("{ \"MyString\" : /^aze$/i }", actual.ToJson());
+            NUnit.Framework.Assert.IsNotNull(actual);
+            NUnit.Framework.Assert.AreEqual("{ \"MyString\" : /^aze$/i }", actual.ToJson());
         }
 
         [Test]
