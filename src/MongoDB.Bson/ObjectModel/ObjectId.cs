@@ -485,18 +485,7 @@ namespace MongoDB.Bson
         public byte[] ToByteArray()
         {
             var bytes = new byte[12];
-            bytes[0] = (byte)(_a >> 24);
-            bytes[1] = (byte)(_a >> 16);
-            bytes[2] = (byte)(_a >> 8);
-            bytes[3] = (byte)(_a);
-            bytes[4] = (byte)(_b >> 24);
-            bytes[5] = (byte)(_b >> 16);
-            bytes[6] = (byte)(_b >> 8);
-            bytes[7] = (byte)(_b);
-            bytes[8] = (byte)(_c >> 24);
-            bytes[9] = (byte)(_c >> 16);
-            bytes[10] = (byte)(_c >> 8);
-            bytes[11] = (byte)(_c);
+            ToByteArray(bytes, 0);
             return bytes;
         }
 
@@ -507,6 +496,15 @@ namespace MongoDB.Bson
         /// <param name="offset">The offset.</param>
         public void ToByteArray(byte[] destination, int offset)
         {
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (offset + 12 > destination.Length)
+            {
+                throw new ArgumentException("Not enough room in destination buffer.", "offset");
+            }
+
             destination[offset + 0] = (byte)(_a >> 24);
             destination[offset + 1] = (byte)(_a >> 16);
             destination[offset + 2] = (byte)(_a >> 8);
