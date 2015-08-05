@@ -211,7 +211,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOptions<TDocument, TProjection>();
-            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TProjection>();
+            var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOperation<TProjection>(
@@ -242,7 +242,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOneAndDeleteOptions<TDocument, TProjection>();
-            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TProjection>();
+            var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndDeleteOperation<TProjection>(
@@ -266,7 +266,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(replacementObject, "replacement");
 
             options = options ?? new FindOneAndReplaceOptions<TDocument, TProjection>();
-            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TProjection>();
+            var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndReplaceOperation<TProjection>(
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, "update");
 
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
-            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TProjection>();
+            var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndUpdateOperation<TProjection>(

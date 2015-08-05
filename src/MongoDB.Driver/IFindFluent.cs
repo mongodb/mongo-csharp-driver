@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -41,6 +39,14 @@ namespace MongoDB.Driver
         /// Gets the options.
         /// </summary>
         FindOptions<TDocument, TProjection> Options { get; }
+
+        /// <summary>
+        /// A simplified type of projection that changes the result type by using a different serializer.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <returns>The fluent find interface.</returns>
+        IFindFluent<TDocument, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer = null);
 
         /// <summary>
         /// Counts the number of documents.

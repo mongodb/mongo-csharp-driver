@@ -66,17 +66,6 @@ namespace MongoDB.Driver
     public abstract class ProjectionDefinition<TSource>
     {
         /// <summary>
-        /// Turns the projection into a projection whose projection type is known.
-        /// </summary>
-        /// <typeparam name="TProjection">The type of the projection.</typeparam>
-        /// <param name="projectionSerializer">The projection serializer.</param>
-        /// <returns>A typed projection.</returns>
-        public virtual ProjectionDefinition<TSource, TProjection> As<TProjection>(IBsonSerializer<TProjection> projectionSerializer = null)
-        {
-            return new KnownResultTypeProjectionDefinitionAdapter<TSource, TProjection>(this, projectionSerializer);
-        }
-
-        /// <summary>
         /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
         /// </summary>
         /// <param name="sourceSerializer">The source serializer.</param>
@@ -480,20 +469,31 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class EntireDocumentProjectionDefinition<TSource, TProjection> : ProjectionDefinition<TSource, TProjection>
+    /// <summary>
+    /// A client side only projection that is implemented solely by deserializing using a different serializer.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source.</typeparam>
+    /// <typeparam name="TProjection">The type of the projection.</typeparam>
+    public sealed class ClientSideDeserializationProjectionDefinition<TSource, TProjection> : ProjectionDefinition<TSource, TProjection>
     {
         private readonly IBsonSerializer<TProjection> _projectionSerializer;
 
-        public EntireDocumentProjectionDefinition(IBsonSerializer<TProjection> projectionSerializer = null)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientSideDeserializationProjectionDefinition{TSource, TProjection}"/> class.
+        /// </summary>
+        /// <param name="projectionSerializer">The projection serializer.</param>
+        public ClientSideDeserializationProjectionDefinition(IBsonSerializer<TProjection> projectionSerializer = null)
         {
             _projectionSerializer = projectionSerializer;
         }
 
+        /// <inheritdoc/>
         public IBsonSerializer<TProjection> ResultSerializer
         {
             get { return _projectionSerializer; }
         }
 
+        /// <inheritdoc/>
         public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return new RenderedProjectionDefinition<TProjection>(

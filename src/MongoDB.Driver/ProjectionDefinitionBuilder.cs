@@ -196,6 +196,17 @@ namespace MongoDB.Driver
     public sealed class ProjectionDefinitionBuilder<TSource>
     {
         /// <summary>
+        /// Creates a client side projection that is implemented solely by using a different serializer.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection.</typeparam>
+        /// <param name="projectionSerializer">The projection serializer.</param>
+        /// <returns>A client side deserialization projection.</returns>
+        public ProjectionDefinition<TSource, TProjection> As<TProjection>(IBsonSerializer<TProjection> projectionSerializer = null)
+        {
+            return new ClientSideDeserializationProjectionDefinition<TSource, TProjection>(projectionSerializer);
+        }
+
+        /// <summary>
         /// Combines the specified projections.
         /// </summary>
         /// <param name="projections">The projections.</param>

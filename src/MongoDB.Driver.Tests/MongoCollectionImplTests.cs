@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -536,7 +537,27 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindOneAndDelete_should_execute_the_FindOneAndDeleteOperation()
+        public async Task FindAsync_with_Projection_As_should_execute_correctly()
+        {
+            var subject = CreateSubject<A>();
+            var filter = new BsonDocument();
+            var options = new FindOptions<A, BsonDocument>
+            {
+                Projection = Builders<A>.Projection.As<BsonDocument>()
+            };
+
+            var result = await subject.FindAsync(filter, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+
+            var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.Projection.Should().BeNull();
+            operation.ResultSerializer.Should().BeOfType<BsonDocumentSerializer>();
+        }
+
+        [Test]
+        public async Task FindOneAndDeleteAsync_should_execute_the_FindOneAndDeleteOperation()
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var projection = BsonDocument.Parse("{x: 1}");
@@ -563,11 +584,31 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task FindOneAndDeleteAsync_with_Projection_As_should_execute_correctly()
+        {
+            var subject = CreateSubject<A>();
+            var filter = new BsonDocument();
+            var options = new FindOneAndDeleteOptions<A, BsonDocument>
+            {
+                Projection = Builders<A>.Projection.As<BsonDocument>()
+            };
+
+            var result = await subject.FindOneAndDeleteAsync(filter, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
+
+            var operation = (FindOneAndDeleteOperation<BsonDocument>)call.Operation;
+            operation.Projection.Should().BeNull();
+            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+        }
+
+        [Test]
         [TestCase(false, ReturnDocument.Before)]
         [TestCase(false, ReturnDocument.After)]
         [TestCase(true, ReturnDocument.Before)]
         [TestCase(true, ReturnDocument.After)]
-        public async Task FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
+        public async Task FindOneAndReplaceAsync_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var replacement = BsonDocument.Parse("{a: 2}");
@@ -600,11 +641,32 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task FindOneAndReplaceAsync_with_Projection_As_should_execute_correctly()
+        {
+            var subject = CreateSubject<A>();
+            var filter = new BsonDocument();
+            var replacement = new A();
+            var options = new FindOneAndReplaceOptions<A, BsonDocument>
+            {
+                Projection = Builders<A>.Projection.As<BsonDocument>()
+            };
+
+            var result = await subject.FindOneAndReplaceAsync(filter, replacement, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
+
+            var operation = (FindOneAndReplaceOperation<BsonDocument>)call.Operation;
+            operation.Projection.Should().BeNull();
+            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+        }
+
+        [Test]
         [TestCase(false, ReturnDocument.Before)]
         [TestCase(false, ReturnDocument.After)]
         [TestCase(true, ReturnDocument.Before)]
         [TestCase(true, ReturnDocument.After)]
-        public async Task FindOneAndUpdate_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
+        public async Task FindOneAndUpdateAsync_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var update = BsonDocument.Parse("{$set: {a: 2}}");
@@ -634,6 +696,27 @@ namespace MongoDB.Driver
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
             operation.MaxTime.Should().Be(options.MaxTime);
+        }
+
+        [Test]
+        public async Task FindOneAndUpdateAsync_with_Projection_As_should_execute_correctly()
+        {
+            var subject = CreateSubject<A>();
+            var filter = new BsonDocument();
+            var update = Builders<A>.Update.Inc(x => x.PropA, 1);
+            var options = new FindOneAndUpdateOptions<A, BsonDocument>
+            {
+                Projection = Builders<A>.Projection.As<BsonDocument>()
+            };
+
+            var result = await subject.FindOneAndUpdateAsync(filter, update, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
+
+            var operation = (FindOneAndUpdateOperation<BsonDocument>)call.Operation;
+            operation.Projection.Should().BeNull();
+            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
         [Test]

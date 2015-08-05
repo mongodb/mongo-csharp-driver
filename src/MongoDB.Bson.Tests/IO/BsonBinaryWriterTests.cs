@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.IO;
 using NUnit.Framework;
 
@@ -52,6 +53,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        [Requires64BitProcess]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
             using (var stream = new NullBsonStream())
