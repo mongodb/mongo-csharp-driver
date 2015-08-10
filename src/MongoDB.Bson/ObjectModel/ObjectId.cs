@@ -67,10 +67,12 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("bytes");
             }
+            if (bytes.Length != 12)
+            {
+                throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
+            }
 
-            _a = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
-            _b = (bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7];
-            _c = (bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11];
+            FromByteArray(bytes, 0, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -80,9 +82,7 @@ namespace MongoDB.Bson
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
         internal ObjectId(byte[] bytes, int index)
         {
-            _a = (bytes[index] << 24) | (bytes[index + 1] << 16) | (bytes[index + 2] << 8) | bytes[index + 3];
-            _b = (bytes[index + 4] << 24) | (bytes[index + 5] << 16) | (bytes[index + 6] << 8) | bytes[index + 7];
-            _c = (bytes[index + 8] << 24) | (bytes[index + 9] << 16) | (bytes[index + 10] << 8) | bytes[index + 11];
+            FromByteArray(bytes, index, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -132,9 +132,7 @@ namespace MongoDB.Bson
             }
 
             var bytes = BsonUtils.ParseHexString(value);
-            _a = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
-            _b = (bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7];
-            _c = (bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11];
+            FromByteArray(bytes, 0, out _a, out _b, out _c);
         }
 
         // public static properties
@@ -418,6 +416,13 @@ namespace MongoDB.Bson
                 throw new ArgumentOutOfRangeException("timestamp");
             }
             return (int)secondsSinceEpoch;
+        }
+
+        private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
+        {
+            a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            b = (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7];
+            c = (bytes[offset + 8] << 24) | (bytes[offset + 9] << 16) | (bytes[offset + 10] << 8) | bytes[offset + 11];
         }
 
         // public methods
