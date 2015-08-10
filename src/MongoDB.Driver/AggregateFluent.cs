@@ -95,6 +95,32 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(stage);
         }
 
+        public override IAggregateFluent<TNewResult> OfType<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer)
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TResult));
+            if (discriminatorConvention == null)
+            {
+                var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TResult)));
+                throw new NotSupportedException(message);
+            }
+
+            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TResult), typeof(TNewResult));
+            var ofTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
+
+            const string operatorName = "$match";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    return new RenderedPipelineStageDefinition<TNewResult>(
+                        operatorName,
+                        new BsonDocument(operatorName, ofTypeFilter),
+                        newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>());
+                });
+
+            return AppendStage<TNewResult>(stage);
+        }
+
         public override Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
             return AppendStage<TResult>(new BsonDocument("$out", collectionName))

@@ -56,6 +56,37 @@ namespace MongoDB.Driver.Tests
                 CancellationToken.None);
         }
 
+        [Test]
+        public void OfType_should_add_the_expected_stage()
+        {
+            var subject = CreateSubject();
+
+            var result = subject
+                .SortBy(c => c.X)
+                .OfType<D>()
+                .Match(d => d.Y == 2);
+            var cursor = result.ToCursorAsync().GetAwaiter().GetResult();
+
+            Predicate<PipelineDefinition<C, D>> isExpectedPipeline = pipeline =>
+            {
+                var serializerRegistry = BsonSerializer.SerializerRegistry;
+                var inputSerializer = serializerRegistry.GetSerializer<C>();
+                var rendederedPipeline = pipeline.Render(inputSerializer, serializerRegistry);
+                var isExpected =
+                    rendederedPipeline.Documents.Count == 3 &&
+                    rendederedPipeline.Documents[0] == BsonDocument.Parse("{ $sort : { X : 1 } }") &&
+                    rendederedPipeline.Documents[1] == BsonDocument.Parse("{ $match : { _t : \"D\" } }") &&
+                    rendederedPipeline.Documents[2] == BsonDocument.Parse("{ $match : { Y : 2 } }") &&
+                    rendederedPipeline.OutputSerializer.ValueType == typeof(D);
+                return isExpected;
+            };
+
+            _collection.Received().AggregateAsync<D>(
+                Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
+                Arg.Any<AggregateOptions>(),
+                CancellationToken.None);
+        }
+
         // private methods
         private IAggregateFluent<C> CreateSubject()
         {
@@ -73,6 +104,11 @@ namespace MongoDB.Driver.Tests
         public class C
         {
             public int X;
+        }
+
+        public class D : C
+        {
+            public int Y;
         }
     }
 }

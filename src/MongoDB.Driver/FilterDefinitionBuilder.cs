@@ -876,6 +876,96 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates an OfType filter that matches documents of a derived type.
+        /// </summary>
+        /// <typeparam name="TDerived">The type of the matching derived documents.</typeparam>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TDerived>() where TDerived : TDocument
+        {
+            return new DocumentOfTypeFilterDefinition<TDocument, TDerived>();
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents of a derived type and that also match a filter on the derived document.
+        /// </summary>
+        /// <typeparam name="TDerived">The type of the matching derived documents.</typeparam>
+        /// <param name="derivedDocumentFilter">A filter on the derived document.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TDerived>(FilterDefinition<TDerived> derivedDocumentFilter) where TDerived : TDocument
+        {
+            Ensure.IsNotNull(derivedDocumentFilter, "derivedDocumentFilter");
+            return new DocumentOfTypeFilterDefinition<TDocument, TDerived>(derivedDocumentFilter);
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents of a derived type and that also match a filter on the derived document.
+        /// </summary>
+        /// <typeparam name="TDerived">The type of the matching derived documents.</typeparam>
+        /// <param name="derivedDocumentFilter">A filter on the derived document.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TDerived>(Expression<Func<TDerived, bool>> derivedDocumentFilter) where TDerived : TDocument
+        {
+            Ensure.IsNotNull(derivedDocumentFilter, "derivedDocumentFilter");
+            return OfType<TDerived>(new ExpressionFilterDefinition<TDerived>(derivedDocumentFilter));
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents with a field of a derived typer.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TDerived">The type of the matching derived field value.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TField, TDerived>(FieldDefinition<TDocument, TField> field) where TDerived : TField
+        {
+            Ensure.IsNotNull(field, "field");
+            return new FieldOfTypeFilterDefinition<TDocument, TField, TDerived>(field);
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents with a field of a derived type and that also match a filter on the derived field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TDerived">The type of the matching derived field value.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="derivedFieldFilter">A filter on the derived field.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TField, TDerived>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDerived> derivedFieldFilter) where TDerived : TField
+        {
+            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(derivedFieldFilter, "derivedFieldFilter");
+            return new FieldOfTypeFilterDefinition<TDocument, TField, TDerived>(field, derivedFieldFilter);
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents with a field of a derived type.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TDerived">The type of the matching derived field value.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TField, TDerived>(Expression<Func<TDocument, TField>> field) where TDerived : TField
+        {
+            Ensure.IsNotNull(field, "field");
+            return OfType<TField, TDerived>(new ExpressionFieldDefinition<TDocument, TField>(field));
+        }
+
+        /// <summary>
+        /// Creates an OfType filter that matches documents with a field of a derived type and that also match a filter on the derived field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TDerived">The type of the matching derived field value.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="derivedFieldFilter">A filter on the derived field.</param>
+        /// <returns>An OfType filter.</returns>
+        public FilterDefinition<TDocument> OfType<TField, TDerived>(Expression<Func<TDocument, TField>> field, Expression<Func<TDerived, bool>> derivedFieldFilter) where TDerived : TField
+        {
+            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(derivedFieldFilter, "derivedFieldFilter");
+            return OfType<TField, TDerived>(new ExpressionFieldDefinition<TDocument, TField>(field), new ExpressionFilterDefinition<TDerived>(derivedFieldFilter));
+        }
+
+        /// <summary>
         /// Creates an or filter.
         /// </summary>
         /// <param name="filters">The filters.</param>
@@ -1485,6 +1575,84 @@ namespace MongoDB.Driver
                 default:
                     return NegateArbitraryFilter(filter);
             }
+        }
+    }
+
+    internal sealed class DocumentOfTypeFilterDefinition<TDocument, TDerived> : FilterDefinition<TDocument>
+        where TDerived : TDocument
+    {
+        private readonly FilterDefinition<TDerived> _derivedDocumentFilter;
+
+        public DocumentOfTypeFilterDefinition(FilterDefinition<TDerived> derivedDocumentFilter = null)
+        {
+            _derivedDocumentFilter = derivedDocumentFilter; // can be null
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
+            if (discriminatorConvention == null)
+            {
+                var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TDocument)));
+                throw new NotSupportedException(message);
+            }
+
+            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerived));
+            var renderedDiscriminatorFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
+
+            if (_derivedDocumentFilter == null)
+            {
+                return renderedDiscriminatorFilter;
+            }
+
+            var derivedDocumentSerializer = serializerRegistry.GetSerializer<TDerived>();
+            var renderedDerivedDocumentFilter = _derivedDocumentFilter.Render(derivedDocumentSerializer, serializerRegistry);
+            var combinedFilter = Builders<TDerived>.Filter.And(
+                new BsonDocumentFilterDefinition<TDerived>(renderedDiscriminatorFilter),
+                new BsonDocumentFilterDefinition<TDerived>(renderedDerivedDocumentFilter));
+            return combinedFilter.Render(derivedDocumentSerializer, serializerRegistry);
+        }
+    }
+
+    internal sealed class FieldOfTypeFilterDefinition<TDocument, TField, TDerived> : FilterDefinition<TDocument>
+        where TDerived : TField
+    {
+        private readonly FilterDefinition<TDerived> _derivedFieldFilter;
+        private readonly FieldDefinition<TDocument, TField> _field;
+
+        public FieldOfTypeFilterDefinition(FieldDefinition<TDocument, TField> field, FilterDefinition<TDerived> derivedFieldFilter = null)
+        {
+            _field = Ensure.IsNotNull(field, "field");
+            _derivedFieldFilter = derivedFieldFilter; // can be null
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TField));
+            if (discriminatorConvention == null)
+            {
+                var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TField)));
+                throw new NotSupportedException(message);
+            }
+
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var discriminatorElementName = renderedField.FieldName + "." + discriminatorConvention.ElementName;
+            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TField), typeof(TDerived));
+            var renderedDiscriminatorFilter = new BsonDocument(discriminatorElementName, discriminatorValue);
+
+            if (_derivedFieldFilter == null)
+            {
+                return renderedDiscriminatorFilter;
+            }
+
+            var derivedDocumentSerializer = serializerRegistry.GetSerializer<TDerived>();
+            var unprefixedRenderedDerivedFilter = _derivedFieldFilter.Render(derivedDocumentSerializer, serializerRegistry);
+            var renderedDerivedFilter = new BsonDocument(
+                unprefixedRenderedDerivedFilter.Select(e => new BsonElement(renderedField.FieldName + "." + e.Name, e.Value)));
+            var combinedFilter = Builders<TDerived>.Filter.And(
+                new BsonDocumentFilterDefinition<TDerived>(renderedDiscriminatorFilter),
+                new BsonDocumentFilterDefinition<TDerived>(renderedDerivedFilter));
+            return combinedFilter.Render(derivedDocumentSerializer, serializerRegistry);
         }
     }
 

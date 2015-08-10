@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -138,7 +140,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.ElemMatch<Pet>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Animal>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
@@ -684,6 +686,39 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void OfType_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            // test OfType overloads that apply to the document as a whole
+            Assert(subject.OfType<Twin>(), "{ _t : \"Twin\" }");
+            Assert(subject.OfType<Twin>(Builders<Twin>.Filter.Eq(p => p.WasBornFirst, true)), "{ _t : \"Twin\", wasBornFirst : true }");
+            Assert(subject.OfType<Twin>("{ wasBornFirst : true }"), "{ _t : \"Twin\", wasBornFirst : true }");
+            Assert(subject.OfType<Twin>(BsonDocument.Parse("{ wasBornFirst : true }")), "{ _t : \"Twin\", wasBornFirst : true }");
+            Assert(subject.OfType<Twin>(p => p.WasBornFirst), "{ _t : \"Twin\", wasBornFirst : true }");
+
+            // test multiple OfType filters against same document
+            var personFilter = Builders<Person>.Filter.Or(
+                subject.OfType<Twin>(p => p.WasBornFirst),
+                subject.OfType<Triplet>(p => p.BirthOrder == 1));
+            Assert(personFilter, "{ $or : [{ _t : \"Twin\", wasBornFirst : true }, { _t : \"Triplet\", birthOrder : 1 }] }");
+
+            // test OfType overloads that apply to a field of the document
+            Assert(subject.OfType<Animal, Cat>("favoritePet"), "{ \"favoritePet._t\" : \"Cat\" }");
+            Assert(subject.OfType<Animal, Cat>("favoritePet", Builders<Cat>.Filter.Eq(c => c.LivesLeft, 9)), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>("favoritePet", "{ livesLeft : 9 }"), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>("favoritePet", BsonDocument.Parse("{ livesLeft : 9 }")), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>(p => p.FavoritePet), "{ \"favoritePet._t\" : \"Cat\" }");
+            Assert(subject.OfType<Animal, Cat>(p => p.FavoritePet, c => c.LivesLeft == 9), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+
+            // test multiple OfType filters against same field
+            var animalFilter = Builders<Person>.Filter.Or(
+                subject.OfType<Animal, Cat>(p => p.FavoritePet, c => c.LivesLeft == 9),
+                subject.OfType<Animal, Dog>(p => p.FavoritePet, d => d.IsLapDog));
+            Assert(animalFilter, "{ $or : [{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }, { \"favoritePet._t\" : \"Dog\", \"favoritePet.isLapDog\" : true }] }");
+        }
+
+        [Test]
         public void Or()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -818,17 +853,48 @@ namespace MongoDB.Driver.Tests
             [BsonElement("age")]
             public int Age { get; set; }
 
+            [BsonElement("favoritePet")]
+            public Animal FavoritePet { get; set; }
+
             [BsonElement("pets")]
-            public Pet[] Pets { get; set; }
+            public Animal[] Pets { get; set; }
 
             [BsonElement("loc")]
             public int[] Location { get; set; }
         }
 
-        private class Pet
+        private class Twin : Person
+        {
+            [BsonElement("wasBornFirst")]
+            public bool WasBornFirst { get; set; }
+        }
+
+        private class Triplet : Person
+        {
+            [BsonElement("birthOrder")]
+            public int BirthOrder { get; set; }
+        }
+
+        private abstract class Animal
         {
             [BsonElement("name")]
             public string Name { get; set; }
+        }
+
+        private abstract class Mammal : Animal
+        {
+        }
+
+        private class Cat : Mammal
+        {
+            [BsonElement("livesLeft")]
+            public int LivesLeft { get; set; }
+        }
+
+        private class Dog : Mammal
+        {
+            [BsonElement("isLapDog")]
+            public bool IsLapDog { get; set; }
         }
     }
 }
