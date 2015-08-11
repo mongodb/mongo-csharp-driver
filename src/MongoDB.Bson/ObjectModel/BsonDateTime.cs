@@ -265,5 +265,18 @@ namespace MongoDB.Bson
                 return JsonConvert.ToString(_millisecondsSinceEpoch);
             }
         }
+
+        // protected methods
+        /// <inheritdoc/>
+        protected override TypeCode IConvertibleGetTypeCodeImplementation()
+        {
+            return TypeCode.DateTime;
+        }
+
+        /// <inheritdoc/>
+        protected override DateTime IConvertibleToDateTimeImplementation(IFormatProvider provider)
+        {
+            return ToUniversalTime();
+        }
     }
 }

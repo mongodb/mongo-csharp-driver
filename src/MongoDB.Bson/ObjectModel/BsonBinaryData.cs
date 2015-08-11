@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ namespace MongoDB.Bson
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         public BsonBinaryData(byte[] bytes, BsonBinarySubType subType)
-            : this(bytes, subType, GuidRepresentation.Unspecified)
+            : this(bytes, subType, subType == BsonBinarySubType.UuidStandard ? GuidRepresentation.Standard : GuidRepresentation.Unspecified)
         {
         }
 

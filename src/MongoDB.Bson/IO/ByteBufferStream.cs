@@ -659,7 +659,7 @@ namespace MongoDB.Bson.IO
             var segment = _buffer.AccessBackingBytes(_position);
             if (segment.Count >= 12)
             {
-                value.GetBytes(segment.Array, segment.Offset);
+                value.ToByteArray(segment.Array, segment.Offset);
             }
             else
             {

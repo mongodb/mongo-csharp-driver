@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var actual = PredicateTranslator.Translate(where, serializer, BsonSerializer.SerializerRegistry);
 
             NUnit.Framework.Assert.IsNotNull(actual);
-            NUnit.Framework.Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"D1\" : 1 } } }", actual.ToJson());
+            NUnit.Framework.Assert.AreEqual("{ \"Bs.b\" : 1 }", actual.ToJson());
         }
        
 

@@ -80,6 +80,13 @@ namespace MongoDB.Driver
         IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <summary>
+        /// Appends a match stage to the pipeline that matches derived documents and changes the result type to the derived type.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the derived documents.</typeparam>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> OfType<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null) where TNewResult : TResult;
+
+        /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>

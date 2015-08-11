@@ -317,7 +317,7 @@ namespace MongoDB.Driver
             var operation = (CountOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be((string)options.Hint);
+            operation.Hint.Should().Be(options.Hint);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Skip.Should().Be(options.Skip);

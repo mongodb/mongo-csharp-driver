@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,19 +17,20 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.TestHelpers
 {
-    public class BsonDocumentAssertions : ReferenceTypeAssertions<BsonDocument, BsonDocumentAssertions>
+    public class BsonValueAssertions : ReferenceTypeAssertions<BsonValue, BsonValueAssertions>
     {
         // constructors
-        public BsonDocumentAssertions(BsonDocument value)
+        public BsonValueAssertions(BsonValue value)
         {
             Subject = value;
         }
 
         // methods
-        public AndConstraint<BsonDocumentAssertions> Be(BsonDocument expected, string because = "", params object[] reasonArgs)
+        public AndConstraint<BsonValueAssertions> Be(BsonValue expected, string because = "", params object[] reasonArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, reasonArgs)
@@ -37,34 +38,34 @@ namespace MongoDB.Bson.TestHelpers
                 .FailWith("Expected {context:object} to be {0}{reason}, but found {1}.", expected,
                     Subject);
 
-            return new AndConstraint<BsonDocumentAssertions>(this);
+            return new AndConstraint<BsonValueAssertions>(this);
         }
 
-        public AndConstraint<BsonDocumentAssertions> Be(string json, string because = "", params object[] reasonArgs)
+        public AndConstraint<BsonValueAssertions> Be(string json, string because = "", params object[] reasonArgs)
         {
-            var expected = json == null ? null : BsonDocument.Parse(json);
+            var expected = json == null ? null : BsonSerializer.Deserialize<BsonValue>(json);
             return Be(expected, because, reasonArgs);
         }
 
-        public AndConstraint<BsonDocumentAssertions> NotBe(BsonDocument unexpected, string because = "", params object[] reasonArgs)
+        public AndConstraint<BsonValueAssertions> NotBe(BsonValue unexpected, string because = "", params object[] reasonArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, reasonArgs)
                 .ForCondition(!Subject.IsSameOrEqualTo(unexpected))
                 .FailWith("Did not expect {context:object} to be equal to {0}{reason}.", unexpected);
 
-            return new AndConstraint<BsonDocumentAssertions>(this);
+            return new AndConstraint<BsonValueAssertions>(this);
         }
 
-        public AndConstraint<BsonDocumentAssertions> NotBe(string json, string because = "", params object[] reasonArgs)
+        public AndConstraint<BsonValueAssertions> NotBe(string json, string because = "", params object[] reasonArgs)
         {
-            var expected = json == null ? null : BsonDocument.Parse(json);
+            var expected = json == null ? null : BsonSerializer.Deserialize<BsonValue>(json);
             return NotBe(expected, because, reasonArgs);
         }
 
         protected override string Context
         {
-            get { return "BsonDocument"; }
+            get { return "BsonValue"; }
         }
     }
 }

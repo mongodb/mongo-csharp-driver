@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,19 @@ namespace FluentAssertions // use FluentAssertions namespace so that these exten
     public static class BsonAssertionExtensions
     {
         // static methods
+        public static BsonArrayAssertions Should(this BsonArray actualValue)
+        {
+            return new BsonArrayAssertions(actualValue);
+        }
+
         public static BsonDocumentAssertions Should(this BsonDocument actualValue)
         {
             return new BsonDocumentAssertions(actualValue);
+        }
+
+        public static BsonValueAssertions Should(this BsonValue actualValue)
+        {
+            return new BsonValueAssertions(actualValue);
         }
     }
 }
