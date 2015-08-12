@@ -16,7 +16,7 @@ let version = baseVersion + "." + buildNumber
 let semVersion = 
     match preRelease with
     | "build" | "local" -> baseVersion + "-" + preRelease + "-" + buildNumber.PadLeft(4, '0')
-    | "" -> baseVersion
+    | "#release#" -> baseVersion
     | _ -> baseVersion + "-" + preRelease
 
 let baseDir = currentDirectory
@@ -129,7 +129,7 @@ Target "Docs" (fun _ ->
 
     let preliminary =
         match preRelease with
-        | "" -> "False"
+        | "#release#" -> "False"
         | _ -> "True"
 
     let properties = ["Configuration", config
