@@ -4,7 +4,7 @@ open Fake
 open Fake.AssemblyInfoFile
 
 let config = getBuildParamOrDefault "config" "Release"
-let baseVersion = getBuildParamOrDefault "baseVersion" "1.10.1"
+let baseVersion = getBuildParamOrDefault "baseVersion" "1.10.2"
 let preRelease = getBuildParamOrDefault "preRelease" "local"
 let getComputedBuildNumber() = 
     let result = Git.CommandHelper.runSimpleGitCommand currentDirectory "describe HEAD^1 --tags --long --match \"v[0-9].[0-9].[0-9]*\""
