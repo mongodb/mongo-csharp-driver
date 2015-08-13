@@ -246,7 +246,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 });
 ```
 
-{{% note %}}When a readonly property is serialized, it value is persisted to the database, but never read back out. This is useful for storing “computed” properties.{{% /note %}}
+{{% note %}}When a readonly property is serialized, its value is persisted to the database, but never read back out. This is useful for storing “computed” properties.{{% /note %}}
 
 
 ### Element Name
