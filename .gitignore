@@ -50,6 +50,9 @@ src/packages
 *.cs.orig
 *.vb.orig
 
+# Fake Artifacts
+.fake
+
 # Other
 artifacts
 packages
