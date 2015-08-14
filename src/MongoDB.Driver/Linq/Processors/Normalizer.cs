@@ -163,9 +163,7 @@ namespace MongoDB.Driver.Linq.Processors
             var left = node.Left;
             var right = node.Right;
             var operatorType = node.NodeType;
-            if (left.NodeType == ExpressionType.Constant ||
-                (left.NodeType == ExpressionType.Convert && ((UnaryExpression)left).Operand.NodeType == ExpressionType.Constant) ||
-                (left.NodeType == ExpressionType.ConvertChecked && ((UnaryExpression)left).Operand.NodeType == ExpressionType.Constant))
+            if (RemoveUnnecessaries(left).NodeType == ExpressionType.Constant)
             {
                 right = node.Left;
                 left = node.Right;
@@ -208,6 +206,18 @@ namespace MongoDB.Driver.Linq.Processors
             }
 
             return null;
+        }
+
+        private Expression RemoveUnnecessaries(Expression node)
+        {
+            while (node.NodeType == ExpressionType.Convert ||
+                node.NodeType == ExpressionType.ConvertChecked ||
+                node.NodeType == ExpressionType.Quote)
+            {
+                node = ((UnaryExpression)node).Operand;
+            }
+
+            return node;
         }
     }
 }
