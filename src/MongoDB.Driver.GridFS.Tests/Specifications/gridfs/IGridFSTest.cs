@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
-using System.Reflection;
+using System.Threading.Tasks;
 
-[assembly: AssemblyCompany("MongoDB Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
-[assembly: AssemblyVersion("0.0.*")]
-[assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("0.0.0.0")]
-[assembly: AssemblyMetadata("githash", "none")]
-[assembly: AssemblyConfiguration("Debug")]
+namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+{
+    public interface IGridFSTest
+    {
+        bool CanRun(out string reason);
+        Task RunAsync(GridFSBucket bucket);
+    }
+}

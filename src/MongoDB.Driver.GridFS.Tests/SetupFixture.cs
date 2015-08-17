@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
 * limitations under the License.
 */
 
-using System.Reflection;
+using NUnit.Framework;
 
-[assembly: AssemblyCompany("MongoDB Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
-[assembly: AssemblyVersion("0.0.*")]
-[assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("0.0.0.0")]
-[assembly: AssemblyMetadata("githash", "none")]
-[assembly: AssemblyConfiguration("Debug")]
+namespace MongoDB.Driver
+{
+    [SetUpFixture]
+    public class SetUpFixture
+    {
+        [TearDown]
+        public void TearDown()
+        {
+            CoreTestConfiguration.TearDown();
+        }
+    }
+}

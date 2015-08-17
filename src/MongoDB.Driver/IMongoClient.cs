@@ -30,6 +30,14 @@ namespace MongoDB.Driver
     public interface IMongoClient
     {
         /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        /// <value>
+        /// The cluster.
+        /// </value>
+        ICluster Cluster { get; }
+
+        /// <summary>
         /// Gets the settings.
         /// </summary>
         MongoClientSettings Settings { get; }

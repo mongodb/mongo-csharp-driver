@@ -25,6 +25,9 @@ namespace MongoDB.Driver
     public abstract class MongoClientBase : IMongoClient
     {
         /// <inheritdoc />
+        public abstract ICluster Cluster { get;  }
+
+        /// <inheritdoc />
         public abstract MongoClientSettings Settings { get; }
 
         /// <inheritdoc />
