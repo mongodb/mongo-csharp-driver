@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,66 +13,12 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class SerializationExpression : ExtensionExpression, ISerializationExpression
+    internal abstract class SerializationExpression : ExtensionExpression, ISerializationExpression
     {
-        private readonly Expression _expression;
-        private readonly BsonSerializationInfo _serializationInfo;
-
-        public SerializationExpression(Expression expression, BsonSerializationInfo serializationInfo)
-        {
-            _expression = expression;
-            _serializationInfo = serializationInfo;
-        }
-
-        public Expression Expression
-        {
-            get { return _expression; }
-        }
-
-        public override ExtensionExpressionType ExtensionType
-        {
-            get { return ExtensionExpressionType.Serialization; }
-        }
-
-        public BsonSerializationInfo SerializationInfo
-        {
-            get { return _serializationInfo; }
-        }
-
-        public override Type Type
-        {
-            get { return _expression.Type; }
-        }
-
-        public override string ToString()
-        {
-            if (_serializationInfo.ElementName == null)
-            {
-                return "[" + _expression.ToString() + "]";
-            }
-
-            return string.Format("[{0}]", _serializationInfo.ElementName);
-        }
-
-        public SerializationExpression Update(Expression expression)
-        {
-            if (expression != _expression)
-            {
-                return new SerializationExpression(expression, _serializationInfo);
-            }
-
-            return this;
-        }
-
-        protected internal override Expression Accept(ExtensionExpressionVisitor visitor)
-        {
-            return visitor.VisitSerialization(this);
-        }
+        public abstract IBsonSerializer Serializer { get; }
     }
 }

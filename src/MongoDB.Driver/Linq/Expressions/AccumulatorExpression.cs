@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,21 +15,26 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class AccumulatorExpression : ExtensionExpression
+    internal sealed class AccumulatorExpression : SerializationExpression, IFieldExpression
     {
         private readonly AccumulatorType _accumulatorType;
         private readonly Expression _argument;
+        private readonly string _fieldName;
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public AccumulatorExpression(Type type, AccumulatorType accumulatorType, Expression argument)
+        public AccumulatorExpression(Type type, string fieldName, IBsonSerializer serializer, AccumulatorType accumulatorType, Expression argument)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _accumulatorType = accumulatorType;
-            _argument = argument;
+            _argument = Ensure.IsNotNull(argument, nameof(argument));
         }
 
         public AccumulatorType AccumulatorType
@@ -47,6 +52,16 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return ExtensionExpressionType.Accumulator; }
         }
 
+        public string FieldName
+        {
+            get { return _fieldName; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
+        }
+
         public override Type Type
         {
             get { return _type; }
@@ -61,7 +76,7 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             if (argument != _argument)
             {
-                return new AccumulatorExpression(_type, _accumulatorType, argument);
+                return new AccumulatorExpression(_type, _fieldName, _serializer, _accumulatorType, argument);
             }
 
             return this;

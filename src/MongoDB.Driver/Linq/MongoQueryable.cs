@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
-    /// Extension for IMongoQueryable.
+    /// Extension for <see cref="IMongoQueryable" />.
     /// </summary>
     public static class MongoQueryable
     {
@@ -41,10 +41,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<bool>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, bool>(Queryable.Any, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -62,11 +60,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<bool>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, bool>(Queryable.Any, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -78,7 +74,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<decimal> AverageAsync(this IMongoQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<decimal, decimal>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, decimal>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -89,7 +89,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<decimal?> AverageAsync(this IMongoQueryable<decimal?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<decimal?, decimal?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, decimal?>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -100,7 +104,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double> AverageAsync(this IMongoQueryable<double> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<double, double>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, double>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -111,7 +119,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double?> AverageAsync(this IMongoQueryable<double?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<double?, double?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, double?>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -122,7 +134,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<float> AverageAsync(this IMongoQueryable<float> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<float, float>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, float>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -133,7 +149,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<float?> AverageAsync(this IMongoQueryable<float?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<float?, float?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, float?>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -144,7 +164,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double> AverageAsync(this IMongoQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<int, double>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, double>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -155,7 +179,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double?> AverageAsync(this IMongoQueryable<int?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<int?, double?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, double?>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -166,7 +194,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double> AverageAsync(this IMongoQueryable<long> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<long, double>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, double>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -177,7 +209,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The average of the values in the sequence.</returns>
         public static Task<double?> AverageAsync(this IMongoQueryable<long?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<long?, double?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, double?>(Queryable.Average, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -193,7 +229,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<decimal> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, decimal, decimal>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, decimal>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -209,7 +250,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<decimal?> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, decimal?, decimal?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, decimal?>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -225,7 +271,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, double, double>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, double>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -241,7 +292,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double?> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, double?, double?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, double?>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -257,7 +313,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<float> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, float, float>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, float>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -273,7 +334,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<float?> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, float?, float?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, float?>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -289,7 +355,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, int, double>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, double>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -305,7 +376,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double?> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, int?, double?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, double?>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -321,7 +397,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, long, double>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, double>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -337,7 +418,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double?> AverageAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AverageAsync<TSource, long?, double?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, double?>(Queryable.Average, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -353,10 +439,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, int>(Queryable.Count, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -374,11 +458,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, int>(Queryable.Count, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -408,10 +490,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.First, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -429,11 +509,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, TSource>(Queryable.First, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -450,10 +528,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.FirstOrDefault, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -471,11 +547,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, TSource>(Queryable.FirstOrDefault, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -516,6 +590,44 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the number of elements in a sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">The <see cref="IMongoQueryable{TSource}" /> that contains the elements to be counted.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The number of elements in the input sequence.
+        /// </returns>
+        public static Task<long> LongCountAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, long>(Queryable.LongCount, source),
+                    source.Expression),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the number of elements in the specified sequence that satisfies a condition.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}" /> that contains the elements to be counted.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The number of elements in the sequence that satisfies the condition in the predicate function.
+        /// </returns>
+        public static Task<long> LongCountAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, long>(Queryable.LongCount, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
+                cancellationToken);
+        }
+
+        /// <summary>
         /// Returns the maximum value in a generic <see cref="IMongoQueryable{TSource}" />.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -526,13 +638,10 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<TSource> MaxAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var method = ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) });
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    method,
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.Max, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -551,11 +660,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(selector),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, TResult>>, TResult>(Queryable.Max, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
                 cancellationToken);
         }
 
@@ -572,10 +679,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.Min, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -594,11 +699,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(selector),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, TResult>>, TResult>(Queryable.Min, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
                 cancellationToken);
         }
 
@@ -709,10 +812,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.Single, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -730,11 +831,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, TSource>(Queryable.Single, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -751,10 +850,8 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, TSource>(Queryable.SingleOrDefault, source),
+                    source.Expression),
                 cancellationToken);
         }
 
@@ -772,11 +869,9 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(predicate),
-                    Expression.Constant(cancellationToken)),
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, TSource>(Queryable.SingleOrDefault, source, predicate),
+                    source.Expression,
+                    Expression.Quote(predicate)),
                 cancellationToken);
         }
 
@@ -804,7 +899,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<decimal> SumAsync(this IMongoQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<decimal>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, decimal>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -815,7 +914,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<decimal?> SumAsync(this IMongoQueryable<decimal?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<decimal?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, decimal?>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -826,7 +929,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<double> SumAsync(this IMongoQueryable<double> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<double>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, double>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -837,7 +944,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<double?> SumAsync(this IMongoQueryable<double?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<double?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, double?>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -848,7 +959,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<float> SumAsync(this IMongoQueryable<float> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<float>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, float>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -859,7 +974,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<float?> SumAsync(this IMongoQueryable<float?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<float?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, float?>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -870,7 +989,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<int> SumAsync(this IMongoQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<int>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, int>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -881,7 +1004,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<int?> SumAsync(this IMongoQueryable<int?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<int?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, int?>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -892,7 +1019,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<long> SumAsync(this IMongoQueryable<long> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<long>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, long>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -903,7 +1034,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The sum of the values in the sequence.</returns>
         public static Task<long?> SumAsync(this IMongoQueryable<long?> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<long?>(source, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, long?>(Queryable.Sum, source),
+                    source.Expression),
+                cancellationToken);
         }
 
         /// <summary>
@@ -919,7 +1054,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<decimal> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, decimal>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, decimal>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -935,7 +1075,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<decimal?> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, decimal?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, decimal?>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -951,7 +1096,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, double>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, double>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -967,7 +1117,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<double?> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, double?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, double?>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -983,7 +1138,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<float> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, float>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, float>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -999,7 +1159,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<float?> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, float?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, float?>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -1015,7 +1180,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<int> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, int>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, int>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -1031,7 +1201,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<int?> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, int?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, int?>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -1047,7 +1222,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<long> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, long>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, long>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -1063,7 +1243,12 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<long?> SumAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SumAsync<TSource, long?>(source, selector, cancellationToken);
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<long?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, long?>(Queryable.Sum, source, selector),
+                    source.Expression,
+                    Expression.Quote(selector)),
+                cancellationToken);
         }
 
         /// <summary>
@@ -1094,7 +1279,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static IOrderedMongoQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (IOrderedMongoQueryable<TSource>)Queryable.OrderBy(source, keySelector);
+            return (IOrderedMongoQueryable<TSource>)Queryable.ThenBy(source, keySelector);
         }
 
         /// <summary>
@@ -1110,7 +1295,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static IOrderedMongoQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (IOrderedMongoQueryable<TSource>)Queryable.OrderByDescending(source, keySelector);
+            return (IOrderedMongoQueryable<TSource>)Queryable.ThenByDescending(source, keySelector);
         }
 
         /// <summary>
@@ -1128,50 +1313,14 @@ namespace MongoDB.Driver.Linq
             return (IMongoQueryable<TSource>)Queryable.Where(source, predicate);
         }
 
-        private static Task<TResult> AverageAsync<TSource, TResult>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken)
+        private static MethodInfo GetMethodInfo<T1, T2>(Func<T1, T2> f, T1 unused)
         {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
-                Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
-                cancellationToken);
+            return f.Method;
         }
 
-        private static Task<TResult> AverageAsync<TSource, TValue, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TValue>> selector, CancellationToken cancellationToken)
+        private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2)
         {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
-                Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TValue), typeof(TResult) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(selector),
-                    Expression.Constant(cancellationToken)),
-                cancellationToken);
-        }
-
-        private static Task<TSource> SumAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken)
-        {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
-                Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Constant(cancellationToken)),
-                cancellationToken);
-        }
-
-        private static Task<TValue> SumAsync<TSource, TValue>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TValue>> selector, CancellationToken cancellationToken)
-        {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TValue>(
-                Expression.Call(
-                    null,
-                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TValue) }),
-                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
-                    Expression.Quote(selector),
-                    Expression.Constant(cancellationToken)),
-                cancellationToken);
+            return f.Method;
         }
     }
 }

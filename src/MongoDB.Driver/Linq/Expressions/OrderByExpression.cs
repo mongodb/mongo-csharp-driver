@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,22 +21,22 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class OrderByExpression : ExtensionExpression
+    internal sealed class OrderByExpression : ExtensionExpression, ISourcedExpression
     {
         private readonly Expression _source;
-        private readonly ReadOnlyCollection<SortClause> _clauses;
+        private readonly ReadOnlyCollection<OrderByClause> _clauses;
 
-        public OrderByExpression(Expression source, IEnumerable<SortClause> clauses)
+        public OrderByExpression(Expression source, IEnumerable<OrderByClause> clauses)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
-            _clauses = Ensure.IsNotNull(clauses, nameof(clauses)) as ReadOnlyCollection<SortClause>;
+            _clauses = Ensure.IsNotNull(clauses, "clauses") as ReadOnlyCollection<OrderByClause>;
             if (_clauses == null)
             {
-                _clauses = new List<SortClause>(clauses).AsReadOnly();
+                _clauses = new List<OrderByClause>(clauses).AsReadOnly();
             }
         }
 
-        public ReadOnlyCollection<SortClause> Clauses
+        public ReadOnlyCollection<OrderByClause> Clauses
         {
             get { return _clauses; }
         }
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return string.Format("{0}.OrderBy({1})", _source.ToString(), clauseStrings);
         }
 
-        public OrderByExpression Update(Expression source, ReadOnlyCollection<SortClause> clauses)
+        public OrderByExpression Update(Expression source, ReadOnlyCollection<OrderByClause> clauses)
         {
             if (source != _source ||
                 clauses != _clauses)

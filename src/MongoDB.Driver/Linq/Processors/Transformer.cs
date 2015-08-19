@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ using MongoDB.Driver.Linq.Processors.Transformers;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class Transformer : ExpressionVisitor
+    internal sealed class Transformer : ExpressionVisitor
     {
         private static ExpressionTransformerRegistry __registry;
 
@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Linq.Processors
             __registry.Register(new FirstLastNormalizingTransformer());
             __registry.Register(new SelectSelectCombiningTransformer());
             __registry.Register(new ConstantOnRightTransformer());
+            __registry.Register(new CollectionConstructorTransformer());
             __registry.Register(new VBStringIndexComparisonTransformer());
             __registry.Register(new VBCompareStringTransformer());
             __registry.Register(new VBNothingConversionRemovalTransformer());
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Linq.Processors
                 return visited;
             }
 
-            var transformers = __registry.GetTransformers(node.NodeType);
+            var transformers = __registry.GetTransformers(visited.NodeType);
 
             foreach (var transformer in transformers)
             {

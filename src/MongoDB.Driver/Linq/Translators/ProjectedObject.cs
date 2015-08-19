@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace MongoDB.Driver.Linq.Translators
 {
-    internal class ProjectedObject
+    internal sealed class ProjectedObject
     {
         private Dictionary<string, object> _values;
 

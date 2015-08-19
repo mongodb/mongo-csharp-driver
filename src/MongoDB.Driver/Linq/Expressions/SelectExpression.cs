@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class SelectExpression : ExtensionExpression
+    internal sealed class SelectExpression : ExtensionExpression, ISourcedExpression
     {
+        private readonly string _itemName;
         private readonly Expression _selector;
         private readonly Expression _source;
-        private readonly Type _type;
 
-        public SelectExpression(Expression source, Expression selector)
+        public SelectExpression(Expression source, string itemName, Expression selector)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
+            _itemName = Ensure.IsNotNull(itemName, nameof(itemName));
             _selector = Ensure.IsNotNull(selector, nameof(selector));
-            _type = typeof(IEnumerable<>).MakeGenericType(selector.Type);
         }
 
         public override ExtensionExpressionType ExtensionType
@@ -48,9 +47,14 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return _source; }
         }
 
+        public string ItemName
+        {
+            get { return _itemName; }
+        }
+
         public override Type Type
         {
-            get { return _type; }
+            get { return _source.Type; }
         }
 
         public override string ToString()
@@ -63,7 +67,7 @@ namespace MongoDB.Driver.Linq.Expressions
             if (source != _source ||
                 selector != _selector)
             {
-                return new SelectExpression(source, selector);
+                return new SelectExpression(source, _itemName, selector);
             }
 
             return this;

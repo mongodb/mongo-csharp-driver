@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,107 +17,132 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class CorrelatedGroupRewriter : ExtensionExpressionVisitor
+    internal sealed class CorrelatedGroupRewriter : ExtensionExpressionVisitor
     {
-        public static Expression Rewrite(Expression node, IBsonSerializerRegistry serializerRegistry)
+        public static Expression Rewrite(Expression node)
         {
-            var rewriter = new CorrelatedGroupRewriter(serializerRegistry);
+            var rewriter = new CorrelatedGroupRewriter();
             return rewriter.Visit(node);
         }
 
-        private ILookup<Guid, CorrelatedAccumulatorExpression> _lookup;
-        private readonly Dictionary<CorrelatedAccumulatorExpression, Expression> _map;
-        private readonly IBsonSerializerRegistry _serializerRegistry;
+        private ILookup<Guid, CorrelatedExpression> _accumulatorLookup;
+        private readonly Dictionary<CorrelatedExpression, Expression> _accumulatorReplacementMap;
 
-        private CorrelatedGroupRewriter(IBsonSerializerRegistry serializerRegistry)
+        private CorrelatedGroupRewriter()
         {
-            _serializerRegistry = serializerRegistry;
-            _map = new Dictionary<CorrelatedAccumulatorExpression, Expression>();
+            _accumulatorReplacementMap = new Dictionary<CorrelatedExpression, Expression>();
         }
 
-        protected internal override Expression VisitCorrelatedAccumulator(CorrelatedAccumulatorExpression node)
+        protected internal override Expression VisitCorrelated(CorrelatedExpression node)
+        {
+            if (node.Expression is AccumulatorExpression)
+            {
+                return VisitCorrelatedAccumulator(node);
+            }
+
+            if (node.Expression is GroupByExpression)
+            {
+                return VisitCorrelatedGroup(node);
+            }
+
+            return base.VisitCorrelated(node);
+        }
+
+        private Expression VisitCorrelatedAccumulator(CorrelatedExpression node)
         {
             Expression mapped;
-            if (_map.TryGetValue(node, out mapped))
+            if (_accumulatorReplacementMap.TryGetValue(node, out mapped))
             {
                 return mapped;
             }
 
-            return base.VisitCorrelatedAccumulator(node);
+            return base.VisitCorrelated(node);
         }
 
-        protected internal override Expression VisitCorrelatedGroupBy(CorrelatedGroupByExpression node)
+        private Expression VisitCorrelatedGroup(CorrelatedExpression node)
         {
-            if (_lookup != null && _lookup.Contains(node.CorrelationId))
+            var groupExpression = (GroupByExpression)node.Expression;
+            if (_accumulatorLookup != null && _accumulatorLookup.Contains(node.CorrelationId))
             {
-                var source = Visit(node.Source);
-                var accumulators = new List<SerializationExpression>();
+                var source = Visit(groupExpression.Source);
+                var accumulators = new List<AccumulatorExpression>();
+                var fieldExpressions = new List<FieldExpression>();
                 var comparer = new ExpressionComparer();
-                foreach (var correlatedAccumulator in _lookup[node.CorrelationId])
+                foreach (var correlatedAccumulator in _accumulatorLookup[node.CorrelationId])
                 {
-                    var index = accumulators.FindIndex(x => comparer.Compare(x.Expression, correlatedAccumulator.Accumulator));
+                    var index = accumulators.FindIndex(x => comparer.Compare((Expression)x, correlatedAccumulator.Expression));
 
+                    FieldExpression fieldExpression;
                     if (index == -1)
                     {
-                        var serializer = _serializerRegistry.GetSerializer(correlatedAccumulator.Type);
-                        var info = new BsonSerializationInfo(
-                            "__agg" + accumulators.Count,
-                            serializer,
-                            serializer.ValueType);
+                        var accumulator = (AccumulatorExpression)correlatedAccumulator.Expression;
 
-                        var serializationExpression = new SerializationExpression(correlatedAccumulator.Accumulator, info);
-                        accumulators.Add(serializationExpression);
-                        _map[correlatedAccumulator] = serializationExpression;
+                        // TODO: might not need to do any renames...
+                        accumulator = new AccumulatorExpression(
+                            accumulator.Type,
+                            "__agg" + accumulators.Count,
+                            accumulator.Serializer,
+                            accumulator.AccumulatorType,
+                            accumulator.Argument);
+
+                        accumulators.Add(accumulator);
+                        fieldExpression = new FieldExpression(accumulator.FieldName, accumulator.Serializer);
+                        fieldExpressions.Add(fieldExpression);
                     }
                     else
                     {
-                        _map[correlatedAccumulator] = accumulators[index];
+                        fieldExpression = fieldExpressions[index];
                     }
+
+                    _accumulatorReplacementMap[correlatedAccumulator] = fieldExpression;
                 }
 
-                node = node.Update(
+                groupExpression = new GroupByExpression(
+                    groupExpression.Type,
                     source,
-                    node.Id,
-                    accumulators.OfType<Expression>());
+                    groupExpression.KeySelector,
+                    accumulators.AsReadOnly());
             }
 
-            return base.VisitCorrelatedGroupBy(node);
+            return Visit(groupExpression);
         }
 
-        protected internal override Expression VisitProjection(ProjectionExpression node)
+        protected internal override Expression VisitPipeline(PipelineExpression node)
         {
-            _lookup = AccumulatorGatherer.Gather(node.Source).ToLookup(x => x.CorrelationId);
+            _accumulatorLookup = AccumulatorGatherer.Gather(node.Source).ToLookup(x => x.CorrelationId);
 
-            return base.VisitProjection(node);
+            return base.VisitPipeline(node);
         }
 
         private class AccumulatorGatherer : ExtensionExpressionVisitor
         {
-            public static List<CorrelatedAccumulatorExpression> Gather(Expression node)
+            public static List<CorrelatedExpression> Gather(Expression node)
             {
                 var gatherer = new AccumulatorGatherer();
                 gatherer.Visit(node);
                 return gatherer._accumulators;
             }
 
-            private readonly List<CorrelatedAccumulatorExpression> _accumulators;
+            private readonly List<CorrelatedExpression> _accumulators;
 
             public AccumulatorGatherer()
             {
-                _accumulators = new List<CorrelatedAccumulatorExpression>();
+                _accumulators = new List<CorrelatedExpression>();
             }
 
-            protected internal override Expression VisitCorrelatedAccumulator(CorrelatedAccumulatorExpression node)
+            protected internal override Expression VisitCorrelated(CorrelatedExpression node)
             {
-                _accumulators.Add(node);
+                if (node.Expression is AccumulatorExpression)
+                {
+                    _accumulators.Add(node);
+                    return node;
+                }
 
-                // there could be nested accumulators we need to get...
-                return base.VisitCorrelatedAccumulator(node);
+                return base.VisitCorrelated(node);
             }
         }
     }

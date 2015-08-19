@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,232 +14,193 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Expressions.ResultOperators;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class AccumulatorBinder : SerializationInfoBinder
+    internal sealed class AccumulatorBinder : ExtensionExpressionVisitor
     {
-        private readonly CorrelatedGroupMap _groupMap;
-        private bool _isPotentialAccumulatorMethod;
-
-        public AccumulatorBinder(IBsonSerializerRegistry serializerRegistry)
-            : base(serializerRegistry)
+        public static Expression Bind(Expression node, IBindingContext bindingContext)
         {
-            _isPotentialAccumulatorMethod = true;
+            var binder = new AccumulatorBinder(bindingContext);
+            return binder.Visit(node);
         }
 
-        public AccumulatorBinder(CorrelatedGroupMap groupMap, IBsonSerializerRegistry serializerRegistry)
-            : this(serializerRegistry)
+        private readonly IBindingContext _bindingContext;
+        private int _count;
+
+        public AccumulatorBinder(IBindingContext bindingContext)
         {
-            _groupMap = groupMap;
+            _bindingContext = Ensure.IsNotNull(bindingContext, nameof(bindingContext));
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected internal override Expression VisitAccumulator(AccumulatorExpression node)
         {
-            // only the top-level method calls are potential accumulator methods
-            // For instance, in g => g.Select(x => x.Age).Sum(), only the Sum() is
-            // a potential accumulator method. Select is not. 
-            var oldIsPotentialAccumulatorMethod = _isPotentialAccumulatorMethod;
-            _isPotentialAccumulatorMethod = false;
-            var newNode = (MethodCallExpression)base.VisitMethodCall(node);
-            _isPotentialAccumulatorMethod = oldIsPotentialAccumulatorMethod;
-            Expression accumulator;
-            if (_isPotentialAccumulatorMethod && newNode.NodeType == ExpressionType.Call && TryBindAccumulatorExpression(newNode, out accumulator))
+            return node;
+        }
+
+        protected internal override Expression VisitPipeline(PipelineExpression node)
+        {
+            Guid correlationId;
+            if (TryGetCorrelatedGroup(node.Source, out correlationId))
             {
-                return accumulator;
-            }
-
-            return newNode;
-        }
-
-        protected override Expression VisitNew(NewExpression node)
-        {
-            var newNode = (NewExpression)base.VisitNew(node);
-            if (newNode.Type.IsGenericType
-                && newNode.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
-                && newNode.Arguments.Count == 1
-                && newNode.Arguments[0] is AccumulatorExpression
-                && ((AccumulatorExpression)newNode.Arguments[0]).AccumulatorType == AccumulatorType.Push)
-            {
-                Guid correlationId = Guid.Empty;
-                if (_groupMap == null || TryGetCorrelatedGroup(node.Arguments[0], out correlationId))
+                AccumulatorType accumulatorType;
+                Expression argument;
+                if (TryGetAccumulatorTypeAndArgument(node, out accumulatorType, out argument))
                 {
-                    Expression accumulator = new AccumulatorExpression(
-                        newNode.Type,
-                        AccumulatorType.AddToSet,
-                        ((AccumulatorExpression)newNode.Arguments[0]).Argument);
-
-                    if (_groupMap != null)
-                    {
-                        accumulator = new CorrelatedAccumulatorExpression(
-                            correlationId,
-                            (AccumulatorExpression)accumulator);
-                    }
-
-                    return accumulator;
-                }
-            }
-
-            return newNode;
-        }
-
-        private bool TryBindAccumulatorExpression(MethodCallExpression node, out Expression accumulator)
-        {
-            AccumulatorType accumulatorType;
-            if (TryGetAccumulatorType(node.Method.Name, out accumulatorType))
-            {
-                Guid correlationId = Guid.Empty;
-                if (_groupMap == null || TryGetCorrelatedGroup(node.Arguments[0], out correlationId))
-                {
-                    accumulator = new AccumulatorExpression(node.Type,
+                    var accumulator = new AccumulatorExpression(
+                        node.Type,
+                        "__agg" + _count++,
+                        _bindingContext.GetSerializer(node.Type, argument),
                         accumulatorType,
-                        GetAccumulatorArgument(node));
+                        argument);
 
-                    if (_groupMap != null)
-                    {
-                        accumulator = new CorrelatedAccumulatorExpression(
-                            correlationId,
-                            (AccumulatorExpression)accumulator);
-                    }
-
-                    return true;
+                    return new CorrelatedExpression(
+                        correlationId,
+                        accumulator);
                 }
             }
 
-            accumulator = null;
-            return false;
-        }
-
-        private Expression GetAccumulatorArgument(MethodCallExpression node)
-        {
-            switch (node.Method.Name)
-            {
-                case "Count":
-                case "LongCount":
-                    if (node.Arguments.Count == 1)
-                    {
-                        return Expression.Constant(1);
-                    }
-                    break;
-                case "Average":
-                case "Min":
-                case "Max":
-                case "Sum":
-                    if (node.Arguments.Count == 2)
-                    {
-                        return GetLambda(node.Arguments[1]).Body;
-                    }
-                    else if (node.Arguments.Count == 1)
-                    {
-                        return GetBodyFromSelector(node);
-                    }
-                    break;
-                case "First":
-                case "Last":
-                    // we have already normalized First/Last calls to only have 1 argument...
-                    if (node.Arguments.Count == 1)
-                    {
-                        return GetBodyFromSelector(node);
-                    }
-                    break;
-                case "Select":
-                    if (node.Arguments.Count == 2)
-                    {
-                        return GetLambda(node.Arguments[1]).Body;
-                    }
-                    break;
-                case "Distinct":
-                case "ToArray":
-                case "ToList":
-                    if (node.Arguments.Count == 1)
-                    {
-                        return GetBodyFromSelector(node);
-                    }
-                    break;
-            }
-
-            var message = string.Format("Unsupported version of accumulator method {0} in the expression tree: {1}.",
-                node.Method.Name,
-                node.ToString());
-            throw new NotSupportedException(message);
-        }
-
-        private Expression GetBodyFromSelector(MethodCallExpression node)
-        {
-            // yes, this is difficult to understand what is going on.
-            // we are getting the x.Field from an expression that looks like this:
-            // group.Select(x => x.Field).First();
-            return GetLambda(((MethodCallExpression)node.Arguments[0]).Arguments[1]).Body;
+            return node;
         }
 
         private bool TryGetCorrelatedGroup(Expression source, out Guid correlationId)
         {
-            if (_groupMap == null)
+            while (source != null)
             {
-                correlationId = Guid.Empty;
-                return false;
-            }
+                if (_bindingContext.TryGetCorrelatingId(source, out correlationId))
+                {
+                    return true;
+                }
 
-            if (_groupMap.TryGet(source, out correlationId))
-            {
-                return true;
-            }
-
-            switch (source.NodeType)
-            {
-                case ExpressionType.Call:
-                    var call = (MethodCallExpression)source;
-                    if (call.Method.Name == "Select")
+                var newSource = source as ISourcedExpression;
+                if (newSource != null)
+                {
+                    source = newSource.Source;
+                }
+                else
+                {
+                    var correlatedExpression = source as CorrelatedExpression;
+                    if (correlatedExpression != null)
                     {
-                        return TryGetCorrelatedGroup(call.Arguments[0], out correlationId);
+                        newSource = correlatedExpression.Expression as ISourcedExpression;
+                        if (newSource != null)
+                        {
+                            source = newSource.Source;
+                        }
+                        else
+                        {
+                            source = null;
+                        }
                     }
-                    break;
+                    else
+                    {
+                        source = null;
+                    }
+                }
             }
 
             correlationId = Guid.Empty;
             return false;
         }
 
-        private bool TryGetAccumulatorType(string methodName, out AccumulatorType accumulatorType)
+        private bool TryGetAccumulatorTypeAndArgument(PipelineExpression node, out AccumulatorType accumulatorType, out Expression argument)
         {
-            switch (methodName)
+            if (node.ResultOperator == null)
             {
-                case "Average":
-                    accumulatorType = AccumulatorType.Average;
-                    return true;
-                case "Count":
-                case "LongCount":
-                case "Sum":
-                    accumulatorType = AccumulatorType.Sum;
-                    return true;
-                case "Distinct":
+                var distinct = node.Source as DistinctExpression;
+                if (distinct != null)
+                {
                     accumulatorType = AccumulatorType.AddToSet;
+                    argument = GetAccumulatorArgument(distinct.Source);
                     return true;
-                case "First":
-                    accumulatorType = AccumulatorType.First;
-                    return true;
-                case "Last":
-                    accumulatorType = AccumulatorType.Last;
-                    return true;
-                case "Max":
-                    accumulatorType = AccumulatorType.Max;
-                    return true;
-                case "Min":
-                    accumulatorType = AccumulatorType.Min;
-                    return true;
-                case "Select":
-                case "ToArray":
-                case "ToList":
-                    accumulatorType = AccumulatorType.Push;
-                    return true;
+                }
+
+                accumulatorType = AccumulatorType.Push;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
             }
 
-            accumulatorType = 0; // dummy assignment to appease compiler
+            var resultOperator = node.ResultOperator;
+            if (resultOperator is AverageResultOperator)
+            {
+                accumulatorType = AccumulatorType.Average;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is CountResultOperator)
+            {
+                accumulatorType = AccumulatorType.Sum;
+                argument = Expression.Constant(1);
+                return true;
+            }
+            if (resultOperator is FirstResultOperator)
+            {
+                accumulatorType = AccumulatorType.First;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is LastResultOperator)
+            {
+                accumulatorType = AccumulatorType.Last;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is MaxResultOperator)
+            {
+                accumulatorType = AccumulatorType.Max;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is MinResultOperator)
+            {
+                accumulatorType = AccumulatorType.Min;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is SumResultOperator)
+            {
+                accumulatorType = AccumulatorType.Sum;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is ArrayResultOperator)
+            {
+                accumulatorType = AccumulatorType.Push;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is HashSetResultOperator)
+            {
+                accumulatorType = AccumulatorType.AddToSet;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+            if (resultOperator is ListResultOperator)
+            {
+                accumulatorType = AccumulatorType.Push;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
+
+            accumulatorType = 0;
+            argument = null;
             return false;
+        }
+
+        private Expression GetAccumulatorArgument(Expression node)
+        {
+            // we are looking for a Map
+            var select = node as SelectExpression;
+            if (select != null)
+            {
+                return select.Selector;
+            }
+
+            throw new NotSupportedException();
         }
     }
 }

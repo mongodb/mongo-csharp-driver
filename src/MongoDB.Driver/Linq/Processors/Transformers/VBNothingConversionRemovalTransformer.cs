@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// VB introduces a Convert on the LHS with a Nothing comparison, so we make it look like 
     /// C# which does not have one with a comparison to null.
     /// </remarks>
-    internal class VBNothingConversionRemovalTransformer : IExpressionTransformer<BinaryExpression>
+    internal sealed class VBNothingConversionRemovalTransformer : IExpressionTransformer<BinaryExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Equal,
             ExpressionType.NotEqual

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// <remarks>
     /// VB creates coalescing operations when dealing with nullable value comparisons, so we try and make this look like C#
     /// </remarks>
-    internal class VBCoalesceTransformer : IExpressionTransformer<BinaryExpression>
+    internal sealed class VBCoalesceTransformer : IExpressionTransformer<BinaryExpression>
     {
         private readonly ExpressionType[] _supportedNodeTypes = new[]
         {

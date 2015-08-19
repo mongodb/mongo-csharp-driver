@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,20 +17,30 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal enum ExtensionExpressionType
     {
-        Serialization,
-        GroupId,
-        Accumulator,
-        CorrelatedAccumulator,
-        CorrelatedGroupBy,
+        // Sequence
+        Pipeline,
         Distinct,
+        Except,
+        GroupBy,
         GroupByWithResultSelector,
+        Intersect,
         OrderBy,
-        Projection,
-        RootAccumulator,
         Select,
         SelectMany,
         Skip,
         Take,
-        Where
+        Union,
+        Where,
+
+        // Bindings
+        Accumulator,
+        Collection,
+        Document,
+        FieldAsDocument,
+        Field,
+        GroupingKey,
+
+        // Temporary
+        Correlated,
     }
 }

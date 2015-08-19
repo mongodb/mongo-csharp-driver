@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
 
@@ -212,19 +213,19 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
-            var binder = new SerializationInfoBinder(serializerRegistry);
-            var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
-            var parameterExpression = new SerializationExpression(lambda.Parameters[0], parameterSerializationInfo);
-            binder.RegisterParameterReplacement(lambda.Parameters[0], parameterExpression);
-            var bound = binder.Bind(lambda.Body) as ISerializationExpression;
-            if (bound == null)
+            var bindingContext = new PipelineBindingContext(serializerRegistry);
+            var lambda = ExpressionHelper.GetLambda(PartialEvaluator.Evaluate(_expression));
+            var parameterExpression = new DocumentExpression(documentSerializer);
+            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
+            var bound = bindingContext.Bind(lambda.Body);
+            IFieldExpression field;
+            if (!ExpressionHelper.TryGetExpression(bound, out field))
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
                 throw new InvalidOperationException(message);
             }
 
-            return new RenderedFieldDefinition(bound.SerializationInfo.ElementName, bound.SerializationInfo.Serializer);
+            return new RenderedFieldDefinition(field.FieldName, field.Serializer);
         }
     }
 
@@ -258,18 +259,18 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
-            var binder = new SerializationInfoBinder(serializerRegistry);
-            var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
-            var parameterExpression = new SerializationExpression(lambda.Parameters[0], parameterSerializationInfo);
-            binder.RegisterParameterReplacement(lambda.Parameters[0], parameterExpression);
-            var bound = binder.Bind(lambda.Body) as ISerializationExpression;
-            if (bound == null)
+            var bindingContext = new PipelineBindingContext(serializerRegistry);
+            var parameterExpression = new DocumentExpression(documentSerializer);
+            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
+            var bound = bindingContext.Bind(lambda.Body);
+            IFieldExpression field;
+            if (!ExpressionHelper.TryGetExpression(bound, out field))
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
                 throw new InvalidOperationException(message);
             }
 
-            return new RenderedFieldDefinition<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
+            return new RenderedFieldDefinition<TField>(field.FieldName, (IBsonSerializer<TField>)field.Serializer);
         }
     }
 

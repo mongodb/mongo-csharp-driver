@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,20 +18,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class DistinctExpression : ExtensionExpression
+    internal sealed class DistinctExpression : ExtensionExpression, ISourcedExpression
     {
         private readonly Expression _source;
-        private readonly Expression _selector;
 
-        public DistinctExpression(Expression source, Expression selector)
+        public DistinctExpression(Expression source)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
-            _selector = Ensure.IsNotNull(selector, nameof(selector));
-        }
-
-        public Expression Selector
-        {
-            get { return _selector; }
         }
 
         public Expression Source
@@ -46,15 +39,14 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return string.Format("{0}.Distinct({1})", _source.ToString(), _selector.ToString());
+            return string.Format("{0}.Distinct()", _source.ToString());
         }
 
-        public DistinctExpression Update(Expression source, Expression selector)
+        public DistinctExpression Update(Expression source)
         {
-            if (source != _source ||
-                selector != _selector)
+            if (source != _source)
             {
-                return new DistinctExpression(source, selector);
+                return new DistinctExpression(source);
             }
 
             return this;

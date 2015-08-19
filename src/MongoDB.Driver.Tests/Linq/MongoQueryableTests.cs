@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Linq;
+using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Linq
 {
@@ -69,17 +67,28 @@ namespace MongoDB.Driver.Tests.Linq
         [Test]
         public void Average()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).Average();
+            var result = CreateQuery().Select(x => x.C.E.F + 1).Average();
 
-            result.Should().Be(61);
+            result.Should().Be(62);
+        }
+
+        [Test]
+        public void Average_with_select_and_where()
+        {
+            var result = CreateQuery()
+                .Select(x => x.C.E.F)
+                .Where(x => x > 20)
+                .Average();
+
+            result.Should().Be(111);
         }
 
         [Test]
         public void Average_with_selector()
         {
-            var result = CreateQuery().Average(x => x.C.E.F);
+            var result = CreateQuery().Average(x => x.C.E.F + 1);
 
-            result.Should().Be(61);
+            result.Should().Be(62);
         }
 
         [Test]
@@ -131,14 +140,16 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void Distinct()
+        public void Distinct_followed_by_where()
         {
-            var query = CreateQuery().Select(x => x.C.E.F).Distinct();
+            var query = CreateQuery()
+                .Distinct()
+                .Where(x => x.A == "Awesome");
 
             Assert(query,
-                2,
-                "{ $project: { 'C.E.F': 1, _id: 0 } }",
-                "{ $group: { _id: '$C.E.F' } }");
+                1,
+                "{ $group: { _id: '$$ROOT' } }",
+                "{ $match: { '_id.A': 'Awesome' } }");
         }
 
         [Test]
@@ -217,6 +228,19 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Group_method_using_select()
+        {
+            var query = CreateQuery()
+                .GroupBy(x => x.A)
+                .Select(x => new { A = x.Key, Count = x.Count(), Min = x.Min(y => y.U) });
+
+            Assert(query,
+                2,
+                "{ $group: { _id: '$A', __agg0: { $sum: 1 }, __agg1: { $min: '$U' } } }",
+                "{ $project: { A: '$_id', Count: '$__agg0', Min: '$__agg1', _id: 0 } }");
+        }
+
+        [Test]
         public void GroupBy_groupby_method()
         {
             var query = CreateQuery()
@@ -227,22 +251,6 @@ namespace MongoDB.Driver.Tests.Linq
                 2,
                 "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
                 "{ $group: { _id: '$__agg0' } }");
-        }
-
-        [Test]
-        [Ignore("Does not work - use a project in the middle")]
-        public void GroupBy_groupby_where_with_nested_accumulators_method()
-        {
-            var query = CreateQuery()
-                .GroupBy(x => x.A)
-                .GroupBy(g => g.First().B)
-                .Where(g2 => g2.Average(g => g.Sum(x => x.C.E.F)) == 10);
-
-            Assert(query,
-                1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$B' }, __agg1: { $sum: '$C.E.F'} } }",
-                "{ $group: { _id: '$__agg0', _agg0: { $avg: '$__agg1' } } }",
-                "{ $match: { _agg0: 10 } }");
         }
 
         [Test]
@@ -336,6 +344,38 @@ namespace MongoDB.Driver.Tests.Linq
             Assert(query,
                 2,
                 "{ $group: { _id: '$A', FirstB: { $first: '$B'} } }");
+        }
+
+        [Test]
+        public void LongCount()
+        {
+            var result = CreateQuery().LongCount();
+
+            result.Should().Be(2);
+        }
+
+        [Test]
+        public void LongCount_with_predicate()
+        {
+            var result = CreateQuery().LongCount(x => x.C.E.F == 11);
+
+            result.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LongCountAsync()
+        {
+            var result = await CreateQuery().LongCountAsync();
+
+            result.Should().Be(2);
+        }
+
+        [Test]
+        public async Task LongCountAsync_with_predicate()
+        {
+            var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 11);
+
+            result.Should().Be(1);
         }
 
         [Test]
@@ -491,9 +531,8 @@ namespace MongoDB.Driver.Tests.Linq
                 .ThenBy(x => x.B)
                 .ThenBy(x => x.A);
 
-            Assert(query,
-                2,
-                "{ $sort: { A: 1, B: 1 } }");
+            Action act = () => query.ToList();
+            act.ShouldThrow<NotSupportedException>();
         }
 
         [Test]
@@ -504,9 +543,54 @@ namespace MongoDB.Driver.Tests.Linq
                 .ThenBy(x => x.B)
                 .ThenByDescending(x => x.A);
 
+            Action act = () => query.ToList();
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Test]
+        public void Select_identity()
+        {
+            var query = CreateQuery().Select(x => x);
+
+            Assert(query, 2);
+        }
+
+        [Test]
+        public void Select_method_computed_scalar_followed_by_distinct_followed_by_where()
+        {
+            var query = CreateQuery()
+                .Select(x => x.A + " " + x.B)
+                .Distinct()
+                .Where(x => x == "Awesome Balloon");
+
+            Assert(query,
+                1,
+                "{ $group: { _id: { $concat: ['$A', ' ', '$B'] } } }",
+                "{ $match: { _id: 'Awesome Balloon' } }");
+        }
+
+        [Test]
+        public void Select_method_computed_scalar_followed_by_where()
+        {
+            var query = CreateQuery()
+                .Select(x => x.A + " " + x.B)
+                .Where(x => x == "Awesome Balloon");
+
+            Assert(query,
+                1,
+                "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }",
+                "{ $match: { __fld0: 'Awesome Balloon' } }");
+        }
+
+        [Test]
+        public void Select_method_with_predicated_any()
+        {
+            var query = CreateQuery()
+                .Select(x => x.G.Any(g => g.D == "Don't"));
+
             Assert(query,
                 2,
-                "{ $sort: { B: 1, A: -1 } }");
+                "{ $project: { __fld0: { $anyElementTrue: { $map: { input: '$G', as: 'g', 'in': { $eq: ['$$g.D', \"Don't\"] } } } }, _id: 0 } }");
         }
 
         [Test]
@@ -869,10 +953,22 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $match: { A: 'Awesome' } }");
         }
 
+        [Test]
+        public void Where_method_with_predicated_any()
+        {
+            var query = CreateQuery()
+                .Where(x => x.G.Any(g => g.D == "Don't"));
+
+            Assert(query,
+                1,
+                "{ $match: { 'G.D': \"Don't\" } }");
+        }
+
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
-            var stages = ((AggregateQueryableExecutionModel<T>)queryable.BuildExecutionModel()).Stages;
-            CollectionAssert.AreEqual(expectedStages.Select(x => BsonDocument.Parse(x)).ToList(), stages);
+            var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
+
+            CollectionAssert.AreEqual(expectedStages.Select(x => BsonDocument.Parse(x)).ToList(), executionModel.Stages);
 
             // async
             var results = queryable.ToListAsync().GetAwaiter().GetResult();

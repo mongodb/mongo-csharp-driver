@@ -17,16 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Translators;
 using NUnit.Framework;
-using FluentAssertions;
-using MongoDB.Bson.IO;
-using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Linq
+namespace MongoDB.Driver.Tests.Linq.Translators
 {
     [TestFixture]
     public class FindProjectionTranslatorTests
@@ -237,7 +235,7 @@ namespace MongoDB.Driver.Core.Linq
         private ProjectedResult<T> Project<T>(Expression<Func<Root, T>> projector, string json)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = FindProjectionTranslator.Translate<Root, T>(projector, serializer);
+            var projectionInfo = FindProjectionTranslator.Translate<Root, T>(projector, serializer, BsonSerializer.SerializerRegistry);
 
             using (var reader = new JsonReader(json))
             {

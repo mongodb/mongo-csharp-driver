@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,10 +21,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq.Processors.Pipeline;
+using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class MongoQueryProviderImpl<TDocument> : IMongoQueryProvider
+    internal sealed class MongoQueryProviderImpl<TDocument> : IMongoQueryProvider
     {
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
@@ -41,13 +43,6 @@ namespace MongoDB.Driver.Linq
             get { return _options; }
         }
 
-        public QueryableExecutionModel BuildExecutionModel(Expression expression)
-        {
-            return QueryableExecutionModelBuilder.Build(
-                Prepare(expression),
-                _collection.Settings.SerializerRegistry);
-        }
-
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             return new MongoQueryableImpl<TDocument, TElement>(this, expression);
@@ -57,7 +52,7 @@ namespace MongoDB.Driver.Linq
         {
             Ensure.IsNotNull(expression, nameof(expression));
 
-            var elementType = GetElementType(expression.Type);
+            var elementType = expression.Type.GetSequenceElementType();
 
             try
             {
@@ -79,33 +74,36 @@ namespace MongoDB.Driver.Linq
 
         public object Execute(Expression expression)
         {
-            var executionPlan = QueryableExecutionBuilder.Build(
-                Prepare(expression),
+            var executionPlan = ExecutionPlanBuilder.BuildPlan(
                 Expression.Constant(this),
-                _collection.Settings.SerializerRegistry);
+                Translate(expression));
 
-            var efn = Expression.Lambda(executionPlan);
-            return efn.Compile().DynamicInvoke(null);
+            var lambda = Expression.Lambda(executionPlan);
+            return lambda.Compile().DynamicInvoke(null);
         }
 
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var executionPlan = QueryableExecutionBuilder.BuildAsync(
-                Prepare(expression),
+            var executionPlan = ExecutionPlanBuilder.BuildAsyncPlan(
                 Expression.Constant(this),
-                Expression.Constant(cancellationToken),
-                _collection.Settings.SerializerRegistry);
+                Translate(expression),
+                Expression.Constant(cancellationToken));
 
-            var efn = Expression.Lambda(executionPlan);
-            return (Task<TResult>)efn.Compile().DynamicInvoke(null);
+            var lambda = Expression.Lambda(executionPlan);
+            return (Task<TResult>)lambda.Compile().DynamicInvoke(null);
         }
 
-        private object Execute(QueryableExecutionModel model)
+        public QueryableExecutionModel GetExecutionModel(Expression expression)
+        {
+            return Translate(expression).Model;
+        }
+
+        private object ExecuteModel(QueryableExecutionModel model)
         {
             return model.Execute(_collection, _options);
         }
 
-        private Task ExecuteAsync(QueryableExecutionModel model, CancellationToken cancellationToken)
+        private Task ExecuteModelAsync(QueryableExecutionModel model, CancellationToken cancellationToken)
         {
             return model.ExecuteAsync(_collection, _options, cancellationToken);
         }
@@ -114,58 +112,15 @@ namespace MongoDB.Driver.Linq
         {
             expression = PartialEvaluator.Evaluate(expression);
             expression = Transformer.Transform(expression);
-            expression = ProjectionBinder.Bind(expression, _collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+            expression = PipelineBinder.Bind(expression, _collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
 
             return expression;
         }
 
-        private static Type GetElementType(Type seqType)
+        private QueryableTranslation Translate(Expression expression)
         {
-            Type ienum = FindIEnumerable(seqType);
-            if (ienum == null) { return seqType; }
-            return ienum.GetGenericArguments()[0];
-        }
-
-        private static Type FindIEnumerable(Type seqType)
-        {
-            if (seqType == null || seqType == typeof(string))
-            {
-                return null;
-            }
-
-            if (seqType.IsArray)
-            {
-                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
-            }
-
-            if (seqType.IsGenericType)
-            {
-                foreach (Type arg in seqType.GetGenericArguments())
-                {
-                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
-                    {
-                        return ienum;
-                    }
-                }
-            }
-
-            Type[] ifaces = seqType.GetInterfaces();
-            if (ifaces != null && ifaces.Length > 0)
-            {
-                foreach (Type iface in ifaces)
-                {
-                    Type ienum = FindIEnumerable(iface);
-                    if (ienum != null) { return ienum; }
-                }
-            }
-
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
-            {
-                return FindIEnumerable(seqType.BaseType);
-            }
-
-            return null;
+            var pipelineExpression = Prepare(expression);
+            return QueryableTranslator.Translate(pipelineExpression, _collection.Settings.SerializerRegistry);
         }
     }
 }

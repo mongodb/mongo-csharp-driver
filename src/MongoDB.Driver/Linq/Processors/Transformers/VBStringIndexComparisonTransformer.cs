@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// VB creates string index expressions using character comparison whereas C# uses ascii value comparison
     /// we make VB's string index comparison look like C#.
     /// </remarks>
-    internal class VBStringIndexComparisonTransformer : IExpressionTransformer<BinaryExpression>
+    internal sealed class VBStringIndexComparisonTransformer : IExpressionTransformer<BinaryExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Equal,
             ExpressionType.GreaterThan,

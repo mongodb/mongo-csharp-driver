@@ -17,15 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Translators;
-using FluentAssertions;
-using NUnit.Framework;
-using System.Text.RegularExpressions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Linq.Translators;
+using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {

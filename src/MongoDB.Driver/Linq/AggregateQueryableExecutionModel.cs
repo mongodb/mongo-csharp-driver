@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,17 +30,12 @@ namespace MongoDB.Driver.Linq
     /// A model for a queryable to be executed using the aggregation framework.
     /// </summary>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public class AggregateQueryableExecutionModel<TOutput> : QueryableExecutionModel
+    public sealed class AggregateQueryableExecutionModel<TOutput> : QueryableExecutionModel
     {
         private readonly IReadOnlyList<BsonDocument> _stages;
         private readonly IBsonSerializer<TOutput> _outputSerializer;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateQueryableExecutionModel{TOutput}"/> class.
-        /// </summary>
-        /// <param name="stages">The stages.</param>
-        /// <param name="outputSerializer">The output serializer.</param>
-        public AggregateQueryableExecutionModel(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer)
+        internal AggregateQueryableExecutionModel(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer)
         {
             _stages = (Ensure.IsNotNull(stages, nameof(stages)) as IReadOnlyList<BsonDocument>) ?? stages.ToList();
             _outputSerializer = Ensure.IsNotNull(outputSerializer, nameof(outputSerializer));

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,25 +14,26 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class SelectManyExpression : ExtensionExpression
+    internal sealed class SelectManyExpression : ExtensionExpression, ISourcedExpression
     {
+        private readonly string _collectionItemName;
         private readonly Expression _collectionSelector;
+        private readonly string _resultItemName;
         private readonly Expression _resultSelector;
         private readonly Expression _source;
-        private readonly Type _type;
 
-        public SelectManyExpression(Expression source, Expression collectionSelector, Expression resultSelector)
+        public SelectManyExpression(Expression source, string collectionItemName, Expression collectionSelector, string resultItemName, Expression resultSelector)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
+            _collectionItemName = Ensure.IsNotNull(collectionItemName, nameof(collectionItemName));
             _collectionSelector = Ensure.IsNotNull(collectionSelector, nameof(collectionSelector));
+            _resultItemName = Ensure.IsNotNull(resultItemName, nameof(resultItemName));
             _resultSelector = Ensure.IsNotNull(resultSelector, nameof(resultSelector));
-            _type = typeof(IEnumerable<>).MakeGenericType(resultSelector.Type);
         }
 
         public override ExtensionExpressionType ExtensionType
@@ -40,9 +41,19 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return ExtensionExpressionType.SelectMany; }
         }
 
+        public string CollectionItemName
+        {
+            get { return _collectionItemName; }
+        }
+
         public Expression CollectionSelector
         {
             get { return _collectionSelector; }
+        }
+
+        public string ResultItemName
+        {
+            get { return _resultItemName; }
         }
 
         public Expression ResultSelector
@@ -57,7 +68,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override Type Type
         {
-            get { return _type; }
+            get { return _source.Type; }
         }
 
         public override string ToString()
@@ -71,7 +82,12 @@ namespace MongoDB.Driver.Linq.Expressions
                 collectionSelector != _collectionSelector ||
                 resultSelector != _resultSelector)
             {
-                return new SelectManyExpression(source, collectionSelector, resultSelector);
+                return new SelectManyExpression(
+                    source,
+                    _collectionItemName,
+                    collectionSelector,
+                    _resultItemName,
+                    resultSelector);
             }
 
             return this;

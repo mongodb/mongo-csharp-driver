@@ -24,6 +24,19 @@ namespace MongoDB.Driver
 {
     internal static class AsyncCursorHelper
     {
+        public async static Task<bool> AnyAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        {
+            using (var cursor = await cursorTask.ConfigureAwait(false))
+            {
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    return cursor.Current.Any();
+                }
+
+                return false;
+            }
+        }
+
         public async static Task<T> FirstAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))

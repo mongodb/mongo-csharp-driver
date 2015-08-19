@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,19 +13,14 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Processors.Transformers
 {
-    internal class NullableTransformer : IExpressionTransformer<MemberExpression>
+    internal sealed class NullableTransformer : IExpressionTransformer<MemberExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.MemberAccess
         };

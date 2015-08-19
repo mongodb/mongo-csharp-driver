@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Processors.Transformers
 {
-    internal class SelectSelectCombiningTransformer : IExpressionTransformer<MethodCallExpression>
+    internal sealed class SelectSelectCombiningTransformer : IExpressionTransformer<MethodCallExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Call
         };
@@ -34,24 +34,23 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
 
         public Expression Transform(MethodCallExpression node)
         {
-            if (!ExtensionExpressionVisitor.IsLinqMethod(node, "Select") ||
-                !ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1))
+            if (!ExpressionHelper.IsLinqMethod(node, "Select") ||
+                !ExpressionHelper.IsLambda(node.Arguments[1], 1))
             {
                 return node;
             }
 
             var call = node.Arguments[0] as MethodCallExpression;
 
-            // we are going to rewrite g.Last().Member to g.Select(x => x.Member).Last()
             if (call == null ||
-                !ExtensionExpressionVisitor.IsLinqMethod(call, "Select") ||
-                !ExtensionExpressionVisitor.IsLambda(call.Arguments[1], 1))
+                !ExpressionHelper.IsLinqMethod(call, "Select") ||
+                !ExpressionHelper.IsLambda(call.Arguments[1], 1))
             {
                 return node;
             }
 
-            var innerLambda = ExtensionExpressionVisitor.GetLambda(call.Arguments[1]);
-            var outerLambda = ExtensionExpressionVisitor.GetLambda(node.Arguments[1]);
+            var innerLambda = ExpressionHelper.GetLambda(call.Arguments[1]);
+            var outerLambda = ExpressionHelper.GetLambda(node.Arguments[1]);
 
             var sourceType = innerLambda.Parameters[0].Type;
             var resultType = outerLambda.Body.Type;
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
             var innerSelector = innerLambda.Body;
             var outerSelector = outerLambda.Body;
 
-            var selector = ParameterReplacer.Replace(outerSelector, outerLambda.Parameters[0], innerSelector);
+            var selector = ExpressionReplacer.Replace(outerSelector, outerLambda.Parameters[0], innerSelector);
 
             return Expression.Call(
                 typeof(Enumerable),

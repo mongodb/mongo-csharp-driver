@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,15 +19,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class WhereExpression : ExtensionExpression
+    internal sealed class WhereExpression : ExtensionExpression, ISourcedExpression
     {
+        private readonly string _itemName;
         private readonly Expression _predicate;
         private readonly Expression _source;
 
-        public WhereExpression(Expression source, Expression predicate)
+        public WhereExpression(Expression source, string itemName, Expression predicate)
         {
-            _predicate = Ensure.IsNotNull(predicate, nameof(predicate));
             _source = Ensure.IsNotNull(source, nameof(source));
+            _itemName = Ensure.IsNotNull(itemName, nameof(itemName));
+            _predicate = Ensure.IsNotNull(predicate, nameof(predicate));
         }
 
         public override ExtensionExpressionType ExtensionType
@@ -45,6 +47,11 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return _source; }
         }
 
+        public string ItemName
+        {
+            get { return _itemName; }
+        }
+
         public override Type Type
         {
             get { return _source.Type; }
@@ -60,7 +67,7 @@ namespace MongoDB.Driver.Linq.Expressions
             if (source != _source ||
                 predicate != _predicate)
             {
-                return new WhereExpression(source, predicate);
+                return new WhereExpression(source, _itemName, predicate);
             }
 
             return this;

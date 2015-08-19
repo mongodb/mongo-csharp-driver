@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Translators
 {
-    internal class ProjectedObjectDeserializer : SerializerBase<ProjectedObject>, IBsonDocumentSerializer
+    internal sealed class ProjectedObjectDeserializer : SerializerBase<ProjectedObject>, IBsonDocumentSerializer
     {
         private readonly Dictionary<string, BsonSerializationInfo> _deserializationMap;
 

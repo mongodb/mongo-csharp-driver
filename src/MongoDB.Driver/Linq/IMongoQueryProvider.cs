@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,6 +25,13 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     internal interface IMongoQueryProvider : IQueryProvider
     {
+        /// <summary>
+        /// Gets the execution model.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>The execution model.</returns>
+        QueryableExecutionModel GetExecutionModel(Expression expression);
+
         /// <summary>
         /// Executes the strongly-typed query represented by a specified expression tree.
         /// </summary>

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,7 +23,7 @@ using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class SerializerBuilder
+    internal sealed class SerializerBuilder
     {
         public static IBsonSerializer Build(Expression node, IBsonSerializerRegistry serializerRegistry)
         {
@@ -41,36 +42,60 @@ namespace MongoDB.Driver.Linq.Processors
         {
             if (node is ISerializationExpression)
             {
-                return ((ISerializationExpression)node).SerializationInfo.Serializer;
+                return ((ISerializationExpression)node).Serializer;
             }
 
-            IBsonSerializer serializer;
+            IBsonSerializer serializer = null;
             switch (node.NodeType)
             {
                 case ExpressionType.MemberInit:
                     serializer = BuildMemberInit((MemberInitExpression)node);
                     break;
                 case ExpressionType.New:
-                    serializer = BuildNew((NewExpression)node);
-                    break;
-                default:
-                    if (!PreviouslyUsedSerializerFinder.TryFindSerializer(node, out serializer))
+                    if (!typeof(IEnumerable).IsAssignableFrom(node.Type))
                     {
-                        serializer = _serializerRegistry.GetSerializer(node.Type);
+                        serializer = BuildNew((NewExpression)node);
                     }
                     break;
+            }
+
+            if (serializer == null && !PreviouslyUsedSerializerFinder.TryFindSerializer(node, node.Type, out serializer))
+            {
+                serializer = _serializerRegistry.GetSerializer(node.Type);
+                var childConfigurable = serializer as IChildSerializerConfigurable;
+                var arraySerializer = serializer as IBsonArraySerializer;
+                BsonSerializationInfo itemSerializationInfo;
+                if (childConfigurable != null && arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                {
+                    IBsonSerializer itemSerializer;
+                    if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, itemSerializationInfo.Serializer.ValueType, out itemSerializer))
+                    {
+                        serializer = ConfigureChildSerializer(childConfigurable, itemSerializer);
+                    }
+                }
             }
 
             return serializer;
         }
 
-        protected IBsonSerializer BuildMemberInit(MemberInitExpression node)
+        private IBsonSerializer ConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
+        {
+            var childConfigurable = configurable.ChildSerializer as IChildSerializerConfigurable;
+            if (childConfigurable != null)
+            {
+                childSerializer = ConfigureChildSerializer(childConfigurable, childSerializer);
+            }
+
+            return configurable.WithChildSerializer(childSerializer);
+        }
+
+        private IBsonSerializer BuildMemberInit(MemberInitExpression node)
         {
             var mapping = ProjectionMapper.Map(node);
             return BuildProjectedSerializer(mapping);
         }
 
-        protected IBsonSerializer BuildNew(NewExpression node)
+        private IBsonSerializer BuildNew(NewExpression node)
         {
             var mapping = ProjectionMapper.Map(node);
             return BuildProjectedSerializer(mapping);
@@ -118,24 +143,21 @@ namespace MongoDB.Driver.Linq.Processors
 
             foreach (var memberMapping in mapping.Members.Where(x => x.Member.DeclaringType == type))
             {
-                var serializationExpression = memberMapping.Expression as ISerializationExpression;
+                var serializationExpression = memberMapping.Expression as SerializationExpression;
                 if (serializationExpression == null)
                 {
                     var serializer = Build(memberMapping.Expression);
-                    var serializationInfo = new BsonSerializationInfo(
+                    serializationExpression = new FieldExpression(
                         memberMapping.Member.Name,
                         serializer,
-                        GetMemberType(memberMapping.Member));
-                    serializationExpression = new SerializationExpression(
-                        memberMapping.Expression,
-                        serializationInfo);
+                        memberMapping.Expression);
                 }
 
                 var memberMap = classMap.MapMember(memberMapping.Member)
-                    .SetSerializer(serializationExpression.SerializationInfo.Serializer)
+                    .SetSerializer(serializationExpression.Serializer)
                     .SetElementName(memberMapping.Member.Name);
 
-                if (classMap.IdMemberMap == null && serializationExpression is GroupIdExpression)
+                if (classMap.IdMemberMap == null && serializationExpression is GroupingKeyExpression)
                 {
                     classMap.SetIdMember(memberMap);
                 }
@@ -155,48 +177,6 @@ namespace MongoDB.Driver.Linq.Processors
                 default:
                     throw new MongoInternalException("Can't get member type.");
             }
-        }
-
-        private class PreviouslyUsedSerializerFinder : ExtensionExpressionVisitor
-        {
-            public static bool TryFindSerializer(Expression node, out IBsonSerializer serializer)
-            {
-                var finder = new PreviouslyUsedSerializerFinder(node.Type);
-                finder.Visit(node);
-
-                serializer = finder._serializer;
-                return serializer != null;
-            }
-
-            private readonly Type _valueType;
-            private IBsonSerializer _serializer;
-
-            private PreviouslyUsedSerializerFinder(Type valueType)
-            {
-                _valueType = valueType;
-            }
-
-            public override Expression Visit(Expression node)
-            {
-                if (_serializer != null)
-                {
-                    return node;
-                }
-
-                return base.Visit(node);
-            }
-
-            protected internal override Expression VisitSerialization(SerializationExpression node)
-            {
-                if (node.SerializationInfo.Serializer.ValueType == _valueType)
-                {
-                    _serializer = node.SerializationInfo.Serializer;
-                    return node;
-                }
-
-                return base.VisitSerialization(node);
-            }
-
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class MongoQueryableImpl<TInput, TOutput> : IOrderedMongoQueryable<TOutput>
+    internal sealed class MongoQueryableImpl<TInput, TOutput> : IOrderedMongoQueryable<TOutput>
     {
         private readonly IMongoQueryProvider _queryProvider;
         private readonly Expression _expression;
@@ -55,11 +55,6 @@ namespace MongoDB.Driver.Linq
             get { return _queryProvider; }
         }
 
-        public QueryableExecutionModel BuildExecutionModel()
-        {
-            return ((MongoQueryProviderImpl<TInput>)_queryProvider).BuildExecutionModel(_expression);
-        }
-
         public IEnumerator<TOutput> GetEnumerator()
         {
             var results = (IEnumerable<TOutput>)_queryProvider.Execute(_expression);
@@ -71,6 +66,11 @@ namespace MongoDB.Driver.Linq
             return GetEnumerator();
         }
 
+        public QueryableExecutionModel GetExecutionModel()
+        {
+            return _queryProvider.GetExecutionModel(_expression);
+        }
+
         public Task<IAsyncCursor<TOutput>> ToCursorAsync(CancellationToken cancellationToken)
         {
             return _queryProvider.ExecuteAsync<IAsyncCursor<TOutput>>(_expression, cancellationToken);
@@ -78,7 +78,8 @@ namespace MongoDB.Driver.Linq
 
         public override string ToString()
         {
-            return BuildExecutionModel().ToString();
+            var pipeline = GetExecutionModel();
+            return pipeline.ToString();
         }
     }
 }

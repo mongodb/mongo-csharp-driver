@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,96 +21,103 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
 {
-    internal class FindProjectionTranslator : ExtensionExpressionVisitor
+    internal sealed class FindProjectionTranslator : ExtensionExpressionVisitor
     {
-        public static RenderedProjectionDefinition<TProjection> Translate<TDocument, TProjection>(Expression<Func<TDocument, TProjection>> projector, IBsonSerializer<TDocument> parameterSerializer)
+        public static RenderedProjectionDefinition<TProjection> Translate<TDocument, TProjection>(Expression<Func<TDocument, TProjection>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
-            var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
-            var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
-            binder.RegisterParameterReplacement(projector.Parameters[0], parameterExpression);
-            var normalizedBody = Transformer.Transform(projector.Body);
-            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
-            var boundExpression = binder.Bind(evaluatedBody);
-            var candidateFields = SerializationExpressionGatherer.Gather(boundExpression);
+            var bindingContext = new PipelineBindingContext(serializerRegistry);
+            var documentExpression = new DocumentExpression(parameterSerializer);
+            bindingContext.AddExpressionMapping(projector.Parameters[0], documentExpression);
 
-            var fields = GetUniqueFieldsByHierarchy(candidateFields);
+            var node = PartialEvaluator.Evaluate(projector.Body);
+            node = Transformer.Transform(node);
+            node = bindingContext.Bind(node, isClientSideProjection: true);
 
-            var serializationInfo = fields.Select(x => x.SerializationInfo).ToList();
-
-            var replacementParameter = Expression.Parameter(typeof(ProjectedObject), "document");
-
-            var translator = new FindProjectionTranslator(projector.Parameters[0], replacementParameter, fields);
-            var newProjector = Expression.Lambda<Func<ProjectedObject, TProjection>>(
-                translator.Visit(boundExpression),
-                replacementParameter);
-
-            BsonDocument projectionDocument;
+            BsonDocument projectionDocument = null;
             IBsonSerializer<TProjection> serializer;
-            if (translator._fullDocument)
+            if (node is DocumentExpression)
             {
-                projectionDocument = null;
                 serializer = new ProjectingDeserializer<TDocument, TProjection>(parameterSerializer, projector.Compile());
             }
             else
             {
-                projectionDocument = GetProjectionDocument(serializationInfo);
-                var projectedObjectSerializer = new ProjectedObjectDeserializer(serializationInfo);
-                serializer = new ProjectingDeserializer<ProjectedObject, TProjection>(projectedObjectSerializer, newProjector.Compile());
+                var candidateFields = SerializationExpressionGatherer.Gather(node);
+                var fields = GetUniqueFieldsByHierarchy(candidateFields);
+                var serializationInfo = fields.Select(x => new BsonSerializationInfo(x.FieldName, x.Serializer, x.Serializer.ValueType)).ToList();
+
+                var projectedObjectExpression = Expression.Parameter(typeof(ProjectedObject), "document");
+                var translator = new FindProjectionTranslator(documentExpression, projectedObjectExpression, fields);
+                var translated = translator.Visit(node);
+                if (translator._fullDocument)
+                {
+                    serializer = new ProjectingDeserializer<TDocument, TProjection>(parameterSerializer, projector.Compile());
+                }
+                else
+                {
+                    var newProjector = Expression.Lambda<Func<ProjectedObject, TProjection>>(
+                        translated,
+                        projectedObjectExpression);
+
+                    projectionDocument = GetProjectionDocument(serializationInfo);
+                    var projectedObjectSerializer = new ProjectedObjectDeserializer(serializationInfo);
+                    serializer = new ProjectingDeserializer<ProjectedObject, TProjection>(projectedObjectSerializer, newProjector.Compile());
+                }
             }
 
             return new RenderedProjectionDefinition<TProjection>(projectionDocument, serializer);
         }
 
-        private readonly IReadOnlyList<SerializationExpression> _fields;
+        private readonly IReadOnlyList<IFieldExpression> _fields;
         private bool _fullDocument;
-        private readonly ParameterExpression _originalParameter;
-        private readonly ParameterExpression _replacementParameter;
+        private readonly DocumentExpression _documentExpression;
+        private readonly ParameterExpression _parameterExpression;
 
-        private FindProjectionTranslator(ParameterExpression originalParameter, ParameterExpression replacementParameter, IReadOnlyList<SerializationExpression> fields)
+        private FindProjectionTranslator(DocumentExpression documentExpression, ParameterExpression parameterExpression, IReadOnlyList<IFieldExpression> fields)
         {
-            _originalParameter = originalParameter;
-            _replacementParameter = replacementParameter;
+            _documentExpression = Ensure.IsNotNull(documentExpression, nameof(documentExpression));
+            _parameterExpression = Ensure.IsNotNull(parameterExpression, nameof(parameterExpression));
             _fields = fields;
         }
 
-        protected internal override Expression VisitSerialization(SerializationExpression node)
+        protected internal override Expression VisitField(FieldExpression node)
         {
-            if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName
-                && x.SerializationInfo.NominalType.Equals(node.SerializationInfo.NominalType)))
+            if (!_fields.Any(x => x.FieldName == node.FieldName
+                && x.Serializer.ValueType == node.Serializer.ValueType))
             {
-                return Visit(node.Expression);
+                // we need to unwind this call...
+                return Visit(node.Original);
             }
 
             return Expression.Call(
-                _replacementParameter,
+                _parameterExpression,
                 "GetValue",
                 new[] { node.Type },
-                Expression.Constant(node.SerializationInfo.ElementName),
-                Expression.Constant(node.SerializationInfo.NominalType.GetDefaultValue(), typeof(object)));
+                Expression.Constant(node.FieldName),
+                Expression.Constant(node.Serializer.ValueType.GetDefaultValue(), typeof(object)));
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (!IsLinqMethod(node, "Select", "SelectMany"))
+            if (!ExpressionHelper.IsLinqMethod(node, "Select", "SelectMany"))
             {
                 return base.VisitMethodCall(node);
             }
 
-            var source = node.Arguments[0] as SerializationExpression;
-            if (source != null && !_fields.Any(x => x.SerializationInfo.ElementName == source.SerializationInfo.ElementName))
+            var source = node.Arguments[0] as IFieldExpression;
+            if (source != null && !_fields.Any(x => x.FieldName == source.FieldName))
             {
                 // We are projecting off an embedded array, but we have selected the entire
                 // array and not just values within it.
                 var selector = (LambdaExpression)Visit((LambdaExpression)node.Arguments[1]);
-                var nestedParameter = Expression.Parameter(_replacementParameter.Type, selector.Parameters[0].Name);
-                var nestedBody = new ProjectedObjectFieldReplacer().Replace(selector.Body, source.SerializationInfo.ElementName, nestedParameter);
+                var nestedParameter = Expression.Parameter(_parameterExpression.Type, selector.Parameters[0].Name);
+                var nestedBody = new ProjectedObjectFieldReplacer().Replace(selector.Body, source.FieldName, nestedParameter);
 
                 var newSourceType = typeof(IEnumerable<>).MakeGenericType(nestedParameter.Type);
                 var newSource =
@@ -119,10 +126,10 @@ namespace MongoDB.Driver.Linq.Translators
                         "Cast",
                         new[] { typeof(ProjectedObject) },
                         Expression.Call(
-                            _replacementParameter,
+                            _parameterExpression,
                             "GetValue",
                             new[] { typeof(IEnumerable<object>) },
-                            Expression.Constant(source.SerializationInfo.ElementName),
+                            Expression.Constant(source.FieldName),
                             Expression.Constant(newSourceType.GetDefaultValue(), typeof(object))));
 
                 return Expression.Call(
@@ -138,17 +145,14 @@ namespace MongoDB.Driver.Linq.Translators
             return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitParameter(ParameterExpression node)
+        protected internal override Expression VisitDocument(DocumentExpression node)
         {
-            // if we have made it all the way down to the original parameter,
-            // it means that we have projected the original entity and have
-            // no need to actually project anything server side.
-            if (node == _originalParameter)
+            if (node == _documentExpression)
             {
                 _fullDocument = true;
             }
 
-            return base.VisitParameter(node);
+            return base.VisitDocument(node);
         }
 
         private static BsonDocument GetProjectionDocument(IEnumerable<BsonSerializationInfo> used)
@@ -171,7 +175,7 @@ namespace MongoDB.Driver.Linq.Translators
             return document;
         }
 
-        private static IReadOnlyList<SerializationExpression> GetUniqueFieldsByHierarchy(IEnumerable<SerializationExpression> usedFields)
+        private static IReadOnlyList<IFieldExpression> GetUniqueFieldsByHierarchy(IEnumerable<IFieldExpression> usedFields)
         {
             // we want to leave out subelements when the parent element exists
             // for instance, if we have asked for both "d" and "d.e", we only want to send { "d" : 1 } to the server
@@ -179,9 +183,9 @@ namespace MongoDB.Driver.Linq.Translators
             // 2) order them by their element name in ascending order
             // 3) if any groups are prefixed by the current groups element, then skip it.
 
-            var uniqueFields = new List<SerializationExpression>();
+            var uniqueFields = new List<IFieldExpression>();
             var skippedFields = new List<string>();
-            var referenceGroups = new Queue<IGrouping<string, SerializationExpression>>(usedFields.GroupBy(x => x.SerializationInfo.ElementName).OrderBy(x => x.Key));
+            var referenceGroups = new Queue<IGrouping<string, IFieldExpression>>(usedFields.GroupBy(x => x.FieldName).OrderBy(x => x.Key));
             while (referenceGroups.Count > 0)
             {
                 var referenceGroup = referenceGroups.Dequeue();
@@ -193,48 +197,45 @@ namespace MongoDB.Driver.Linq.Translators
                 }
             }
 
-            return uniqueFields.GroupBy(x => x.SerializationInfo.ElementName).Select(x => x.First()).ToList();
+            return uniqueFields.GroupBy(x => x.FieldName).Select(x => x.First()).ToList();
         }
 
         private class SerializationExpressionGatherer : ExtensionExpressionVisitor
         {
-            public static IReadOnlyList<SerializationExpression> Gather(Expression node)
+            public static IReadOnlyList<IFieldExpression> Gather(Expression node)
             {
                 var gatherer = new SerializationExpressionGatherer();
                 gatherer.Visit(node);
-                return gatherer._serializationExpressions;
+                return gatherer._fieldExpressions;
             }
 
-            private List<SerializationExpression> _serializationExpressions;
+            private List<IFieldExpression> _fieldExpressions;
 
             private SerializationExpressionGatherer()
             {
-                _serializationExpressions = new List<SerializationExpression>();
+                _fieldExpressions = new List<IFieldExpression>();
             }
 
-            protected internal override Expression VisitSerialization(SerializationExpression node)
+            protected internal override Expression VisitField(FieldExpression node)
             {
-                if (node.SerializationInfo.ElementName != null)
-                {
-                    _serializationExpressions.Add(node);
-                }
+                _fieldExpressions.Add(node);
                 return node;
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (!IsLinqMethod(node, "Select", "SelectMany"))
+                if (!ExpressionHelper.IsLinqMethod(node, "Select", "SelectMany"))
                 {
                     return base.VisitMethodCall(node);
                 }
 
-                var source = node.Arguments[0] as SerializationExpression;
+                var source = node.Arguments[0] as IFieldExpression;
                 if (source != null)
                 {
-                    var fields = SerializationExpressionGatherer.Gather(node.Arguments[1]);
-                    if (fields.Any(x => x.SerializationInfo.ElementName.StartsWith(source.SerializationInfo.ElementName)))
+                    var fields = Gather(node.Arguments[1]);
+                    if (fields.Any(x => x.FieldName.StartsWith(source.FieldName)))
                     {
-                        _serializationExpressions.AddRange(fields);
+                        _fieldExpressions.AddRange(fields);
                         return node;
                     }
                 }

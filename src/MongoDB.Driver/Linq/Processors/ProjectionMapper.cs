@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class ProjectionMapping
+    internal sealed class ProjectionMapping
     {
         public ConstructorInfo Constructor;
         public Expression Expression;
         public List<ProjectionMemberMapping> Members;
     }
 
-    internal class ProjectionMemberMapping
+    internal sealed class ProjectionMemberMapping
     {
         public MemberInfo Member;
         public Expression Expression;
         public ParameterInfo Parameter;
     }
 
-    internal class ProjectionMapper
+    internal sealed class ProjectionMapper
     {
         public static ProjectionMapping Map(Expression node)
         {

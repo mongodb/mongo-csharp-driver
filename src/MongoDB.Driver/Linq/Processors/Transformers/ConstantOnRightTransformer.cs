@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// MongoDB only supports constants on the RHS for certain expressions, so we'll move them around
     /// to make it easier to generate MongoDB syntax.
     /// </remarks>
-    internal class ConstantOnRightTransformer : IExpressionTransformer<BinaryExpression>
+    internal sealed class ConstantOnRightTransformer : IExpressionTransformer<BinaryExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Equal,
             ExpressionType.GreaterThan,

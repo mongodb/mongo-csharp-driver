@@ -14,17 +14,15 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
     /// <summary>
     /// Represents methods that can be used to ensure that parameter values meet expected conditions.
     /// </summary>
+    [DebuggerStepThrough]
     public static class Ensure
     {
         /// <summary>

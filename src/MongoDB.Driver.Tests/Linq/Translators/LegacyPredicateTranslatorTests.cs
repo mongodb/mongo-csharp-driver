@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             // documents inserted deliberately out of order to test sorting
             _database.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
-            _collection.InsertManyAsync(new[] 
+            _collection.InsertManyAsync(new[]
             {
                 new C { Id = _id2, X = 2, LX = 2, Y = 11, Date = new DateTime(2000, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc), D = new D { Z = 22 }, NullableDouble = 2, A = new[] { 2, 3, 4 }, DA = new List<D> { new D { Y = 11, Z = 111 }, new D { Z = 222 } }, L = new List<int> { 2, 3, 4 } },
                 new C { Id = _id1, X = 1, LX = 1, Y = 11, Date = new DateTime(2000, 2, 2, 2, 2, 2, 2, DateTimeKind.Utc), D = new D { Z = 11 }, NullableDouble = 2, S = "abc", SA = new string[] { "Tom", "Dick", "Harry" } },

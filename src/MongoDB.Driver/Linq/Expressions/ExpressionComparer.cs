@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Expressions
     /// <summary>
     /// Compare two expressions to determine if they are equivalent.
     /// </summary>
-    internal class ExpressionComparer
+    internal sealed class ExpressionComparer
     {
         // private fields
         private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
@@ -116,20 +116,24 @@ namespace MongoDB.Driver.Linq.Expressions
                 case ExpressionType.ListInit:
                     return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
                 case ExpressionType.Extension:
-                    var aMongo = (ExtensionExpression)a;
-                    var bMongo = (ExtensionExpression)b;
-                    if (aMongo.ExtensionType != bMongo.ExtensionType)
+                    var extensionA = (ExtensionExpression)a;
+                    var extensionB = (ExtensionExpression)b;
+                    if (extensionA.ExtensionType != extensionB.ExtensionType)
                     {
                         return false;
                     }
-                    switch (aMongo.ExtensionType)
+                    switch (extensionA.ExtensionType)
                     {
                         case ExtensionExpressionType.Accumulator:
-                            return CompareAccumulator((AccumulatorExpression)aMongo, (AccumulatorExpression)bMongo);
-                        case ExtensionExpressionType.Serialization:
-                            return CompareSerialization((SerializationExpression)aMongo, (SerializationExpression)bMongo);
+                            return CompareAccumulator((AccumulatorExpression)extensionA, (AccumulatorExpression)extensionB);
+                        case ExtensionExpressionType.Document:
+                            return CompareDocument((DocumentExpression)a, (DocumentExpression)b);
+                        case ExtensionExpressionType.FieldAsDocument:
+                            return CompareDocumentWrappedField((FieldAsDocumentExpression)a, (FieldAsDocumentExpression)b);
+                        case ExtensionExpressionType.Field:
+                            return CompareField((FieldExpression)a, (FieldExpression)b);
                         default:
-                            throw new MongoInternalException(string.Format("Unhandled mongo expression type: '{0}'", aMongo.ExtensionType));
+                            throw new MongoInternalException(string.Format("Unhandled mongo expression type: '{0}'", extensionA.ExtensionType));
                     }
                 default:
                     throw new MongoInternalException(string.Format("Unhandled expression type: '{0}'", a.NodeType));
@@ -143,9 +147,23 @@ namespace MongoDB.Driver.Linq.Expressions
                 && Compare(a.Argument, b.Argument);
         }
 
-        private bool CompareSerialization(SerializationExpression a, SerializationExpression b)
+        private bool CompareDocument(DocumentExpression a, DocumentExpression b)
         {
-            return Compare(a.Expression, b.Expression);
+            // not exact...
+            return a.Serializer.GetType() == b.Serializer.GetType();
+        }
+
+        private bool CompareDocumentWrappedField(FieldAsDocumentExpression a, FieldAsDocumentExpression b)
+        {
+            return a.FieldName == b.FieldName
+                && Compare(a.Expression, b.Expression);
+        }
+
+        private bool CompareField(FieldExpression a, FieldExpression b)
+        {
+            return a.FieldName == b.FieldName
+                && a.Serializer.GetType() == b.Serializer.GetType()
+                && Compare(a.Original, b.Original);
         }
 
         private bool CompareUnary(UnaryExpression a, UnaryExpression b)

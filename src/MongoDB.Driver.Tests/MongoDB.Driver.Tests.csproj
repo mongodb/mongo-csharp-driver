@@ -92,10 +92,12 @@
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FindFluentTests.cs" />
+    <Compile Include="Linq\Translators\AggregateGroupTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\AggregateProjectTranslatorTests.cs" />
+    <Compile Include="Linq\IntegrationTestBase.cs" />
     <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\Processors\PartialEvaluatorTests.cs" />
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
-    <Compile Include="Linq\IntegrationTestBase.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
@@ -106,8 +108,6 @@
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
-    <Compile Include="Linq\Translators\AggregateProjectionTranslatorTests_Group.cs" />
-    <Compile Include="Linq\Translators\AggregateProjectionTranslatorTests_Project.cs" />
     <Compile Include="Linq\Translators\FindProjectionTranslatorTests.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />

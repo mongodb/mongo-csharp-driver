@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// VB creates an IsNothing comparison using a method call. We'll translate this to a simple
     /// null comparison.
     /// </remarks>
-    internal class VBInformationIsNothingTransformer : IExpressionTransformer<MethodCallExpression>
+    internal sealed class VBInformationIsNothingTransformer : IExpressionTransformer<MethodCallExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Call
         };

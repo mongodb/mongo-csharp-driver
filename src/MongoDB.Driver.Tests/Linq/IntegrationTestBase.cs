@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq
                         I = new[] { "it", "icky" }
                     }
                 },
-                G = new[] { 
+                G = new[] {
                         new C
                         {
                             D = "Don't",
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Linq
                         I = new[] { "itchy" }
                     }
                 },
-                G = new[] { 
+                G = new[] {
                         new C
                         {
                             D = "Donald",

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,14 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq
 {
@@ -30,10 +23,12 @@ namespace MongoDB.Driver.Linq
     public interface IMongoQueryable : IQueryable
     {
         /// <summary>
-        /// Builds an execution model for the query.
+        /// Gets the execution model.
         /// </summary>
-        /// <returns>An execution model.</returns>
-        QueryableExecutionModel BuildExecutionModel();
+        /// <returns>
+        /// The execution model.
+        /// </returns>
+        QueryableExecutionModel GetExecutionModel();
     }
 
     /// <summary>
@@ -49,7 +44,6 @@ namespace MongoDB.Driver.Linq
     /// </typeparam>
     public interface IMongoQueryable<T> : IMongoQueryable, IQueryable<T>, IAsyncCursorSource<T>
     {
-
     }
 
     /// <summary>

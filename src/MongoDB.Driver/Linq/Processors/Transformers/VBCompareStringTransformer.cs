@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Processors.Transformers
 {
     /// <remarks>
     /// VB uses a method for string comparisons, so we'll convert this into a BinaryExpression.
     /// </remarks>
-    internal class VBCompareStringTransformer : IExpressionTransformer<BinaryExpression>
+    internal sealed class VBCompareStringTransformer : IExpressionTransformer<BinaryExpression>
     {
-        private readonly ExpressionType[] _supportedNodeTypes = new[] 
+        private readonly ExpressionType[] _supportedNodeTypes = new[]
         {
             ExpressionType.Equal,
             ExpressionType.GreaterThan,

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class GroupByWithResultSelectorExpression : ExtensionExpression
+    internal sealed class GroupByWithResultSelectorExpression : ExtensionExpression, ISourcedExpression
     {
         private readonly Expression _selector;
         private readonly Expression _source;

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal interface IMethodCallBinder
+    internal interface IMethodCallBinder<TBindingContext> where TBindingContext : IBindingContext
     {
-        Expression Bind(ProjectionExpression projection, ProjectionBindingContext context, MethodCallExpression node, IEnumerable<Expression> arguments);
+        Expression Bind(PipelineExpression pipeline, TBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments);
     }
 }

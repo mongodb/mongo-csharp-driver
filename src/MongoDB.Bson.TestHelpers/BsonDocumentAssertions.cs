@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Common;
 using FluentAssertions.Execution;
@@ -20,6 +21,7 @@ using FluentAssertions.Primitives;
 
 namespace MongoDB.Bson.TestHelpers
 {
+    [DebuggerStepThrough]
     public class BsonDocumentAssertions : ReferenceTypeAssertions<BsonDocument, BsonDocumentAssertions>
     {
         // constructors
