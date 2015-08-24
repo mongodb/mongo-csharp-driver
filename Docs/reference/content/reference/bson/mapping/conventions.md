@@ -59,7 +59,7 @@ In addition to pre-packaged conventions, it is possible to write your own. There
 
 Conventions get run in the order they were registered in each stage. The default set of conventions is registered first. This allows any user registered conventions to override the values applied by the default conventions. Hence, it is possible that certain values may get applied and overwritten. It is up to the user to ensure that the order is correct.
 
-{{% note %}}If a custom implementation of an [`IPostProcessingConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention" >}}) is registered before a customer implementation of an [`IClassMapConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention" >}}), the [`IClassMapConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention" >}}) will be run first because the Class Stage is before the Post Processing Stage.{{% /note %}}
+{{% note %}}The order conventions are registered only matters **within each stage**. If a custom implementation of an [`IPostProcessingConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention" >}}) is registered before a customer implementation of an [`IClassMapConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention" >}}), the [`IClassMapConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention" >}}) will still be run first because the Class Stage is before the Post Processing Stage.{{% /note %}}
 
 ### Example
 
@@ -85,3 +85,30 @@ pack.AddMemberMapConvention(
 ```
 
 For the best examples of writing custom conventions, it is good to consult the source for the pre-packaged conventions.
+
+### Overriding serialization on generic types
+
+When working with generic types, you may not be able to use a [classmap]({{< relref "reference\bson\mapping\index.md#creating-a-class-map" >}}) if you don't have a way of knowing all of the expected generic types ahead of time (e.g. if you're overriding serialization for a custom Filter<T>).  `RegisterClassMap<T>` will not work with `Filter<>`, but you can create a `IClassMapConvention` that will handle it.
+
+```csharp
+public class Filter<T>
+{
+	public T Value { get; set; }
+    
+    public Dictionary<string, object> Properties { get; set; }
+}
+
+public class FilterConvention : IClassMapConvention
+{
+    public string Name { get { return "FilterConvention"; } }
+    
+    public void Apply(BsonClassMap classMap) 
+    {
+        if(classMap.ClassType.IsGenericType && 
+           classMap.ClassType.GetGenericTypeDefinition() == typeof(Filter<>))
+        {
+            classMap.SetExtraElementsMember(classMap.GetMemberMap("Properties"));
+        }
+    }
+}
+```
