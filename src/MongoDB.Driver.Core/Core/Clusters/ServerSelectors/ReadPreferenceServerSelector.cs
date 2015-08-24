@@ -61,6 +61,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
+            if (cluster.ConnectionMode == ClusterConnectionMode.Direct)
+            {
+                return servers;
+            }
+
             switch (cluster.Type)
             {
                 case ClusterType.ReplicaSet: return SelectForReplicaSet(servers);
@@ -82,7 +87,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private IEnumerable<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)
         {
             var tagSets = _readPreference.TagSets;
-            if(tagSets == null || !tagSets.Any())
+            if (tagSets == null || !tagSets.Any())
             {
                 return servers;
             }
