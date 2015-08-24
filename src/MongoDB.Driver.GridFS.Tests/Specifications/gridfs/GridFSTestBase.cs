@@ -312,22 +312,96 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         private async Task RunArrangeCommandsAsync(GridFSBucket bucket)
         {
             var commands = GetArrangeCommands();
-            await RunCommandsAsync(bucket.Database, commands);
+            await RunCommandsAsync(bucket, commands);
         }
 
         private async Task RunAssertCommandsAsync(GridFSBucket bucket, List<BsonDocument> actualFilesCollectionDocuments, List<BsonDocument> actualChunks)
         {
             var commands = GetAssertCommands();
             PreprocessAssertCommands(commands, actualFilesCollectionDocuments, actualChunks);
-            await RunCommandsAsync(bucket.Database, commands);
+            await RunCommandsAsync(bucket, commands);
         }
 
-        private async Task RunCommandsAsync(IMongoDatabase database, IEnumerable<BsonDocument> commands)
+        private Task RunCommandAsync(GridFSBucket bucket, BsonDocument command)
+        {
+            var commandName = command.Names.First();
+            switch (commandName)
+            {
+                case "delete": return RunDeleteCommandAsync(bucket, command);
+                case "insert": return RunInsertCommandAsync(bucket, command);
+                case "update": return RunUpdateCommandAsync(bucket, command);
+                default: throw new ArgumentException("Unexpected command.");
+            }
+        }
+
+        private async Task RunCommandsAsync(GridFSBucket bucket, IEnumerable<BsonDocument> commands)
         {
             foreach (var command in commands)
             {
-                await database.RunCommandAsync(new BsonDocumentCommand<BsonDocument>(command));
+                await RunCommandAsync(bucket, command);
             }
+        }
+
+        private Task RunDeleteCommandAsync(GridFSBucket bucket, BsonDocument command)
+        {
+            var collectionName = command["delete"].AsString;
+            var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
+            var requests = new List<WriteModel<BsonDocument>>();
+            foreach (BsonDocument deleteStatement in command["deletes"].AsBsonArray)
+            {
+                var filter = deleteStatement["q"].AsBsonDocument;
+                var limit = deleteStatement["limit"].ToInt32();
+                WriteModel<BsonDocument> request;
+                if (limit == 1)
+                {
+                    request = new DeleteOneModel<BsonDocument>(filter);
+                }
+                else
+                {
+                    request = new DeleteManyModel<BsonDocument>(filter);
+                }
+                requests.Add(request);
+            }
+            return collection.BulkWriteAsync(requests);
+        }
+
+        private Task RunInsertCommandAsync(GridFSBucket bucket, BsonDocument command)
+        {
+            var collectionName = command["insert"].AsString;
+            var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
+            var requests = new List<WriteModel<BsonDocument>>();
+            foreach (BsonDocument document in command["documents"].AsBsonArray)
+            {
+
+                var request = new InsertOneModel<BsonDocument>(document);
+                requests.Add(request);
+            }
+            return collection.BulkWriteAsync(requests);
+        }
+
+        private Task RunUpdateCommandAsync(GridFSBucket bucket, BsonDocument command)
+        {
+            var collectionName = command["update"].AsString;
+            var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
+            var requests = new List<WriteModel<BsonDocument>>();
+            foreach (BsonDocument updateStatement in command["updates"].AsBsonArray)
+            {
+                var filter = updateStatement["q"].AsBsonDocument;
+                var update = updateStatement["u"].AsBsonDocument;
+                var upsert = updateStatement.GetValue("upsert", false).ToBoolean();
+                var multi = updateStatement.GetValue("multi", false).ToBoolean();
+                WriteModel<BsonDocument> request;
+                if (multi)
+                {
+                    request = new UpdateManyModel<BsonDocument>(filter, update) { IsUpsert = upsert };
+                }
+                else
+                {
+                    request = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = upsert };
+                }
+                requests.Add(request);
+            }
+            return collection.BulkWriteAsync(requests);
         }
     }
 }
