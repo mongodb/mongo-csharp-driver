@@ -275,7 +275,7 @@ A [write concern]({{< docsref "core/write-concern/" >}}) error indicates that th
 
 ### Bulk Write Exceptions
 
-A [`MongoBulkWriteException`]({{< apiref "T_MongoDB_Driver_MongoBulkWriteException_1" >}}) will occur when using the [`InsertManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync" >}}) or [`BulkWriteAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync" >}}). This exception is just a rollup of a bunch of individual [write errors]({{< relref "#write-error" >}}). It also includes a [write concern error]({{< relref "#write-concern-error" >}}) and a [`Result`]({{< relref "P_MongoDB_Driver_MongoBulkWriteException_1_Result" >}}) property.
+A [`MongoBulkWriteException`]({{< apiref "T_MongoDB_Driver_MongoBulkWriteException_1" >}}) will occur when using the [`InsertManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync" >}}) or [`BulkWriteAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync" >}}). This exception is just a rollup of a bunch of individual [write errors]({{< relref "#write-error" >}}). It also includes a [write concern error]({{< relref "#write-concern-error" >}}) and a [`Result`]({{< apiref "P_MongoDB_Driver_MongoBulkWriteException_1_Result" >}}) property.
 
 ```bash
 MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write operation resulted in one or more errors. 

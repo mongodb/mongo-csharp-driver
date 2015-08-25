@@ -260,18 +260,28 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#array" >}
 #### $elemMatch
 
 ```csharp
-Find(x => x.Pets.Any(p => p.Name == "Fluffy");
+Find(x => x.Pets.Any(p => p.Name == "Fluffy" && p.Age > 21);
 ```
 ```json
-{ Pets: { $elemMatch: { Name: 'Fluffy' } } }
+{ Pets: { $elemMatch: { Name: 'Fluffy', Age: { $gt: 21 } } } }
 ```
 ---
 ```csharp
-Find(x => x.FavoriteNumbers.Any(n => n > 21));
+Find(x => x.FavoriteNumbers.Any(n => n < 42 && n > 21));
 ```
 ```json
-{ FavoriteNumbers: { $elemMatch: { { $gt: 21 } } } }
+{ FavoriteNumbers: { $elemMatch: { { $lt: 42, $gt: 21 } } } }
 ```
+
+{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,
+
+```csharp
+Find(x => x.Pets.Any(p => p.Name == "Fluffy"))
+```
+```json
+{ Pets: { Name: "Fluffy" } }
+```{{% /note %}}
+
 
 #### $size
 
@@ -305,7 +315,7 @@ Find(x => x.FavoriteNumbers.Count() == 3);
 
 ## Aggregation Projections
 
-We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs" >}}) are also a good reference.
+We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs" >}}) are also a good reference.
 
 ### Boolean Expressions
 
@@ -800,7 +810,7 @@ p => p.Name ?? "awesome";
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#accumulators" >}}) for more information on each operator.
 
-Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) are a good reference.
+Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs" >}}) are a good reference.
 
 {{% note %}}These are only supported in a grouping expression.{{% /note %}}
 
