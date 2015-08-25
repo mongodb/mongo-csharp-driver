@@ -47,7 +47,8 @@ namespace MongoDB.DriverUnitTests.CommandResults
 #pragma warning restore
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
-                Assert.AreEqual(0, result.DocumentsAffected);
+                // server 3.2 has changed the GLE results for "n" on insert.
+                Assert.That(result.DocumentsAffected, Is.EqualTo(0).Or.EqualTo(1));
             }
         }
 
