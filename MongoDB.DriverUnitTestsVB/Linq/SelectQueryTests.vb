@@ -28,7 +28,7 @@ Imports MongoDB.Driver.Linq
 Imports System.Linq.Expressions
 
 Namespace MongoDB.DriverUnitTests.Linq
-    <TestFixture()> _
+    <TestFixture()>
     Public Class SelectQueryTests
         Public Enum E
             None
@@ -40,57 +40,57 @@ Namespace MongoDB.DriverUnitTests.Linq
         Public Class C
             Public Property Id() As ObjectId
 
-            <BsonElement("x")> _
+            <BsonElement("x")>
             Public Property X() As Integer
-            <BsonElement("lx")> _
+            <BsonElement("lx")>
             Public Property LX() As Long
 
-            <BsonElement("y")> _
+            <BsonElement("y")>
             Public Property Y() As Integer
 
-            <BsonElement("d")> _
+            <BsonElement("d")>
             Public Property D() As D
-            <BsonElement("da")> _
+            <BsonElement("da")>
             Public Property DA() As List(Of D)
-            <BsonElement("s")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("s")>
+            <BsonIgnoreIfNull()>
             Public Property S() As String
 
-            <BsonElement("a")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("a")>
+            <BsonIgnoreIfNull()>
             Public Property A() As Integer()
 
-            <BsonElement("b")> _
+            <BsonElement("b")>
             Public Property B() As Boolean
 
-            <BsonElement("l")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("l")>
+            <BsonIgnoreIfNull()>
             Public Property L() As List(Of Integer)
 
-            <BsonElement("dbref")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("dbref")>
+            <BsonIgnoreIfNull()>
             Public Property DBRef() As MongoDBRef
 
-            <BsonElement("e")> _
-            <BsonIgnoreIfDefault()> _
-            <BsonRepresentation(BsonType.[String])> _
+            <BsonElement("e")>
+            <BsonIgnoreIfDefault()>
+            <BsonRepresentation(BsonType.[String])>
             Public Property E() As E
 
-            <BsonElement("ea")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("ea")>
+            <BsonIgnoreIfNull()>
             Public Property EA() As E()
 
-            <BsonElement("sa")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("sa")>
+            <BsonIgnoreIfNull()>
             Public Property SA() As String()
 
-            <BsonElement("ba")> _
-            <BsonIgnoreIfNull()> _
+            <BsonElement("ba")>
+            <BsonIgnoreIfNull()>
             Public Property BA() As Boolean()
         End Class
 
         Public Class D
-            <BsonElement("z")> _
+            <BsonElement("z")>
             Public Z As Integer
             ' use field instead of property to test fields also
             Public Overrides Function Equals(ByVal obj As Object) As Boolean
@@ -145,7 +145,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         Private _id4 As ObjectId = ObjectId.GenerateNewId()
         Private _id5 As ObjectId = ObjectId.GenerateNewId()
 
-        <TestFixtureSetUp()> _
+        <TestFixtureSetUp()>
         Public Sub Setup()
             _server = Configuration.TestServer
             _server.Connect()
@@ -208,42 +208,42 @@ Namespace MongoDB.DriverUnitTests.Linq
             })
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregate()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Aggregate(Function(a, b) Nothing)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregateWithAccumulator()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Aggregate(0, Function(a, c) 0)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregateWithAccumulatorAndSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Aggregate(0, Function(a, c) 0, Function(a) a)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The All query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The All query operator is not supported.")>
         Public Sub TestAll()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).All(Function(c) True)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAny()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Any()
             Assert.IsTrue(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAnyWhereXEquals1()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -251,7 +251,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAnyWhereXEquals9()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
@@ -259,76 +259,76 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsFalse(result)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any with predicate after a projection is not supported.")>
         Public Sub TestAnyWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Any(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAnyWithPredicateAfterWhere()
             Dim result = _collection.AsQueryable(Of C)().Where(Function(c) c.X = 1).Any(Function(c) c.Y = 11)
             Assert.IsTrue(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAnyWithPredicateFalse()
             Dim result = _collection.AsQueryable(Of C)().Any(Function(c) c.X = 9)
             Assert.IsFalse(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAnyWithPredicateTrue()
             Dim result = _collection.AsQueryable(Of C)().Any(Function(c) c.X = 1)
             Assert.IsTrue(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestAsQueryableWithNothingElse()
             Dim query = _collection.AsQueryable(Of C)()
             Dim result = query.ToList()
             Assert.AreEqual(5, result.Count)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverage()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select 1.0).Average()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageNullable()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select New Nullable(Of Decimal)(1.0)).Average()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Average(Function(c) 1.0)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageWithSelectorNullable()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Average(Function(c) New Nullable(Of Decimal)(1.0))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Cast query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Cast query operator is not supported.")>
         Public Sub TestCast()
             Dim query = (From c In _collection.AsQueryable(Of C)()
-                         Select C).Cast(Of C)()
+                         Select c).Cast(Of C)()
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Concat query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Concat query operator is not supported.")>
         Public Sub TestConcat()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -337,23 +337,23 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")>
         Public Sub TestContains()
             Dim item = New C()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Contains(item)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")>
         Public Sub TestContainsWithEqualityComparer()
             Dim item = New C()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Contains(item, New CEqualityComparer())
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestCountEquals2()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -362,7 +362,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestCountEquals5()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Count()
@@ -370,27 +370,27 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestCountWithPredicate()
             Dim result = _collection.AsQueryable(Of C)().Count(Function(c) c.Y = 11)
 
             Assert.AreEqual(2, result)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Count with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Count with predicate after a projection is not supported.")>
         Public Sub TestCountWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Count(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestCountWithPredicateAfterWhere()
             Dim result = _collection.AsQueryable(Of C)().Where(Function(c) c.X = 1).Count(Function(c) c.Y = 11)
 
             Assert.AreEqual(1, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestCountWithSkipAndTake()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Skip(2).Take(2).Count()
@@ -398,8 +398,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, result)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")>
         Public Sub TestDefaultIfEmpty()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).DefaultIfEmpty()
@@ -407,8 +407,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")>
         Public Sub TestDefaultIfEmptyWithDefaultValue()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).DefaultIfEmpty(Nothing)
@@ -416,7 +416,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctASub0()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.A(0)).Distinct()
@@ -425,7 +425,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(2))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctB()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.B).Distinct()
@@ -435,7 +435,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(True))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctBASub0()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.BA(0)).Distinct()
@@ -444,31 +444,31 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(True))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctD()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.D).Distinct()
             Dim results = query.ToList()
             ' execute query
             Assert.AreEqual(5, results.Count)
-            Assert.IsTrue(results.Contains(New D() With { _
-             .Z = 11 _
+            Assert.IsTrue(results.Contains(New D() With {
+             .Z = 11
             }))
-            Assert.IsTrue(results.Contains(New D() With { _
-             .Z = 22 _
+            Assert.IsTrue(results.Contains(New D() With {
+             .Z = 22
             }))
-            Assert.IsTrue(results.Contains(New D() With { _
-             .Z = 33 _
+            Assert.IsTrue(results.Contains(New D() With {
+             .Z = 33
             }))
-            Assert.IsTrue(results.Contains(New D() With { _
-             .Z = 44 _
+            Assert.IsTrue(results.Contains(New D() With {
+             .Z = 44
             }))
-            Assert.IsTrue(results.Contains(New D() With { _
-             .Z = 55 _
+            Assert.IsTrue(results.Contains(New D() With {
+             .Z = 55
             }))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctDBRef()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.DBRef).Distinct()
@@ -477,7 +477,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(New MongoDBRef("db", "c", 1)))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctDBRefDatabase()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.DBRef.DatabaseName).Distinct()
@@ -486,7 +486,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains("db"))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctDZ()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.D.Z).Distinct()
@@ -499,7 +499,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(55))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctE()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.E).Distinct()
@@ -508,7 +508,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(E.A))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctEASub0()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.EA(0)).Distinct()
@@ -517,7 +517,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(E.A))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctId()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.Id).Distinct()
@@ -530,7 +530,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(_id5))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctLSub0()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.L(0)).Distinct()
@@ -539,7 +539,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(2))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctS()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.S).Distinct()
@@ -549,7 +549,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains("   xyz   "))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctSASub0()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.SA(0)).Distinct()
@@ -558,7 +558,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains("Tom"))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctX()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.X).Distinct()
@@ -571,7 +571,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(5))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctXWithQuery()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Where c.X > 3
@@ -582,7 +582,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(5))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestDistinctY()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c.Y).Distinct()
@@ -593,15 +593,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsTrue(results.Contains(44))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The version of the Distinct query operator with an equality comparer is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The version of the Distinct query operator with an equality comparer is not supported.")>
         Public Sub TestDistinctWithEqualityComparer()
             Dim query = _collection.AsQueryable(Of C)().Distinct(New CEqualityComparer())
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtOrDefaultWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).ElementAtOrDefault(2)
@@ -610,7 +610,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtOrDefaultWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
@@ -618,7 +618,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtOrDefaultWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -628,7 +628,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtOrDefaultWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -638,7 +638,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).ElementAt(2)
@@ -647,15 +647,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestElementAtWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
                           Select c).ElementAt(0)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -665,7 +665,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestElementAtWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -675,8 +675,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")>
         Public Sub TestExcept()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -685,8 +685,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")>
         Public Sub TestExceptWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -695,7 +695,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).FirstOrDefault()
@@ -704,7 +704,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
@@ -712,7 +712,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -722,13 +722,13 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="FirstOrDefault with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="FirstOrDefault with predicate after a projection is not supported.")>
         Public Sub TestFirstOrDefaultWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).FirstOrDefault(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -737,14 +737,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithPredicateNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).FirstOrDefault(Function(c) c.X = 9)
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).FirstOrDefault(Function(c) c.X = 3)
@@ -752,7 +752,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithPredicateTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).FirstOrDefault(Function(c) c.Y = 11)
@@ -760,7 +760,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstOrDefaultWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -770,7 +770,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).First()
@@ -779,15 +779,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestFirstWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
                           Select c).First()
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -797,13 +797,13 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="First with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="First with predicate after a projection is not supported.")>
         Public Sub TestFirstWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).First(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -812,7 +812,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithPredicateNoMatch()
             Dim ex = Assert.Throws(Of InvalidOperationException)(Sub()
                                                                      Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -821,7 +821,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(ExpectedErrorMessage.FirstEmptySequence, ex.Message)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).First(Function(c) c.X = 3)
@@ -829,7 +829,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithPredicateTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).First(Function(c) c.Y = 11)
@@ -837,7 +837,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestFirstWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -847,8 +847,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c)
@@ -856,8 +856,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c)
@@ -865,8 +865,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, New CEqualityComparer())
@@ -874,8 +874,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndResultSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, Function(c, e) 1.0)
@@ -883,8 +883,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndResultSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, Function(c, e) e.First(), New CEqualityComparer())
@@ -892,8 +892,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, New CEqualityComparer())
@@ -901,8 +901,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndResultSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(k, e) 1.0)
@@ -910,8 +910,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndResultSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(k, e) e.First(), New CEqualityComparer())
@@ -919,8 +919,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")>
         Public Sub TestGroupJoin()
             Dim inner = New C(-1) {}
             Dim query = _collection.AsQueryable(Of C)().GroupJoin(inner, Function(c) c, Function(c) c, Function(c, e) c)
@@ -928,8 +928,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")>
         Public Sub TestGroupJoinWithEqualityComparer()
             Dim inner = New C(-1) {}
             Dim query = _collection.AsQueryable(Of C)().GroupJoin(inner, Function(c) c, Function(c) c, Function(c, e) c, New CEqualityComparer())
@@ -937,8 +937,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")>
         Public Sub TestIntersect()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -947,8 +947,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")>
         Public Sub TestIntersectWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -957,23 +957,23 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")>
         Public Sub TestJoin()
             Dim query = _collection.AsQueryable(Of C)().Join(_collection.AsQueryable(Of C)(), Function(c) c.X, Function(c) c.X, Function(x, y) x)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")>
         Public Sub TestJoinWithEqualityComparer()
             Dim query = _collection.AsQueryable(Of C)().Join(_collection.AsQueryable(Of C)(), Function(c) c.X, Function(c) c.X, Function(x, y) x, New Int32EqualityComparer())
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).LastOrDefault()
@@ -982,7 +982,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
@@ -990,7 +990,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -1000,23 +1000,23 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithOrderBy()
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                       Order By c.X
-                       Select c).LastOrDefault()
+                          Order By c.X
+                          Select c).LastOrDefault()
 
             Assert.AreEqual(5, result.X)
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="LastOrDefault with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="LastOrDefault with predicate after a projection is not supported.")>
         Public Sub TestLastOrDefaultWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).LastOrDefault(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -1025,14 +1025,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithPredicateNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).LastOrDefault(Function(c) c.X = 9)
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).LastOrDefault(Function(c) c.X = 3)
@@ -1040,7 +1040,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithPredicateTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).LastOrDefault(Function(c) c.Y = 11)
@@ -1048,7 +1048,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastOrDefaultWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -1058,7 +1058,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Last()
@@ -1067,15 +1067,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestLastWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
                           Select c).Last()
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -1085,13 +1085,13 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Last with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Last with predicate after a projection is not supported.")>
         Public Sub TestLastWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().Select(Function(c) c.Y).Last(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -1100,7 +1100,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithPredicateNoMatch()
             Dim ex = Assert.Throws(Of InvalidOperationException)(Sub()
                                                                      Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -1109,7 +1109,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(ExpectedErrorMessage.LastEmptySequence, ex.Message)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Last(Function(c) c.X = 3)
@@ -1117,7 +1117,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithPredicateTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Last(Function(c) c.Y = 11)
@@ -1125,7 +1125,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithOrderBy()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Order By c.X
@@ -1135,7 +1135,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLastWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -1145,7 +1145,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLongCountEquals2()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
@@ -1154,7 +1154,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2L, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLongCountEquals5()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).LongCount()
@@ -1162,7 +1162,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5L, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestLongCountWithSkipAndTake()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Skip(2).Take(2).LongCount()
@@ -1170,35 +1170,35 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2L, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxDZWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c.D.Z).Max()
             Assert.AreEqual(55, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxDZWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Max(Function(c) c.D.Z)
             Assert.AreEqual(55, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxXWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c.X).Max()
             Assert.AreEqual(5, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxXWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                                   Select c).Max(Function(c) c.X)
+                          Select c).Max(Function(c) c.X)
             Assert.AreEqual(5, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxXYWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select New With {c.X, c.Y}).Max()
@@ -1206,7 +1206,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMaxXYWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Max(Function(c) New With
@@ -1218,35 +1218,35 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(44, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinDZWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c.D.Z).Min()
             Assert.AreEqual(11, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinDZWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Min(Function(c) c.D.Z)
             Assert.AreEqual(11, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinXWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c.X).Min()
             Assert.AreEqual(1, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinXWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Min(Function(c) c.X)
             Assert.AreEqual(1, result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinXYWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select New With {c.X, c.Y}).Min()
@@ -1254,7 +1254,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestMinXYWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Min(Function(c) New With
@@ -1289,7 +1289,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(orderByString, ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByAscending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.X
@@ -1316,7 +1316,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, results.Last().X)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByAscendingThenByAscending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.Y, c.X
@@ -1345,7 +1345,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, results.Last().X)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByAscendingThenByDescending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.Y, c.X Descending
@@ -1374,7 +1374,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, results.Last().X)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByDescending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.X Descending
@@ -1401,7 +1401,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, results.Last().X)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByDescendingThenByAscending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.Y Descending, c.X
@@ -1430,7 +1430,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, results.Last().X)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestOrderByDescendingThenByDescending()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.Y Descending, c.X Descending
@@ -1459,18 +1459,18 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, results.Last().X)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")>
         Public Sub TestOrderByDuplicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Order By c.X _
+                        Order By c.X
                         Order By c.Y
                         Select c
 
             MongoQueryTranslator.Translate(query)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestProjection()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Select c.X
@@ -1495,8 +1495,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, results.Last())
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Reverse query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Reverse query operator is not supported.")>
         Public Sub TestReverse()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Reverse()
@@ -1504,7 +1504,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSelect()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Select c
@@ -1525,47 +1525,47 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectMany()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c) New C() {c})
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIndex()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c, index) New C() {c})
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIntermediateResults()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c) New C() {c}, Function(c, i) i)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIndexAndIntermediateResults()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c, index) New C() {c}, Function(c, i) i)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Select query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Select query operator is not supported.")>
         Public Sub TestSelectWithIndex()
             Dim query = _collection.AsQueryable(Of C)().[Select](Function(c, index) c)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSelectWithNothingElse()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Select c
@@ -1573,30 +1573,30 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, result.Count)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")>
         Public Sub TestSequenceEqual()
             Dim source2 = New C(-1) {}
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                                   Select c).SequenceEqual(source2)
+                          Select c).SequenceEqual(source2)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")>
         Public Sub TestSequenceEqualtWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                                   Select c).SequenceEqual(source2, New CEqualityComparer())
+                          Select c).SequenceEqual(source2, New CEqualityComparer())
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleOrDefaultWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                                   Select c).SingleOrDefault()
+                          Select c).SingleOrDefault()
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
@@ -1604,7 +1604,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -1614,13 +1614,13 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="SingleOrDefault with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="SingleOrDefault with predicate after a projection is not supported.")>
         Public Sub TestSingleOrDefaultWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).SingleOrDefault(Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -1629,14 +1629,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithPredicateNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).SingleOrDefault(Function(c) c.X = 9)
             Assert.IsNull(result)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).SingleOrDefault(Function(c) c.X = 3)
@@ -1644,7 +1644,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleOrDefaultWithPredicateTwoMatches()
             Dim ex = Assert.Throws(Of InvalidOperationException)(Sub()
                                                                      Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -1653,30 +1653,30 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleOrDefaultWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.Y = 11
                           Select c).SingleOrDefault()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithManyMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).[Single]()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithNoMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 9
                           Select c).[Single]()
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleWithOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 3
@@ -1686,13 +1686,13 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Single with predicate after a projection is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Single with predicate after a projection is not supported.")>
         Public Sub TestSingleWithPredicateAfterProjection()
             Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).[Single](Function(y) y = 11)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleWithPredicateAfterWhere()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Where c.X = 1
@@ -1701,7 +1701,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleWithPredicateNoMatch()
             Dim ex = Assert.Throws(Of InvalidOperationException)(Sub()
                                                                      Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -1710,7 +1710,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(ExpectedErrorMessage.SingleEmptySequence, ex.Message)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleWithPredicateOneMatch()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).[Single](Function(c) c.X = 3)
@@ -1718,7 +1718,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(33, result.Y)
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSingleWithPredicateTwoMatches()
             Dim ex = Assert.Throws(Of InvalidOperationException)(Sub()
                                                                      Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -1727,15 +1727,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(InvalidOperationException))> _
+        <Test()>
+        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithTwoMatches()
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                       Where c.Y = 11
-                       Select c).[Single]()
+                          Where c.Y = 11
+                          Select c).[Single]()
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestSkip2()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Skip(2)
@@ -1756,43 +1756,43 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SkipWhile query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SkipWhile query operator is not supported.")>
         Public Sub TestSkipWhile()
             Dim query = _collection.AsQueryable(Of C)().SkipWhile(Function(c) True)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSum()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select 1.0).Sum()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumNullable()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select New Nullable(Of Integer)(1)).Sum()
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumWithSelector()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Sum(Function(c) 1.0)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumWithSelectorNullable()
             Dim result = (From c In _collection.AsQueryable(Of C)()
                           Select c).Sum(Function(c) New Nullable(Of Decimal)(1.0))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestTake2()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Take(2)
@@ -1813,16 +1813,16 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The TakeWhile query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The TakeWhile query operator is not supported.")>
         Public Sub TestTakeWhile()
             Dim query = _collection.AsQueryable(Of C)().TakeWhile(Function(c) True)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.")>
         Public Sub TestThenByWithMissingOrderBy()
             ' not sure this could ever happen in real life without deliberate sabotaging like with this cast
             Dim query = DirectCast(_collection.AsQueryable(Of C)(), IOrderedQueryable(Of C)).ThenBy(Function(c) c.X)
@@ -1830,8 +1830,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             MongoQueryTranslator.Translate(query)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")>
         Public Sub TestUnion()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -1840,8 +1840,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")>
         Public Sub TestUnionWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
@@ -1850,7 +1850,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAAny()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Any()
@@ -1872,8 +1872,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is Int32Serializer and must implement IBsonDocumentSerializer for participation in Any queries.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is Int32Serializer and must implement IBsonDocumentSerializer for participation in Any queries.")>
         Public Sub TestWhereAAnyWithPredicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Any(Function(a) a > 3)
@@ -1882,12 +1882,12 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLocalListContainsX()
-            Dim local = New List(Of Integer)() From { _
-             1, _
-             2, _
-             3 _
+            Dim local = New List(Of Integer)() From {
+             1,
+             2,
+             3
             }
 
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -1910,7 +1910,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLocalArrayContainsX()
             Dim local = {1, 2, 3}
 
@@ -1935,7 +1935,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContains2()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Contains(2)
@@ -1957,7 +1957,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContains2Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.A.Contains(2)
@@ -1979,11 +1979,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContainsAll()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.A.ContainsAll({2, 3})
-                     Select c
+                        Where c.A.ContainsAll({2, 3})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -2001,11 +2001,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContainsAllNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.A.ContainsAll({2, 3})
-                     Select c
+                        Where Not c.A.ContainsAll({2, 3})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -2023,11 +2023,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContainsAny()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.A.ContainsAny({2, 3})
-                     Select c
+                        Where c.A.ContainsAny({2, 3})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -2045,11 +2045,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAContainsAnyNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.A.ContainsAny({1, 2})
-                     Select c
+                        Where Not c.A.ContainsAny({1, 2})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -2067,7 +2067,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAExistsFalse()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
                            Where Query.NotExists("a").Inject()
@@ -2089,7 +2089,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAExistsTrue()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
                            Where Query.Exists("a").Inject()
@@ -2111,7 +2111,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereAExistsTrueNot()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
                            Where Not Query.Exists("a").Inject()
@@ -2133,7 +2133,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereALengthEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Length = 3
@@ -2155,7 +2155,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereALengthEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A.Length = 3)
@@ -2176,7 +2176,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereALengthEquals3Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 3 = c.A.Length
@@ -2198,7 +2198,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereALengthNotEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Length <> 3
@@ -2220,7 +2220,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereALengthNotEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A.Length <> 3)
@@ -2241,7 +2241,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1Equals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A(1) = 3
@@ -2263,7 +2263,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1Equals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A(1) = 3)
@@ -2284,7 +2284,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1ModTwoEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A(1) Mod 2 = 1
@@ -2306,7 +2306,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1ModTwoEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A(1) Mod 2 = 1)
@@ -2327,7 +2327,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1ModTwoNotEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A(1) Mod 2 <> 1
@@ -2349,7 +2349,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1ModTwoNotEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A(1) Mod 2 <> 1)
@@ -2370,7 +2370,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1NotEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A(1) <> 3
@@ -2392,7 +2392,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereASub1NotEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.A(1) <> 3)
@@ -2413,7 +2413,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereB()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.B
@@ -2435,7 +2435,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.BA(0)
@@ -2457,7 +2457,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0EqualsFalse()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.BA(0) = False
@@ -2479,7 +2479,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0EqualsFalseNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.BA(0) = False)
@@ -2500,7 +2500,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0EqualsTrue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.BA(0) = True
@@ -2522,7 +2522,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0EqualsTrueNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.BA(0) = True)
@@ -2543,7 +2543,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBASub0Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.BA(0)
@@ -2565,7 +2565,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBEqualsFalse()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.B = False
@@ -2587,7 +2587,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBEqualsFalseNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.B = False)
@@ -2608,7 +2608,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBEqualsTrue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.B = True
@@ -2630,7 +2630,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBEqualsTrueNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.B = True)
@@ -2651,7 +2651,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereBNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.B
@@ -2673,7 +2673,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDAAnyWithPredicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DA.Any(Function(x) x.Z = 333)
@@ -2696,7 +2696,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefCollectionNameEqualsC()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DBRef.CollectionName = "c"
@@ -2717,7 +2717,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefDatabaseNameEqualsDb()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DBRef.DatabaseName = "db"
@@ -2738,7 +2738,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefEquals()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DBRef = New MongoDBRef("db", "c", 1)
@@ -2760,7 +2760,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefEqualsNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.DBRef = New MongoDBRef("db", "c", 1))
@@ -2782,7 +2782,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefNotEquals()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DBRef <> New MongoDBRef("db", "c", 1)
@@ -2804,7 +2804,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefNotEqualsNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.DBRef <> New MongoDBRef("db", "c", 1))
@@ -2826,7 +2826,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDBRefIdEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.DBRef.Id = 1
@@ -2848,11 +2848,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDEquals11()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.D.Equals(New D() With { _
-                         .Z = 11 _
+                        Where c.D.Equals(New D() With {
+                         .Z = 11
                         })
                         Select c
 
@@ -2871,11 +2871,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDEquals11Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where Not (c.D.Equals(New D() With { _
-                         .Z = 11 _
+                        Where Not (c.D.Equals(New D() With {
+                         .Z = 11
                         }))
                         Select c
 
@@ -2894,11 +2894,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDNotEquals11()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where Not c.D.Equals(New D() With { _
-                         .Z = 11 _
+                        Where Not c.D.Equals(New D() With {
+                         .Z = 11
                         })
                         Select c
 
@@ -2917,11 +2917,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereDNotEquals11Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where Not (Not c.D.Equals(New D() With { _
-                         .Z = 11 _
+                        Where Not (Not c.D.Equals(New D() With {
+                         .Z = 11
                         }))
                         Select c
 
@@ -2940,7 +2940,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsAll()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.EA.ContainsAll(New E() {E.A, E.B})
@@ -2961,7 +2961,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsAllNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.EA.ContainsAll(New E() {E.A, E.B})
@@ -2983,11 +2983,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsAny()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.EA.ContainsAny({E.A, E.B})
-                     Select c
+                        Where c.EA.ContainsAny({E.A, E.B})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3005,11 +3005,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsAnyNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.EA.ContainsAny({E.A, E.B})
-                     Select c
+                        Where Not c.EA.ContainsAny({E.A, E.B})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3027,7 +3027,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsB()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.EA.Contains(E.B)
@@ -3049,7 +3049,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEAContainsBNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.EA.Contains(E.B)
@@ -3071,7 +3071,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEASub0EqualsA()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.EA(0) = E.A
@@ -3092,7 +3092,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEASub0EqualsANot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.EA(0) = E.A)
@@ -3113,7 +3113,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEASub0NotEqualsA()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.EA(0) <> E.A
@@ -3134,7 +3134,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEASub0NotEqualsANot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.EA(0) <> E.A)
@@ -3155,7 +3155,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEEqualsA()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.E = E.A
@@ -3176,7 +3176,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEEqualsANot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.E = E.A)
@@ -3198,7 +3198,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEEqualsAReversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where E.A = c.E
@@ -3220,11 +3220,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEInAOrB()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.E.In({E.A, E.B})
-                     Select c
+                        Where c.E.In({E.A, E.B})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3242,11 +3242,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereEInAOrBNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.E.In({E.A, E.B})
-                     Select c
+                        Where Not c.E.In({E.A, E.B})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3264,7 +3264,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereENotEqualsA()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.E <> E.A
@@ -3286,7 +3286,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereENotEqualsANot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.E <> E.A)
@@ -3308,7 +3308,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContains2()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L.Contains(2)
@@ -3330,7 +3330,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContains2Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.L.Contains(2)
@@ -3352,11 +3352,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContainsAll()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.L.ContainsAll({2, 3})
-                     Select c
+                        Where c.L.ContainsAll({2, 3})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3374,7 +3374,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContainsAllNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.L.ContainsAll({2, 3})
@@ -3396,11 +3396,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContainsAny()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.L.ContainsAny({2, 3})
-                     Select c
+                        Where c.L.ContainsAny({2, 3})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3418,11 +3418,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLContainsAnyNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.L.ContainsAny({1, 2})
-                     Select c
+                        Where Not c.L.ContainsAny({1, 2})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3440,11 +3440,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLExistsFalse()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Query.NotExists("l").Inject()
-                            Select c
+                           Where Query.NotExists("l").Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3462,11 +3462,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLExistsTrue()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Query.Exists("l").Inject()
-                            Select c
+                           Where Query.Exists("l").Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3484,11 +3484,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLExistsTrueNot()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Not Query.Exists("l").Inject()
-                            Select c
+                           Where Not Query.Exists("l").Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -3506,7 +3506,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountMethodEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L.Count() = 3
@@ -3528,7 +3528,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountMethodEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L.Count() = 3)
@@ -3550,7 +3550,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountMethodEquals3Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 3 = c.L.Count()
@@ -3572,7 +3572,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountPropertyEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L.Count = 3
@@ -3594,7 +3594,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountPropertyEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L.Count = 3)
@@ -3616,7 +3616,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountPropertyEquals3Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 3 = c.L.Count
@@ -3638,7 +3638,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountPropertyNotEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L.Count <> 3
@@ -3660,7 +3660,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLCountPropertyNotEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L.Count <> 3)
@@ -3682,7 +3682,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1Equals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L(1) = 3
@@ -3704,7 +3704,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1Equals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L(1) = 3)
@@ -3726,7 +3726,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1ModTwoEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L(1) Mod 2 = 1
@@ -3748,7 +3748,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1ModTwoEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L(1) Mod 2 = 1)
@@ -3770,7 +3770,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1ModTwoNotEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L(1) Mod 2 <> 1
@@ -3792,7 +3792,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1ModTwoNotEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L(1) Mod 2 <> 1)
@@ -3814,7 +3814,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1NotEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.L(1) <> 3
@@ -3836,7 +3836,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLSub1NotEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.L(1) <> 3)
@@ -3858,7 +3858,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLXModTwoEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.LX Mod 2 = 1
@@ -3880,7 +3880,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLXModTwoEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.LX Mod 2 = 1)
@@ -3902,7 +3902,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLXModTwoEquals1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 = c.LX Mod 2
@@ -3924,7 +3924,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLXModTwoNotEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.LX Mod 2 <> 1
@@ -3946,7 +3946,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereLXModTwoNotEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.LX Mod 2 <> 1)
@@ -3968,7 +3968,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0ContainsO()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.SA(0).Contains("o")
@@ -3990,7 +3990,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0ContainsONot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.SA(0).Contains("o")
@@ -4012,7 +4012,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0EndsWithM()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.SA(0).EndsWith("m")
@@ -4034,7 +4034,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0EndsWithMNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.SA(0).EndsWith("m")
@@ -4056,7 +4056,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0IsMatch()
             Dim regex = New Regex("^T")
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -4079,7 +4079,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0IsMatchNot()
             Dim regex = New Regex("^T")
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -4102,7 +4102,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0IsMatchStatic()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Regex.IsMatch(c.SA(0), "^T")
@@ -4124,7 +4124,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0IsMatchStaticNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not Regex.IsMatch(c.SA(0), "^T")
@@ -4146,7 +4146,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0IsMatchStaticWithOptions()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Regex.IsMatch(c.SA(0), "^t", RegexOptions.IgnoreCase)
@@ -4168,7 +4168,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0StartsWithT()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.SA(0).StartsWith("T")
@@ -4190,7 +4190,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSASub0StartsWithTNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.SA(0).StartsWith("T")
@@ -4212,7 +4212,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSContainsAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Contains("abc")
@@ -4234,7 +4234,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSContainsAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.Contains("abc")
@@ -4256,7 +4256,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSContainsDot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Contains(".")
@@ -4278,7 +4278,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSCountEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Count() = 3
@@ -4300,7 +4300,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S = "abc"
@@ -4322,7 +4322,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.S = "abc")
@@ -4344,7 +4344,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsMethodAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Equals("abc")
@@ -4366,7 +4366,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsMethodAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.S.Equals("abc"))
@@ -4388,7 +4388,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsStaticMethodAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where String.Equals(c.S, "abc")
@@ -4410,7 +4410,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEqualsStaticMethodAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not String.Equals(c.S, "abc")
@@ -4432,7 +4432,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEndsWithAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.EndsWith("abc")
@@ -4454,7 +4454,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSEndsWithAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.EndsWith("abc")
@@ -4476,7 +4476,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfAnyBC()
             Dim tempCollection = _database.GetCollection("temp")
             tempCollection.Drop()
@@ -4489,27 +4489,27 @@ Namespace MongoDB.DriverUnitTests.Linq
             tempCollection.Insert(New C() With {.S = "xxbb"})
 
             Dim query1 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOfAny(New Char() {"b"c, "c"c}) = 2
-                        Select c
+                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}) = 2
+                         Select c
             Assert.AreEqual(2, Consume(query1))
 
             Dim query2 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1) = 2
-                        Select c
+                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1) = 2
+                         Select c
             Assert.AreEqual(3, Consume(query2))
 
             Dim query3 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 1) = 2
-                        Select c
+                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 1) = 2
+                         Select c
             Assert.AreEqual(0, Consume(query3))
 
             Dim query4 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 2) = 2
-                        Select c
+                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 2) = 2
+                         Select c
             Assert.AreEqual(3, Consume(query4))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfAnyBDashCEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "-"c, "c"c}) = 1
@@ -4531,7 +4531,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfAnyBCStartIndex1Equals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "-"c, "c"c}, 1) = 1
@@ -4553,7 +4553,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "-"c, "c"c}, 1, 2) = 1
@@ -4575,54 +4575,54 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfB()
             Dim tempCollection = _database.GetCollection("temp")
             tempCollection.Drop()
-            tempCollection.Insert(New C() With { _
-             .S = "bxxx" _
+            tempCollection.Insert(New C() With {
+             .S = "bxxx"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xbxx" _
+            tempCollection.Insert(New C() With {
+             .S = "xbxx"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xxbx" _
+            tempCollection.Insert(New C() With {
+             .S = "xxbx"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xxxb" _
+            tempCollection.Insert(New C() With {
+             .S = "xxxb"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "bxbx" _
+            tempCollection.Insert(New C() With {
+             .S = "bxbx"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xbbx" _
+            tempCollection.Insert(New C() With {
+             .S = "xbbx"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xxbb" _
+            tempCollection.Insert(New C() With {
+             .S = "xxbb"
             })
 
             Dim query1 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("b"c) = 2
-                        Select c
+                         Where c.S.IndexOf("b"c) = 2
+                         Select c
             Assert.AreEqual(2, Consume(query1))
 
             Dim query2 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("b"c, 1) = 2
-                        Select c
+                         Where c.S.IndexOf("b"c, 1) = 2
+                         Select c
             Assert.AreEqual(3, Consume(query2))
 
             Dim query3 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("b"c, 1, 1) = 2
-                        Select c
+                         Where c.S.IndexOf("b"c, 1, 1) = 2
+                         Select c
             Assert.AreEqual(0, Consume(query3))
 
             Dim query4 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("b"c, 1, 2) = 2
-                        Select c
+                         Where c.S.IndexOf("b"c, 1, 2) = 2
+                         Select c
             Assert.AreEqual(3, Consume(query4))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfBEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c) = 1
@@ -4644,7 +4644,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfBStartIndex1Equals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c, 1) = 1
@@ -4666,7 +4666,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfBStartIndex1Count2Equals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c, 1, 2) = 1
@@ -4688,51 +4688,51 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfXyz()
             Dim tempCollection = _database.GetCollection("temp")
             tempCollection.Drop()
-            tempCollection.Insert(New C() With { _
-             .S = "xyzaaa" _
+            tempCollection.Insert(New C() With {
+             .S = "xyzaaa"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "axyzaa" _
+            tempCollection.Insert(New C() With {
+             .S = "axyzaa"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "aaxyza" _
+            tempCollection.Insert(New C() With {
+             .S = "aaxyza"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "aaaxyz" _
+            tempCollection.Insert(New C() With {
+             .S = "aaaxyz"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "aaaaxy" _
+            tempCollection.Insert(New C() With {
+             .S = "aaaaxy"
             })
-            tempCollection.Insert(New C() With { _
-             .S = "xyzxyz" _
+            tempCollection.Insert(New C() With {
+             .S = "xyzxyz"
             })
 
             Dim query1 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("xyz") = 3
-                        Select c
+                         Where c.S.IndexOf("xyz") = 3
+                         Select c
             Assert.AreEqual(1, Consume(query1))
 
             Dim query2 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("xyz", 1) = 3
-                        Select c
+                         Where c.S.IndexOf("xyz", 1) = 3
+                         Select c
             Assert.AreEqual(2, Consume(query2))
 
             Dim query3 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("xyz", 1, 4) = 3
-                        Select c
+                         Where c.S.IndexOf("xyz", 1, 4) = 3
+                         Select c
             Assert.AreEqual(0, Consume(query3))
             ' substring isn't long enough to match
             Dim query4 = From c In tempCollection.AsQueryable(Of C)()
-                        Where c.S.IndexOf("xyz", 1, 5) = 3
-                        Select c
+                         Where c.S.IndexOf("xyz", 1, 5) = 3
+                         Select c
             Assert.AreEqual(2, Consume(query4))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfXyzEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz") = 3
@@ -4754,7 +4754,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfXyzStartIndex1Equals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz", 1) = 3
@@ -4776,7 +4776,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIndexOfXyzStartIndex1Count5Equals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz", 1, 5) = 3
@@ -4798,7 +4798,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsMatch()
             Dim regex = New Regex("^abc")
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -4821,7 +4821,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsMatchNot()
             Dim regex = New Regex("^abc")
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -4844,7 +4844,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsMatchStatic()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Regex.IsMatch(c.S, "^abc")
@@ -4866,7 +4866,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsMatchStaticNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not Regex.IsMatch(c.S, "^abc")
@@ -4888,7 +4888,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsMatchStaticWithOptions()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Regex.IsMatch(c.S, "^abc", RegexOptions.IgnoreCase)
@@ -4910,7 +4910,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSIsNullOrEmpty()
             Dim tempCollection = _database.GetCollection("temp")
             tempCollection.Drop()
@@ -4918,11 +4918,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             ' serialized document will have no "s" field
             tempCollection.Insert(New BsonDocument("s", BsonNull.Value))
             ' work around [BsonIgnoreIfNull] on S
-            tempCollection.Insert(New C() With { _
-             .S = "" _
+            tempCollection.Insert(New C() With {
+             .S = ""
             })
-            tempCollection.Insert(New C() With { _
-             .S = "x" _
+            tempCollection.Insert(New C() With {
+             .S = "x"
             })
 
             Dim query = From c In tempCollection.AsQueryable(Of C)()
@@ -4945,7 +4945,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length = 3
@@ -4967,7 +4967,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.S.Length = 3)
@@ -4989,7 +4989,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthGreaterThan3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length > 3
@@ -5011,7 +5011,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthGreaterThanOrEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length >= 3
@@ -5033,7 +5033,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthLessThan3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length < 3
@@ -5055,7 +5055,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthLessThanOrEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length <= 3
@@ -5077,7 +5077,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthNotEquals3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Length <> 3
@@ -5099,7 +5099,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSLengthNotEquals3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.S.Length <> 3)
@@ -5121,7 +5121,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSNotEqualsAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S <> "abc"
@@ -5143,7 +5143,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSNotEqualsAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.S <> "abc")
@@ -5165,7 +5165,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSStartsWithAbc()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.StartsWith("abc")
@@ -5187,7 +5187,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSStartsWithAbcNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.StartsWith("abc")
@@ -5209,7 +5209,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSSub1EqualsB()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S(1) = "b"c
@@ -5231,7 +5231,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSSub1NotEqualsB()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S(1) <> "b"c
@@ -5253,7 +5253,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimContainsXyz()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Trim().Contains("xyz")
@@ -5275,7 +5275,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimContainsXyzNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.Trim().Contains("xyz")
@@ -5297,7 +5297,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimEndsWithXyz()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Trim().EndsWith("xyz")
@@ -5319,7 +5319,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimEndsWithXyzNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.Trim().EndsWith("xyz")
@@ -5341,7 +5341,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimStartsWithXyz()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.Trim().StartsWith("xyz")
@@ -5363,7 +5363,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimStartsWithXyzNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not c.S.Trim().StartsWith("xyz")
@@ -5385,7 +5385,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSTrimStartTrimEndToLowerContainsXyz()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.TrimStart(" "c, "."c, "-"c, ControlChars.Tab).TrimEnd().ToLower().Contains("xyz")
@@ -5407,7 +5407,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerEqualsConstantLowerCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() = "abc"
@@ -5430,7 +5430,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerDoesNotEqualConstantLowerCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() <> "abc"
@@ -5453,7 +5453,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerEqualsConstantMixedCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() = "Abc"
@@ -5476,7 +5476,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerDoesNotEqualConstantMixedCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() <> "Abc"
@@ -5499,7 +5499,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerEqualsNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() = Nothing
@@ -5521,7 +5521,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToLowerDoesNotEqualNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToLower() <> Nothing
@@ -5543,7 +5543,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperEqualsConstantLowerCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() = "abc"
@@ -5566,7 +5566,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperDoesNotEqualConstantLowerCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() <> "abc"
@@ -5589,7 +5589,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperEqualsConstantMixedCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() = "Abc"
@@ -5612,7 +5612,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperDoesNotEqualConstantMixedCaseValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() <> "Abc"
@@ -5635,7 +5635,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperEqualsNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() = Nothing
@@ -5657,7 +5657,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSToUpperDoesNotEqualNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.S.ToUpper() <> Nothing
@@ -5680,7 +5680,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSystemProfileInfoDurationGreatherThan10Seconds()
             Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.Duration > TimeSpan.FromSeconds(10)
@@ -5701,7 +5701,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""millis"" : { ""$gt"" : 10000.0 } }", selectQuery.BuildQuery().ToJson())
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSystemProfileInfoNamespaceEqualsNs()
             Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.[Namespace] = "ns"
@@ -5722,7 +5722,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""ns"" : ""ns"" }", selectQuery.BuildQuery().ToJson())
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSystemProfileInfoNumberScannedGreaterThan1000()
             Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.NumberScanned > 1000
@@ -5743,7 +5743,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""nscanned"" : { ""$gt"" : 1000 } }", selectQuery.BuildQuery().ToJson())
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereSystemProfileInfoTimeStampGreatherThanJan12012()
             Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.Timestamp > New DateTime(2012, 1, 1, 0, 0, 0, DateTimeKind.Utc)
@@ -5764,7 +5764,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""ts"" : { ""$gt"" : ISODate(""2012-01-01T00:00:00Z"") } }", selectQuery.BuildQuery().ToJson())
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereTripleAnd()
             If _server.BuildInfo.Version >= New Version(2, 0) Then
                 ' the query is a bit odd in order to force the built query to be promoted to $and form
@@ -5789,7 +5789,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             End If
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereTripleOr()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X = 1 OrElse c.Y = 33 OrElse c.S = "x is 1"
@@ -5811,15 +5811,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Where query operator is not supported.")> _
+        <Test()>
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Where query operator is not supported.")>
         Public Sub TestWhereWithIndex()
             Dim query = _collection.AsQueryable(Of C)().Where(Function(c, i) True)
             query.ToList()
             ' execute query
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X = 1
@@ -5841,7 +5841,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1AndYEquals11()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X = 1 AndAlso c.Y = 11
@@ -5863,7 +5863,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1AndYEquals11UsingTwoWhereClauses()
             ' note: using different variable names in the two where clauses to test parameter replacement when combining predicates
             Dim query = _collection.AsQueryable(Of C)().Where(Function(c) c.X = 1).Where(Function(d) d.Y = 11)
@@ -5885,7 +5885,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1AndYEquals11Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X = 1 AndAlso c.Y = 11)
@@ -5903,11 +5903,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$ne"" : 1 } }, { ""y"" : { ""$ne"" : 11 } }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1, ""y"" : 11 }] }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1AndYEquals11AndZEquals11()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X = 1 AndAlso c.Y = 11 AndAlso c.D.Z = 11
@@ -5929,7 +5929,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X = 1)
@@ -5951,7 +5951,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1OrYEquals33()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X = 1 OrElse c.Y = 33
@@ -5973,7 +5973,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1OrYEquals33Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X = 1 OrElse c.Y = 33)
@@ -5991,12 +5991,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            'Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1 }, { ""y"" : 33 }] }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual("{ ""x"" : { ""$ne"" : 1 }, ""y"" : { ""$ne"" : 33 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1 }, { ""y"" : 33 }] }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1OrYEquals33NotNot()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not Not (c.X = 1 OrElse c.Y = 33)
@@ -6018,11 +6017,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXEquals1UsingJavaScript()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where c.X = 1 AndAlso Query.Where("this.x < 9").Inject()
-                            Select c
+                           Where c.X = 1 AndAlso Query.Where("this.x < 9").Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -6040,7 +6039,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThan1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X > 1
@@ -6062,7 +6061,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThan1AndLessThan3()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X > 1 AndAlso c.X < 3
@@ -6084,7 +6083,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThan1AndLessThan3Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X > 1 AndAlso c.X < 3)
@@ -6102,11 +6101,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$lte"" : 1 } }, { ""x"" : { ""$gte"" : 3 } }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : { ""$gt"" : 1, ""$lt"" : 3 } }] }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThan1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X > 1)
@@ -6124,11 +6123,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$lte"" : 1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$gt"" : 1 } } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThan1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 < c.X
@@ -6150,7 +6149,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThanOrEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X >= 1
@@ -6172,7 +6171,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThanOrEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X >= 1)
@@ -6190,11 +6189,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$lt"" : 1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$gte"" : 1 } } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXGreaterThanOrEquals1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 <= c.X
@@ -6216,11 +6215,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXIn1Or9()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where c.X.[In]({1, 9})
-                     Select c
+                        Where c.X.[In]({1, 9})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -6238,11 +6237,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXIn1Or9Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                     Where Not c.X.[In]({1, 9})
-                     Select c
+                        Where Not c.X.[In]({1, 9})
+                        Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -6260,11 +6259,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXIsTypeInt32()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Query.Type("x", BsonType.Int32).Inject()
-                            Select c
+                           Where Query.Type("x", BsonType.Int32).Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -6282,11 +6281,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXIsTypeInt32Not()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Not Query.Type("x", BsonType.Int32).Inject()
-                            Select c
+                           Where Not Query.Type("x", BsonType.Int32).Inject()
+                           Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
@@ -6304,7 +6303,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query__1))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThan1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X < 1
@@ -6326,7 +6325,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThan1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X < 1)
@@ -6344,11 +6343,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$gte"" : 1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$lt"" : 1 } } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(5, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThan1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 > c.X
@@ -6370,7 +6369,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(0, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThanOrEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X <= 1
@@ -6392,7 +6391,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThanOrEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X <= 1)
@@ -6410,11 +6409,11 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$gt"" : 1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$lte"" : 1 } } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXLessThanOrEquals1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 >= c.X
@@ -6436,7 +6435,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModOneEquals0AndXModTwoEquals0()
             If _server.BuildInfo.Version >= New Version(2, 0) Then
                 Dim query = From c In _collection.AsQueryable(Of C)()
@@ -6460,7 +6459,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             End If
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModOneEquals0AndXModTwoEquals0Not()
             If _server.BuildInfo.Version >= New Version(2, 0) Then
                 Dim query = From c In _collection.AsQueryable(Of C)()
@@ -6481,12 +6480,12 @@ Namespace MongoDB.DriverUnitTests.Linq
 
                 Dim json = selectQuery.BuildQuery().ToJson()
 
-                Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$not"" : { ""$mod"" : [1, 0] } } }, { ""x"" : { ""$not"" : { ""$mod"" : [2, 0] } } }] }", selectQuery.BuildQuery().ToJson())
+                Assert.AreEqual("{ ""$nor"" : [{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson())
                 Assert.AreEqual(3, Consume(query))
             End If
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModOneEquals0AndXModTwoEquals0NotNot()
             If _server.BuildInfo.Version >= New Version(2, 0) Then
                 Dim query = From c In _collection.AsQueryable(Of C)()
@@ -6505,12 +6504,12 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.IsNull(selectQuery.Skip)
                 Assert.IsNull(selectQuery.Take)
 
-                Assert.AreEqual("{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }", selectQuery.BuildQuery().ToJson())
+                Assert.AreEqual("{ ""$or"" : [{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson())
                 Assert.AreEqual(2, Consume(query))
             End If
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModTwoEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X Mod 2 = 1
@@ -6532,7 +6531,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModTwoEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X Mod 2 = 1)
@@ -6554,7 +6553,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModTwoEquals1Reversed()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where 1 = c.X Mod 2
@@ -6576,7 +6575,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModTwoNotEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X Mod 2 <> 1
@@ -6598,7 +6597,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(2, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXModTwoNotEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X Mod 2 <> 1)
@@ -6620,7 +6619,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(3, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXNotEquals1()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.X <> 1
@@ -6642,7 +6641,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(4, Consume(query))
         End Sub
 
-        <Test()> _
+        <Test()>
         Public Sub TestWhereXNotEquals1Not()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where Not (c.X <> 1)
