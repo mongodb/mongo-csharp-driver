@@ -446,52 +446,6 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
-        [TestCase(false)]
-        [TestCase(true)]
-        public void TestNoJournal(bool ordered)
-        {
-            _collection.Drop();
-
-            var documents = new[]
-            {
-                new BsonDocument("x", 1)
-            };
-
-            var bulk = InitializeBulkOperation(_collection, ordered);
-            bulk.Insert(documents[0]);
-
-            var writeConcern = new WriteConcern { Journal = true };
-            if (IsJournalEnabled())
-            {
-                var result = bulk.Execute(writeConcern);
-                var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result);
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
-            }
-            else
-            {
-                if (_primary.Supports(FeatureId.WriteCommands))
-                {
-                    Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-                    Assert.AreEqual(0, _collection.Count());
-                }
-                else
-                {
-                    var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
-                    var result = exception.Result;
-
-                    var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                    CheckExpectedResult(expectedResult, result);
-                    Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
-
-                    Assert.AreEqual(0, exception.UnprocessedRequests.Count);
-                    Assert.IsNotNull(exception.WriteConcernError);
-                    Assert.AreEqual(0, exception.WriteErrors.Count);
-                }
-            }
-        }
-
-        [Test]
         public void TestOrderedBatchWithErrors()
         {
             _collection.Drop();
@@ -711,7 +665,7 @@ namespace MongoDB.DriverUnitTests.Operations
 
             var expectedDocuments = new BsonDocument[]
             {
-                new BsonDocument { { "b", 1 }, { "a", 1 } },                   
+                new BsonDocument { { "b", 1 }, { "a", 1 } },
                 _primary.BuildInfo.Version < new Version(2, 6, 0) ?
                     new BsonDocument { { "a", 2 }, { "b", 3 } } : // servers prior to 2.6 rewrite field order on update
                     new BsonDocument { { "b", 3 }, { "a", 2 } },
@@ -1306,7 +1260,7 @@ namespace MongoDB.DriverUnitTests.Operations
             private int? _processedRequestsCount;
             private int? _requestCount;
             private int? _upsertsCount;
-            
+
             // public properties
             public int? DeletedCount
             {
