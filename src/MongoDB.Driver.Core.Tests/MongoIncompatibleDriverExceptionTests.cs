@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,12 +32,13 @@ namespace MongoDB.Driver
         public void TestFixtureSetup()
         {
             var clusterId = new ClusterId(1);
+            var connectionMode = ClusterConnectionMode.Standalone;
             var clusterType = ClusterType.Standalone;
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var server = new ServerDescription(serverId, endPoint);
             var servers = new[] { server };
-            _clusterDescription = new ClusterDescription(clusterId, clusterType, servers);
+            _clusterDescription = new ClusterDescription(clusterId, connectionMode, clusterType, servers);
         }
 
         [Test]

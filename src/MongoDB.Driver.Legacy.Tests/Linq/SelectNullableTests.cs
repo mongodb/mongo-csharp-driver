@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => ((Nullable<Int32>)c.E == (Nullable<Int32>)null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => (c.E == (Nullable<E>)null)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);

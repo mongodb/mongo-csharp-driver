@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Clusters
             _state = new InterlockedInt32(State.Initial);
 
             _clusterId = new ClusterId();
-            _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode.ToClusterType());
+            _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
@@ -122,6 +122,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
+                    _description.ConnectionMode,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
 

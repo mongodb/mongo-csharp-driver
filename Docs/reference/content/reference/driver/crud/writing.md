@@ -185,3 +185,43 @@ Since only a single document is selected, for filters that could result in multi
 #### IsUpsert
 
 For Replacing and Updating, `IsUpsert` can be specified such that, if the document isn't found, one will be inserted.
+
+
+## Bulk Writes
+
+There are two types of bulk operations:
+
+1. **Ordered bulk operations.**
+  
+  Executes all the operations in order and errors out on the first error.
+
+1. **Unordered bulk operations.**
+  
+  Executes all the operations and reports any errors. Unordered bulk operations do not guarantee the order of execution.
+
+Let’s look at two simple examples using ordered and unordered operations:
+
+```csharp
+
+var models = new WriteModel<BsonDocument>[] 
+{
+  new InsertOneModel<BsonDocument>(new BsonDocument("_id", 4)),
+  new InsertOneModel<BsonDocument>(new BsonDocument("_id", 5)),
+  new InsertOneModel<BsonDocument>(new BsonDocument("_id", 6)),
+  new UpdateOneModel<BsonDocument>(
+    new BsonDocument("_id", 1), 
+    new BsonDocument("$set", new BsonDocument("x", 2))),
+  new DeleteOneModel<BsonDocument>(new BsonDocument("_id", 3)),
+  new ReplaceOneModel<BsonDocument>(
+    new BsonDocument("_id", 3), 
+    new BsonDocument("_id", 3).Add("x", 4))
+};
+
+// 1. Ordered bulk operation - order of operation is guaranteed
+await collection.BulkWrite(models);
+
+// 2. Unordered bulk operation - no guarantee of order of operation
+await collection.BulkWrite(models, new BulkWriteOptions { IsOrdered = false });
+```
+
+{{% note class="important" %}}Use of the bulkWrite methods is not recommended when connected to pre-2.6 MongoDB servers, as this was the first server version to support bulk write commands for insert, update, and delete in a way that allows the driver to implement the correct semantics for BulkWriteResult and BulkWriteException. The methods will still work for pre-2.6 servers, but performance will suffer, as each write operation has to be executed one at a time.{{% /note %}}

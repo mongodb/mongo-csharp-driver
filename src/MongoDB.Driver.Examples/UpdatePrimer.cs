@@ -75,6 +75,7 @@ namespace MongoDB.Driver.Examples
 
         [Test]
         [AltersCollection]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task UpdateMultipleDocuments()
         {
             // @begin: update-multiple-documents

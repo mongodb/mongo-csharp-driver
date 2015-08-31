@@ -50,6 +50,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<Servers.ServerDescription> servers)
         {
+            if (cluster.ConnectionMode == ClusterConnectionMode.Direct)
+            {
+                return servers;
+            }
+
             return servers.Where(x =>
                 x.Type == ServerType.ReplicaSetPrimary ||
                 x.Type == ServerType.ShardRouter ||

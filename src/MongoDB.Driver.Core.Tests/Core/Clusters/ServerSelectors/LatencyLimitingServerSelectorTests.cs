@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ using System;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
@@ -36,8 +34,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var clusterId = new ClusterId();
             _description = new ClusterDescription(
                 clusterId,
+                ClusterConnectionMode.Automatic,
                 ClusterType.Unknown,
-                new[] 
+                new[]
                 {
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), averageRoundTripTime: TimeSpan.FromMilliseconds(10)),
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), averageRoundTripTime: TimeSpan.FromMilliseconds(30)),
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var result = subject.SelectServers(_description, _description.Servers).ToList();
 
             result.Count.Should().Be(2);
-            result.Should().BeEquivalentTo(new [] { _description.Servers[0], _description.Servers[2] });
+            result.Should().BeEquivalentTo(new[] { _description.Servers[0], _description.Servers[2] });
         }
 
         [Test]

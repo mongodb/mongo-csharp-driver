@@ -146,12 +146,14 @@ namespace MongoDB.Driver
             var cmd = new BsonDocument("count", "foo");
             await _subject.RunCommandAsync<BsonDocument>(cmd);
 
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
 
-            call.Binding.Should().BeOfType<WritableServerBinding>();
+            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
+            var binding = (ReadPreferenceBinding)call.Binding;
+            binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
-            call.Operation.Should().BeOfType<WriteCommandOperation<BsonDocument>>();
-            var op = (WriteCommandOperation<BsonDocument>)call.Operation;
+            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
+            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }
@@ -180,10 +182,14 @@ namespace MongoDB.Driver
             var cmd = new BsonDocument("shutdown", 1);
             await _subject.RunCommandAsync<BsonDocument>(cmd);
 
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
 
-            call.Operation.Should().BeOfType<WriteCommandOperation<BsonDocument>>();
-            var op = (WriteCommandOperation<BsonDocument>)call.Operation;
+            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
+            var binding = (ReadPreferenceBinding)call.Binding;
+            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+
+            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
+            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be(cmd);
         }
@@ -193,10 +199,14 @@ namespace MongoDB.Driver
         {
             await _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}");
 
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
 
-            call.Operation.Should().BeOfType<WriteCommandOperation<BsonDocument>>();
-            var op = (WriteCommandOperation<BsonDocument>)call.Operation;
+            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
+            var binding = (ReadPreferenceBinding)call.Binding;
+            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+
+            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
+            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }
@@ -207,10 +217,14 @@ namespace MongoDB.Driver
             var cmd = new CountCommand { Collection = "foo" };
             await _subject.RunCommandAsync(new ObjectCommand<BsonDocument>(cmd));
 
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
 
-            call.Operation.Should().BeOfType<WriteCommandOperation<BsonDocument>>();
-            var op = (WriteCommandOperation<BsonDocument>)call.Operation;
+            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
+            var binding = (ReadPreferenceBinding)call.Binding;
+            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+
+            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
+            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }

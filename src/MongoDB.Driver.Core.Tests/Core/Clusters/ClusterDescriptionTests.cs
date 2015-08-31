@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,10 +58,11 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void CreateInitial_should_return_initial_description()
         {
-            var subject = ClusterDescription.CreateInitial(__clusterId, ClusterType.Standalone);
+            var subject = ClusterDescription.CreateInitial(__clusterId, ClusterConnectionMode.Standalone);
             subject.ClusterId.Should().Be(__clusterId);
             subject.Servers.Should().BeEmpty();
             subject.State.Should().Be(ClusterState.Disconnected);
+            subject.ConnectionMode.Should().Be(ClusterConnectionMode.Standalone);
             subject.Type.Should().Be(ClusterType.Standalone);
         }
 
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = new ClusterDescription(
                 __clusterId,
+                ClusterConnectionMode.ReplicaSet,
                 ClusterType.ReplicaSet,
                 new[] { __serverDescription1, __serverDescription2 });
             subject.ClusterId.Should().Be(__clusterId);
@@ -90,6 +92,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [TestCase("ClusterId")]
+        [TestCase("ConnectionMode")]
         [TestCase("Servers")]
         [TestCase("Type")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
@@ -115,7 +118,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void State_should_be_connected_if_any_server_is_connected()
         {
             var connected = ServerDescriptionHelper.Connected(new ClusterId(1));
-            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1, connected });
+            var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, ClusterType.Standalone, new[] { __serverDescription1, connected });
 
             subject.State.Should().Be(ClusterState.Connected);
         }
@@ -123,8 +126,8 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void ToString_should_return_string_representation()
         {
-            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1 });
-            var expected = string.Format("{{ ClusterId : \"1\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
+            var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, ClusterType.Standalone, new[] { __serverDescription1 });
+            var expected = string.Format("{{ ClusterId : \"1\", ConnectionMode : \"Standalone\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
                 __serverDescription1.ToString());
             subject.ToString().Should().Be(expected);
         }
@@ -189,17 +192,19 @@ namespace MongoDB.Driver.Core.Clusters
         private ClusterDescription CreateSubject(string notEqualField = null)
         {
             var clusterId = new ClusterId(1);
+            var connectionMode = ClusterConnectionMode.ReplicaSet;
             var type = ClusterType.ReplicaSet;
             var servers = new[] { __serverDescription1, __serverDescription2 };
 
             switch (notEqualField)
             {
                 case "ClusterId": clusterId = new ClusterId(2); break;
+                case "ConnectionMode": connectionMode = ClusterConnectionMode.Standalone; break;
                 case "Type": type = ClusterType.Unknown; break;
                 case "Servers": servers = new[] { __serverDescription1 }; break;
             }
 
-            return new ClusterDescription(clusterId, type, servers);
+            return new ClusterDescription(clusterId, connectionMode, type, servers);
         }
     }
 }

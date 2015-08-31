@@ -137,16 +137,8 @@ namespace MongoDB.Driver
             var renderedCommand = command.Render(_settings.SerializerRegistry);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            if (readPreference == ReadPreference.Primary)
-            {
-                var operation = new WriteCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
-                return ExecuteWriteOperation<TResult>(operation, cancellationToken);
-            }
-            else
-            {
-                var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
-                return ExecuteReadOperation<TResult>(operation, readPreference, cancellationToken);
-            }
+            var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+            return ExecuteReadOperation(operation, readPreference, cancellationToken);
         }
 
         private Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, CancellationToken cancellationToken)

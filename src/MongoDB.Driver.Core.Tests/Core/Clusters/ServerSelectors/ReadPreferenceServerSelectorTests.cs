@@ -16,10 +16,8 @@
 using System.Linq;
 using System.Net;
 using FluentAssertions;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
@@ -36,12 +34,13 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         public void Setup()
         {
             var clusterId = new ClusterId();
-            _primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, new TagSet(new [] { new Tag("a", "1") }));
-            _secondary1 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, new TagSet(new [] { new Tag("a", "1") }));
+            _primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, new TagSet(new[] { new Tag("a", "1") }));
+            _secondary1 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "1") }));
             _secondary2 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "2") }));
 
             _description = new ClusterDescription(
                 clusterId,
+                ClusterConnectionMode.ReplicaSet,
                 ClusterType.ReplicaSet,
                 new[] { _primary, _secondary1, _secondary2 });
         }
@@ -71,7 +70,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Primary);
 
-            var result = subject.SelectServers(_description, new [] { _secondary1, _secondary2 }).ToList();
+            var result = subject.SelectServers(_description, new[] { _secondary1, _secondary2 }).ToList();
 
             result.Should().BeEmpty();
         }
@@ -101,7 +100,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Secondary);
 
-            var result = subject.SelectServers(_description, new [] { _primary }).ToList();
+            var result = subject.SelectServers(_description, new[] { _primary }).ToList();
 
             result.Should().BeEmpty();
         }
@@ -121,7 +120,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.SecondaryPreferred);
 
-            var result = subject.SelectServers(_description, new [] { _primary }).ToList();
+            var result = subject.SelectServers(_description, new[] { _primary }).ToList();
 
             result.Should().BeEquivalentTo(new[] { _primary });
         }
@@ -141,7 +140,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.SecondaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
 
-            var result = subject.SelectServers(_description, new [] { _primary, _secondary1 }).ToList();
+            var result = subject.SelectServers(_description, new[] { _primary, _secondary1 }).ToList();
 
             result.Should().BeEquivalentTo(new[] { _primary });
         }
@@ -171,7 +170,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
 
-            var result = subject.SelectServers(_description, new [] { _secondary1, _secondary2 }).ToList();
+            var result = subject.SelectServers(_description, new[] { _secondary1, _secondary2 }).ToList();
 
             result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
         }
@@ -203,7 +202,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
             var result = subject.SelectServers(_description, _description.Servers).ToList();
 
-            result.Should().BeEquivalentTo(new [] { _primary, _secondary1 });
+            result.Should().BeEquivalentTo(new[] { _primary, _secondary1 });
         }
 
         [Test]
@@ -215,6 +214,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
             var description = new ClusterDescription(
                 clusterId,
+                ClusterConnectionMode.ReplicaSet,
                 ClusterType.ReplicaSet,
                 new[] { primary, secondary });
 
@@ -223,6 +223,25 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var result = subject.SelectServers(description, description.Servers).ToList();
 
             result.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ReadPreference_should_be_ignored_when_directly_connected_with_a_server()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Primary));
+
+            var clusterId = new ClusterId();
+            var server = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary);
+
+            var description = new ClusterDescription(
+                clusterId,
+                ClusterConnectionMode.Direct,
+                ClusterType.ReplicaSet,
+                new[] { server });
+
+            var result = subject.SelectServers(description, description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { server });
         }
     }
 }

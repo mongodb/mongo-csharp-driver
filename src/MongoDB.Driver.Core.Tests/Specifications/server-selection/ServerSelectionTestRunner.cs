@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Specifications.server_selection
             var clusterType = GetClusterType(topologyDescription["type"].ToString());
             var servers = BuildServerDescriptions((BsonArray)topologyDescription["servers"]);
 
-            return new ClusterDescription(_clusterId, clusterType, servers);
+            return new ClusterDescription(_clusterId, ClusterConnectionMode.Automatic, clusterType, servers);
         }
 
         private IEnumerable<ServerDescription> BuildServerDescriptions(BsonArray serverDescriptions)

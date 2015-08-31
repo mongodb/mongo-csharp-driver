@@ -43,10 +43,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{391D831D-5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Examples", "MongoDB.Driver.Examples\MongoDB.Driver.Examples.csproj", "{0B7600F4-A343-4007-8977-933DBEFC0CC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.GridFS", "MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj", "{6B5D1EA6-1088-4122-B8C4-B341822C7915}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{6307AC79-F94C-4E20-ABE1-83A6D1E942F6}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.GridFS.Tests", "MongoDB.Driver.GridFS.Tests\MongoDB.Driver.GridFS.Tests.csproj", "{1537C58E-BECD-4ED2-A900-1AFBB601D2B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +118,14 @@ Global
 		{0B7600F4-A343-4007-8977-933DBEFC0CC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B7600F4-A343-4007-8977-933DBEFC0CC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B7600F4-A343-4007-8977-933DBEFC0CC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B5D1EA6-1088-4122-B8C4-B341822C7915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B5D1EA6-1088-4122-B8C4-B341822C7915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B5D1EA6-1088-4122-B8C4-B341822C7915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B5D1EA6-1088-4122-B8C4-B341822C7915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,5 +146,7 @@ Global
 		{89B92FFF-4126-4D9A-93C8-2BD7E0CD82FF} = {11282844-4584-4F65-9857-D4329046E84D}
 		{02AB2E44-785A-4D39-99C0-29F93A02EF84} = {C0AC2FCF-37FB-4A64-ACC6-8490DC15091D}
 		{0B7600F4-A343-4007-8977-933DBEFC0CC7} = {391D831D-5AC7-43F8-8BCB-6AE81B027658}
+		{6B5D1EA6-1088-4122-B8C4-B341822C7915} = {11282844-4584-4F65-9857-D4329046E84D}
+		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2} = {11282844-4584-4F65-9857-D4329046E84D}
 	EndGlobalSection
 EndGlobal

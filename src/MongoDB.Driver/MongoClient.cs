@@ -80,7 +80,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the cluster.
         /// </summary>
-        public ICluster Cluster
+        public override ICluster Cluster
         {
             get { return _cluster; }
         }
