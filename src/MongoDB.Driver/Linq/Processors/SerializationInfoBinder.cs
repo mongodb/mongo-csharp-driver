@@ -126,6 +126,7 @@ namespace MongoDB.Driver.Linq.Processors
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+
             switch (node.Method.Name)
             {
                 case "ElementAt":
@@ -144,12 +145,41 @@ namespace MongoDB.Driver.Linq.Processors
                 case "Sum":
                     if (IsLinqMethod(node) && node.Arguments.Count == 2)
                     {
-                        return BindTwoArgumentLinqMethodWithSelector(node);
+                        return BindTwoArgumentLinqMethodWithSelector(node, node.Arguments[0], node.Arguments[1]);
                     }
                     break;
+                case "OfType":
+                    return BindOfType(node);
             }
 
             return base.VisitMethodCall(node);
+        }
+
+        private Expression BindOfType(MethodCallExpression node)
+        {
+
+            
+            AssemblyName dynMongoAssemblyName = new AssemblyName("dynMongo");
+            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(dynMongoAssemblyName, System.Reflection.Emit.AssemblyBuilderAccess.Run);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule("Mongo");
+            var typeBuilder = moduleBuilder.DefineType("tmpExpress");
+
+            //firstArgument = Expression.MakeMemberAccess(firstArgument.Expression, firstArgument.m)
+            var firstArgument = node.Arguments[0] as MemberExpression;
+
+            var propertyBuilder = typeBuilder.DefineField(firstArgument.Member.Name, node.Type, FieldAttributes.Public);
+            
+
+            var type = typeBuilder.CreateType();
+            var argument = firstArgument.Expression as ParameterExpression;
+            argument = Expression.Parameter(type, argument.Name);
+            var expression = Expression.PropertyOrField(argument, firstArgument.Member.Name);
+
+            var newFirstArgument = Visit(firstArgument);
+
+            node = Expression.Call(node.Method, newFirstArgument);
+
+            return node;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
@@ -302,21 +332,27 @@ namespace MongoDB.Driver.Linq.Processors
             return node; // return the original node because we can't translate this expression.
         }
 
-        private Expression BindTwoArgumentLinqMethodWithSelector(MethodCallExpression node)
+        private Expression BindTwoArgumentLinqMethodWithSelector(MethodCallExpression node, Expression firstArgument, Expression secondArgument)
         {
             List<Expression> arguments = new List<Expression>();
-            arguments.Add(Visit(node.Arguments[0]));
+            arguments.Add(Visit(firstArgument));
 
             // we need to make sure that the serialization info for the parameter
             // is the item serialization from the parent IBsonArraySerializer
-            var serializationExpression = arguments[0] as ISerializationExpression;
+            ISerializationExpression serializationExpression = null;
+
+            var mceFirstArgument = arguments[0] as MethodCallExpression;
+            if (mceFirstArgument != null)
+                serializationExpression = mceFirstArgument.Arguments[0] as ISerializationExpression;
+            else
+                serializationExpression = arguments[0] as ISerializationExpression;
             if (serializationExpression != null)
             {
                 var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var lambda = (LambdaExpression)node.Arguments[1];
+                    var lambda = (LambdaExpression)secondArgument;
                     RegisterParameterReplacement(
                         lambda.Parameters[0],
                         new SerializationExpression(
@@ -325,10 +361,11 @@ namespace MongoDB.Driver.Linq.Processors
                 }
             }
 
-            arguments.Add(Visit(node.Arguments[1]));
+            arguments.Add(Visit(secondArgument));
 
             if (node.Arguments[0] != arguments[0] || node.Arguments[1] != arguments[1])
             {
+
                 node = Expression.Call(node.Method, arguments.ToArray());
             }
 

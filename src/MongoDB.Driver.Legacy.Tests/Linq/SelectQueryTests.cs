@@ -2597,6 +2597,28 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void TestWhereAConstIsInLeftSide()
+        {
+            var query = from a in _collection.AsQueryable()
+                        where "test" == a.S
+                        select a;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C a) => (a.S == \"test\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : \"test\" }", selectQuery.BuildQuery().ToJson());
+        }
+
+        [Test]
         public void TestWhereB()
         {
             var query = from c in _collection.AsQueryable<C>()

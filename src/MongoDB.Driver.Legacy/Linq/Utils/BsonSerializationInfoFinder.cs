@@ -181,6 +181,8 @@ namespace MongoDB.Driver.Linq.Utils
                     return VisitElementAt(node);
                 case "get_Item":
                     return VisitGetItem(node);
+                case "OfType":
+                    return VisitOfType(node);
             }
 
             return null;
@@ -250,7 +252,8 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var indexName = indexExpression.Value.ToString();
-            if (indexExpression.Type == typeof(int) ||
+
+            if (indexExpression.Type == typeof(int) || 
                 indexExpression.Type == typeof(uint) ||
                 indexExpression.Type == typeof(long) ||
                 indexExpression.Type == typeof(ulong))
@@ -306,6 +309,43 @@ namespace MongoDB.Driver.Linq.Utils
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
+
+
+        private BsonSerializationInfo VisitOfType(MethodCallExpression node)
+        {
+            if (node.Method.DeclaringType != typeof(Enumerable) && node.Method.DeclaringType != typeof(Queryable))
+            {
+                return null;
+            }
+
+            var serializationInfo = Visit(node.Arguments[0]);
+            if (serializationInfo == null)
+            {
+                return null;
+            }
+
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                return null;
+            }
+
+            
+            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
+
+            var filteredType = node.Type.GenericTypeArguments[0];
+            var ienumerableType = typeof(IEnumerable<>).MakeGenericType(filteredType);
+
+            var serializer = BsonSerializer.LookupSerializer(ienumerableType);
+
+            var filteredTypeSerializationInfo = new BsonSerializationInfo(
+                serializationInfo.ElementName, // MongoDB constant to manage the document type
+                serializer,
+                filteredType);
+
+            return filteredTypeSerializationInfo;
+        }
+
 
         private static BsonSerializationInfo CombineSerializationInfo(BsonSerializationInfo baseInfo, BsonSerializationInfo newInfo)
         {

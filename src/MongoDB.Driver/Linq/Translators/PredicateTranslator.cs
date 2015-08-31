@@ -147,23 +147,23 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private FilterDefinition<BsonDocument> BuildAnyQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildAnyQuery(MethodCallExpression methodCallExpression, Expression firstArgument, Expression secondArgument)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
             {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                var serializationInfo = GetSerializationInfo(arguments[0]);
-                if (arguments.Length == 1)
+                //var arguments = methodCallExpression.Arguments.ToArray();
+                var serializationInfo = GetSerializationInfo(firstArgument);
+                if (secondArgument == null)
                 {
                     return __builder.And(
                         __builder.Ne(serializationInfo.ElementName, BsonNull.Value),
                         __builder.Not(__builder.Size(serializationInfo.ElementName, 0)));
                 }
-                else if (arguments.Length == 2)
+                else if (secondArgument != null)
                 {
                     FilterDefinition<BsonDocument> filter;
 
-                    var lambda = (LambdaExpression)arguments[1];
+                    var lambda = (LambdaExpression)secondArgument;
                     bool renderWithoutElemMatch = CanAnyBeRenderedWithoutElemMatch(lambda.Body);
 
                     if (renderWithoutElemMatch)
@@ -755,20 +755,63 @@ namespace MongoDB.Driver.Linq.Translators
 
         private FilterDefinition<BsonDocument> BuildMethodCallQuery(MethodCallExpression methodCallExpression)
         {
-            switch (methodCallExpression.Method.Name)
+            Expression firstParameter = methodCallExpression.Arguments[0];
+            var firstArgument = methodCallExpression.Arguments[0] as MethodCallExpression;
+
+            FilterDefinition<BsonDocument> additionalFilter = null;
+            if (firstArgument != null)
             {
-                case "Any": return BuildAnyQuery(methodCallExpression);
-                case "Contains": return BuildContainsQuery(methodCallExpression);
-                case "ContainsKey": return BuildContainsKeyQuery(methodCallExpression);
-                case "EndsWith": return BuildStringQuery(methodCallExpression);
-                case "Equals": return BuildEqualsQuery(methodCallExpression);
-                case "In": return BuildInQuery(methodCallExpression);
-                case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
-                case "IsNullOrEmpty": return BuildIsNullOrEmptyQuery(methodCallExpression);
-                case "StartsWith": return BuildStringQuery(methodCallExpression);
+                additionalFilter = this.BuildMethodCallQuery(firstArgument);
+                firstParameter = firstArgument.Arguments[0];
             }
 
-            return null;
+            FilterDefinition<BsonDocument> filter = null;
+            switch (methodCallExpression.Method.Name)
+            {
+                case "Any":
+                    filter = BuildAnyQuery(methodCallExpression, firstParameter, methodCallExpression.Arguments[1]);
+                    break;
+                case "Contains":
+                    filter = BuildContainsQuery(methodCallExpression);
+                    break;
+                case "ContainsKey":
+                    filter = BuildContainsKeyQuery(methodCallExpression);
+                    break;
+                case "EndsWith":
+                    filter = BuildStringQuery(methodCallExpression);
+                    break;
+                case "Equals":
+                    filter = BuildEqualsQuery(methodCallExpression);
+                    break;
+                case "In":
+                    filter = BuildInQuery(methodCallExpression);
+                    break;
+                case "IsMatch":
+                    filter = BuildIsMatchQuery(methodCallExpression);
+                    break;
+                case "IsNullOrEmpty":
+                    filter = BuildIsNullOrEmptyQuery(methodCallExpression);
+                    break;
+                case "StartsWith":
+                    filter = BuildStringQuery(methodCallExpression);
+                    break;
+                case "OfType":
+                    filter = BuildOfTypeQuery(methodCallExpression);
+                    break;
+            }
+
+            if (filter == null)
+                return null;
+
+            if (additionalFilter == null)
+                return filter;
+            else
+                return __builder.And(additionalFilter, filter);
+        }
+
+        private FilterDefinition<BsonDocument> BuildOfTypeQuery(MethodCallExpression methodCallExpression)
+        {
+            return __builder.Eq("_t", "toto");
         }
 
         private FilterDefinition<BsonDocument> BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
