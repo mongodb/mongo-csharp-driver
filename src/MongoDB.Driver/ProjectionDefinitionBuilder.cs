@@ -381,7 +381,7 @@ namespace MongoDB.Driver
 
         public CombinedProjectionDefinition(IEnumerable<ProjectionDefinition<TSource>> projections)
         {
-            _projections = Ensure.IsNotNull(projections, "projections").ToList();
+            _projections = Ensure.IsNotNull(projections, nameof(projections)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -411,7 +411,7 @@ namespace MongoDB.Driver
 
         public ElementMatchProjectionDefinition(FieldDefinition<TSource> field, FilterDefinition<TItem> filter)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _filter = filter;
         }
 
@@ -448,7 +448,7 @@ namespace MongoDB.Driver
 
         public PositionalOperatorProjectionDefinition(FieldDefinition<TSource> field)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
         }
 
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -465,8 +465,8 @@ namespace MongoDB.Driver
 
         public SingleFieldProjectionDefinition(FieldDefinition<TSource> field, BsonValue value)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _value = Ensure.IsNotNull(value, "value");
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = Ensure.IsNotNull(value, nameof(value));
         }
 
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)

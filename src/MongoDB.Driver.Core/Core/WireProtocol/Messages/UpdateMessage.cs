@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool isUpsert)
             : base(requestId)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
-            _update = Ensure.IsNotNull(update, "update");
-            _updateValidator = Ensure.IsNotNull(updateValidator, "updateValidator");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _query = Ensure.IsNotNull(query, nameof(query));
+            _update = Ensure.IsNotNull(update, nameof(update));
+            _updateValidator = Ensure.IsNotNull(updateValidator, nameof(updateValidator));
             _isMulti = isMulti;
             _isUpsert = isUpsert;
         }

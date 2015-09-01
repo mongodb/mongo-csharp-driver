@@ -55,11 +55,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool continueOnError)
             : base(requestId)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _maxBatchCount = Ensure.IsGreaterThanZero(maxBatchCount, "maxBatchCount");
-            _maxMessageSize = Ensure.IsGreaterThanZero(maxMessageSize, "maxMessageSize");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _documentSource = Ensure.IsNotNull(documentSource, nameof(documentSource));
+            _maxBatchCount = Ensure.IsGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
+            _maxMessageSize = Ensure.IsGreaterThanZero(maxMessageSize, nameof(maxMessageSize));
             _continueOnError = continueOnError;
         }
 

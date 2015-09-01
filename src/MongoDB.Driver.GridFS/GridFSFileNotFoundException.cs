@@ -29,13 +29,13 @@ namespace MongoDB.Driver
         #region static
         private static string FormatMessage(BsonValue id)
         {
-            Ensure.IsNotNull(id, "id");
+            Ensure.IsNotNull(id, nameof(id));
             return string.Format("GridFS file not found: file id {0}.", id);
         }
 
         private static string FormatMessage(string filename, int revision)
         {
-            Ensure.IsNotNull(filename, "filename");
+            Ensure.IsNotNull(filename, nameof(filename));
             return string.Format("GridFS file not found: revision {0} of filename \"{1}\".", revision, filename);
         }
         #endregion

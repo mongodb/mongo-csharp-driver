@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="batch">The single batch.</param>
         public BatchableSource(IEnumerable<T> batch)
         {
-            _batch = Ensure.IsNotNull(batch, "batch").ToList();
+            _batch = Ensure.IsNotNull(batch, nameof(batch)).ToList();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="enumerator">The enumerator that will provide the items for the batch.</param>
         public BatchableSource(IEnumerator<T> enumerator)
         {
-            _enumerator = Ensure.IsNotNull(enumerator, "enumerator");
+            _enumerator = Ensure.IsNotNull(enumerator, nameof(enumerator));
             _hasMore = true;
         }
 

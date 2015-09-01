@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         public CreateIndexModel(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null)
         {
-            _keys = Ensure.IsNotNull(keys, "keys");
+            _keys = Ensure.IsNotNull(keys, nameof(keys));
             _options = options;
         }
 

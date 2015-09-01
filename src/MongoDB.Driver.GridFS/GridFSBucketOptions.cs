@@ -73,7 +73,7 @@ namespace MongoDB.Driver.GridFS
             get { return _bucketName; }
             set
             {
-                Ensure.IsNotNullOrEmpty(value, "value");
+                Ensure.IsNotNullOrEmpty(value, nameof(value));
                 _bucketName = value;
             }
         }
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.GridFS
             get { return _chunkSizeBytes; }
             set
             {
-                Ensure.IsGreaterThanZero(value, "value");
+                Ensure.IsGreaterThanZero(value, nameof(value));
                 _chunkSizeBytes = value;
             }
         }
@@ -193,8 +193,8 @@ namespace MongoDB.Driver.GridFS
             ReadPreference readPreference,
             WriteConcern writeConcern)
         {
-            _bucketName = Ensure.IsNotNullOrEmpty(bucketName, "bucketName");
-            _chunkSizeBytes = Ensure.IsGreaterThanOrEqualToZero(chunkSizeBytes, "chunkSizeBytes");
+            _bucketName = Ensure.IsNotNullOrEmpty(bucketName, nameof(bucketName));
+            _chunkSizeBytes = Ensure.IsGreaterThanOrEqualToZero(chunkSizeBytes, nameof(chunkSizeBytes));
             _readPreference = readPreference;
             _writeConcern = writeConcern;
         }

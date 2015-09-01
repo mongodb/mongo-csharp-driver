@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this(new WCount(Ensure.IsGreaterThanOrEqualToZero(w, "w")), wTimeout, fsync, journal)
+            : this(new WCount(Ensure.IsGreaterThanOrEqualToZero(w, nameof(w))), wTimeout, fsync, journal)
         {
         }
 
@@ -138,7 +138,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this(new WMode(Ensure.IsNotNullOrEmpty(mode, "mode")), wTimeout, fsync, journal)
+            : this(new WMode(Ensure.IsNotNullOrEmpty(mode, nameof(mode))), wTimeout, fsync, journal)
         {
         }
 
@@ -294,7 +294,7 @@ namespace MongoDB.Driver
             }
             if (_fsync != null)
             {
-                parts.Add(string.Format("fsync : {0}", _fsync.Value ? "true" : "false" ));
+                parts.Add(string.Format("fsync : {0}", _fsync.Value ? "true" : "false"));
             }
             if (_journal != null)
             {
@@ -473,7 +473,7 @@ namespace MongoDB.Driver
             /// <param name="w">The w value.</param>
             public WCount(int w)
             {
-                _value = Ensure.IsGreaterThanOrEqualToZero(w, "w");
+                _value = Ensure.IsGreaterThanOrEqualToZero(w, nameof(w));
             }
 
             // properties
@@ -556,7 +556,7 @@ namespace MongoDB.Driver
             /// <param name="mode">The mode.</param>
             public WMode(string mode)
             {
-                _value = Ensure.IsNotNullOrEmpty(mode, "mode");
+                _value = Ensure.IsNotNullOrEmpty(mode, nameof(mode));
             }
 
             // properties

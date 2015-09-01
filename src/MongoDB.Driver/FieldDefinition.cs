@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         /// <param name="fieldSerializer">The field serializer.</param>
         public RenderedFieldDefinition(string fieldName, IBsonSerializer fieldSerializer = null)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
             _fieldSerializer = fieldSerializer;
         }
 
@@ -76,8 +76,8 @@ namespace MongoDB.Driver
         /// <param name="fieldSerializer">The field serializer.</param>
         public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-            _fieldSerializer = Ensure.IsNotNull(fieldSerializer, "fieldSerializer");
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
+            _fieldSerializer = Ensure.IsNotNull(fieldSerializer, nameof(fieldSerializer));
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <param name="expression">The expression.</param>
         public ExpressionFieldDefinition(LambdaExpression expression)
         {
-            _expression = Ensure.IsNotNull(expression, "expression");
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
 
             if (expression.Parameters.Count != 1)
             {
@@ -243,7 +243,7 @@ namespace MongoDB.Driver
         /// <param name="expression">The expression.</param>
         public ExpressionFieldDefinition(Expression<Func<TDocument, TField>> expression)
         {
-            _expression = Ensure.IsNotNull(expression, "expression");
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         public StringFieldDefinition(string fieldName)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
         }
 
         /// <inheritdoc />
@@ -318,7 +318,7 @@ namespace MongoDB.Driver
         /// <param name="fieldSerializer">The field serializer.</param>
         public StringFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer = null)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
             _fieldSerializer = fieldSerializer;
         }
 
@@ -424,7 +424,7 @@ namespace MongoDB.Driver
 
         public UntypedFieldDefinitionAdapter(FieldDefinition<TDocument, TField> adaptee)
         {
-            _adaptee = Ensure.IsNotNull(adaptee, "adaptee");
+            _adaptee = Ensure.IsNotNull(adaptee, nameof(adaptee));
         }
 
         public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)

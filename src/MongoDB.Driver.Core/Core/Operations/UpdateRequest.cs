@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Core.Operations
             : base(WriteRequestType.Update)
         {
             _updateType = updateType;
-            _filter = Ensure.IsNotNull(filter, "filter");
-            _update = Ensure.IsNotNull(update, "update");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _update = Ensure.IsNotNull(update, nameof(update));
         }
 
         // properties

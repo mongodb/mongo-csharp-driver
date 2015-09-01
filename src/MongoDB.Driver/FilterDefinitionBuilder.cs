@@ -893,7 +893,7 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TDerived>(FilterDefinition<TDerived> derivedDocumentFilter) where TDerived : TDocument
         {
-            Ensure.IsNotNull(derivedDocumentFilter, "derivedDocumentFilter");
+            Ensure.IsNotNull(derivedDocumentFilter, nameof(derivedDocumentFilter));
             return new DocumentOfTypeFilterDefinition<TDocument, TDerived>(derivedDocumentFilter);
         }
 
@@ -905,7 +905,7 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TDerived>(Expression<Func<TDerived, bool>> derivedDocumentFilter) where TDerived : TDocument
         {
-            Ensure.IsNotNull(derivedDocumentFilter, "derivedDocumentFilter");
+            Ensure.IsNotNull(derivedDocumentFilter, nameof(derivedDocumentFilter));
             return OfType<TDerived>(new ExpressionFilterDefinition<TDerived>(derivedDocumentFilter));
         }
 
@@ -918,7 +918,7 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TField, TDerived>(FieldDefinition<TDocument, TField> field) where TDerived : TField
         {
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(field, nameof(field));
             return new FieldOfTypeFilterDefinition<TDocument, TField, TDerived>(field);
         }
 
@@ -932,8 +932,8 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TField, TDerived>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDerived> derivedFieldFilter) where TDerived : TField
         {
-            Ensure.IsNotNull(field, "field");
-            Ensure.IsNotNull(derivedFieldFilter, "derivedFieldFilter");
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(derivedFieldFilter, nameof(derivedFieldFilter));
             return new FieldOfTypeFilterDefinition<TDocument, TField, TDerived>(field, derivedFieldFilter);
         }
 
@@ -946,7 +946,7 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TField, TDerived>(Expression<Func<TDocument, TField>> field) where TDerived : TField
         {
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(field, nameof(field));
             return OfType<TField, TDerived>(new ExpressionFieldDefinition<TDocument, TField>(field));
         }
 
@@ -960,8 +960,8 @@ namespace MongoDB.Driver
         /// <returns>An OfType filter.</returns>
         public FilterDefinition<TDocument> OfType<TField, TDerived>(Expression<Func<TDocument, TField>> field, Expression<Func<TDerived, bool>> derivedFieldFilter) where TDerived : TField
         {
-            Ensure.IsNotNull(field, "field");
-            Ensure.IsNotNull(derivedFieldFilter, "derivedFieldFilter");
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(derivedFieldFilter, nameof(derivedFieldFilter));
             return OfType<TField, TDerived>(new ExpressionFieldDefinition<TDocument, TField>(field), new ExpressionFilterDefinition<TDerived>(derivedFieldFilter));
         }
 
@@ -1172,7 +1172,7 @@ namespace MongoDB.Driver
 
         public AndFilterDefinition(IEnumerable<FilterDefinition<TDocument>> filters)
         {
-            _filters = Ensure.IsNotNull(filters, "filters").ToList();
+            _filters = Ensure.IsNotNull(filters, nameof(filters)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1257,7 +1257,7 @@ namespace MongoDB.Driver
         public ArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _values = values;
         }
 
@@ -1311,7 +1311,7 @@ namespace MongoDB.Driver
 
         public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _filter = filter;
         }
 
@@ -1348,7 +1348,7 @@ namespace MongoDB.Driver
 
         public ScalarElementMatchFilterDefinition(FilterDefinition<TDocument> elementMatchFilter)
         {
-            _elementMatchFilter = Ensure.IsNotNull(elementMatchFilter, "elementMatchFilter");
+            _elementMatchFilter = Ensure.IsNotNull(elementMatchFilter, nameof(elementMatchFilter));
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1405,9 +1405,9 @@ namespace MongoDB.Driver
 
         public GeometryOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, GeoJsonGeometry<TCoordinates> geometry)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _field = Ensure.IsNotNull(field, "field");
-            _geometry = Ensure.IsNotNull(geometry, "geometry");
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _geometry = Ensure.IsNotNull(geometry, nameof(geometry));
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1445,8 +1445,8 @@ namespace MongoDB.Driver
 
         public NearFilterDefinition(FieldDefinition<TDocument> field, GeoJsonPoint<TCoordinates> point, bool spherical, double? maxDistance = null, double? minDistance = null)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _point = Ensure.IsNotNull(point, "point");
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _point = Ensure.IsNotNull(point, nameof(point));
             _spherical = spherical;
             _maxDistance = maxDistance;
             _minDistance = minDistance;
@@ -1492,7 +1492,7 @@ namespace MongoDB.Driver
 
         public NotFilterDefinition(FilterDefinition<TDocument> filter)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1622,7 +1622,7 @@ namespace MongoDB.Driver
 
         public FieldOfTypeFilterDefinition(FieldDefinition<TDocument, TField> field, FilterDefinition<TDerived> derivedFieldFilter = null)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _derivedFieldFilter = derivedFieldFilter; // can be null
         }
 
@@ -1665,7 +1665,7 @@ namespace MongoDB.Driver
         public OperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1685,7 +1685,7 @@ namespace MongoDB.Driver
         public OperatorFilterDefinition(string operatorName, FieldDefinition<TDocument, TField> field, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1716,7 +1716,7 @@ namespace MongoDB.Driver
 
         public OrFilterDefinition(IEnumerable<FilterDefinition<TDocument>> filters)
         {
-            _filters = Ensure.IsNotNull(filters, "filters").ToList();
+            _filters = Ensure.IsNotNull(filters, nameof(filters)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1755,7 +1755,7 @@ namespace MongoDB.Driver
 
         public SimpleFilterDefinition(FieldDefinition<TDocument> field, BsonValue value)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1773,7 +1773,7 @@ namespace MongoDB.Driver
 
         public SimpleFilterDefinition(FieldDefinition<TDocument, TField> field, TField value)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1804,8 +1804,8 @@ namespace MongoDB.Driver
         public SingleItemAsArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument, TField> field, IEnumerable<TField> values)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
-            _field = Ensure.IsNotNull(field, "field");
-            _values = Ensure.IsNotNull(values, "values");
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _values = Ensure.IsNotNull(values, nameof(values));
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1843,7 +1843,7 @@ namespace MongoDB.Driver
         public ArrayAsSingleItemOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, TItem value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1892,7 +1892,7 @@ namespace MongoDB.Driver
 
         public ArrayAsSingleItemSimpleFilterDefinition(FieldDefinition<TDocument> field, TItem value)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1939,7 +1939,7 @@ namespace MongoDB.Driver
 
         public ArrayIndexExistsFilterDefinition(FieldDefinition<TDocument> field, int index, bool exists)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _index = index;
             _exists = exists;
         }

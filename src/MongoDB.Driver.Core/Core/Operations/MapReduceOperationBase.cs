@@ -52,10 +52,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
-            _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _mapFunction = Ensure.IsNotNull(mapFunction, nameof(mapFunction));
+            _reduceFunction = Ensure.IsNotNull(reduceFunction, nameof(reduceFunction));
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
         // properties
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>

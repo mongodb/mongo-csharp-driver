@@ -34,8 +34,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public ProjectionExpression(Expression source, Expression projector, LambdaExpression aggregator)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _projector = Ensure.IsNotNull(projector, "projector");
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _projector = Ensure.IsNotNull(projector, nameof(projector));
             _aggregator = aggregator;
 
             _type = _aggregator != null ?

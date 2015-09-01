@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
         // static methods
         public static Task SendMessageAsync(this IConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(connection, nameof(connection));
             return connection.SendMessagesAsync(new[] { message }, messageEncoderSettings, cancellationToken);
         }
     }

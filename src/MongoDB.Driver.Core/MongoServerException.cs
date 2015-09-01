@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         public MongoServerException(ConnectionId connectionId, string message, Exception innerException)
             : base(message, innerException)
         {
-            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
+            _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
         }
 
         /// <summary>

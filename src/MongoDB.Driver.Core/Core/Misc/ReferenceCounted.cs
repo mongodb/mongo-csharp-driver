@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Misc
         private readonly T _instance;
         private readonly Action<T> _release;
         private int _referenceCount;
-        
+
         // constructors
         public ReferenceCounted(T instance)
             : this(instance, x => x.Dispose())
@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Core.Misc
 
         public ReferenceCounted(T instance, Action<T> release)
         {
-            _instance = Ensure.IsNotNull(instance, "instance");
-            _release = Ensure.IsNotNull(release, "release");
+            _instance = Ensure.IsNotNull(instance, nameof(instance));
+            _release = Ensure.IsNotNull(release, nameof(release));
             _referenceCount = 1;
         }
 

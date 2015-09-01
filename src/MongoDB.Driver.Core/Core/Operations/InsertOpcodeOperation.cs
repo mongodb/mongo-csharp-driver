@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _documentSource = Ensure.IsNotNull(documentSource, nameof(documentSource));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
             _writeConcern = WriteConcern.Acknowledged;
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
-            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxMessageSize
         {
             get { return _maxMessageSize; }
-            set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
-            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
+            set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         // methods
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(channel, "channel");
+            Ensure.IsNotNull(channel, nameof(channel));
 
             if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))

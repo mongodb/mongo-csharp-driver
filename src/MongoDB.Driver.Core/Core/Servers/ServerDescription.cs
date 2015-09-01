@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Core.Servers
             Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
-            Ensure.IsNotNull(endPoint, "endPoint");
-            Ensure.IsNotNull(serverId, "serverId");
+            Ensure.IsNotNull(endPoint, nameof(endPoint));
+            Ensure.IsNotNull(serverId, nameof(serverId));
             if (!EndPointHelper.Equals(endPoint, serverId.EndPoint))
             {
                 throw new ArgumentException("EndPoint and ServerId.EndPoint must match.");

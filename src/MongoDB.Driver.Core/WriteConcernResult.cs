@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <param name="response">The response.</param>
         public WriteConcernResult(BsonDocument response)
         {
-            _response = Ensure.IsNotNull(response, "response");
+            _response = Ensure.IsNotNull(response, nameof(response));
         }
 
         // properties

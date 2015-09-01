@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionString">The connection string.</param>
         public ConnectionString(string connectionString)
         {
-            _originalConnectionString = Ensure.IsNotNull(connectionString, "connectionString");
+            _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
 
             _allOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
             _unknownOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);

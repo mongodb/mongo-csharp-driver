@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="cluster">The cluster.</param>
         public WritableServerBinding(ICluster cluster)
         {
-            _cluster = Ensure.IsNotNull(cluster, "cluster");
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
         }
 
         // properties

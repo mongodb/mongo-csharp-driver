@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="readPreference">The read preference.</param>
         public ReadPreferenceServerSelector(ReadPreference readPreference)
         {
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // methods

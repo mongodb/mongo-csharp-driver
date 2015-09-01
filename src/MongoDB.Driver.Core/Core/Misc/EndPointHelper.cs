@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>An end point.</returns>
         public static EndPoint Parse(string value)
         {
-            Ensure.IsNotNull(value, "value");
+            Ensure.IsNotNull(value, nameof(value));
 
             EndPoint endPoint;
             if (!TryParse(value, out endPoint))

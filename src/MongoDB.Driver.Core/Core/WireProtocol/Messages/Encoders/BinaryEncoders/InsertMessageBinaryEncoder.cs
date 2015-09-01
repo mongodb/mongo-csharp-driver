@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public InsertMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(stream, encoderSettings)
         {
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         // methods
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         /// <param name="message">The message.</param>
         public void WriteMessage(InsertMessage<TDocument> message)
         {
-            Ensure.IsNotNull(message, "message");
+            Ensure.IsNotNull(message, nameof(message));
 
             var binaryWriter = CreateBinaryWriter();
             var stream = binaryWriter.BsonStream;

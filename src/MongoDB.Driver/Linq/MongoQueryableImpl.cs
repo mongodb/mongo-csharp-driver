@@ -30,14 +30,14 @@ namespace MongoDB.Driver.Linq
 
         public MongoQueryableImpl(IMongoQueryProvider queryProvider)
         {
-            _queryProvider = Ensure.IsNotNull(queryProvider, "queryProvider");
+            _queryProvider = Ensure.IsNotNull(queryProvider, nameof(queryProvider));
             _expression = Expression.Constant(this, typeof(IMongoQueryable<TOutput>));
         }
 
         public MongoQueryableImpl(IMongoQueryProvider queryProvider, Expression expression)
         {
-            _queryProvider = Ensure.IsNotNull(queryProvider, "queryProvider");
-            _expression = Ensure.IsNotNull(expression, "expression");
+            _queryProvider = Ensure.IsNotNull(queryProvider, nameof(queryProvider));
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
         public Type ElementType

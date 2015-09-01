@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Processors
 
         public ProjectionBindingContext(IBsonSerializerRegistry serializerRegistry, IMethodCallBinder methodCallBinder)
         {
-            _serializerRegistry = Ensure.IsNotNull(serializerRegistry, "serializerRegistry");
-            _methodCallBinder = Ensure.IsNotNull(methodCallBinder, "methodCallBinder");
+            _serializerRegistry = Ensure.IsNotNull(serializerRegistry, nameof(serializerRegistry));
+            _methodCallBinder = Ensure.IsNotNull(methodCallBinder, nameof(methodCallBinder));
             _groupMap = new CorrelatedGroupMap();
         }
 

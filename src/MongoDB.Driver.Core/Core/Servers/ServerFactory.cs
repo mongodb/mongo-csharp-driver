@@ -36,10 +36,10 @@ namespace MongoDB.Driver.Core.Servers
         public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IEventSubscriber eventSubscriber)
         {
             _clusterConnectionMode = clusterConnectionMode;
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
-            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
-            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
+            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, nameof(heartbeatConnectionFactory));
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
         // methods

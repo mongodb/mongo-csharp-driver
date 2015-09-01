@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Core.Clusters
         // constructors
         protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
-            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
+            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
 
             _clusterId = new ClusterId();
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Clusters
         public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
         {
             ThrowIfDisposedOrNotOpen();
-            Ensure.IsNotNull(selector, "selector");
+            Ensure.IsNotNull(selector, nameof(selector));
 
             var timeoutAt = DateTime.UtcNow + _settings.ServerSelectionTimeout;
 

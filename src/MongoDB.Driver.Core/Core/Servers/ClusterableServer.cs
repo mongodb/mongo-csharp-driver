@@ -85,13 +85,13 @@ namespace MongoDB.Driver.Core.Servers
         // constructors
         public ClusterableServer(ClusterId clusterId, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IEventSubscriber eventSubscriber)
         {
-            Ensure.IsNotNull(clusterId, "clusterId");
+            Ensure.IsNotNull(clusterId, nameof(clusterId));
             _clusterConnectionMode = clusterConnectionMode;
-            _settings = Ensure.IsNotNull(settings, "settings"); ;
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
-            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
-            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings)); ;
+            _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
+            Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
+            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, nameof(heartbeatConnectionFactory));
+            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(_serverId, endPoint);

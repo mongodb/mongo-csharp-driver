@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int batchSize)
             : base(requestId)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _cursorId = cursorId;
-            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
+            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
         }
 
         // properties

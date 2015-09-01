@@ -38,8 +38,8 @@ namespace MongoDB.Driver
         /// <param name="outputSerializer">The output serializer.</param>
         public RenderedPipelineDefinition(IEnumerable<BsonDocument> documents, IBsonSerializer<TOutput> outputSerializer)
         {
-            _documents = Ensure.IsNotNull(documents, "documents").ToList();
-            _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
+            _documents = Ensure.IsNotNull(documents, nameof(documents)).ToList();
+            _outputSerializer = Ensure.IsNotNull(outputSerializer, nameof(outputSerializer));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace MongoDB.Driver
         /// <param name="outputSerializer">The output serializer.</param>
         public BsonDocumentStagePipelineDefinition(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
-            _stages = Ensure.IsNotNull(stages, "stages").ToList();
+            _stages = Ensure.IsNotNull(stages, nameof(stages)).ToList();
             _outputSerializer = outputSerializer;
         }
 
@@ -198,7 +198,7 @@ namespace MongoDB.Driver
         /// <param name="outputSerializer">The output serializer.</param>
         public PipelineStagePipelineDefinition(IEnumerable<IPipelineStageDefinition> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
-            _stages = VerifyStages(Ensure.IsNotNull(stages, "stages").ToList());
+            _stages = VerifyStages(Ensure.IsNotNull(stages, nameof(stages)).ToList());
             _outputSerializer = outputSerializer;
         }
 

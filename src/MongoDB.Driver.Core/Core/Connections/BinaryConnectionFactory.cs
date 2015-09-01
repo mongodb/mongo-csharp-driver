@@ -45,16 +45,16 @@ namespace MongoDB.Driver.Core.Connections
         // constructors
         public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IEventSubscriber eventSubscriber)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
-            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
         // methods
         public IConnection CreateConnection(ServerId serverId, EndPoint endPoint)
         {
-            Ensure.IsNotNull(serverId, "serverId");
-            Ensure.IsNotNull(endPoint, "endPoint");
+            Ensure.IsNotNull(serverId, nameof(serverId));
+            Ensure.IsNotNull(endPoint, nameof(endPoint));
             return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionInitializer, _eventSubscriber);
         }
     }

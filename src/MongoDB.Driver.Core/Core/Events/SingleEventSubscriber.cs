@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="handler">The handler.</param>
         public SingleEventSubscriber(Action<TSingleEvent> handler)
         {
-            _handler = Ensure.IsNotNull(handler, "handler");
+            _handler = Ensure.IsNotNull(handler, nameof(handler));
         }
 
         /// <inheritdoc />

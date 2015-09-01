@@ -56,9 +56,9 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _command = Ensure.IsNotNull(command, "command");
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+            _command = Ensure.IsNotNull(command, nameof(command));
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         public IElementNameValidator CommandValidator
         {
             get { return _commandValidator; }
-            set { _commandValidator = Ensure.IsNotNull(value, "value"); }
+            set { _commandValidator = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         /// <summary>

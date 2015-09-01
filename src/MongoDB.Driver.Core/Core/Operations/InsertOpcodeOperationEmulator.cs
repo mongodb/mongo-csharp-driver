@@ -46,9 +46,9 @@ namespace MongoDB.Driver.Core.Operations
             BatchableSource<TDocument> documentSource,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _documentSource = Ensure.IsNotNull(documentSource, nameof(documentSource));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -90,13 +90,13 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
-            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         public int? MaxMessageSize
         {
             get { return _maxMessageSize; }
-            set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -112,13 +112,13 @@ namespace MongoDB.Driver.Core.Operations
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
-            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
+            set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         // methods
         public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(channel, "channel");
+            Ensure.IsNotNull(channel, nameof(channel));
 
             var requests = _documentSource.GetRemainingItems().Select(d =>
             {

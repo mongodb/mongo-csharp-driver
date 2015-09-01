@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public AccumulatorExpression(Type type, AccumulatorType accumulatorType, Expression argument)
         {
-            _type = Ensure.IsNotNull(type, "type");
+            _type = Ensure.IsNotNull(type, nameof(type));
             _accumulatorType = accumulatorType;
             _argument = argument;
         }

@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public OrderByExpression(Expression source, IEnumerable<SortClause> clauses)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _clauses = Ensure.IsNotNull(clauses, "clauses") as ReadOnlyCollection<SortClause>;
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _clauses = Ensure.IsNotNull(clauses, nameof(clauses)) as ReadOnlyCollection<SortClause>;
             if (_clauses == null)
             {
                 _clauses = new List<SortClause>(clauses).AsReadOnly();

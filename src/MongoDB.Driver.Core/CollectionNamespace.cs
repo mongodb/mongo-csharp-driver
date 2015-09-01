@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <returns>A CollectionNamespace.</returns>
         public static CollectionNamespace FromFullName(string fullName)
         {
-            Ensure.IsNotNull(fullName, "fullName");
+            Ensure.IsNotNull(fullName, nameof(fullName));
 
             var index = fullName.IndexOf('.');
             if (index > -1)
@@ -90,8 +90,8 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         public CollectionNamespace(DatabaseNamespace databaseNamespace, string collectionName)
         {
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _collectionName = Ensure.That(collectionName, IsValid, "collectionName", "Collection names must be non-empty and not contain the null character.");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+            _collectionName = Ensure.That(collectionName, IsValid, nameof(collectionName), "Collection names must be non-empty and not contain the null character.");
             _fullName = _databaseNamespace.DatabaseName + "." + _collectionName;
         }
 
@@ -133,7 +133,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public bool Equals(CollectionNamespace other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }

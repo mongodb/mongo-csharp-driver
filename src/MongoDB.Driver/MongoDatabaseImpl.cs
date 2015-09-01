@@ -40,11 +40,11 @@ namespace MongoDB.Driver
         // constructors
         public MongoDatabaseImpl(IMongoClient client, DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
-            _client = Ensure.IsNotNull(client, "client");
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _settings = Ensure.IsNotNull(settings, "settings").Freeze();
-            _cluster = Ensure.IsNotNull(cluster, "cluster");
-            _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
+            _client = Ensure.IsNotNull(client, nameof(client));
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+            _settings = Ensure.IsNotNull(settings, nameof(settings)).Freeze();
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
+            _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
         }
 
         // properties
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         // methods
         public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNullOrEmpty(name, "name");
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
             options = options ?? new CreateCollectionOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
 
         public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
         {
-            Ensure.IsNotNullOrEmpty(name, "name");
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
 
             settings = settings == null ?
                 new MongoCollectionSettings() :
@@ -114,8 +114,8 @@ namespace MongoDB.Driver
 
         public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNullOrEmpty(oldName, "oldName");
-            Ensure.IsNotNullOrEmpty(newName, "newName");
+            Ensure.IsNotNullOrEmpty(oldName, nameof(oldName));
+            Ensure.IsNotNullOrEmpty(newName, nameof(newName));
 
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new RenameCollectionOperation(
@@ -131,7 +131,7 @@ namespace MongoDB.Driver
 
         public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(command, "command");
+            Ensure.IsNotNull(command, nameof(command));
             readPreference = readPreference ?? ReadPreference.Primary;
 
             var renderedCommand = command.Render(_settings.SerializerRegistry);

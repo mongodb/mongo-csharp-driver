@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="readPreference">The read preference.</param>
         public ChannelReadBinding(IServer server, IChannelHandle channel, ReadPreference readPreference)
         {
-            _server = Ensure.IsNotNull(server, "server");
-            _channel = Ensure.IsNotNull(channel, "channel");
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _server = Ensure.IsNotNull(server, nameof(server));
+            _channel = Ensure.IsNotNull(channel, nameof(channel));
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // properties        

@@ -75,8 +75,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ScramSha1Mechanism(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
             {
-                _credential = Ensure.IsNotNull(credential, "credential");
-                _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, "randomStringGenerator");
+                _credential = Ensure.IsNotNull(credential, nameof(credential));
+                _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, nameof(randomStringGenerator));
             }
 
             public string Name
@@ -86,8 +86,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
-                Ensure.IsNotNull(connection, "connection");
-                Ensure.IsNotNull(description, "description");
+                Ensure.IsNotNull(connection, nameof(connection));
+                Ensure.IsNotNull(description, nameof(description));
 
                 const string gs2Header = "n,,";
                 var username = "n=" + PrepUsername(_credential.Username);

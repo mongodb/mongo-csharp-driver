@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public GroupIdExpression(Expression expression, BsonSerializationInfo serializationInfo)
         {
-            _expression = Ensure.IsNotNull(expression, "expression");
-            _serializationInfo = Ensure.IsNotNull(serializationInfo, "serializationInfo");
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
+            _serializationInfo = Ensure.IsNotNull(serializationInfo, nameof(serializationInfo));
         }
 
         public Expression Expression

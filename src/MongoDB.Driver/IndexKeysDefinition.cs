@@ -83,7 +83,7 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         public BsonDocumentIndexKeysDefinition(BsonDocument document)
         {
-            _document = Ensure.IsNotNull(document, "document");
+            _document = Ensure.IsNotNull(document, nameof(document));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         /// <param name="json">The json.</param>
         public JsonIndexKeysDefinition(string json)
         {
-            _json = Ensure.IsNotNull(json, "json");
+            _json = Ensure.IsNotNull(json, nameof(json));
         }
 
         /// <summary>

@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         /// <param name="message">The message.</param>
         public void WriteMessage(KillCursorsMessage message)
         {
-            Ensure.IsNotNull(message, "message");
+            Ensure.IsNotNull(message, nameof(message));
 
             var messageDocument = new BsonDocument
             {

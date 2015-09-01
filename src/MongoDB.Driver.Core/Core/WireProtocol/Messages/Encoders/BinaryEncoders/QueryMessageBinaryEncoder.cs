@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         /// <param name="message">The message.</param>
         public void WriteMessage(QueryMessage message)
         {
-            Ensure.IsNotNull(message, "message");
+            Ensure.IsNotNull(message, nameof(message));
 
             var binaryWriter = CreateBinaryWriter();
             var stream = binaryWriter.BsonStream;

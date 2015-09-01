@@ -57,10 +57,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _key = Ensure.IsNotNull(key, "key");
-            _initial = Ensure.IsNotNull(initial, "initial");
-            _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _key = Ensure.IsNotNull(key, nameof(key));
+            _initial = Ensure.IsNotNull(initial, nameof(initial));
+            _reduceFunction = Ensure.IsNotNull(reduceFunction, nameof(reduceFunction));
             _filter = filter;
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -76,10 +76,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _keyFunction = Ensure.IsNotNull(keyFunction, "keyFunction");
-            _initial = Ensure.IsNotNull(initial, "initial");
-            _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _keyFunction = Ensure.IsNotNull(keyFunction, nameof(keyFunction));
+            _initial = Ensure.IsNotNull(initial, nameof(initial));
+            _reduceFunction = Ensure.IsNotNull(reduceFunction, nameof(reduceFunction));
             _filter = filter;
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var resultSerializer = _resultSerializer ?? BsonSerializer.LookupSerializer<TResult>();
             var resultArraySerializer = new ArraySerializer<TResult>(resultSerializer);

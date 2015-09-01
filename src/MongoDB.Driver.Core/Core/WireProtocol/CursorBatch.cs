@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             IReadOnlyList<TDocument> documents)
         {
             _cursorId = cursorId;
-            _documents = Ensure.IsNotNull(documents, "documents");
+            _documents = Ensure.IsNotNull(documents, nameof(documents));
         }
 
         // properties

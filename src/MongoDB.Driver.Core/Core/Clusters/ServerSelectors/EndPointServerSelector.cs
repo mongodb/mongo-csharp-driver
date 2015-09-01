@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="endPoint">The end point.</param>
         public EndPointServerSelector(EndPoint endPoint)
         {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
         }
 
         // methods

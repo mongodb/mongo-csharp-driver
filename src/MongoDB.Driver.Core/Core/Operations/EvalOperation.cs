@@ -50,8 +50,8 @@ namespace MongoDB.Driver.Core.Operations
             BsonJavaScript function,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _function = Ensure.IsNotNull(function, "function");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+            _function = Ensure.IsNotNull(function, nameof(function));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);

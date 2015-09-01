@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         public DeleteManyModel(FilterDefinition<TDocument> filter)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
         }
 
         // properties

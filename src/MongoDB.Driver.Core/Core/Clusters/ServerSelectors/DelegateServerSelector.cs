@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="selector">The selector.</param>
         public DelegateServerSelector(Func<ClusterDescription, IEnumerable<ServerDescription>, IEnumerable<ServerDescription>> selector)
         {
-            _selector = Ensure.IsNotNull(selector, "selector");
+            _selector = Ensure.IsNotNull(selector, nameof(selector));
         }
 
         // methods

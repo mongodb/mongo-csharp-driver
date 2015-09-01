@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         /// <param name="encoderSettings">The encoder settings.</param>
         public BinaryMessageEncoderFactory(Stream stream, MessageEncoderSettings encoderSettings)
         {
-            _stream = Ensure.IsNotNull(stream, "stream");
+            _stream = Ensure.IsNotNull(stream, nameof(stream));
             _encoderSettings = encoderSettings; // can be null
         }
 

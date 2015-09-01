@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Core.Operations
             IEnumerable<WriteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _requests = Ensure.IsNotNull(requests, "requests");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _requests = Ensure.IsNotNull(requests, nameof(requests));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
-            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
-            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
+            set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         // methods
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new BsonDocument
             {
-                { CommandName, _collectionNamespace.CollectionName },   
+                { CommandName, _collectionNamespace.CollectionName },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "ordered", _isOrdered },
                 { RequestsElementName, new BsonArray { batchWrapper } }

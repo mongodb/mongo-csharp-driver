@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="endPoint">The end point.</param>
         public ServerId(ClusterId clusterId, EndPoint endPoint)
         {
-            _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _clusterId = Ensure.IsNotNull(clusterId, nameof(clusterId));
+            _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
             _hashCode = new Hasher()
                 .Hash(_clusterId)
                 .Hash(_endPoint)

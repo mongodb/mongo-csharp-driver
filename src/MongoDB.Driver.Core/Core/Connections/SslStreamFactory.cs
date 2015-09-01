@@ -34,8 +34,8 @@ namespace MongoDB.Driver.Core.Connections
 
         public SslStreamFactory(SslStreamSettings settings, IStreamFactory wrapped)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
         }
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)

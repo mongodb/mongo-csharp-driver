@@ -29,7 +29,7 @@ namespace MongoDB.Driver
         #region static
         private static string FormatMessage(BsonValue id)
         {
-            Ensure.IsNotNull(id, "id");
+            Ensure.IsNotNull(id, nameof(id));
             return string.Format("GridFS MD5 check failed: file id {0}.", id);
         }
         #endregion

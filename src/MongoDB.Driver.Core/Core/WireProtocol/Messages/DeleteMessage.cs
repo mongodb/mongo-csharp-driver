@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool isMulti)
             : base(requestId)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _query = Ensure.IsNotNull(query, nameof(query));
             _isMulti = isMulti;
         }
 

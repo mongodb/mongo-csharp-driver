@@ -76,11 +76,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             Func<bool> shouldBeSent = null)
             : base(requestId, shouldBeSent)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _query = Ensure.IsNotNull(query, nameof(query));
             _fields = fields; // can be null
-            _queryValidator = Ensure.IsNotNull(queryValidator, "queryValidator");
-            _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
+            _queryValidator = Ensure.IsNotNull(queryValidator, nameof(queryValidator));
+            _skip = Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
             _batchSize = batchSize; // can be negative
             _slaveOk = slaveOk;
             _partialOk = partialOk;

@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="keys">The keys.</param>
         public CreateIndexRequest(BsonDocument keys)
         {
-            _keys = Ensure.IsNotNull(keys, "keys");
+            _keys = Ensure.IsNotNull(keys, nameof(keys));
         }
 
         // properties

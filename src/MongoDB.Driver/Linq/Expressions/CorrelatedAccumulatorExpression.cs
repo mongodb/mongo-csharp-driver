@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Expressions
         public CorrelatedAccumulatorExpression(Guid correlationId, AccumulatorExpression accumulator)
         {
             _correlationId = correlationId;
-            _accumulator = Ensure.IsNotNull(accumulator, "accumulator");
+            _accumulator = Ensure.IsNotNull(accumulator, nameof(accumulator));
         }
 
         public AccumulatorExpression Accumulator

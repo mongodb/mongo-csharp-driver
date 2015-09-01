@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Linq.Expressions
         public CorrelatedGroupByExpression(Guid correlationId, Type type, Expression source, Expression id, IEnumerable<Expression> accumulators)
         {
             _correlationId = correlationId;
-            _type = Ensure.IsNotNull(type, "type");
-            _source = Ensure.IsNotNull(source, "source");
-            _id = Ensure.IsNotNull(id, "idExpression");
+            _type = Ensure.IsNotNull(type, nameof(type));
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _id = Ensure.IsNotNull(id, nameof(id));
             _accumulators = accumulators as ReadOnlyCollection<Expression>;
             if (_accumulators == null)
             {

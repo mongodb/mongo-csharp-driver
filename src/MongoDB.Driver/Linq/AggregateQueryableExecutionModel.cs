@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Linq
         /// <param name="outputSerializer">The output serializer.</param>
         public AggregateQueryableExecutionModel(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer)
         {
-            _stages = (Ensure.IsNotNull(stages, "stages") as IReadOnlyList<BsonDocument>) ?? stages.ToList();
-            _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
+            _stages = (Ensure.IsNotNull(stages, nameof(stages)) as IReadOnlyList<BsonDocument>) ?? stages.ToList();
+            _outputSerializer = Ensure.IsNotNull(outputSerializer, nameof(outputSerializer));
         }
 
         /// <summary>

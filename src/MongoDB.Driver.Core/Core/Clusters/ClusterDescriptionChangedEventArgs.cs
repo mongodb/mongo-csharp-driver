@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Clusters
         /// <param name="newClusterDescription">The new cluster description.</param>
         public ClusterDescriptionChangedEventArgs(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription)
         {
-            _oldClusterDescription = Ensure.IsNotNull(oldClusterDescription, "oldClusterDescription");
-            _newClusterDescription = Ensure.IsNotNull(newClusterDescription, "newClusterDescription");
+            _oldClusterDescription = Ensure.IsNotNull(oldClusterDescription, nameof(oldClusterDescription));
+            _newClusterDescription = Ensure.IsNotNull(newClusterDescription, nameof(newClusterDescription));
         }
 
         // properties

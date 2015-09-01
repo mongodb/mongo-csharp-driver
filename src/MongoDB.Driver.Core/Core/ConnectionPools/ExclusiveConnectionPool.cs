@@ -63,11 +63,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             IConnectionFactory connectionFactory,
             IEventSubscriber eventSubscriber)
         {
-            _serverId = Ensure.IsNotNull(serverId, "serverId");
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
-            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
+            _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
+            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _connectionHolder = new ListConnectionHolder(eventSubscriber);
             _poolQueue = new WaitQueue(settings.MaxConnections);

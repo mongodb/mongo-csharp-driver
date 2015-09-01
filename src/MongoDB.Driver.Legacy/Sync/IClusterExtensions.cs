@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Sync
         // static methods
         public static IServer SelectServer(this ICluster cluster, IServerSelector selector = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(cluster, "cluster");
+            Ensure.IsNotNull(cluster, nameof(cluster));
             return cluster.SelectServerAsync(selector, cancellationToken).GetAwaiter().GetResult();
         }
     }

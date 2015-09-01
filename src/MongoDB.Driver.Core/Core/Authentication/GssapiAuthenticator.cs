@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Authentication
                 _serviceName = serviceName;
                 _canonicalizeHostName = canonicalizeHostName;
                 _realm = realm;
-                _username = Ensure.IsNotNullOrEmpty(username, "username");
+                _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
                 _password = password;
             }
 
@@ -184,8 +184,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
-                Ensure.IsNotNull(connection, "connection");
-                Ensure.IsNotNull(description, "description");
+                Ensure.IsNotNull(connection, nameof(connection));
+                Ensure.IsNotNull(description, nameof(description));
 
                 string hostName;
                 var dnsEndPoint = connection.EndPoint as DnsEndPoint;

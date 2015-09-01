@@ -38,8 +38,8 @@ namespace MongoDB.Driver
         /// <param name="resultSerializer">The result serializer.</param>
         public RenderedCommand(BsonDocument document, IBsonSerializer<TResult> resultSerializer)
         {
-            _document = Ensure.IsNotNull(document, "document");
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _document = Ensure.IsNotNull(document, nameof(document));
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         /// <param name="resultSerializer">The result serializer.</param>
         public BsonDocumentCommand(BsonDocument document, IBsonSerializer<TResult> resultSerializer = null)
         {
-            _document = Ensure.IsNotNull(document, "document");
+            _document = Ensure.IsNotNull(document, nameof(document));
             _resultSerializer = resultSerializer;
         }
 
@@ -158,7 +158,7 @@ namespace MongoDB.Driver
         /// <param name="resultSerializer">The result serializer.</param>
         public JsonCommand(string json, IBsonSerializer<TResult> resultSerializer = null)
         {
-            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _json = Ensure.IsNotNullOrEmpty(json, nameof(json));
             _resultSerializer = resultSerializer; // can be null
         }
 
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <param name="resultSerializer">The result serializer.</param>
         public ObjectCommand(object obj, IBsonSerializer<TResult> resultSerializer = null)
         {
-            _obj = Ensure.IsNotNull(obj, "obj");
+            _obj = Ensure.IsNotNull(obj, nameof(obj));
             _resultSerializer = resultSerializer;
         }
 

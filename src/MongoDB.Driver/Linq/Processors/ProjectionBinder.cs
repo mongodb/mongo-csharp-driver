@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Linq.Processors
 
         private ProjectionBinder(IBsonSerializer documentSerializer, IBsonSerializerRegistry serializerRegistry, IMethodCallBinder methodCallBinder)
         {
-            _methodCallBinder = Ensure.IsNotNull(methodCallBinder, "methodCallBinder");
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, "documentSerializer");
+            _methodCallBinder = Ensure.IsNotNull(methodCallBinder, nameof(methodCallBinder));
+            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
             _context = new ProjectionBindingContext(
-                Ensure.IsNotNull(serializerRegistry, "serializerRegistry"),
+                Ensure.IsNotNull(serializerRegistry, nameof(serializerRegistry)),
                 _methodCallBinder);
         }
 

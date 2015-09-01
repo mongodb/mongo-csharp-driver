@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="readPreference">The read preference.</param>
         public ChannelSourceReadWriteBinding(IChannelSourceHandle channelSource, ReadPreference readPreference)
         {
-            _channelSource = Ensure.IsNotNull(channelSource, "channelSource");
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _channelSource = Ensure.IsNotNull(channelSource, nameof(channelSource));
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // properties
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

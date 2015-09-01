@@ -1328,8 +1328,8 @@ namespace MongoDB.Driver
 
         public AddToSetUpdateDefinition(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _values = Ensure.IsNotNull(values, "values").ToList();
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _values = Ensure.IsNotNull(values, nameof(values)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1391,7 +1391,7 @@ namespace MongoDB.Driver
 
         public CombinedUpdateDefinition(IEnumerable<UpdateDefinition<TDocument>> updates)
         {
-            _updates = Ensure.IsNotNull(updates, "updates").ToList();
+            _updates = Ensure.IsNotNull(updates, nameof(updates)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1429,8 +1429,8 @@ namespace MongoDB.Driver
 
         public BitwiseOperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument, TField> field, TField value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _field = Ensure.IsNotNull(field, "field");
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1466,8 +1466,8 @@ namespace MongoDB.Driver
 
         public OperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument> field, BsonValue value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _field = Ensure.IsNotNull(field, "field");
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1486,8 +1486,8 @@ namespace MongoDB.Driver
 
         public OperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument, TField> field, TField value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _field = Ensure.IsNotNull(field, "field");
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
 
@@ -1520,14 +1520,14 @@ namespace MongoDB.Driver
 
         public PullUpdateDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _filter = Ensure.IsNotNull(filter, "filter");
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
         }
 
         public PullUpdateDefinition(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _values = Ensure.IsNotNull(values, "values").ToList();
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _values = Ensure.IsNotNull(values, nameof(values)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -1597,8 +1597,8 @@ namespace MongoDB.Driver
 
         public PushUpdateDefinition(FieldDefinition<TDocument> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
-            _field = Ensure.IsNotNull(field, "field");
-            _values = Ensure.IsNotNull(values, "values").ToList();
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _values = Ensure.IsNotNull(values, nameof(values)).ToList();
             _slice = slice;
             _position = position;
             _sort = sort;

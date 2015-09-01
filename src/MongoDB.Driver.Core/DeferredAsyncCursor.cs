@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         /// <param name="executeAsync">The delegate to execute the first time MoveNextAsync is called.</param>
         public DeferredAsyncCursor(Func<CancellationToken, Task<IAsyncCursor<TDocument>>> executeAsync)
         {
-            _executeAsync = Ensure.IsNotNull(executeAsync, "executeAsync");
+            _executeAsync = Ensure.IsNotNull(executeAsync, nameof(executeAsync));
         }
 
         // properties
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
 
         private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

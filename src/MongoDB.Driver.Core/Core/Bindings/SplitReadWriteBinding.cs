@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="writeBinding">The write binding.</param>
         public SplitReadWriteBinding(IReadBinding readBinding, IWriteBinding writeBinding)
         {
-            _readBinding = Ensure.IsNotNull(readBinding, "readBinding");
-            _writeBinding = Ensure.IsNotNull(writeBinding, "writeBinding");
+            _readBinding = Ensure.IsNotNull(readBinding, nameof(readBinding));
+            _writeBinding = Ensure.IsNotNull(writeBinding, nameof(writeBinding));
         }
 
         /// <summary>

@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="readPreference">The read preference.</param>
         public ReadPreferenceBinding(ICluster cluster, ReadPreference readPreference)
         {
-            _cluster = Ensure.IsNotNull(cluster, "cluster");
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _serverSelector = new ReadPreferenceServerSelector(readPreference);
         }
 

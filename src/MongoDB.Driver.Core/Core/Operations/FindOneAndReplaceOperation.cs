@@ -55,8 +55,8 @@ namespace MongoDB.Driver.Core.Operations
         public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument replacement, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
-            _replacement = Ensure.IsNotNull(replacement, "replacement");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _replacement = Ensure.IsNotNull(replacement, nameof(replacement));
             _returnDocument = ReturnDocument.Before;
         }
 

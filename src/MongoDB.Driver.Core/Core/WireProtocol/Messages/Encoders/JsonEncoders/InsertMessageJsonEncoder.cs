@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public InsertMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         // methods
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         /// <param name="message">The message.</param>
         public void WriteMessage(InsertMessage<TDocument> message)
         {
-            Ensure.IsNotNull(message, "message");
+            Ensure.IsNotNull(message, nameof(message));
 
             BsonValue documents;
             if (message.DocumentSource.Batch == null)

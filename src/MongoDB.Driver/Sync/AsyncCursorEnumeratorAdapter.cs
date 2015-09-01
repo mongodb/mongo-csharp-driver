@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Sync
         // constructor
         public AsyncCursorEnumeratorAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
         {
-            _cursor = Ensure.IsNotNull(cursor, "cursor");
+            _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _cancellationToken = cancellationToken;
         }
 

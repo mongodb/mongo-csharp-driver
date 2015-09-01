@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="channel">The channel.</param>
         public ChannelReadWriteBinding(IServer server, IChannelHandle channel)
         {
-            _server = Ensure.IsNotNull(server, "server");
-            _channel = Ensure.IsNotNull(channel, "channel");
+            _server = Ensure.IsNotNull(server, nameof(server));
+            _channel = Ensure.IsNotNull(channel, nameof(channel));
         }
 
         // properties

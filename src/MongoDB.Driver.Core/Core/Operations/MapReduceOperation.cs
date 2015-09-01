@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
                 reduceFunction,
                 messageEncoderSettings)
         {
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
         }
 
         // properties
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
-            get { return _resultSerializer;}
+            get { return _resultSerializer; }
         }
 
         // methods
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);

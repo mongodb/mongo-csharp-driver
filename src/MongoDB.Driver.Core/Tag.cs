@@ -40,8 +40,8 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         public Tag(string name, string value)
         {
-            _name = Ensure.IsNotNull(name, "name");
-            _value = Ensure.IsNotNull(value, "value");
+            _name = Ensure.IsNotNull(name, nameof(name));
+            _value = Ensure.IsNotNull(value, nameof(value));
         }
 
         // properties

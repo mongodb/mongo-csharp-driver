@@ -72,13 +72,13 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _channelSource = channelSource;
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
-            _firstBatch = Ensure.IsNotNull(firstBatch, "firstBatch");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _query = Ensure.IsNotNull(query, nameof(query));
+            _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
-            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
-            _limit = Ensure.IsGreaterThanOrEqualToZero(limit, "limit");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
+            _limit = Ensure.IsGreaterThanOrEqualToZero(limit, nameof(limit));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
 
             if (_limit == 0)

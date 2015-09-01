@@ -29,9 +29,9 @@ namespace MongoDB.Driver
         #region static
         private static string FormatMessage(BsonValue id, long n, string reason)
         {
-            Ensure.IsNotNull(id, "id");
-            Ensure.IsGreaterThanOrEqualToZero(n, "n");
-            Ensure.IsNotNull(reason, "reason");
+            Ensure.IsNotNull(id, nameof(id));
+            Ensure.IsGreaterThanOrEqualToZero(n, nameof(n));
+            Ensure.IsNotNull(reason, nameof(reason));
             return string.Format("GridFS chunk {0} of file id {1} is {2}.", n, id, reason);
         }
         #endregion

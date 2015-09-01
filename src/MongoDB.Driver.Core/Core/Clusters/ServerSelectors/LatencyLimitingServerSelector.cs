@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="allowedLatencyRange">The allowed latency range.</param>
         public LatencyLimitingServerSelector(TimeSpan allowedLatencyRange)
         {
-            _allowedLatencyRange = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(allowedLatencyRange, "allowedLatencyRange");
+            _allowedLatencyRange = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(allowedLatencyRange, nameof(allowedLatencyRange));
         }
 
         // methods

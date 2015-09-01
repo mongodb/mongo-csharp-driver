@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         /// <param name="textReader">The text reader.</param>
         /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextReader textReader, MessageEncoderSettings encoderSettings)
-            : this(Ensure.IsNotNull(textReader, "textReader"), null, encoderSettings)
+            : this(Ensure.IsNotNull(textReader, nameof(textReader)), null, encoderSettings)
         {
         }
 
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         /// <param name="textWriter">The text writer.</param>
         /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextWriter textWriter, MessageEncoderSettings encoderSettings)
-            : this(null, Ensure.IsNotNull(textWriter, "textWriter"), encoderSettings)
+            : this(null, Ensure.IsNotNull(textWriter, nameof(textWriter)), encoderSettings)
         {
         }
 

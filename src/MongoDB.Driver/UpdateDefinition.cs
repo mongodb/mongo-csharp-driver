@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         public BsonDocumentUpdateDefinition(BsonDocument document)
         {
-            _document = Ensure.IsNotNull(document, "document");
+            _document = Ensure.IsNotNull(document, nameof(document));
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MongoDB.Driver
         /// <param name="json">The json.</param>
         public JsonUpdateDefinition(string json)
         {
-            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _json = Ensure.IsNotNullOrEmpty(json, nameof(json));
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// <param name="obj">The object.</param>
         public ObjectUpdateDefinition(object obj)
         {
-            _obj = Ensure.IsNotNull(obj, "obj");
+            _obj = Ensure.IsNotNull(obj, nameof(obj));
         }
 
         /// <summary>

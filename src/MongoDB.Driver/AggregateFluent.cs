@@ -35,9 +35,9 @@ namespace MongoDB.Driver
         // constructors
         public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<IPipelineStageDefinition> stages, AggregateOptions options)
         {
-            _collection = Ensure.IsNotNull(collection, "collection");
-            _stages = Ensure.IsNotNull(stages, "stages").ToList();
-            _options = Ensure.IsNotNull(options, "options");
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _stages = Ensure.IsNotNull(stages, nameof(stages)).ToList();
+            _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         // properties
@@ -71,7 +71,7 @@ namespace MongoDB.Driver
             const string operatorName = "$group";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
-                (s, sr) => 
+                (s, sr) =>
                 {
                     var renderedProjection = group.Render(s, sr);
                     return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
@@ -173,7 +173,7 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr) => new RenderedPipelineStageDefinition<TNewResult>(
                     operatorName, new BsonDocument(
-                        operatorName, 
+                        operatorName,
                         "$" + field.Render(s, sr).FieldName),
                     newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>()));
 

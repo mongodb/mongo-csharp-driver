@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <param name="documentSerializer">The document serializer.</param>
         public ReplyMessageEncoderSelector(IBsonSerializer<TDocument> documentSerializer)
         {
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, "documentSerializer");
+            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // methods        

@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Events
 
         public void Subscribe(IEventSubscriber subscriber)
         {
-            Ensure.IsNotNull(subscriber, "subscriber");
+            Ensure.IsNotNull(subscriber, nameof(subscriber));
 
             _subscribers.Add(subscriber);
         }

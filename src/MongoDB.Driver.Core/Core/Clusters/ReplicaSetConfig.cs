@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
             EndPoint primary,
             int? version)
         {
-            _members = Ensure.IsNotNull(members, "members").ToList();
+            _members = Ensure.IsNotNull(members, nameof(members)).ToList();
             _name = name; // can be null
             _primary = primary; // can be null
             _version = version;

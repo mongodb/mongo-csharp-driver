@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Sync
         // static methods
         public static IChannelHandle GetChannel(this IServer server, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(server, "server");
+            Ensure.IsNotNull(server, nameof(server));
             return server.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }

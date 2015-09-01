@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public MongoNodeIsRecoveringException(ConnectionId connectionId, BsonDocument result)
             : base(connectionId, "Server returned node is recovering error.")
         {
-            _result = Ensure.IsNotNull(result, "result");
+            _result = Ensure.IsNotNull(result, nameof(result));
         }
 
         /// <summary>

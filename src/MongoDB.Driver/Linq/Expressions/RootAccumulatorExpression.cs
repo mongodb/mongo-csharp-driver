@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public RootAccumulatorExpression(Expression source, Expression accumulator)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _accumulator = Ensure.IsNotNull(accumulator, "accumulator");
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _accumulator = Ensure.IsNotNull(accumulator, nameof(accumulator));
         }
 
         public Expression Accumulator

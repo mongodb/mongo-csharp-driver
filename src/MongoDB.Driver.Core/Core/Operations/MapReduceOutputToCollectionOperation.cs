@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
                 reduceFunction,
                 messageEncoderSettings)
         {
-            _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionNamespace");
+            _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, nameof(outputCollectionNamespace));
             _outputMode = MapReduceOutputMode.Replace;
         }
 
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var operation = new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
             return operation.ExecuteAsync(binding, cancellationToken);

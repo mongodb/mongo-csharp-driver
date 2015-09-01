@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Core.Clusters
         // constructors
         public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
-            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
         // methods

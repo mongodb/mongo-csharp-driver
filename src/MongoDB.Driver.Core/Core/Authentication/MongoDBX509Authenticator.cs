@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="username">The username.</param>
         public MongoDBX509Authenticator(string username)
         {
-            _username = Ensure.IsNotNullOrEmpty(username, "username");
+            _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
         }
 
         // properties
@@ -65,8 +65,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(description, "description");
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
 
             try
             {

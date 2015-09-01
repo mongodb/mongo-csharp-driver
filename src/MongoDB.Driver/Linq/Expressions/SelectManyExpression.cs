@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public SelectManyExpression(Expression source, Expression collectionSelector, Expression resultSelector)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _collectionSelector = Ensure.IsNotNull(collectionSelector, "collectionSelector");
-            _resultSelector = Ensure.IsNotNull(resultSelector, "resultSelector");
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _collectionSelector = Ensure.IsNotNull(collectionSelector, nameof(collectionSelector));
+            _resultSelector = Ensure.IsNotNull(resultSelector, nameof(resultSelector));
             _type = typeof(IEnumerable<>).MakeGenericType(resultSelector.Type);
         }
 

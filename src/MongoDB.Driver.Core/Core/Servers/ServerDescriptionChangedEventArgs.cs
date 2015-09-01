@@ -36,8 +36,8 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="newServerDescription">The new server description.</param>
         public ServerDescriptionChangedEventArgs(ServerDescription oldServerDescription, ServerDescription newServerDescription)
         {
-            _oldServerDescription = Ensure.IsNotNull(oldServerDescription, "oldServerDescription");
-            _newServerDescription = Ensure.IsNotNull(newServerDescription, "newServerDescription");
+            _oldServerDescription = Ensure.IsNotNull(oldServerDescription, nameof(oldServerDescription));
+            _newServerDescription = Ensure.IsNotNull(newServerDescription, nameof(newServerDescription));
         }
 
         // properties

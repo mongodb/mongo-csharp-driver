@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="readPreference">The read preference.</param>
         public SingleServerReadBinding(IServer server, ReadPreference readPreference)
         {
-            _server = Ensure.IsNotNull(server, "server");
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _server = Ensure.IsNotNull(server, nameof(server));
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // properties

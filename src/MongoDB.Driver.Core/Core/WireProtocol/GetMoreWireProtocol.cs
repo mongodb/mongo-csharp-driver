@@ -44,11 +44,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _query = Ensure.IsNotNull(query, nameof(query));
             _cursorId = cursorId;
-            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
 

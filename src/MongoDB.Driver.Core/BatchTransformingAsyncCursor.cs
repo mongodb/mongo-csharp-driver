@@ -32,8 +32,8 @@ namespace MongoDB.Driver
 
         public BatchTransformingAsyncCursor(IAsyncCursor<TFromDocument> wrapped, Func<IEnumerable<TFromDocument>, IEnumerable<TToDocument>> transformer)
         {
-            _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
-            _transformer = Ensure.IsNotNull(transformer, "transformer");
+            _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
+            _transformer = Ensure.IsNotNull(transformer, nameof(transformer));
         }
 
         public IEnumerable<TToDocument> Current

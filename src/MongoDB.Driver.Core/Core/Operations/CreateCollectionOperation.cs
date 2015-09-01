@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
         public long? MaxDocuments
         {
             get { return _maxDocuments; }
-            set { _maxDocuments = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxDocuments = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
         public long? MaxSize
         {
             get { return _maxSize; }
-            set { _maxSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var operation = new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);

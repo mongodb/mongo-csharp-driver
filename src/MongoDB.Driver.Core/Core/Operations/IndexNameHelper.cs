@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>The name of the index.</returns>
         public static string GetIndexName(BsonDocument keys)
         {
-            Ensure.IsNotNull(keys, "keys");
+            Ensure.IsNotNull(keys, nameof(keys));
             var sb = new StringBuilder();
 
             foreach (var element in keys)
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>The name of the index.</returns>
         public static string GetIndexName(string[] keyNames)
         {
-            Ensure.IsNotNull(keyNames, "keyNames");
+            Ensure.IsNotNull(keyNames, nameof(keyNames));
             var sb = new StringBuilder();
 
             foreach (var name in keyNames)

@@ -37,8 +37,8 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="bindingFlags">The binding flags.</param>
         public ReflectionEventSubscriber(object instance, string methodName = "Handle", BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
         {
-            Ensure.IsNotNull(instance, "instance");
-            Ensure.IsNotNullOrEmpty(methodName, "methodName");
+            Ensure.IsNotNull(instance, nameof(instance));
+            Ensure.IsNotNullOrEmpty(methodName, nameof(methodName));
 
             _handlers = new Dictionary<Type, Delegate>();
 

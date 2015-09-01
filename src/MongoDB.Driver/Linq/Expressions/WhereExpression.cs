@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public WhereExpression(Expression source, Expression predicate)
         {
-            _predicate = Ensure.IsNotNull(predicate, "predicate");
-            _source = Ensure.IsNotNull(source, "source");
+            _predicate = Ensure.IsNotNull(predicate, nameof(predicate));
+            _source = Ensure.IsNotNull(source, nameof(source));
         }
 
         public override ExtensionExpressionType ExtensionType

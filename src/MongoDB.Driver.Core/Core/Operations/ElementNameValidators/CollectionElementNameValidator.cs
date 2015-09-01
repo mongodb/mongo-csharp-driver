@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
-            Ensure.IsNotNull(elementName, "elementName");
+            Ensure.IsNotNull(elementName, nameof(elementName));
 
             if (elementName.Length == 0)
             {

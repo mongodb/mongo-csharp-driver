@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureCluster(Func<ClusterSettings, ClusterSettings> configurator)
         {
-            Ensure.IsNotNull(configurator, "configurator");
+            Ensure.IsNotNull(configurator, nameof(configurator));
 
             _clusterSettings = configurator(_clusterSettings);
             return this;
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureConnection(Func<ConnectionSettings, ConnectionSettings> configurator)
         {
-            Ensure.IsNotNull(configurator, "configurator");
+            Ensure.IsNotNull(configurator, nameof(configurator));
 
             _connectionSettings = configurator(_connectionSettings);
             return this;
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureConnectionPool(Func<ConnectionPoolSettings, ConnectionPoolSettings> configurator)
         {
-            Ensure.IsNotNull(configurator, "configurator");
+            Ensure.IsNotNull(configurator, nameof(configurator));
 
             _connectionPoolSettings = configurator(_connectionPoolSettings);
             return this;
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureTcp(Func<TcpStreamSettings, TcpStreamSettings> configurator)
         {
-            Ensure.IsNotNull(configurator, "configurator");
+            Ensure.IsNotNull(configurator, nameof(configurator));
 
             _tcpStreamSettings = configurator(_tcpStreamSettings);
             return this;
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
         {
-            Ensure.IsNotNull(wrapper, "wrapper");
+            Ensure.IsNotNull(wrapper, nameof(wrapper));
 
             _streamFactoryWrapper = inner => wrapper(_streamFactoryWrapper(inner));
             return this;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder Subscribe<TEvent>(Action<TEvent> handler)
         {
-            Ensure.IsNotNull(handler, "handler");
+            Ensure.IsNotNull(handler, nameof(handler));
             _eventAggregator.Subscribe(handler);
             return this;
         }
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder Subscribe(IEventSubscriber subscriber)
         {
-            Ensure.IsNotNull(subscriber, "subscriber");
+            Ensure.IsNotNull(subscriber, nameof(subscriber));
 
             _eventAggregator.Subscribe(subscriber);
             return this;

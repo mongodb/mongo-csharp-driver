@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public DistinctExpression(Expression source, Expression selector)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _selector = Ensure.IsNotNull(selector, "selector");
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _selector = Ensure.IsNotNull(selector, nameof(selector));
         }
 
         public Expression Selector

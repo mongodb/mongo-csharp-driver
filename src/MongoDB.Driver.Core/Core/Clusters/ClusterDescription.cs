@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Clusters
             ClusterType type,
             IEnumerable<ServerDescription> servers)
         {
-            _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
+            _clusterId = Ensure.IsNotNull(clusterId, nameof(clusterId));
             _connectionMode = connectionMode;
             _type = type;
             _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <returns>A ClusterDescription.</returns>
         public ClusterDescription WithServerDescription(ServerDescription value)
         {
-            Ensure.IsNotNull(value, "value");
+            Ensure.IsNotNull(value, nameof(value));
 
             IEnumerable<ServerDescription> replacementServers;
 

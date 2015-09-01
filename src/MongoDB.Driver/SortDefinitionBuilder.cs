@@ -190,7 +190,7 @@ namespace MongoDB.Driver
 
         public CombinedSortDefinition(IEnumerable<SortDefinition<TDocument>> sorts)
         {
-            _sorts = Ensure.IsNotNull(sorts, "sorts").ToList();
+            _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -220,7 +220,7 @@ namespace MongoDB.Driver
 
         public DirectionalSortDefinition(FieldDefinition<TDocument> field, SortDirection direction)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _direction = direction;
         }
 
@@ -229,7 +229,7 @@ namespace MongoDB.Driver
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
             BsonValue value;
-            switch(_direction)
+            switch (_direction)
             {
                 case SortDirection.Ascending:
                     value = 1;

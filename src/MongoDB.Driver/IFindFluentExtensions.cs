@@ -39,8 +39,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IFindFluent<TDocument, BsonDocument> Project<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, ProjectionDefinition<TDocument, BsonDocument> projection)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(projection, "projection");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(projection, nameof(projection));
 
             return find.Project<BsonDocument>(projection);
         }
@@ -56,8 +56,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IFindFluent<TDocument, TNewProjection> Project<TDocument, TProjection, TNewProjection>(this IFindFluent<TDocument, TProjection> find, Expression<Func<TDocument, TNewProjection>> projection)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(projection, "projection");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(projection, nameof(projection));
 
             return find.Project<TNewProjection>(new FindExpressionProjectionDefinition<TDocument, TNewProjection>(projection));
         }
@@ -72,8 +72,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TProjection> SortBy<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(field, nameof(field));
 
             // We require an implementation of IFindFluent<TDocument, TProjection> 
             // to also implement IOrderedFindFluent<TDocument, TProjection>
@@ -91,8 +91,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TProjection> SortByDescending<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(field, nameof(field));
 
             // We require an implementation of IFindFluent<TDocument, TProjection> 
             // to also implement IOrderedFindFluent<TDocument, TProjection>
@@ -110,8 +110,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TProjection> ThenBy<TDocument, TProjection>(this IOrderedFindFluent<TDocument, TProjection> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(field, nameof(field));
 
             find.Options.Sort = new SortDefinitionBuilder<TDocument>().Combine(
                 find.Options.Sort,
@@ -130,8 +130,8 @@ namespace MongoDB.Driver
         /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TProjection> ThenByDescending<TDocument, TProjection>(this IOrderedFindFluent<TDocument, TProjection> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(find, "find");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(find, nameof(find));
+            Ensure.IsNotNull(field, nameof(field));
 
             find.Options.Sort = new SortDefinitionBuilder<TDocument>().Combine(
                 find.Options.Sort,
@@ -150,7 +150,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first result.</returns>
         public static Task<TProjection> FirstAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(find, "find");
+            Ensure.IsNotNull(find, nameof(find));
 
             return AsyncCursorHelper.FirstAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -165,7 +165,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first result or null.</returns>
         public static Task<TProjection> FirstOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(find, "find");
+            Ensure.IsNotNull(find, nameof(find));
 
             return AsyncCursorHelper.FirstOrDefaultAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -180,7 +180,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the single result.</returns>
         public static Task<TProjection> SingleAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(find, "find");
+            Ensure.IsNotNull(find, nameof(find));
 
             if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
             {
@@ -199,7 +199,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the single result or null.</returns>
         public static Task<TProjection> SingleOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(find, "find");
+            Ensure.IsNotNull(find, nameof(find));
 
             if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
             {

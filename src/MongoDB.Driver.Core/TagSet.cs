@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// <param name="tags">The tags.</param>
         public TagSet(IEnumerable<Tag> tags)
         {
-            _tags = Ensure.IsNotNull(tags, "tags").ToList();
+            _tags = Ensure.IsNotNull(tags, nameof(tags)).ToList();
         }
 
         // properties

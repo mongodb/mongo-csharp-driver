@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="mechanism">The mechanism.</param>
         protected SaslAuthenticator(ISaslMechanism mechanism)
         {
-            _mechanism = Ensure.IsNotNull(mechanism, "mechanism");
+            _mechanism = Ensure.IsNotNull(mechanism, nameof(mechanism));
         }
 
         // properties
@@ -62,8 +62,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(description, "description");
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
 
             using (var conversation = new SaslConversation(description.ConnectionId))
             {
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Authentication
                             null);
                         result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     }
-                    catch(MongoCommandException ex)
+                    catch (MongoCommandException ex)
                     {
                         var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
                         throw new MongoAuthenticationException(connection.ConnectionId, message, ex);

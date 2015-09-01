@@ -49,10 +49,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             Func<bool> shouldSendGetLastError = null)
             : base(collectionNamespace, messageEncoderSettings, writeConcern, shouldSendGetLastError)
         {
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _maxBatchCount = Ensure.IsNullOrGreaterThanZero(maxBatchCount, "maxBatchCount");
-            _maxMessageSize = Ensure.IsNullOrGreaterThanZero(maxMessageSize, "maxMessageSize");
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _documentSource = Ensure.IsNotNull(documentSource, nameof(documentSource));
+            _maxBatchCount = Ensure.IsNullOrGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
+            _maxMessageSize = Ensure.IsNullOrGreaterThanZero(maxMessageSize, nameof(maxMessageSize));
             _continueOnError = continueOnError;
         }
 

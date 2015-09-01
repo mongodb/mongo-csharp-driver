@@ -57,7 +57,7 @@ namespace MongoDB.Driver.GridFS
             get { return _batchSize; }
             set
             {
-                Ensure.IsNullOrGreaterThanZero(value, "value");
+                Ensure.IsNullOrGreaterThanZero(value, nameof(value));
                 _batchSize = value;
             }
         }
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.GridFS
         public int? ChunkSizeBytes
         {
             get { return _chunkSizeBytes; }
-            set { _chunkSizeBytes = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _chunkSizeBytes = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.GridFS
         public string ContentType
         {
             get { return _contentType; }
-            set { _contentType = Ensure.IsNullOrNotEmpty(value, "value"); }
+            set { _contentType = Ensure.IsNullOrNotEmpty(value, nameof(value)); }
         }
 
         /// <summary>

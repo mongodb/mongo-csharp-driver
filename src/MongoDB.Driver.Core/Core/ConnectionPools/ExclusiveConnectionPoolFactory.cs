@@ -31,15 +31,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IEventSubscriber eventSubscriber)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
-            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
+            _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
         public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
         {
-            Ensure.IsNotNull(serverId, "serverId");
-            Ensure.IsNotNull(endPoint, "endPoint");
+            Ensure.IsNotNull(serverId, nameof(serverId));
+            Ensure.IsNotNull(endPoint, nameof(endPoint));
 
             return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber);
         }

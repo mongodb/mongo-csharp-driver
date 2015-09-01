@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // constructors
         public KillCursorsWireProtocol(IEnumerable<long> cursorIds, MessageEncoderSettings messageEncoderSettings)
         {
-            Ensure.IsNotNull(cursorIds, "cursorIds");
+            Ensure.IsNotNull(cursorIds, nameof(cursorIds));
             _cursorIds = (cursorIds as IReadOnlyList<long>) ?? cursorIds.ToList();
             _messageEncoderSettings = messageEncoderSettings;
         }

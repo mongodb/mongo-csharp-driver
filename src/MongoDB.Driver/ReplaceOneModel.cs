@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// <param name="replacement">The replacement.</param>
         public ReplaceOneModel(FilterDefinition<TDocument> filter, TDocument replacement)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
             _replacement = replacement;
         }
 

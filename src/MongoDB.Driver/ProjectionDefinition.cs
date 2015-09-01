@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         public RenderedProjectionDefinition(BsonDocument document, IBsonSerializer<TProjection> projectionSerializer)
         {
             _projection = document;
-            _projectionSerializer = Ensure.IsNotNull(projectionSerializer, "projectionSerializer");
+            _projectionSerializer = Ensure.IsNotNull(projectionSerializer, nameof(projectionSerializer));
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         public BsonDocumentProjectionDefinition(BsonDocument document)
         {
-            _document = Ensure.IsNotNull(document, "document");
+            _document = Ensure.IsNotNull(document, nameof(document));
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <param name="projectionSerializer">The projection serializer.</param>
         public BsonDocumentProjectionDefinition(BsonDocument document, IBsonSerializer<TProjection> projectionSerializer = null)
         {
-            _document = Ensure.IsNotNull(document, "document");
+            _document = Ensure.IsNotNull(document, nameof(document));
             _projectionSerializer = projectionSerializer;
         }
 
@@ -263,7 +263,7 @@ namespace MongoDB.Driver
         /// <param name="expression">The expression.</param>
         public FindExpressionProjectionDefinition(Expression<Func<TSource, TProjection>> expression)
         {
-            _expression = Ensure.IsNotNull(expression, "expression");
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace MongoDB.Driver
         /// <param name="json">The json.</param>
         public JsonProjectionDefinition(string json)
         {
-            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _json = Ensure.IsNotNullOrEmpty(json, nameof(json));
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace MongoDB.Driver
         /// <param name="projectionSerializer">The projection serializer.</param>
         public JsonProjectionDefinition(string json, IBsonSerializer<TProjection> projectionSerializer = null)
         {
-            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _json = Ensure.IsNotNullOrEmpty(json, nameof(json));
             _projectionSerializer = projectionSerializer;
         }
 
@@ -373,7 +373,7 @@ namespace MongoDB.Driver
         /// <param name="obj">The object.</param>
         public ObjectProjectionDefinition(object obj)
         {
-            _obj = Ensure.IsNotNull(obj, "obj");
+            _obj = Ensure.IsNotNull(obj, nameof(obj));
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace MongoDB.Driver
         /// <param name="projectionSerializer">The projection serializer.</param>
         public ObjectProjectionDefinition(object obj, IBsonSerializer<TProjection> projectionSerializer = null)
         {
-            _obj = Ensure.IsNotNull(obj, "obj");
+            _obj = Ensure.IsNotNull(obj, nameof(obj));
             _projectionSerializer = projectionSerializer;
         }
 
@@ -446,7 +446,7 @@ namespace MongoDB.Driver
 
         public KnownResultTypeProjectionDefinitionAdapter(ProjectionDefinition<TSource> projection, IBsonSerializer<TProjection> projectionSerializer = null)
         {
-            _projection = Ensure.IsNotNull(projection, "projection");
+            _projection = Ensure.IsNotNull(projection, nameof(projection));
             _projectionSerializer = projectionSerializer;
         }
 

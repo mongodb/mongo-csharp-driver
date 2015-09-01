@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="password">The password.</param>
         public UsernamePasswordCredential(string source, string username, SecureString password)
         {
-            _source = Ensure.IsNotNullOrEmpty(source, "source");
-            _username = Ensure.IsNotNullOrEmpty(username, "username");
-            _password = Ensure.IsNotNull(password, "password");
+            _source = Ensure.IsNotNullOrEmpty(source, nameof(source));
+            _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
+            _password = Ensure.IsNotNull(password, nameof(password));
         }
 
         // properties

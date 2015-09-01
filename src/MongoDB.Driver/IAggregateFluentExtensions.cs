@@ -41,8 +41,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<BsonDocument> Group<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> group)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(group, "group");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(group, nameof(group));
 
             return aggregate.Group<BsonDocument>(group);
         }
@@ -61,9 +61,9 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TNewResult> Group<TResult, TKey, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TKey>> id, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> group)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(id, "id");
-            Ensure.IsNotNull(group, "group");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(id, nameof(id));
+            Ensure.IsNotNull(group, nameof(group));
 
             return aggregate.Group<TNewResult>(new GroupExpressionProjection<TResult, TKey, TNewResult>(id, group));
         }
@@ -79,8 +79,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TResult> Match<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, bool>> filter)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(filter, nameof(filter));
 
             return aggregate.Match(new ExpressionFilterDefinition<TResult>(filter));
         }
@@ -96,8 +96,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<BsonDocument> Project<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> projection)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(projection, "projection");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(projection, nameof(projection));
 
             return aggregate.Project<BsonDocument>(projection);
         }
@@ -114,8 +114,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TNewResult> Project<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TNewResult>> projection)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(projection, "projection");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(projection, nameof(projection));
 
             return aggregate.Project<TNewResult>(new ProjectExpressionProjection<TResult, TNewResult>(projection));
         }
@@ -131,8 +131,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IOrderedAggregateFluent<TResult> SortBy<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
                 new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending));
@@ -149,8 +149,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IOrderedAggregateFluent<TResult> SortByDescending<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
                 new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending));
@@ -167,8 +167,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IOrderedAggregateFluent<TResult> ThenBy<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
@@ -198,8 +198,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IOrderedAggregateFluent<TResult> ThenByDescending<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
@@ -229,8 +229,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, FieldDefinition<TResult> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             return aggregate.Unwind<BsonDocument>(field);
         }
@@ -246,8 +246,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             return aggregate.Unwind<BsonDocument>(new ExpressionFieldDefinition<TResult>(field));
         }
@@ -265,8 +265,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer = null)
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
 
             return aggregate.Unwind<TNewResult>(new ExpressionFieldDefinition<TResult>(field), newResultSerializer);
         }
@@ -282,7 +282,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -298,7 +298,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<TResult> FirstOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -314,7 +314,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<TResult> SingleAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -330,7 +330,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<TResult> SingleOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
@@ -341,7 +341,7 @@ namespace MongoDB.Driver
 
             public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression)
             {
-                _expression = Ensure.IsNotNull(expression, "expression");
+                _expression = Ensure.IsNotNull(expression, nameof(expression));
             }
 
             public Expression<Func<TResult, TNewResult>> Expression
@@ -362,8 +362,8 @@ namespace MongoDB.Driver
 
             public GroupExpressionProjection(Expression<Func<TResult, TKey>> idExpression, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupExpression)
             {
-                _idExpression = Ensure.IsNotNull(idExpression, "idExpression");
-                _groupExpression = Ensure.IsNotNull(groupExpression, "groupExpression");
+                _idExpression = Ensure.IsNotNull(idExpression, nameof(idExpression));
+                _groupExpression = Ensure.IsNotNull(groupExpression, nameof(groupExpression));
             }
 
             public Expression<Func<TResult, TKey>> IdExpression

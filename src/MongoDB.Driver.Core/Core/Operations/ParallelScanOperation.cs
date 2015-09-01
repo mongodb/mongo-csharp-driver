@@ -55,9 +55,9 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _numberOfCursors = Ensure.IsBetween(numberOfCursors, 0, 10000, "numberOfCursors");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? BatchSize
         {
             get { return _batchSize; }
-            set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<IReadOnlyList<IAsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {

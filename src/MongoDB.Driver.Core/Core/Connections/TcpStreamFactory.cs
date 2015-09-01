@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public TcpStreamFactory(TcpStreamSettings settings)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
         }
 
         // methods
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Connections
                 var delayTask = Task.Delay(_settings.ConnectTimeout, delayCancellationTokenSource.Token);
 
                 var completedTask = await Task.WhenAny(connectTask, delayTask).ConfigureAwait(false);
-                
+
                 // kill the delay timer as soon as possible
                 delayCancellationTokenSource.Cancel();
 

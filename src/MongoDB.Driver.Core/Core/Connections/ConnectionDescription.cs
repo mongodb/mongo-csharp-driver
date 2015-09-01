@@ -42,9 +42,9 @@ namespace MongoDB.Driver.Core.Connections
         /// <param name="buildInfoResult">The buildInfo result.</param>
         public ConnectionDescription(ConnectionId connectionId, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
-            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
-            _buildInfoResult = Ensure.IsNotNull(buildInfoResult, "buildInfoResult");
-            _isMasterResult = Ensure.IsNotNull(isMasterResult, "isMasterResult");
+            _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
+            _buildInfoResult = Ensure.IsNotNull(buildInfoResult, nameof(buildInfoResult));
+            _isMasterResult = Ensure.IsNotNull(isMasterResult, nameof(isMasterResult));
 
             _maxBatchCount = isMasterResult.MaxBatchCount;
             _maxDocumentSize = isMasterResult.MaxDocumentSize;

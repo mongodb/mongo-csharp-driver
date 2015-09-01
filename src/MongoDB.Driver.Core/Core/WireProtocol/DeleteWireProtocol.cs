@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             WriteConcern writeConcern)
             : base(collectionNamespace, messageEncoderSettings, writeConcern)
         {
-            _query = Ensure.IsNotNull(query, "query");
+            _query = Ensure.IsNotNull(query, nameof(query));
             _isMulti = isMulti;
         }
 

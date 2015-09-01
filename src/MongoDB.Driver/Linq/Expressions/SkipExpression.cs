@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public SkipExpression(Expression source, int count)
         {
-            _source = Ensure.IsNotNull(source, "source");
+            _source = Ensure.IsNotNull(source, nameof(source));
             _count = count;
         }
 

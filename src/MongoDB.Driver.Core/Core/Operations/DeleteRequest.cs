@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         public DeleteRequest(BsonDocument filter)
             : base(WriteRequestType.Delete)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
             _limit = 1;
         }
 

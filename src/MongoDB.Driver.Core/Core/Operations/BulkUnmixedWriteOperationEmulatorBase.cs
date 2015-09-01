@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Core.Operations
             IEnumerable<WriteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _requests = Ensure.IsNotNull(requests, "requests");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _requests = Ensure.IsNotNull(requests, nameof(requests));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -57,13 +57,13 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
-            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
-            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
+            set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         // methods

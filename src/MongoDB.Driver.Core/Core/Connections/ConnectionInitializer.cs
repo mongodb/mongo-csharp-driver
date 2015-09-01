@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(connection, nameof(connection));
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
             var isMasterProtocol = new CommandWireProtocol<BsonDocument>(

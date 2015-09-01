@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="server">The server.</param>
         public SingleServerReadWriteBinding(IServer server)
         {
-            _server = Ensure.IsNotNull(server, "server");
+            _server = Ensure.IsNotNull(server, nameof(server));
         }
 
         // properties

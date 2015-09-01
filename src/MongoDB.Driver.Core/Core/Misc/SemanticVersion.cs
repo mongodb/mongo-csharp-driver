@@ -51,9 +51,9 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="preRelease">The pre release version.</param>
         public SemanticVersion(int major, int minor, int patch, string preRelease)
         {
-            _major = Ensure.IsGreaterThanOrEqualToZero(major, "major");
-            _minor = Ensure.IsGreaterThanOrEqualToZero(minor, "minor");
-            _patch = Ensure.IsGreaterThanOrEqualToZero(patch, "patch");
+            _major = Ensure.IsGreaterThanOrEqualToZero(major, nameof(major));
+            _minor = Ensure.IsGreaterThanOrEqualToZero(minor, nameof(minor));
+            _patch = Ensure.IsGreaterThanOrEqualToZero(patch, nameof(patch));
             _preRelease = preRelease; // can be null
         }
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 return result;
             }
-            
+
             if (_preRelease == null && other._preRelease == null)
             {
                 return 0;

@@ -42,7 +42,7 @@ namespace MongoDB.Driver
         public MongoWriteConcernException(ConnectionId connectionId, string message, WriteConcernResult writeConcernResult)
             : base(connectionId, message, null, writeConcernResult.Response)
         {
-            _writeConcernResult = Ensure.IsNotNull(writeConcernResult, "writeConcernResult");
+            _writeConcernResult = Ensure.IsNotNull(writeConcernResult, nameof(writeConcernResult));
         }
 
         /// <summary>

@@ -63,11 +63,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _command = Ensure.IsNotNull(command, "command");
-            _commandValidator = Ensure.IsNotNull(commandValidator, "commandValidator");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+            _command = Ensure.IsNotNull(command, nameof(command));
+            _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
             _slaveOk = slaveOk;
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
 

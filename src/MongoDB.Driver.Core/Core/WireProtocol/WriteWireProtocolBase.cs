@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             WriteConcern writeConcern,
             Func<bool> shouldSendGetLastError = null)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
-            _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
+            _writeConcern = Ensure.IsNotNull(writeConcern, nameof(writeConcern));
             _shouldSendGetLastError = shouldSendGetLastError;
         }
 
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // methods
         private BsonDocument CreateGetLastErrorCommand()
         {
-            return new BsonDocument 
+            return new BsonDocument
             {
                 { "getLastError", 1 },
                 { "w", () => _writeConcern.W.ToBsonValue(), _writeConcern.W != null },

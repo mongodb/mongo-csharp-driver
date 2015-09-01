@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq
 
         public MongoQueryProviderImpl(IMongoCollection<TDocument> collection, AggregateOptions options)
         {
-            _collection = Ensure.IsNotNull(collection, "collection");
-            _options = Ensure.IsNotNull(options, "options");
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         public AggregateOptions Options
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq
 
         public IQueryable CreateQuery(Expression expression)
         {
-            Ensure.IsNotNull(expression, "expression");
+            Ensure.IsNotNull(expression, nameof(expression));
 
             var elementType = GetElementType(expression.Type);
 

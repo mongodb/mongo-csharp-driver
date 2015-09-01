@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var operation = new ReadCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
             return operation.ExecuteAsync(binding, cancellationToken);

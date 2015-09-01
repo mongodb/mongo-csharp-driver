@@ -71,8 +71,8 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(processor, "processor");
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
@@ -123,8 +123,8 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(processor, "processor");
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose value is the list of documents.</returns>
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursor<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(source, nameof(source));
 
             var list = new List<TDocument>();
 

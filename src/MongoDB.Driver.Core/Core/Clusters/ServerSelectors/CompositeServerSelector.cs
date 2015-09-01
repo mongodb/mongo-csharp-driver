@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="selectors">The selectors.</param>
         public CompositeServerSelector(IEnumerable<IServerSelector> selectors)
         {
-            Ensure.IsNotNull(selectors, "selectors");
+            Ensure.IsNotNull(selectors, nameof(selectors));
             _selectors = selectors.ToList();
         }
 

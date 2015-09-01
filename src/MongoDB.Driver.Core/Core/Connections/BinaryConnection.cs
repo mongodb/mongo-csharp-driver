@@ -71,12 +71,12 @@ namespace MongoDB.Driver.Core.Connections
         // constructors
         public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IEventSubscriber eventSubscriber)
         {
-            Ensure.IsNotNull(serverId, "serverId");
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
-            _connectionInitializer = Ensure.IsNotNull(connectionInitializer, "connectionInitializer");
-            Ensure.IsNotNull(eventSubscriber, "eventSubscriber");
+            Ensure.IsNotNull(serverId, nameof(serverId));
+            _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
+            _connectionInitializer = Ensure.IsNotNull(connectionInitializer, nameof(connectionInitializer));
+            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
@@ -320,7 +320,7 @@ namespace MongoDB.Driver.Core.Connections
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(encoderSelector, "encoderSelector");
+            Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
             ThrowIfDisposedOrNotOpen();
 
             try
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(messages, "messages");
+            Ensure.IsNotNull(messages, nameof(messages));
             ThrowIfDisposedOrNotOpen();
 
             var messagesToSend = messages.ToList();

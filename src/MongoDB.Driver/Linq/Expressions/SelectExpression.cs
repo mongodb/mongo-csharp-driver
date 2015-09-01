@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public SelectExpression(Expression source, Expression selector)
         {
-            _source = Ensure.IsNotNull(source, "source");
-            _selector = Ensure.IsNotNull(selector, "selector");
+            _source = Ensure.IsNotNull(source, nameof(source));
+            _selector = Ensure.IsNotNull(selector, nameof(selector));
             _type = typeof(IEnumerable<>).MakeGenericType(selector.Type);
         }
 

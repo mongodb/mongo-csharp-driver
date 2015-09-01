@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _numberReturned = numberReturned;
             _queryFailure = queryFailure;
             _queryFailureDocument = queryFailureDocument; // can be null
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _startingFrom = startingFrom;
         }
 

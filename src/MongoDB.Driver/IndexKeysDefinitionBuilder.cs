@@ -422,7 +422,7 @@ namespace MongoDB.Driver
 
         public CombinedIndexKeysDefinition(IEnumerable<IndexKeysDefinition<TDocument>> keys)
         {
-            _keys = Ensure.IsNotNull(keys, "keys").ToList();
+            _keys = Ensure.IsNotNull(keys, nameof(keys)).ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -457,7 +457,7 @@ namespace MongoDB.Driver
 
         public DirectionalIndexKeyDefinition(FieldDefinition<TDocument> field, SortDirection direction)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _direction = direction;
         }
 
@@ -489,7 +489,7 @@ namespace MongoDB.Driver
 
         public GeoHaystackIndexKeyDefinition(FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _additionalFieldName = additionalFieldName;
         }
 
@@ -515,7 +515,7 @@ namespace MongoDB.Driver
 
         public SimpleIndexKeyDefinition(FieldDefinition<TDocument> field, string type)
         {
-            _field = Ensure.IsNotNull(field, "field");
+            _field = Ensure.IsNotNull(field, nameof(field));
             _type = type;
         }
 

@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace newCollectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, "newCollectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, nameof(newCollectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(binding, "binding");
+            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var operation = new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);

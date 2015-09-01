@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder builder, string connectionString)
         {
-            Ensure.IsNotNull(builder, "builder");
-            Ensure.IsNotNullOrEmpty(connectionString, "connectionString");
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNullOrEmpty(connectionString, nameof(connectionString));
 
             var parsedConnectionString = new ConnectionString(connectionString);
             return ConfigureWithConnectionString(builder, parsedConnectionString);
@@ -56,8 +56,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder builder, ConnectionString connectionString)
         {
-            Ensure.IsNotNull(builder, "builder");
-            Ensure.IsNotNull(connectionString, "connectionString");
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNull(connectionString, nameof(connectionString));
 
             // TCP
             if (connectionString.ConnectTimeout != null)
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder builder, string applicationName, bool install = false)
         {
-            Ensure.IsNotNull(builder, "builder");
+            Ensure.IsNotNull(builder, nameof(builder));
 
             if (install)
             {

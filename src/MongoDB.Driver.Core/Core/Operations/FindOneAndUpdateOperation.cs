@@ -55,8 +55,8 @@ namespace MongoDB.Driver.Core.Operations
         public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument update, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
-            _filter = Ensure.IsNotNull(filter, "filter");
-            _update = Ensure.IsNotNull(update, "update");
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _update = Ensure.IsNotNull(update, nameof(update));
             _returnDocument = ReturnDocument.Before;
         }
 
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public IElementNameValidator GetValidatorForChildContent(string elementName)
             {
-                if(elementName == "update")
+                if (elementName == "update")
                 {
                     return UpdateElementNameValidator.Instance;
                 }

@@ -33,16 +33,16 @@ namespace MongoDB.Driver
         // constructors
         public FindFluent(IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
-            _collection = Ensure.IsNotNull(collection, "collection");
-            _filter = Ensure.IsNotNull(filter, "filter");
-            _options = Ensure.IsNotNull(options, "options");
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         // properties
         public override FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
-            set { _filter = Ensure.IsNotNull(value, "value"); }
+            set { _filter = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         public override FindOptions<TDocument, TProjection> Options

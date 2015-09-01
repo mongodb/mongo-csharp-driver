@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public MongoNotPrimaryException(ConnectionId connectionId, BsonDocument result)
             : base(connectionId, "Server returned not master error.")
         {
-            _result = Ensure.IsNotNull(result, "result");
+            _result = Ensure.IsNotNull(result, nameof(result));
         }
 
         /// <summary>

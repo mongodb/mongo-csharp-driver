@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         internal DefaultAuthenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
         {
-            _credential = Ensure.IsNotNull(credential, "credential");
-            _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, "randomStringGenerator");
+            _credential = Ensure.IsNotNull(credential, nameof(credential));
+            _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, nameof(randomStringGenerator));
         }
 
         // properties
@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(description, "description");
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
 
             IAuthenticator authenticator;
             if (description.BuildInfoResult.ServerVersion >= __scramVersionRequirement)

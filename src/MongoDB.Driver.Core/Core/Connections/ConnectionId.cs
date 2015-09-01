@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Core.Connections
         /// <param name="localValue">The local value.</param>
         public ConnectionId(ServerId serverId, int localValue)
         {
-            _serverId = Ensure.IsNotNull(serverId, "serverId");
-            _localValue = Ensure.IsGreaterThanOrEqualToZero(localValue, "localValue");
+            _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
+            _localValue = Ensure.IsGreaterThanOrEqualToZero(localValue, nameof(localValue));
             _hashCode = new Hasher()
                 .Hash(_serverId)
                 .Hash(_localValue)
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionId(ServerId serverId, int localValue, int serverValue)
             : this(serverId, localValue)
         {
-            _serverValue = Ensure.IsGreaterThanOrEqualToZero(serverValue, "serverValue");
+            _serverValue = Ensure.IsGreaterThanOrEqualToZero(serverValue, nameof(serverValue));
         }
 
         // properties

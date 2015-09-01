@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="credential">The credential.</param>
         public MongoDBCRAuthenticator(UsernamePasswordCredential credential)
         {
-            _credential = Ensure.IsNotNull(credential, "credential");
+            _credential = Ensure.IsNotNull(credential, nameof(credential));
         }
 
         // properties
@@ -69,15 +69,15 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(description, "description");
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
 
             try
             {
                 var nonce = await GetNonceAsync(connection, cancellationToken).ConfigureAwait(false);
                 await AuthenticateAsync(connection, nonce, cancellationToken).ConfigureAwait(false);
             }
-            catch(MongoCommandException ex)
+            catch (MongoCommandException ex)
             {
                 var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
                 throw new MongoAuthenticationException(connection.ConnectionId, message, ex);

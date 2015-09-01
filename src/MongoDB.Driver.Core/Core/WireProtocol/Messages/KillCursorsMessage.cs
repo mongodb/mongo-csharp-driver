@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             IEnumerable<long> cursorIds)
             : base(requestId)
         {
-            _cursorIds = Ensure.IsNotNull(cursorIds, "cursorIds").ToList();
+            _cursorIds = Ensure.IsNotNull(cursorIds, nameof(cursorIds)).ToList();
         }
 
         // properties

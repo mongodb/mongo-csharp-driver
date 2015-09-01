@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <param name="wrapped">The wrapped result document.</param>
         public BuildInfoResult(BsonDocument wrapped)
         {
-            _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
+            _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
         }
 
         // properties

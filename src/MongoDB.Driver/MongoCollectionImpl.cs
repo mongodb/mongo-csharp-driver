@@ -44,11 +44,11 @@ namespace MongoDB.Driver
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
-            _database = Ensure.IsNotNull(database, "database");
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _settings = Ensure.IsNotNull(settings, "settings").Freeze();
-            _cluster = Ensure.IsNotNull(cluster, "cluster");
-            _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
+            _database = Ensure.IsNotNull(database, nameof(database));
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _settings = Ensure.IsNotNull(settings, nameof(settings)).Freeze();
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
+            _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
 
             _documentSerializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
             _messageEncoderSettings = new MessageEncoderSettings
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         // methods
         public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken)
         {
-            var renderedPipeline = Ensure.IsNotNull(pipeline, "pipeline").Render(_documentSerializer, _settings.SerializerRegistry);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry);
             options = options ?? new AggregateOptions();
 
             var last = renderedPipeline.Documents.LastOrDefault();
@@ -139,7 +139,7 @@ namespace MongoDB.Driver
 
         public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(requests, "requests");
+            Ensure.IsNotNull(requests, nameof(requests));
             if (!requests.Any())
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
 
         public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(filter, nameof(filter));
 
             options = options ?? new CountOptions();
 
@@ -187,8 +187,8 @@ namespace MongoDB.Driver
 
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(field, "field");
-            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
 
             options = options ?? new DistinctOptions();
             var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry);
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
 
         public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(filter, nameof(filter));
 
             options = options ?? new FindOptions<TDocument, TProjection>();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -239,7 +239,7 @@ namespace MongoDB.Driver
 
         public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(filter, nameof(filter));
 
             options = options ?? new FindOneAndDeleteOptions<TDocument, TProjection>();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -262,8 +262,8 @@ namespace MongoDB.Driver
         public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
         {
             var replacementObject = (object)replacement; // only box once if it's a struct
-            Ensure.IsNotNull(filter, "filter");
-            Ensure.IsNotNull(replacementObject, "replacement");
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(replacementObject, nameof(replacementObject));
 
             options = options ?? new FindOneAndReplaceOptions<TDocument, TProjection>();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -288,8 +288,8 @@ namespace MongoDB.Driver
 
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(filter, "filter");
-            Ensure.IsNotNull(update, "update");
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -314,8 +314,8 @@ namespace MongoDB.Driver
 
         public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(map, "map");
-            Ensure.IsNotNull(reduce, "reduce");
+            Ensure.IsNotNull(map, nameof(map));
+            Ensure.IsNotNull(reduce, nameof(reduce));
 
             options = options ?? new MapReduceOptions<TDocument, TResult>();
             var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
@@ -545,7 +545,7 @@ namespace MongoDB.Driver
 
             public async override Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
             {
-                Ensure.IsNotNull(models, "models");
+                Ensure.IsNotNull(models, nameof(models));
 
                 var requests = models.Select(m =>
                 {
@@ -587,7 +587,7 @@ namespace MongoDB.Driver
 
             public override Task DropOneAsync(string name, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNullOrEmpty(name, "name");
+                Ensure.IsNotNullOrEmpty(name, nameof(name));
                 if (name == "*")
                 {
                     throw new ArgumentException("Cannot specify '*' for the index name. Use DropAllAsync to drop all indexes.", "name");

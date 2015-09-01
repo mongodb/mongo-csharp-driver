@@ -29,7 +29,7 @@ namespace MongoDB.Driver
 
         public SingleBatchAsyncCursor(IReadOnlyList<T> current)
         {
-            _current = Ensure.IsNotNull(current, "current");
+            _current = Ensure.IsNotNull(current, nameof(current));
         }
 
         public IEnumerable<T> Current

@@ -162,7 +162,7 @@ namespace MongoDB.Driver
         /// <returns>A merge map-reduce output options.</returns>
         public static MapReduceOutputOptions Merge(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
         {
-            Ensure.IsNotNull(collectionName, "collectionName");
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Merge, databaseName, sharded, nonAtomic);
         }
 
@@ -176,7 +176,7 @@ namespace MongoDB.Driver
         /// <returns>A reduce map-reduce output options.</returns>
         public static MapReduceOutputOptions Reduce(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
         {
-            Ensure.IsNotNull(collectionName, "collectionName");
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Reduce, databaseName, sharded, nonAtomic);
         }
 
@@ -189,7 +189,7 @@ namespace MongoDB.Driver
         /// <returns>A replace map-reduce output options.</returns>
         public static MapReduceOutputOptions Replace(string collectionName, string databaseName = null, bool? sharded = null)
         {
-            Ensure.IsNotNull(collectionName, "collectionName");
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Replace, databaseName, sharded, null);
         }
 
