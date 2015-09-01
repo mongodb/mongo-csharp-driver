@@ -152,6 +152,7 @@
     <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsWithImmutableClassTests.cs" />
+    <Compile Include="Serialization\Serializers\ExtraElementsWithPartiallyImmutableClassTests.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonDocumentSerializerTests.cs" />
