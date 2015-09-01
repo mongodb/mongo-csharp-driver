@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
-    /// Represents options for a GridFS instance.
+    /// Represents mutable options for a GridFS instance.
     /// </summary>
     public class GridFSBucketOptions
     {
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.GridFS
         /// Initializes a new instance of the <see cref="GridFSBucketOptions"/> class.
         /// </summary>
         public GridFSBucketOptions()
-            : this(Immutable.Defaults)
+            : this(ImmutableGridFSBucketOptions.Defaults)
         {
         }
 
@@ -52,8 +52,8 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSBucketOptions"/> class.
         /// </summary>
-        /// <param name="other">The other <see cref="GridFSBucketOptions.Immutable"/> from which to copy the values.</param>
-        public GridFSBucketOptions(GridFSBucketOptions.Immutable other)
+        /// <param name="other">The other <see cref="ImmutableGridFSBucketOptions"/> from which to copy the values.</param>
+        public GridFSBucketOptions(ImmutableGridFSBucketOptions other)
         {
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.GridFS
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
-            set { _readPreference = null; }
+            set { _readPreference = value; }
         }
 
         /// <summary>
@@ -123,126 +123,135 @@ namespace MongoDB.Driver.GridFS
         /// Returns an immutable GridFSBucketOptions.
         /// </summary>
         /// <returns>An immutable GridFSBucketOptions.</returns>
-        public Immutable ToImmutable()
+        public ImmutableGridFSBucketOptions ToImmutable()
         {
-            return new Immutable(_bucketName, _chunkSizeBytes, _readPreference, _writeConcern);
+            return new ImmutableGridFSBucketOptions(_bucketName, _chunkSizeBytes, _readPreference, _writeConcern);
+        }
+    }
+
+    /// <summary>
+    /// Represents immutable options for a GridFS instance.
+    /// </summary>
+    public class ImmutableGridFSBucketOptions
+    {
+        #region static
+        // static fields
+        private static readonly ImmutableGridFSBucketOptions __defaults = new ImmutableGridFSBucketOptions();
+
+        // static properties
+        /// <summary>
+        /// Gets the default GridFSBucketOptions.
+        /// </summary>
+        /// <value>
+        /// The default GridFSBucketOptions.
+        /// </value>
+        public static ImmutableGridFSBucketOptions Defaults
+        {
+            get { return __defaults; }
+        }
+
+        // static methods
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="GridFSBucketOptions"/> to <see cref="ImmutableGridFSBucketOptions"/>.
+        /// </summary>
+        /// <param name="mutable">The mutable options.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator ImmutableGridFSBucketOptions(GridFSBucketOptions mutable)
+        {
+            return mutable.ToImmutable();
+        }
+        #endregion
+
+        // fields
+        private readonly string _bucketName;
+        private readonly int _chunkSizeBytes;
+        private readonly ReadPreference _readPreference;
+        private readonly WriteConcern _writeConcern;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableGridFSBucketOptions"/> class.
+        /// </summary>
+        public ImmutableGridFSBucketOptions()
+        {
+            _bucketName = "fs";
+            _chunkSizeBytes = 255 * 1024;           
         }
 
         /// <summary>
-        /// Represents immutable options for a GridFS instance.
+        /// Initializes a new instance of the <see cref="ImmutableGridFSBucketOptions"/> class.
         /// </summary>
-        public class Immutable
+        /// <param name="bucketName">The bucket name.</param>
+        /// <param name="chunkSizeBytes">The chunk size bytes.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="writeConcern">The write concern.</param>
+        public ImmutableGridFSBucketOptions(
+            string bucketName,
+            int chunkSizeBytes,
+            ReadPreference readPreference,
+            WriteConcern writeConcern)
         {
-            #region static
-            // static fields
-            private static readonly Immutable __defaults = new Immutable("fs", 255 * 1024, null, null);
+            _bucketName = Ensure.IsNotNullOrEmpty(bucketName, "bucketName");
+            _chunkSizeBytes = Ensure.IsGreaterThanOrEqualToZero(chunkSizeBytes, "chunkSizeBytes");
+            _readPreference = readPreference;
+            _writeConcern = writeConcern;
+        }
 
-            // static properties
-            /// <summary>
-            /// Gets the default GridFSBucketOptions.
-            /// </summary>
-            /// <value>
-            /// The default GridFSBucketOptions.
-            /// </value>
-            public static Immutable Defaults
-            {
-                get { return __defaults; }
-            }
+        // properties
+        /// <summary>
+        /// Gets the bucket name.
+        /// </summary>
+        /// <value>
+        /// The bucket name.
+        /// </value>
+        public string BucketName
+        {
+            get { return _bucketName; }
+        }
 
-            // static methods
-            /// <summary>
-            /// Performs an implicit conversion from <see cref="GridFSBucketOptions"/> to <see cref="GridFSBucketOptions.Immutable"/>.
-            /// </summary>
-            /// <param name="options">The options.</param>
-            /// <returns>
-            /// The result of the conversion.
-            /// </returns>
-            public static implicit operator Immutable(GridFSBucketOptions options)
-            {
-                return options.ToImmutable();
-            }
-            #endregion
+        /// <summary>
+        /// Gets the chunk size in bytes.
+        /// </summary>
+        /// <value>
+        /// The chunk size in bytes.
+        /// </value>
+        public int ChunkSizeBytes
+        {
+            get { return _chunkSizeBytes; }
+        }
 
-            // fields
-            private readonly string _bucketName;
-            private readonly int _chunkSizeBytes;
-            private readonly ReadPreference _readPreference;
-            private readonly WriteConcern _writeConcern;
+        /// <summary>
+        /// Gets the read preference.
+        /// </summary>
+        /// <value>
+        /// The read preference.
+        /// </value>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+        }
 
-            // constructors
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Immutable"/> class.
-            /// </summary>
-            /// <param name="bucketName">The bucket name.</param>
-            /// <param name="chunkSizeBytes">The chunk size bytes.</param>
-            /// <param name="readPreference">The read preference.</param>
-            /// <param name="writeConcern">The write concern.</param>
-            public Immutable(
-                string bucketName,
-                int chunkSizeBytes,
-                ReadPreference readPreference,
-                WriteConcern writeConcern)
-            {
-                _bucketName = Ensure.IsNotNullOrEmpty(bucketName, "bucketName");
-                _chunkSizeBytes = Ensure.IsGreaterThanOrEqualToZero(chunkSizeBytes, "chunkSizeBytes");
-                _readPreference = readPreference;
-                _writeConcern = writeConcern;
-            }
+        /// <summary>
+        /// Gets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+        }
 
-            // properties
-            /// <summary>
-            /// Gets the bucket name.
-            /// </summary>
-            /// <value>
-            /// The bucket name.
-            /// </value>
-            public string BucketName
-            {
-                get { return _bucketName; }
-            }
-
-            /// <summary>
-            /// Gets the chunk size in bytes.
-            /// </summary>
-            /// <value>
-            /// The chunk size in bytes.
-            /// </value>
-            public int ChunkSizeBytes
-            {
-                get { return _chunkSizeBytes; }
-            }
-
-            /// <summary>
-            /// Gets the read preference.
-            /// </summary>
-            /// <value>
-            /// The read preference.
-            /// </value>
-            public ReadPreference ReadPreference
-            {
-                get { return _readPreference; }
-            }
-
-            /// <summary>
-            /// Gets the write concern.
-            /// </summary>
-            /// <value>
-            /// The write concern.
-            /// </value>
-            public WriteConcern WriteConcern
-            {
-                get { return _writeConcern; }
-            }
-
-            // public methods
-            /// <summary>
-            /// Converts this immutable instance of GridFSBucketOptions to a mutable instance.
-            /// </summary>
-            /// <returns>A mutable instance of the GridFSBucketOptions.</returns>
-            public GridFSBucketOptions ToMutable()
-            {
-                return new GridFSBucketOptions(this);
-            }
+        // public methods
+        /// <summary>
+        /// Converts this immutable instance of GridFSBucketOptions to a mutable instance.
+        /// </summary>
+        /// <returns>A mutable instance of the GridFSBucketOptions.</returns>
+        public GridFSBucketOptions ToMutable()
+        {
+            return new GridFSBucketOptions(this);
         }
     }
 }

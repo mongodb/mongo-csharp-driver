@@ -39,14 +39,14 @@ namespace MongoDB.Driver.GridFS
         private readonly ICluster _cluster;
         private readonly IMongoDatabase _database;
         private int _ensuredIndexes;
-        private readonly GridFSBucketOptions.Immutable _options;
+        private readonly ImmutableGridFSBucketOptions _options;
 
         // constructors
         /// <inheritdoc />
-        public GridFSBucket(IMongoDatabase database, GridFSBucketOptions.Immutable options = null)
+        public GridFSBucket(IMongoDatabase database, ImmutableGridFSBucketOptions options = null)
         {
             _database = Ensure.IsNotNull(database, "database");
-            _options = options ?? GridFSBucketOptions.Immutable.Defaults;
+            _options = options ?? ImmutableGridFSBucketOptions.Defaults;
 
             _cluster = database.Client.Cluster;
             _ensuredIndexes = 0;
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
-        public GridFSBucketOptions.Immutable Options
+        public ImmutableGridFSBucketOptions Options
         {
             get { return _options; }
         }

@@ -41,7 +41,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The options.
         /// </value>
-        GridFSBucketOptions.Immutable Options { get; }
+        ImmutableGridFSBucketOptions Options { get; }
 
         // methods
         /// <summary>

@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Misc;
+
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
@@ -39,7 +41,7 @@ namespace MongoDB.Driver.GridFS
         public int? BatchSize
         {
             get { return _batchSize; }
-            set { _batchSize = value; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace MongoDB.Driver.GridFS
         public int? Limit
         {
             get { return _limit; }
-            set { _limit = value; }
+            set { _limit = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         /// <summary>
@@ -63,7 +65,7 @@ namespace MongoDB.Driver.GridFS
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace MongoDB.Driver.GridFS
         public int? Skip
         {
             get { return _skip; }
-            set { _skip = value; }
+            set { _skip = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
         /// <summary>

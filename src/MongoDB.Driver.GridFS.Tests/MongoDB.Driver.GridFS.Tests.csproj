@@ -55,6 +55,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GridFSBucketOptionsTests.cs" />
+    <Compile Include="GridFSBucketTests.cs" />
+    <Compile Include="GridFSChunkExceptionTests.cs" />
+    <Compile Include="GridFSDownloadByNameOptionsTests.cs" />
+    <Compile Include="GridFSDownloadOptionsTests.cs" />
+    <Compile Include="GridFSExceptionTests.cs" />
+    <Compile Include="GridFSFileNotFoundExceptionTests.cs" />
+    <Compile Include="GridFSFilesCollectionDocumentTests.cs" />
+    <Compile Include="GridFSFindOptionsTests.cs" />
+    <Compile Include="GridFSMD5ExceptionTests.cs" />
+    <Compile Include="GridFSUploadOptionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="Specifications\gridfs\GridFSDeleteAsyncTest.cs" />
@@ -82,6 +93,10 @@
     <None Include="Specifications\gridfs\tests\upload.yml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
       <Name>MongoDB.Bson</Name>

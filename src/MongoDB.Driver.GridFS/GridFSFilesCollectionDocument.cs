@@ -46,6 +46,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="chunkSizeBytes">Size of the chunk.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <param name="extraElements">The extra elements.</param>
+        /// <param name="filename">The filename.</param>
         /// <param name="idAsBsonValue">The identifier.</param>
         /// <param name="length">The length.</param>
         /// <param name="md5">The MD5.</param>
@@ -57,6 +58,7 @@ namespace MongoDB.Driver.GridFS
             int chunkSizeBytes,
             string contentType,
             BsonDocument extraElements,
+            string filename,
             BsonValue idAsBsonValue,
             long length,
             string md5,
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.GridFS
             _chunkSizeBytes = chunkSizeBytes;
             _contentType = contentType; // can be null
             _extraElements = extraElements;
-            _filename = Filename;
+            _filename = filename;
             _id = idAsBsonValue;
             _length = length;
             _md5 = md5;

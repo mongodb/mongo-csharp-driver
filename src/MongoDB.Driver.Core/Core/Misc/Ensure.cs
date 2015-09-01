@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The value of the parameter.</returns>
         public static string IsNullOrNotEmpty(string value, string paramName)
         {
-            if (value != null && value != "")
+            if (value != null && value == "")
             {
                 throw new ArgumentException("Value cannot be empty.", paramName);
             }
