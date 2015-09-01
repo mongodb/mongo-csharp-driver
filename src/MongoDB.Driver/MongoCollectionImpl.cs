@@ -103,7 +103,7 @@ namespace MongoDB.Driver
                     MaxTime = options.MaxTime
                 };
 
-                await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperationAsync(operation, cancellationToken).ConfigureAwait(false);
 
                 var outputCollectionName = last.GetElement(0).Value.AsString;
 
@@ -118,7 +118,7 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct))).ConfigureAwait(false);
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct))).ConfigureAwait(false);
             }
             else
             {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver
                     MaxTime = options.MaxTime,
                     UseCursor = options.UseCursor
                 };
-                return await ExecuteReadOperation(aggregateOperation, cancellationToken).ConfigureAwait(false);
+                return await ExecuteReadOperationAsync(aggregateOperation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -158,7 +158,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteWriteOperationAsync(operation, cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
             catch (MongoBulkWriteOperationException ex)
@@ -182,7 +182,7 @@ namespace MongoDB.Driver
                 Skip = options.Skip
             };
 
-            return ExecuteReadOperation(operation, cancellationToken);
+            return ExecuteReadOperationAsync(operation, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken)
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime
             };
 
-            return ExecuteReadOperation(operation, cancellationToken);
+            return ExecuteReadOperationAsync(operation, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
@@ -234,7 +234,7 @@ namespace MongoDB.Driver
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
-            return ExecuteReadOperation(operation, cancellationToken);
+            return ExecuteReadOperationAsync(operation, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
@@ -256,7 +256,7 @@ namespace MongoDB.Driver
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken)
@@ -309,7 +309,7 @@ namespace MongoDB.Driver
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -340,7 +340,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                return await ExecuteReadOperation(operation, cancellationToken).ConfigureAwait(false);
+                return await ExecuteReadOperationAsync(operation, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -370,7 +370,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperationAsync(operation, cancellationToken).ConfigureAwait(false);
 
                 var findOperation = new FindOperation<TResult>(
                     outputCollectionNamespace,
@@ -382,7 +382,7 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                var deferredCursor = new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct));
+                var deferredCursor = new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct));
                 return await Task.FromResult(deferredCursor).ConfigureAwait(false);
             }
         }
@@ -483,12 +483,12 @@ namespace MongoDB.Driver
             }
         }
 
-        private Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        private Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
-            return ExecuteReadOperation(operation, _settings.ReadPreference, cancellationToken);
+            return ExecuteReadOperationAsync(operation, _settings.ReadPreference, cancellationToken);
         }
 
-        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
@@ -496,7 +496,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private async Task<TResult> ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
@@ -573,7 +573,7 @@ namespace MongoDB.Driver
                 });
 
                 var operation = new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings);
-                await _collection.ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
+                await _collection.ExecuteWriteOperationAsync(operation, cancellationToken).ConfigureAwait(false);
 
                 return requests.Select(x => x.GetIndexName());
             }
@@ -582,7 +582,7 @@ namespace MongoDB.Driver
             {
                 var operation = new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings);
 
-                return _collection.ExecuteWriteOperation(operation, cancellationToken);
+                return _collection.ExecuteWriteOperationAsync(operation, cancellationToken);
             }
 
             public override Task DropOneAsync(string name, CancellationToken cancellationToken)
@@ -595,13 +595,13 @@ namespace MongoDB.Driver
 
                 var operation = new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings);
 
-                return _collection.ExecuteWriteOperation(operation, cancellationToken);
+                return _collection.ExecuteWriteOperationAsync(operation, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 var op = new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings);
-                return _collection.ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
+                return _collection.ExecuteReadOperationAsync(op, ReadPreference.Primary, cancellationToken);
             }
         }
 

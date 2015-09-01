@@ -260,7 +260,7 @@ namespace MongoDB.Driver
             if (nextInputType != typeof(TOutput))
             {
                 var message = string.Format(
-                    "The output type to the last stage was expected to be {1}, but was {2}.",
+                    "The output type to the last stage was expected to be {0}, but was {1}.",
                     nextInputType,
                     stages.Last().OutputType);
                 throw new ArgumentException(message, "stages");

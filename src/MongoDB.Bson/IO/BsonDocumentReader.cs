@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ namespace MongoDB.Bson.IO
             var subType = binaryData.SubType;
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
-                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
                 throw new FormatException(message);
             }
 

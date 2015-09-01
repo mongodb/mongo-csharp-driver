@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Support
     internal static class TaskExtensionMethods
     {
         // static methods
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsageAnalyzers", "UseAsyncSuffix")]
         public static async Task WithTimeout(this Task task, TimeSpan timeout)
         {
             var source = new CancellationTokenSource();

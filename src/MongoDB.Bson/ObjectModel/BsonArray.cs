@@ -44,7 +44,9 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<bool> values)
+
             : this(0)
         {
             AddRange(values);
@@ -54,6 +56,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<BsonValue> values)
             : this(0)
         {
@@ -64,6 +67,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<DateTime> values)
             : this(0)
         {
@@ -74,6 +78,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<double> values)
             : this(0)
         {
@@ -84,6 +89,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<int> values)
             : this(0)
         {
@@ -94,6 +100,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<long> values)
             : this(0)
         {
@@ -104,6 +111,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<ObjectId> values)
             : this(0)
         {
@@ -114,6 +122,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable<string> values)
             : this(0)
         {
@@ -124,6 +133,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonArray(IEnumerable values)
             : this(0)
         {
@@ -222,7 +232,8 @@ namespace MongoDB.Bson
         public override BsonValue this[int index]
         {
             get { return _values[index]; }
-            set {
+            set
+            {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");

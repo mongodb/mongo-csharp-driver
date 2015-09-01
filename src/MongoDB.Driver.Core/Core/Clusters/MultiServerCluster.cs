@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                MonitorServers().ConfigureAwait(false);
+                MonitorServersAsync().ConfigureAwait(false);
                 // We lock here even though AddServer locks. Monitors
                 // are re-entrant such that this won't cause problems,
                 // but could prevent issues of conflicting reports
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private async Task MonitorServers()
+        private async Task MonitorServersAsync()
         {
             var monitorServersCancellationToken = _monitorServersCancellationTokenSource.Token;
             while (!monitorServersCancellationToken.IsCancellationRequested)

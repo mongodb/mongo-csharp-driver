@@ -375,7 +375,7 @@ namespace MongoDB.Bson.IO
             var subType = binaryData.SubType;
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
-                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
                 throw new FormatException(message);
             }
 
@@ -998,7 +998,7 @@ namespace MongoDB.Bson.IO
                     value = codeToken.StringValue;
                     return BsonType.JavaScript;
                 default:
-                    var message = string.Format("JSON reader expected ',' or '}' but found '{0}'.", codeToken.Lexeme);
+                    var message = string.Format("JSON reader expected ',' or '}}' but found '{0}'.", codeToken.Lexeme);
                     throw new FormatException(message);
             }
         }
@@ -1054,14 +1054,14 @@ namespace MongoDB.Bson.IO
                 }
                 else
                 {
-                    var message = string.Format("JSON reader expected an integer or a string for { $date : { $numberLong : ... } } but found a '{0}'.", valueToken.Lexeme);
+                    var message = string.Format("JSON reader expected an integer or a string for {{ $date : {{ $numberLong : ... }} }} but found a '{0}'.", valueToken.Lexeme);
                     throw new FormatException(message);
                 }
                 VerifyToken("}");
             }
             else
             {
-                var message = string.Format("JSON reader expected an ISO 8601 string, an integer, or { $numberLong : ... } for $date but found a '{0}'.", valueToken.Lexeme);
+                var message = string.Format("JSON reader expected an ISO 8601 string, an integer, or {{ $numberLong : ... }} for $date but found a '{0}'.", valueToken.Lexeme);
                 throw new FormatException(message);
             }
 

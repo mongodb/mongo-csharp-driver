@@ -541,7 +541,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool.</returns>
-        public static explicit operator bool(BsonValue value)
+        public static explicit operator bool (BsonValue value)
         {
             if (value == null)
             {
@@ -555,7 +555,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool?.</returns>
-        public static explicit operator bool?(BsonValue value)
+        public static explicit operator bool? (BsonValue value)
         {
             return (value == null) ? null : value.AsNullableBoolean;
         }
@@ -745,7 +745,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A byte[].</returns>
-        public static explicit operator byte[](BsonValue value)
+        public static explicit operator byte[] (BsonValue value)
         {
             return (value == null) ? null : value.AsByteArray;
         }
@@ -773,7 +773,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A DateTime?.</returns>
-        public static explicit operator DateTime?(BsonValue value)
+        public static explicit operator DateTime? (BsonValue value)
         {
             if (value != null && !((value is BsonDateTime) || (value is BsonNull)))
             {
@@ -787,7 +787,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double.</returns>
-        public static explicit operator double(BsonValue value)
+        public static explicit operator double (BsonValue value)
         {
             if (value == null)
             {
@@ -801,7 +801,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double?.</returns>
-        public static explicit operator double?(BsonValue value)
+        public static explicit operator double? (BsonValue value)
         {
             return (value == null) ? null : value.AsNullableDouble;
         }
@@ -825,7 +825,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A Guid?.</returns>
-        public static explicit operator Guid?(BsonValue value)
+        public static explicit operator Guid? (BsonValue value)
         {
             return (value == null) ? null : value.AsNullableGuid;
         }
@@ -835,7 +835,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int.</returns>
-        public static explicit operator int(BsonValue value)
+        public static explicit operator int (BsonValue value)
         {
             if (value == null)
             {
@@ -849,7 +849,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int?.</returns>
-        public static explicit operator int?(BsonValue value)
+        public static explicit operator int? (BsonValue value)
         {
             return value == null ? null : value.AsNullableInt32;
         }
@@ -859,7 +859,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long.</returns>
-        public static explicit operator long(BsonValue value)
+        public static explicit operator long (BsonValue value)
         {
             if (value == null)
             {
@@ -873,7 +873,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long?.</returns>
-        public static explicit operator long?(BsonValue value)
+        public static explicit operator long? (BsonValue value)
         {
             return (value == null) ? null : value.AsNullableInt64;
         }
@@ -897,7 +897,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An ObjectId?.</returns>
-        public static explicit operator ObjectId?(BsonValue value)
+        public static explicit operator ObjectId? (BsonValue value)
         {
             return (value == null) ? null : value.AsNullableObjectId;
         }
@@ -917,7 +917,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A string.</returns>
-        public static explicit operator string(BsonValue value)
+        public static explicit operator string (BsonValue value)
         {
             return (value == null) ? null : value.AsString;
         }
@@ -1134,19 +1134,13 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonValue and equal to this one.</returns>
-        public override bool Equals(object obj)
-        {
-            throw new BsonInternalException("A subclass of BsonValue did not override Equals.");
-        }
+        public abstract override bool Equals(object obj);
 
         /// <summary>
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode()
-        {
-            throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode.");
-        }
+        public abstract override int GetHashCode();
 
         /// <summary>
         /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).

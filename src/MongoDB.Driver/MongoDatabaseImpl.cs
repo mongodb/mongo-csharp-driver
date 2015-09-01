@@ -79,14 +79,14 @@ namespace MongoDB.Driver
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes
             };
 
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings);
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
             {
                 Filter = options == null ? null : options.Filter.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
             };
-            return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
+            return ExecuteReadOperationAsync(operation, ReadPreference.Primary, cancellationToken);
         }
 
         public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
                 DropTarget = options == null ? null : options.DropTarget
             };
 
-            return ExecuteWriteOperation(operation, cancellationToken);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -138,15 +138,15 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
-            return ExecuteReadOperation(operation, readPreference, cancellationToken);
+            return ExecuteReadOperationAsync(operation, readPreference, cancellationToken);
         }
 
-        private Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, CancellationToken cancellationToken)
+        private Task<T> ExecuteReadOperationAsync<T>(IReadOperation<T> operation, CancellationToken cancellationToken)
         {
-            return ExecuteReadOperation(operation, _settings.ReadPreference, cancellationToken);
+            return ExecuteReadOperationAsync(operation, _settings.ReadPreference, cancellationToken);
         }
 
-        private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<T> ExecuteReadOperationAsync<T>(IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
@@ -154,7 +154,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private async Task<T> ExecuteWriteOperation<T>(IWriteOperation<T> operation, CancellationToken cancellationToken)
+        private async Task<T> ExecuteWriteOperationAsync<T>(IWriteOperation<T> operation, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
             {

@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _openingEventHandler(new ConnectionPoolOpeningEvent(_serverId, _settings));
                 }
 
-                MaintainSize().ConfigureAwait(false);
+                MaintainSizeAsync().ConfigureAwait(false);
 
                 if (_openedEventHandler != null)
                 {
@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task MaintainSize()
+        private async Task MaintainSizeAsync()
         {
             var maintenanceCancellationToken = _maintenanceCancellationTokenSource.Token;
             while (!maintenanceCancellationToken.IsCancellationRequested)

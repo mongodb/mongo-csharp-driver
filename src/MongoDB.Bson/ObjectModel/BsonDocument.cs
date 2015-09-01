@@ -63,6 +63,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds one element.
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(BsonElement element)
         {
             Add(element);
@@ -72,6 +73,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(Dictionary<string, object> dictionary)
         {
             AddRange(dictionary);
@@ -83,6 +85,7 @@ namespace MongoDB.Bson
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
         {
             Add(dictionary, keys);
@@ -92,6 +95,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
         {
             AddRange(dictionary);
@@ -103,6 +107,7 @@ namespace MongoDB.Bson
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
         {
             Add(dictionary, keys);
@@ -112,6 +117,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IDictionary dictionary)
         {
             AddRange(dictionary);
@@ -123,6 +129,7 @@ namespace MongoDB.Bson
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IDictionary dictionary, IEnumerable keys)
         {
             Add(dictionary, keys);
@@ -132,6 +139,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IEnumerable<BsonElement> elements)
         {
             AddRange(elements);
@@ -142,6 +150,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(params BsonElement[] elements)
         {
             Add(elements);
@@ -152,6 +161,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(string name, BsonValue value)
         {
             Add(name, value);
@@ -271,7 +281,8 @@ namespace MongoDB.Bson
         public override BsonValue this[int index]
         {
             get { return _elements[index].Value; }
-            set {
+            set
+            {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
@@ -563,7 +574,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            
+
             if (condition)
             {
                 // don't check for null value unless condition is true

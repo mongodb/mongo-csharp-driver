@@ -130,7 +130,7 @@ namespace MongoDB.Driver.GridFS
                 WriteConcern = _bucket.Options.WriteConcern
             };
 
-            await operation.ExecuteAsync(_binding, cancellationToken);
+            await operation.ExecuteAsync(_binding, cancellationToken).ConfigureAwait(false);
         }
 
         public override async Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.GridFS
         {
             return GetCollection("files");
         }
-        
+
         private void ThrowIfAbortedClosedOrDisposed()
         {
             if (_aborted)

@@ -31,30 +31,14 @@ namespace MongoDB.Bson
     {
         // private static fields
         private static ObjectId __emptyInstance = default(ObjectId);
-        private static int __staticMachine;
-        private static short __staticPid;
-        private static int __staticIncrement; // high byte will be masked out when generating new ObjectId
+        private static int __staticMachine = (GetMachineHash() + AppDomain.CurrentDomain.Id) & 0x00ffffff;
+        private static short __staticPid = GetPid();
+        private static int __staticIncrement = (new Random()).Next();
 
         // private fields
         private int _a;
         private int _b;
         private int _c;
-
-        // static constructor
-        static ObjectId()
-        {
-            __staticMachine = (GetMachineHash() + AppDomain.CurrentDomain.Id) & 0x00ffffff; // add AppDomain Id to ensure uniqueness across AppDomains
-            __staticIncrement = (new Random()).Next();
-
-            try
-            {
-                __staticPid = (short)GetCurrentProcessId(); // use low order two bytes only
-            }
-            catch (SecurityException)
-            {
-                __staticPid = 0;
-            }
-        }
 
         // constructors
         /// <summary>
@@ -116,7 +100,7 @@ namespace MongoDB.Bson
             }
 
             _a = timestamp;
-            _b = (machine << 8)| (((int)pid >> 8) & 0xff);
+            _b = (machine << 8) | (((int)pid >> 8) & 0xff);
             _c = ((int)pid << 24) | increment;
         }
 
@@ -406,6 +390,18 @@ namespace MongoDB.Bson
         {
             var hostName = Environment.MachineName; // use instead of Dns.HostName so it will work offline
             return 0x00ffffff & hostName.GetHashCode(); // use first 3 bytes of hash
+        }
+
+        private static short GetPid()
+        {
+            try
+            {
+                return (short)GetCurrentProcessId(); // use low order two bytes only
+            }
+            catch (SecurityException)
+            {
+                return 0;
+            }
         }
 
         private static int GetTimestampFromDateTime(DateTime timestamp)

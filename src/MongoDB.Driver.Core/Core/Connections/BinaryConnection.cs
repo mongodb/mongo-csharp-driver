@@ -208,13 +208,13 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openedAtUtc = DateTime.UtcNow;
-                    _openTask = OpenAsyncHelper(cancellationToken);
+                    _openTask = OpenAsyncHelperAsync(cancellationToken);
                 }
                 return _openTask;
             }
         }
 
-        private async Task OpenAsyncHelper(CancellationToken cancellationToken)
+        private async Task OpenAsyncHelperAsync(CancellationToken cancellationToken)
         {
             if (_openingEventHandler != null)
             {

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq
             return new QueryableExecutionBuilder(provider, null, serializerRegistry).Visit(node);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsageAnalyzers", "AvoidAsyncSuffix")]
         public static Expression BuildAsync(Expression node, Expression provider, Expression cancellationToken, IBsonSerializerRegistry serializerRegistry)
         {
             return new QueryableExecutionBuilder(provider, cancellationToken, serializerRegistry).Visit(node);

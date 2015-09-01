@@ -122,16 +122,16 @@ namespace MongoDB.Driver.GridFS
                 messageEncoderSettings)
             {
                 Filter = filter,
-                Limit = -1                
+                Limit = -1
             };
 
             using (var cursor = await operation.ExecuteAsync(Binding, cancellationToken).ConfigureAwait(false))
             {
-                var documents = await cursor.ToListAsync();
+                var documents = await cursor.ToListAsync().ConfigureAwait(false);
                 if (documents.Count == 0)
                 {
 #pragma warning disable 618
-                   throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, n, "missing");
+                    throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, n, "missing");
 #pragma warning restore
                 }
 

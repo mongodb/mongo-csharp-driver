@@ -133,7 +133,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the type of the input.
         /// </summary>
-        Type IPipelineStageDefinition.InputType
+        public Type InputType
         {
             get { return typeof(TInput); }
         }
@@ -144,7 +144,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the type of the output.
         /// </summary>
-        Type IPipelineStageDefinition.OutputType
+        public Type OutputType
         {
             get { return typeof(TOutput); }
         }

@@ -390,6 +390,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the current state of this server (as of the last operation, not updated until another operation is performed).
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public virtual MongoServerState State
         {
             get
