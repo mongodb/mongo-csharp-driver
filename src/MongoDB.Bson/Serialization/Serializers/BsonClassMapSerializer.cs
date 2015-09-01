@@ -180,7 +180,14 @@ namespace MongoDB.Bson.Serialization
                     }
                     else
                     {
-                        DeserializeExtraElement(context, document, elementName, memberMap);
+                        if (document != null)
+                        {
+                            DeserializeExtraElementMember(context, document, elementName, memberMap);
+                        }
+                        else
+                        {
+                            DeserializeExtraElementValue(context, values, elementName, memberMap);
+                        }
                     }
                     memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                 }
@@ -194,7 +201,15 @@ namespace MongoDB.Bson.Serialization
 
                     if (extraElementsMemberMapIndex >= 0)
                     {
-                        DeserializeExtraElement(context, document, elementName, _classMap.ExtraElementsMemberMap);
+                        var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;
+                        if (document != null)
+                        {
+                            DeserializeExtraElementMember(context, document, elementName, extraElementsMemberMap);
+                        }
+                        else
+                        {
+                            DeserializeExtraElementValue(context, values, elementName, extraElementsMemberMap);
+                        }
                         memberMapBitArray[extraElementsMemberMapIndex >> 5] |= 1U << (extraElementsMemberMapIndex & 31);
                     }
                     else if (_classMap.IgnoreExtraElements)
@@ -435,7 +450,7 @@ namespace MongoDB.Bson.Serialization
             return (TClass)document;
         }
 
-        private void DeserializeExtraElement(
+        private void DeserializeExtraElementMember(
             BsonDeserializationContext context,
             object obj,
             string elementName,
@@ -451,6 +466,7 @@ namespace MongoDB.Bson.Serialization
                     extraElements = new BsonDocument();
                     extraElementsMemberMap.Setter(obj, extraElements);
                 }
+
                 var bsonValue = BsonValueSerializer.Instance.Deserialize(context);
                 extraElements[elementName] = bsonValue;
             }
@@ -469,6 +485,58 @@ namespace MongoDB.Bson.Serialization
                     }
                     extraElementsMemberMap.Setter(obj, extraElements);
                 }
+
+                var bsonValue = BsonValueSerializer.Instance.Deserialize(context);
+                extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
+            }
+        }
+
+        private void DeserializeExtraElementValue(
+            BsonDeserializationContext context,
+            Dictionary<string, object> values,
+            string elementName,
+            BsonMemberMap extraElementsMemberMap)
+        {
+            var bsonReader = context.Reader;
+
+            if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
+            {
+                BsonDocument extraElements;
+                object obj;
+                if (values.TryGetValue(extraElementsMemberMap.ElementName, out obj))
+                {
+                    extraElements = (BsonDocument)obj;
+                }
+                else
+                {
+                    extraElements = new BsonDocument();
+                    values.Add(extraElementsMemberMap.ElementName, extraElements);
+                }
+
+                var bsonValue = BsonValueSerializer.Instance.Deserialize(context);
+                extraElements[elementName] = bsonValue;
+            }
+            else
+            {
+                IDictionary<string, object> extraElements;
+                object obj;
+                if (values.TryGetValue(extraElementsMemberMap.ElementName, out obj))
+                {
+                    extraElements = (IDictionary<string, object>)obj;
+                }
+                else
+                {
+                    if (extraElementsMemberMap.MemberType == typeof(IDictionary<string, object>))
+                    {
+                        extraElements = new Dictionary<string, object>();
+                    }
+                    else
+                    {
+                        extraElements = (IDictionary<string, object>)Activator.CreateInstance(extraElementsMemberMap.MemberType);
+                    }
+                    values.Add(extraElementsMemberMap.ElementName, extraElements);
+                }
+
                 var bsonValue = BsonValueSerializer.Instance.Deserialize(context);
                 extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
             }
