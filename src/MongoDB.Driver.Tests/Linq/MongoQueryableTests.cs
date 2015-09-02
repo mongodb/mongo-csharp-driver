@@ -140,6 +140,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public void Distinct_followed_by_where()
         {
             var query = CreateQuery()
@@ -583,6 +584,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public void Select_method_with_predicated_any()
         {
             var query = CreateQuery()

@@ -844,6 +844,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_array_projection_complex()
         {
             var result = await Project(x => new { Result = x.G.Select(y => new { y.E.F, y.E.H }) });
