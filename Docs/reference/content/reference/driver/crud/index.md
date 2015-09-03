@@ -36,3 +36,17 @@ Animal
 ```
 
 The collection instance must be an [`IMongoCollection<Animal>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}).
+
+
+#### Working with Subclasses
+
+The [`OfType`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_OfType_1">}}) method applies a discriminating filter to all methods of an [`IMongoCollection<T>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}). For example, to work only with `Cats` from the "animals" collection:
+
+```csharp
+IMongoCollection<Animal> animals = db.GetCollection<Animal>("animals");
+
+IMongoCollection<Cat> cats = animals.OfType<Cat>();
+```
+
+{{% note class="warning" %}}It is imperative that the collection retrieved from the database instance be the root of the hierarchy. `db.GetCollection<Cat>("animals")` will NOT include the discriminator.{{% /note %}} 
+
