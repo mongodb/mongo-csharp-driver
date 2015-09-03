@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.ThenBy<int, int>(null, null));
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.ThenByDescending<int, int>(null, null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.ThenBy<int, int>(null, null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.ThenByDescending<int, int>(null, null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.ThenBy<object, object>(null, null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.ThenByDescending<object, object>(null, null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.ThenBy<object, object>(null, null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.ThenByDescending<object, object>(null, null));
         }
 
         public Expression Bind(PipelineExpression pipeline, PipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)

@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.GroupBy(null, null, (Func<int, IEnumerable<int>, int>)null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.GroupBy(null, null, (Expression<Func<int, IEnumerable<int>, int>>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.GroupBy(null, null, (Func<object, IEnumerable<object>, object>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.GroupBy(null, null, (Expression<Func<object, IEnumerable<object>, object>>)null));
         }
 
         public Expression Bind(PipelineExpression pipeline, PipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)

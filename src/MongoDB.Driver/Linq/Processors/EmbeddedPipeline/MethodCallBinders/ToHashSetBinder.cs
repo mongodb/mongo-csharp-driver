@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            yield return MethodHelper.GetMethodDefinition(() => MongoEnumerable.ToHashSet<int>(null));
+            yield return MethodHelper.GetMethodDefinition(() => MongoEnumerable.ToHashSet<object>(null));
         }
 
         public Expression Bind(PipelineExpression pipeline, EmbeddedPipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)

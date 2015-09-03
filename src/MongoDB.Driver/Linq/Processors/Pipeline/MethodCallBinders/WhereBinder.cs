@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.Where(null, (Func<int, bool>)null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.Where(null, (Expression<Func<int, bool>>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.Where(null, (Func<object, bool>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.Where(null, (Expression<Func<object, bool>>)null));
         }
 
         public Expression Bind(PipelineExpression pipeline, PipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)

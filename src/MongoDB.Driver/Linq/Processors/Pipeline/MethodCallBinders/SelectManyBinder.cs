@@ -27,10 +27,10 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.SelectMany(null, (Func<int, IEnumerable<int>>)null));
-            yield return MethodHelper.GetMethodDefinition(() => Enumerable.SelectMany(null, (Func<int, IEnumerable<int>>)null, (Func<int, int, int>)null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.SelectMany(null, (Expression<Func<int, IEnumerable<int>>>)null));
-            yield return MethodHelper.GetMethodDefinition(() => Queryable.SelectMany(null, (Expression<Func<int, IEnumerable<int>>>)null, (Expression<Func<int, int, int>>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.SelectMany(null, (Func<object, IEnumerable<object>>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.SelectMany(null, (Func<object, IEnumerable<object>>)null, (Func<object, object, object>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.SelectMany(null, (Expression<Func<object, IEnumerable<object>>>)null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.SelectMany(null, (Expression<Func<object, IEnumerable<object>>>)null, (Expression<Func<object, object, object>>)null));
         }
 
         public Expression Bind(PipelineExpression pipeline, PipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)
