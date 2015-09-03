@@ -162,8 +162,8 @@ namespace MongoDB.Driver
         /// <param name="second">The second pipeline.</param>
         public CombinedPipelineDefinition(PipelineDefinition<TInput, TIntermediateOutput> first, PipelineDefinition<TIntermediateOutput, TOutput> second)
         {
-            _first = Ensure.IsNotNull(first, "first");
-            _second = Ensure.IsNotNull(second, "second");
+            _first = Ensure.IsNotNull(first, nameof(first));
+            _second = Ensure.IsNotNull(second, nameof(second));
         }
 
         /// <summary>

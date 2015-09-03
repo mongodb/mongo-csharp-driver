@@ -13,14 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Clusters;
-
 namespace MongoDB.Driver
 {
     internal class OfTypeMongoCollection<TRootDocument, TDerivedDocument> : FilteredMongoCollectionBase<TDerivedDocument>
@@ -47,12 +39,12 @@ namespace MongoDB.Driver
 
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, UnfilteredCollection.WithReadPreference(readPreference), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, UnfilteredCollection.WithWriteConcern(writeConcern), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter);
         }
     }
 }

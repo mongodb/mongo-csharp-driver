@@ -26,29 +26,29 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly FilterDefinition<TDocument> _filter;
-        private readonly IMongoCollection<TDocument> _unfilteredCollection;
+        private readonly IMongoCollection<TDocument> _wrappedCollection;
 
         // constructors
-        public FilteredMongoCollectionBase(IMongoCollection<TDocument> unfilteredCollection, FilterDefinition<TDocument> filter)
+        public FilteredMongoCollectionBase(IMongoCollection<TDocument> wrappedCollection, FilterDefinition<TDocument> filter)
         {
-            _unfilteredCollection = unfilteredCollection;
+            _wrappedCollection = wrappedCollection;
             _filter = filter;
         }
 
         // public properties
         public override CollectionNamespace CollectionNamespace
         {
-            get { return _unfilteredCollection.CollectionNamespace; }
+            get { return _wrappedCollection.CollectionNamespace; }
         }
 
         public override IMongoDatabase Database
         {
-            get { return _unfilteredCollection.Database; }
+            get { return _wrappedCollection.Database; }
         }
 
         public override IBsonSerializer<TDocument> DocumentSerializer
         {
-            get { return _unfilteredCollection.DocumentSerializer; }
+            get { return _wrappedCollection.DocumentSerializer; }
         }
 
         public FilterDefinition<TDocument> Filter
@@ -58,18 +58,18 @@ namespace MongoDB.Driver
 
         public override IMongoIndexManager<TDocument> Indexes
         {
-            get { return _unfilteredCollection.Indexes; }
+            get { return _wrappedCollection.Indexes; }
         }
 
         public override MongoCollectionSettings Settings
         {
-            get { return _unfilteredCollection.Settings; }
+            get { return _wrappedCollection.Settings; }
         }
 
         // protected properties
-        protected IMongoCollection<TDocument> UnfilteredCollection
+        protected IMongoCollection<TDocument> WrappedCollection
         {
-            get { return _unfilteredCollection; }
+            get { return _wrappedCollection; }
         }
 
         // public methods
@@ -92,49 +92,49 @@ namespace MongoDB.Driver
 
             var optimizedPipeline = new OptimizingPipelineDefinition<TDocument, TResult>(combinedPipeline);
 
-            return _unfilteredCollection.AggregateAsync(optimizedPipeline, options, cancellationToken);
+            return _wrappedCollection.AggregateAsync(optimizedPipeline, options, cancellationToken);
         }
 
         public override Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.BulkWriteAsync(CombineModelFilters(requests), options, cancellationToken);
+            return _wrappedCollection.BulkWriteAsync(CombineModelFilters(requests), options, cancellationToken);
         }
 
         public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
+            return _wrappedCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.DistinctAsync(field, CombineFilters(filter), options, cancellationToken);
+            return _wrappedCollection.DistinctAsync(field, CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.FindAsync(CombineFilters(filter), options, cancellationToken);
+            return _wrappedCollection.FindAsync(CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.FindOneAndDeleteAsync(CombineFilters(filter), options, cancellationToken);
+            return _wrappedCollection.FindOneAndDeleteAsync(CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.FindOneAndReplaceAsync(CombineFilters(filter), replacement, options, cancellationToken);
+            return _wrappedCollection.FindOneAndReplaceAsync(CombineFilters(filter), replacement, options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _unfilteredCollection.FindOneAndUpdateAsync(CombineFilters(filter), update, options, cancellationToken);
+            return _wrappedCollection.FindOneAndUpdateAsync(CombineFilters(filter), update, options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             options = options ?? new MapReduceOptions<TDocument, TResult>();
             options.Filter = CombineFilters(options.Filter);
-            return _unfilteredCollection.MapReduceAsync(map, reduce, options, cancellationToken);
+            return _wrappedCollection.MapReduceAsync(map, reduce, options, cancellationToken);
         }
 
         // private methods

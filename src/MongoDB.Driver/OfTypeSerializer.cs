@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -41,18 +40,6 @@ namespace MongoDB.Driver
             _derivedDocumentSerializer.Serialize(context, args, value);
         }
 
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            BsonSerializationInfo serializationInfo;
-            if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
-            {
-                var message = string.Format("Unable to determine serialization info for {0}.", memberName);
-                throw new InvalidOperationException(message);
-            }
-
-            return serializationInfo;
-        }
-
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
             var documentSerializer = _derivedDocumentSerializer as IBsonDocumentSerializer;
@@ -65,5 +52,4 @@ namespace MongoDB.Driver
             return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
         }
     }
-
 }
