@@ -8,89 +8,23 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
-## What's New in the MongoDB .NET 2.0 Driver
+## What's New in the MongoDB .NET 2.1 Driver
 
-The 2.0 driver ships with a host of new features. The most notable are discussed below.
-
-
-## Async
-
-As has been requested for a while now, the driver now offers a full async stack. Since it uses Tasks, it is fully usable
-with async and await. 
-
-While we offer a mostly backwards-compatible sync API, it is calling into the async stack underneath. Until you are ready
-to move to async, you should measure against the 1.x versions to ensure performance regressions don't enter your codebase.
-
-All new applications should utilize the New API.
+The 2.1 driver ships with a number of new features. The most notable are discussed below.
 
 
-## New API
+## GridFS
 
-Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
-
-- Interfaces are used ([`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}), [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}), [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}})) to support easier testing.
-- A fluent Find API is available with full support for expression trees including projections.
-
-	``` csharp
-	var names = await db.GetCollection<Person>("people")
-		.Find(x => x.FirstName == "Jack")
-		.SortBy(x => x.Age)
-		.Project(x => x.FirstName + " " + x.LastName)
-		.ToListAsync();
-	```
-
-- A fluent Aggregation API is available with mostly-full support for expression trees.
-
-	``` csharp
-	var totalAgeByLastName = await db.GetCollection<Person>("people")
-		.Aggregate()
-		.Match(x => x.FirstName == "Jack")
-		.GroupBy(x => x.LastName, g => new { _id = g.Key, TotalAge = g.Sum(x => x.Age)})
-		.ToListAsync();
-	```
-
-- Support for dynamic.
-
-	``` csharp
-	var person = new ExpandoObject();
-	person.FirstName = "Jane";
-	person.Age = 12;
-	person.PetNames = new List<dynamic> { "Sherlock", "Watson" }
-	await db.GetCollection<dynamic>("people").InsertOneAsync(person);
-	```
+[CSHARP-1191](https://jira.mongodb.org/browse/CSHARP-1191) - GridFS support has been implemented.
 
 
-## Experimental Features
+## LINQ
 
-We've also include some experimental features which are subject to change. These are both based on the Listener API.
+[CSHARP-935](https://jira.mongodb.org/browse/CSHARP-935) LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.
 
-
-### Logging
-
-It is possible to see what is going on deep down in the driver by listening to core events. We've included a simple text logger as an example:
-	
-``` csharp
-var settings = new MongoClientSettings
-{
-	ClusterConfigurator = cb =>
-	{
-		var textWriter = TextWriter.Synchronized(new StreamWriter("mylogfile.txt"));
-		cb.AddListener(new LogListener(textWriter));
-	}
-};
-```
+Simply use the new [`AsQueryable`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1" >}}) method to work with LINQ.
 
 
-### Performance Counters
+## Eventing
 
-Windows Performance Counters can be enabled to track statistics like average message size, number of connections in the pool, etc...
-
-``` csharp
-var settings = new MongoClientSettings
-{
-	ClusterConfigurator = cb =>
-	{
-		cb.UsePeformanceCounters("MyApplicationName");
-	}
-};
-```
+Blurb on eventing once APM is pushed.

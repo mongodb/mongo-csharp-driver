@@ -53,6 +53,7 @@ let nuspecFiles =
     [ { File = buildDir @@ "MongoDB.Bson.nuspec"; Dependencies = []; Symbols = true; }
       { File = buildDir @@ "MongoDB.Driver.Core.nuspec"; Dependencies = ["MongoDB.Bson"]; Symbols = true; }
       { File = buildDir @@ "MongoDB.Driver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
+      { File = buildDir @@ "MongoDB.Driver.GridFS.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = true; }
       { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = true; }]
 
 let nuspecBuildFile = buildDir @@ "MongoDB.Driver-Build.nuspec"
@@ -210,6 +211,9 @@ Target "Zip" (fun _ ->
           binDir45 @@ "MongoDB.Driver.dll"
           binDir45 @@ "MongoDB.Driver.pdb"
           binDir45 @@ "MongoDB.Driver.xml"
+          binDir45 @@ "MongoDB.Driver.GridFS.dll"
+          binDir45 @@ "MongoDB.Driver.GridFS.pdb"
+          binDir45 @@ "MongoDB.Driver.GridFS.xml"
           binDir45 @@ "MongoDB.Driver.Legacy.dll"
           binDir45 @@ "MongoDB.Driver.Legacy.pdb"
           binDir45 @@ "MongoDB.Driver.Legacy.xml"
