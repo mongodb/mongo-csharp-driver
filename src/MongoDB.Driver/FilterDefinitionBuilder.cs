@@ -1598,17 +1598,25 @@ namespace MongoDB.Driver
             }
 
             var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerived));
-            var renderedDiscriminatorFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
+            if (discriminatorValue == null)
+            {
+                throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
+            }
+            if (discriminatorValue.IsBsonArray)
+            {
+                discriminatorValue = discriminatorValue.AsBsonArray.Last();
+            }
+            var renderedOfTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
 
             if (_derivedDocumentFilter == null)
             {
-                return renderedDiscriminatorFilter;
+                return renderedOfTypeFilter;
             }
 
             var derivedDocumentSerializer = serializerRegistry.GetSerializer<TDerived>();
             var renderedDerivedDocumentFilter = _derivedDocumentFilter.Render(derivedDocumentSerializer, serializerRegistry);
             var combinedFilter = Builders<TDerived>.Filter.And(
-                new BsonDocumentFilterDefinition<TDerived>(renderedDiscriminatorFilter),
+                new BsonDocumentFilterDefinition<TDerived>(renderedOfTypeFilter),
                 new BsonDocumentFilterDefinition<TDerived>(renderedDerivedDocumentFilter));
             return combinedFilter.Render(derivedDocumentSerializer, serializerRegistry);
         }

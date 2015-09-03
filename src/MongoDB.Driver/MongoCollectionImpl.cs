@@ -398,24 +398,9 @@ namespace MongoDB.Driver
             var ofTypeSerializer = new OfTypeSerializer<TDocument, TDerivedDocument>(derivedDocumentSerializer);
             var derivedDocumentCollection = new MongoCollectionImpl<TDerivedDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, ofTypeSerializer);
 
-            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
-            var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerivedDocument));
-            if (discriminator == null)
-            {
-                throw new NotSupportedException("OfType requires that the root document type have a discriminator.");
-            }
-
-            BsonValue filterValue;
-            if (discriminator.IsBsonArray)
-            {
-                filterValue = discriminator[discriminator.AsBsonArray.Count - 1];
-            }
-            else
-            {
-                filterValue = discriminator;
-            }
-            var filterDocument = new BsonDocument(discriminatorConvention.ElementName, filterValue);
-            var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(filterDocument);
+            var rootOfTypeFilter = Builders<TDocument>.Filter.OfType<TDerivedDocument>();
+            var renderedOfTypeFilter = rootOfTypeFilter.Render(_documentSerializer, _settings.SerializerRegistry);
+            var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(renderedOfTypeFilter);
 
             return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
         }
