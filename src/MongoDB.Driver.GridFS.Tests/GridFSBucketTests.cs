@@ -34,18 +34,21 @@ namespace MongoDB.Driver.GridFS.Tests
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
-            var options = new ImmutableGridFSBucketOptions();
+            var options = new GridFSBucketOptions();
 
             var result = new GridFSBucket(database, options);
 
             result.Database.Should().BeSameAs(database);
-            result.Options.Should().BeSameAs(options);
+            result.Options.BucketName.Should().Be(options.BucketName);
+            result.Options.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+            result.Options.ReadPreference.Should().Be(options.ReadPreference);
+            result.Options.WriteConcern.Should().Be(options.WriteConcern);
         }
 
         [Test]
         public void constructor_should_throw_when_database_is_null()
         {
-            var options = new ImmutableGridFSBucketOptions();
+            var options = new GridFSBucketOptions();
 
             Action action = () => new GridFSBucket(null, options);
 
@@ -214,12 +217,15 @@ namespace MongoDB.Driver.GridFS.Tests
         public void Options_get_should_return_the_expected_result()
         {
             var database = Substitute.For<IMongoDatabase>();
-            var options = new ImmutableGridFSBucketOptions();
+            var options = new GridFSBucketOptions();
             var subject = new GridFSBucket(database, options);
 
             var result = subject.Options;
 
-            result.Should().BeSameAs(options);
+            result.BucketName.Should().Be(options.BucketName);
+            result.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+            result.ReadPreference.Should().Be(options.ReadPreference);
+            result.WriteConcern.Should().Be(options.WriteConcern);
         }
 
         [Test]
@@ -306,7 +312,7 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         // private methods
-        private GridFSBucket CreateSubject(ImmutableGridFSBucketOptions options = null)
+        private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {
             var cluster = Substitute.For<ICluster>();
 

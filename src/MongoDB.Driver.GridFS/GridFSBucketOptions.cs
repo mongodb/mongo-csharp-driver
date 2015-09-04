@@ -43,6 +43,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="other">The other <see cref="GridFSBucketOptions"/> from which to copy the values.</param>
         public GridFSBucketOptions(GridFSBucketOptions other)
         {
+            Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
             _readPreference = other.ReadPreference;
@@ -55,6 +56,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="other">The other <see cref="ImmutableGridFSBucketOptions"/> from which to copy the values.</param>
         public GridFSBucketOptions(ImmutableGridFSBucketOptions other)
         {
+            Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
             _readPreference = other.ReadPreference;
@@ -117,16 +119,6 @@ namespace MongoDB.Driver.GridFS
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
-
-        // public methods
-        /// <summary>
-        /// Returns an immutable GridFSBucketOptions.
-        /// </summary>
-        /// <returns>An immutable GridFSBucketOptions.</returns>
-        public ImmutableGridFSBucketOptions ToImmutable()
-        {
-            return new ImmutableGridFSBucketOptions(_bucketName, _chunkSizeBytes, _readPreference, _writeConcern);
-        }
     }
 
     /// <summary>
@@ -149,19 +141,6 @@ namespace MongoDB.Driver.GridFS
         {
             get { return __defaults; }
         }
-
-        // static methods
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="GridFSBucketOptions"/> to <see cref="ImmutableGridFSBucketOptions"/>.
-        /// </summary>
-        /// <param name="mutable">The mutable options.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
-        public static implicit operator ImmutableGridFSBucketOptions(GridFSBucketOptions mutable)
-        {
-            return mutable.ToImmutable();
-        }
         #endregion
 
         // fields
@@ -181,22 +160,16 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImmutableGridFSBucketOptions"/> class.
+        /// Initializes a new instance of the <see cref="ImmutableGridFSBucketOptions" /> class.
         /// </summary>
-        /// <param name="bucketName">The bucket name.</param>
-        /// <param name="chunkSizeBytes">The chunk size bytes.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        public ImmutableGridFSBucketOptions(
-            string bucketName,
-            int chunkSizeBytes,
-            ReadPreference readPreference,
-            WriteConcern writeConcern)
+        /// <param name="other">The other <see cref="GridFSBucketOptions"/> from which to copy the values.</param>
+        public ImmutableGridFSBucketOptions(GridFSBucketOptions other)
         {
-            _bucketName = Ensure.IsNotNullOrEmpty(bucketName, nameof(bucketName));
-            _chunkSizeBytes = Ensure.IsGreaterThanOrEqualToZero(chunkSizeBytes, nameof(chunkSizeBytes));
-            _readPreference = readPreference;
-            _writeConcern = writeConcern;
+            Ensure.IsNotNull(other, nameof(other));
+            _bucketName = other.BucketName;
+            _chunkSizeBytes = other.ChunkSizeBytes;
+            _readPreference = other.ReadPreference;
+            _writeConcern = other.WriteConcern;
         }
 
         // properties
@@ -242,16 +215,6 @@ namespace MongoDB.Driver.GridFS
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
-        }
-
-        // public methods
-        /// <summary>
-        /// Converts this immutable instance of GridFSBucketOptions to a mutable instance.
-        /// </summary>
-        /// <returns>A mutable instance of the GridFSBucketOptions.</returns>
-        public GridFSBucketOptions ToMutable()
-        {
-            return new GridFSBucketOptions(this);
         }
     }
 }

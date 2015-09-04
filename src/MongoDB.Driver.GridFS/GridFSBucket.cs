@@ -43,10 +43,10 @@ namespace MongoDB.Driver.GridFS
 
         // constructors
         /// <inheritdoc />
-        public GridFSBucket(IMongoDatabase database, ImmutableGridFSBucketOptions options = null)
+        public GridFSBucket(IMongoDatabase database, GridFSBucketOptions options = null)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
-            _options = options ?? ImmutableGridFSBucketOptions.Defaults;
+            _options = options == null ? ImmutableGridFSBucketOptions.Defaults : new ImmutableGridFSBucketOptions(options);
 
             _cluster = database.Client.Cluster;
             _ensuredIndexes = 0;

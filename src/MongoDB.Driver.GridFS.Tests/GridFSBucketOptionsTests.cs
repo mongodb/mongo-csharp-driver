@@ -102,7 +102,7 @@ namespace MongoDB.Driver.GridFS.Tests
         public void constructor_with_immutable_other_should_initialize_instance()
         {
             var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
-            var other = mutable.ToImmutable();
+            var other = new ImmutableGridFSBucketOptions(mutable);
 
             var result = new GridFSBucketOptions(other);
 
@@ -157,19 +157,6 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void ToImmutable_should_return_expected_result()
-        {
-            var subject = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
-
-            var result = subject.ToImmutable();
-
-            result.BucketName.Should().Be(subject.BucketName);
-            result.ChunkSizeBytes.Should().Be(subject.ChunkSizeBytes);
-            result.ReadPreference.Should().Be(subject.ReadPreference);
-            result.WriteConcern.Should().Be(subject.WriteConcern);
-        }
-
-        [Test]
         public void WriteConcern_get_should_return_expected_result()
         {
             var subject = new GridFSBucketOptions { WriteConcern = WriteConcern.WMajority };
@@ -196,7 +183,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void BucketName_get_should_return_expected_result()
         {
-            var subject = new GridFSBucketOptions { BucketName = "bucket" }.ToImmutable();
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { BucketName = "bucket" });
 
             var result = subject.BucketName;
 
@@ -206,7 +193,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void ChunkSizeBytes_get_should_return_expected_result()
         {
-            var subject = new GridFSBucketOptions { ChunkSizeBytes = 123 }.ToImmutable();
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { ChunkSizeBytes = 123 });
 
             var result = subject.ChunkSizeBytes;
 
@@ -216,7 +203,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void constructor_with_arguments_should_initialize_instance()
         {
-            var result = new ImmutableGridFSBucketOptions("bucket", 123, ReadPreference.Secondary, WriteConcern.WMajority);
+            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+
+            var result = new ImmutableGridFSBucketOptions(mutable);
 
             result.BucketName.Should().Be("bucket");
             result.ChunkSizeBytes.Should().Be(123);
@@ -256,22 +245,9 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void implicit_conversion_from_mutable_should_return_expected_result()
-        {
-            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
-
-            var result = (ImmutableGridFSBucketOptions)mutable;
-
-            result.BucketName.Should().Be(mutable.BucketName);
-            result.ChunkSizeBytes.Should().Be(mutable.ChunkSizeBytes);
-            result.ReadPreference.Should().Be(mutable.ReadPreference);
-            result.WriteConcern.Should().Be(mutable.WriteConcern);
-        }
-
-        [Test]
         public void ReadPreference_get_should_return_expected_result()
         {
-            var subject = new GridFSBucketOptions { ReadPreference = ReadPreference.Secondary }.ToImmutable();
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { ReadPreference = ReadPreference.Secondary });
 
             var result = subject.ReadPreference;
 
@@ -279,22 +255,9 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void ToMutable_should_return_expected_result()
-        {
-            var subject = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority }.ToImmutable();
-
-            var result = subject.ToMutable();
-
-            result.BucketName.Should().Be(subject.BucketName);
-            result.ChunkSizeBytes.Should().Be(subject.ChunkSizeBytes);
-            result.ReadPreference.Should().Be(subject.ReadPreference);
-            result.WriteConcern.Should().Be(subject.WriteConcern);
-        }
-
-        [Test]
         public void WriteConcern_get_should_return_expected_result()
         {
-            var subject = new GridFSBucketOptions { WriteConcern = WriteConcern.WMajority }.ToImmutable();
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { WriteConcern = WriteConcern.WMajority });
 
             var result = subject.WriteConcern;
 
