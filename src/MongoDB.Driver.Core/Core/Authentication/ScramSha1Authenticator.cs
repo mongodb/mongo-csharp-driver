@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var proof = "p=" + Convert.ToBase64String(clientProof);
                 var clientFinalMessage = clientFinalMessageWithoutProof + "," + proof;
 
-                return new ClientLast(encoding.GetBytes(clientFinalMessage), Convert.ToBase64String(serverSignature));
+                return new ClientLast(encoding.GetBytes(clientFinalMessage), serverSignature);
             }
 
             private static byte[] XOR(byte[] a, byte[] b)
@@ -204,9 +204,9 @@ namespace MongoDB.Driver.Core.Authentication
         private class ClientLast : ISaslStep
         {
             private readonly byte[] _bytesToSendToServer;
-            private readonly string _serverSignature64;
+            private readonly byte[] _serverSignature64;
 
-            public ClientLast(byte[] bytesToSendToServer, string serverSignature64)
+            public ClientLast(byte[] bytesToSendToServer, byte[] serverSignature64)
             {
                 _bytesToSendToServer = bytesToSendToServer;
                 _serverSignature64 = serverSignature64;
@@ -226,15 +226,25 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 var encoding = Utf8Encodings.Strict;
                 var map = NVParser.Parse(encoding.GetString(bytesReceivedFromServer));
+                var serverSignature = Convert.FromBase64String(map['v']);
 
-                var serverSignature = map['v'];
-
-                if (_serverSignature64 != serverSignature)
+                if (!ConstantTimeEquals(_serverSignature64, serverSignature))
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, message: "Server signature was invalid.");
                 }
 
                 return new CompletedStep();
+            }
+
+            private bool ConstantTimeEquals(byte[] a, byte[] b)
+            {
+                var diff = a.Length ^ b.Length;
+                for (var i = 0; i < a.Length && i < b.Length; i++)
+                {
+                    diff |= a[i] ^ b[i];
+                }
+
+                return diff == 0;
             }
         }
 
