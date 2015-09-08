@@ -224,6 +224,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDistinct()
         {
             _collection.RemoveAll();
@@ -241,6 +242,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDistinct_Typed()
         {
             _collection.RemoveAll();
@@ -258,6 +260,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDistinctWithQuery()
         {
             _collection.RemoveAll();
@@ -276,6 +279,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDistinctWithQuery_Typed()
         {
             _collection.RemoveAll();
@@ -294,12 +298,14 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDropAllIndexes()
         {
             _collection.DropAllIndexes();
         }
 
         [Test]
+        [Ignore]
         public void TestDropIndex()
         {
             _collection.DropAllIndexes();
@@ -932,9 +938,9 @@ namespace MongoDB.DriverUnitTests
             if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen" , Type = "Office" });
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three" , Type = "Coffee" });
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two"   , Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
                 _collection.EnsureIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 // TODO: add Query builder support for 2dsphere queries
@@ -1760,6 +1766,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestTextIndex()
         {
             if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))

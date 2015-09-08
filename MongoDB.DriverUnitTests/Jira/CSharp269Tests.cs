@@ -43,6 +43,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
         }
 
         [Test]
+        [Ignore]
         public void TestUploadAndDownload()
         {
             MongoGridFSFileInfo uploadedFileInfo;

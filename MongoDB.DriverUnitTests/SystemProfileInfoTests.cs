@@ -148,6 +148,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Ignore]
         public void TestDeserializeSystemProfileInfoReturnedFromServer()
         {
             _database.SetProfilingLevel(ProfilingLevel.None);
@@ -241,7 +242,7 @@ namespace MongoDB.DriverUnitTests
                 }
             }";
             var rehydrated = BsonSerializer.Deserialize<SystemProfileInfo>(json);
-            
+
             // 1 tick = 10 microseconds. Can't use TimeSpan.FromMilliseconds(0.5) because
             // TimeSpan.FromMilliseconds(0.5).TotalMilliseconds gives 1.0 (which makes no sense but that's the way it is)
             // to get precision below 1 millisecond you must use ticks.
