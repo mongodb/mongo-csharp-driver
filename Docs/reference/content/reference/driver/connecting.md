@@ -76,6 +76,10 @@ var settings = new MongoClientSettings { ReplicaSetName = "rs0" };
 var client = new MongoClient(settings);
 ```
 
+### Low-Level Customization
+
+There are a number of settings that are not configurable directly from [`MongoClientSettings`]({{< apiref "T_MongoDB_Driver_MongoClientSettings" >}}). These settings are able to be configured through the [`ClusterConfigurator`]({{< apiref "P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator" >}}) property which provides a [`ClusterBuilder`]({{< apiref "T_MongoDB_Driver_Core_Configuration_ClusterBuilder" >}}) to manipulate. An example of these is adding a logger using the [eventing infrastructure]({{< relref "reference\driver_core\events.md" >}}).
+
 ### Re-use
 
 It is recommended to store a [`MongoClient`]({{< apiref "T_MongoDB_Driver_MongoClient" >}}) instance in a global place, either as a static variable or in an IoC container with a singleton lifetime. 
