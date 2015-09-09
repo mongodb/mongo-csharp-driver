@@ -25,6 +25,8 @@
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.XML" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.GridFS.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.GridFS.xml" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Legacy.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Legacy.xml" />
     </DocumentationSources>
