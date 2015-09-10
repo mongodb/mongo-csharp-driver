@@ -53,6 +53,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public async Task Should_translate_absolute_value()
+        {
+            var result = await Project(x => new { Result = Math.Abs(x.C.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$abs\": \"$C.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(11);
+        }
+
+        [Test]
         public async Task Should_translate_add()
         {
             var result = await Project(x => new { Result = x.C.E.F + x.C.E.H });

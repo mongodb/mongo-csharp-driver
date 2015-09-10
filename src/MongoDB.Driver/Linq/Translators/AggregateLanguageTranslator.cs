@@ -256,41 +256,48 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonValue TranslateMethodCall(MethodCallExpression node)
         {
             BsonValue result;
-            if (node.Object == null
-                && node.Method.DeclaringType == typeof(string)
-                && TryTranslateStaticStringMethodCall(node, out result))
-            {
-                return result;
-            }
 
-            if (node.Object != null
-                && node.Object.Type == typeof(string)
-                && TryTranslateStringMethodCall(node, out result))
+            if (node.Object == null)
             {
-                return result;
-            }
+                if (node.Method.DeclaringType == typeof(string)
+                    && TryTranslateStaticStringMethodCall(node, out result))
+                {
+                    return result;
+                }
 
-            if (node.Object != null
-                && node.Object.Type.IsGenericType
-                && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
-                && TryTranslateHashSetMethodCall(node, out result))
-            {
-                return result;
+                if (node.Method.DeclaringType == typeof(Math)
+                    && TryTranslateStaticMathMethodCall(node, out result))
+                {
+                    return result;
+                }
             }
-
-            if (node.Object != null
-                && node.Method.Name == "CompareTo"
-                && (node.Object.Type.ImplementsInterface(typeof(IComparable<>))
-                    || node.Object.Type.ImplementsInterface(typeof(IComparable))))
+            else
             {
-                return new BsonDocument("$cmp", new BsonArray(new[] { TranslateValue(node.Object), TranslateValue(node.Arguments[0]) }));
-            }
+                if (node.Object.Type == typeof(string)
+                    && TryTranslateStringMethodCall(node, out result))
+                {
+                    return result;
+                }
 
-            if (node.Object != null
-                && node.Method.Name == "Equals"
-                && node.Arguments.Count == 1)
-            {
-                return new BsonDocument("$eq", new BsonArray(new[] { TranslateValue(node.Object), TranslateValue(node.Arguments[0]) }));
+                if (node.Object.Type.IsGenericType
+                    && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
+                    && TryTranslateHashSetMethodCall(node, out result))
+                {
+                    return result;
+                }
+
+                if (node.Method.Name == "CompareTo"
+                    && (node.Object.Type.ImplementsInterface(typeof(IComparable<>))
+                        || node.Object.Type.ImplementsInterface(typeof(IComparable))))
+                {
+                    return new BsonDocument("$cmp", new BsonArray(new[] { TranslateValue(node.Object), TranslateValue(node.Arguments[0]) }));
+                }
+
+                if (node.Method.Name == "Equals"
+                    && node.Arguments.Count == 1)
+                {
+                    return new BsonDocument("$eq", new BsonArray(new[] { TranslateValue(node.Object), TranslateValue(node.Arguments[0]) }));
+                }
             }
 
             var message = string.Format("{0} of type {1} is not supported in the expression tree {2}.",
@@ -582,6 +589,20 @@ namespace MongoDB.Driver.Linq.Translators
                             TranslateValue(node.Object),
                             TranslateValue(node.Arguments[0])
                         }));
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            switch (node.Method.Name)
+            {
+                case "Abs":
+                    var value = TranslateValue(node.Arguments[0]);
+                    result = new BsonDocument("$abs", value);
                     return true;
             }
 
