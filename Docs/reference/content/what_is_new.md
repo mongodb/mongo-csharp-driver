@@ -23,8 +23,3 @@ The 2.1 driver ships with a number of new features. The most notable are discuss
 [CSHARP-935](https://jira.mongodb.org/browse/CSHARP-935) LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.
 
 Simply use the new [`AsQueryable`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1" >}}) method to work with LINQ.
-
-
-## Eventing
-
-Blurb on eventing once APM is pushed.

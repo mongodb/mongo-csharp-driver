@@ -33,11 +33,6 @@ Notable new features are listed below. For a full list, see the full list of JIR
 Simply use the new [`AsQueryable`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1" >}}) method to work with LINQ.
 
 
-### Eventing
-
-Blurb on eventing once APM is pushed.
-
-
 ## Upgrading
 
 There are no known backwards breaking changes in this release.
