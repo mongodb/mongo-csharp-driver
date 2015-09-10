@@ -321,10 +321,10 @@ var models = new WriteModel<BsonDocument>[]
 };
 
 // 1. Ordered bulk operation - order of operation is guaranteed
-await collection.BulkWrite(models);
+await collection.BulkWriteAsync(models);
 
 // 2. Unordered bulk operation - no guarantee of order of operation
-await collection.BulkWrite(models, new BulkWriteOptions { IsOrdered = false });
+await collection.BulkWriteAsync(models, new BulkWriteOptions { IsOrdered = false });
 ```
 
 {{% note class="important" %}}Use of the bulkWrite methods is not recommended when connected to pre-2.6 MongoDB servers, as this was the first server version to support bulk write commands for insert, update, and delete in a way that allows the driver to implement the correct semantics for BulkWriteResult and BulkWriteException. The methods will still work for pre-2.6 servers, but performance will suffer, as each write operation has to be executed one at a time.{{% /note %}}

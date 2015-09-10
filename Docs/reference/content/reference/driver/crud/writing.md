@@ -189,20 +189,53 @@ For Replacing and Updating, `IsUpsert` can be specified such that, if the docume
 
 ## Bulk Writes
 
-There are two types of bulk operations:
+The [`BulkWriteAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync" >}}) method takes a variable number of [`WriteModel<>`]({{< apiref "T_MongoDB_Driver_WriteModel_1" >}}) instances and sends them to the server in the fewest possible number of batches. The size of a batch is limited by the maximum document size and each batch must consist of the same kind of write operations (i.e. deletes, inserts or updates).
 
-1. **Ordered bulk operations.**
-  
-  Executes all the operations in order and errors out on the first error.
-
-1. **Unordered bulk operations.**
-  
-  Executes all the operations and reports any errors. Unordered bulk operations do not guarantee the order of execution.
-
-Let’s look at two simple examples using ordered and unordered operations:
+For example, to run two delete operations with one call to the server:
 
 ```csharp
+var models = new WriteModel<BsonDocument>[] 
+{
+  new DeleteManyModel<BsonDocument>("{ x: 10 }"), // delete all documents where x == 10
+  new DeleteOneModel<BsonDocument>("{ x: 11 }") // delete 1 document where x == 11
+};
 
+await collection.BulkWriteAsync(models);
+```
+
+However, providing one insert and one delete would result in each getting sent in a different call to the server:
+
+```csharp
+var models = new WriteModel<BsonDocument>[] 
+{
+  new InsertOneModel<BsonDocument>("{ _id: 1}"),
+  new DeleteOneModel<BsonDocument>("{ x: 11 }") // delete 1 document where x == 11
+};
+
+await collection.BulkWriteAsync(models); // will send one batch with the insert and one with the delete
+```
+
+
+### Write Models
+
+There are 6 types of write models:
+
+1. [`InsertOneModel`]({{< apiref "T_MongoDB_Driver_InsertOneModel_1" >}})
+1. [`DeleteOneModel`]({{< apiref "T_MongoDB_Driver_DeleteOneModel_1" >}})
+1. [`DeleteManyModel`]({{< apiref "T_MongoDB_Driver_DeleteManyModel_1" >}})
+1. [`UpdateOneModel`]({{< apiref "T_MongoDB_Driver_UpdateOneModel_1" >}}) 
+1. [`UpdateManyModelModel`]({{< apiref "T_MongoDB_Driver_UpdateManyModel_1" >}})
+1. [`ReplaceOneModel`]({{< apiref "T_MongoDB_Driver_ReplaceOneModel_1" >}})
+
+
+### Ordered and Unordered
+
+Bulk writes can be ordered or unordered. The default is ordered.
+
+1. Ordered bulk writes execute all the operations in order and error out on the first error. 
+1. Unordered bulk writes execute all the operations and report any errors at the end. Because the writes are unordered, the driver and/or server may re-order the operations in order to gain better performance.
+
+```csharp
 var models = new WriteModel<BsonDocument>[] 
 {
   new InsertOneModel<BsonDocument>(new BsonDocument("_id", 4)),
@@ -218,10 +251,10 @@ var models = new WriteModel<BsonDocument>[]
 };
 
 // 1. Ordered bulk operation - order of operation is guaranteed
-await collection.BulkWrite(models);
+await collection.BulkWriteAsync(models);
 
 // 2. Unordered bulk operation - no guarantee of order of operation
-await collection.BulkWrite(models, new BulkWriteOptions { IsOrdered = false });
+await collection.BulkWriteAsync(models, new BulkWriteOptions { IsOrdered = false });
 ```
 
-{{% note class="important" %}}Use of the bulkWrite methods is not recommended when connected to pre-2.6 MongoDB servers, as this was the first server version to support bulk write commands for insert, update, and delete in a way that allows the driver to implement the correct semantics for BulkWriteResult and BulkWriteException. The methods will still work for pre-2.6 servers, but performance will suffer, as each write operation has to be executed one at a time.{{% /note %}}
+{{% note class="important" %}}Use of the bulk write methods is not recommended when connected to pre-2.6 MongoDB servers, as this was the first server version to support bulk write commands for insert, update, and delete in a way that allows the driver to implement the correct semantics for BulkWriteResult and BulkWriteException. The methods will still work for pre-2.6 servers, but performance will suffer, as each write operation has to be executed one at a time.{{% /note %}}
