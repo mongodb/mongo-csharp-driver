@@ -213,6 +213,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_concatArrays()
+        {
+            var result = await Project(x => new { Result = x.M.Concat(x.L) });
+
+            result.Projection.Should().Be("{ Result: { \"$concatArrays\": [\"$M\", \"$L\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(2, 4, 5, 1, 3, 5);
+        }
+
+        [Test]
         public async Task Should_translate_condition()
         {
             var result = await Project(x => new { Result = x.A == "funny" ? "a" : "b" });

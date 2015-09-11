@@ -736,6 +736,15 @@ See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#t
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#array-expressions" >}}) for more information on each operator.
 
+#### $concatArrays
+
+```csharp
+p => p.FavoriteNumbers.Concat(new [] { 1, 2, 3 })
+```
+```json
+{ $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
+```
+
 #### $size
 
 ```csharp

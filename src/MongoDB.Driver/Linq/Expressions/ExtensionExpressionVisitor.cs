@@ -35,6 +35,13 @@ namespace MongoDB.Driver.Linq.Expressions
             return node;
         }
 
+        protected internal virtual Expression VisitConcat(ConcatExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Other));
+        }
+
         protected internal virtual Expression VisitCorrelated(CorrelatedExpression node)
         {
             return node.Update(Visit(node.Expression));

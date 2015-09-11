@@ -17,8 +17,10 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal enum ExtensionExpressionType
     {
-        // Sequence
         Pipeline,
+
+        // Sequence
+        Concat,
         Distinct,
         Except,
         GroupBy,

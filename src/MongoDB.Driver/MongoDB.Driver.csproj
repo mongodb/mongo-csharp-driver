@@ -87,6 +87,7 @@
     <Compile Include="Linq\Expressions\AccumulatorType.cs" />
     <Compile Include="Linq\Expressions\CollectionExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedExpression.cs" />
+    <Compile Include="Linq\Expressions\ConcatExpression.cs" />
     <Compile Include="Linq\Expressions\DistinctExpression.cs" />
     <Compile Include="Linq\Expressions\DocumentExpression.cs" />
     <Compile Include="Linq\Expressions\ExpressionReplacer.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBindingContext.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ToHashSetBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\UnionBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\IntersectBinder.cs" />

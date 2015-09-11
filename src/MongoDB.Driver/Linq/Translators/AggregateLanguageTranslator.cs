@@ -102,6 +102,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             case ExtensionExpressionType.Accumulator:
                                 return TranslateAccumulator((AccumulatorExpression)node);
+                            case ExtensionExpressionType.Concat:
+                                return TranslateConcat((ConcatExpression)node);
                             case ExtensionExpressionType.Except:
                                 return TranslateExcept((ExceptExpression)node);
                             case ExtensionExpressionType.FieldAsDocument:
@@ -172,6 +174,18 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonValue TranslateArrayLength(Expression node)
         {
             return new BsonDocument("$size", TranslateValue(((UnaryExpression)node).Operand));
+        }
+
+        private BsonValue TranslateConcat(ConcatExpression node)
+        {
+            var first = TranslateValue(node.Source);
+            var second = TranslateValue(node.Other);
+
+            return new BsonDocument("$concatArrays", new BsonArray
+            {
+                first,
+                second
+            });
         }
 
         private BsonValue TranslateConditional(ConditionalExpression node)
