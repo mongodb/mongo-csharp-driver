@@ -616,6 +616,15 @@ p => p.Age - 2;
 { $subtract: [ '$Age', 2 ] }
 ```
 
+#### $trunc
+
+```csharp
+p => Math.Truncate(p.Age);
+```
+```json
+{ $trunc: "$Age" }
+```
+
 
 ### String Expressions
 

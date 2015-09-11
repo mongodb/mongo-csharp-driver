@@ -53,7 +53,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public async Task Should_translate_absolute_value()
+        [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_abs()
         {
             var result = await Project(x => new { Result = Math.Abs(x.C.E.F) });
 
@@ -159,6 +160,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
         public async Task Should_translate_ceil()
         {
             var result = await Project(x => new { Result = Math.Ceiling(x.U) });
@@ -291,6 +293,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
         public async Task Should_translate_floor()
         {
             var result = await Project(x => new { Result = Math.Floor(x.U) });
@@ -669,6 +672,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$setUnion\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
 
             result.Value.Result.Should().BeEquivalentTo("it", "icky", "not in here");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_trunc()
+        {
+            var result = await Project(x => new { Result = Math.Truncate(x.U) });
+
+            result.Projection.Should().Be("{ Result: { \"$trunc\": \"$U\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(1);
         }
 
         [Test]
