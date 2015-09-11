@@ -294,6 +294,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_exp()
+        {
+            var result = await Project(x => new { Result = Math.Exp(x.C.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$exp\": [\"$C.E.F\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(59874.1417151978, 5);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
         public async Task Should_translate_floor()
         {
             var result = await Project(x => new { Result = Math.Floor(x.U) });

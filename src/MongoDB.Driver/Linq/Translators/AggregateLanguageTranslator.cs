@@ -606,6 +606,12 @@ namespace MongoDB.Driver.Linq.Translators
                 case "Ceiling":
                     result = new BsonDocument("$ceil", TranslateValue(node.Arguments[0]));
                     return true;
+                case "Exp":
+                    result = new BsonDocument("$exp", new BsonArray
+                    {
+                        TranslateValue(node.Arguments[0])
+                    });
+                    return true;
                 case "Floor":
                     result = new BsonDocument("$floor", TranslateValue(node.Arguments[0]));
                     return true;

@@ -580,6 +580,15 @@ p => p.Age / 2;
 { $divide: [ '$Age', 2 ] }
 ```
 
+#### $exp
+
+```csharp
+p => Math.Exp(p.Age);
+```
+```json
+{ $exp: ["$Age"] }
+```
+
 #### $floor
 
 ```csharp
