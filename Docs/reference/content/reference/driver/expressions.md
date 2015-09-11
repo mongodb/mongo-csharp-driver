@@ -589,6 +589,15 @@ p => Math.Floor(p.Age);
 { $floor: "$Age" }
 ```
 
+#### $log
+
+```csharp
+p => Math.Log(p.Age, 10);
+```
+```json
+{ $log: ["$Age", 10] }
+```
+
 #### $mod
 
 ```csharp
