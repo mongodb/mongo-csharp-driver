@@ -531,6 +531,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_pow()
+        {
+            var result = await Project(x => new { Result = Math.Pow(x.C.E.F, 5) });
+
+            result.Projection.Should().Be("{ Result: { \"$pow\": [\"$C.E.F\", 5.0] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(161051);
+        }
+
+        [Test]
         public async Task Should_translate_second()
         {
             var result = await Project(x => new { Result = x.J.Second });

@@ -598,50 +598,49 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
-            BsonValue value;
             switch (node.Method.Name)
             {
                 case "Abs":
-                    value = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$abs", value);
+                    result = new BsonDocument("$abs", TranslateValue(node.Arguments[0]));
                     return true;
                 case "Ceiling":
-                    value = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$ceil", value);
+                    result = new BsonDocument("$ceil", TranslateValue(node.Arguments[0]));
                     return true;
                 case "Floor":
-                    value = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$floor", value);
+                    result = new BsonDocument("$floor", TranslateValue(node.Arguments[0]));
                     return true;
                 case "Log":
-                    value = TranslateValue(node.Arguments[0]);
                     if (node.Arguments.Count == 2)
                     {
-                        var @base = TranslateValue(node.Arguments[1]);
                         result = new BsonDocument("$log", new BsonArray
                         {
-                            value,
-                            @base
+                            TranslateValue(node.Arguments[0]),
+                            TranslateValue(node.Arguments[1])
                         });
                     }
                     else
                     {
                         result = new BsonDocument("$ln", new BsonArray
                         {
-                            value
+                            TranslateValue(node.Arguments[0])
                         });
                     }
                     return true;
                 case "Log10":
-                    value = TranslateValue(node.Arguments[0]);
                     result = new BsonDocument("$log10", new BsonArray
                     {
-                        value
+                        TranslateValue(node.Arguments[0])
+                    });
+                    return true;
+                case "Pow":
+                    result = new BsonDocument("$pow", new BsonArray
+                    {
+                        TranslateValue(node.Arguments[0]),
+                        TranslateValue(node.Arguments[1])
                     });
                     return true;
                 case "Truncate":
-                    value = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$trunc", value);
+                    result = new BsonDocument("$trunc", TranslateValue(node.Arguments[0]));
                     return true;
             }
 
