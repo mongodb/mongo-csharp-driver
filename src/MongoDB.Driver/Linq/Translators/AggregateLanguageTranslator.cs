@@ -397,7 +397,8 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result) ||
                 TryTranslateMaxResultOperator(node, out result) ||
-                TryTranslateMinResultOperator(node, out result))
+                TryTranslateMinResultOperator(node, out result) ||
+                TryTranslateSumResultOperator(node, out result))
             {
                 return result;
             }
@@ -786,6 +787,19 @@ namespace MongoDB.Driver.Linq.Translators
                     break;
             }
 
+            return false;
+        }
+
+        private bool TryTranslateSumResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as SumResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$sum", TranslateValue(node.Source));
+                return true;
+            }
+
+            result = null;
             return false;
         }
 

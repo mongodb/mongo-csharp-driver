@@ -788,6 +788,15 @@ p => p.FavoriteNumbers.Count();
 { $size: '$FavoriteNumbers' }
 ```
 
+#### $sum
+
+```csharp
+p => p.FavoriteNumbers.Sum()
+```
+```json
+{ $sum: '$FavoriteNumbers' }
+```
+
 ### Variable Expressions
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#variable-expressions" >}}) for more information on each operator.

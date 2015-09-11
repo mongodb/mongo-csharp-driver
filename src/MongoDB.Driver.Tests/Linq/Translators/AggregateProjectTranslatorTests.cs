@@ -949,6 +949,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_sum()
+        {
+            var result = await Project(x => new { Result = x.M.Sum() });
+
+            result.Projection.Should().Be("{ Result: { \"$sum\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(11);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_sum_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.Sum(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$sum\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(88);
+        }
+
+        [Test]
         public async Task Should_translate_to_lower()
         {
             var result = await Project(x => new { Result = x.B.ToLower() });
