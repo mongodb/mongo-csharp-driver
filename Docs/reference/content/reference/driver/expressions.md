@@ -562,6 +562,15 @@ p => p.Age + 2;
 { $add: [ '$Age', 2 ] }
 ```
 
+#### $ceil
+
+```csharp
+p => Math.Ceiling(p.Age);
+```
+```json
+{ $ceil: "$Age" }
+```
+
 #### $subtract
 
 ```csharp

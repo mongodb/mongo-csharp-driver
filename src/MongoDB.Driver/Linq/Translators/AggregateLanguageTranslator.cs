@@ -598,11 +598,16 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
+            BsonValue value;
             switch (node.Method.Name)
             {
                 case "Abs":
-                    var value = TranslateValue(node.Arguments[0]);
+                    value = TranslateValue(node.Arguments[0]);
                     result = new BsonDocument("$abs", value);
+                    return true;
+                case "Ceiling":
+                    value = TranslateValue(node.Arguments[0]);
+                    result = new BsonDocument("$ceil", value);
                     return true;
             }
 

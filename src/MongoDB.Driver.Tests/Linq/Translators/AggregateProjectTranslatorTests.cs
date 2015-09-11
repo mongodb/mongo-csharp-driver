@@ -159,6 +159,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public async Task Should_translate_ceil()
+        {
+            var result = await Project(x => new { Result = Math.Ceiling(x.U) });
+
+            result.Projection.Should().Be("{ Result: { \"$ceil\": \"$U\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(2);
+        }
+
+        [Test]
         public async Task Should_translate_coalesce()
         {
             var result = await Project(x => new { Result = x.A ?? "funny" });

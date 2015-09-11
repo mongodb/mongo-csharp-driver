@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests.Linq
                 M = new[] { 3, 5, 6 },
                 O = new List<long> { 100, 200, 300 },
                 P = 1.1,
-                U = 1.234565723762724332233489m
+                U = -1.234565723762724332233489m
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }

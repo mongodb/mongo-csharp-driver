@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id : 1, Sum : { \"$sum\" : \"$U\" } }");
 
-            result.Value.Sum.Should().Be(2.46913144038016m);
+            result.Value.Sum.Should().Be(-0.00000000714529169165701m);
         }
 
         private async Task<ProjectedResult<TResult>> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)
