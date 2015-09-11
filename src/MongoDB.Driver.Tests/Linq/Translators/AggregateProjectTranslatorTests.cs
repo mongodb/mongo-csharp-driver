@@ -291,6 +291,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public async Task Should_translate_floor()
+        {
+            var result = await Project(x => new { Result = Math.Floor(x.U) });
+
+            result.Projection.Should().Be("{ Result: { \"$floor\": \"$U\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(1);
+        }
+
+        [Test]
         public async Task Should_translate_greater_than()
         {
             var result = await Project(x => new { Result = x.C.E.F > 5 });

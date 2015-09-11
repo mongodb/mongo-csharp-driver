@@ -571,13 +571,31 @@ p => Math.Ceiling(p.Age);
 { $ceil: "$Age" }
 ```
 
-#### $subtract
+#### $divide
 
 ```csharp
-p => p.Age - 2;
+p => p.Age / 2;
 ```
 ```json
-{ $subtract: [ '$Age', 2 ] }
+{ $divide: [ '$Age', 2 ] }
+```
+
+#### $floor
+
+```csharp
+p => Math.Floor(p.Age);
+```
+```json
+{ $floor: "$Age" }
+```
+
+#### $mod
+
+```csharp
+p => p.Age % 2;
+```
+```json
+{ $mod: [ '$Age', 2 ] }
 ```
 
 #### $multiply
@@ -589,23 +607,15 @@ p => p.Age * 2;
 { $multiply: [ '$Age', 2 ] }
 ```
 
-#### $divide
+#### $subtract
 
 ```csharp
-p => p.Age / 2;
+p => p.Age - 2;
 ```
 ```json
-{ $divide: [ '$Age', 2 ] }
+{ $subtract: [ '$Age', 2 ] }
 ```
 
-#### $mod
-
-```csharp
-p => p.Age % 2;
-```
-```json
-{ $mod: [ '$Age', 2 ] }
-```
 
 ### String Expressions
 

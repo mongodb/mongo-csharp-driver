@@ -609,6 +609,10 @@ namespace MongoDB.Driver.Linq.Translators
                     value = TranslateValue(node.Arguments[0]);
                     result = new BsonDocument("$ceil", value);
                     return true;
+                case "Floor":
+                    value = TranslateValue(node.Arguments[0]);
+                    result = new BsonDocument("$floor", value);
+                    return true;
             }
 
             return false;
