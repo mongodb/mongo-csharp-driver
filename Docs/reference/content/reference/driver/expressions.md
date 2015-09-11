@@ -788,6 +788,21 @@ p => p.FavoriteNumbers.Count();
 { $size: '$FavoriteNumbers' }
 ```
 
+#### $slice
+
+```csharp
+p => p.FavoriteNumbers.Take(2)
+```
+```json
+{ $slice: ['$FavoriteNumbers', 2] }
+```
+```csharp
+p => p.FavoriteNumbers.Skip(3).Take(2)
+```
+```json
+{ $slice: ['$FavoriteNumbers', 3, 2] }
+```
+
 #### $sum
 
 ```csharp

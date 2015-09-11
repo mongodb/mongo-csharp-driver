@@ -950,6 +950,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_slice_with_2_arguments()
+        {
+            var result = await Project(x => new { Result = x.M.Take(2) });
+
+            result.Projection.Should().Be("{ Result: { \"$slice\": [\"$M\", 2] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(2, 4);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_slice_with_3_arguments()
+        {
+            var result = await Project(x => new { Result = x.M.Skip(1).Take(2) });
+
+            result.Projection.Should().Be("{ Result: { \"$slice\": [\"$M\", 1, 2] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(4, 5);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
         public async Task Should_translate_sum()
         {
             var result = await Project(x => new { Result = x.M.Sum() });

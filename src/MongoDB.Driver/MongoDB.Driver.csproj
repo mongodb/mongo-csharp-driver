@@ -148,6 +148,8 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBindingContext.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\SkipBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\TakeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ToHashSetBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\UnionBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\IntersectBinder.cs" />

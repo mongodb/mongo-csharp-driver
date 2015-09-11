@@ -118,6 +118,10 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslatePipeline((PipelineExpression)node);
                             case ExtensionExpressionType.Select:
                                 return TranslateSelect((SelectExpression)node);
+                            case ExtensionExpressionType.Skip:
+                                return TranslateSkip((SkipExpression)node);
+                            case ExtensionExpressionType.Take:
+                                return TranslateTake((TakeExpression)node);
                             case ExtensionExpressionType.Union:
                                 return TranslateUnion((UnionExpression)node);
                             case ExtensionExpressionType.Where:
@@ -424,6 +428,31 @@ namespace MongoDB.Driver.Linq.Translators
                 { "as", node.ItemName },
                 { "in", inValue}
             });
+        }
+
+        private BsonValue TranslateSkip(SkipExpression node)
+        {
+            var message = "$project or $group only supports Skip when immediately followed by a Take.";
+            throw new NotSupportedException(message);
+        }
+
+        private BsonValue TranslateTake(TakeExpression node)
+        {
+            var arguments = new BsonArray();
+            var skipNode = node.Source as SkipExpression;
+            if (skipNode != null)
+            {
+                arguments.Add(TranslateValue(skipNode.Source));
+                arguments.Add(TranslateValue(skipNode.Count));
+            }
+            else
+            {
+                arguments.Add(TranslateValue(node.Source));
+            }
+
+            arguments.Add(TranslateValue(node.Count));
+
+            return new BsonDocument("$slice", arguments);
         }
 
         private BsonValue TranslateUnion(UnionExpression node)
