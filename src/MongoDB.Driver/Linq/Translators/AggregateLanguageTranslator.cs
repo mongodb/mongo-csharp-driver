@@ -395,7 +395,8 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateAllResultOperator(node, out result) ||
                 TryTranslateAnyResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
-                TryTranslateCountResultOperator(node, out result))
+                TryTranslateCountResultOperator(node, out result) ||
+                TryTranslateMinResultOperator(node, out result))
             {
                 return result;
             }
@@ -620,6 +621,19 @@ namespace MongoDB.Driver.Linq.Translators
                     return true;
             }
 
+            return false;
+        }
+
+        private bool TryTranslateMinResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as MinResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$min", TranslateValue(node.Source));
+                return true;
+            }
+
+            result = null;
             return false;
         }
 

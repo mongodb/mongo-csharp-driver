@@ -475,6 +475,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_min()
+        {
+            var result = await Project(x => new { Result = x.M.Min() });
+
+            result.Projection.Should().Be("{ Result: { \"$min\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(2);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_min_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.Min(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$min\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(33);
+        }
+
+        [Test]
         public async Task Should_translate_minute()
         {
             var result = await Project(x => new { Result = x.J.Minute });
