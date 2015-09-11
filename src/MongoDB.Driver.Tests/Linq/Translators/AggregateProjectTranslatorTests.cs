@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ Result: { \"$avg\": \"$M\" }, _id: 0 }");
 
-            result.Value.Result.Should().BeApproximately(3.66666667, 5);
+            result.Value.Result.Should().BeApproximately(3.66666667, .0001);
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ Result: { \"$divide\": [{ \"$divide\": [\"$_id\", \"$C.E.F\"] }, \"$C.E.H\"] }, _id: 0 }");
 
-            result.Value.Result.Should().BeApproximately(0.04, 3);
+            result.Value.Result.Should().BeApproximately(0.04, .01);
         }
 
         [Test]
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ Result: { \"$exp\": [\"$C.E.F\"] }, _id: 0 }");
 
-            result.Value.Result.Should().BeApproximately(59874.1417151978, 5);
+            result.Value.Result.Should().BeApproximately(59874.1417151978, .0001);
         }
 
         [Test]
@@ -417,7 +417,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ Result: { \"$ln\": [\"$C.E.F\"] }, _id: 0 }");
 
-            result.Value.Result.Should().BeApproximately(2.39789527279837, 5);
+            result.Value.Result.Should().BeApproximately(2.39789527279837, .0001);
         }
 
         [Test]
@@ -439,7 +439,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ Result: { \"$log10\": [\"$C.E.F\"] }, _id: 0 }");
 
-            result.Value.Result.Should().BeApproximately(1.0413928515823, 5);
+            result.Value.Result.Should().BeApproximately(1.0413928515823, .0001);
         }
 
         [Test]
