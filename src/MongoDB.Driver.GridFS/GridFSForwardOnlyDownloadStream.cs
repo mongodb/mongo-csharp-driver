@@ -47,9 +47,9 @@ namespace MongoDB.Driver.GridFS
         public GridFSForwardOnlyDownloadStream(
             GridFSBucket bucket,
             IReadBinding binding,
-            GridFSFilesCollectionDocument filesCollectionDocument,
+            GridFSFileInfo fileInfo,
             bool checkMD5)
-            : base(bucket, binding, filesCollectionDocument)
+            : base(bucket, binding, fileInfo)
         {
             _checkMD5 = checkMD5;
             if (_checkMD5)
@@ -57,12 +57,12 @@ namespace MongoDB.Driver.GridFS
                 _md5 = MD5.Create();
             }
 
-            _lastChunkNumber = (int)((filesCollectionDocument.Length - 1) / filesCollectionDocument.ChunkSizeBytes);
-            _lastChunkSize = (int)(filesCollectionDocument.Length % filesCollectionDocument.ChunkSizeBytes);
+            _lastChunkNumber = (int)((fileInfo.Length - 1) / fileInfo.ChunkSizeBytes);
+            _lastChunkSize = (int)(fileInfo.Length % fileInfo.ChunkSizeBytes);
 
             if (_lastChunkSize == 0)
             {
-                _lastChunkSize = filesCollectionDocument.ChunkSizeBytes;
+                _lastChunkSize = fileInfo.ChunkSizeBytes;
             }
         }
 
@@ -91,14 +91,14 @@ namespace MongoDB.Driver.GridFS
             {
                 _closed = true;
 
-                if (_checkMD5 && _position == FilesCollectionDocument.Length)
+                if (_checkMD5 && _position == FileInfo.Length)
                 {
                     _md5.TransformFinalBlock(new byte[0], 0, 0);
                     var md5 = BsonUtils.ToHexString(_md5.Hash);
-                    if (!md5.Equals(FilesCollectionDocument.MD5, StringComparison.OrdinalIgnoreCase))
+                    if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                     {
 #pragma warning disable 618
-                        throw new GridFSMD5Exception(FilesCollectionDocument.IdAsBsonValue);
+                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
 #pragma warning restore
                     }
                 }
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.GridFS
             ThrowIfClosedOrDisposed();
 
             var bytesRead = 0;
-            while (count > 0 && _position < FilesCollectionDocument.Length)
+            while (count > 0 && _position < FileInfo.Length)
             {
                 var segment = await GetSegmentAsync(cancellationToken).ConfigureAwait(false);
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.GridFS
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
 #pragma warning disable 618
-            var filter = new BsonDocument("files_id", FilesCollectionDocument.IdAsBsonValue);
+            var filter = new BsonDocument("files_id", FileInfo.IdAsBsonValue);
 #pragma warning restore
             var sort = new BsonDocument("n", 1);
 
@@ -199,14 +199,14 @@ namespace MongoDB.Driver.GridFS
             if (!hasMore)
             {
 #pragma warning disable 618
-                throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, _nextChunkNumber, "missing");
+                throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "missing");
 #pragma warning restore
             }
 
             _batch = _cursor.Current.ToList();
             if (previousBatch != null)
             {
-                _batchPosition += previousBatch.Count * FilesCollectionDocument.ChunkSizeBytes; ;
+                _batchPosition += previousBatch.Count * FileInfo.ChunkSizeBytes; ;
             }
 
             var lastChunkInBatch = _batch.Last();
@@ -223,16 +223,16 @@ namespace MongoDB.Driver.GridFS
                 if (n != _nextChunkNumber)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, _nextChunkNumber, "missing");
+                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "missing");
 #pragma warning restore
                 }
                 _nextChunkNumber++;
 
-                var expectedChunkSize = n == _lastChunkNumber ? _lastChunkSize : FilesCollectionDocument.ChunkSizeBytes;
+                var expectedChunkSize = n == _lastChunkNumber ? _lastChunkSize : FileInfo.ChunkSizeBytes;
                 if (bytes.Length != expectedChunkSize)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, _nextChunkNumber, "the wrong size");
+                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "the wrong size");
 #pragma warning restore
                 }
 
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.GridFS
 
         private async Task<ArraySegment<byte>> GetSegmentAsync(CancellationToken cancellationToken)
         {
-            var batchIndex = (int)((_position - _batchPosition) / FilesCollectionDocument.ChunkSizeBytes);
+            var batchIndex = (int)((_position - _batchPosition) / FileInfo.ChunkSizeBytes);
 
             if (_cursor == null)
             {
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.GridFS
             }
 
             var bytes = _batch[batchIndex]["data"].AsBsonBinaryData.Bytes;
-            var segmentOffset = (int)(_position % FilesCollectionDocument.ChunkSizeBytes);
+            var segmentOffset = (int)(_position % FileInfo.ChunkSizeBytes);
             var segmentCount = bytes.Length - segmentOffset;
             return new ArraySegment<byte>(bytes, segmentOffset, segmentCount);
         }

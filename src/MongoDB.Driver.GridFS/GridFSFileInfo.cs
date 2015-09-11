@@ -17,14 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
     /// Represents a GridFS files collection document.
     /// </summary>
-    public class GridFSFilesCollectionDocument
+    public class GridFSFileInfo
     {
         // fields
         private readonly IList<string> _aliases;
@@ -40,7 +42,7 @@ namespace MongoDB.Driver.GridFS
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSFilesCollectionDocument" /> class.
+        /// Initializes a new instance of the <see cref="GridFSFileInfo" /> class.
         /// </summary>
         /// <param name="aliases">The aliases.</param>
         /// <param name="chunkSizeBytes">Size of the chunk.</param>
@@ -53,7 +55,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="metadata">The metadata.</param>
         /// <param name="uploadDateTime">The upload date time.</param>
         [BsonConstructor]
-        public GridFSFilesCollectionDocument(
+        public GridFSFileInfo(
             IEnumerable<string> aliases,
             int chunkSizeBytes,
             string contentType,

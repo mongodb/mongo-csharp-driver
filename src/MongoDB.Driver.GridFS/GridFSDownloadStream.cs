@@ -31,7 +31,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The files collection document.
         /// </value>
-        public abstract GridFSFilesCollectionDocument FilesCollectionDocument { get; }
+        public abstract GridFSFileInfo FileInfo { get; }
 
         // public methods
         /// <summary>

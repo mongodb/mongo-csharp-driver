@@ -27,7 +27,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.GridFS.Tests
 {
     [TestFixture]
-    public class GridFSFilesCollectionDocumentTests
+    public class GridFSFileInfoTests
     {
         [Test]
         public void Aliases_get_should_return_the_expected_result()
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.GridFS.Tests
             var metadata = new BsonDocument();
             var uploadDateTime = DateTime.UtcNow;
 
-            var result = new GridFSFilesCollectionDocument(
+            var result = new GridFSFileInfo(
                 aliases,
                 chunkSizeBytes,
                 contentType,
@@ -378,7 +378,7 @@ namespace MongoDB.Driver.GridFS.Tests
             };
         }
 
-        private GridFSFilesCollectionDocument CreateSubject(
+        private GridFSFileInfo CreateSubject(
              IEnumerable<string> aliases = null,
             int? chunkSizeBytes = null,
             string contentType = null,
@@ -390,7 +390,7 @@ namespace MongoDB.Driver.GridFS.Tests
             BsonDocument metadata = null,
             DateTime? uploadDateTime = null)
         {
-            return new GridFSFilesCollectionDocument(
+            return new GridFSFileInfo(
                 aliases,
                 chunkSizeBytes ?? 255 * 1024,
                 contentType,
@@ -403,9 +403,9 @@ namespace MongoDB.Driver.GridFS.Tests
                 uploadDateTime ?? DateTime.UtcNow);
         }
 
-        private GridFSFilesCollectionDocument DeserializeFilesCollectionDocument(BsonDocument document)
+        private GridFSFileInfo DeserializeFilesCollectionDocument(BsonDocument document)
         {
-            return BsonSerializer.Deserialize<GridFSFilesCollectionDocument>(document);
+            return BsonSerializer.Deserialize<GridFSFileInfo>(document);
         }
     }
 }

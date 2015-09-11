@@ -51,7 +51,7 @@
     <Compile Include="GridFSDownloadStreamBase.cs" />
     <Compile Include="GridFSException.cs" />
     <Compile Include="GridFSFileNotFoundException.cs" />
-    <Compile Include="GridFSFilesCollectionDocument.cs" />
+    <Compile Include="GridFSFileInfo.cs" />
     <Compile Include="GridFSBucket.cs" />
     <Compile Include="GridFSBucketOptions.cs" />
     <Compile Include="GridFSFindOptions.cs" />

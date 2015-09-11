@@ -113,8 +113,8 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
-                return await DownloadAsBytesHelperAsync(binding, filesCollectionDocument, options, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -150,27 +150,27 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
-                await DownloadToStreamHelperAsync(binding, filesCollectionDocument, destination, options, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc />
-        public async Task<IAsyncCursor<GridFSFilesCollectionDocument>> FindAsync(FilterDefinition<GridFSFilesCollectionDocument> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<GridFSFileInfo>> FindAsync(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new GridFSFindOptions();
 
             var filesCollectionNamespace = GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var filesCollectionDocumentSerializer = serializerRegistry.GetSerializer<GridFSFilesCollectionDocument>();
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var renderedFilter = filter.Render(filesCollectionDocumentSerializer, serializerRegistry);
-            var renderedSort = options.Sort == null ? null : options.Sort.Render(filesCollectionDocumentSerializer, serializerRegistry);
+            var renderedFilter = filter.Render(fileInfoSerializer, serializerRegistry);
+            var renderedSort = options.Sort == null ? null : options.Sort.Render(fileInfoSerializer, serializerRegistry);
 
-            var operation = new FindOperation<GridFSFilesCollectionDocument>(
+            var operation = new FindOperation<GridFSFileInfo>(
                 filesCollectionNamespace,
-                filesCollectionDocumentSerializer,
+                fileInfoSerializer,
                 messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
@@ -216,8 +216,8 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
-                return CreateDownloadStream(binding.Fork(), filesCollectionDocument, options);
+                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                return CreateDownloadStream(binding.Fork(), fileInfo, options);
             }
         }
 
@@ -345,7 +345,7 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        private GridFSDownloadStream CreateDownloadStream(IReadBindingHandle binding, GridFSFilesCollectionDocument filesCollectionDocument, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private GridFSDownloadStream CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
             var seekable = options.Seekable ?? false;
@@ -356,11 +356,11 @@ namespace MongoDB.Driver.GridFS
 
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream(this, binding, filesCollectionDocument);
+                return new GridFSSeekableDownloadStream(this, binding, fileInfo);
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream(this, binding, filesCollectionDocument, checkMD5);
+                return new GridFSForwardOnlyDownloadStream(this, binding, fileInfo, checkMD5);
             }
         }
 
@@ -406,33 +406,33 @@ namespace MongoDB.Driver.GridFS
         {
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                return await DownloadAsBytesHelperAsync(binding, filesCollectionDocument, options, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<byte[]> DownloadAsBytesHelperAsync(IReadBindingHandle binding, GridFSFilesCollectionDocument filesCollectionDocument, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<byte[]> DownloadAsBytesHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (filesCollectionDocument.Length > int.MaxValue)
+            if (fileInfo.Length > int.MaxValue)
             {
                 throw new NotSupportedException("GridFS stored file is too large to be returned as a byte array.");
             }
 
-            using (var destination = new MemoryStream((int)filesCollectionDocument.Length))
+            using (var destination = new MemoryStream((int)fileInfo.Length))
             {
-                await DownloadToStreamHelperAsync(binding, filesCollectionDocument, destination, options, cancellationToken).ConfigureAwait(false);
+                await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
                 return destination.GetBuffer();
             }
         }
 
-        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFilesCollectionDocument filesCollectionDocument, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
 
-            using (var source = new GridFSForwardOnlyDownloadStream(this, binding.Fork(), filesCollectionDocument, checkMD5))
+            using (var source = new GridFSForwardOnlyDownloadStream(this, binding.Fork(), fileInfo, checkMD5))
             {
                 var count = source.Length;
-                var buffer = new byte[filesCollectionDocument.ChunkSizeBytes];
+                var buffer = new byte[fileInfo.ChunkSizeBytes];
 
                 while (count > 0)
                 {
@@ -450,8 +450,8 @@ namespace MongoDB.Driver.GridFS
         {
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                await DownloadToStreamHelperAsync(binding, filesCollectionDocument, destination, options, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -476,17 +476,17 @@ namespace MongoDB.Driver.GridFS
             return new CollectionNamespace(_database.DatabaseNamespace, _options.BucketName + ".chunks");
         }
 
-        private async Task<GridFSFilesCollectionDocument> GetFilesCollectionDocumentAsync(IReadBindingHandle binding, BsonValue id, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo> GetFileInfoAsync(IReadBindingHandle binding, BsonValue id, CancellationToken cancellationToken)
         {
             var filesCollectionNamespace = GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var filesCollectionDocumentSerializer = serializerRegistry.GetSerializer<GridFSFilesCollectionDocument>();
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var filter = new BsonDocument("_id", id);
 
-            var operation = new FindOperation<GridFSFilesCollectionDocument>(
+            var operation = new FindOperation<GridFSFileInfo>(
                 filesCollectionNamespace,
-                filesCollectionDocumentSerializer,
+                fileInfoSerializer,
                 messageEncoderSettings)
             {
                 Filter = filter,
@@ -495,30 +495,30 @@ namespace MongoDB.Driver.GridFS
 
             using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocuments = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-                var filesCollectionDocument = filesCollectionDocuments.FirstOrDefault();
-                if (filesCollectionDocument == null)
+                var fileInfoList = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                var fileInfo = fileInfoList.FirstOrDefault();
+                if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(id);
                 }
-                return filesCollectionDocument;
+                return fileInfo;
             }
         }
 
-        private async Task<GridFSFilesCollectionDocument> GetFilesCollectionDocumentByNameAsync(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo> GetFileInfoByNameAsync(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
         {
             var collectionNamespace = GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var filesCollectionDocumentSerializer = serializerRegistry.GetSerializer<GridFSFilesCollectionDocument>();
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var filter = new BsonDocument("filename", filename);
             var skip = revision >= 0 ? revision : -revision - 1;
             var limit = 1;
             var sort = new BsonDocument("uploadDate", revision >= 0 ? 1 : -1);
 
-            var operation = new FindOperation<GridFSFilesCollectionDocument>(
+            var operation = new FindOperation<GridFSFileInfo>(
                 collectionNamespace,
-                filesCollectionDocumentSerializer,
+                fileInfoSerializer,
                 messageEncoderSettings)
             {
                 Filter = filter,
@@ -529,13 +529,13 @@ namespace MongoDB.Driver.GridFS
 
             using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocuments = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-                var filesCollectionDocument = filesCollectionDocuments.FirstOrDefault();
-                if (filesCollectionDocument == null)
+                var fileInfoList = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                var fileInfo = fileInfoList.FirstOrDefault();
+                if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(filename, revision);
                 }
-                return filesCollectionDocument;
+                return fileInfo;
             }
         }
 
@@ -602,8 +602,8 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDocument = await GetFilesCollectionDocumentAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                return CreateDownloadStream(binding.Fork(), filesCollectionDocument, options, cancellationToken);
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
             }
         }
 

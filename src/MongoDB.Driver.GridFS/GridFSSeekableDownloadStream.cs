@@ -39,8 +39,8 @@ namespace MongoDB.Driver.GridFS
         public GridFSSeekableDownloadStream(
             GridFSBucket bucket,
             IReadBinding binding,
-            GridFSFilesCollectionDocument filesCollectionDocument)
-            : base(bucket, binding, filesCollectionDocument)
+            GridFSFileInfo fileInfo)
+            : base(bucket, binding, fileInfo)
         {
         }
 
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.GridFS
             ThrowIfClosedOrDisposed();
 
             var bytesRead = 0;
-            while (count > 0 && _position < FilesCollectionDocument.Length)
+            while (count > 0 && _position < FileInfo.Length)
             {
                 var segment = await GetSegmentAsync(cancellationToken).ConfigureAwait(false);
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.GridFS
 #pragma warning disable 618
             var filter = new BsonDocument
             {
-                { "files_id", FilesCollectionDocument.IdAsBsonValue },
+                { "files_id", FileInfo.IdAsBsonValue },
                 { "n", n }
             };
 #pragma warning restore
@@ -131,20 +131,20 @@ namespace MongoDB.Driver.GridFS
                 if (documents.Count == 0)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, n, "missing");
+                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, n, "missing");
 #pragma warning restore
                 }
 
                 var document = documents[0];
                 var data = document["data"].AsBsonBinaryData.Bytes;
 
-                var chunkSizeBytes = FilesCollectionDocument.ChunkSizeBytes;
+                var chunkSizeBytes = FileInfo.ChunkSizeBytes;
                 var lastChunk = 0;
-                var expectedChunkSize = n == lastChunk ? FilesCollectionDocument.Length % chunkSizeBytes : chunkSizeBytes;
+                var expectedChunkSize = n == lastChunk ? FileInfo.Length % chunkSizeBytes : chunkSizeBytes;
                 if (data.Length != expectedChunkSize)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FilesCollectionDocument.IdAsBsonValue, n, "the wrong size");
+                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, n, "the wrong size");
 #pragma warning restore
                 }
 
@@ -155,13 +155,13 @@ namespace MongoDB.Driver.GridFS
 
         private async Task<ArraySegment<byte>> GetSegmentAsync(CancellationToken cancellationToken)
         {
-            var n = _position / FilesCollectionDocument.ChunkSizeBytes;
+            var n = _position / FileInfo.ChunkSizeBytes;
             if (_n != n)
             {
                 await GetChunkAsync(n, cancellationToken).ConfigureAwait(false);
             }
 
-            var segmentOffset = (int)(_position % FilesCollectionDocument.ChunkSizeBytes);
+            var segmentOffset = (int)(_position % FileInfo.ChunkSizeBytes);
             var segmentCount = _chunk.Length - segmentOffset;
 
             return new ArraySegment<byte>(_chunk, segmentOffset, segmentCount);

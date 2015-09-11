@@ -28,17 +28,17 @@ namespace MongoDB.Driver.GridFS
         private readonly GridFSBucket _bucket;
         private bool _closed;
         private bool _disposed;
-        private readonly GridFSFilesCollectionDocument _filesCollectionDocument;
+        private readonly GridFSFileInfo _fileInfo;
 
         // constructors
         protected GridFSDownloadStreamBase(
             GridFSBucket bucket,
             IReadBinding binding,
-            GridFSFilesCollectionDocument filesCollectionDocument)
+            GridFSFileInfo fileInfo)
         {
             _bucket = bucket;
             _binding = binding;
-            _filesCollectionDocument = filesCollectionDocument;
+            _fileInfo = fileInfo;
         }
 
         // public properties
@@ -52,14 +52,14 @@ namespace MongoDB.Driver.GridFS
             get { return false; }
         }
 
-        public override GridFSFilesCollectionDocument FilesCollectionDocument
+        public override GridFSFileInfo FileInfo
         {
-            get { return _filesCollectionDocument; }
+            get { return _fileInfo; }
         }
 
         public override long Length
         {
-            get { return _filesCollectionDocument.Length; }
+            get { return _fileInfo.Length; }
         }
 
         // protected properties

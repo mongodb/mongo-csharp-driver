@@ -62,7 +62,7 @@
     <Compile Include="GridFSDownloadOptionsTests.cs" />
     <Compile Include="GridFSExceptionTests.cs" />
     <Compile Include="GridFSFileNotFoundExceptionTests.cs" />
-    <Compile Include="GridFSFilesCollectionDocumentTests.cs" />
+    <Compile Include="GridFSFileInfoTests.cs" />
     <Compile Include="GridFSFindOptionsTests.cs" />
     <Compile Include="GridFSMD5ExceptionTests.cs" />
     <Compile Include="GridFSUploadOptionsTests.cs" />

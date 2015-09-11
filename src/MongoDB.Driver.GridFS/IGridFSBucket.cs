@@ -97,7 +97,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor of files collection documents.</returns>
-        Task<IAsyncCursor<GridFSFilesCollectionDocument>> FindAsync(FilterDefinition<GridFSFilesCollectionDocument> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<GridFSFileInfo>> FindAsync(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Opens a Stream that can be used by the application to read data from a GridFS file.

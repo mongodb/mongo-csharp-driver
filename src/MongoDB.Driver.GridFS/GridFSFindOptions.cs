@@ -29,7 +29,7 @@ namespace MongoDB.Driver.GridFS
         private TimeSpan? _maxTime;
         private bool? _noCursorTimeout;
         private int? _skip;
-        private SortDefinition<GridFSFilesCollectionDocument> _sort;
+        private SortDefinition<GridFSFileInfo> _sort;
 
         // properties
         /// <summary>
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The sort order.
         /// </value>
-        public SortDefinition<GridFSFilesCollectionDocument> Sort
+        public SortDefinition<GridFSFileInfo> Sort
         {
             get { return _sort; }
             set { _sort = value; }

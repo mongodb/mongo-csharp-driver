@@ -189,7 +189,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void Sort_get_should_return_expected_result()
         {
-            var sort = Builders<GridFSFilesCollectionDocument>.Sort.Ascending(x => x.Length);
+            var sort = Builders<GridFSFileInfo>.Sort.Ascending(x => x.Length);
             var subject = new GridFSFindOptions { Sort = sort };
 
             var result = subject.Sort;
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.GridFS.Tests
         public void Sort_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
-            var sort = Builders<GridFSFilesCollectionDocument>.Sort.Ascending(x => x.Length);
+            var sort = Builders<GridFSFileInfo>.Sort.Ascending(x => x.Length);
 
             subject.Sort = sort;
 
