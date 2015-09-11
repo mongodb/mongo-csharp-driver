@@ -43,6 +43,8 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
             __methodCallBinder.Register(new SelectManyBinder(), SelectManyBinder.GetSupportedMethods());
             __methodCallBinder.Register(new SingleBinder(), SingleBinder.GetSupportedMethods());
             __methodCallBinder.Register(new SkipBinder(), SkipBinder.GetSupportedMethods());
+            __methodCallBinder.Register(new StandardDeviationPopulationBinder(), StandardDeviationPopulationBinder.GetSupportedMethods());
+            __methodCallBinder.Register(new StandardDeviationSampleBinder(), StandardDeviationSampleBinder.GetSupportedMethods());
             __methodCallBinder.Register(new SumBinder(), SumBinder.GetSupportedMethods());
             __methodCallBinder.Register(new TakeBinder(), TakeBinder.GetSupportedMethods());
             __methodCallBinder.Register(new ThenByBinder(), ThenByBinder.GetSupportedMethods());

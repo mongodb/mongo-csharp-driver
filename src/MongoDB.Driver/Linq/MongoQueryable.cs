@@ -892,6 +892,1406 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation(this IMongoQueryable<int> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation(this IMongoQueryable<int?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int?>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation(this IMongoQueryable<long> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation(this IMongoQueryable<long?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long?>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float StandardDeviationPopulation(this IMongoQueryable<float> source)
+        {
+            return source.Provider.Execute<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float? StandardDeviationPopulation(this IMongoQueryable<float?> source)
+        {
+            return source.Provider.Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float?>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation(this IMongoQueryable<double> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation(this IMongoQueryable<double?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double?>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal StandardDeviationPopulation(this IMongoQueryable<decimal> source)
+        {
+            return source.Provider.Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal? StandardDeviationPopulation(this IMongoQueryable<decimal?> source)
+        {
+            return source.Provider.Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal?>))));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector)
+        {
+            return source.Provider.Execute<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float? StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
+        {
+            return source.Provider.Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
+        {
+            return source.Provider.Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal? StandardDeviationPopulation<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
+        {
+            return source.Provider.Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync(this IMongoQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync(this IMongoQueryable<int?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync(this IMongoQueryable<long> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync(this IMongoQueryable<long?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float> StandardDeviationPopulationAsync(this IMongoQueryable<float> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float?> StandardDeviationPopulationAsync(this IMongoQueryable<float?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync(this IMongoQueryable<double> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync(this IMongoQueryable<double?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal> StandardDeviationPopulationAsync(this IMongoQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal?> StandardDeviationPopulationAsync(this IMongoQueryable<decimal?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float?> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal?> StandardDeviationPopulationAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationPopulation, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample(this IMongoQueryable<int> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample(this IMongoQueryable<int?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int?>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample(this IMongoQueryable<long> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample(this IMongoQueryable<long?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long?>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float StandardDeviationSample(this IMongoQueryable<float> source)
+        {
+            return source.Provider.Execute<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float? StandardDeviationSample(this IMongoQueryable<float?> source)
+        {
+            return source.Provider.Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float?>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample(this IMongoQueryable<double> source)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample(this IMongoQueryable<double?> source)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double?>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal StandardDeviationSample(this IMongoQueryable<decimal> source)
+        {
+            return source.Provider.Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal? StandardDeviationSample(this IMongoQueryable<decimal?> source)
+        {
+            return source.Provider.Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal?>))));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector)
+        {
+            return source.Provider.Execute<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static float? StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
+        {
+            return source.Provider.Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector)
+        {
+            return source.Provider.Execute<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static double? StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
+        {
+            return source.Provider.Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
+        {
+            return source.Provider.Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static decimal? StandardDeviationSample<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
+        {
+            return source.Provider.Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)));
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync(this IMongoQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync(this IMongoQueryable<int?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<int?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync(this IMongoQueryable<long> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync(this IMongoQueryable<long?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<long?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float> StandardDeviationSampleAsync(this IMongoQueryable<float> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float?> StandardDeviationSampleAsync(this IMongoQueryable<float?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<float?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync(this IMongoQueryable<double> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync(this IMongoQueryable<double?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<double?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal> StandardDeviationSampleAsync(this IMongoQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal?> StandardDeviationSampleAsync(this IMongoQueryable<decimal?> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<decimal?>))),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<float?> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The population standard deviation of the sequence of values.
+        /// </returns>
+        public static Task<decimal?> StandardDeviationSampleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo(StandardDeviationSample, source, selector),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector)),
+                cancellationToken);
+        }
+
+        /// <summary>
         /// Computes the sum of a sequence of <see cref="Decimal"/> values.
         /// </summary>
         /// <param name="source">A sequence of values to calculate the sum of.</param>

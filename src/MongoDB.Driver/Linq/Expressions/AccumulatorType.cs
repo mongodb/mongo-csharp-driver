@@ -24,6 +24,8 @@ namespace MongoDB.Driver.Linq.Expressions
         Min,
         Max,
         Push,
-        Sum
+        StandardDeviationPopulation,
+        StandardDeviationSample,
+        Sum,
     }
 }

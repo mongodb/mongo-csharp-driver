@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new MinBinder(), MinBinder.GetSupportedMethods());
             infoBinder.Register(new SelectBinder(), SelectBinder.GetSupportedMethods());
             infoBinder.Register(new SkipBinder(), SkipBinder.GetSupportedMethods());
+            infoBinder.Register(new StandardDeviationBinder(), StandardDeviationBinder.GetSupportedMethods());
             infoBinder.Register(new SumBinder(), SumBinder.GetSupportedMethods());
             infoBinder.Register(new TakeBinder(), TakeBinder.GetSupportedMethods());
             infoBinder.Register(new ToArrayBinder(), ToArrayBinder.GetSupportedMethods());

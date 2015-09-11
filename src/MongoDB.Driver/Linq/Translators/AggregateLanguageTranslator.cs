@@ -165,6 +165,10 @@ namespace MongoDB.Driver.Linq.Translators
                     return new BsonDocument("$min", TranslateValue(node.Argument));
                 case AccumulatorType.Push:
                     return new BsonDocument("$push", TranslateValue(node.Argument));
+                case AccumulatorType.StandardDeviationPopulation:
+                    return new BsonDocument("$stdDevPop", TranslateValue(node.Argument));
+                case AccumulatorType.StandardDeviationSample:
+                    return new BsonDocument("$stdDevSamp", TranslateValue(node.Argument));
                 case AccumulatorType.Sum:
                     return new BsonDocument("$sum", TranslateValue(node.Argument));
             }
@@ -402,6 +406,7 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateCountResultOperator(node, out result) ||
                 TryTranslateMaxResultOperator(node, out result) ||
                 TryTranslateMinResultOperator(node, out result) ||
+                TryTranslateStdDevResultOperator(node, out result) ||
                 TryTranslateSumResultOperator(node, out result))
             {
                 return result;
@@ -816,6 +821,20 @@ namespace MongoDB.Driver.Linq.Translators
                     break;
             }
 
+            return false;
+        }
+
+        private bool TryTranslateStdDevResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as StandardDeviationResultOperator;
+            if (resultOperator != null)
+            {
+                var name = resultOperator.IsSample ? "$stdDevSamp" : "$stdDevPop";
+                result = new BsonDocument(name, TranslateValue(node.Source));
+                return true;
+            }
+
+            result = null;
             return false;
         }
 

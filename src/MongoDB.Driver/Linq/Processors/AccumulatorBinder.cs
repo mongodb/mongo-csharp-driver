@@ -161,6 +161,13 @@ namespace MongoDB.Driver.Linq.Processors
                 argument = GetAccumulatorArgument(node.Source);
                 return true;
             }
+            if (resultOperator is StandardDeviationResultOperator)
+            {
+                var isSample = ((StandardDeviationResultOperator)resultOperator).IsSample;
+                accumulatorType = isSample ? AccumulatorType.StandardDeviationSample : AccumulatorType.StandardDeviationPopulation;
+                argument = GetAccumulatorArgument(node.Source);
+                return true;
+            }
             if (resultOperator is SumResultOperator)
             {
                 accumulatorType = AccumulatorType.Sum;

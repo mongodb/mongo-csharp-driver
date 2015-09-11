@@ -106,6 +106,7 @@
     <Compile Include="Linq\Expressions\ResultOperators\ArrayResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\SingleResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\ResultTransformerHelper.cs" />
+    <Compile Include="Linq\Expressions\ResultOperators\StandardDeviationResultOperator.cs" />
     <Compile Include="Linq\Expressions\SelectManyExpression.cs" />
     <Compile Include="Linq\Expressions\SkipExpression.cs" />
     <Compile Include="Linq\Expressions\SelectExpression.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\SkipBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\StandardDeviationBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\TakeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ToHashSetBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\UnionBinder.cs" />
@@ -173,6 +175,8 @@
     <Compile Include="Linq\Processors\NameBasedMethodCallBinder.cs" />
     <Compile Include="Linq\Processors\PartialEvaluator.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\GroupByWithResultSelectorBinder.cs" />
+    <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationSampleBinder.cs" />
+    <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationPopulationBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\ThenByBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\OrderByBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\SelectManyBinder.cs" />

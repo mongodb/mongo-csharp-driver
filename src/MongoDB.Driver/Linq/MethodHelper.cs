@@ -68,6 +68,8 @@ namespace MongoDB.Driver.Linq
             return typeof(Enumerable)
                 .GetMethods()
                 .Concat(typeof(Queryable).GetMethods())
+                .Concat(typeof(MongoEnumerable).GetMethods())
+                .Concat(typeof(MongoQueryable).GetMethods())
                 .Where(x => x.Name == name)
                 .Select(x => GetMethodDefinition(x));
         }

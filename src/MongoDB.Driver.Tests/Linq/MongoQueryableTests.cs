@@ -907,6 +907,70 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void StandardDeviationPopulation()
+        {
+            var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulation();
+
+            result.Should().Be(50);
+        }
+
+        [Test]
+        public void StandardDeviationPopulation_with_selector()
+        {
+            var result = CreateQuery().StandardDeviationPopulation(x => x.C.E.F);
+
+            result.Should().Be(50);
+        }
+
+        [Test]
+        public async Task StandardDeviationPopulationAsync()
+        {
+            var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulationAsync();
+
+            result.Should().Be(50);
+        }
+
+        [Test]
+        public async Task StandardDeviationPopulationAsync_with_selector()
+        {
+            var result = await CreateQuery().StandardDeviationPopulationAsync(x => x.C.E.F);
+
+            result.Should().Be(50);
+        }
+
+        [Test]
+        public void StandardDeviationSample()
+        {
+            var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationSample();
+
+            result.Should().BeApproximately(70.7106781186548, .0001);
+        }
+
+        [Test]
+        public void StandardDeviationSample_with_selector()
+        {
+            var result = CreateQuery().StandardDeviationSample(x => x.C.E.F);
+
+            result.Should().BeApproximately(70.7106781186548, .0001);
+        }
+
+        [Test]
+        public async Task StandardDeviationSampleAsync()
+        {
+            var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationSampleAsync();
+
+            result.Should().BeApproximately(70.7106781186548, .0001);
+        }
+
+        [Test]
+        public async Task StandardDeviationSampleAsync_with_selector()
+        {
+            var result = await CreateQuery().StandardDeviationSampleAsync(x => x.C.E.F);
+
+            result.Should().BeApproximately(70.7106781186548, .0001);
+        }
+
+        [Test]
         public void Sum()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Sum();

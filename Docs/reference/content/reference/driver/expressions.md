@@ -803,6 +803,24 @@ p => p.FavoriteNumbers.Skip(3).Take(2)
 { $slice: ['$FavoriteNumbers', 3, 2] }
 ```
 
+#### $stdDevPop
+
+```csharp
+p => p.FavoriteNumbers.StandardDeviationPopulation()
+```
+```json
+{ $stdDevPop: '$FavoriteNumbers' }
+```
+
+#### $stdDevSamp
+
+```csharp
+p => p.FavoriteNumbers.StandardDeviationSample()
+```
+```json
+{ $stdDevPop: '$FavoriteNumbers' }
+```
+
 #### $sum
 
 ```csharp

@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
 using NUnit.Framework;
 
@@ -864,6 +865,50 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().HaveCount(1);
             result.Value.Result.Single().D.Should().Be("Don't");
             result.Value.Result.Single().F.Should().Be(33);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevPop()
+        {
+            var result = await Project(x => new { Result = x.M.StandardDeviationPopulation() });
+
+            result.Projection.Should().Be("{ Result: { \"$stdDevPop\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(1.247219128924647, .0001);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevPop_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.StandardDeviationPopulation(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$stdDevPop\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(11);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevSamp()
+        {
+            var result = await Project(x => new { Result = x.M.StandardDeviationSample() });
+
+            result.Projection.Should().Be("{ Result: { \"$stdDevSamp\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(1.5275252316519468, .0001);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevSamp_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.StandardDeviationSample(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$stdDevSamp\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(15.556349186104045, .0001);
         }
 
         [Test]

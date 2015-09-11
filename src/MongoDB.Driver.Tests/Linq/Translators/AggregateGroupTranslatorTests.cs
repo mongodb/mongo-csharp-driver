@@ -22,6 +22,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
 using NUnit.Framework;
 
@@ -258,6 +260,50 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
 
             result.Value.Result.Should().Equal(111);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevPop_with_embedded_projector()
+        {
+            var result = await Group(x => 1, g => new { Result = g.StandardDeviationPopulation(x => x.C.E.F) });
+
+            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Be(50);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevPop_with_selected_projector()
+        {
+            var result = await Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationPopulation() });
+
+            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Be(50);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevSamp_with_embedded_projector()
+        {
+            var result = await Group(x => 1, g => new { Result = g.StandardDeviationSample(x => x.C.E.F) });
+
+            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_stdDevSamp_with_selected_projector()
+        {
+            var result = await Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationSample() });
+
+            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
 
         [Test]
