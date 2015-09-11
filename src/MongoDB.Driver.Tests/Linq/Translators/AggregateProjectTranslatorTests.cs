@@ -809,6 +809,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_sqrt()
+        {
+            var result = await Project(x => new { Result = Math.Sqrt(x.C.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$sqrt\": [\"$C.E.F\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(3.31662479, .0001);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
         public async Task Should_translate_trunc()
         {
             var result = await Project(x => new { Result = Math.Truncate(x.U) });
