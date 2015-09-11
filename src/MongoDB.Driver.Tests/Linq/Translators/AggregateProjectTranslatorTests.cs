@@ -160,6 +160,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_avg()
+        {
+            var result = await Project(x => new { Result = x.M.Average() });
+
+            result.Projection.Should().Be("{ Result: { \"$avg\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(3.66666667, 5);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_avg_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.Average(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$avg\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(44);
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "3.1.6")]
         public async Task Should_translate_ceil()
         {

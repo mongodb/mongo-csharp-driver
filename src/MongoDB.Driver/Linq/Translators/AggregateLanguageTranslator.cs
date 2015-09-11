@@ -391,7 +391,8 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             BsonValue result;
-            if (TryTranslateAllResultOperator(node, out result) ||
+            if (TryTranslateAvgResultOperator(node, out result) ||
+                TryTranslateAllResultOperator(node, out result) ||
                 TryTranslateAnyResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result))
@@ -442,6 +443,19 @@ namespace MongoDB.Driver.Linq.Translators
                 { "as", node.ItemName },
                 { "cond", condValue }
             });
+        }
+
+        private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as AverageResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$avg", TranslateValue(node.Source));
+                return true;
+            }
+
+            result = null;
+            return false;
         }
 
         private bool TryTranslateAllResultOperator(PipelineExpression node, out BsonValue result)
