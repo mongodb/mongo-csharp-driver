@@ -607,6 +607,15 @@ p => Math.Log(p.Age, 10);
 { $log: ["$Age", 10] }
 ```
 
+#### $log10
+
+```csharp
+p => Math.Log10(p.Age);
+```
+```json
+{ $log: ["$Age"] }
+```
+
 #### $mod
 
 ```csharp

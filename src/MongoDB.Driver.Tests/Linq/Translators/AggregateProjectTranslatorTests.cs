@@ -387,6 +387,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.6")]
+        public async Task Should_translate_log10()
+        {
+            var result = await Project(x => new { Result = Math.Log10(x.C.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$log10\": [\"$C.E.F\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeApproximately(1.0413928515823, 5);
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_map_with_document()
         {
