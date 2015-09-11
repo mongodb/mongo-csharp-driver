@@ -624,6 +624,13 @@ namespace MongoDB.Driver.Linq.Translators
                             @base
                         });
                     }
+                    else
+                    {
+                        result = new BsonDocument("$ln", new BsonArray
+                        {
+                            value
+                        });
+                    }
                     return true;
                 case "Truncate":
                     value = TranslateValue(node.Arguments[0]);
