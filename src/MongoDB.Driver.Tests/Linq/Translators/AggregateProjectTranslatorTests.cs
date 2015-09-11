@@ -464,6 +464,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_max()
+        {
+            var result = await Project(x => new { Result = x.M.Max() });
+
+            result.Projection.Should().Be("{ Result: { \"$max\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(5);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_max_with_selector()
+        {
+            var result = await Project(x => new { Result = x.G.Max(g => g.E.F) });
+
+            result.Projection.Should().Be("{ Result: { \"$max\": \"$G.E.F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(55);
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_millisecond()
         {

@@ -396,6 +396,7 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateAnyResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result) ||
+                TryTranslateMaxResultOperator(node, out result) ||
                 TryTranslateMinResultOperator(node, out result))
             {
                 return result;
@@ -621,6 +622,19 @@ namespace MongoDB.Driver.Linq.Translators
                     return true;
             }
 
+            return false;
+        }
+
+        private bool TryTranslateMaxResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as MaxResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$max", TranslateValue(node.Source));
+                return true;
+            }
+
+            result = null;
             return false;
         }
 

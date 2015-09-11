@@ -754,6 +754,15 @@ p => p.FavoriteNumbers.Concat(new [] { 1, 2, 3 })
 { $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
 ```
 
+#### $max
+
+```csharp
+p => p.FavoriteNumbers.Max()
+```
+```json
+{ $max: '$FavoriteNumbers' }
+```
+
 #### $min
 
 ```csharp
