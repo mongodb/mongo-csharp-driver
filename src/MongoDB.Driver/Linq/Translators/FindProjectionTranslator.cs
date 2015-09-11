@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Linq.Translators
             var node = PartialEvaluator.Evaluate(projector.Body);
             node = Transformer.Transform(node);
             node = bindingContext.Bind(node, isClientSideProjection: true);
+            node = FieldExpressionFlattener.FlattenFields(node);
 
             BsonDocument projectionDocument = null;
             IBsonSerializer<TProjection> serializer;

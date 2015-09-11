@@ -31,6 +31,11 @@ namespace MongoDB.Driver.Linq.Expressions
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
+        public Expression Document
+        {
+            get { return null; }
+        }
+
         public Expression Expression
         {
             get { return _expression; }

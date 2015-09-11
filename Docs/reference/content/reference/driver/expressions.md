@@ -745,6 +745,21 @@ See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#t
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#array-expressions" >}}) for more information on each operator.
 
+#### $arrayElemAt
+
+```csharp
+p => p.FavoriteNumbers.First()
+```
+```json
+{ $arrayElemAt: ['$FavoriteNumbers', 0] }
+```
+```csharp
+p => p.FavoriteNumbers.Last()
+```
+```json
+{ $arrayElemAt: ['$FavoriteNumbers', -1] }
+```
+
 #### $avg
 
 ```csharp

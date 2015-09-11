@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Linq.Translators
         public static BsonDocument Translate(Expression node, IBsonSerializerRegistry serializerRegistry)
         {
             var translator = new PredicateTranslator();
+            node = FieldExpressionFlattener.FlattenFields(node);
             return translator.Translate(node)
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
         }

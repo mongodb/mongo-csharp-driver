@@ -42,7 +42,15 @@ namespace MongoDB.Driver.Linq.Translators
 
         protected internal override Expression VisitField(FieldExpression node)
         {
+            if (node.Document is IFieldExpression || node.Document is ArrayIndexExpression)
+            {
+                return node.Update(
+                    Visit(node.Document),
+                    node.Original);
+            }
+
             return new FieldExpression(
+                node.Document,
                 node.PrependFieldName(_prefix),
                 node.Serializer,
                 node.Original);

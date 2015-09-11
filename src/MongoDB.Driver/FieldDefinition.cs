@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq.Translators;
 
 namespace MongoDB.Driver
 {
@@ -218,6 +219,7 @@ namespace MongoDB.Driver
             var parameterExpression = new DocumentExpression(documentSerializer);
             bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
             var bound = bindingContext.Bind(lambda.Body);
+            bound = FieldExpressionFlattener.FlattenFields(bound);
             IFieldExpression field;
             if (!ExpressionHelper.TryGetExpression(bound, out field))
             {
@@ -263,6 +265,7 @@ namespace MongoDB.Driver
             var parameterExpression = new DocumentExpression(documentSerializer);
             bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
             var bound = bindingContext.Bind(lambda.Body);
+            bound = FieldExpressionFlattener.FlattenFields(bound);
             IFieldExpression field;
             if (!ExpressionHelper.TryGetExpression(bound, out field))
             {

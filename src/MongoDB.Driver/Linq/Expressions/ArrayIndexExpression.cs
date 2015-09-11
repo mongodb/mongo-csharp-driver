@@ -20,49 +20,39 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal sealed class FieldExpression : SerializationExpression, IFieldExpression
+    internal sealed class ArrayIndexExpression : SerializationExpression
     {
-        private readonly Expression _document;
-        private readonly string _fieldName;
+        private readonly Expression _array;
+        private readonly Expression _index;
         private readonly Expression _original;
         private readonly IBsonSerializer _serializer;
 
-        public FieldExpression(string fieldName, IBsonSerializer serializer)
-            : this(null, fieldName, serializer, null)
+        public ArrayIndexExpression(Expression array, Expression index, IBsonSerializer serializer)
+            : this(array, index, serializer, null)
         {
         }
 
-        public FieldExpression(Expression document, string fieldName, IBsonSerializer serializer)
-            : this(document, fieldName, serializer, null)
+        public ArrayIndexExpression(Expression array, Expression index, IBsonSerializer serializer, Expression original)
         {
-        }
-
-        public FieldExpression(string fieldName, IBsonSerializer serializer, Expression original)
-            : this(null, fieldName, serializer, original)
-        {
-        }
-
-        public FieldExpression(Expression document, string fieldName, IBsonSerializer serializer, Expression original)
-        {
-            _document = document;
-            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
+            _array = Ensure.IsNotNull(array, nameof(array));
+            _index = Ensure.IsNotNull(index, nameof(index));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _original = original;
         }
 
-        public Expression Document
+        public Expression Array
         {
-            get { return _document; }
+            get { return _array; }
         }
 
-        public string FieldName
+        public Expression Index
         {
-            get { return _fieldName; }
+            get { return _index; }
         }
 
         public override ExtensionExpressionType ExtensionType
         {
-            get { return ExtensionExpressionType.Field; }
+            get { return ExtensionExpressionType.ArrayIndex; }
         }
 
         public Expression Original
@@ -82,14 +72,14 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return _document?.ToString() + "{" + _fieldName + "}";
+            return _array.ToString() + "[" + _index.ToString() + "]";
         }
 
-        public FieldExpression Update(Expression document, Expression original)
+        public ArrayIndexExpression Update(Expression array, Expression index, Expression original)
         {
-            if (document != _document || original != _original)
+            if (array != _array || index != _index || original != _original)
             {
-                return new FieldExpression(document, _fieldName, _serializer, original);
+                return new ArrayIndexExpression(array, index, _serializer, original);
             }
 
             return this;
@@ -97,7 +87,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         protected internal override Expression Accept(ExtensionExpressionVisitor visitor)
         {
-            return visitor.VisitField(this);
+            return visitor.VisitArrayIndex(this);
         }
     }
 }

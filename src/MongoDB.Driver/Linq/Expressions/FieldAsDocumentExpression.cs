@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Linq.Expressions
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
+        public Expression Document
+        {
+            get { return null; }
+        }
+
         public Expression Expression
         {
             get { return _expression; }
@@ -60,7 +65,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return "[" + _fieldName + "]";
+            return "{" + _fieldName + "}";
         }
 
         public FieldAsDocumentExpression Update(Expression expression)

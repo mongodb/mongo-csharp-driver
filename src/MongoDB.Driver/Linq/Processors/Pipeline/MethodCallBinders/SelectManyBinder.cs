@@ -73,23 +73,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                 resultSelector = new FieldExpression(collectionSelector.FieldName, itemSerializationInfo.Serializer);
             }
 
-            var serializationExpression = resultSelector as ISerializationExpression;
-            Expression projector = resultSelector;
-            if (serializationExpression == null && resultSelector.NodeType != ExpressionType.MemberInit && resultSelector.NodeType != ExpressionType.New)
-            {
-                // the output of a $project stage must be a document, so 
-                // if this isn't already a serialization expression and it's not
-                // a new expression or member init, then we need to create an 
-                // artificial field to project the computation into.
-                var wrapped = bindingContext.WrapField(resultSelector, "__fld0");
-                resultSelector = wrapped;
-                projector = new FieldExpression(wrapped.FieldName, wrapped.Serializer);
-            }
-            else if (resultSelector.NodeType == ExpressionType.MemberInit || resultSelector.NodeType == ExpressionType.New)
-            {
-                var serializer = bindingContext.GetSerializer(resultSelector.Type, resultSelector);
-                projector = new DocumentExpression(serializer);
-            }
+            var projector = bindingContext.BindProjector(ref resultSelector);
 
             return new PipelineExpression(
                 new SelectManyExpression(
@@ -100,6 +84,5 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                     resultSelector),
                 projector);
         }
-
     }
 }

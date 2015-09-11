@@ -252,25 +252,19 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonDocument TranslateProjectValue(Expression selector)
         {
             BsonDocument projectValue;
-            if (selector is FieldExpression) // not IFieldExpression
+            var result = AggregateLanguageTranslator.Translate(selector);
+            if (result.BsonType == BsonType.String)
             {
-                projectValue = new BsonDocument(((IFieldExpression)selector).FieldName, 1);
+                // this means we got back a field expression prefixed with a $ sign.
+                projectValue = new BsonDocument(result.ToString().Substring(1), 1);
+            }
+            else if (result.BsonType == BsonType.Document)
+            {
+                projectValue = (BsonDocument)result;
             }
             else
             {
-                var result = AggregateLanguageTranslator.Translate(selector);
-                if (result.BsonType == BsonType.String)
-                {
-                    projectValue = new BsonDocument(result.ToString(), 1);
-                }
-                else if (result.BsonType == BsonType.Document)
-                {
-                    projectValue = (BsonDocument)result;
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
+                throw new NotSupportedException($"The expression {selector.ToString()} is not supported.");
             }
 
             if (!projectValue.Contains("_id"))

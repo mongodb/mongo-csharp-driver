@@ -30,6 +30,14 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(Visit(node.Argument));
         }
 
+        protected internal virtual Expression VisitArrayIndex(ArrayIndexExpression node)
+        {
+            return node.Update(
+                Visit(node.Array),
+                Visit(node.Index),
+                node.Original);
+        }
+
         protected internal virtual Expression VisitCollection(CollectionExpression node)
         {
             return node;
@@ -72,7 +80,9 @@ namespace MongoDB.Driver.Linq.Expressions
 
         protected internal virtual Expression VisitField(FieldExpression node)
         {
-            return node;
+            return node.Update(
+                Visit(node.Document),
+                node.Original);
         }
 
         protected internal virtual Expression VisitGroupBy(GroupByExpression node)
@@ -80,7 +90,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(
                 Visit(node.Source),
                 Visit(node.KeySelector),
-                VisitAndConvert(node.Accumulators, "VisitGroupBy"));
+                VisitAndConvert(node.Accumulators, nameof(VisitGroupBy)));
         }
 
         protected internal virtual Expression VisitGroupByWithResultSelector(GroupByWithResultSelectorExpression node)
@@ -118,7 +128,7 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             return node.Update(
                 Visit(node.Source),
-                Visit(node.Projector),
+                VisitAndConvert(node.Projector, nameof(VisitPipeline)),
                 VisitResultOperator(node.ResultOperator));
         }
 

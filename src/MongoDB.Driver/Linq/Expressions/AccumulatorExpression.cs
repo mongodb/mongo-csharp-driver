@@ -47,6 +47,11 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return _argument; }
         }
 
+        public Expression Document
+        {
+            get { return null; }
+        }
+
         public override ExtensionExpressionType ExtensionType
         {
             get { return ExtensionExpressionType.Accumulator; }

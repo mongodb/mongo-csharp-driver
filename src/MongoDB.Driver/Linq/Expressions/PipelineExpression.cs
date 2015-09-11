@@ -23,16 +23,16 @@ namespace MongoDB.Driver.Linq.Expressions
     internal sealed class PipelineExpression : ExtensionExpression, ISourcedExpression
     {
         private readonly Expression _source;
-        private readonly Expression _projector;
+        private readonly SerializationExpression _projector;
         private readonly ResultOperator _resultOperator;
         private readonly Type _type;
 
-        public PipelineExpression(Expression source, Expression projector)
+        public PipelineExpression(Expression source, SerializationExpression projector)
             : this(source, projector, (ResultOperator)null)
         {
         }
 
-        public PipelineExpression(Expression source, Expression projector, ResultOperator resultOperator)
+        public PipelineExpression(Expression source, SerializationExpression projector, ResultOperator resultOperator)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
             _projector = Ensure.IsNotNull(projector, nameof(projector));
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 _resultOperator.Type;
         }
 
-        public Expression Projector
+        public SerializationExpression Projector
         {
             get { return _projector; }
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return result;
         }
 
-        public PipelineExpression Update(Expression source, Expression projector, ResultOperator resultOperator)
+        public PipelineExpression Update(Expression source, SerializationExpression projector, ResultOperator resultOperator)
         {
             if (source != _source ||
                 projector != _projector ||

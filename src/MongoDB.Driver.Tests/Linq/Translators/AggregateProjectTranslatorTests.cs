@@ -162,6 +162,138 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_constant_ElementAt()
+        {
+            var result = await Project(x => new { Result = x.M.ElementAt(1) });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$M\", 1] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(4);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_constant_indexer()
+        {
+            var result = await Project(x => new { Result = x.M[1] });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$M\", 1] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(4);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_constant_get_Item()
+        {
+            var result = await Project(x => new { Result = x.O[1] });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$O\", 1] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(20);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_variable_ElementAt()
+        {
+            var result = await Project(x => new { Result = (int?)x.M.ElementAt(x.T["one"]) });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$M\", \"$T.one\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(4);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_variable_indexer()
+        {
+            var result = await Project(x => new { Result = (int?)x.M[x.T["one"]] });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$M\", \"$T.one\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(4);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_variable_get_Item()
+        {
+            var result = await Project(x => new { Result = (long?)x.O[x.T["one"]] });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$O\", \"$T.one\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(20);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_constant_ElementAt_followed_by_a_field()
+        {
+            var result = await Project(x => new { Result = x.G.ElementAt(1).D });
+
+            result.Projection.Should().Be("{ Result: { $let: { vars: { item: { \"$arrayElemAt\": [\"$G\", 1] } }, in: \"$$item.D\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Dolphin");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_a_variable_ElementAt_followed_by_a_field()
+        {
+            var result = await Project(x => new { Result = x.G.ElementAt(x.T["one"]).D });
+
+            result.Projection.Should().Be("{ Result: { $let: { vars: { item: { \"$arrayElemAt\": [\"$G\", \"$T.one\"] } }, in: \"$$item.D\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Dolphin");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_First()
+        {
+            var result = await Project(x => new { Result = x.M.First() });
+
+            result.Projection.Should().Be("{ Result: { \"$arrayElemAt\": [\"$M\", 0] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(2);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_First_followed_by_a_field()
+        {
+            var result = await Project(x => new { Result = x.G.First().D });
+
+            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$G.D\", 0] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Don't");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_Last()
+        {
+            var result = await Project(x => new { Result = x.M.Last() });
+
+            result.Projection.Should().Be("{ Result: { \"$arrayElemAt\": [\"$M\", -1] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(5);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
+        public async Task Should_translate_arrayElemAt_using_Last_followed_by_a_field()
+        {
+            var result = await Project(x => new { Result = x.G.Last().D });
+
+            result.Projection.Should().Be("{ Result: { \"$arrayElemAt\": [\"$G.D\", -1] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Dolphin");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.7")]
         public async Task Should_translate_avg()
         {
             var result = await Project(x => new { Result = x.M.Average() });
@@ -1139,15 +1271,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry);
 
             var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
-            using (var cursor = await _collection.AggregateAsync(new PipelineStagePipelineDefinition<Root, TResult>(new PipelineStageDefinition<Root, TResult>[] { pipelineOperator }, projectionInfo.ProjectionSerializer)))
+            var result = await _collection.Aggregate()
+                .Project(new BsonDocumentProjectionDefinition<Root, TResult>(projectionInfo.Document, projectionInfo.ProjectionSerializer))
+                .FirstAsync();
+
+            return new ProjectedResult<TResult>
             {
-                var list = await cursor.ToListAsync();
-                return new ProjectedResult<TResult>
-                {
-                    Projection = projectionInfo.Document,
-                    Value = (TResult)list[0]
-                };
-            }
+                Projection = projectionInfo.Document,
+                Value = result
+            };
         }
 
         private class ProjectedResult<T>

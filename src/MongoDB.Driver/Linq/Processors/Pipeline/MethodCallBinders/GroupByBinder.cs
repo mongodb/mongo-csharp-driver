@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             return bindingContext.Bind(lambda.Body);
         }
 
-        private Expression BuildProjector(PipelineBindingContext bindingContext, Expression idSelector, Expression elementSelector)
+        private DocumentExpression BuildProjector(PipelineBindingContext bindingContext, Expression idSelector, Expression elementSelector)
         {
             var serializerType = typeof(GroupingDeserializer<,>).MakeGenericType(
                 idSelector.Type,

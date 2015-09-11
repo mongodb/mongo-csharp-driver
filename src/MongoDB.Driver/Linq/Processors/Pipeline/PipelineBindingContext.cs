@@ -90,6 +90,35 @@ namespace MongoDB.Driver.Linq.Processors
             return SerializerBuilder.Build(node, _serializerRegistry);
         }
 
+        public SerializationExpression BindProjector(ref Expression selector)
+        {
+            var projector = selector as SerializationExpression;
+            if (selector.NodeType == ExpressionType.MemberInit || selector.NodeType == ExpressionType.New)
+            {
+                var serializer = GetSerializer(selector.Type, selector);
+                projector = new DocumentExpression(serializer);
+            }
+            else if (projector == null || projector is IFieldExpression || projector is ArrayIndexExpression)
+            {
+                var newFieldName = "__fld0";
+                if (projector is IFieldExpression)
+                {
+                    // We don't have to do this, but it makes the output a little nicer.
+                    newFieldName = ((IFieldExpression)projector).FieldName;
+                }
+
+                // the output of a $project stage must be a document, so 
+                // if this isn't already a serialization expression and it's not
+                // a new expression or member init, then we need to create an 
+                // artificial field to project the computation into.
+                var serializer = GetSerializer(selector.Type, selector);
+                selector = new FieldAsDocumentExpression(selector, newFieldName, serializer);
+                projector = new FieldExpression(newFieldName, serializer);
+            }
+
+            return projector;
+        }
+
         public bool TryGetCorrelatingId(Expression node, out Guid correlatingId)
         {
             return _correlationMapping.TryGetValue(node, out correlatingId);
@@ -107,16 +136,6 @@ namespace MongoDB.Driver.Linq.Processors
             Ensure.IsNotNull(member, nameof(member));
 
             return _memberMapping.TryGetValue(member, out replacement);
-        }
-
-        public FieldAsDocumentExpression WrapField(Expression node, string fieldName, IBsonSerializer serializer = null)
-        {
-            if (serializer == null)
-            {
-                serializer = GetSerializer(node.Type, node);
-            }
-
-            return new FieldAsDocumentExpression(node, fieldName, serializer);
         }
     }
 }

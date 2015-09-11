@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return "[document]";
+            return "{document}";
         }
 
         protected internal override Expression Accept(ExtensionExpressionVisitor visitor)

@@ -13,10 +13,14 @@
 * limitations under the License.
 */
 
+using System.Linq.Expressions;
+
 namespace MongoDB.Driver.Linq.Expressions
 {
     internal interface IFieldExpression : ISerializationExpression
     {
+        Expression Document { get; }
+
         string FieldName { get; }
     }
 }

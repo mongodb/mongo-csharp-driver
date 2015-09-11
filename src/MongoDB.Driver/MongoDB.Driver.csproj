@@ -96,6 +96,7 @@
     <Compile Include="Linq\Expressions\ExtensionExpression.cs" />
     <Compile Include="Linq\Expressions\ExtensionExpressionType.cs" />
     <Compile Include="Linq\Expressions\ExtensionExpressionVisitor.cs" />
+    <Compile Include="Linq\Expressions\ArrayIndexExpression.cs" />
     <Compile Include="Linq\Expressions\FieldExpression.cs" />
     <Compile Include="Linq\Expressions\GroupByWithResultSelectorExpression.cs" />
     <Compile Include="Linq\Expressions\GroupingKeyExpression.cs" />
@@ -209,7 +210,7 @@
     <Compile Include="Linq\Processors\Transformer.cs" />
     <Compile Include="Linq\Processors\Transformers\ConstantOnRightTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\ExpressionTransformerRegistry.cs" />
-    <Compile Include="Linq\Processors\Transformers\FirstLastMemberTransformer.cs" />
+    <Compile Include="Linq\Processors\Transformers\FirstLastNormalizingTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\IExpressionTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\CollectionConstructorTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="Linq\Translators\AggregateGroupTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslator.cs" />
+    <Compile Include="Linq\Translators\FieldExpressionFlattener.cs" />
     <Compile Include="Linq\Translators\FieldNamePrefixer.cs" />
     <Compile Include="Linq\QueryableTranslation.cs" />
     <Compile Include="Linq\Translators\FindProjectionTranslator.cs" />

@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
@@ -102,6 +103,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             case ExtensionExpressionType.Accumulator:
                                 return TranslateAccumulator((AccumulatorExpression)node);
+                            case ExtensionExpressionType.ArrayIndex:
+                                return TranslateArrayIndex((ArrayIndexExpression)node);
                             case ExtensionExpressionType.Concat:
                                 return TranslateConcat((ConcatExpression)node);
                             case ExtensionExpressionType.Except:
@@ -179,6 +182,15 @@ namespace MongoDB.Driver.Linq.Translators
             throw new MongoInternalException(message);
         }
 
+        private BsonValue TranslateArrayIndex(ArrayIndexExpression node)
+        {
+            return new BsonDocument("$arrayElemAt", new BsonArray
+            {
+                TranslateValue(node.Array),
+                TranslateValue(node.Index)
+            });
+        }
+
         private BsonValue TranslateArrayLength(Expression node)
         {
             return new BsonDocument("$size", TranslateValue(((UnaryExpression)node).Operand));
@@ -234,7 +246,41 @@ namespace MongoDB.Driver.Linq.Translators
 
         private BsonValue TranslateField(FieldExpression expression)
         {
-            return "$" + expression.FieldName;
+            if (expression.Document == null)
+            {
+                return "$" + expression.FieldName;
+            }
+
+            // 2 possibilities. 
+            // 1. This is translatable into a single string:
+            // 2. This has an array index operation in it which we must then use a $let expression for
+            var parent = expression.Document;
+            var currentName = expression.FieldName;
+            while (parent != null)
+            {
+                var field = parent as IFieldExpression;
+                if (field != null)
+                {
+                    currentName = field.FieldName + "." + currentName;
+                    parent = field.Document;
+                }
+                else
+                {
+                    var array = parent as ArrayIndexExpression;
+                    if (array != null)
+                    {
+                        return new BsonDocument("$let", new BsonDocument
+                        {
+                            { "vars", new BsonDocument("item", TranslateValue(parent)) },
+                            { "in", "$$item." + currentName }
+                        });
+                    }
+
+                    break;
+                }
+            }
+
+            return "$" + currentName;
         }
 
         private BsonValue TranslateGroupingKey(GroupingKeyExpression node)
@@ -404,6 +450,8 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateAnyResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result) ||
+                TryTranslateFirstResultOperator(node, out result) ||
+                TryTranslateLastResultOperator(node, out result) ||
                 TryTranslateMaxResultOperator(node, out result) ||
                 TryTranslateMinResultOperator(node, out result) ||
                 TryTranslateStdDevResultOperator(node, out result) ||
@@ -418,14 +466,15 @@ namespace MongoDB.Driver.Linq.Translators
 
         private BsonValue TranslateSelect(SelectExpression node)
         {
-            if (node.Source is IFieldExpression && node.Selector is IFieldExpression)
-            {
-                var prefixName = ((IFieldExpression)node.Source).FieldName;
-                return TranslateValue(FieldNamePrefixer.Prefix(node.Selector, prefixName));
-            }
-
             var inputValue = TranslateValue(node.Source);
             var inValue = TranslateValue(FieldNamePrefixer.Prefix(node.Selector, "$" + node.ItemName));
+            if (inputValue.BsonType == BsonType.String && inValue.BsonType == BsonType.String)
+            {
+                // if inputValue is a BsonString and inValue is a BsonString, 
+                // then it is a simple field inclusion...
+                // inValue is prefixed with a $${node.ItemName}, so we remove the itemName and the 2 $s.
+                return inputValue.ToString() + inValue.ToString().Substring(node.ItemName.Length + 2);
+            }
 
             return new BsonDocument("$map", new BsonDocument
             {
@@ -636,6 +685,23 @@ namespace MongoDB.Driver.Linq.Translators
             return false;
         }
 
+        private bool TryTranslateFirstResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as FirstResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$arrayElemAt", new BsonArray
+                {
+                    TranslateValue(node.Source),
+                    0
+                });
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+
         private bool TryTranslateHashSetMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
@@ -657,6 +723,23 @@ namespace MongoDB.Driver.Linq.Translators
                     return true;
             }
 
+            return false;
+        }
+
+        private bool TryTranslateLastResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as LastResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$arrayElemAt", new BsonArray
+                {
+                    TranslateValue(node.Source),
+                    -1
+                });
+                return true;
+            }
+
+            result = null;
             return false;
         }
 
@@ -855,21 +938,6 @@ namespace MongoDB.Driver.Linq.Translators
 
             result = null;
             return false;
-        }
-
-        private static bool TryFindSerializationExpression(MethodCallExpression node, out ISerializationExpression serializationExpression)
-        {
-            var current = node.Arguments[0];
-            serializationExpression = current as ISerializationExpression;
-            if (serializationExpression == null &&
-                current.NodeType == ExpressionType.Call &&
-                ExpressionHelper.IsLinqMethod((MethodCallExpression)current))
-            {
-                current = ((MethodCallExpression)current).Arguments[0];
-                serializationExpression = current as ISerializationExpression;
-            }
-
-            return serializationExpression != null;
         }
     }
 }

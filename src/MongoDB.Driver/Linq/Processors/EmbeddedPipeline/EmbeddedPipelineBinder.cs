@@ -99,9 +99,10 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
                 var sequenceType = node.Type.GetSequenceElementType();
                 if (sequenceType != null)
                 {
+                    var serializer = BindingContext.GetSerializer(sequenceType, node);
                     return new PipelineExpression(
                         node,
-                        Expression.Parameter(sequenceType, "document"));
+                        new DocumentExpression(serializer));
                 }
             }
 
