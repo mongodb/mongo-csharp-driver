@@ -19,80 +19,49 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
-    /// Represents a GridFS files collection document.
+    /// Represents information about a stored GridFS file (backed by a files collection document).
     /// </summary>
-    public class GridFSFileInfo
+    [BsonSerializer(typeof(GridFSFileInfoSerializer))]
+    public class GridFSFileInfo : BsonDocumentBackedClass
     {
-        // fields
-        private readonly IList<string> _aliases;
-        private readonly int _chunkSizeBytes;
-        private readonly string _contentType;
-        private readonly BsonDocument _extraElements;
-        private readonly string _filename;
-        private readonly BsonValue _id;
-        private readonly long _length;
-        private readonly string _md5;
-        private readonly BsonDocument _metadata;
-        private readonly DateTime _uploadDateTime;
-
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSFileInfo" /> class.
+        /// Initializes a new instance of the <see cref="GridFSFileInfo"/> class.
         /// </summary>
-        /// <param name="aliases">The aliases.</param>
-        /// <param name="chunkSizeBytes">Size of the chunk.</param>
-        /// <param name="contentType">Type of the content.</param>
-        /// <param name="extraElements">The extra elements.</param>
-        /// <param name="filename">The filename.</param>
-        /// <param name="idAsBsonValue">The identifier.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="md5">The MD5.</param>
-        /// <param name="metadata">The metadata.</param>
-        /// <param name="uploadDateTime">The upload date time.</param>
-        [BsonConstructor]
-        public GridFSFileInfo(
-            IEnumerable<string> aliases,
-            int chunkSizeBytes,
-            string contentType,
-            BsonDocument extraElements,
-            string filename,
-            BsonValue idAsBsonValue,
-            long length,
-            string md5,
-            BsonDocument metadata,
-            DateTime uploadDateTime)
+        /// <param name="backingDocument">The backing document.</param>
+        public GridFSFileInfo(BsonDocument backingDocument)
+            : base(backingDocument, GridFSFileInfoSerializer.Instance)
         {
-            _aliases = aliases == null ? null : ((aliases as IList<string>) ?? aliases.ToList()); // can be null
-            _chunkSizeBytes = chunkSizeBytes;
-            _contentType = contentType; // can be null
-            _extraElements = extraElements;
-            _filename = filename;
-            _id = idAsBsonValue;
-            _length = length;
-            _md5 = md5;
-            _metadata = metadata;
-            _uploadDateTime = uploadDateTime;
         }
 
-        // properties
+        // public properties
         /// <summary>
         /// Gets the aliases.
         /// </summary>
         /// <value>
         /// The aliases.
         /// </value>
-        [BsonElement("aliases")]
-        [BsonDefaultValue(null)]
-        [BsonIgnoreIfDefault]
         [Obsolete("Place aliases inside metadata instead.")]
         public IEnumerable<string> Aliases
         {
-            get { return _aliases; }
+            get { return GetValue<string[]>("Aliases", null); }
+        }
+
+        /// <summary>
+        /// Gets the backing document.
+        /// </summary>
+        /// <value>
+        /// The backing document.
+        /// </value>
+        new public BsonDocument BackingDocument
+        {
+            get { return base.BackingDocument; }
         }
 
         /// <summary>
@@ -101,10 +70,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The size of a chunk.
         /// </value>
-        [BsonElement("chunkSize")]
         public int ChunkSizeBytes
         {
-            get { return _chunkSizeBytes; }
+            get { return GetValue<int>("ChunkSizeBytes"); }
         }
 
         /// <summary>
@@ -113,26 +81,10 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The type of the content.
         /// </value>
-        [BsonElement("contentType")]
-        [BsonDefaultValue(null)]
-        [BsonIgnoreIfDefault]
         [Obsolete("Place contentType inside metadata instead.")]
         public string ContentType
         {
-            get { return _contentType; }
-        }
-
-        /// <summary>
-        /// Gets the extra elements.
-        /// </summary>
-        /// <value>
-        /// The extra elements.
-        /// </value>
-        [BsonExtraElements]
-        [BsonDefaultValue(null)]
-        public BsonDocument ExtraElements
-        {
-            get { return _extraElements; }
+            get { return GetValue<string>("ContentType", null); }
         }
 
         /// <summary>
@@ -141,10 +93,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The filename.
         /// </value>
-        [BsonElement("filename")]
         public string Filename
         {
-            get { return _filename; }
+            get { return GetValue<string>("Filename"); }
         }
 
         /// <summary>
@@ -153,10 +104,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The identifier.
         /// </value>
-        [BsonIgnore]
         public ObjectId Id
         {
-            get { return _id.AsObjectId; }
+            get { return GetValue<BsonValue>("IdAsBsonValue").AsObjectId; }
         }
 
         /// <summary>
@@ -165,11 +115,10 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The identifier as a BsonValue.
         /// </value>
-        [BsonId]
         [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
         public BsonValue IdAsBsonValue
         {
-            get { return _id; }
+            get { return GetValue<BsonValue>("IdAsBsonValue"); }
         }
 
         /// <summary>
@@ -178,10 +127,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The length.
         /// </value>
-        [BsonElement("length")]
         public long Length
         {
-            get { return _length; }
+            get { return GetValue<long>("Length"); }
         }
 
         /// <summary>
@@ -190,10 +138,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The MD5 checksum.
         /// </value>
-        [BsonElement("md5")]
         public string MD5
         {
-            get { return _md5; }
+            get { return GetValue<string>("MD5", null); }
         }
 
         /// <summary>
@@ -202,12 +149,9 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The metadata.
         /// </value>
-        [BsonElement("metadata")]
-        [BsonDefaultValue(null)]
-        [BsonIgnoreIfDefault]
         public BsonDocument Metadata
         {
-            get { return _metadata; }
+            get { return GetValue<BsonDocument>("Metadata", null); }
         }
 
         /// <summary>
@@ -216,10 +160,48 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The upload date time.
         /// </value>
-        [BsonElement("uploadDate")]
         public DateTime UploadDateTime
         {
-            get { return _uploadDateTime; }
+            get { return GetValue<DateTime>("UploadDateTime"); }
+        }
+    }
+
+    /// <summary>
+    /// Represents a serializer for GridFSFileInfo.
+    /// </summary>
+    public class GridFSFileInfoSerializer : BsonDocumentBackedClassSerializer<GridFSFileInfo>
+    {
+        #region static
+        // public static properties
+        /// <summary>
+        /// Gets the pre-created instance.
+        /// </summary>
+        /// <value>
+        /// The pre-created instance.
+        /// </value>
+        public static GridFSFileInfoSerializer Instance { get; } = new GridFSFileInfoSerializer();
+        #endregion
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer"/> class.
+        /// </summary>
+        public GridFSFileInfoSerializer()
+        {
+            RegisterMember("Aliases", "aliases", new ArraySerializer<string>());
+            RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
+            RegisterMember("ContentType", "contentType", new StringSerializer());
+            RegisterMember("Filename", "filename", new StringSerializer());
+            RegisterMember("IdAsBsonValue", "_id", BsonValueSerializer.Instance);
+            RegisterMember("Length", "length", new Int64Serializer());
+            RegisterMember("MD5", "md5", new StringSerializer());
+            RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
+            RegisterMember("UploadDateTime", "uploadDate", new DateTimeSerializer());
+        }
+
+        /// <inheritdoc/>
+        protected override GridFSFileInfo CreateInstance(BsonDocument backingDocument)
+        {
+            return new GridFSFileInfo(backingDocument);
         }
     }
 }

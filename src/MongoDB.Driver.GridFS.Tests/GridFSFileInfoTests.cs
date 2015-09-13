@@ -61,6 +61,17 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
+        public void BackingDocument_get_should_return_the_expected_result()
+        {
+            var backingDocument = new BsonDocument("x", 1);
+            var subject = new GridFSFileInfo(backingDocument);
+
+            var result = subject.BackingDocument;
+
+            result.Should().BeSameAs(backingDocument);
+        }
+
+        [Test]
         public void ChunkSizeBytes_get_should_return_the_expected_result()
         {
             var value = 1024;
@@ -84,43 +95,11 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void constructor_should_initialize_instance()
         {
-#pragma warning disable 618
-            var aliases = new[] { "alias" };
-            var chunkSizeBytes = 1024;
-            var contentType = "type";
-            var extraElements = new BsonDocument();
-            var filename = "name";
-            var id = ObjectId.GenerateNewId();
-            var idAsBsonValue = (BsonValue)id;
-            var length = 512;
-            var md5 = "md5";
-            var metadata = new BsonDocument();
-            var uploadDateTime = DateTime.UtcNow;
+            var backdocument = new BsonDocument();
 
-            var result = new GridFSFileInfo(
-                aliases,
-                chunkSizeBytes,
-                contentType,
-                extraElements,
-                filename,
-                idAsBsonValue,
-                length,
-                md5,
-                metadata,
-                uploadDateTime);
+            var result = new GridFSFileInfo(backdocument);
 
-            result.Aliases.Should().BeSameAs(aliases);
-            result.ChunkSizeBytes.Should().Be(chunkSizeBytes);
-            result.ContentType.Should().Be(contentType);
-            result.ExtraElements.Should().Be(extraElements);
-            result.Filename.Should().Be(filename);
-            result.Id.Should().Be(id);
-            result.IdAsBsonValue.Should().Be(idAsBsonValue);
-            result.Length.Should().Be(length);
-            result.MD5.Should().Be(md5);
-            result.Metadata.Should().Be(metadata);
-            result.UploadDateTime.Should().Be(uploadDateTime);
-#pragma warning restore
+            result.BackingDocument.Should().BeSameAs(backdocument);
         }
 
         [Test]
@@ -155,39 +134,27 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void ExtraElements_get_should_return_the_expected_result()
-        {
-            var value = new BsonDocument("x", 1);
-            var subject = CreateSubject(extraElements: value);
-
-            var result = subject.ExtraElements;
-
-            result.Should().Be(value);
-        }
-
-        [Test]
         public void ExtraElements_should_be_deserialized_correctly(
-            [Values(null, new[] { "x" }, new[] { "x", "y" }, new[] { "ExtraElements" })]
+            [Values(new string[0], new[] { "x" }, new[] { "x", "y" }, new[] { "ExtraElements" })]
             string[] names)
         {
             var document = CreateFilesCollectionDocument();
 
-            BsonDocument extraElements = null;
-            if (names != null)
+            var extraElements = new BsonDocument();
+            var value = 1;
+            foreach (var name in names)
             {
-                extraElements = new BsonDocument();
-                var value = 1;
-                foreach (var name in names)
-                {
-                    extraElements.Add(name, value++);
-                }
-
-                document.Merge(extraElements);
+                extraElements.Add(name, value++);
             }
+
+            document.Merge(extraElements, overwriteExistingElements: false);
 
             var subject = DeserializeFilesCollectionDocument(document);
 
-            subject.ExtraElements.Should().Be(extraElements);
+            foreach (var element in extraElements)
+            {
+                subject.BackingDocument[element.Name].Should().Be(element.Value);
+            }
         }
 
         [Test]
@@ -346,7 +313,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void UploadDateTime_get_should_return_the_expected_result()
         {
-            var value = DateTime.UtcNow;
+            var value = (new BsonDateTime(DateTime.UtcNow)).ToUniversalTime(); // truncated to millisecond precision
             var subject = CreateSubject(uploadDateTime: value);
 
             var result = subject.UploadDateTime;
@@ -390,17 +357,24 @@ namespace MongoDB.Driver.GridFS.Tests
             BsonDocument metadata = null,
             DateTime? uploadDateTime = null)
         {
-            return new GridFSFileInfo(
-                aliases,
-                chunkSizeBytes ?? 255 * 1024,
-                contentType,
-                extraElements,
-                filename ?? "name",
-                idAsBsonValue ?? (BsonValue)ObjectId.GenerateNewId(),
-                length ?? 0,
-                md5 ?? "md5",
-                metadata,
-                uploadDateTime ?? DateTime.UtcNow);
+            var backingDocument = new BsonDocument
+            {
+                { "_id", idAsBsonValue ?? (BsonValue)ObjectId.GenerateNewId() },
+                { "length", length ?? 0 },
+                { "chunkSize", chunkSizeBytes ?? 255 * 1024 },
+                { "uploadDate", uploadDateTime ?? DateTime.UtcNow },
+                { "md5", md5 ?? "md5" },
+                { "filename", filename ?? "filename" },
+                { "contentType", contentType, contentType != null },
+                { "aliases", () => new BsonArray(aliases.Select(a => new BsonString(a))), aliases != null },
+                { "metadata", metadata, metadata != null }
+            };
+            if (extraElements != null)
+            {
+                backingDocument.Merge(extraElements, overwriteExistingElements: false);
+            }
+
+            return new GridFSFileInfo(backingDocument);
         }
 
         private GridFSFileInfo DeserializeFilesCollectionDocument(BsonDocument document)
