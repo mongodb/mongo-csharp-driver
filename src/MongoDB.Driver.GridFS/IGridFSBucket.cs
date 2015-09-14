@@ -91,6 +91,13 @@ namespace MongoDB.Driver.GridFS
         Task DownloadToStreamByNameAsync(string filename, Stream destination, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Drops the files and chunks collections associated with this GridFS bucket.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task DropAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Finds matching entries from the files collection.
         /// </summary>
         /// <param name="filter">The filter.</param>

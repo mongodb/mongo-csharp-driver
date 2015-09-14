@@ -156,6 +156,23 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
+        public async Task DropAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filesCollectionNamespace = GetFilesCollectionNamespace();
+            var chunksCollectionNamespace = GetChunksCollectionNamespace();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
+            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var filesCollectionDropOperation = new DropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
+                await filesCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+
+                var chunksCollectionDropOperation = new DropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
+                await chunksCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public async Task<IAsyncCursor<GridFSFileInfo>> FindAsync(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
