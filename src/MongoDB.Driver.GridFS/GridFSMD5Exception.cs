@@ -18,7 +18,7 @@ using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.GridFS
 {
     /// <summary>
     /// Represents a GridFSMD5 exception.
