@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Tests;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -169,6 +170,22 @@ namespace MongoDB.Driver.GridFS.Tests
             Func<Task> action = () => subject.DownloadToStreamByNameAsync(null, destination);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
+        }
+
+        [Test]
+        public async Task DropAsync_should_drop_the_files_and_chunks_collections()
+        {
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var subject = new GridFSBucket(database);
+            await subject.UploadFromBytesAsync("test", new byte[] { 0 }); // causes the collections to be created
+
+            await subject.DropAsync();
+
+            var collections = await (await database.ListCollectionsAsync()).ToListAsync();
+            var collectionNames = collections.Select(c => c["name"].AsString);
+            collectionNames.Should().NotContain("fs.files");
+            collectionNames.Should().NotContain("fs.chunks");
         }
 
         [Test]
