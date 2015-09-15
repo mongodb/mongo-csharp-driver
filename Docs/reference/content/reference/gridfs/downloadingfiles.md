@@ -1,5 +1,5 @@
 +++
-date = "2015-09-41T00:00:00Z"
+date = "2015-09-14T00:00:00Z"
 draft = false
 title = "Downloading Files"
 [menu.main]
@@ -13,14 +13,14 @@ title = "Downloading Files"
 
 There are several ways to download a file from GridFS. The two main approaches are:
 
-1. The driver downloads a file as a byte array or by writing the contents to a Stream provided by the application
-2. The driver supplies a Stream object that the application can read the contents from
+1. The driver downloads a file as a byte array or by writing the contents to a [`Stream`]({{< msdnref "system.io.stream" >}}) provided by the application
+2. The driver supplies a [`Stream`]({{< msdnref "system.io.stream" >}}) object that the application can read the contents from
 
 ### Downloading as a byte array
 
 This is the easiest way to download a file from GridFS, assuming that the file is small enough for the entire contents to be held in memory at once.
 
-```
+```csharp
 IGridFSBucket bucket;
 ObjectId id;
 
@@ -29,9 +29,9 @@ var bytes = await bucket.DownloadAsBytesAsync(id);
 
 ### Downloading to a Stream
 
-If you don't want to hold the entire contents of the downloaded file in memory at once, you can have the driver write the contents of the file to a Stream provided by the application.
+If you don't want to hold the entire contents of the downloaded file in memory at once, you can have the driver write the contents of the file to a [`Stream`]({{< msdnref "system.io.stream" >}}) provided by the application.
 
-```
+```csharp
 IGridFSBucket bucket;
 ObjectId id;
 Stream destination;
@@ -39,13 +39,15 @@ Stream destination;
 await bucket.DownloadToStreamAsync(id, destination);
 ```
 
-The driver will download the contents of the GridFS file and write them to the destination Stream. The driver begins writing the contents at the current position of the Stream, and does **not** close the Stream when it is done. The Stream is owned by the application and it is up to the application to close the Stream when it is ready to do so.
+The driver will download the contents of the GridFS file and write them to the destination [`Stream`]({{< msdnref "system.io.stream" >}}). The driver begins writing the contents at the current position of the [`Stream`]({{< msdnref "system.io.stream" >}}).
+
+{{% note class="important" %}}The driver does **not** close the [`Stream`]({{< msdnref "system.io.stream" >}}) when it is done. The [`Stream`]({{< msdnref "system.io.stream" >}}) is owned by the application and it is up to the application to close the [`Stream`]({{< msdnref "system.io.stream" >}}) when it is ready to do so.{{% /note %}}
 
 ### Downloading from a Stream
 
-In some cases it the application might prefer to read the contents of the GridFS file from a Stream.
+In some cases the application might prefer to read the contents of the GridFS file from a [`Stream`]({{< msdnref "system.io.stream" >}}).
 
-```
+```csharp
 IGridFSBucket bucket;
 ObjectId id;
 
@@ -56,9 +58,9 @@ using (var stream = await bucket.OpenDownloadStreamAsync(id))
 }
 ```
 
-The Stream object returned by OpenDownloadStreamAsync is actually a GridFSDownloadStream (a subclass of Stream), which has the following additional members in addition to those found in Stream:
+The [`Stream`]({{< msdnref "system.io.stream" >}}) object returned by [`OpenDownloadStreamAsync`]({{< apiref "M_MongoDB_Driver_GridFS_OpenDownloadStreamAsync_1." >}}) is actually a [`GridFSDownloadStream`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSDownloadStream" >}}) (a subclass of [`Stream`]({{< msdnref "system.io.stream" >}})), which has the following additional members in addition to those found in [`Stream`]({{< msdnref "system.io.stream" >}}):
 
-```
+```csharp
 public abstract class GridFSDownloadStream : Stream
 {
     public abstract GridFSFileInfo FileInfo { get; }
@@ -66,15 +68,15 @@ public abstract class GridFSDownloadStream : Stream
 };
 ```
 
-The FileInfo property contains information about the GridFS file being dowloaded. See the FindAsync method for details about the GridFSFileInfo class.
+The [`FileInfo`]({{< apiref "P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo" >}}) property contains information about the GridFS file being dowloaded. See the [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) method for details about the [`GridFSFileInfo`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSFileInfo" >}}) class.
 
-Calling CloseAsync is optional, but recommended. Since Stream is IDisposable and it is used inside a using statement, it would be closed automatically when Dispose is called. However, in async programming we want to avoid blocking and calling CloseAsync first allows the Stream to be closed with an async call. If you call CloseAsync first then Dispose will no longer block.
+{{% note %}}Calling [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) is optional, but recommended. Since [`Stream`]({{< msdnref "system.io.stream" >}}) is [`IDisposable`]({{< msdnref "system.idisposable" >}}) and it is used inside a using statement, it would be closed automatically when [`Dispose`]({{< msdnref "system.idisposable.dispose" >}}) is called. However, in async programming we want to avoid blocking and calling [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) first allows the [`Stream`]({{< msdnref "system.io.stream" >}}) to be closed with an async call. If you call [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) first then [`Dispose`]({{< msdnref "system.idisposable.dispose" >}}) will no longer block.{{% /note %}}
 
-By default the driver assumes that you want to read the entire contents of the file from beginning to end, and returns a Stream implementation that does not support seeking, which allows for a more efficient implementation.
+By default the driver assumes that you want to read the entire contents of the file from beginning to end, and returns a [`Stream`]({{< msdnref "system.io.stream" >}}) implementation that does not support seeking, which allows for a more efficient implementation.
 
-If you do want to use Seek with the returned Stream, you can use the options parameter to indicate that.
+If you do want to use [`Seek`]({{< msdnref "system.io.stream.seek" >}}) with the returned [`Stream`]({{< msdnref "system.io.stream" >}}), you can use the options parameter to indicate that.
 
-```
+```csharp
 IGridFSBucket bucket;
 ObjectId id;
 
@@ -107,7 +109,7 @@ The default value for the revision is -1 (i.e. the newest revision).
 
 The following examples all download the newest revision:
 
-```
+```csharp
 IGridFSBucket bucket;
 string filename;
 
@@ -129,7 +131,7 @@ using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename))
 
 If you want to download a different revision, you specify the desired revision using the options parameter.
 
-```
+```csharp
 IGridFSBucket bucket;
 string filename;
 

@@ -1,5 +1,5 @@
 +++
-date = "2015-09-41T00:00:00Z"
+date = "2015-09-14T00:00:00Z"
 draft = false
 title = "Finding Files"
 [menu.main]
@@ -15,11 +15,11 @@ Each file stored in GridFS has a unique Id assigned to it, and that is the prima
 
 ### FindAsync method
 
-If you don't know the Id, you can use FindAsync to find matching files using a filter. The filter must be of type FilterDefinition&lt;GridFSFileInfo&gt;.
+If you don't know the Id, you can use [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) to find matching files using a filter. The filter must be of type [`FilterDefinition<GridFSFileInfo>`]({{< apiref "T_MongoDB_Driver_FilterDefinition_1" >}}).
 
-For example, to find the newest revision of the file named "securityvideo" uploaded in January 2015 we could use FindAsync like this:
+For example, to find the newest revision of the file named "securityvideo" uploaded in January 2015 we could use [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) like this:
 
-```
+```csharp
 IGridFSBucket bucket;
 var filter = Builders<GridFSFileInfo>.Filter.And( 
     Builders<GridFSFileInfo>.Filter.EQ(x => x.Filename, "securityvideo"),
@@ -41,29 +41,8 @@ using (var cursor = await bucket.FindAsync(filter, options))
 
 ### GridFSFileInfo class
 
-The GridFSFileInfo is a strongly typed class that represents the information about a GridFS file stored in the "fs.files" collection.
+The [`GridFSFileInfo`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSFileInfo" >}}) is a strongly typed class that represents the information about a GridFS file stored in the "fs.files" collection.
 
-It is defined as:
+This class is a strongly typed wrapper around a backing [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}). It makes it easier to extract the information available in a files collection documents.
 
-```
-public class GridFSFileInfo
-{
-    public BsonDocument BackingDocument { get; }
-    public int ChunkSizeBytes { get; }
-    public string Filename { get; }
-    public ObjectId Id { get; }
-    public long Length { get; }
-    public string MD5 { get; }
-    public BsonDocument Metadata { get; }
-    public DateTime UploadDateTime { get; }
-    
-    // the following are deprecated but kept for backward compatibility
-    public IEnumerable<string> Aliases { get; }
-    public string ContentType { get; }
-    public BsonValue IdAsBsonValue { get; }
-}
-```
-
-This class is a strongly typed wrapper around a backing BsonDocument. It makes it easier to extract the information available in a files collection documents.
-
-In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the BackingDocument property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the Metadata document.
+In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the [`BackingDocument`]({{< apiref "P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument" >}}) property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the [`Metadata`]({{< apiref "P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata" >}}) document.

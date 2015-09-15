@@ -11,7 +11,7 @@ title = "GridFS"
 
 ## GridFS
 
-GridFS is a way of storing binary information that is larger than the maximum document size (currently 16MB). When you upload a file to GridFS the file is broken into chunks and the individual chunks are uploaded. When you download a  file from GridFS the original content is reassembled from the chunks.
+GridFS is a way of storing binary information larger than the maximum document size (currently 16MB). When you upload a file to GridFS the file is broken into chunks and the individual chunks are uploaded. When you download a  file from GridFS the original content is reassembled from the chunks.
 
 - [Getting Started]({{< relref "reference\gridfs\gettingstarted.md" >}})
 - [Uploading files]({{< relref "reference\gridfs\uploadingfiles.md" >}})
