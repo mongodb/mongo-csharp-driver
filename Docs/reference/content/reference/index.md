@@ -15,3 +15,4 @@ The reference documentation is not an API reference. You can review those [here]
 - [BSON]({{< relref "reference\bson\index.md" >}})
 - [Driver]({{< relref "reference\driver\index.md" >}})
 - [Driver Core]({{< relref "reference\driver_core\index.md" >}})
+- [GridFS]({{< relref "reference\gridfs\index.md" >}})
