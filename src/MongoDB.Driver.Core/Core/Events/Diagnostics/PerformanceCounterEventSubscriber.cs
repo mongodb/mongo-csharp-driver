@@ -154,7 +154,6 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         /// Handles the specified event.
         /// </summary>
         /// <param name="event">The event.</param>
-        /// <inheritdoc />
         public void Handle(ConnectionPoolCheckedInConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;

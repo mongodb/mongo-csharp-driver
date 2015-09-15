@@ -42,7 +42,11 @@ namespace MongoDB.Driver.GridFS
         private readonly ImmutableGridFSBucketOptions _options;
 
         // constructors
-        /// <inheritdoc />
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GridFSBucket" /> class.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="options">The options.</param>
         public GridFSBucket(IMongoDatabase database, GridFSBucketOptions options = null)
         {
             _database = Ensure.IsNotNull(database, nameof(database));

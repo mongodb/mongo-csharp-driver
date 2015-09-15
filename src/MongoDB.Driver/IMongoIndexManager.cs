@@ -63,7 +63,7 @@ namespace MongoDB.Driver
         /// <param name="models">The models defining each of the indexes.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// A task whose result is an <see cref="T:IEnumerable{string}" /> of the names of the indexes that were created.
+        /// A task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
         /// </returns>
         Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken));
 

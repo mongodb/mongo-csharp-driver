@@ -83,6 +83,7 @@ namespace MongoDB.Driver
         /// Appends a match stage to the pipeline that matches derived documents and changes the result type to the derived type.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the derived documents.</typeparam>
+        /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> OfType<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null) where TNewResult : TResult;
 

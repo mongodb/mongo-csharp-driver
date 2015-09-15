@@ -487,7 +487,12 @@ namespace MongoDB.Driver
             _projectionSerializer = projectionSerializer;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TProjection> ResultSerializer
         {
             get { return _projectionSerializer; }
