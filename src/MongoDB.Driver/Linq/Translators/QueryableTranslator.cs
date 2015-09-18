@@ -76,6 +76,9 @@ namespace MongoDB.Driver.Linq.Translators
                     case ExtensionExpressionType.Pipeline:
                         TranslatePipeline((PipelineExpression)node);
                         return;
+                    case ExtensionExpressionType.Sample:
+                        TranslateSample((SampleExpression)node);
+                        return;
                     case ExtensionExpressionType.Select:
                         TranslateSelect((SelectExpression)node);
                         return;
@@ -190,6 +193,13 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             _resultTransformer = node.ResultOperator as IResultTransformer;
+        }
+
+        private void TranslateSample(SampleExpression node)
+        {
+            Translate(node.Source);
+
+            _stages.Add(new BsonDocument("$sample", new BsonDocument("size", (long)((ConstantExpression)node.Count).Value)));
         }
 
         private void TranslateSelect(SelectExpression node)

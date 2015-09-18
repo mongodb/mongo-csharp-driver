@@ -114,6 +114,7 @@
     <Compile Include="Linq\Expressions\OrderByClause.cs" />
     <Compile Include="Linq\Expressions\ExceptExpression.cs" />
     <Compile Include="Linq\Expressions\IntersectExpression.cs" />
+    <Compile Include="Linq\Expressions\SampleExpression.cs" />
     <Compile Include="Linq\Expressions\UnionExpression.cs" />
     <Compile Include="Linq\Expressions\WhereExpression.cs" />
     <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\GroupByWithResultSelectorBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationSampleBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationPopulationBinder.cs" />
+    <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\SampleBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\ThenByBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\OrderByBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\SelectManyBinder.cs" />

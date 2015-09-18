@@ -132,6 +132,13 @@ namespace MongoDB.Driver.Linq.Expressions
             return resultOperator.Update(this);
         }
 
+        protected internal virtual Expression VisitSample(SampleExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Count));
+        }
+
         protected internal virtual Expression VisitSelect(SelectExpression node)
         {
             return node.Update(

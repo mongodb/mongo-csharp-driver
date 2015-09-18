@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq.Expressions
         GroupByWithResultSelector,
         Intersect,
         OrderBy,
+        Sample,
         Select,
         SelectMany,
         Skip,

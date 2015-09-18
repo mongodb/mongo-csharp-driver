@@ -749,6 +749,25 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns a sample of the elements in the <paramref name="source"/>.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}" /> to return a sample of.</param>
+        /// <param name="count">The number of elements in the sample.</param>
+        /// <returns>
+        /// A sample of the elements in the <paramref name="source"/>.
+        /// </returns>
+        public static IMongoQueryable<TSource> Sample<TSource>(this IQueryable<TSource> source, long count)
+        {
+            return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+                Expression.Call(
+                    null,
+                    GetMethodInfo(Sample, source, count),
+                    source.Expression,
+                    Expression.Constant(count)));
+        }
+
+        /// <summary>
         /// Projects each element of a sequence into a new form by incorporating the
         /// element's index.
         /// </summary>
