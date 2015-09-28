@@ -1993,37 +1993,14 @@ namespace MongoDB.DriverUnitTests
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new BsonDocument { { "x", "abc" } });
-                _collection.Insert(new BsonDocument { { "x", "def" } });
-                _collection.Insert(new BsonDocument { { "x", "ghi" } });
+                var expectedName = "x_hashed";
+                var expectedKey = "{ x : \"hashed\" }";
+
                 _collection.CreateIndex(IndexKeys.Hashed("x"));
 
-                var query = Query.EQ("x", "abc");
-                var cursor = _collection.FindAs<BsonDocument>(query);
-                var documents = cursor.ToArray();
-
-                Assert.AreEqual(1, documents.Length);
-                Assert.AreEqual("abc", documents[0]["x"].AsString);
-
-                var plan = cursor.Explain();
-                if (_server.BuildInfo.Version < new Version(2, 7, 0))
-                {
-                    Assert.AreEqual("BtreeCursor x_hashed", plan["cursor"].AsString);
-                }
-                else
-                {
-                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                    var inputStage = winningPlan["inputStage"].AsBsonDocument;
-                    // working around a server bug were sometimes the inputStage is nested inside the inputStage
-                    if (inputStage.Contains("inputStage"))
-                    {
-                        inputStage = inputStage["inputStage"].AsBsonDocument;
-                    }
-                    var stage = inputStage["stage"].AsString;
-                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                    Assert.That(stage, Is.EqualTo("IXSCAN"));
-                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ x : \"hashed\" }")));
-                }
+                var index = _collection.GetIndexes().FirstOrDefault(x => x.Name == expectedName);
+                Assert.IsNotNull(index);
+                Assert.AreEqual(BsonDocument.Parse(expectedKey), index.Key);
             }
         }
 
