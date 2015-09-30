@@ -288,6 +288,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildCompareToQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = BuildStringIndexOfQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -319,6 +325,28 @@ namespace MongoDB.Driver.Linq
             }
 
             return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
+        }
+
+        private IMongoQuery BuildCompareToQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            if (constantExpression.Type != typeof (int) || ((int) constantExpression.Value) != 0)
+            {
+                return null;
+            }
+
+            var call = variableExpression as MethodCallExpression;
+            if (call == null || call.Object == null || call.Method.Name != "CompareTo" || call.Arguments.Count != 1)
+            {
+                return null;
+            }
+
+            constantExpression = call.Arguments[0] as ConstantExpression;
+            if (constantExpression == null)
+            {
+                return null;
+            }
+
+            return BuildComparisonQuery(call.Object, operatorType, constantExpression);
         }
 
         private IMongoQuery BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)

@@ -1162,6 +1162,43 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => !(c.X != 1), 1, "{ \"x\" : 1 }");
         }
 
+        [Test]
+        public void CompareTo_equal()
+        {
+            Assert<C>(x => x.S.CompareTo("abc") == 0, 1, "{\"s\": \"abc\" }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than()
+        {
+            Assert<C>(
+                x => x.S.CompareTo("Around") > 0, 1, "{\"s\": { $gt: \"Around\" } }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than_or_equal()
+        {
+            Assert<C>(x => x.S.CompareTo("Around") >= 0, 1, "{\"s\": { $gte: \"Around\" } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than()
+        {
+            Assert<C>(x => x.S.CompareTo("Around") < 0, 1, "{\"s\": { $lt: \"Around\" } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than_or_equal()
+        {
+            Assert<C>(x => x.S.CompareTo("Around") <= 0, 1, "{\"s\": { $lte: \"Around\" } }");
+        }
+
+        [Test]
+        public void CompareTo_not_equal()
+        {
+            Assert<C>(x => x.S.CompareTo("abc") != 0, 4, "{\"s\": { $ne: \"abc\" } }");
+        }
+
         public void Assert<TDocument>(Expression<Func<TDocument, bool>> filter, int expectedCount, string expectedFilter)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
