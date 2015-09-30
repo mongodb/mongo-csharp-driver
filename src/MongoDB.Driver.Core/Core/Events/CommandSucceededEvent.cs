@@ -20,7 +20,6 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// Occurs when a command has succeeded.
     /// </summary>
