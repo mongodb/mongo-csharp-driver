@@ -63,14 +63,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         // methods
         private BsonDocument CreateGetLastErrorCommand()
         {
-            return new BsonDocument
-            {
-                { "getLastError", 1 },
-                { "w", () => _writeConcern.W.ToBsonValue(), _writeConcern.W != null },
-                { "wtimeout", () => _writeConcern.WTimeout.Value.TotalMilliseconds, _writeConcern.WTimeout.HasValue },
-                { "fsync", () => _writeConcern.FSync.Value, _writeConcern.FSync.HasValue },
-                { "j", () => _writeConcern.Journal.Value, _writeConcern.Journal.HasValue }
-            };
+            var command = _writeConcern.ToBsonDocument();
+            command.InsertAt(0, new BsonElement("getLastError", 1));
+            return command;
         }
 
         private QueryMessage CreateGetLastErrorMessage(BsonDocument getLastErrorCommand)

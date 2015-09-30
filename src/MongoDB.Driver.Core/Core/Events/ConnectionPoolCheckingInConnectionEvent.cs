@@ -26,14 +26,17 @@ namespace MongoDB.Driver.Core.Events
     public struct ConnectionPoolCheckingInConnectionEvent
     {
         private readonly ConnectionId _connectionId;
+        private readonly long? _operationId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionPoolCheckingInConnectionEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionPoolCheckingInConnectionEvent" /> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        public ConnectionPoolCheckingInConnectionEvent(ConnectionId connectionId)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionPoolCheckingInConnectionEvent(ConnectionId connectionId, long? operationId)
         {
             _connectionId = connectionId;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -50,6 +53,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

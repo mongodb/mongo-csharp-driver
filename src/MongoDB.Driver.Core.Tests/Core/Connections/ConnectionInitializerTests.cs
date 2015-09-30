@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void InitializeConnectionAsync_should_build_the_ConnectionDescription_correctly()
         {
-            var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
-            var buildInfoReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
-            var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);

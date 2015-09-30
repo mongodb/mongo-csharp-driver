@@ -27,6 +27,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// </summary>
     public abstract class MongoDBMessage : IEncodableMessage
     {
+        // properties
+        /// <summary>
+        /// Gets the type of the message.
+        /// </summary>
+        public abstract MongoDBMessageType MessageType { get; }
+
         // methods        
         /// <inheritdoc/>
         public abstract IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);

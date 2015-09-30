@@ -28,4 +28,16 @@ namespace MongoDB.Driver.Core.Misc
             return Interlocked.Increment(ref __lastId);
         }
     }
+
+    internal static class LongIdGenerator<T>
+    {
+        // static fields
+        private static long __lastId;
+
+        // static methods
+        public static long GetNextId()
+        {
+            return Interlocked.Increment(ref __lastId);
+        }
+    }
 }

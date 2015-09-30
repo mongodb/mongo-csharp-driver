@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly TimeSpan _deserializationDuration;
         private readonly TimeSpan _networkDuration;
         private readonly int _length;
+        private readonly long? _operationId;
         private readonly int _responseTo;
 
         /// <summary>
@@ -40,13 +41,15 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="length">The length of the received message.</param>
         /// <param name="networkDuration">The duration of network time it took to receive the message.</param>
         /// <param name="deserializationDuration">The duration of deserialization time it took to receive the message.</param>
-        public ConnectionReceivedMessageEvent(ConnectionId connectionId, int responseTo, int length, TimeSpan networkDuration, TimeSpan deserializationDuration)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionReceivedMessageEvent(ConnectionId connectionId, int responseTo, int length, TimeSpan networkDuration, TimeSpan deserializationDuration, long? operationId)
         {
             _connectionId = connectionId;
             _responseTo = responseTo;
             _length = length;
             _networkDuration = networkDuration;
             _deserializationDuration = deserializationDuration;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -95,6 +98,14 @@ namespace MongoDB.Driver.Core.Events
         public int Length
         {
             get { return _length; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

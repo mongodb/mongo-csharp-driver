@@ -78,6 +78,7 @@
     <Compile Include="Core\Bindings\ReadPreferenceBinding.cs" />
     <Compile Include="Core\Clusters\ElectionId.cs" />
     <Compile Include="Core\Configuration\SslStreamSettings.cs" />
+    <Compile Include="Core\Connections\CommandEventHelper.cs" />
     <Compile Include="Core\Connections\SslStreamFactory.cs" />
     <Compile Include="Core\Events\ClusterSelectingServerEvent.cs" />
     <Compile Include="Core\Events\ClusterSelectedServerEvent.cs" />
@@ -91,6 +92,9 @@
     <Compile Include="Core\Events\ClusterAddingServerEvent.cs" />
     <Compile Include="Core\Events\ClusterOpeningEvent.cs" />
     <Compile Include="Core\Events\ClusterClosingEvent.cs" />
+    <Compile Include="Core\Events\CommandFailedEvent.cs" />
+    <Compile Include="Core\Events\CommandSucceededEvent.cs" />
+    <Compile Include="Core\Events\CommandStartedEvent.cs" />
     <Compile Include="Core\Events\ConnectionClosedEvent.cs" />
     <Compile Include="Core\Events\ConnectionClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionOpenedEvent.cs" />
@@ -103,6 +107,7 @@
     <Compile Include="Core\Events\ConnectionSendingMessagesFailedEvent.cs" />
     <Compile Include="Core\Events\ConnectionSentMessagesEvent.cs" />
     <Compile Include="Core\Events\EventAggregator.cs" />
+    <Compile Include="Core\Events\EventContext.cs" />
     <Compile Include="Core\Events\IEventSubscriber.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriber.cs" />
     <Compile Include="Core\Events\ServerClosedEvent.cs" />
@@ -131,6 +136,7 @@
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\IMessageEncoderSelector.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\ReplyMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\MongoDBMessageType.cs" />
     <Compile Include="Core\WireProtocol\Messages\ResponseMessage.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="Core\Misc\ReferenceCounted.cs" />

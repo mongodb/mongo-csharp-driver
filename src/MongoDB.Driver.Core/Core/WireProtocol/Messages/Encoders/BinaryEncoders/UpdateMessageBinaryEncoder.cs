@@ -65,6 +65,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         /// <returns>A message.</returns>
         public UpdateMessage ReadMessage()
         {
+            return ReadMessage(BsonDocumentSerializer.Instance);
+        }
+
+        internal UpdateMessage ReadMessage<TDocument>(IBsonSerializer<TDocument> serializer)
+            where TDocument : BsonDocument
+        {
             var binaryReader = CreateBinaryReader();
             var stream = binaryReader.BsonStream;
 
@@ -76,8 +82,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var fullCollectionName = stream.ReadCString(Encoding);
             var flags = (UpdateFlags)stream.ReadInt32();
             var context = BsonDeserializationContext.CreateRoot(binaryReader);
-            var query = BsonDocumentSerializer.Instance.Deserialize(context);
-            var update = BsonDocumentSerializer.Instance.Deserialize(context);
+            var query = serializer.Deserialize(context);
+            var update = serializer.Deserialize(context);
 
             var isMulti = (flags & UpdateFlags.Multi) == UpdateFlags.Multi;
             var isUpsert = (flags & UpdateFlags.Upsert) == UpdateFlags.Upsert;

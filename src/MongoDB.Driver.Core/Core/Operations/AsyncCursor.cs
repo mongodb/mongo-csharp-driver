@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -44,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOnlyList<TDocument> _firstBatch;
         private readonly int _limit;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly long? _operationId;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
 
@@ -71,6 +73,7 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
+            _operationId = EventContext.OperationId;
             _channelSource = channelSource;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _query = Ensure.IsNotNull(query, nameof(query));
@@ -113,11 +116,20 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
+            var numberToReturn = _batchSize;
+            if (_limit != 0)
+            {
+                numberToReturn = Math.Abs(_limit) - _count;
+                if (_batchSize != 0 && numberToReturn > _batchSize)
+                {
+                    numberToReturn = _batchSize;
+                }
+            }
             return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
                 _query,
                 _cursorId,
-                _batchSize,
+                numberToReturn,
                 _serializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -173,6 +185,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
+            using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
@@ -183,6 +196,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
+                using (EventContext.BeginOperation(_operationId))
+                using (EventContext.BeginKillCursors(_collectionNamespace))
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                 {

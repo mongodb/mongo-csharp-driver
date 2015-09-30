@@ -27,16 +27,19 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ServerId _serverId;
         private readonly Exception _exception;
+        private readonly long? _operationId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionPoolCheckingOutConnectionFailedEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionPoolCheckingOutConnectionFailedEvent" /> struct.
         /// </summary>
         /// <param name="serverId">The server identifier.</param>
         /// <param name="exception">The exception.</param>
-        public ConnectionPoolCheckingOutConnectionFailedEvent(ServerId serverId, Exception exception)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionPoolCheckingOutConnectionFailedEvent(ServerId serverId, Exception exception, long? operationId)
         {
             _serverId = serverId;
             _exception = exception;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -53,6 +56,14 @@ namespace MongoDB.Driver.Core.Events
         public Exception Exception
         {
             get { return _exception; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

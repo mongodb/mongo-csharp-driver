@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -159,14 +160,17 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+            using (EventContext.BeginOperation())
             {
-                return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                var emulator = CreateEmulator();
-                return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+                {
+                    return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    var emulator = CreateEmulator();
+                    return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 

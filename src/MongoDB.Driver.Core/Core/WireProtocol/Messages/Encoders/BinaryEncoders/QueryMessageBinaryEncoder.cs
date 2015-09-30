@@ -76,6 +76,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         /// <returns>A message.</returns>
         public QueryMessage ReadMessage()
         {
+            return ReadMessage<BsonDocument>(BsonDocumentSerializer.Instance);
+        }
+
+        internal QueryMessage ReadMessage<TDocument>(IBsonSerializer<TDocument> serializer)
+            where TDocument : BsonDocument
+        {
             var binaryReader = CreateBinaryReader();
             var stream = binaryReader.BsonStream;
             var startPosition = stream.Position;
@@ -89,11 +95,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var skip = stream.ReadInt32();
             var batchSize = stream.ReadInt32();
             var context = BsonDeserializationContext.CreateRoot(binaryReader);
-            var query = BsonDocumentSerializer.Instance.Deserialize(context);
+            var query = serializer.Deserialize(context);
             BsonDocument fields = null;
             if (stream.Position < startPosition + messageSize)
             {
-                fields = BsonDocumentSerializer.Instance.Deserialize(context);
+                fields = serializer.Deserialize(context);
             }
 
             var awaitData = (flags & QueryFlags.AwaitData) == QueryFlags.AwaitData;

@@ -286,9 +286,9 @@ namespace MongoDB.Driver.Core.Servers
 
         private void SetupHeartbeatConnection()
         {
-            var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
-            var buildInfoReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
 
             _heartbeatConnection.EnqueueReplyMessage(isMasterReply);

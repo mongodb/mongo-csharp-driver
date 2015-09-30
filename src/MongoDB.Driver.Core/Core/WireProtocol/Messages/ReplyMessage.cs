@@ -96,9 +96,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the server is await capable.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is await capable; otherwise, <c>false</c>.
-        /// </value>
         public bool AwaitCapable
         {
             get { return _awaitCapable; }
@@ -107,9 +104,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the cursor identifier.
         /// </summary>
-        /// <value>
-        /// The cursor identifier.
-        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
@@ -118,9 +112,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the cursor was not found.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the cursor was not found; otherwise, <c>false</c>.
-        /// </value>
         public bool CursorNotFound
         {
             get { return _cursorNotFound; }
@@ -129,20 +120,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the documents.
         /// </summary>
-        /// <value>
-        /// The documents.
-        /// </value>
         public List<TDocument> Documents
         {
             get { return _documents; }
         }
 
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.Reply; }
+        }
+
         /// <summary>
         /// Gets the number of documents returned.
         /// </summary>
-        /// <value>
-        /// The number of documents returned.
-        /// </value>
         public int NumberReturned
         {
             get { return _numberReturned; }
@@ -151,9 +142,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the query failed.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the query failed; otherwise, <c>false</c>.
-        /// </value>
         public bool QueryFailure
         {
             get { return _queryFailure; }
@@ -162,9 +150,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the query failure document.
         /// </summary>
-        /// <value>
-        /// The query failure document (or null if QueryFailure is false).
-        /// </value>
         public BsonDocument QueryFailureDocument
         {
             get { return _queryFailureDocument; }
@@ -173,9 +158,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the serializer.
         /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
@@ -184,9 +166,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the position of the first document in this batch in the overall result.
         /// </summary>
-        /// <value>
-        /// The position of the first document in this batch in the overall result.
-        /// </value>
         public int StartingFrom
         {
             get { return _startingFrom; }

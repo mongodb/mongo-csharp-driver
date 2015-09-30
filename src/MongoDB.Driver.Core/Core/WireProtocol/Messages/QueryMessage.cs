@@ -94,9 +94,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the server should await data (used with tailable cursors).
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server should await data (used with tailable cursors); otherwise, <c>false</c>.
-        /// </value>
         public bool AwaitData
         {
             get { return _awaitData; }
@@ -105,9 +102,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the size of a batch.
         /// </summary>
-        /// <value>
-        /// The size of a batch.
-        /// </value>
         public int BatchSize
         {
             get { return _batchSize; }
@@ -116,9 +110,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -127,20 +118,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the fields.
         /// </summary>
-        /// <value>
-        /// The fields.
-        /// </value>
         public BsonDocument Fields
         {
             get { return _fields; }
         }
 
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.Query; }
+        }
+
         /// <summary>
         /// Gets a value indicating whether the server should not timeout the cursor.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server should not timeout the cursor; otherwise, <c>false</c>.
-        /// </value>
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
@@ -160,9 +151,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the server is allowed to return partial results if any shards are unavailable.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is allowed to return partial results if any shards are unavailable; otherwise, <c>false</c>.
-        /// </value>
         public bool PartialOk
         {
             get { return _partialOk; }
@@ -171,9 +159,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
@@ -182,9 +167,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the query validator.
         /// </summary>
-        /// <value>
-        /// The query validator.
-        /// </value>
         public IElementNameValidator QueryValidator
         {
             get { return _queryValidator; }
@@ -193,9 +175,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the number of documents to skip.
         /// </summary>
-        /// <value>
-        /// The number of documents to skip.
-        /// </value>
         public int Skip
         {
             get { return _skip; }
@@ -204,9 +183,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether it is OK if the server is not the primary.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if it is OK if the server is not the primary; otherwise, <c>false</c>.
-        /// </value>
         public bool SlaveOk
         {
             get { return _slaveOk; }
@@ -215,9 +191,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether the query should return a tailable cursor.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the query should return a tailable cursort; otherwise, <c>false</c>.
-        /// </value>
         public bool TailableCursor
         {
             get { return _tailableCursor; }

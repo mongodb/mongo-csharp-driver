@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (_checkingOutConnectionEventHandler != null)
                 {
-                    _checkingOutConnectionEventHandler(new ConnectionPoolCheckingOutConnectionEvent(_serverId));
+                    _checkingOutConnectionEventHandler(new ConnectionPoolCheckingOutConnectionEvent(_serverId, EventContext.OperationId));
                 }
 
                 enteredWaitQueue = _waitQueue.Wait(0); // don't wait...
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     stopwatch.Stop();
                     if (_checkedOutConnectionEventHandler != null)
                     {
-                        _checkedOutConnectionEventHandler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, stopwatch.Elapsed));
+                        _checkedOutConnectionEventHandler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
                     }
                     return acquired;
                 }
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_checkingOutConnectionFailedEventHandler != null)
                 {
-                    _checkingOutConnectionFailedEventHandler(new ConnectionPoolCheckingOutConnectionFailedEvent(_serverId, ex));
+                    _checkingOutConnectionFailedEventHandler(new ConnectionPoolCheckingOutConnectionFailedEvent(_serverId, ex, EventContext.OperationId));
                 }
                 throw;
             }
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (_addingConnectionEventHandler != null)
                 {
-                    _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId));
+                    _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId, EventContext.OperationId));
                 }
                 var stopwatch = Stopwatch.StartNew();
                 connection = CreateNewConnection();
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_addedConnectionEventHandler != null)
                 {
-                    _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed));
+                    _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
                 }
             }
 
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     if (_addingConnectionEventHandler != null)
                     {
-                        _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId));
+                        _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId, EventContext.OperationId));
                     }
 
                     var stopwatch = Stopwatch.StartNew();
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     if (_addedConnectionEventHandler != null)
                     {
-                        _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed));
+                        _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
                     }
                 }
                 finally
@@ -396,7 +396,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             if (_checkingInConnectionEventHandler != null)
             {
-                _checkingInConnectionEventHandler(new ConnectionPoolCheckingInConnectionEvent(connection.ConnectionId));
+                _checkingInConnectionEventHandler(new ConnectionPoolCheckingInConnectionEvent(connection.ConnectionId, EventContext.OperationId));
             }
 
             var stopwatch = Stopwatch.StartNew();
@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             if (_checkedInConnectionEventHandler != null)
             {
-                _checkedInConnectionEventHandler(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, stopwatch.Elapsed));
+                _checkedInConnectionEventHandler(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
             }
         }
 
@@ -706,7 +706,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (_removingConnectionEventHandler != null)
                 {
-                    _removingConnectionEventHandler(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId));
+                    _removingConnectionEventHandler(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -715,7 +715,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_removedConnectionEventHandler != null)
                 {
-                    _removedConnectionEventHandler(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed));
+                    _removedConnectionEventHandler(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
                 }
             }
         }

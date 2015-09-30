@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ConnectionSendingMessagesEvent
     {
         private readonly ConnectionId _connectionId;
+        private readonly long? _operationId;
         private readonly IReadOnlyList<int> _requestIds;
 
         /// <summary>
@@ -34,10 +35,12 @@ namespace MongoDB.Driver.Core.Events
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="requestIds">The request ids.</param>
-        public ConnectionSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, long? operationId)
         {
             _connectionId = connectionId;
             _requestIds = requestIds;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -62,6 +65,14 @@ namespace MongoDB.Driver.Core.Events
         public IReadOnlyList<int> RequestIds
         {
             get { return _requestIds; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

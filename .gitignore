@@ -8,6 +8,7 @@ obj
 *.vbproj.VisualState.xml
 *.cache
 TestResults
+.vs
 
 # CodeReview
 codereview.rc

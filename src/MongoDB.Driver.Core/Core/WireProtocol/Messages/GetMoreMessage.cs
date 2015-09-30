@@ -52,9 +52,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the size of a batch.
         /// </summary>
-        /// <value>
-        /// The size of a batch.
-        /// </value>
         public int BatchSize
         {
             get { return _batchSize; }
@@ -63,9 +60,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -74,12 +68,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the cursor identifier.
         /// </summary>
-        /// <value>
-        /// The cursor identifier.
-        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
+        }
+
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.GetMore; }
         }
 
         // methods

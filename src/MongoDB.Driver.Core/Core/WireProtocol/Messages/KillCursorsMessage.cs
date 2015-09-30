@@ -51,12 +51,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the cursor ids.
         /// </summary>
-        /// <value>
-        /// The cursor ids.
-        /// </value>
         public IReadOnlyList<long> CursorIds
         {
             get { return _cursorIds; }
+        }
+
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.KillCursors; }
         }
 
         // methods

@@ -243,7 +243,8 @@ namespace MongoDB.Driver.Core.Clusters
                         // this is our first time through...
                         _selectingServerEventHandler(new ClusterSelectingServerEvent(
                             description,
-                            selector));
+                            selector,
+                            EventContext.OperationId));
                     }
 
                     ThrowIfIncompatible(description);
@@ -267,7 +268,8 @@ namespace MongoDB.Driver.Core.Clusters
                                     description,
                                     selector,
                                     server,
-                                    stopwatch.Elapsed));
+                                    stopwatch.Elapsed,
+                                    EventContext.OperationId));
                             }
                             return selectedServer;
                         }
@@ -297,7 +299,8 @@ namespace MongoDB.Driver.Core.Clusters
                     _selectingServerFailedEventHandler(new ClusterSelectingServerFailedEvent(
                         description,
                         selector,
-                        ex));
+                        ex,
+                        EventContext.OperationId));
                 }
                 throw;
             }

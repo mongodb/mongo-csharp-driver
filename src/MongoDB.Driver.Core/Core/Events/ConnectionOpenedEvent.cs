@@ -30,18 +30,21 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private readonly TimeSpan _duration;
+        private readonly long? _operationId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionOpenedEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionOpenedEvent" /> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="connectionSettings">The connection settings.</param>
         /// <param name="duration">The duration of time it took to open the connection.</param>
-        public ConnectionOpenedEvent(ConnectionId connectionId, ConnectionSettings connectionSettings, TimeSpan duration)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionOpenedEvent(ConnectionId connectionId, ConnectionSettings connectionSettings, TimeSpan duration, long? operationId)
         {
             _connectionId = connectionId;
             _connectionSettings = connectionSettings;
             _duration = duration;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -74,6 +77,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

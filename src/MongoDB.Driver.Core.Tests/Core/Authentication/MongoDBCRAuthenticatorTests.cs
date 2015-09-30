@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,9 +66,9 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var subject = new MongoDBCRAuthenticator(__credential);
 
-            var getNonceReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var getNonceReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}"));
-            var authenticateReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var authenticateReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);

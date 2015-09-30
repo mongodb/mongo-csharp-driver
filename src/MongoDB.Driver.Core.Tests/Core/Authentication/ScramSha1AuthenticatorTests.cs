@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
 
-            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
 
             var connection = new MockConnection(__serverId);
@@ -85,9 +85,9 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
 
-            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
-            var saslContinueReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTBh\"), done: true, ok: 1}"));
 
             var connection = new MockConnection(__serverId);
@@ -105,9 +105,9 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
 
-            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
-            var saslContinueReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9\"), done: true, ok: 1}"));
 
             var connection = new MockConnection(__serverId);

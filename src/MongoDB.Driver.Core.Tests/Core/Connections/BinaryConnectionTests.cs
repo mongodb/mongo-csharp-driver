@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Connections
                 _subject.OpenAsync(CancellationToken.None).Wait();
                 _capturedEvents.Clear();
 
-                var messageToReceive = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
                 MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive });
 
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 receivedTask.IsCompleted.Should().BeFalse();
 
-                var messageToReceive = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
                 MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive });
 
                 var received = receivedTask.Result;
@@ -251,8 +251,8 @@ namespace MongoDB.Driver.Core.Connections
                 var receivedTask11 = _subject.ReceiveMessageAsync(11, encoderSelector, _messageEncoderSettings, CancellationToken.None);
                 var receivedTask10 = _subject.ReceiveMessageAsync(10, encoderSelector, _messageEncoderSettings, CancellationToken.None);
 
-                var messageToReceive10 = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
-                var messageToReceive11 = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 11);
+                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 11);
                 MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive10, messageToReceive11 });
 
                 var received11 = receivedTask11.Result;
@@ -368,7 +368,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void SendMessagesAsync_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed()
         {
-            var message = MessageHelper.BuildQueryMessage();
+            var message = MessageHelper.BuildQuery();
             _subject.Dispose();
 
             Action act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, CancellationToken.None).Wait();
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void SendMessagesAsync_should_throw_an_InvalidOperationException_if_the_connection_is_not_open()
         {
-            var message = MessageHelper.BuildQueryMessage();
+            var message = MessageHelper.BuildQuery();
 
             Action act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, CancellationToken.None).Wait();
 
@@ -394,8 +394,8 @@ namespace MongoDB.Driver.Core.Connections
                 _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
-                var message1 = MessageHelper.BuildQueryMessage(query: new BsonDocument("x", 1));
-                var message2 = MessageHelper.BuildQueryMessage(query: new BsonDocument("y", 2));
+                var message1 = MessageHelper.BuildQuery(query: new BsonDocument("x", 1));
+                var message2 = MessageHelper.BuildQuery(query: new BsonDocument("y", 2));
 
                 _subject.OpenAsync(CancellationToken.None).Wait();
                 _capturedEvents.Clear();
@@ -407,6 +407,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 sentRequests.Should().BeEquivalentTo(expectedRequests);
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSentMessagesEvent>();
                 _capturedEvents.Any().Should().BeFalse();
             }
@@ -448,8 +450,12 @@ namespace MongoDB.Driver.Core.Connections
                 act2.ShouldThrow<MongoConnectionClosedException>();
 
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionFailedEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandFailedEvent>();
+                _capturedEvents.Next().Should().BeOfType<CommandFailedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
                 _capturedEvents.Any().Should().BeFalse();

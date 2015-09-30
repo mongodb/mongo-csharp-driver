@@ -26,17 +26,20 @@ namespace MongoDB.Driver.Core.Events
     public struct ConnectionReceivingMessageEvent
     {
         private readonly ConnectionId _connectionId;
+        private readonly long? _operationId;
         private readonly int _responseTo;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionReceivingMessageEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionReceivingMessageEvent" /> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="responseTo">The id of the message we are receiving a response to.</param>
-        public ConnectionReceivingMessageEvent(ConnectionId connectionId, int responseTo)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionReceivingMessageEvent(ConnectionId connectionId, int responseTo, long? operationId)
         {
             _connectionId = connectionId;
             _responseTo = responseTo;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -53,6 +56,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

@@ -67,9 +67,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -78,9 +75,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether all matching documents should be updated.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if all matching documents should be updated; otherwise, <c>false</c>.
-        /// </value>
         public bool IsMulti
         {
             get { return _isMulti; }
@@ -89,20 +83,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether a document should be inserted if no matching document is found.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if a document should be inserted if no matching document is found; otherwise, <c>false</c>.
-        /// </value>
         public bool IsUpsert
         {
             get { return _isUpsert; }
         }
 
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.Update; }
+        }
+
         /// <summary>
         /// Gets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
@@ -111,9 +105,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the update.
         /// </summary>
-        /// <value>
-        /// The update.
-        /// </value>
         public BsonDocument Update
         {
             get { return _update; }
@@ -122,9 +113,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the update validator.
         /// </summary>
-        /// <value>
-        /// The update validator.
-        /// </value>
         public IElementNameValidator UpdateValidator
         {
             get { return _updateValidator; }

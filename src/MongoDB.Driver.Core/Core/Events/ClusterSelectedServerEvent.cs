@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterSelectedServerEvent
     {
         private readonly ClusterDescription _clusterDescription;
+        private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
         private readonly ServerDescription _selectedServer;
         private readonly TimeSpan _duration;
@@ -38,12 +39,14 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverSelector">The server selector.</param>
         /// <param name="selectedServer">The selected server.</param>
         /// <param name="duration">The duration of time it took to select the server.</param>
-        public ClusterSelectedServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, ServerDescription selectedServer, TimeSpan duration)
+        /// <param name="operationId">The operation identifier.</param>
+        public ClusterSelectedServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, ServerDescription selectedServer, TimeSpan duration, long? operationId)
         {
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
             _selectedServer = selectedServer;
             _duration = duration;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -68,6 +71,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

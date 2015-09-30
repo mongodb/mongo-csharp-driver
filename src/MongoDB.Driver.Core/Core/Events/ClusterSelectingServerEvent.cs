@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterSelectingServerEvent
     {
         private readonly ClusterDescription _clusterDescription;
+        private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
 
         /// <summary>
@@ -32,10 +33,12 @@ namespace MongoDB.Driver.Core.Events
         /// </summary>
         /// <param name="clusterDescription">The cluster description.</param>
         /// <param name="serverSelector">The server selector.</param>
-        public ClusterSelectingServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector)
+        /// <param name="operationId">The operation identifier.</param>
+        public ClusterSelectingServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, long? operationId)
         {
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -52,6 +55,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterDescription ClusterDescription
         {
             get { return _clusterDescription; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

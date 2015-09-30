@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
             : base(connectionId, message)
         {
-            _command = command;
+            _command = command; // can be null
             _result = result; // can be null
         }
 

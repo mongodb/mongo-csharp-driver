@@ -42,6 +42,17 @@ namespace MongoDB.Bson.TestHelpers
             return new AndConstraint<BsonDocumentAssertions>(this);
         }
 
+        public AndConstraint<BsonDocumentAssertions> BeEquivalentTo(BsonDocument expected, string because = "", params object[] reasonArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, reasonArgs)
+                .ForCondition(BsonValueEquivalencyComparer.Compare(Subject, expected))
+                .FailWith("Expected {context:object} to be {0}{reason}, but found {1}.", expected,
+                    Subject);
+
+            return new AndConstraint<BsonDocumentAssertions>(this);
+        }
+
         public AndConstraint<BsonDocumentAssertions> Be(string json, string because = "", params object[] reasonArgs)
         {
             var expected = json == null ? null : BsonDocument.Parse(json);

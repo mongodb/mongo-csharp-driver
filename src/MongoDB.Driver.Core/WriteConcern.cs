@@ -101,6 +101,42 @@ namespace MongoDB.Driver
         {
             get { return __wMajority; }
         }
+
+        /// <summary>
+        /// Creates a write concern from a document.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <returns>A write concern.</returns>
+        public static WriteConcern FromBsonDocument(BsonDocument document)
+        {
+            var writeConcern = WriteConcern.Acknowledged;
+
+            BsonValue w;
+            if (document.TryGetValue("w", out w))
+            {
+                writeConcern = writeConcern.With(w: WriteConcern.WValue.Parse(w.ToString()));
+            }
+
+            BsonValue wTimeout;
+            if (document.TryGetValue("wtimeout", out wTimeout))
+            {
+                writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(wTimeout.ToDouble()));
+            }
+
+            BsonValue fsync;
+            if (document.TryGetValue("fsync", out fsync))
+            {
+                writeConcern = writeConcern.With(fsync: fsync.ToBoolean());
+            }
+
+            BsonValue j;
+            if (document.TryGetValue("j", out j))
+            {
+                writeConcern = writeConcern.With(journal: j.ToBoolean());
+            }
+
+            return writeConcern;
+        }
         #endregion
 
         // fields
@@ -188,6 +224,23 @@ namespace MongoDB.Driver
                     _wTimeout.HasValue ||
                     _fsync.HasValue ||
                     _journal.HasValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this write concern will use the default on the server.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is the default; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsServerDefault
+        {
+            get
+            {
+                return _w == null &&
+                    !_wTimeout.HasValue &&
+                    !_fsync.HasValue &&
+                    !_journal.HasValue;
             }
         }
 

@@ -217,10 +217,10 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_multiple_deletes()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
-                new DeleteRequest(BsonDocument.Parse("{_id: 2}")) 
+                new DeleteRequest(BsonDocument.Parse("{_id: 2}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -245,11 +245,11 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_fewer_deletes_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
                 new DeleteRequest(BsonDocument.Parse("{_id: 2}")),
-                new DeleteRequest(BsonDocument.Parse("{_id: 3}")) 
+                new DeleteRequest(BsonDocument.Parse("{_id: 3}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -277,11 +277,11 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_more_deletes_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
                 new DeleteRequest(BsonDocument.Parse("{_id: 2}")),
-                new DeleteRequest(BsonDocument.Parse("{_id: 3}")) 
+                new DeleteRequest(BsonDocument.Parse("{_id: 3}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -333,10 +333,10 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("DropCollection")]
         public async Task ExecuteAsync_with_fewer_inserts_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new InsertRequest(BsonDocument.Parse("{_id: 1}")),
-                new InsertRequest(BsonDocument.Parse("{_id: 2}")) 
+                new InsertRequest(BsonDocument.Parse("{_id: 2}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -364,12 +364,12 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("DropCollection")]
         public async Task ExecuteAsync_with_more_inserts_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new InsertRequest(BsonDocument.Parse("{_id: 1}")),
-                new InsertRequest(BsonDocument.Parse("{_id: 2}")), 
-                new InsertRequest(BsonDocument.Parse("{_id: 3}")), 
-                new InsertRequest(BsonDocument.Parse("{_id: 4}")) 
+                new InsertRequest(BsonDocument.Parse("{_id: 2}")),
+                new InsertRequest(BsonDocument.Parse("{_id: 3}")),
+                new InsertRequest(BsonDocument.Parse("{_id: 4}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -479,8 +479,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_fewer_updates_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")),
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 2}}"))
             };
@@ -510,8 +510,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_more_updates_than_maxBatchCount()
         {
-            var requests = new[] 
-            { 
+            var requests = new[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")),
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 2}}")),
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 3}}")),
@@ -573,9 +573,9 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_an_upsert_matching_multiple_documents()
         {
-            var requests = new[] 
-            { 
-                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true } 
+            var requests = new[]
+            {
+                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -600,9 +600,9 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_an_upsert_matching_no_documents()
         {
-            var requests = new[] 
-            { 
-                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 5}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true } 
+            var requests = new[]
+            {
+                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 5}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -627,9 +627,9 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_an_upsert_matching_one_document()
         {
-            var requests = new[] 
-            { 
-                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true } 
+            var requests = new[]
+            {
+                new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -654,8 +654,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_mixed_requests_and_ordered_is_false()
         {
-            var requests = new WriteRequest[] 
-            { 
+            var requests = new WriteRequest[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")),
                 new DeleteRequest(new BsonDocument("_id", 2)),
                 new InsertRequest(new BsonDocument("_id", 7)),
@@ -687,8 +687,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_mixed_requests_and_ordered_is_true()
         {
-            var requests = new WriteRequest[] 
-            { 
+            var requests = new WriteRequest[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")),
                 new DeleteRequest(new BsonDocument("_id", 2)),
                 new InsertRequest(new BsonDocument("_id", 7)),
@@ -720,8 +720,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_mixed_upserts_and_ordered_is_false()
         {
-            var requests = new WriteRequest[] 
-            { 
+            var requests = new WriteRequest[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 12}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsUpsert = true },
                 new DeleteRequest(new BsonDocument("_id", 2)),
                 new InsertRequest(new BsonDocument("_id", 7)),
@@ -753,8 +753,8 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_with_mixed_upserts_and_ordered_is_true()
         {
-            var requests = new WriteRequest[] 
-            { 
+            var requests = new WriteRequest[]
+            {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 12}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsUpsert = true },
                 new DeleteRequest(new BsonDocument("_id", 2)),
                 new InsertRequest(new BsonDocument("_id", 7)),

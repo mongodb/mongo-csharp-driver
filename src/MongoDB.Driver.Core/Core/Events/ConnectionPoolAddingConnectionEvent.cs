@@ -24,15 +24,18 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolAddingConnectionEvent
     {
+        private readonly long? _operationId;
         private readonly ServerId _serverId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionPoolAddingConnectionEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionPoolAddingConnectionEvent" /> struct.
         /// </summary>
         /// <param name="serverId">The server identifier.</param>
-        public ConnectionPoolAddingConnectionEvent(ServerId serverId)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionPoolAddingConnectionEvent(ServerId serverId, long? operationId)
         {
             _serverId = serverId;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -41,6 +44,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterId ClusterId
         {
             get { return _serverId.ClusterId; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

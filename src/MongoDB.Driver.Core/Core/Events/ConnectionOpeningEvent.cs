@@ -28,16 +28,19 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
+        private readonly long? _operationId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionOpeningEvent"/> struct.
+        /// Initializes a new instance of the <see cref="ConnectionOpeningEvent" /> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="connectionSettings">The connection settings.</param>
-        public ConnectionOpeningEvent(ConnectionId connectionId, ConnectionSettings connectionSettings)
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionOpeningEvent(ConnectionId connectionId, ConnectionSettings connectionSettings, long? operationId)
         {
             _connectionId = connectionId;
             _connectionSettings = connectionSettings;
+            _operationId = operationId;
         }
 
         /// <summary>
@@ -62,6 +65,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionSettings ConnectionSettings
         {
             get { return _connectionSettings; }
+        }
+
+        /// <summary>
+        /// Gets the operation identifier.
+        /// </summary>
+        public long? OperationId
+        {
+            get { return _operationId; }
         }
 
         /// <summary>

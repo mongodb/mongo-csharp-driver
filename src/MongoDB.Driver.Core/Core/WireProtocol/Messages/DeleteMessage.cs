@@ -54,9 +54,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -65,20 +62,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets a value indicating whether to delete all matching documents.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if all matching documents should be deleted.; otherwise, <c>false</c>.
-        /// </value>
         public bool IsMulti
         {
             get { return _isMulti; }
         }
 
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.Delete; }
+        }
+
         /// <summary>
         /// Gets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public BsonDocument Query
         {
             get { return _query; }

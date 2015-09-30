@@ -37,12 +37,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <inheritdoc/>
+        public override MongoDBMessageType MessageType
+        {
+            get { return MongoDBMessageType.Reply; }
+        }
+
         /// <summary>
         /// Gets the request identifier.
         /// </summary>
-        /// <value>
-        /// The request identifier.
-        /// </value>
         public int RequestId
         {
             get { return _requestId; }
@@ -51,9 +54,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the identifier of the message this is a response to.
         /// </summary>
-        /// <value>
-        /// The identifier of the message this is a response to.
-        /// </value>
         public int ResponseTo
         {
             get { return _responseTo; }
