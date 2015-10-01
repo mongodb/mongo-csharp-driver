@@ -38,19 +38,18 @@ tests:
     description: "A successful find event with options"
     operation:
       name: "find"
+      read_preference: { mode: "primaryPreferred" }
       arguments:
         filter: { _id: { $gt: 1 } }
         sort: { _id: 1 }
-        limit: 2
         skip: 2
         modifiers:
           $comment: "test"
           $hint: { _id: 1 }
           $max: { _id: 6 }
           $maxScan: 5000
-          $maxTimeMS: 6000 
+          $maxTimeMS: 6000
           $min: { _id: 0 }
-          $readPreference: { mode: "secondaryPreferred" }
           $returnKey: false
           $showDiskLoc: false
           $snapshot: false
@@ -61,7 +60,6 @@ tests:
             find: *collection_name
             filter: { _id:  { $gt: 1 } }
             sort: { _id: 1 }
-            limit: 2
             skip: 2
             comment: "test"
             hint: { _id: 1 }
@@ -69,7 +67,6 @@ tests:
             maxScan: 5000
             maxTimeMS: 6000
             min: { _id: 0 }
-            readPreference: { mode: "secondaryPreferred" }
             returnKey: false
             showRecordId: false
             snapshot: false

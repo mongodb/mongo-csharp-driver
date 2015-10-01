@@ -17,10 +17,6 @@
             {
               "_id": 2,
               "x": 22
-            },
-            {
-              "_id": 3,
-              "x": 33
             }
           ]
         }
@@ -34,10 +30,6 @@
                 {
                   "_id": 2,
                   "x": 22
-                },
-                {
-                  "_id": 3,
-                  "x": 33
                 }
               ],
               "ordered": true
@@ -50,7 +42,7 @@
           "command_succeeded_event": {
             "reply": {
               "ok": 1.0,
-              "n": 2
+              "n": 1
             },
             "command_name": "insert"
           }
@@ -66,10 +58,6 @@
             {
               "_id": 1,
               "x": 11
-            },
-            {
-              "_id": 2,
-              "x": 22
             }
           ]
         }
@@ -83,10 +71,6 @@
                 {
                   "_id": 1,
                   "x": 11
-                },
-                {
-                  "_id": 2,
-                  "x": 22
                 }
               ],
               "ordered": true
@@ -107,6 +91,48 @@
                   "errmsg": ""
                 }
               ]
+            },
+            "command_name": "insert"
+          }
+        }
+      ]
+    },
+    {
+      "description": "A successful unordered insert many",
+      "operation": {
+        "name": "insertMany",
+        "arguments": {
+          "documents": [
+            {
+              "_id": 2,
+              "x": 22
+            }
+          ],
+          "ordered": false
+        }
+      },
+      "expectations": [
+        {
+          "command_started_event": {
+            "command": {
+              "insert": "test",
+              "documents": [
+                {
+                  "_id": 2,
+                  "x": 22
+                }
+              ],
+              "ordered": false
+            },
+            "command_name": "insert",
+            "database_name": "command-monitoring-tests"
+          }
+        },
+        {
+          "command_succeeded_event": {
+            "reply": {
+              "ok": 1.0,
+              "n": 1
             },
             "command_name": "insert"
           }

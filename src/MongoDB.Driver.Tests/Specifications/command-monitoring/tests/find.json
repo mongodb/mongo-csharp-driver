@@ -74,6 +74,9 @@
       "description": "A successful find event with options",
       "operation": {
         "name": "find",
+        "read_preference": {
+          "mode": "primaryPreferred"
+        },
         "arguments": {
           "filter": {
             "_id": {
@@ -83,7 +86,6 @@
           "sort": {
             "_id": 1
           },
-          "limit": 2,
           "skip": 2,
           "modifiers": {
             "$comment": "test",
@@ -97,9 +99,6 @@
             "$maxTimeMS": 6000,
             "$min": {
               "_id": 0
-            },
-            "$readPreference": {
-              "mode": "secondaryPreferred"
             },
             "$returnKey": false,
             "$showDiskLoc": false,
@@ -120,7 +119,6 @@
               "sort": {
                 "_id": 1
               },
-              "limit": 2,
               "skip": 2,
               "comment": "test",
               "hint": {
@@ -133,9 +131,6 @@
               "maxTimeMS": 6000,
               "min": {
                 "_id": 0
-              },
-              "readPreference": {
-                "mode": "secondaryPreferred"
               },
               "returnKey": false,
               "showRecordId": false,
