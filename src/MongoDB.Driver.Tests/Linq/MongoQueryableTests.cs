@@ -454,6 +454,21 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void OfType_with_a_field()
+        {
+            var query = CreateQuery()
+                .Select(x => x.C.E)
+                .OfType<V>()
+                .Where(v => v.W == 1111);
+
+            Assert(query,
+                1,
+                "{ $project: { 'C.E': 1, _id: 0 } }",
+                "{ $match: { 'C.E._t': 'V' } }",
+                "{ $match: { 'C.E.W': 1111 } }");
+        }
+
+        [Test]
         public void OrderBy_method()
         {
             var query = CreateQuery()

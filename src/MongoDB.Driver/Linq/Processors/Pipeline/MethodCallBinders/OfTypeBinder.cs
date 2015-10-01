@@ -33,12 +33,25 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
 
             var serializer = bindingContext.GetSerializer(newType, pipeline.Projector);
 
+            var projector = pipeline.Projector;
+            var fieldProjector = projector as IFieldExpression;
+            if (fieldProjector != null)
+            {
+                projector = new FieldExpression(
+                    fieldProjector.FieldName,
+                    serializer);
+            }
+            else
+            {
+                projector = new DocumentExpression(serializer);
+            }
+
             return new PipelineExpression(
                 new WhereExpression(
                     pipeline.Source,
                     "__p",
                     Expression.TypeIs(pipeline.Projector, newType)),
-                new DocumentExpression(serializer));
+                projector);
         }
     }
 }

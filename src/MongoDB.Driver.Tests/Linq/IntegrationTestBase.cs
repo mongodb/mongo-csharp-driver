@@ -45,11 +45,12 @@ namespace MongoDB.Driver.Tests.Linq
                 C = new C
                 {
                     D = "Dexter",
-                    E = new E
+                    E = new V
                     {
                         F = 11,
                         H = 22,
-                        I = new[] { "it", "icky" }
+                        I = new[] { "it", "icky" },
+                        W = 1111
                     }
                 },
                 G = new[] {
@@ -218,6 +219,11 @@ namespace MongoDB.Driver.Tests.Linq
             public int H { get; set; }
 
             public IEnumerable<string> I { get; set; }
+        }
+
+        public class V : E
+        {
+            public int W { get; set; }
         }
 
         public interface IRoot
