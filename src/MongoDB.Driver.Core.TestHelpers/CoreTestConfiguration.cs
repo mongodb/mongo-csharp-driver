@@ -75,13 +75,18 @@ namespace MongoDB.Driver
         // static methods
         public static ClusterBuilder ConfigureCluster()
         {
+            return ConfigureCluster(new ClusterBuilder());
+        }
+
+        public static ClusterBuilder ConfigureCluster(ClusterBuilder builder)
+        {
             var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
             if (serverSelectionTimeoutString == null)
             {
                 serverSelectionTimeoutString = "10000";
             }
 
-            var builder = new ClusterBuilder()
+            builder = builder
                 .ConfigureWithConnectionString(__connectionString)
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 

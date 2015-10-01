@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             {
                 ClusterConfigurator = cb =>
                 {
+                    cb = CoreTestConfiguration.ConfigureCluster(cb);
                     cb.Subscribe(__capturedEvents);
 
                     // never heartbeat...
