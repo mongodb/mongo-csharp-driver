@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal interface IConnectionInitializer
     {
+        ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken);
         Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken);
     }
 }

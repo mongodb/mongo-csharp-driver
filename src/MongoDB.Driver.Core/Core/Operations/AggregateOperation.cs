@@ -159,6 +159,23 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
+        public IAsyncCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            EnsureIsReadOnlyPipeline();
+
+            using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                return CreateCursor(channelSource, channel, operation.Command, result);
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -166,15 +183,12 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var command = CreateCommand(channelSource.ServerDescription.Version);
-
-                var serializer = new AggregateResultDeserializer(_resultSerializer);
-                var operation = new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
-
-                var result = await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
-
-                return CreateCursor(channelSource, command, result);
+                var operation = CreateOperation(channel);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                return CreateCursor(channelSource, channel, operation.Command, result);
             }
         }
 
@@ -212,9 +226,16 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
+        private ReadCommandOperation<AggregateResult> CreateOperation(IChannelHandle channel)
         {
-            if (channelSource.ServerDescription.Version >= __version26 && _useCursor.GetValueOrDefault(true))
+            var command = CreateCommand(channel.ConnectionDescription.ServerVersion);
+            var serializer = new AggregateResultDeserializer(_resultSerializer);
+            return new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
+        }
+
+        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
+        {
+            if (channel.ConnectionDescription.ServerVersion >= __version26 && _useCursor.GetValueOrDefault(true))
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }

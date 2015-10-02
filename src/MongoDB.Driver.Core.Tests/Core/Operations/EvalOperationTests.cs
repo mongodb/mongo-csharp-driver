@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
@@ -152,39 +153,37 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer(Authentication = AuthenticationRequirement.Off)]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
 
-            BsonValue result;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(1.0);
         }
 
         [Test]
         [RequiresServer(Authentication = AuthenticationRequirement.Off)]
-        public async Task ExecuteAsync_should_return_expected_result_when_args_are_provided()
+        public void Execute_should_return_expected_result_when_args_are_provided(
+            [Values(false, true)]
+            bool async)
         {
             var function = "function(x) { return x; }";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
             subject.Args = new BsonValue[] { 1 };
 
-            BsonValue result;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(1.0);
         }
 
         [Test]
-        public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
+        public void Execute_should_return_expected_result_when_maxTime_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 6, 0))
             {
@@ -194,28 +193,28 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer(Authentication = AuthenticationRequirement.Off)]
-        public async Task ExecuteAsync_should_return_expected_result_when_noLock_is_provided()
+        public void Execute_should_return_expected_result_when_noLock_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
             subject.NoLock = true;
 
-            BsonValue result;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(1.0);
         }
 
         [Test]
-        public void ExecuteAsync_should_throw_when_binding_isNull()
+        public void Execute_should_throw_when_binding_isNull(
+            [Values(false, true)]
+            bool async)
         {
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
 
-            Action action = () => subject.ExecuteAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+            Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -245,6 +244,27 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoLock = value;
 
             subject.NoLock.Should().Be(value);
+        }
+
+        // private methods
+        private BsonValue ExecuteOperation(EvalOperation operation, bool async)
+        {
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                return ExecuteOperation(operation, binding, async);
+            }
+        }
+
+        private BsonValue ExecuteOperation(EvalOperation operation, IWriteBinding binding, bool async)
+        {
+            if (async)
+            {
+                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return operation.Execute(binding, CancellationToken.None);
+            }
         }
     }
 }

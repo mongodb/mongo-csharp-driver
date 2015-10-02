@@ -32,6 +32,12 @@ namespace MongoDB.Driver.Core.Connections
     internal static class ConnectionExtensions
     {
         // static methods
+        public static void SendMessage(this IConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            connection.SendMessages(new[] { message }, messageEncoderSettings, cancellationToken);
+        }
+
         public static Task SendMessageAsync(this IConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));

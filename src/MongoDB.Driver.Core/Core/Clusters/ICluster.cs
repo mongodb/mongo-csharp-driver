@@ -74,6 +74,14 @@ namespace MongoDB.Driver.Core.Clusters
         /// </summary>
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The selected server.</returns>
+        IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Selects a server from the cluster.
+        /// </summary>
+        /// <param name="selector">The server selector.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
     }

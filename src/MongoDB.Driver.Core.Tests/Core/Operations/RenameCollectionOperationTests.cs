@@ -127,64 +127,63 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
-                EnsureCollectionExists(binding, _collectionNamespace);
-                EnsureCollectionDoesNotExist(binding, _newCollectionNamespace);
+            EnsureCollectionExists(_collectionNamespace, async);
+            EnsureCollectionDoesNotExist(_newCollectionNamespace, async);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+            var result = ExecuteOperation(subject, async);
 
-                result["ok"].ToBoolean().Should().BeTrue();
-            }
+            result["ok"].ToBoolean().Should().BeTrue();
         }
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result_when_dropTarget_is_true_and_newCollectionNamespace_exists()
+        public void Execute_should_return_expected_result_when_dropTarget_is_true_and_newCollectionNamespace_exists(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            EnsureCollectionExists(_collectionNamespace, async);
+            EnsureCollectionExists(_newCollectionNamespace, async);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
             {
-                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
-                {
-                    DropTarget = true
-                };
-                EnsureCollectionExists(binding, _collectionNamespace);
-                EnsureCollectionExists(binding, _newCollectionNamespace);
+                DropTarget = true
+            };
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+            var result = ExecuteOperation(subject, async);
 
-                result["ok"].ToBoolean().Should().BeTrue();
-            }
+            result["ok"].ToBoolean().Should().BeTrue();
         }
 
         [Test]
         [RequiresServer]
-        public void ExecuteAsync_should_throw_when_dropTarget_is_false_and_newCollectionNamespace_exists()
+        public void Execute_should_throw_when_dropTarget_is_false_and_newCollectionNamespace_exists(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
             {
-                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
-                {
-                    DropTarget = false
-                };
-                EnsureCollectionExists(binding, _collectionNamespace);
-                EnsureCollectionExists(binding, _newCollectionNamespace);
+                DropTarget = false
+            };
+            EnsureCollectionExists(_collectionNamespace, async);
+            EnsureCollectionExists(_newCollectionNamespace, async);
 
-                Func<Task> action = () => subject.ExecuteAsync(binding, CancellationToken.None);
+            Action action = () => ExecuteOperation(subject, async);
 
-                action.ShouldThrow<MongoCommandException>();
-            }
+            action.ShouldThrow<MongoCommandException>();
         }
 
         [Test]
-        public void ExecyteAsync_should_throw_when_binding_is_null()
+        public void Execyte_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -210,18 +209,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // helper methods
-        private void EnsureCollectionDoesNotExist(IWriteBinding binding, CollectionNamespace collectionNamespace)
+        private void EnsureCollectionDoesNotExist(CollectionNamespace collectionNamespace, bool async)
         {
             var operation = new DropCollectionOperation(collectionNamespace, _messageEncoderSettings);
-            operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            ExecuteOperation(operation, async);
         }
 
-        private void EnsureCollectionExists(IWriteBinding binding, CollectionNamespace collectionNamespace)
+        private void EnsureCollectionExists(CollectionNamespace collectionNamespace, bool async)
         {
             try
             {
                 var operation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
-                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                ExecuteOperation(operation, async);
             }
             catch (MongoCommandException ex)
             {

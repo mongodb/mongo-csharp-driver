@@ -69,24 +69,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSource; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum number of documents in a batch.
-        /// </summary>
-        /// <value>
-        /// The maximum number of documents in a batch.
-        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a document.
-        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
@@ -115,11 +103,50 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // methods
+        // public methods
+        public WriteConcernResult Execute(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(channel, nameof(channel));
+
+            var operation = CreateOperation();
+            BulkWriteOperationResult result;
+            MongoBulkWriteOperationException exception = null;
+            try
+            {
+                result = operation.Execute(channel, cancellationToken);
+            }
+            catch (MongoBulkWriteOperationException ex)
+            {
+                result = ex.Result;
+                exception = ex;
+            }
+
+            return CreateResultOrThrow(channel, result, exception);
+        }
+
         public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
+            var operation = CreateOperation();
+            BulkWriteOperationResult result;
+            MongoBulkWriteOperationException exception = null;
+            try
+            {
+                result = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoBulkWriteOperationException ex)
+            {
+                result = ex.Result;
+                exception = ex;
+            }
+
+            return CreateResultOrThrow(channel, result, exception);
+        }
+
+        // private methods
+        private BulkInsertOperation CreateOperation()
+        {
             var requests = _documentSource.GetRemainingItems().Select(d =>
             {
                 if (d == null)
@@ -129,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 return new InsertRequest(new BsonDocumentWrapper(d, _serializer));
             });
-            var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            return new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 IsOrdered = !_continueOnError,
                 MaxBatchCount = _maxBatchCount,
@@ -138,29 +165,20 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = _writeConcern,
                 // WriteSettings = ?
             };
+        }
 
-            BulkWriteOperationResult bulkWriteResult;
-            MongoBulkWriteOperationException bulkWriteException = null;
-            try
-            {
-                bulkWriteResult = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
-            }
-            catch (MongoBulkWriteOperationException ex)
-            {
-                bulkWriteResult = ex.Result;
-                bulkWriteException = ex;
-            }
-
+        private WriteConcernResult CreateResultOrThrow(IChannel channel, BulkWriteOperationResult result, MongoBulkWriteOperationException exception)
+        {
             var converter = new BulkWriteOperationResultConverter();
-            if (bulkWriteException != null)
+            if (exception != null)
             {
-                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, bulkWriteException);
+                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, exception);
             }
             else
             {
                 if (_writeConcern.IsAcknowledged)
                 {
-                    return converter.ToWriteConcernResult(bulkWriteResult);
+                    return converter.ToWriteConcernResult(result);
                 }
                 else
                 {

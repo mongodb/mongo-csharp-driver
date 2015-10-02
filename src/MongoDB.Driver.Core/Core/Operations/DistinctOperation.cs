@@ -125,7 +125,26 @@ namespace MongoDB.Driver.Core.Operations
             get { return _valueSerializer; }
         }
 
-        // methods
+        // public methods
+        /// <inheritdoc/>
+        public IAsyncCursor<TValue> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var values = operation.Execute(binding, cancellationToken);
+            return new SingleBatchAsyncCursor<TValue>(values);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var values = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return new SingleBatchAsyncCursor<TValue>(values);
+        }
+
+        // private methods
         internal BsonDocument CreateCommand()
         {
             return new BsonDocument
@@ -137,16 +156,12 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        /// <inheritdoc/>
-        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        private ReadCommandOperation<TValue[]> CreateOperation()
         {
-            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
-            var operation = new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);
-            var values = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return new SingleBatchAsyncCursor<TValue>(values);
+            return new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);
         }
     }
 }

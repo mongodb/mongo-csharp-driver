@@ -123,7 +123,10 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct))).ConfigureAwait(false);
+                var deferredCursor = new DeferredAsyncCursor<TResult>(
+                    ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct));
+                return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
             }
             else
             {
@@ -387,7 +390,9 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                var deferredCursor = new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct));
+                var deferredCursor = new DeferredAsyncCursor<TResult>(
+                    ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(findOperation, ReadPreference.Primary, ct));
                 return await Task.FromResult(deferredCursor).ConfigureAwait(false);
             }
         }
@@ -498,6 +503,14 @@ namespace MongoDB.Driver
                     };
                 default:
                     throw new InvalidOperationException("Unknown type of WriteModel provided.");
+            }
+        }
+
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
+            {
+                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
         }
 

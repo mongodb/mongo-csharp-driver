@@ -173,6 +173,39 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private TCommandResult ExecuteProtocol(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
+            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+
+            return channel.Command<TCommandResult>(
+                _databaseNamespace,
+                wrappedCommand,
+                _commandValidator,
+                slaveOk,
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Executes the protocol.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the command result.</returns>
+        protected TCommandResult ExecuteProtocol(
+            IChannelSource channelSource,
+            ReadPreference readPreference,
+            CancellationToken cancellationToken)
+        {
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            {
+                return ExecuteProtocol(channel, channelSource.ServerDescription, readPreference, cancellationToken);
+            }
+        }
+
         private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);

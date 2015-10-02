@@ -52,6 +52,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Async\AsyncLockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
@@ -68,6 +69,8 @@
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexesUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexesUsingInsertOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests.cs" />
     <Compile Include="Core\Operations\DropIndexOperationTests.cs" />
@@ -82,8 +85,12 @@
     <Compile Include="Core\Operations\IndexNameHelperTests.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperationTests.cs" />
     <Compile Include="Core\Operations\ListCollectionsOperationTests.cs" />
+    <Compile Include="Core\Operations\ListCollectionsUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\ListCollectionsUsingQueryOperationTests.cs" />
     <Compile Include="Core\Operations\ListDatabasesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesUsingQueryOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOutputToCollectionOperationTests.cs" />

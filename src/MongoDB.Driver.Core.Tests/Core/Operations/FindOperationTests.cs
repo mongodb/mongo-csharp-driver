@@ -118,36 +118,42 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query()
+        public void Execute_should_find_all_the_documents_matching_the_query(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var cursor = await ExecuteOperationAsync(subject);
+            var cursor = ExecuteOperation(subject, async);
 
-            var result = await ReadCursorToEndAsync(cursor);
+            var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
+        public void Execute_should_find_all_the_documents_matching_the_query_when_split_across_batches(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 BatchSize = 2
             };
 
-            var cursor = await ExecuteOperationAsync(subject);
+            var cursor = ExecuteOperation(subject, async);
 
-            var result = await ReadCursorToEndAsync(cursor);
+            var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_find_documents_matching_options()
+        public void Execute_should_find_documents_matching_options(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -160,9 +166,9 @@ namespace MongoDB.Driver.Core.Operations
                 Sort = BsonDocument.Parse("{_id: -1}")
             };
 
-            var cursor = await ExecuteOperationAsync(subject);
+            var cursor = ExecuteOperation(subject, async);
 
-            var result = await ReadCursorToEndAsync(cursor);
+            var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(1);
         }

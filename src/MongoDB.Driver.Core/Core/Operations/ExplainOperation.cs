@@ -96,34 +96,36 @@ namespace MongoDB.Driver.Core.Operations
             set { _verbosity = value; }
         }
 
+        // public methods
+        /// <inheritdoc/>
+        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            var operation = CreateReadOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            var operation = CreateWriteOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var command = CreateCommand();
-
-            var operation = new ReadCommandOperation<BsonDocument>(
-                _databaseNamespace,
-                command,
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
-
+            var operation = CreateReadOperation();
             return operation.ExecuteAsync(binding, cancellationToken);
         }
 
         /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var command = CreateCommand();
-
-            var operation = new WriteCommandOperation<BsonDocument>(
-                _databaseNamespace,
-                command,
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
-
+            var operation = CreateWriteOperation();
             return operation.ExecuteAsync(binding, cancellationToken);
         }
 
+        // private methods
         private static string ConvertVerbosityToString(ExplainVerbosity verbosity)
         {
             switch (verbosity)
@@ -147,6 +149,26 @@ namespace MongoDB.Driver.Core.Operations
                 { "explain", _command },
                 { "verbosity", ConvertVerbosityToString(_verbosity) }
             };
+        }
+
+        private ReadCommandOperation<BsonDocument> CreateReadOperation()
+        {
+            var command = CreateCommand();
+            return new ReadCommandOperation<BsonDocument>(
+                _databaseNamespace,
+                command,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings);
+        }
+
+        private WriteCommandOperation<BsonDocument> CreateWriteOperation()
+        {
+            var command = CreateCommand();
+            return new WriteCommandOperation<BsonDocument>(
+                _databaseNamespace,
+                command,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings);
         }
     }
 }

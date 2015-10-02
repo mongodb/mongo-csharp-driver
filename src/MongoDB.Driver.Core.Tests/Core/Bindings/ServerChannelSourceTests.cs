@@ -63,24 +63,45 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetChannelAsync_should_throw_if_disposed()
+        public void GetChannel_should_throw_if_disposed(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ServerChannelSource(_server);
             subject.Dispose();
 
-            Action act = () => subject.GetChannelAsync(CancellationToken.None);
+            Action act;
+            if (async)
+            {
+                act = () => subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.GetChannel(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetChannelAsync_should_get_connection_from_server()
+        public void GetChannel_should_get_connection_from_server(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ServerChannelSource(_server);
 
-            subject.GetChannelAsync(CancellationToken.None);
+            if (async)
+            {
+                subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            _server.Received().GetChannelAsync(CancellationToken.None);
+                _server.Received().GetChannelAsync(CancellationToken.None);
+            }
+            else
+            {
+                subject.GetChannel(CancellationToken.None);
+
+                _server.Received().GetChannel(CancellationToken.None);
+            }
         }
     }
 }

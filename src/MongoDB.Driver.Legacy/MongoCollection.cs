@@ -284,7 +284,7 @@ namespace MongoDB.Driver
                 MaxTime = args.MaxTime,
             };
 
-            return ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
+            return ExecuteReadOperation(operation).ToList();
         }
 
         /// <summary>
@@ -727,7 +727,7 @@ namespace MongoDB.Driver
 
             using (var cursor = ExecuteReadOperation(operation, args.ReadPreference))
             {
-                if (cursor.MoveNextAsync(CancellationToken.None).GetAwaiter().GetResult())
+                if (cursor.MoveNext(CancellationToken.None))
                 {
                     return cursor.Current.SingleOrDefault();
                 }
@@ -1046,7 +1046,7 @@ namespace MongoDB.Driver
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
             var cursor = ExecuteReadOperation(operation, ReadPreference.Primary);
-            var list = cursor.ToListAsync().GetAwaiter().GetResult();
+            var list = cursor.ToList();
             return new GetIndexesResult(list.ToArray());
         }
 
@@ -1121,7 +1121,7 @@ namespace MongoDB.Driver
             var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -1233,7 +1233,7 @@ namespace MongoDB.Driver
         public virtual bool IndexExistsByName(string indexName)
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
-            var indexes = ExecuteReadOperation(operation, ReadPreference.Primary).ToListAsync().GetAwaiter().GetResult();
+            var indexes = ExecuteReadOperation(operation, ReadPreference.Primary).ToList();
             return indexes.Any(index => index["name"].AsString == indexName);
         }
 

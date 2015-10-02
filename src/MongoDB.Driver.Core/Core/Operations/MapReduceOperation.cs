@@ -74,15 +74,29 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public IAsyncCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var result = operation.Execute(binding, cancellationToken);
+            return new SingleBatchAsyncCursor<TResult>(result);
+        }
+
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return new SingleBatchAsyncCursor<TResult>(result);
+        }
+
+        private ReadCommandOperation<TResult[]> CreateOperation()
+        {
             var command = CreateCommand();
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
-            var operation = new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return new SingleBatchAsyncCursor<TResult>(result);
+            return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);
         }
     }
 }

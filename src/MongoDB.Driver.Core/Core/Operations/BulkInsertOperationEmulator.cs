@@ -37,6 +37,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         //  methods
+        protected override WriteConcernResult ExecuteProtocol(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
+        {
+            var insertRequest = (InsertRequest)request;
+            var documentSource = new BatchableSource<BsonDocument>(new[] { insertRequest.Document });
+
+            return channel.Insert(
+                CollectionNamespace,
+                WriteConcern,
+                BsonDocumentSerializer.Instance,
+                MessageEncoderSettings,
+                documentSource,
+                MaxBatchCount,
+                MaxBatchLength,
+                !IsOrdered, // continueOnError
+                null, // shouldSendGetLastError
+                cancellationToken);
+        }
+
         protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var insertRequest = (InsertRequest)request;

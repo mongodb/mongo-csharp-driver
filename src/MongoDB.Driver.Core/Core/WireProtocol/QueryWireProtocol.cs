@@ -96,6 +96,15 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _awaitData);
         }
 
+        public CursorBatch<TDocument> Execute(IConnection connection, CancellationToken cancellationToken)
+        {
+            var message = CreateMessage();
+            connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+            var encoderSelector = new ReplyMessageEncoderSelector<TDocument>(_serializer);
+            var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+            return ProcessReply(connection.ConnectionId, (ReplyMessage<TDocument>)reply);
+        }
+
         public async Task<CursorBatch<TDocument>> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateMessage();

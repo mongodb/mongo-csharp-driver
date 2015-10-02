@@ -87,30 +87,55 @@ namespace MongoDB.Driver.Core.WireProtocol
                _shouldSendGetLastError);
         }
 
-        protected abstract RequestMessage CreateWriteMessage(IConnection connection);
-
-        public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
+        private List<RequestMessage> CreateMessages(IConnection connection, out QueryMessage getLastErrorMessage)
         {
             var messages = new List<RequestMessage>();
 
             var writeMessage = CreateWriteMessage(connection);
             messages.Add(writeMessage);
 
-            BsonDocument getLastErrorCommand = null;
-            QueryMessage getLastErrorMessage = null;
+            getLastErrorMessage = null;
             if (_writeConcern.IsAcknowledged)
             {
-                getLastErrorCommand = CreateGetLastErrorCommand();
+                var getLastErrorCommand = CreateGetLastErrorCommand();
                 getLastErrorMessage = CreateGetLastErrorMessage(getLastErrorCommand);
                 messages.Add(getLastErrorMessage);
             }
+
+            return messages;
+        }
+
+        protected abstract RequestMessage CreateWriteMessage(IConnection connection);
+
+        public WriteConcernResult Execute(IConnection connection, CancellationToken cancellationToken)
+        {
+            QueryMessage getLastErrorMessage;
+            var messages = CreateMessages(connection, out getLastErrorMessage);
+
+            connection.SendMessages(messages, _messageEncoderSettings, cancellationToken);
+            if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
+            {
+                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var reply = connection.ReceiveMessage(getLastErrorMessage.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                return ProcessReply(connection.ConnectionId, getLastErrorMessage.Query, (ReplyMessage<BsonDocument>)reply);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
+        {
+            QueryMessage getLastErrorMessage;
+            var messages = CreateMessages(connection, out getLastErrorMessage);
 
             await connection.SendMessagesAsync(messages, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
                 var reply = await connection.ReceiveMessageAsync(getLastErrorMessage.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessReply(connection.ConnectionId, getLastErrorCommand, (ReplyMessage<BsonDocument>)reply);
+                return ProcessReply(connection.ConnectionId, getLastErrorMessage.Query, (ReplyMessage<BsonDocument>)reply);
             }
             else
             {

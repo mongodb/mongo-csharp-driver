@@ -41,6 +41,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        protected override WriteConcernResult ExecuteProtocol(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
+        {
+            var updateRequest = (UpdateRequest)request;
+
+            return channel.Update(
+                CollectionNamespace,
+                MessageEncoderSettings,
+                WriteConcern,
+                updateRequest.Filter,
+                updateRequest.Update,
+                ElementNameValidatorFactory.ForUpdateType(updateRequest.UpdateType),
+                updateRequest.IsMulti,
+                updateRequest.IsUpsert,
+                cancellationToken);
+        }
+
         protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var updateRequest = (UpdateRequest)request;

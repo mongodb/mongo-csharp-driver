@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Helpers
             var numRead = base.Read(buffer, offset, count);
             if (numRead == 0)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(100); // 10 isn't enough, tests fail with EndOfStreamException
                 numRead = base.Read(buffer, offset, count);
             }
 

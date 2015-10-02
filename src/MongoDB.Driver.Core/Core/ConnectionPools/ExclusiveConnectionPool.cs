@@ -138,101 +138,48 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // public methods
-        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
+        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
         {
             ThrowIfNotOpen();
 
-            bool enteredWaitQueue = false;
-            bool enteredPool = false;
-
+            var helper = new AcquireConnectionHelper(this);
             try
             {
-                if (_checkingOutConnectionEventHandler != null)
-                {
-                    _checkingOutConnectionEventHandler(new ConnectionPoolCheckingOutConnectionEvent(_serverId, EventContext.OperationId));
-                }
-
-                enteredWaitQueue = _waitQueue.Wait(0); // don't wait...
-                if (!enteredWaitQueue)
-                {
-                    throw MongoWaitQueueFullException.ForConnectionPool(_endPoint);
-                }
-
-                var stopwatch = new Stopwatch();
-                enteredPool = await _poolQueue.WaitAsync(_settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
-
-                if (enteredPool)
-                {
-                    var acquired = AcquireConnection();
-                    stopwatch.Stop();
-                    if (_checkedOutConnectionEventHandler != null)
-                    {
-                        _checkedOutConnectionEventHandler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                    }
-                    return acquired;
-                }
-
-                stopwatch.Stop();
-                var message = string.Format("Timed out waiting for a connection after {0}ms.", stopwatch.ElapsedMilliseconds);
-                throw new TimeoutException(message);
+                helper.CheckingOutConnection();
+                var enteredPool = _poolQueue.Wait(_settings.WaitQueueTimeout, cancellationToken);
+                return helper.EnteredPool(enteredPool);
             }
             catch (Exception ex)
             {
-                if (enteredPool)
-                {
-                    try
-                    {
-                        _poolQueue.Release();
-                    }
-                    catch
-                    {
-                        // TODO: log this, but don't throw... it's a bug if we get here
-                    }
-                }
-
-                if (_checkingOutConnectionFailedEventHandler != null)
-                {
-                    _checkingOutConnectionFailedEventHandler(new ConnectionPoolCheckingOutConnectionFailedEvent(_serverId, ex, EventContext.OperationId));
-                }
+                helper.HandleException(ex);
                 throw;
             }
             finally
             {
-                if (enteredWaitQueue)
-                {
-                    try
-                    {
-                        _waitQueue.Release();
-                    }
-                    catch
-                    {
-                        // TODO: log this, but don't throw... it's a bug if we get here
-                    }
-                }
+                helper.Finally();
             }
         }
 
-        private IConnectionHandle AcquireConnection()
+        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
         {
-            PooledConnection connection = _connectionHolder.Acquire();
-            if (connection == null)
+            ThrowIfNotOpen();
+
+            var helper = new AcquireConnectionHelper(this);
+            try
             {
-                if (_addingConnectionEventHandler != null)
-                {
-                    _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId, EventContext.OperationId));
-                }
-                var stopwatch = Stopwatch.StartNew();
-                connection = CreateNewConnection();
-                stopwatch.Stop();
-
-                if (_addedConnectionEventHandler != null)
-                {
-                    _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                }
+                helper.CheckingOutConnection();
+                var enteredPool = await _poolQueue.WaitAsync(_settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
+                return helper.EnteredPool(enteredPool);
             }
-
-            var reference = new ReferenceCounted<PooledConnection>(connection, ReleaseConnection);
-            return new AcquiredConnection(this, reference);
+            catch (Exception ex)
+            {
+                helper.HandleException(ex);
+                throw;
+            }
+            finally
+            {
+                helper.Finally();
+            }
         }
 
         public void Clear()
@@ -435,6 +382,124 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public const int Disposed = 2;
         }
 
+        private class AcquireConnectionHelper
+        {
+            // private fields
+            private readonly ExclusiveConnectionPool _pool;
+            private bool _enteredPool;
+            private bool _enteredWaitQueue;
+            private Stopwatch _stopwatch;
+
+            // constructors
+            public AcquireConnectionHelper(ExclusiveConnectionPool pool)
+            {
+                _pool = pool;
+            }
+
+            // public methods
+            public void CheckingOutConnection()
+            {
+                var handler = _pool._checkingOutConnectionEventHandler;
+                if (handler != null)
+                {
+                    handler(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
+                }
+
+                _enteredWaitQueue = _pool._waitQueue.Wait(0); // don't wait...
+                if (!_enteredWaitQueue)
+                {
+                    throw MongoWaitQueueFullException.ForConnectionPool(_pool._endPoint);
+                }
+
+                _stopwatch = new Stopwatch();
+            }
+
+            public IConnectionHandle EnteredPool(bool enteredPool)
+            {
+                _enteredPool = enteredPool;
+                if (enteredPool)
+                {
+                    var acquired = AcquireOrCreateConnection();
+                    _stopwatch.Stop();
+
+                    var handler = _pool._checkedOutConnectionEventHandler;
+                    if (handler != null)
+                    {
+                        handler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId));
+                    }
+                    return acquired;
+                }
+
+                _stopwatch.Stop();
+                var message = string.Format("Timed out waiting for a connection after {0}ms.", _stopwatch.ElapsedMilliseconds);
+                throw new TimeoutException(message);
+            }
+
+            public void Finally()
+            {
+                if (_enteredWaitQueue)
+                {
+                    try
+                    {
+                        _pool._waitQueue.Release();
+                    }
+                    catch
+                    {
+                        // TODO: log this, but don't throw... it's a bug if we get here
+                    }
+                }
+            }
+
+            public void HandleException(Exception ex)
+            {
+                if (_enteredPool)
+                {
+                    try
+                    {
+                        _pool._poolQueue.Release();
+                    }
+                    catch
+                    {
+                        // TODO: log this, but don't throw... it's a bug if we get here
+                    }
+                }
+
+                var handler = _pool._checkingOutConnectionFailedEventHandler;
+                if (handler != null)
+                {
+                    handler(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId));
+                }
+            }
+
+            // private methods
+            private IConnectionHandle AcquireOrCreateConnection()
+            {
+                PooledConnection connection = _pool._connectionHolder.Acquire();
+                if (connection == null)
+                {
+                    var addingConnectionEventHandler = _pool._addingConnectionEventHandler;
+                    if (addingConnectionEventHandler != null)
+                    {
+                        addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
+                    }
+
+                    var stopwatch = Stopwatch.StartNew();
+                    connection = _pool.CreateNewConnection();
+                    stopwatch.Stop();
+
+                    var addedConnectionEventHandler = _pool._addedConnectionEventHandler;
+                    if (addedConnectionEventHandler != null)
+                    {
+                        addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
+                    }
+                }
+
+                var reference = new ReferenceCounted<PooledConnection>(connection, _pool.ReleaseConnection);
+                return new AcquiredConnection(_pool, reference);
+            }
+
+        }
+
         private sealed class PooledConnection : IConnection
         {
             private readonly IConnection _connection;
@@ -478,14 +543,29 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _connection.Dispose();
             }
 
+            public void Open(CancellationToken cancellationToken)
+            {
+                _connection.Open(cancellationToken);
+            }
+
             public Task OpenAsync(CancellationToken cancellationToken)
             {
                 return _connection.OpenAsync(cancellationToken);
             }
 
+            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                return _connection.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+            }
+
             public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 return _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+            }
+
+            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                _connection.SendMessages(messages, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
@@ -550,6 +630,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return new AcquiredConnection(_connectionPool, _reference);
             }
 
+            public void Open(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                _reference.Instance.Open(cancellationToken);
+            }
+
             public Task OpenAsync(CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
@@ -560,6 +646,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 ThrowIfDisposed();
                 return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+            }
+
+            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                return _reference.Instance.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+            }
+
+            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                _reference.Instance.SendMessages(messages, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

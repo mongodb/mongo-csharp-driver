@@ -48,7 +48,9 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         [Test]
-        public void AuthenticateAsync_should_invoke_authenticators_when_they_exist()
+        public void Authenticate_should_invoke_authenticators_when_they_exist(
+            [Values(false, true)]
+            bool async)
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
@@ -62,13 +64,24 @@ namespace MongoDB.Driver.Core.Authentication
             connection.Description.Returns(description);
             connection.Settings.Returns(settings);
 
-            AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).Wait();
+            if (async)
+            {
+                AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult();
 
-            authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+                authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+            }
+            else
+            {
+                AuthenticationHelper.Authenticate(connection, description, CancellationToken.None);
+
+                authenticator.ReceivedWithAnyArgs().Authenticate(null, null, CancellationToken.None);
+            }
         }
 
         [Test]
-        public void AuthenticateAsync_should_not_invoke_authenticators_when_connected_to_an_arbiter()
+        public void Authenticate_should_not_invoke_authenticators_when_connected_to_an_arbiter(
+            [Values(false, true)]
+            bool async)
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
@@ -82,9 +95,18 @@ namespace MongoDB.Driver.Core.Authentication
             connection.Description.Returns(description);
             connection.Settings.Returns(settings);
 
-            AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).Wait();
+            if (async)
+            {
+                AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult();
 
-            authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+                authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+            }
+            else
+            {
+                AuthenticationHelper.Authenticate(connection, description, CancellationToken.None);
+
+                authenticator.DidNotReceiveWithAnyArgs().Authenticate(null, null, CancellationToken.None);
+            }
         }
     }
 }

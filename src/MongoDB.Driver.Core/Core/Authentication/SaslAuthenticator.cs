@@ -60,6 +60,41 @@ namespace MongoDB.Driver.Core.Authentication
 
         // methods
         /// <inheritdoc/>
+        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
+
+            using (var conversation = new SaslConversation(description.ConnectionId))
+            {
+                var currentStep = _mechanism.Initialize(connection, description);
+
+                var command = CreateStartCommand(currentStep);
+                while (true)
+                {
+                    BsonDocument result;
+                    try
+                    {
+                        var protocol = CreateCommandProtocol(command);
+                        result = protocol.Execute(connection, cancellationToken);
+                    }
+                    catch (MongoCommandException ex)
+                    {
+                        throw CreateException(connection, ex);
+                    }
+
+                    currentStep = Transition(conversation, currentStep, result);
+                    if (currentStep == null)
+                    {
+                        return;
+                    }
+
+                    command = CreateContinueCommand(currentStep, result);
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
@@ -69,54 +104,84 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 var currentStep = _mechanism.Initialize(connection, description);
 
-                var command = new BsonDocument
-                {
-                    { "saslStart", 1 },
-                    { "mechanism", _mechanism.Name },
-                    { "payload", currentStep.BytesToSendToServer }
-                };
-
+                var command = CreateStartCommand(currentStep);
                 while (true)
                 {
                     BsonDocument result;
                     try
                     {
-                        var protocol = new CommandWireProtocol<BsonDocument>(
-                            new DatabaseNamespace(DatabaseName),
-                            command,
-                            true,
-                            BsonDocumentSerializer.Instance,
-                            null);
+                        var protocol = CreateCommandProtocol(command);
                         result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     }
                     catch (MongoCommandException ex)
                     {
-                        var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
-                        throw new MongoAuthenticationException(connection.ConnectionId, message, ex);
+                        throw CreateException(connection, ex);
                     }
 
-                    // we might be done here if the client is not expecting a reply from the server
-                    if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
+                    currentStep = Transition(conversation, currentStep, result);
+                    if (currentStep == null)
                     {
-                        break;
+                        return;
                     }
 
-                    currentStep = currentStep.Transition(conversation, result["payload"].AsByteArray);
-
-                    // we might be done here if the client had some final verification it needed to do
-                    if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
-                    {
-                        break;
-                    }
-
-                    command = new BsonDocument
-                    {
-                        { "saslContinue", 1 },
-                        { "conversationId", result["conversationId"].AsInt32 },
-                        { "payload", currentStep.BytesToSendToServer }
-                    };
+                    command = CreateContinueCommand(currentStep, result);
                 }
             }
+        }
+
+        private CommandWireProtocol<BsonDocument> CreateCommandProtocol(BsonDocument command)
+        {
+            return new CommandWireProtocol<BsonDocument>(
+                new DatabaseNamespace(DatabaseName),
+                command,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
+        }
+
+        private BsonDocument CreateContinueCommand(ISaslStep currentStep, BsonDocument result)
+        {
+            return new BsonDocument
+            {
+                { "saslContinue", 1 },
+                { "conversationId", result["conversationId"].AsInt32 },
+                { "payload", currentStep.BytesToSendToServer }
+            };
+        }
+
+        private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
+        {
+            var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
+            return new MongoAuthenticationException(connection.ConnectionId, message, ex);
+        }
+
+        private BsonDocument CreateStartCommand(ISaslStep currentStep)
+        {
+            return new BsonDocument
+            {
+                { "saslStart", 1 },
+                { "mechanism", _mechanism.Name },
+                { "payload", currentStep.BytesToSendToServer }
+            };
+        }
+
+        private ISaslStep Transition(SaslConversation conversation, ISaslStep currentStep, BsonDocument result)
+        {
+            // we might be done here if the client is not expecting a reply from the server
+            if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
+            {
+                return null;
+            }
+
+            currentStep = currentStep.Transition(conversation, result["payload"].AsByteArray);
+
+            // we might be done here if the client had some final verification it needed to do
+            if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
+            {
+                return null;
+            }
+
+            return currentStep;
         }
 
         // nested classes

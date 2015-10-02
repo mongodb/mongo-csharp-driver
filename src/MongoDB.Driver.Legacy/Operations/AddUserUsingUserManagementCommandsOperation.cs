@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -48,11 +49,11 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public bool Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             {
-                var userExists = await UserExistsAsync(channelSource, cancellationToken).ConfigureAwait(false);
+                var userExists = UserExists(channelSource, cancellationToken);
 
                 var roles = new BsonArray();
                 if (_databaseNamespace.DatabaseName == "admin")
@@ -74,19 +75,24 @@ namespace MongoDB.Driver.Operations
                 };
 
                 var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
+                operation.Execute(channelSource, cancellationToken);
             }
 
             return true;
         }
 
-        private async Task<bool> UserExistsAsync(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
+        public Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
+        private bool UserExists(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
         {
             try
             {
                 var command = new BsonDocument("usersInfo", _username);
                 var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+                var result = operation.Execute(channelSource, ReadPreference.Primary, cancellationToken);
 
                 BsonValue users;
                 if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)

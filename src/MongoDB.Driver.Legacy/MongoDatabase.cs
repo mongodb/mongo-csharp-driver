@@ -329,7 +329,7 @@ namespace MongoDB.Driver
 
             using (var binding = _server.GetWriteBinding())
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -529,7 +529,7 @@ namespace MongoDB.Driver
         {
             var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings());
             var cursor = ExecuteReadOperation(operation, ReadPreference.Primary);
-            var list = cursor.ToListAsync().GetAwaiter().GetResult();
+            var list = cursor.ToList();
             return list.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
         }
 
@@ -834,7 +834,7 @@ namespace MongoDB.Driver
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -842,7 +842,7 @@ namespace MongoDB.Driver
         {
             using (var binding = _server.GetWriteBinding())
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 

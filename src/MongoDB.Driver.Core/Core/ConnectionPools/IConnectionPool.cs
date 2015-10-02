@@ -44,6 +44,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// Acquires a connection.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A connection.</returns>
+        IConnectionHandle AcquireConnection(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Acquires a connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a connection.</returns>
         Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken);
 

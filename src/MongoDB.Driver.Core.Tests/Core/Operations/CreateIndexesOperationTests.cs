@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -49,79 +50,45 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_return_expected_result_when_creating_one_index()
-        {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            var expectedResult = new BsonDocument
-            {
-                { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } }
-            };
-
-            var result = subject.CreateCommand();
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void CreateCommand_should_return_expected_result_when_creating_two_indexes()
-        {
-            var requests = new[]
-            {
-                new CreateIndexRequest(new BsonDocument("x", 1)),
-                new CreateIndexRequest(new BsonDocument("y", 1))
-            };
-            var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            var expectedResult = new BsonDocument
-            {
-                { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(), requests[1].CreateIndexDocument() } }
-            };
-
-            var result = subject.CreateCommand();
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_background_is_true()
+        public void Execute_should_work_when_background_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Background = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["background"].ToBoolean().Should().BeTrue();
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_creating_one_index()
+        public void Execute_should_work_when_creating_one_index(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_creating_two_indexes()
+        public void Execute_should_work_when_creating_two_indexes(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -130,67 +97,65 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1", "y_1" });
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_sparse_is_true()
+        public void Execute_should_work_when_sparse_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Sparse = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["sparse"].ToBoolean().Should().BeTrue();
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_expireAfter_has_value()
+        public void Execute_should_work_when_expireAfter_has_value(
+            [Values(false, true)]
+            bool async)
         {
             var expireAfterSeconds = 1.5;
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = TimeSpan.FromSeconds(expireAfterSeconds) } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["expireAfterSeconds"].ToDouble().Should().Be(expireAfterSeconds);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_unique_is_true()
+        public void Execute_should_work_when_unique_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Unique = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
 
-            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(listIndexesOperation);
-            var indexes = await cursor.ToListAsync();
+            var indexes = ListIndexes(async);
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
         }
@@ -239,6 +204,13 @@ namespace MongoDB.Driver.Core.Operations
             Action action = () => { subject.WriteConcern = null; };
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+        }
+
+        private List<BsonDocument> ListIndexes(bool async)
+        {
+            var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+            var cursor = ExecuteOperation(listIndexesOperation, async);
+            return ReadCursorToEnd(cursor, async);
         }
     }
 }

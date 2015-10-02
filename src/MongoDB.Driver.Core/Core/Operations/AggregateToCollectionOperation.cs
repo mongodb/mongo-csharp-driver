@@ -114,12 +114,18 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
+        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-
-            var command = CreateCommand();
-            var operation = new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var operation = CreateOperation();
             return operation.ExecuteAsync(binding, cancellationToken);
         }
 
@@ -132,6 +138,12 @@ namespace MongoDB.Driver.Core.Operations
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
+        }
+
+        private WriteCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
         }
 
         private void EnsureIsOutputToCollectionPipeline()

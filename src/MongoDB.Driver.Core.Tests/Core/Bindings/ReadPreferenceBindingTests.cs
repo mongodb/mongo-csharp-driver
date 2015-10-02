@@ -52,24 +52,45 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadChannelSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSource_should_throw_if_disposed(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
             subject.Dispose();
 
-            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+            Action act;
+            if (async)
+            {
+                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.GetReadChannelSource(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadChannelSourceAsync_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster()
+        public void GetReadChannelSource_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
 
-            subject.GetReadChannelSourceAsync(CancellationToken.None).Wait();
+            if (async)
+            {
+                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
+                _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
+            }
+            else
+            {
+                subject.GetReadChannelSource(CancellationToken.None);
+
+                _cluster.Received().SelectServer(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
+            }
         }
 
         [Test]

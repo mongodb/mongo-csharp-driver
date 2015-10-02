@@ -44,15 +44,23 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
+        public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+        {
+            var socket = CreateSocket(endPoint);
+            Connect(socket, endPoint, cancellationToken);
+            return CreateNetworkStream(socket);
+        }
+
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var addressFamily = endPoint.AddressFamily;
-            if (addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
-            {
-                addressFamily = _settings.AddressFamily;
-            }
-            var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var socket = CreateSocket(endPoint);
             await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
+            return CreateNetworkStream(socket);
+        }
+
+        // non-public methods
+        private void ConfigureConnectedSocket(Socket socket)
+        {
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
@@ -62,31 +70,41 @@ namespace MongoDB.Driver.Core.Connections
             {
                 socketConfigurator(socket);
             }
-
-            var stream = new NetworkStream(socket, true);
-
-            if (_settings.ReadTimeout.HasValue)
-            {
-                var readTimeout = (int)_settings.ReadTimeout.Value.TotalMilliseconds;
-                if (readTimeout != 0)
-                {
-                    stream.ReadTimeout = readTimeout;
-                }
-            }
-
-            if (_settings.WriteTimeout.HasValue)
-            {
-                var writeTimeout = (int)_settings.WriteTimeout.Value.TotalMilliseconds;
-                if (writeTimeout != 0)
-                {
-                    stream.WriteTimeout = writeTimeout;
-                }
-            }
-
-            return stream;
         }
 
-        // non-public methods
+        private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
+        {
+            IAsyncResult asyncResult;
+            var dnsEndPoint = endPoint as DnsEndPoint;
+            if (dnsEndPoint != null)
+            {
+                // mono doesn't support DnsEndPoint in its BeginConnect method.
+                asyncResult = socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null);
+            }
+            else
+            {
+                asyncResult = socket.BeginConnect(endPoint, null, null);
+            }
+
+            asyncResult.AsyncWaitHandle.WaitOne(_settings.ConnectTimeout);
+            if (!asyncResult.IsCompleted)
+            {
+                try
+                {
+                    socket.Dispose();
+                }
+                catch
+                {
+                    // ignore exceptions
+                }
+
+                var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
+                throw new TimeoutException(message);
+            }
+
+            socket.EndConnect(asyncResult);
+        }
+
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
             Task connectTask;
@@ -125,6 +143,43 @@ namespace MongoDB.Driver.Core.Connections
 
                 await connectTask.ConfigureAwait(false);
             }
+        }
+
+        private NetworkStream CreateNetworkStream(Socket socket)
+        {
+            ConfigureConnectedSocket(socket);
+
+            var stream = new NetworkStream(socket, true);
+
+            if (_settings.ReadTimeout.HasValue)
+            {
+                var readTimeout = (int)_settings.ReadTimeout.Value.TotalMilliseconds;
+                if (readTimeout != 0)
+                {
+                    stream.ReadTimeout = readTimeout;
+                }
+            }
+
+            if (_settings.WriteTimeout.HasValue)
+            {
+                var writeTimeout = (int)_settings.WriteTimeout.Value.TotalMilliseconds;
+                if (writeTimeout != 0)
+                {
+                    stream.WriteTimeout = writeTimeout;
+                }
+            }
+
+            return stream;
+        }
+
+        private Socket CreateSocket(EndPoint endPoint)
+        {
+            var addressFamily = endPoint.AddressFamily;
+            if (addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
+            {
+                addressFamily = _settings.AddressFamily;
+            }
+            return new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
     }
 }

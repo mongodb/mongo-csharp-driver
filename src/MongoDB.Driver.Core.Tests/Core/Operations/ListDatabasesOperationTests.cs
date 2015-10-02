@@ -58,26 +58,27 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new ListDatabasesOperation(_messageEncoderSettings);
-                EnsureDatabaseExists(binding);
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
+            EnsureDatabaseExists(async);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
-                var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
-                list.Should().Contain(x => x["name"] == _databaseNamespace.DatabaseName);
-            }
+            list.Should().Contain(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
         [Test]
-        public void ExecuteAsync_should_throw_when_binding_is_null()
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -93,12 +94,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // helper methods
-        private void EnsureDatabaseExists(IWriteBinding binding)
+        private void EnsureDatabaseExists(bool async)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "test");
             var requests = new[] { new InsertRequest(new BsonDocument()) };
             var insertOperation = new BulkInsertOperation(collectionNamespace, requests, _messageEncoderSettings);
-            insertOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            ExecuteOperation(insertOperation, async);
         }
     }
 }

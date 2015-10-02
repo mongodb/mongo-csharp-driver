@@ -64,40 +64,69 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // methods
+        // public methods
+        public WriteConcernResult Execute(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(channel, nameof(channel));
+
+            var operation = CreateOperation();
+            BulkWriteOperationResult result;
+            MongoBulkWriteOperationException exception = null;
+            try
+            {
+                result = operation.Execute(channel, cancellationToken);
+            }
+            catch (MongoBulkWriteOperationException ex)
+            {
+                result = ex.Result;
+                exception = ex;
+            }
+
+            return CreateResultOrThrow(channel, result, exception);
+        }
+
         public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
-            var requests = new[] { _request };
-
-            var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = _writeConcern
-            };
-
-            BulkWriteOperationResult bulkWriteResult;
-            MongoBulkWriteOperationException bulkWriteException = null;
+            var operation = CreateOperation();
+            BulkWriteOperationResult result;
+            MongoBulkWriteOperationException exception = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                result = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                bulkWriteResult = ex.Result;
-                bulkWriteException = ex;
+                result = ex.Result;
+                exception = ex;
             }
 
-            var converter = new BulkWriteOperationResultConverter();
-            if (bulkWriteException != null)
+            return CreateResultOrThrow(channel, result, exception);
+        }
+
+        // private methods
+        private BulkDeleteOperation CreateOperation()
+        {
+            var requests = new[] { _request };
+            return new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
-                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, bulkWriteException);
+                WriteConcern = _writeConcern
+            };
+        }
+
+        private WriteConcernResult CreateResultOrThrow(IChannelHandle channel, BulkWriteOperationResult result, MongoBulkWriteOperationException exception)
+        {
+            var converter = new BulkWriteOperationResultConverter();
+            if (exception != null)
+            {
+                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, exception);
             }
             else
             {
                 if (_writeConcern.IsAcknowledged)
                 {
-                    return converter.ToWriteConcernResult(bulkWriteResult);
+                    return converter.ToWriteConcernResult(result);
                 }
                 else
                 {

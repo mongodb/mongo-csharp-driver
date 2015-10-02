@@ -112,18 +112,22 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer(MinimumVersion = "2.4.0")]
-        public async Task ExecuteAsync_should_return_the_result_without_any_options()
+        public void Execute_should_return_the_result_without_any_options(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().NotBeNull();
         }
 
         [Test]
         [RequiresServer(MinimumVersion = "2.6.0")]
-        public async Task ExecuteAsync_should_return_the_result_with_allow_disk_use()
+        public void Execute_should_return_the_result_with_allow_disk_use(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
             {
@@ -131,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().NotBeNull();
         }

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -50,23 +51,40 @@ namespace MongoDB.Driver.Core.Bindings
 
         // methods
         /// <inheritdoc/>
-        private async Task<IChannelSourceHandle> GetChannelSourceAsync(CancellationToken cancellationToken)
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            var server = _cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+            return GetChannelSourceHelper(server);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            return GetChannelSourceHelper(server);
+        }
+
+        /// <inheritdoc/>
+        public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            var server = _cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+            return GetChannelSourceHelper(server);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            return GetChannelSourceHelper(server);
+        }
+
+        private IChannelSourceHandle GetChannelSourceHelper(IServer server)
+        {
             return new ChannelSourceHandle(new ServerChannelSource(server));
-        }
-
-        /// <inheritdoc/>
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
-        {
-            return GetChannelSourceAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
-        {
-            return GetChannelSourceAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

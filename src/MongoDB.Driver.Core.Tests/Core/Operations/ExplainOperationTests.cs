@@ -95,11 +95,13 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureCollectionExists", MinimumVersion = "2.7.6")]
-        public async Task ExecuteAsync_should_not_throw_when_collection_does_not_exist()
+        public void Execute_should_not_throw_when_collection_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync((IReadOperation<BsonDocument>)subject);
+            var result = ExecuteOperation((IReadOperation<BsonDocument>)subject, async);
 
             result.Should().NotBeNull();
         }

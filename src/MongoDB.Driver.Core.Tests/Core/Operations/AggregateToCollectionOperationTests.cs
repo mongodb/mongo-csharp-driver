@@ -130,7 +130,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
-        public async Task Executing_with_matching_documents_using_all_options()
+        public void Executing_with_matching_documents_using_all_options(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
@@ -138,9 +140,9 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            await ExecuteOperationAsync(subject);
+            ExecuteOperation(subject, async);
 
-            var result = await ReadAllFromCollectionAsync(new CollectionNamespace(_databaseNamespace, "awesome"));
+            var result = ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"), async);
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);

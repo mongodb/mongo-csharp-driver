@@ -263,6 +263,28 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        private CursorBatch<TDocument> ExecuteProtocol(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
+        {
+            var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _batchSize);
+
+            return channel.Query<TDocument>(
+                _collectionNamespace,
+                wrappedQuery,
+                _projection,
+                NoOpElementNameValidator.Instance,
+                _skip ?? 0,
+                firstBatchSize,
+                slaveOk,
+                _allowPartialResults,
+                _noCursorTimeout,
+                _oplogReplay,
+                _cursorType != CursorType.NonTailable, // tailable
+                _cursorType == CursorType.TailableAwait, //await data
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
         private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
         {
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _batchSize);
@@ -307,6 +329,30 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public IAsyncCursor<TDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+
+            using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            {
+                var readPreference = binding.ReadPreference;
+                var serverDescription = channelSource.ServerDescription;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
+                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+
+                CursorBatch<TDocument> batch;
+                using (EventContext.BeginFind(_batchSize, _limit))
+                {
+                    batch = ExecuteProtocol(channel, wrappedQuery, slaveOk, cancellationToken);
+                }
+
+                return CreateCursor(channelSource, wrappedQuery, batch);
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -325,17 +371,8 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     batch = await ExecuteProtocolAsync(channel, wrappedQuery, slaveOk, cancellationToken).ConfigureAwait(false);
                 }
-
-                return new AsyncCursor<TDocument>(
-                    channelSource.Fork(),
-                    _collectionNamespace,
-                    wrappedQuery,
-                    batch.Documents,
-                    batch.CursorId,
-                    _batchSize ?? 0,
-                    Math.Abs(_limit ?? 0),
-                    _resultSerializer,
-                    _messageEncoderSettings);
+                
+                return CreateCursor(channelSource, wrappedQuery, batch);
             }
         }
 
@@ -376,6 +413,22 @@ namespace MongoDB.Driver.Core.Operations
             return new FindExplainOperation(operation);
         }
 
+        // private methods
+        private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument wrappedQuery, CursorBatch<TDocument> batch)
+        {
+            return new AsyncCursor<TDocument>(
+                channelSource.Fork(),
+                _collectionNamespace,
+                wrappedQuery,
+                batch.Documents,
+                batch.CursorId,
+                _batchSize ?? 0,
+                Math.Abs(_limit ?? 0),
+                _resultSerializer,
+                _messageEncoderSettings);
+        }
+
+        // nested types
         private class FindExplainOperation : IReadOperation<BsonDocument>
         {
             private readonly FindOperation<BsonDocument> _explainOperation;
@@ -385,18 +438,18 @@ namespace MongoDB.Driver.Core.Operations
                 _explainOperation = explainOperation;
             }
 
+            public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+            {
+                var cursor = _explainOperation.Execute(binding, cancellationToken);
+                var documents = cursor.ToList(cancellationToken);
+                return documents.Single();
+            }
+
             public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
             {
-                using (var cursor = await _explainOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
-                {
-                    if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                    {
-                        var batch = cursor.Current;
-                        return batch.Single();
-                    }
-                }
-
-                throw new MongoException("No explanation was returned.");
+                var cursor = await _explainOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var documents = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                return documents.Single();
             }
         }
     }

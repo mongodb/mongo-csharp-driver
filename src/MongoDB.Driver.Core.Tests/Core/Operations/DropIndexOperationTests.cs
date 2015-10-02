@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -137,44 +138,47 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_not_throw_when_collection_does_not_exist()
+        public void Execute_should_not_throw_when_collection_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-                await subject.ExecuteAsync(binding, CancellationToken.None); // should not throw
+                ExecuteOperation(subject, async); // should not throw
             }
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var keys = new BsonDocument("x", 1);
-                var requests = new[] { new CreateIndexRequest(keys) };
-                var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-                await createIndexOperation.ExecuteAsync(binding, CancellationToken.None);
+            var keys = new BsonDocument("x", 1);
+            var requests = new[] { new CreateIndexRequest(keys) };
+            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            ExecuteOperation(createIndexOperation, async);
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-                var indexName = "x_1";
-                var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            var result = ExecuteOperation(subject, async);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-            }
+            result["ok"].ToBoolean().Should().BeTrue();
         }
 
         [Test]
-        public async Task ExecuteAsync_should_throw_when_binding_is_null()
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
         {
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-            var ex = await CatchAsync<ArgumentNullException>(() => subject.ExecuteAsync(null, CancellationToken.None));
+            Action action = () => ExecuteOperation(subject, null, async);
+            var ex = action.ShouldThrow<ArgumentNullException>().Subject.Single();
 
             ex.ParamName.Should().Be("binding");
         }

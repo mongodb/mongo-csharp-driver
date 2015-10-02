@@ -29,19 +29,67 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
+        public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+
+            var isMasterProtocol = CreateIsMasterProtocol();
+            var isMasterResult = new IsMasterResult(isMasterProtocol.Execute(connection, cancellationToken));
+
+            var buildInfoProtocol = CreateBuildInfoProtocol();
+            var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
+
+            var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
+
+            AuthenticationHelper.Authenticate(connection, description, cancellationToken);
+
+            try
+            {
+                var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
+
+                description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+            }
+            catch
+            {
+                // if we couldn't get the server's connection id, so be it.
+            }
+
+            return description;
+        }
+
         public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
 
-            var isMasterCommand = new BsonDocument("isMaster", 1);
-            var isMasterProtocol = new CommandWireProtocol<BsonDocument>(
-                DatabaseNamespace.Admin,
-                isMasterCommand,
-                true,
-                BsonDocumentSerializer.Instance,
-                null);
+            var isMasterProtocol = CreateIsMasterProtocol();
             var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
+            var buildInfoProtocol = CreateBuildInfoProtocol();
+            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
+
+            var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
+
+            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+
+            try
+            {
+                var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+
+                description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+            }
+            catch
+            {
+                // if we couldn't get the server's connection id, so be it.
+            }
+
+            return description;
+        }
+
+        // private methods
+        private CommandWireProtocol<BsonDocument> CreateBuildInfoProtocol()
+        {
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
             var buildInfoProtocol = new CommandWireProtocol<BsonDocument>(
                 DatabaseNamespace.Admin,
@@ -49,34 +97,40 @@ namespace MongoDB.Driver.Core.Connections
                 true,
                 BsonDocumentSerializer.Instance,
                null);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
+            return buildInfoProtocol;
+        }
 
-            var connectionId = connection.ConnectionId;
-            var description = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+        private CommandWireProtocol<BsonDocument> CreateGetLastErrorProtocol()
+        {
+            var getLastErrorCommand = new BsonDocument("getLastError", 1);
+            var getLastErrorProtocol = new CommandWireProtocol<BsonDocument>(
+                DatabaseNamespace.Admin,
+                getLastErrorCommand,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
+            return getLastErrorProtocol;
+        }
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+        private CommandWireProtocol<BsonDocument> CreateIsMasterProtocol()
+        {
+            var isMasterCommand = new BsonDocument("isMaster", 1);
+            var isMasterProtocol = new CommandWireProtocol<BsonDocument>(
+                DatabaseNamespace.Admin,
+                isMasterCommand,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
+            return isMasterProtocol;
+        }
 
-            try
+        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
+        {
+            BsonValue connectionIdBsonValue;
+            if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
             {
-                var getLastErrorCommand = new BsonDocument("getLastError", 1);
-                var getLastErrorProtocol = new CommandWireProtocol<BsonDocument>(
-                    DatabaseNamespace.Admin,
-                    getLastErrorCommand,
-                    true,
-                    BsonDocumentSerializer.Instance,
-                    null);
-                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-
-                BsonValue connectionIdBsonValue;
-                if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
-                {
-                    connectionId = connectionId.WithServerValue(connectionIdBsonValue.ToInt32());
-                    description = description.WithConnectionId(connectionId);
-                }
-            }
-            catch
-            {
-                // if we couldn't get the server's connection id, so be it.
+                var connectionId = description.ConnectionId.WithServerValue(connectionIdBsonValue.ToInt32());
+                description = description.WithConnectionId(connectionId);
             }
 
             return description;

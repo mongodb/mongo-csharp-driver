@@ -29,6 +29,21 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
+        public static void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
+
+            // authentication is currently broken on arbiters
+            if (!description.IsMasterResult.IsArbiter)
+            {
+                foreach (var authenticator in connection.Settings.Authenticators)
+                {
+                    authenticator.Authenticate(connection, description, cancellationToken);
+                }
+            }
+        }
+
         public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));

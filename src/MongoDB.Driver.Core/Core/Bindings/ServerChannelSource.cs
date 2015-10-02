@@ -43,12 +43,25 @@ namespace MongoDB.Driver.Core.Bindings
 
         // properties
         /// <inheritdoc/>
+        public IServer Server
+        {
+            get { return _server; }
+        }
+
+        /// <inheritdoc/>
         public ServerDescription ServerDescription
         {
             get { return _server.Description; }
         }
 
         // methods
+        /// <inheritdoc/>
+        public IChannelHandle GetChannel(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _server.GetChannel(cancellationToken);
+        }
+
         /// <inheritdoc/>
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {

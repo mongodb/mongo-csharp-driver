@@ -88,19 +88,33 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
-        // methods
-        internal abstract BsonDocument CreateCommand();
+        // public methods
+        /// <inheritdoc/>
+        public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return operation.ExecuteAsync(binding, cancellationToken);
+        }
+
+        // private methods
+        internal abstract BsonDocument CreateCommand();
+
+        private WriteCommandOperation<TResult> CreateOperation()
+        {
             var command = CreateCommand();
-            var operation = new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings)
+            return new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings)
             {
                 CommandValidator = GetCommandValidator()
             };
-            return operation.ExecuteAsync(binding, cancellationToken);
         }
 
         /// <summary>

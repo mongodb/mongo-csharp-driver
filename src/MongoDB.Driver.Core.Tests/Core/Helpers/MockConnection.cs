@@ -86,14 +86,28 @@ namespace MongoDB.Driver.Core.Helpers
             return _sentMessages;
         }
 
+        public void Open(CancellationToken cancellationToken)
+        {
+        }
+
         public Task OpenAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult<object>(null);
         }
 
+        public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        {
+            return (ResponseMessage)_replyMessages.Dequeue();
+        }
+
         public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             return Task.FromResult((ResponseMessage)_replyMessages.Dequeue());
+        }
+
+        public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        {
+            _sentMessages.AddRange(messages);
         }
 
         public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

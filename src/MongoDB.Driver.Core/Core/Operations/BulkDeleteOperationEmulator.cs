@@ -34,6 +34,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        protected override WriteConcernResult ExecuteProtocol(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
+        {
+            var deleteRequest = (DeleteRequest)request;
+            var isMulti = deleteRequest.Limit == 0;
+
+            return channel.Delete(
+               CollectionNamespace,
+               deleteRequest.Filter,
+               isMulti,
+               MessageEncoderSettings,
+               WriteConcern,
+               cancellationToken);
+        }
+
         protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var deleteRequest = (DeleteRequest)request;

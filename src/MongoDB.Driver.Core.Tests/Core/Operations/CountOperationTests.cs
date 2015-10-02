@@ -76,70 +76,64 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
 
-            long result;
-            using (var binding = CoreTestConfiguration.GetReadBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(5);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result_when_filter_is_provided()
+        public void Execute_should_return_expected_result_when_filter_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Filter = BsonDocument.Parse("{ _id : { $gt : 1 } }");
 
-            long result;
-            using (var binding = CoreTestConfiguration.GetReadBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(4);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result_when_hint_is_provided()
+        public void Execute_should_return_expected_result_when_hint_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Hint = BsonDocument.Parse("{ _id : 1 }");
 
-            long result;
-            using (var binding = CoreTestConfiguration.GetReadBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(5);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result_when_limit_is_provided()
+        public void Execute_should_return_expected_result_when_limit_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Limit = 3;
 
-            long result;
-            using (var binding = CoreTestConfiguration.GetReadBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(3);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
+        public void Execute_should_return_expected_result_when_maxTime_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
             {
@@ -149,16 +143,14 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result_when_skip_is_provided()
+        public void Execute_should_return_expected_result_when_skip_is_provided(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Skip = 3;
 
-            long result;
-            using (var binding = CoreTestConfiguration.GetReadBinding())
-            {
-                result = await subject.ExecuteAsync(binding, CancellationToken.None);
-            }
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be(2);
         }

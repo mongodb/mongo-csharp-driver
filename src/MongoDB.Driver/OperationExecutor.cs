@@ -26,9 +26,19 @@ namespace MongoDB.Driver
 {
     internal sealed class OperationExecutor : IOperationExecutor
     {
+        public TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        {
+            return operation.Execute(binding, cancellationToken);
+        }
+
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+        }
+
+        public TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        {
+            return operation.Execute(binding, cancellationToken);
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)

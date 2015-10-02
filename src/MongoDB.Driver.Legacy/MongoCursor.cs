@@ -751,7 +751,7 @@ namespace MongoDB.Driver
 
             using (var binding = Server.GetReadBinding(ReadPreference))
             {
-                var cursor = operation.Execute(binding);
+                var cursor = operation.Execute(binding, CancellationToken.None);
                 return new AsyncCursorEnumeratorAdapter<TDocument>(cursor, CancellationToken.None).GetEnumerator();
             }
         }

@@ -42,45 +42,87 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadChannelSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSource_should_throw_if_disposed(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None);
+            Action act;
+            if (async)
+            {
+                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.GetReadChannelSource(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadChannelSourceAsync_should_delegate_to_reference()
+        public void GetReadChannelSource_should_delegate_to_reference(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 
-            subject.GetReadChannelSourceAsync(CancellationToken.None);
+            if (async)
+            {
+                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            _readWriteBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
+                _readWriteBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
+            }
+            else
+            {
+                subject.GetReadChannelSource(CancellationToken.None);
+
+                _readWriteBinding.Received().GetReadChannelSource(CancellationToken.None);
+            }
         }
 
         [Test]
-        public void GetWriteChannelSourceAsync_should_throw_if_disposed()
+        public void GetWriteChannelSource_should_throw_if_disposed(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None);
+            Action act;
+            if (async)
+            {
+                act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.GetWriteChannelSource(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetWriteChannelSourceAsync_should_delegate_to_reference()
+        public void GetWriteChannelSource_should_delegate_to_reference(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 
-            subject.GetWriteChannelSourceAsync(CancellationToken.None);
+            if (async)
+            {
+                subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            _readWriteBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
+                _readWriteBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
+            }
+            else
+            {
+                subject.GetWriteChannelSource(CancellationToken.None);
+
+                _readWriteBinding.Received().GetWriteChannelSource(CancellationToken.None);
+            }
         }
 
         [Test]

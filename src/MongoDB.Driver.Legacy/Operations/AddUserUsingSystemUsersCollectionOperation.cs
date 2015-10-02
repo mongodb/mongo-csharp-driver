@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,60 +50,65 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public bool Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             {
                 var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
 
-                var user = await FindUserAsync(channelSource, collectionNamespace, cancellationToken).ConfigureAwait(false);
+                var user = FindUser(channelSource, collectionNamespace, cancellationToken);
                 if (user == null)
                 {
                     user = new BsonDocument
                     {
                         { "_id", ObjectId.GenerateNewId() },
-                        { "user", _username }, 
+                        { "user", _username },
                         { "pwd", _passwordHash },
                         { "readOnly", _readOnly },
                     };
-                    await InsertUserAsync(channelSource, collectionNamespace, user, cancellationToken).ConfigureAwait(false);
+                    InsertUser(channelSource, collectionNamespace, user, cancellationToken);
                 }
                 else
                 {
                     user["pwd"] = _passwordHash;
                     user["readOnly"] = _readOnly;
-                    await UpdateUserAsync(channelSource, collectionNamespace, user, cancellationToken).ConfigureAwait(false);
+                    UpdateUser(channelSource, collectionNamespace, user, cancellationToken);
                 }
             }
 
             return true;
         }
 
-        private async Task<BsonDocument> FindUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        public Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
+        private BsonDocument FindUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("user", _username),
                 Limit = -1
             };
-            var cursor = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
-            var userDocuments = await cursor.ToListAsync().ConfigureAwait(false);
+            var cursor = operation.Execute(channelSource, ReadPreference.Primary, cancellationToken);
+            var userDocuments = cursor.ToList();
             return userDocuments.FirstOrDefault();
         }
 
-        private async Task InsertUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private void InsertUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var inserts = new[] { new InsertRequest(user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, inserts, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
+            operation.Execute(channelSource, cancellationToken);
         }
 
-        private async Task UpdateUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private void UpdateUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var filter = new BsonDocument("_id", user["_id"]);
             var updates = new[] { new UpdateRequest(UpdateType.Replacement, filter, user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, updates, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
+            operation.Execute(channelSource, cancellationToken);
         }
     }
 }

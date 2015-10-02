@@ -57,6 +57,13 @@ namespace MongoDB.Driver.Core.Bindings
 
         // methods
         /// <inheritdoc/>
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetReadChannelSource(cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

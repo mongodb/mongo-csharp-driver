@@ -67,6 +67,14 @@ namespace MongoDB.Driver.Core.Servers
         /// Gets a channel to the server.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel.</returns>
+        IChannelHandle GetChannel(CancellationToken cancellationToken);
+
+        // methods
+        /// <summary>
+        /// Gets a channel to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a channel.</returns>
         Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }

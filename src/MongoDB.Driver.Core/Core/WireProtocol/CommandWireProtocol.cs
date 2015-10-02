@@ -90,6 +90,15 @@ namespace MongoDB.Driver.Core.WireProtocol
                 false);
         }
 
+        public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
+        {
+            var message = CreateMessage();
+            connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+            var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
+            var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+            return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+        }
+
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateMessage();

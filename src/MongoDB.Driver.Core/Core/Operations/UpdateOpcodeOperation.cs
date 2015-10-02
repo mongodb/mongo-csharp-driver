@@ -113,37 +113,25 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // methods
-        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        // public methods
+        /// <inheritdoc/>
+        public WriteConcernResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            return channel.UpdateAsync(
-                _collectionNamespace,
-                _messageEncoderSettings,
-                _writeConcern,
-                _request.Filter,
-                _request.Update,
-                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
-                _request.IsMulti,
-                _request.IsUpsert,
-                cancellationToken);
-        }
+            Ensure.IsNotNull(binding, nameof(binding));
 
-        private async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(channel, nameof(channel));
-
-            if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
+                if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
                 {
-                    MaxDocumentSize = _maxDocumentSize,
-                    WriteConcern = _writeConcern
-                };
-                return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                return await ExecuteProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    var emulator = CreateEmulator();
+                    return emulator.Execute(channel, cancellationToken);
+                }
+                else
+                {
+                    return ExecuteProtocol(channel, cancellationToken);
+                }
             }
         }
 
@@ -156,8 +144,54 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+                {
+                    var emulator = CreateEmulator();
+                    return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await ExecuteProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                }
             }
+        }
+
+        // private methods
+        private UpdateOpcodeOperationEmulator CreateEmulator()
+        {
+            return new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
+            {
+                MaxDocumentSize = _maxDocumentSize,
+                WriteConcern = _writeConcern
+            };
+        }
+
+        private WriteConcernResult ExecuteProtocol(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            return channel.Update(
+                _collectionNamespace,
+                _messageEncoderSettings,
+                _writeConcern,
+                _request.Filter,
+                _request.Update,
+                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
+                _request.IsMulti,
+                _request.IsUpsert,
+                cancellationToken);
+        }
+
+        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            return channel.UpdateAsync(
+                _collectionNamespace,
+                _messageEncoderSettings,
+                _writeConcern,
+                _request.Filter,
+                _request.Update,
+                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
+                _request.IsMulti,
+                _request.IsUpsert,
+                cancellationToken);
         }
     }
 }

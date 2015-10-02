@@ -45,6 +45,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             return new KillCursorsMessage(RequestMessage.GetNextRequestId(), _cursorIds);
         }
 
+        public void Execute(IConnection connection, CancellationToken cancellationToken)
+        {
+            var message = CreateMessage();
+            connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+        }
+
         public async Task ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateMessage();

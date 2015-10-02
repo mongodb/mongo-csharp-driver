@@ -126,7 +126,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_against_an_existing_document_returning_the_original()
+        public void Execute_against_an_existing_document_returning_the_original(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -138,18 +140,20 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.Before
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be("{_id: 10, x: 1}");
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_against_an_existing_document_returning_the_replacement()
+        public void Execute_against_an_existing_document_returning_the_replacement(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -161,18 +165,20 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.After
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be("{_id: 10, a: 2}");
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_against_a_non_existing_document_returning_the_original()
+        public void Execute_against_a_non_existing_document_returning_the_original(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -184,18 +190,20 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.Before
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_against_a_non_existing_document_returning_the_replacement()
+        public void Execute_against_a_non_existing_document_returning_the_replacement(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -207,18 +215,20 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.After
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_against_a_non_existing_document_returning_the_original_with_upsert()
+        public void Execute_against_a_non_existing_document_returning_the_original_with_upsert(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -231,18 +241,20 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.Before
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_against_a_non_existing_document_returning_the_replacement_with_upsert()
+        public void Execute_against_a_non_existing_document_returning_the_replacement_with_upsert(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
@@ -255,11 +267,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = ReturnDocument.After
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be("{_id: 10, a: 2}");
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }

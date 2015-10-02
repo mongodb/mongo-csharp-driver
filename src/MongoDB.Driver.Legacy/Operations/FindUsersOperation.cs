@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,9 +49,9 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public IEnumerable<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             {
                 IReadOperation<IEnumerable<BsonDocument>> operation;
 
@@ -63,8 +64,13 @@ namespace MongoDB.Driver.Operations
                     operation = new FindUsersUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
 
-                return await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                return operation.Execute(channelSource, binding.ReadPreference, cancellationToken);
             }
+        }
+
+        public Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
     }
 }

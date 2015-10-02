@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -82,28 +83,32 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_not_throw_when_collection_does_not_exist()
+        public void Execute_should_not_throw_when_collection_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                await dropCollectionOperation.ExecuteAsync(binding, CancellationToken.None);
-                await subject.ExecuteAsync(binding, CancellationToken.None); // this will throw if we have a problem...
+                ExecuteOperation(dropCollectionOperation, binding, async);
+                ExecuteOperation(subject, binding, async); // this will throw if we have a problem...
             }
         }
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var createCollectionOperation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                await createCollectionOperation.ExecuteAsync(binding, CancellationToken.None);
+                ExecuteOperation(createCollectionOperation, binding, async);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
                 result["ns"].ToString().Should().Be(_collectionNamespace.FullName);
@@ -118,6 +123,18 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.MessageEncoderSettings;
 
             result.Should().BeSameAs(_messageEncoderSettings);
+        }
+
+        private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
+        {
+            if (async)
+            {
+                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return operation.Execute(binding, CancellationToken.None);
+            }
         }
     }
 }

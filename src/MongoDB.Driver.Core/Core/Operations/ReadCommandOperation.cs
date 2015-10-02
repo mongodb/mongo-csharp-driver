@@ -53,6 +53,18 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods        
         /// <inheritdoc/>
+        public TCommandResult Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+
+            using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            {
+                return ExecuteProtocol(channelSource, binding.ReadPreference, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));

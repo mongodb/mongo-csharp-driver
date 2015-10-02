@@ -109,24 +109,53 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        private WriteCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        }
+
         /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
-            var operation = new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             try
             {
-                return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation();
+                return operation.Execute(binding, cancellationToken);
             }
             catch (MongoCommandException ex)
             {
-                if (ex.ErrorMessage != null && ex.ErrorMessage.Contains("ns not found"))
+                if (ShouldIgnoreException(ex))
                 {
                     return ex.Result;
                 }
                 throw;
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            try
+            {
+                var operation = CreateOperation();
+                return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ShouldIgnoreException(ex))
+                {
+                    return ex.Result;
+                }
+                throw;
+            }
+        }
+
+        private bool ShouldIgnoreException(MongoCommandException ex)
+        {
+            return ex.ErrorMessage != null && ex.ErrorMessage.Contains("ns not found");
         }
     }
 }

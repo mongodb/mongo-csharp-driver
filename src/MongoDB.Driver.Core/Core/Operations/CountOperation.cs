@@ -148,11 +148,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var document = operation.Execute(binding, cancellationToken);
+            return document["n"].ToInt64();
+        }
+
+        /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
-            var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var operation = CreateOperation();
             var document = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
@@ -171,6 +179,12 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Verbosity = verbosity
             };
+        }
+
+        private ReadCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

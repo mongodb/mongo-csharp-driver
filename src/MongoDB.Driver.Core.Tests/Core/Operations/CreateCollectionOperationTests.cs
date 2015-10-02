@@ -232,26 +232,30 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_create_collection()
+        public void Execute_should_create_collection(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
+                var stats = GetCollectionStats(binding, async);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
             }
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_create_collection_when_AutoIndexId_is_set(
+        public void Execute_should_create_collection_when_AutoIndexId_is_set(
             [Values(false, true)]
-            bool autoIndexId)
+            bool autoIndexId,
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
@@ -260,13 +264,22 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
                 var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                var cursor = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
-                var indexes = await cursor.ToListAsync();
+                List<BsonDocument> indexes;
+                if (async)
+                {
+                    var cursor = listIndexesOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                    indexes = cursor.ToListAsync().GetAwaiter().GetResult();
+                }
+                else
+                {
+                    var cursor = listIndexesOperation.Execute(binding, CancellationToken.None);
+                    indexes = cursor.ToList();
+                }
 
                 indexes.Count.Should().Be(autoIndexId ? 1 : 0);
             }
@@ -274,9 +287,11 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_create_collection_when_Capped_is_set(
+        public void Execute_should_create_collection_when_Capped_is_set(
             [Values(false, true)]
-            bool capped)
+            bool capped,
+            [Values(false, true)]
+            bool async)
         {
             var maxSize = capped ? (long?)10000 : null;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
@@ -287,11 +302,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
+                var stats = GetCollectionStats(binding, async);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 stats.GetValue("capped", false).ToBoolean().Should().Be(capped);
             }
@@ -299,7 +314,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_create_collection_when_MaxDocuments_is_set()
+        public void Execute_should_create_collection_when_MaxDocuments_is_set(
+            [Values(false, true)]
+            bool async)
         {
             var maxDocuments = 123L;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
@@ -311,11 +328,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
+                var stats = GetCollectionStats(binding, async);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 stats["capped"].ToBoolean().Should().BeTrue();
                 stats["max"].ToInt64().Should().Be(maxDocuments);
@@ -324,7 +341,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_create_collection_when_MaxSize_is_set()
+        public void Execute_should_create_collection_when_MaxSize_is_set(
+            [Values(false, true)]
+            bool async)
         {
             var maxSize = 10000L;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
@@ -335,11 +354,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
+                var stats = GetCollectionStats(binding, async);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 stats["capped"].ToBoolean().Should().BeTrue();
                 // TODO: not sure how to verify that the maxSize took effect
@@ -348,9 +367,11 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection", StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
-        public async Task ExecuteAsync_should_create_collection_when_UsePowerOf2Sizes_is_set(
+        public void Execute_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
-            bool usePowerOf2Sizes)
+            bool usePowerOf2Sizes,
+            [Values(false, true)]
+            bool async)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
@@ -359,11 +380,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
+                var stats = GetCollectionStats(binding, async);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 stats["userFlags"].ToInt32().Should().Be(usePowerOf2Sizes ? 1 : 0);
             }
@@ -435,7 +456,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // helper methods
-        public void DropCollection()
+        private void DropCollection()
         {
             var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -445,7 +466,19 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public Task<BsonDocument> GetCollectionStatsAsync(IReadBinding binding)
+        private BsonDocument ExecuteOperation(CreateCollectionOperation subject, IWriteBinding binding, bool async)
+        {
+            if (async)
+            {
+                return subject.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return subject.Execute(binding, CancellationToken.None);
+            }
+        }
+
+        private BsonDocument GetCollectionStats(IReadBinding binding, bool async)
         {
             var command = new BsonDocument
             {
@@ -453,7 +486,14 @@ namespace MongoDB.Driver.Core.Operations
             };
             var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            return operation.ExecuteAsync(binding, CancellationToken.None);
+            if (async)
+            {
+                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return operation.Execute(binding, CancellationToken.None);
+            }
         }
     }
 }

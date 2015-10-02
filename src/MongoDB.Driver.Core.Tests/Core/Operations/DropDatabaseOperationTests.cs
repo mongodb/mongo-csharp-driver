@@ -73,14 +73,16 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 EnsureDatabaseExists(binding);
                 var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
                 result["dropped"].ToString().Should().Be(_databaseNamespace.DatabaseName);
@@ -88,11 +90,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void ExecuteAsync_should_throw_when_binding_is_null()
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -123,7 +127,19 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "test");
             var requests = new[] { new InsertRequest(new BsonDocument()) };
             var insertOperation = new BulkInsertOperation(collectionNamespace, requests, _messageEncoderSettings);
-            insertOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            insertOperation.Execute(binding, CancellationToken.None);
+        }
+
+        private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
+        {
+            if (async)
+            {
+                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return operation.Execute(binding, CancellationToken.None);
+            }
         }
     }
 }

@@ -34,6 +34,14 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         /// <param name="endPoint">The end point.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Stream.</returns>
+        Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a stream.
+        /// </summary>
+        /// <param name="endPoint">The end point.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the Stream.</returns>
         Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken);
     }

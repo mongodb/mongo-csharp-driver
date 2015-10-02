@@ -109,7 +109,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_against_an_existing_document()
+        public void Execute_against_an_existing_document(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndDeleteOperation<BsonDocument>(
                 _collectionNamespace,
@@ -117,18 +119,20 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().Be("{_id: 10, x: 1}");
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList.Should().BeEmpty();
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_when_document_does_not_exist()
+        public void Execute_when_document_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new FindOneAndDeleteOperation<BsonDocument>(
                 _collectionNamespace,
@@ -136,11 +140,11 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollectionAsync();
+            var serverList = ReadAllFromCollection(async);
 
             serverList.Should().HaveCount(1);
         }

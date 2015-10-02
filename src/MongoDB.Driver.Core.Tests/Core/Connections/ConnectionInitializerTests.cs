@@ -49,15 +49,27 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_connection_is_null()
+        public void InitializeConnection_should_throw_an_ArgumentNullException_if_the_connection_is_null(
+            [Values(false, true)]
+            bool async)
         {
-            Action act = () => _subject.InitializeConnectionAsync(null, CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.InitializeConnectionAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.InitializeConnection(null, CancellationToken.None);
+            }
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void InitializeConnectionAsync_should_build_the_ConnectionDescription_correctly()
+        public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
+            [Values(false, true)]
+            bool async)
         {
             var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
@@ -71,7 +83,15 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
-            var result = _subject.InitializeConnectionAsync(connection, CancellationToken.None).Result;
+            ConnectionDescription result;
+            if (async)
+            {
+                result = _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = _subject.InitializeConnection(connection, CancellationToken.None);
+            }
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);

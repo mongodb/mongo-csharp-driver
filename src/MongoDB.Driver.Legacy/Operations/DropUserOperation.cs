@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -46,9 +47,9 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public bool Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             {
                 IWriteOperation<bool> operation;
                 if (channelSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
@@ -60,8 +61,13 @@ namespace MongoDB.Driver.Operations
                     operation = new DropUserUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
 
-                return await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
+                return operation.Execute(channelSource, cancellationToken);
             }
+        }
+
+        public Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
     }
 }

@@ -45,15 +45,22 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+        // public methods
+        public bool MoveNext(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             if (_moved)
             {
-                return Task.FromResult(false);
+                return false;
             }
             _moved = true;
-            return Task.FromResult(true);
+            return true;
+        }
+
+        public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(MoveNext(cancellationToken));
         }
 
         public void Dispose()
@@ -61,6 +68,7 @@ namespace MongoDB.Driver
             _disposed = true;
         }
 
+        // private methods
         private void ThrowIfDisposed()
         {
             if (_disposed)

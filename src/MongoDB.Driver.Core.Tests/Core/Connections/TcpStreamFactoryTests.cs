@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.IO;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -40,18 +41,30 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public void CreateStreamAsync_should_throw_a_SocketException_when_the_endpoint_could_not_be_resolved()
+        public void CreateStream_should_throw_a_SocketException_when_the_endpoint_could_not_be_resolved(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new TcpStreamFactory();
 
-            Action act = () => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.CreateStream(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None);
+            }
 
             act.ShouldThrow<SocketException>();
         }
 
         [Test]
         [RequiresServer]
-        public async Task CreateStreamAsync_should_call_the_socketConfigurator()
+        public void CreateStream_should_call_the_socketConfigurator(
+            [Values(false, true)]
+            bool async)
         {
             var socketConfiguratorWasCalled = false;
             Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
@@ -59,33 +72,60 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new TcpStreamFactory(settings);
             var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
-            await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+            if (async)
+            {
+                 subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.CreateStream(endPoint, CancellationToken.None);
+            }
 
             socketConfiguratorWasCalled.Should().BeTrue();
         }
 
         [Test]
         [RequiresServer]
-        public async Task CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
+        public void CreateStream_should_connect_to_a_running_server_and_return_a_non_null_stream(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new TcpStreamFactory();
             var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
-            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+            Stream stream;
+            if (async)
+            {
+                stream = subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                stream = subject.CreateStream(endPoint, CancellationToken.None);
+            }
 
             stream.Should().NotBeNull();
         }
 
         [Test]
         [RequiresServer]
-        public async Task SocketConfigurator_can_be_used_to_set_keepAlive()
+        public void SocketConfigurator_can_be_used_to_set_keepAlive(
+            [Values(false, true)]
+            bool async)
         {
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);
             var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
-            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+            Stream stream;
+            if (async)
+            {
+                stream = subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                stream = subject.CreateStream(endPoint, CancellationToken.None);
+            }
 
             var socketProperty = typeof(NetworkStream).GetProperty("Socket", BindingFlags.NonPublic | BindingFlags.Instance);
             var socket = (Socket)socketProperty.GetValue(stream);

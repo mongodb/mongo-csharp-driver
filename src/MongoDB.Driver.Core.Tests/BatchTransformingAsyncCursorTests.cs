@@ -27,61 +27,67 @@ namespace MongoDB.Driver
     public class BatchTransformingAsyncCursorTests
     {
         [Test]
-        public async Task Should_provide_back_all_results()
+        public void Should_provide_back_all_results(
+            [Values(false, true)]
+            bool async)
         {
             var source = Enumerable.Range(0, 15);
             var cursor = new ListBasedAsyncCursor<int>(source, 5);
 
             var subject = new BatchTransformingAsyncCursor<int, string>(cursor, x => x.Select(y => y.ToString()));
 
-            var result = await subject.MoveNextAsync(CancellationToken.None);
+            var result = MoveNext(subject, async);
             result.Should().BeTrue();
             var batch = subject.Current.ToList();
             batch.Should().Equal("0", "1", "2", "3", "4");
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal("5", "6", "7", "8", "9");
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal("10", "11", "12", "13", "14");
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeFalse();
         }
 
         [Test]
-        public async Task Should_provide_back_a_filtered_list()
+        public void Should_provide_back_a_filtered_list(
+            [Values(false, true)]
+            bool async)
         {
             var source = Enumerable.Range(0, 15);
             var cursor = new ListBasedAsyncCursor<int>(source, 5);
 
             var subject = new BatchTransformingAsyncCursor<int, int>(cursor, x => x.Where(y => y % 2 == 0));
 
-            var result = await subject.MoveNextAsync(CancellationToken.None);
+            var result = MoveNext(subject, async);
             result.Should().BeTrue();
             var batch = subject.Current.ToList();
             batch.Should().Equal(0, 2, 4);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal(6, 8);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal(10, 12, 14);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeFalse();
         }
 
         [Test]
-        public async Task Should_skip_empty_batches()
+        public void Should_skip_empty_batches(
+            [Values(false, true)]
+            bool async)
         {
             var source = Enumerable.Range(0, 15);
             var cursor = new ListBasedAsyncCursor<int>(source, 5);
@@ -89,42 +95,55 @@ namespace MongoDB.Driver
             // skip the second batch
             var subject = new BatchTransformingAsyncCursor<int, int>(cursor, x => x.Where(y => y < 5 || y > 9));
 
-            var result = await subject.MoveNextAsync(CancellationToken.None);
+            var result = MoveNext(subject, async);
             result.Should().BeTrue();
             var batch = subject.Current.ToList();
             batch.Should().Equal(0, 1, 2, 3, 4);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal(10, 11, 12, 13, 14);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeFalse();
         }
 
         [Test]
-        public async Task Should_return_false_when_all_remaining_batches_are_empty()
+        public void Should_return_false_when_all_remaining_batches_are_empty(
+            [Values(false, true)]
+            bool async)
         {
             var source = Enumerable.Range(0, 15);
             var cursor = new ListBasedAsyncCursor<int>(source, 5);
 
             var subject = new BatchTransformingAsyncCursor<int, int>(cursor, x => x.Where(y => y < 8));
 
-            var result = await subject.MoveNextAsync(CancellationToken.None);
+            var result = MoveNext(subject, async);
             result.Should().BeTrue();
             var batch = subject.Current.ToList();
             batch.Should().Equal(0, 1, 2, 3, 4);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeTrue();
             batch = subject.Current.ToList();
             batch.Should().Equal(5, 6, 7);
 
-            result = await subject.MoveNextAsync(CancellationToken.None);
+            result = MoveNext(subject, async);
             result.Should().BeFalse();
         }
 
+        private bool MoveNext<T>(IAsyncCursor<T> cursor, bool async)
+        {
+            if (async)
+            {
+                return cursor.MoveNextAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                return cursor.MoveNext();
+            }
+        }
 
         private class ListBasedAsyncCursor<T> : IAsyncCursor<T>
         {
@@ -152,12 +171,12 @@ namespace MongoDB.Driver
                 }
             }
 
-            public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+            public bool MoveNext(CancellationToken cancellationToken)
             {
                 if (_index >= _full.Count)
                 {
                     _current = null;
-                    return Task.FromResult(false);
+                    return false;
                 }
 
                 var count = _batchSize;
@@ -167,7 +186,12 @@ namespace MongoDB.Driver
                 }
                 _current = _full.GetRange(_index, count);
                 _index += count;
-                return Task.FromResult(true);
+                return true;
+            }
+
+            public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+            {
+                return Task.FromResult(MoveNext(cancellationToken));
             }
 
             public void Dispose()

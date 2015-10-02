@@ -60,24 +60,28 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer(AfterTestMethodName = "DropDatabase")]
-        public async Task ExecuteAsync_should_return_true_when_database_exists()
+        public void Execute_should_return_true_when_database_exists(
+            [Values(false, true)]
+            bool async)
         {
             Insert(BsonDocument.Parse("{x:1}")); // ensure database exists
 
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeTrue();
         }
 
         [Test]
         [RequiresServer("DropDatabase", "DropDatabase")]
-        public async Task ExecuteAsync_should_return_false_when_database_does_not_exist()
+        public void Execute_should_return_false_when_database_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.Should().BeFalse();
         }

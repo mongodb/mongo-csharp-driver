@@ -39,6 +39,14 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="connection">The connection.</param>
         /// <param name="description">The connection description.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Authenticates the connection.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="description">The connection description.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
     }

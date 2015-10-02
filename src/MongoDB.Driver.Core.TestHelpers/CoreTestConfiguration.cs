@@ -170,6 +170,10 @@ namespace MongoDB.Driver
         {
             var testFixtureType = GetTestFixtureTypeFromCallStack();
             var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.DatabaseName + "-" + testFixtureType.Name);
+            if (databaseName.Length >= 64)
+            {
+                databaseName = databaseName.Substring(0, 63);
+            }
             return new DatabaseNamespace(databaseName);
         }
 

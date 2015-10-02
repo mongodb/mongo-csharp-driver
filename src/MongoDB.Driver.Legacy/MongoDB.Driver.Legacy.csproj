@@ -159,10 +159,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryFlags.cs" />
     <Compile Include="RemoveFlags.cs" />
-    <Compile Include="Support\TaskExtensions.cs" />
-    <Compile Include="Sync\IClusterExtensions.cs" />
-    <Compile Include="Sync\IOperationExtensions.cs" />
-    <Compile Include="Sync\IServerExtensions.cs" />
     <Compile Include="SystemProfileInfo.cs" />
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ValidateCollectionArgs.cs" />

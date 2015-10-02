@@ -132,23 +132,27 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void ExecuteAsync_with_zero_requests_should_throw_an_exception()
+        public void Execute_with_zero_requests_should_throw_an_exception(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
 
-            Func<Task> act = () => ExecuteOperationAsync(subject);
+            Action act = () => ExecuteOperation(subject, async);
 
             act.ShouldThrow<InvalidOperationException>();
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_delete_against_a_matching_document()
+        public void Execute_with_one_delete_against_a_matching_document(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(1);
             result.InsertedCount.Should().Be(0);
@@ -161,18 +165,20 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(5);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_delete_against_a_matching_document_with_multi()
+        public void Execute_with_one_delete_against_a_matching_document_with_multi(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) { Limit = 0 } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(3);
             result.InsertedCount.Should().Be(0);
@@ -185,18 +191,20 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_delete_without_matching_a_document()
+        public void Execute_with_one_delete_without_matching_a_document(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{_id: 20}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -209,13 +217,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_multiple_deletes()
+        public void Execute_with_multiple_deletes(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -224,7 +234,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(2);
             result.InsertedCount.Should().Be(0);
@@ -237,13 +247,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(2);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(4);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_fewer_deletes_than_maxBatchCount()
+        public void Execute_with_fewer_deletes_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -256,7 +268,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 4
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(3);
             result.InsertedCount.Should().Be(0);
@@ -269,13 +281,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(3);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_more_deletes_than_maxBatchCount()
+        public void Execute_with_more_deletes_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -288,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 2
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(3);
             result.InsertedCount.Should().Be(0);
@@ -301,18 +315,20 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(3);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_one_insert()
+        public void Execute_with_one_insert(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new InsertRequest(BsonDocument.Parse("{_id: 1, x: 3}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(1);
@@ -325,13 +341,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(1);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_fewer_inserts_than_maxBatchCount()
+        public void Execute_with_fewer_inserts_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -343,7 +361,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 3
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(2);
@@ -356,13 +374,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(2);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(2);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_more_inserts_than_maxBatchCount()
+        public void Execute_with_more_inserts_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -376,7 +396,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 3
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(4);
@@ -389,28 +409,32 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(4);
         }
 
         [Test]
-        public void ExecuteAsync_with_an_empty_update_document_should_throw()
+        public void Execute_with_an_empty_update_document_should_throw(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), new BsonDocument()) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            Func<Task> act = () => ExecuteOperationAsync(subject);
+            Action act = () => ExecuteOperation(subject, async);
             act.ShouldThrow<BsonSerializationException>();
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_update_against_a_matching_document()
+        public void Execute_with_one_update_against_a_matching_document(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -423,18 +447,20 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_update_against_a_matching_document_with_multi()
+        public void Execute_with_one_update_against_a_matching_document_with_multi(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -447,18 +473,20 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_one_update_without_matching_a_document()
+        public void Execute_with_one_update_without_matching_a_document(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{_id: 20}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -471,13 +499,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_fewer_updates_than_maxBatchCount()
+        public void Execute_with_fewer_updates_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -489,7 +519,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 3
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -502,13 +532,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(2);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_more_updates_than_maxBatchCount()
+        public void Execute_with_more_updates_than_maxBatchCount(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -522,7 +554,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 3
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -535,13 +567,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
-        public async Task ExecuteAsync_with_a_very_large_upsert()
+        public void Execute_with_a_very_large_upsert(
+            [Values(false, true)]
+            bool async)
         {
             var smallDocument = new BsonDocument { { "_id", 7 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
@@ -551,7 +585,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = new[] { new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 7), new BsonDocument("$set", new BsonDocument("x", largeString))) { IsUpsert = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -565,13 +599,15 @@ namespace MongoDB.Driver.Core.Operations
             result.Upserts.Should().HaveCount(1);
             result.Upserts.Should().OnlyContain(x => x.Id == 7 && x.Index == 0);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(7);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_an_upsert_matching_multiple_documents()
+        public void Execute_with_an_upsert_matching_multiple_documents(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -579,7 +615,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -592,13 +628,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_an_upsert_matching_no_documents()
+        public void Execute_with_an_upsert_matching_no_documents(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -606,7 +644,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -619,13 +657,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().HaveCount(1);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(7);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_an_upsert_matching_one_document()
+        public void Execute_with_an_upsert_matching_one_document(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -633,7 +673,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(0);
@@ -646,13 +686,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().HaveCount(0);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_mixed_requests_and_ordered_is_false()
+        public void Execute_with_mixed_requests_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new WriteRequest[]
             {
@@ -666,7 +708,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = false
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(1);
             result.InsertedCount.Should().Be(1);
@@ -679,13 +721,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().HaveCount(0);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_mixed_requests_and_ordered_is_true()
+        public void Execute_with_mixed_requests_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new WriteRequest[]
             {
@@ -699,7 +743,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = true
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(1);
             result.InsertedCount.Should().Be(1);
@@ -712,13 +756,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().HaveCount(0);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_mixed_upserts_and_ordered_is_false()
+        public void Execute_with_mixed_upserts_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new WriteRequest[]
             {
@@ -732,7 +778,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = false
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(1);
             result.InsertedCount.Should().Be(1);
@@ -745,13 +791,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().HaveCount(2);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(8);
         }
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_with_mixed_upserts_and_ordered_is_true()
+        public void Execute_with_mixed_upserts_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new WriteRequest[]
             {
@@ -765,7 +813,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = true
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
 
             result.DeletedCount.Should().Be(1);
             result.InsertedCount.Should().Be(1);
@@ -778,13 +826,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(4);
             result.Upserts.Should().HaveCount(2);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(8);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_an_error_in_the_first_batch_and_ordered_is_false()
+        public void Execute_with_an_error_in_the_first_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -800,7 +850,9 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = false
             };
 
-            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            Action action = () => ExecuteOperation(subject, async);
+            var ex = action.ShouldThrow<MongoBulkWriteOperationException>().Subject.Single();
+
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(3);
@@ -813,18 +865,21 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(5);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_an_error_in_the_first_batch_and_ordered_is_true()
+        public void Execute_with_an_error_in_the_first_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var keys = new BsonDocument("x", 1);
             var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
             var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
-            await ExecuteOperationAsync(createIndexOperation);
+
+            ExecuteOperation(createIndexOperation, async);
 
             var requests = new[]
             {
@@ -840,7 +895,8 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = true
             };
 
-            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            Action action = () => ExecuteOperation(subject, async);
+            var ex = action.ShouldThrow<MongoBulkWriteOperationException>().Subject.Single();
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
@@ -854,13 +910,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(5);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(1);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_an_error_in_the_second_batch_and_ordered_is_false()
+        public void Execute_with_an_error_in_the_second_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -877,7 +935,8 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 2
             };
 
-            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            Action action = () => ExecuteOperation(subject, async);
+            var ex = action.ShouldThrow<MongoBulkWriteOperationException>().Subject.Single();
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
@@ -891,13 +950,15 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(5);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(4);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_with_an_error_in_the_second_batch_and_ordered_is_true()
+        public void Execute_with_an_error_in_the_second_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
         {
             var requests = new[]
             {
@@ -914,7 +975,8 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 2
             };
 
-            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            Action action = () => ExecuteOperation(subject, async);
+            var ex = action.ShouldThrow<MongoBulkWriteOperationException>().Subject.Single();
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
@@ -928,7 +990,7 @@ namespace MongoDB.Driver.Core.Operations
             result.RequestCount.Should().Be(5);
             result.Upserts.Should().BeEmpty();
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
         }
 

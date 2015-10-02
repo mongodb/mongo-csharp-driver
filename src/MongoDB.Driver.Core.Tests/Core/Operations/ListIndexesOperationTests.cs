@@ -26,20 +26,8 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class ListIndexesOperationTests
+    public class ListIndexesOperationTests : OperationTestBase
     {
-        // fields
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
-            _collectionNamespace = new CollectionNamespace(databaseNamespace, "ListIndexesOperationTests");
-            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
-        }
-
         // test methods
         [Test]
         public void CollectionNamespace_get_should_return_expected_result()
@@ -70,59 +58,57 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                await EnsureCollectionExistsAsync(binding);
-                var expectedNames = new[] { "_id_" };
+            EnsureCollectionExists(async);
+            var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
-                var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
-                list.Select(index => index["name"].AsString).Should().BeEquivalentTo(expectedNames);
-            }
+            list.Select(index => index["name"].AsString).Should().BeEquivalentTo("_id_");
         }
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result_when_collection_does_not_exist()
+        public void Execute_should_return_expected_result_when_collection_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                await DropCollectionAsync(binding);
+            DropCollection(async);
+            var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
-                var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
-                list.Count.Should().Be(0);
-            }
+            list.Count.Should().Be(0);
         }
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_expected_result_when_database_does_not_exist()
+        public void Execute_should_return_expected_result_when_database_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                await DropDatabaseAsync(binding);
+            DropDatabase(async);
+            var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
-                var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
-                list.Count.Should().Be(0);
-            }
+            list.Count.Should().Be(0);
         }
 
         [Test]
-        public void ExecuteAsync_should_throw_when_binding_is_null()
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -138,23 +124,23 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // helper methods
-        public Task DropCollectionAsync(IWriteBinding binding)
+        public void DropCollection(bool async)
         {
             var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, CancellationToken.None);
+            ExecuteOperation(operation, async);
         }
 
-        public Task DropDatabaseAsync(IWriteBinding binding)
+        public void DropDatabase(bool async)
         {
             var operation = new DropDatabaseOperation(_collectionNamespace.DatabaseNamespace, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, CancellationToken.None);
+            ExecuteOperation(operation, async);
         }
 
-        public Task EnsureCollectionExistsAsync(IWriteBinding binding)
+        public void EnsureCollectionExists(bool async)
         {
-            var requests = new[] { new InsertRequest(new BsonDocument("_id", 1)) };
+            var requests = new[] { new InsertRequest(new BsonDocument("_id", ObjectId.GenerateNewId())) };
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, CancellationToken.None);
+            ExecuteOperation(operation, async);
         }
     }
 }

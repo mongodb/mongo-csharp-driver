@@ -50,6 +50,22 @@ namespace MongoDB.Driver
             }
         }
 
+        // methods
+        public bool MoveNext(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            while (_wrapped.MoveNext(cancellationToken))
+            {
+                _current = _transformer(_wrapped.Current).ToList();
+                if (_current.Count > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

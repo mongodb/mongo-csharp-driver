@@ -48,7 +48,9 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         [Test]
-        public void AuthenticateAsync_should_throw_an_AuthenticationException_when_authentication_fails()
+        public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new PlainAuthenticator(__credential);
 
@@ -56,13 +58,23 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+            }
 
             act.ShouldThrow<MongoAuthenticationException>();
         }
 
         [Test]
-        public void AuthenticateAsync_should_not_throw_when_authentication_succeeds()
+        public void Authenticate_should_not_throw_when_authentication_succeeds(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new PlainAuthenticator(__credential);
 
@@ -73,7 +85,17 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(saslStartReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
-            Action act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).Wait();
+
+            Action act;
+            if (async)
+            {
+                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+            }
+
             act.ShouldNotThrow();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());

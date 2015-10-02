@@ -69,12 +69,22 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
+        public bool Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = new ListDatabasesOperation(_messageEncoderSettings);
+            var result = operation.Execute(binding, cancellationToken);
+            var list = result.ToList(cancellationToken);
+            return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = new ListDatabasesOperation(_messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            var list = await result.ToListAsync().ConfigureAwait(false);
+            var list = await result.ToListAsync(cancellationToken).ConfigureAwait(false);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
     }

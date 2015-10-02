@@ -70,30 +70,60 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        // methods
-        internal BsonDocument CreateCommand()
+        // public methods
+        /// <inheritdoc/>
+        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            return new BsonDocument { { "drop", _collectionNamespace.CollectionName } };
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            try
+            {
+                return operation.Execute(binding, cancellationToken);
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ShouldIgnoreException(ex))
+                {
+                    return ex.Result;
+                }
+                throw;
+            }
         }
 
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
-            var operation = new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var operation = CreateOperation();
             try
             {
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {
-                if (ex.ErrorMessage == "ns not found")
+                if (ShouldIgnoreException(ex))
                 {
                     return ex.Result;
                 }
                 throw;
             }
+        }
+
+        // private methods
+        internal BsonDocument CreateCommand()
+        {
+            return new BsonDocument { { "drop", _collectionNamespace.CollectionName } };
+        }
+
+        private WriteCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        }
+
+        private bool ShouldIgnoreException(MongoCommandException ex)
+        {
+            return ex.ErrorMessage == "ns not found";
         }
     }
 }

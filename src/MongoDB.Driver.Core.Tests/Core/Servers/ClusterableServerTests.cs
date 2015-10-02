@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -182,29 +183,59 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Test]
-        public void GetChannelAsync_should_throw_when_not_initialized()
+        public void GetChannel_should_throw_when_not_initialized(
+            [Values(false, true)]
+            bool async)
         {
-            Action act = () => _subject.GetChannelAsync(CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.GetChannel(CancellationToken.None);
+            }
 
             act.ShouldThrow<InvalidOperationException>();
         }
 
         [Test]
-        public void GetChannelAsync_should_throw_when_disposed()
+        public void GetChannel_should_throw_when_disposed(
+            [Values(false, true)]
+            bool async)
         {
             _subject.Dispose();
 
-            Action act = () => _subject.GetChannelAsync(CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.GetChannel(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetChannelAsync_should_get_a_connection()
+        public void GetChannel_should_get_a_connection(
+            [Values(false, true)]
+            bool async)
         {
             _subject.Initialize();
 
-            var channel = _subject.GetChannelAsync(CancellationToken.None).Result;
+            IChannelHandle channel;
+            if (async)
+            {
+                channel = _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                channel = _subject.GetChannel(CancellationToken.None);
+            }
 
             channel.Should().NotBeNull();
         }

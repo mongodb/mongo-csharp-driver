@@ -37,6 +37,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        public IServer Server
+        {
+            get { return _server; }
+        }
+
         public ServerDescription ServerDescription
         {
             get { return _server.Description; }
@@ -53,10 +58,21 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        public IChannelHandle GetChannel(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return GetChannelHelper();
+        }
+
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_channel.Fork());
+            return Task.FromResult(GetChannelHelper());
+        }
+
+        private IChannelHandle GetChannelHelper()
+        {
+            return _channel.Fork();
         }
 
         private void ThrowIfDisposed()

@@ -56,21 +56,41 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        // methods
-        internal BsonDocument CreateCommand()
+        // public methods
+        /// <inheritdoc/>
+        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            return new BsonDocument { { "listDatabases", 1 } };
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var reply = operation.Execute(binding, cancellationToken);
+            return CreateCursor(reply);
         }
 
         /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
-            var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var response = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            var databases = response["databases"].AsBsonArray.OfType<BsonDocument>();
+            var operation = CreateOperation();
+            var reply = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return CreateCursor(reply);
+        }
+
+        // private methods
+        internal BsonDocument CreateCommand()
+        {
+            return new BsonDocument { { "listDatabases", 1 } };
+        }
+
+        private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)
+        {
+            var databases = reply["databases"].AsBsonArray.OfType<BsonDocument>();
             return new SingleBatchAsyncCursor<BsonDocument>(databases.ToList());
+        }
+
+        private ReadCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

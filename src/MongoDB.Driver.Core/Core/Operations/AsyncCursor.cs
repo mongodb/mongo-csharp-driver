@@ -114,6 +114,28 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        private CursorBatch<TDocument> ExecuteGetMoreProtocol(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            var numberToReturn = _batchSize;
+            if (_limit != 0)
+            {
+                numberToReturn = Math.Abs(_limit) - _count;
+                if (_batchSize != 0 && numberToReturn > _batchSize)
+                {
+                    numberToReturn = _batchSize;
+                }
+            }
+
+            return channel.GetMore<TDocument>(
+                _collectionNamespace,
+                _query,
+                _cursorId,
+                numberToReturn,
+                _serializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
         private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var numberToReturn = _batchSize;
@@ -125,6 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                     numberToReturn = _batchSize;
                 }
             }
+
             return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
                 _query,
@@ -135,9 +158,9 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken);
         }
 
-        private Task ExecuteKillCursorsProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private void ExecuteKillCursorsProtocol(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            return channel.KillCursorsAsync(
+            channel.KillCursors(
                 new[] { _cursorId },
                 _messageEncoderSettings,
                 cancellationToken);
@@ -166,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
                         {
                             using (var source = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                             {
-                                KillCursorAsync(_cursorId, source.Token).GetAwaiter().GetResult();
+                                KillCursor(_cursorId, source.Token);
                             }
                         }
                     }
@@ -183,6 +206,15 @@ namespace MongoDB.Driver.Core.Operations
             _disposed = true;
         }
 
+        private CursorBatch<TDocument> GetNextBatch(CancellationToken cancellationToken)
+        {
+            using (EventContext.BeginOperation(_operationId))
+            using (var channel = _channelSource.GetChannel(cancellationToken))
+            {
+                return ExecuteGetMoreProtocol(channel, cancellationToken);
+            }
+        }
+
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation(_operationId))
@@ -192,16 +224,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task KillCursorAsync(long cursorId, CancellationToken cancellationToken)
+        private void KillCursor(long cursorId, CancellationToken cancellationToken)
         {
             try
             {
                 using (EventContext.BeginOperation(_operationId))
                 using (EventContext.BeginKillCursors(_collectionNamespace))
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
-                using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
+                using (var channel = _channelSource.GetChannel(cancellationTokenSource.Token))
                 {
-                    await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    ExecuteKillCursorsProtocol(channel, cancellationToken);
                 }
             }
             catch
@@ -211,30 +243,39 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public bool MoveNext(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+
+            bool hasMore;
+            if (TryMoveNext(out hasMore))
+            {
+                return hasMore;
+            }
+
+            var batch = GetNextBatch(cancellationToken);
+            SaveBatch(batch);
+            return true;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
 
-            if (_firstBatch != null)
+            bool hasMore;
+            if (TryMoveNext(out hasMore))
             {
-                _currentBatch = _firstBatch;
-                _firstBatch = null;
-                return true;
-            }
-
-            if (_currentBatch == null)
-            {
-                return false;
-            }
-
-            if (_cursorId == 0 || _count == _limit)
-            {
-                _currentBatch = null;
-                return false;
+                return hasMore;
             }
 
             var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
-            var cursorId = batch.CursorId;
+            SaveBatch(batch);
+            return true;
+        }
+
+        private void SaveBatch(CursorBatch<TDocument> batch)
+        {
             var documents = batch.Documents;
 
             _count += documents.Count;
@@ -247,8 +288,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             _currentBatch = documents;
-            _cursorId = cursorId;
-            return true;
+            _cursorId = batch.CursorId;
         }
 
         private void ThrowIfDisposed()
@@ -257,6 +297,32 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
+        }
+
+        private bool TryMoveNext(out bool hasMore)
+        {
+            hasMore = false;
+
+            if (_firstBatch != null)
+            {
+                _currentBatch = _firstBatch;
+                _firstBatch = null;
+                hasMore = true;
+                return true;
+            }
+
+            if (_currentBatch == null)
+            {
+                return true;
+            }
+
+            if (_cursorId == 0 || _count == _limit)
+            {
+                _currentBatch = null;
+                return true;
+            }
+
+            return false;
         }
     }
 }

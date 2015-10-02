@@ -124,17 +124,27 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            var operation = CreateOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var command = CreateCommand();
+            var operation = CreateOperation();
+            return operation.ExecuteAsync(binding, cancellationToken);
+        }
 
-            var operation = new ReadCommandOperation<BsonDocument>(
+        private ReadCommandOperation<BsonDocument> CreateOperation()
+        {
+            var command = CreateCommand();
+            return new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);
-
-            return operation.ExecuteAsync(binding, cancellationToken);
         }
     }
 }

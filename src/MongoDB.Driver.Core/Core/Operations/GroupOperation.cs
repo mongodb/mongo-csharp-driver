@@ -198,7 +198,24 @@ namespace MongoDB.Driver.Core.Operations
             set { _resultSerializer = value; }
         }
 
-        // methods
+        // public methods
+        /// <inheritdoc/>
+        public IEnumerable<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+        }
+
+        // private methods
         internal BsonDocument CreateCommand()
         {
             return new BsonDocument
@@ -218,16 +235,13 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        /// <inheritdoc/>
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        private ReadCommandOperation<TResult[]> CreateOperation()
         {
-            Ensure.IsNotNull(binding, nameof(binding));
             var command = CreateCommand();
             var resultSerializer = _resultSerializer ?? BsonSerializer.LookupSerializer<TResult>();
             var resultArraySerializer = new ArraySerializer<TResult>(resultSerializer);
             var commandResultSerializer = new ElementDeserializer<TResult[]>("retval", resultArraySerializer);
-            var operation = new ReadCommandOperation<TResult[]>(_collectionNamespace.DatabaseNamespace, command, commandResultSerializer, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return new ReadCommandOperation<TResult[]>(_collectionNamespace.DatabaseNamespace, command, commandResultSerializer, _messageEncoderSettings);
         }
     }
 }

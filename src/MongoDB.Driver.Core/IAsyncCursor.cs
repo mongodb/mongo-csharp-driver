@@ -39,6 +39,13 @@ namespace MongoDB.Driver
         /// Moves to the next batch of documents.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Whether any more documents are available.</returns>
+        bool MoveNext(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Moves to the next batch of documents.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result indicates whether any more documents are available.</returns>
         Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
@@ -140,6 +147,32 @@ namespace MongoDB.Driver
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a list containing all the documents returned by a cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The list of documents.</returns>
+        public static List<TDocument> ToList<TDocument>(this IAsyncCursor<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, nameof(source));
+
+            var list = new List<TDocument>();
+
+            // yes, we are taking ownership... assumption being that they've
+            // exhausted the thing and don't need it anymore.
+            using (source)
+            {
+                while (source.MoveNext(cancellationToken))
+                {
+                    list.AddRange(source.Current);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            }
+            return list;
         }
 
         /// <summary>

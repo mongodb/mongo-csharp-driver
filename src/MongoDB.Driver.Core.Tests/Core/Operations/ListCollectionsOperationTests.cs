@@ -73,22 +73,26 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureCollectionsExist")]
-        public async Task ExecuteAsync_should_return_the_expected_result()
+        public void Execute_should_return_the_expected_result(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
 
-            var result = await ExecuteOperationAsync(subject);
-            var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
             list.Count.Should().BeGreaterThan(0);
             list.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
         }
 
-        [TestCase("{ name : \"regular\" }", "regular")]
-        [TestCase("{ \"options.capped\" : true }", "capped")]
+        [TestCase("{ name : \"regular\" }", "regular", false)]
+        [TestCase("{ name : \"regular\" }", "regular", true)]
+        [TestCase("{ \"options.capped\" : true }", "capped", false)]
+        [TestCase("{ \"options.capped\" : true }", "capped", true)]
         [RequiresServer("EnsureCollectionsExist")]
-        public async Task ExecuteAsync_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName)
+        public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
@@ -96,8 +100,8 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var result = await ExecuteOperationAsync(subject);
-            var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
             list.Should().HaveCount(1);
             list[0]["name"].AsString.Should().Be(expectedName);
@@ -105,20 +109,24 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer]
-        public async Task ExecuteAsync_should_return_the_expected_result_when_the_database_does_not_exist()
+        public void Execute_should_return_the_expected_result_when_the_database_does_not_exist(
+            [Values(false, true)]
+            bool async)
         {
-            var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-does-not-exist");
+            var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-not");
             var subject = new ListCollectionsOperation(databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
-            var list = await result.ToListAsync();
+            var result = ExecuteOperation(subject, async);
+            var list = ReadCursorToEnd(result, async);
 
             list.Should().HaveCount(0);
         }
 
         [Test]
         [RequiresServer(VersionLessThan = "2.7.0")]
-        public void ExecuteAsync_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server()
+        public void Execute_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server(
+            [Values(false, true)]
+            bool async)
         {
             var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
@@ -126,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            Func<Task> action = () => ExecuteOperationAsync(subject);
+            Action action = () => ExecuteOperation(subject, async);
 
             action.ShouldThrow<NotSupportedException>();
         }

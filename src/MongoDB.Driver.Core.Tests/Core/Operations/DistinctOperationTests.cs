@@ -92,7 +92,9 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_the_correct_results()
+        public void Execute_should_return_the_correct_results(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
@@ -100,8 +102,8 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            var cursor = await ExecuteOperationAsync(subject);
-            var result = await cursor.ToListAsync();
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(2);
             result.Should().OnlyHaveUniqueItems();

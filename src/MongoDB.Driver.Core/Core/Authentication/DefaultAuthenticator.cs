@@ -58,22 +58,35 @@ namespace MongoDB.Driver.Core.Authentication
 
         // methods
         /// <inheritdoc/>
+        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
+
+            var authenticator = CreateAuthenticator(description);
+            authenticator.Authenticate(connection, description, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
 
-            IAuthenticator authenticator;
+            var authenticator = CreateAuthenticator(description);
+            return authenticator.AuthenticateAsync(connection, description, cancellationToken);
+        }
+
+        private IAuthenticator CreateAuthenticator(ConnectionDescription description)
+        {
             if (description.BuildInfoResult.ServerVersion >= __scramVersionRequirement)
             {
-                authenticator = new ScramSha1Authenticator(_credential, _randomStringGenerator);
+                return new ScramSha1Authenticator(_credential, _randomStringGenerator);
             }
             else
             {
-                authenticator = new MongoDBCRAuthenticator(_credential);
+                return new MongoDBCRAuthenticator(_credential);
             }
-
-            return authenticator.AuthenticateAsync(connection, description, cancellationToken);
         }
     }
 }

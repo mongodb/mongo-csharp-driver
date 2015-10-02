@@ -142,20 +142,24 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_insert_a_single_document()
+        public void Execute_should_insert_a_single_document(
+            [Values(false, true)]
+            bool async)
         {
             var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
             result.Should().HaveCount(1);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(1);
         }
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_insert_multiple_documents()
+        public void Execute_should_insert_multiple_documents(
+            [Values(false, true)]
+            bool async)
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] 
             {
@@ -166,10 +170,10 @@ namespace MongoDB.Driver.Core.Operations
             });
             var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = await ExecuteOperationAsync(subject);
+            var result = ExecuteOperation(subject, async);
             result.Should().HaveCount(1);
 
-            var list = await ReadAllFromCollectionAsync();
+            var list = ReadAllFromCollection(async);
             list.Should().HaveCount(4);
         }
     }

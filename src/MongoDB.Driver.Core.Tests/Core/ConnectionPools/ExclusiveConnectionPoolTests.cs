@@ -102,30 +102,60 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquireConnectionAsync_should_throw_an_InvalidOperationException_if_not_initialized()
+        public void AcquireConnection_should_throw_an_InvalidOperationException_if_not_initialized(
+            [Values(false, true)]
+            bool async)
         {
-            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.AcquireConnection(CancellationToken.None);
+            }
 
             act.ShouldThrow<InvalidOperationException>();
         }
 
         [Test]
-        public void AcquireConnectionAsync_should_throw_an_ObjectDisposedException_after_disposing()
+        public void AcquireConnection_should_throw_an_ObjectDisposedException_after_disposing(
+            [Values(false, true)]
+            bool async)
         {
             _subject.Dispose();
 
-            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.AcquireConnection(CancellationToken.None);
+            }
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void AcquireConnectionAsync_should_return_a_connection()
+        public void AcquireConnection_should_return_a_connection(
+            [Values(false, true)]
+            bool async)
         {
             InitializeAndWait();
             _capturedEvents.Clear();
 
-            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+            IConnectionHandle connection;
+            if (async)
+            {
+                connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = _subject.AcquireConnection(CancellationToken.None);
+            }
 
             connection.Should().NotBeNull();
             _subject.AvailableCount.Should().Be(_settings.MaxConnections - 1);
@@ -139,7 +169,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquireConnectionAsync_should_increase_count_up_to_the_max_number_of_connections()
+        public void AcquireConnection_should_increase_count_up_to_the_max_number_of_connections(
+            [Values(false, true)]
+            bool async)
         {
             InitializeAndWait();
             _capturedEvents.Clear();
@@ -148,7 +180,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
-                connections.Add(_subject.AcquireConnectionAsync(CancellationToken.None).Result);
+                IConnection connection;
+                if (async)
+                {
+                    connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    connection = _subject.AcquireConnection(CancellationToken.None);
+                }
+                connections.Add(connection);
             }
 
             _subject.AvailableCount.Should().Be(0);
@@ -172,10 +213,22 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquiredConnections_should_return_connections_to_the_pool_when_disposed()
+        public void AcquiredConnection_should_return_connections_to_the_pool_when_disposed(
+            [Values(false, true)]
+            bool async)
         {
             InitializeAndWait();
-            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+
+            IConnectionHandle connection;
+            if (async)
+            {
+                connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = _subject.AcquireConnection(CancellationToken.None);
+            }
+
             _capturedEvents.Clear();
 
             _subject.DormantCount.Should().Be(_settings.MinConnections - 1);
@@ -188,7 +241,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquiredConnections_should_not_return_connections_to_the_pool_when_disposed_and_expired()
+        public void AcquiredConnection_should_not_return_connections_to_the_pool_when_disposed_and_expired(
+            [Values(false, true)]
+            bool async)
         {
             var createdConnections = new List<MockConnection>();
             _connectionFactory.CreateConnection(null, null).ReturnsForAnyArgs(c =>
@@ -199,7 +254,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             });
 
             InitializeAndWait();
-            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+
+            IConnectionHandle connection;
+            if (async)
+            {
+                connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = _subject.AcquireConnection(CancellationToken.None);
+            }
+
             _capturedEvents.Clear();
 
             _subject.DormantCount.Should().Be(_settings.MinConnections - 1);
@@ -217,17 +282,37 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquireConnectionAsync_should_throw_a_TimeoutException_when_all_connections_are_checked_out()
+        public void AcquireConnection_should_throw_a_TimeoutException_when_all_connections_are_checked_out(
+            [Values(false, true)]
+            bool async)
         {
             InitializeAndWait();
             var connections = new List<IConnection>();
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
-                connections.Add(_subject.AcquireConnectionAsync(CancellationToken.None).Result);
+                IConnection connection;
+                if (async)
+                {
+                    connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    connection = _subject.AcquireConnection(CancellationToken.None);
+                }
+                connections.Add(connection);
             }
             _capturedEvents.Clear();
 
-            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
+            Action act;
+            if (async)
+            {
+                act = () => _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                act = () => _subject.AcquireConnection(CancellationToken.None);
+            }
+
             act.ShouldThrow<TimeoutException>();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
@@ -236,11 +321,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void AcquiredConnections_should_not_throw_exceptions_when_disposed_after_the_pool_was_disposed()
+        public void AcquiredConnection_should_not_throw_exceptions_when_disposed_after_the_pool_was_disposed(
+            [Values(false, true)]
+            bool async)
         {
             InitializeAndWait();
-            var connection1 = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
-            var connection2 = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+            IConnectionHandle connection1;
+            IConnectionHandle connection2;
+            if (async)
+            {
+               connection1 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+               connection2 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection1 = _subject.AcquireConnection(CancellationToken.None);
+                connection2 = _subject.AcquireConnection(CancellationToken.None);
+            }
             _capturedEvents.Clear();
 
             connection1.Dispose();
@@ -278,11 +375,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Test]
-        public void Clear_should_cause_existing_connections_to_be_expired()
+        public void Clear_should_cause_existing_connections_to_be_expired(
+            [Values(false, true)]
+            bool async)
         {
             _subject.Initialize();
 
-            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+            IConnectionHandle connection;
+            if (async)
+            {
+                connection = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = _subject.AcquireConnection(CancellationToken.None);
+            }
 
             connection.IsExpired.Should().BeFalse();
             _subject.Clear();

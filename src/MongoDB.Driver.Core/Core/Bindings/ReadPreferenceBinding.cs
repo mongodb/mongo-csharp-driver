@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -55,10 +56,23 @@ namespace MongoDB.Driver.Core.Bindings
 
         // methods
         /// <inheritdoc/>
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            var server = _cluster.SelectServer(_serverSelector, cancellationToken);
+            return GetChannelSourceHelper(server);
+        }
+
+        /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var server = await _cluster.SelectServerAsync(_serverSelector, cancellationToken).ConfigureAwait(false);
+            return GetChannelSourceHelper(server);
+        }
+
+        private IChannelSourceHandle GetChannelSourceHelper(IServer server)
+        {
             return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 

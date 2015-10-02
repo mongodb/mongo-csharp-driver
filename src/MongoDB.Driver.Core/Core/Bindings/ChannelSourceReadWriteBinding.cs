@@ -52,17 +52,31 @@ namespace MongoDB.Driver.Core.Bindings
 
         // methods
         /// <inheritdoc/>
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return GetChannelSourceHelper();
+        }
+
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_channelSource.Fork());
+            return Task.FromResult(GetChannelSourceHelper());
+        }
+
+        /// <inheritdoc/>
+        public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return GetChannelSourceHelper();
         }
 
         /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_channelSource.Fork());
+            return Task.FromResult(GetChannelSourceHelper());
         }
 
         /// <inheritdoc/>
@@ -74,6 +88,11 @@ namespace MongoDB.Driver.Core.Bindings
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
+        }
+
+        private IChannelSourceHandle GetChannelSourceHelper()
+        {
+            return _channelSource.Fork();
         }
 
         private void ThrowIfDisposed()

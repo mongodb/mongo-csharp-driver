@@ -492,10 +492,10 @@ namespace MongoDB.Driver
         {
             var readPreference = _settings.ReadPreference;
             var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference);
-            _cluster.SelectServerAsync(readPreferenceServerSelector, CancellationToken.None)
-                .WithTimeout(timeout)
-                .GetAwaiter()
-                .GetResult();
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource(timeout))
+            {
+                _cluster.SelectServer(readPreferenceServerSelector, timeoutCancellationTokenSource.Token);
+            }
         }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabasesOperation(messageEncoderSettings);
-            var list = ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
+            var list = ExecuteReadOperation(operation).ToList();
             return list.Select(x => (string)x["name"]).OrderBy(name => name);
         }
 
@@ -816,7 +816,7 @@ namespace MongoDB.Driver
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = GetReadBinding(readPreference))
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -824,7 +824,7 @@ namespace MongoDB.Driver
         {
             using (var binding = GetWriteBinding())
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -871,8 +871,8 @@ namespace MongoDB.Driver
 
             IReadBindingHandle channelBinding;
             ConnectionId connectionId;
-            var server = _cluster.SelectServer(serverSelector);
-            using (var channel = server.GetChannel())
+            var server = _cluster.SelectServer(serverSelector, CancellationToken.None);
+            using (var channel = server.GetChannel(CancellationToken.None))
             {
                 if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {

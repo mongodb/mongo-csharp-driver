@@ -24,24 +24,52 @@ namespace MongoDB.Driver.Core.Misc
     internal static class StreamExtensionMethods
     {
         // static methods
+        public static void ReadBytes(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            while (count > 0)
+            {
+                var bytesRead = stream.Read(buffer, offset, count); // TODO: honor cancellationToken?
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
+        public static void ReadBytes(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            while (count > 0)
+            {
+                var backingBytes = buffer.AccessBackingBytes(offset);
+                var bytesToRead = Math.Min(count, backingBytes.Count);
+                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead); // TODO: honor cancellationToken?
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
         public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            if (offset < 0 || offset > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset");
-            }
-            if (count < 0 || offset + count > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("count");
-            }
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
             while (count > 0)
             {
@@ -57,22 +85,10 @@ namespace MongoDB.Driver.Core.Misc
 
         public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            if (offset < 0 || offset > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset");
-            }
-            if (count < 0 || offset + count > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("count");
-            }
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
             while (count > 0)
             {
@@ -88,24 +104,30 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
+        public static void WriteBytes(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            while (count > 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var backingBytes = buffer.AccessBackingBytes(offset);
+                var bytesToWrite = Math.Min(count, backingBytes.Count);
+                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite); // TODO: honor cancellationToken?
+                offset += bytesToWrite;
+                count -= bytesToWrite;
+            }
+        }
+
         public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            if (offset < 0 || offset > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset");
-            }
-            if (count < 0 || offset + count > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("count");
-            }
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
             while (count > 0)
             {

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -42,12 +43,17 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public bool Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("dropUser", _username);
             var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            operation.Execute(binding, cancellationToken);
             return true;
+        }
+
+        public Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
     }
 }

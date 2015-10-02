@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Operations
         }
 
         // methods
-        public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public IEnumerable<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
             var filter = _username == null ? new BsonDocument() : new BsonDocument("user", _username);
@@ -51,8 +52,13 @@ namespace MongoDB.Driver.Operations
             {
                 Filter = filter
             };
-            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            var cursor = operation.Execute(binding, cancellationToken);
+            return cursor.ToList(cancellationToken);
+        }
+
+        public Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
     }
 }
