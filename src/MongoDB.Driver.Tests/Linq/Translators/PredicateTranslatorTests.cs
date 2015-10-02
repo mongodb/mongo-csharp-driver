@@ -122,6 +122,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Any_with_local_contains()
+        {
+            var local = new List<string> { "Delilah", "Dolphin" };
+
+            Assert(
+                x => x.G.Any(g => local.Contains(g.D)),
+                1,
+                "{\"G.D\": { $in: [\"Delilah\", \"Dolphin\" ] } }");
+        }
+
+        [Test]
         public void LocalIListContains()
         {
             IList<int> local = new[] { 10, 20, 30 };

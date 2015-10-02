@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Linq.Translators
 
         protected internal override Expression VisitPipeline(PipelineExpression node)
         {
-            // only do the root source of this one...
             var source = node.Source;
             var sourcedSource = source as ISourcedExpression;
             while (sourcedSource != null)
@@ -60,12 +59,16 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var newSource = Visit(source);
+            PipelineExpression newNode = node;
             if (newSource != source)
             {
-                return ExpressionReplacer.Replace(node, source, newSource);
+                newNode = (PipelineExpression)ExpressionReplacer.Replace(node, source, newSource);
             }
 
-            return node;
+            return newNode.Update(
+                newNode.Source,
+                newNode.Projector,
+                VisitResultOperator(newNode.ResultOperator));
         }
     }
 }

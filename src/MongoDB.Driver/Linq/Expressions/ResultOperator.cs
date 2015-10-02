@@ -22,5 +22,10 @@ namespace MongoDB.Driver.Linq.Expressions
         public abstract string Name { get; }
 
         public abstract Type Type { get; }
+
+        protected internal virtual ResultOperator Update(ExtensionExpressionVisitor visitor)
+        {
+            return this;
+        }
     }
 }

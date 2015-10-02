@@ -79,12 +79,13 @@ namespace MongoDB.Driver.Linq.Expressions
             return result;
         }
 
-        public PipelineExpression Update(Expression source, Expression projector)
+        public PipelineExpression Update(Expression source, Expression projector, ResultOperator resultOperator)
         {
             if (source != _source ||
-                projector != _projector)
+                projector != _projector ||
+                resultOperator != _resultOperator)
             {
-                return new PipelineExpression(source, projector, _resultOperator);
+                return new PipelineExpression(source, projector, resultOperator);
             }
 
             return this;

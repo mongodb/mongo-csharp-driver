@@ -111,7 +111,18 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             return node.Update(
                 Visit(node.Source),
-                Visit(node.Projector));
+                Visit(node.Projector),
+                VisitResultOperator(node.ResultOperator));
+        }
+
+        protected internal virtual ResultOperator VisitResultOperator(ResultOperator resultOperator)
+        {
+            if (resultOperator == null)
+            {
+                return resultOperator;
+            }
+
+            return resultOperator.Update(this);
         }
 
         protected internal virtual Expression VisitSelect(SelectExpression node)

@@ -42,5 +42,16 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
         {
             get { return _value; }
         }
+
+        protected internal override ResultOperator Update(ExtensionExpressionVisitor visitor)
+        {
+            var value = visitor.Visit(_value);
+            if (value != _value)
+            {
+                return new ContainsResultOperator(value);
+            }
+
+            return this;
+        }
     }
 }
