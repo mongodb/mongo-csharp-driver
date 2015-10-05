@@ -32,6 +32,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
     public class PredicateTranslatorTests : IntegrationTestBase
     {
         [Test]
+        public void All()
+        {
+            var local = new[] { "itchy" };
+
+            Assert(
+                x => local.All(i => x.C.E.I.Contains(i)),
+                1,
+                "{'C.E.I': { $all: [ 'itchy' ] } }");
+        }
+
+        [Test]
+        public void All_with_a_not()
+        {
+            var local = new[] { "itchy" };
+
+            Assert(
+                x => !local.All(i => x.C.E.I.Contains(i)),
+                1,
+                "{'C.E.I': { $not: { $all: [ 'itchy' ] } } }");
+        }
+
+        [Test]
         public void Any_without_a_predicate()
         {
             Assert(
@@ -122,7 +144,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public void Any_with_local_contains()
+        public void Any_with_local_contains_on_an_embedded_document()
         {
             var local = new List<string> { "Delilah", "Dolphin" };
 
@@ -130,6 +152,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 x => x.G.Any(g => local.Contains(g.D)),
                 1,
                 "{\"G.D\": { $in: [\"Delilah\", \"Dolphin\" ] } }");
+        }
+
+        [Test]
+        public void Any_with_local_contains_on_a_scalar_array()
+        {
+            var local = new List<string> { "itchy" };
+
+            Assert(
+                x => local.Any(i => x.C.E.I.Contains(i)),
+                1,
+                "{\"C.E.I\": { $in: [\"itchy\" ] } }");
         }
 
         [Test]

@@ -114,6 +114,21 @@ Find(p => localAges.Contains(p.Age));
 { Age: { $in: [10, 20, 30] } }
 ```
 
+```csharp
+int[] localNames = new [] { "Fluffy", "Scruffy" };
+Find(p => p.Pets.Any(i => localNames.Contains(i.Name));
+```
+```json
+{ "Pets.Name": { $in: ["Fluffy", "Scruffy"] } }
+```
+
+```csharp
+int[] localNumbers = new [] { 30, 40 };
+Find(p => localNumbers.Any(i => p.FavoriteNumbers.Contains(i));
+```
+```json
+{ FavoriteNumbers: { $in: [30, 40] } } 
+
 #### $nin
 
 ```csharp
@@ -247,14 +262,18 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#geospatia
 // no example yet
 ```
 
-### Geospatial
+### Array
 
 See the [MongoDB documentation]({{< docsref "reference/operator/query/#array" >}}) for more information on each operator.
 
 #### $all
 
 ```csharp
-// no example yet
+var local = new [] { 10, 20 };
+Find(x => local.All(i => FavoriteNumbers.Contains(i));
+```
+```json
+{ FavoriteNumbers: { $all: [10, 20] } }
 ```
 
 #### $elemMatch
@@ -270,7 +289,7 @@ Find(x => x.Pets.Any(p => p.Name == "Fluffy" && p.Age > 21);
 Find(x => x.FavoriteNumbers.Any(n => n < 42 && n > 21));
 ```
 ```json
-{ FavoriteNumbers: { $elemMatch: { { $lt: 42, $gt: 21 } } } }
+{ FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
 ```
 
 {{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,

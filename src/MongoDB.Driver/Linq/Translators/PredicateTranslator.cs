@@ -750,17 +750,62 @@ namespace MongoDB.Driver.Linq.Translators
 
         private FilterDefinition<BsonDocument> TranslatePipeline(PipelineExpression node)
         {
+            if (node.ResultOperator is AllResultOperator)
+            {
+                return TranslatePipelineAll(node);
+            }
             if (node.ResultOperator is AnyResultOperator)
             {
                 return TranslatePipelineAny(node);
             }
-
             if (node.ResultOperator is ContainsResultOperator)
             {
                 return TranslatePipelineContains(node);
             }
 
             return null;
+        }
+
+        private FilterDefinition<BsonDocument> TranslatePipelineAll(PipelineExpression node)
+        {
+            var whereExpression = node.Source as WhereExpression;
+            if (whereExpression == null)
+            {
+                return null;
+            }
+
+            var constant = whereExpression.Source as ConstantExpression;
+            if (constant == null)
+            {
+                return null;
+            }
+
+            var embeddedPipeline = whereExpression.Predicate as PipelineExpression;
+            if (!(embeddedPipeline?.ResultOperator is ContainsResultOperator))
+            {
+                return null;
+            }
+
+            var fieldExpression = embeddedPipeline.Source as IFieldExpression;
+            if (fieldExpression == null)
+            {
+                return null;
+            }
+
+            var arraySerializer = fieldExpression.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                return null;
+            }
+
+            BsonSerializationInfo itemSerializationInfo;
+            if (!arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+            {
+                return null;
+            }
+
+            var serializedValues = itemSerializationInfo.SerializeValues((IEnumerable)constant.Value);
+            return __builder.All(fieldExpression.FieldName, serializedValues);
         }
 
         private FilterDefinition<BsonDocument> TranslatePipelineAny(PipelineExpression node)
@@ -773,7 +818,6 @@ namespace MongoDB.Driver.Linq.Translators
                         __builder.Not(__builder.Size(fieldExpression.FieldName, 0)));
             }
 
-
             var whereExpression = node.Source as WhereExpression;
             if (whereExpression == null)
             {
@@ -783,6 +827,10 @@ namespace MongoDB.Driver.Linq.Translators
             fieldExpression = whereExpression.Source as IFieldExpression;
             if (fieldExpression == null)
             {
+                if (whereExpression.Source is ConstantExpression)
+                {
+                    return TranslatePipelineAnyScalar(node);
+                }
                 return null;
             }
 
@@ -805,6 +853,48 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return filter;
+        }
+
+        private FilterDefinition<BsonDocument> TranslatePipelineAnyScalar(PipelineExpression node)
+        {
+            var whereExpression = node.Source as WhereExpression;
+            if (whereExpression == null)
+            {
+                return null;
+            }
+
+            var constant = whereExpression.Source as ConstantExpression;
+            if (constant == null)
+            {
+                return null;
+            }
+
+            var embeddedPipeline = whereExpression.Predicate as PipelineExpression;
+            if (!(embeddedPipeline?.ResultOperator is ContainsResultOperator))
+            {
+                return null;
+            }
+
+            var fieldExpression = embeddedPipeline.Source as IFieldExpression;
+            if (fieldExpression == null)
+            {
+                return null;
+            }
+
+            var arraySerializer = fieldExpression.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                return null;
+            }
+
+            BsonSerializationInfo itemSerializationInfo;
+            if (!arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+            {
+                return null;
+            }
+
+            var serializedValues = itemSerializationInfo.SerializeValues((IEnumerable)constant.Value);
+            return __builder.In(fieldExpression.FieldName, serializedValues);
         }
 
         private FilterDefinition<BsonDocument> TranslatePipelineContains(PipelineExpression node)
