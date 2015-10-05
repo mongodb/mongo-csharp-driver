@@ -195,22 +195,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestPassives()
-        {
-            if (_isReplicaSet)
-            {
-                var isMasterResult = _database.RunCommand("isMaster").Response;
-                BsonValue passives;
-                int passiveCount = 0;
-                if (isMasterResult.TryGetValue("passives", out passives))
-                {
-                    passiveCount = passives.AsBsonArray.Count;
-                }
-                Assert.AreEqual(passiveCount, _server.Passives.Length);
-            }
-        }
-
-        [Test]
         public void TestPing()
         {
             _server.Ping();
