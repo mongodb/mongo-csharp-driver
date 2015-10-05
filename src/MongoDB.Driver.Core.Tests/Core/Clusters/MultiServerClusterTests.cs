@@ -276,7 +276,6 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetArbiter)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetGhost)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetOther)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPassive)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.Standalone)]

@@ -188,13 +188,13 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         return ServerType.ReplicaSetPrimary;
                     }
+                    if (_wrapped.GetValue("hidden", false).ToBoolean())
+                    {
+                        return ServerType.ReplicaSetOther;
+                    }
                     if (_wrapped.GetValue("secondary", false).ToBoolean())
                     {
                         return ServerType.ReplicaSetSecondary;
-                    }
-                    if (_wrapped.GetValue("passive", false).ToBoolean() || _wrapped.GetValue("hidden", false).ToBoolean())
-                    {
-                        return ServerType.ReplicaSetPassive;
                     }
                     if (_wrapped.GetValue("arbiterOnly", false).ToBoolean())
                     {

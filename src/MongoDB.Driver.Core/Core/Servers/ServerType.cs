@@ -53,8 +53,9 @@ namespace MongoDB.Driver.Core.Servers
         ReplicaSetSecondary,
 
         /// <summary>
-        /// The server is a replica set passive member.
+        /// Use ReplicaSetSecondary instead.
         /// </summary>
+        [Obsolete("Passives are treated the same as secondaries.")]
         ReplicaSetPassive,
 
         /// <summary>
@@ -114,14 +115,13 @@ namespace MongoDB.Driver.Core.Servers
         /// <returns>The cluster type.</returns>
         public static ClusterType ToClusterType(this ServerType serverType)
         {
-            switch(serverType)
+            switch (serverType)
             {
                 case ServerType.ReplicaSetPrimary:
                 case ServerType.ReplicaSetSecondary:
                 case ServerType.ReplicaSetArbiter:
                 case ServerType.ReplicaSetOther:
                 case ServerType.ReplicaSetGhost:
-                case ServerType.ReplicaSetPassive:
                     return ClusterType.ReplicaSet;
                 case ServerType.ShardRouter:
                     return ClusterType.Sharded;

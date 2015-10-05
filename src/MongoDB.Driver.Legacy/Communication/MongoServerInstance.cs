@@ -80,7 +80,6 @@ namespace MongoDB.Driver
                 switch (serverDescription.Type)
                 {
                     case ServerType.ReplicaSetArbiter:
-                    case ServerType.ReplicaSetPassive:
                     case ServerType.ReplicaSetPrimary:
                     case ServerType.ReplicaSetSecondary:
                     case ServerType.ReplicaSetOther:
@@ -133,12 +132,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether this server instance is a passive instance.
         /// </summary>
+        [Obsolete("Passives are treated the same as secondaries.")]
         public bool IsPassive
         {
             get
             {
-                var serverDescription = GetServerDescription();
-                return serverDescription.Type == ServerType.ReplicaSetPassive;
+                return false;
             }
         }
 

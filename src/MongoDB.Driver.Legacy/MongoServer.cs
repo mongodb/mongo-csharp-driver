@@ -238,14 +238,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the passive instances.
         /// </summary>
+        [Obsolete("Passives are treated the same as secondaries.")]
         public virtual MongoServerInstance[] Passives
         {
             get
             {
-                lock (_serverLock)
-                {
-                    return _serverInstances.Where(i => i.IsPassive).ToArray();
-                }
+                return new MongoServerInstance[0];
             }
         }
 
