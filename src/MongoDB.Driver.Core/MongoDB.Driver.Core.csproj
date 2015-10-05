@@ -44,7 +44,6 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
-    <Compile Include="Core\Async\AsyncLock.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
     <Compile Include="Core\Authentication\Sspi\AuthIdentity.cs" />
@@ -135,6 +134,7 @@
     <Compile Include="Core\Events\ConnectionFailedEvent.cs" />
     <Compile Include="Core\Events\SingleEventSubscriber.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
+    <Compile Include="Core\Misc\SemaphoreSlimRequest.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingCommandOperation.cs" />

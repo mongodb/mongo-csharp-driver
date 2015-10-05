@@ -52,7 +52,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Async\AsyncLockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />

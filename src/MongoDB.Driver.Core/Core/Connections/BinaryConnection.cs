@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
-        private readonly AsyncLock _receiveLock;
+        private readonly SemaphoreSlim _receiveLock;
         private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
         private readonly InterlockedInt32 _state;
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Connections
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(serverId);
-            _receiveLock = new AsyncLock();
+            _receiveLock = new SemaphoreSlim(1);
             _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
 
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private IByteBuffer ReceiveBuffer(int responseTo, CancellationToken cancellationToken)
         {
-            using (var receiveLockRequest = _receiveLock.Request(cancellationToken))
+            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
             {
                 var messageTask = _dropbox.GetMessageAsync(responseTo);
                 try
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task<IByteBuffer> ReceiveBufferAsync(int responseTo, CancellationToken cancellationToken)
         {
-            using (var receiveLockRequest = _receiveLock.Request(cancellationToken))
+            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
             {
                 var messageTask = _dropbox.GetMessageAsync(responseTo);
                 try
