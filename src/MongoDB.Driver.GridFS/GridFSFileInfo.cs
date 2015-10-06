@@ -182,10 +182,7 @@ namespace MongoDB.Driver.GridFS
         public static GridFSFileInfoSerializer Instance { get; } = new GridFSFileInfoSerializer();
         #endregion
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer"/> class.
-        /// </summary>
-        public GridFSFileInfoSerializer()
+        private GridFSFileInfoSerializer()
         {
             RegisterMember("Aliases", "aliases", new ArraySerializer<string>());
             RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());

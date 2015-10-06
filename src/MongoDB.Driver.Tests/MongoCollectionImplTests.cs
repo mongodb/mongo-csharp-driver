@@ -83,8 +83,8 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
-            { 
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[]
+            {
                 BsonDocument.Parse("{$match: {x: 2}}")
             };
             var options = new AggregateOptions()
@@ -115,10 +115,10 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
-            { 
-                BsonDocument.Parse("{$match: {x: 2}}"), 
-                BsonDocument.Parse("{$out: \"funny\"}") 
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[]
+            {
+                BsonDocument.Parse("{$match: {x: 2}}"),
+                BsonDocument.Parse("{$out: \"funny\"}")
             };
             var options = new AggregateOptions()
             {
@@ -171,8 +171,8 @@ namespace MongoDB.Driver
         [TestCase(false)]
         public async Task BulkWriteAsync_should_execute_the_BulkMixedWriteOperation(bool isOrdered)
         {
-            var requests = new WriteModel<BsonDocument>[] 
-            { 
+            var requests = new WriteModel<BsonDocument>[]
+            {
                 new InsertOneModel<BsonDocument>(new BsonDocument("_id", 1).Add("a",1)),
                 new DeleteManyModel<BsonDocument>(new BsonDocument("b", 1)),
                 new DeleteOneModel<BsonDocument>(new BsonDocument("c", 1)),
@@ -546,7 +546,7 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            var result = await subject.FindAsync(filter, options, CancellationToken.None);
+            await subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
@@ -593,7 +593,7 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            var result = await subject.FindOneAndDeleteAsync(filter, options, CancellationToken.None);
+            await subject.FindOneAndDeleteAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
@@ -651,7 +651,7 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            var result = await subject.FindOneAndReplaceAsync(filter, replacement, options, CancellationToken.None);
+            await subject.FindOneAndReplaceAsync(filter, replacement, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
@@ -709,7 +709,7 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            var result = await subject.FindOneAndUpdateAsync(filter, update, options, CancellationToken.None);
+            await subject.FindOneAndUpdateAsync(filter, update, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
@@ -959,12 +959,12 @@ namespace MongoDB.Driver
         [Test]
         public async Task InsertManyAsync_should_execute_the_BulkMixedOperation()
         {
-            var documents = new[] 
-            { 
+            var documents = new[]
+            {
                 BsonDocument.Parse("{_id:1,a:1}"),
                 BsonDocument.Parse("{_id:2,a:2}")
             };
-            var expectedRequests = new[] 
+            var expectedRequests = new[]
             {
                 new InsertRequest(documents[0]) { CorrelationId = 0 },
                 new InsertRequest(documents[1]) { CorrelationId = 1 }

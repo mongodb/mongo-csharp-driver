@@ -189,8 +189,6 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void Should_assign_a_non_typed_field_definition_from_a_typed_field_definition()
         {
-            Expression<Func<Person, object>> exp = x => x.Gender;
-
             FieldDefinition<Person, Gender> subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);
             FieldDefinition<Person> subject2 = subject;
 

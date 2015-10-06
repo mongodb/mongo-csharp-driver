@@ -37,15 +37,15 @@ namespace MongoDB.Driver.Tests
             var result = subject
                 .Match("{ X : 1 }")
                 .As<BsonDocument>();
-            var cursor = result.ToCursorAsync().GetAwaiter().GetResult();
+            result.ToCursorAsync().GetAwaiter().GetResult();
 
-            Predicate<PipelineDefinition<C, BsonDocument>> isExpectedPipeline = pipeline => 
+            Predicate<PipelineDefinition<C, BsonDocument>> isExpectedPipeline = pipeline =>
             {
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var inputSerializer = serializerRegistry.GetSerializer<C>();
                 var rendederedPipeline = pipeline.Render(inputSerializer, serializerRegistry);
-                return 
-                    rendederedPipeline.Documents.Count == 1 && 
+                return
+                    rendederedPipeline.Documents.Count == 1 &&
                     rendederedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
                     rendederedPipeline.OutputSerializer is BsonDocumentSerializer;
             };
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
                 .SortBy(c => c.X)
                 .OfType<D>()
                 .Match(d => d.Y == 2);
-            var cursor = result.ToCursorAsync().GetAwaiter().GetResult();
+            result.ToCursorAsync().GetAwaiter().GetResult();
 
             Predicate<PipelineDefinition<C, D>> isExpectedPipeline = pipeline =>
             {

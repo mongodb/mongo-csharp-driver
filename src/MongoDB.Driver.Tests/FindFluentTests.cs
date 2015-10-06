@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
 
             var result = subject.As<BsonDocument>();
-            var cursor = result.ToCursorAsync().GetAwaiter().GetResult();
+            result.ToCursorAsync().GetAwaiter().GetResult();
 
             Predicate<FindOptions<Person, BsonDocument>> hasExpectedProjection = options =>
             {

@@ -107,8 +107,11 @@ Target "Build" (fun _ ->
     |> Seq.iter (RestorePackage (fun x -> { x with OutputPath = srcDir @@ "packages" }))
 
 
-    let properties = ["Configuration", config
-                      "TargetFrameworkVersion", "v4.5"]
+    let mutable properties = ["Configuration", config
+                              "TargetFrameworkVersion", "v4.5"]
+
+    if isMono then
+        properties <- properties @ ["DefineConstants", "MONO"]
 
     [slnFile]
         |> MSBuild binDir45 "Build" properties

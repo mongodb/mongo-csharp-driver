@@ -138,7 +138,6 @@ namespace MongoDB.Driver.Tests
         public void BulkWriteAsync_with_UpdateMany()
         {
             var subject = CreateSubject();
-            var replacement = new B();
             var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
 
@@ -157,7 +156,6 @@ namespace MongoDB.Driver.Tests
         public void BulkWriteAsync_with_UpdateOne()
         {
             var subject = CreateSubject();
-            var replacement = new B();
             var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
 
@@ -298,7 +296,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
 
-            var result = subject.OfType<C>();
+            subject.OfType<C>();
 
             _rootCollection.Received().OfType<C>();
             _derivedCollection.DidNotReceive().OfType<C>();

@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Linq.Processors
         }
 
         private readonly IBindingContext _bindingContext;
-        private readonly Dictionary<MemberInfo, Expression> _memberMap;
         private bool _isInEmbeddedPipeline;
         private readonly bool _isClientSideProjection;
 
@@ -41,7 +40,6 @@ namespace MongoDB.Driver.Linq.Processors
         {
             _bindingContext = bindingContext;
             _isClientSideProjection = isClientSideProjection;
-            _memberMap = new Dictionary<MemberInfo, Expression>();
         }
 
         public override Expression Visit(Expression node)

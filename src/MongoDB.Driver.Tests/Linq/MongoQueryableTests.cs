@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
-
+#if !MONO
         [Test]
         public void GroupBy_select_anonymous_type_syntax()
         {
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
-
+#endif
         [Test]
         public void GroupBy_where_method()
         {
@@ -321,6 +321,7 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 
+#if !MONO
         [Test]
         public void GroupBy_where_select_anonymous_type_with_duplicate_accumulators_syntax()
         {
@@ -335,7 +336,7 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $match: { __agg0: 'Balloon' } }",
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
-
+#endif
         [Test]
         public void GroupBy_with_resultSelector_anonymous_type_method()
         {

@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Samples
             _collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             // This is a subset of the data from the mongodb docs zip code aggregation examples
-            _collection.InsertManyAsync(new[] 
+            _collection.InsertManyAsync(new[]
             {
                 new ZipEntry { Zip = "01053", City = "LEEDS", State = "MA", Population = 1350 },
                 new ZipEntry { Zip = "01054", City = "LEVERETT", State = "MA", Population = 1748 },
@@ -71,15 +71,12 @@ namespace MongoDB.Driver.Tests.Samples
                 .GroupBy(x => x.State, (k, s) => new { State = k, TotalPopulation = s.Sum(x => x.Population) })
                 .Where(x => x.TotalPopulation > 20000);
 
-            //pipeline.ToString().Should().Be("aggregate([" +
-            //        "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
-            //        "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
-
             var result = await pipeline.ToListAsync();
 
             result.Count.Should().Be(1);
         }
 
+#if !MONO
         [Test]
         public async Task States_with_pops_over_20000_queryable_syntax()
         {
@@ -88,15 +85,11 @@ namespace MongoDB.Driver.Tests.Samples
                            where g.Sum(x => x.Population) > 20000
                            select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
 
-            //pipeline.ToString().Should().Be("aggregate([" +
-            //        "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
-            //        "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }, " +
-            //        "{ \"$project\" : { \"State\" : \"$_id\", \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
-
             var result = await pipeline.ToListAsync();
 
             result.Count.Should().Be(1);
         }
+#endif
 
         [Test]
         public async Task Average_city_population_by_state()
@@ -161,7 +154,7 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].SmallestCity.Name.Should().Be("LEEDS");
             result[1].SmallestCity.Population.Should().Be(1350);
         }
-
+#if !MONO
         [Test]
         public async Task Largest_and_smallest_cities_by_state_queryable_syntax()
         {
@@ -194,6 +187,7 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].SmallestCity.Name.Should().Be("LEEDS");
             result[1].SmallestCity.Population.Should().Be(1350);
         }
+#endif
 
         [BsonIgnoreExtraElements]
         private class ZipEntry
