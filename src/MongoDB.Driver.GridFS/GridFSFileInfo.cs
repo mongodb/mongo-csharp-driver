@@ -165,40 +165,4 @@ namespace MongoDB.Driver.GridFS
             get { return GetValue<DateTime>("UploadDateTime"); }
         }
     }
-
-    /// <summary>
-    /// Represents a serializer for GridFSFileInfo.
-    /// </summary>
-    public class GridFSFileInfoSerializer : BsonDocumentBackedClassSerializer<GridFSFileInfo>
-    {
-        #region static
-        // public static properties
-        /// <summary>
-        /// Gets the pre-created instance.
-        /// </summary>
-        /// <value>
-        /// The pre-created instance.
-        /// </value>
-        public static GridFSFileInfoSerializer Instance { get; } = new GridFSFileInfoSerializer();
-        #endregion
-
-        private GridFSFileInfoSerializer()
-        {
-            RegisterMember("Aliases", "aliases", new ArraySerializer<string>());
-            RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
-            RegisterMember("ContentType", "contentType", new StringSerializer());
-            RegisterMember("Filename", "filename", new StringSerializer());
-            RegisterMember("IdAsBsonValue", "_id", BsonValueSerializer.Instance);
-            RegisterMember("Length", "length", new Int64Serializer());
-            RegisterMember("MD5", "md5", new StringSerializer());
-            RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
-            RegisterMember("UploadDateTime", "uploadDate", new DateTimeSerializer());
-        }
-
-        /// <inheritdoc/>
-        protected override GridFSFileInfo CreateInstance(BsonDocument backingDocument)
-        {
-            return new GridFSFileInfo(backingDocument);
-        }
-    }
 }

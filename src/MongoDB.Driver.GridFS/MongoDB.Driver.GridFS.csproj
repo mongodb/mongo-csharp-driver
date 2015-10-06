@@ -50,6 +50,7 @@
     <Compile Include="GridFSChunkException.cs" />
     <Compile Include="GridFSDownloadStreamBase.cs" />
     <Compile Include="GridFSException.cs" />
+    <Compile Include="GridFSFileInfoSerializer.cs" />
     <Compile Include="GridFSFileNotFoundException.cs" />
     <Compile Include="GridFSFileInfo.cs" />
     <Compile Include="GridFSBucket.cs" />
