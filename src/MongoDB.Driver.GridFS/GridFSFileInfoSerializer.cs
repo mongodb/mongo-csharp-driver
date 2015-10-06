@@ -24,13 +24,15 @@ namespace MongoDB.Driver.GridFS
     /// </summary>
     public class GridFSFileInfoSerializer : BsonDocumentBackedClassSerializer<GridFSFileInfo>
     {
+        private static readonly GridFSFileInfoSerializer __instance = new GridFSFileInfoSerializer();
+
         /// <summary>
         /// Gets the pre-created instance.
         /// </summary>
-        /// <value>
-        /// The pre-created instance.
-        /// </value>
-        public static GridFSFileInfoSerializer Instance { get; } = new GridFSFileInfoSerializer();
+        public static GridFSFileInfoSerializer Instance
+        {
+            get { return __instance; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer" /> class.
