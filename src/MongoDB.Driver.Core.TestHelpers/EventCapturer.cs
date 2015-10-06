@@ -24,18 +24,22 @@ namespace MongoDB.Driver.Core
     {
         private readonly Queue<object> _capturedEvents;
         private readonly IEventSubscriber _subscriber;
-        private readonly List<Type> _eventsToCapture;
+        private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
 
         public EventCapturer()
         {
             _capturedEvents = new Queue<object>();
             _subscriber = new ReflectionEventSubscriber(new CommandCapturer(this));
-            _eventsToCapture = new List<Type>();
+            _eventsToCapture = new Dictionary<Type, Func<object, bool>>();
         }
 
-        public EventCapturer Capture<TEvent>()
+        public EventCapturer Capture<TEvent>(Func<TEvent, bool> predicate = null)
         {
-            _eventsToCapture.Add(typeof(TEvent));
+            if (predicate == null)
+            {
+                predicate = o => true;
+            }
+            _eventsToCapture.Add(typeof(TEvent), o => predicate((TEvent)o));
             return this;
         }
 
@@ -61,13 +65,13 @@ namespace MongoDB.Driver.Core
 
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
         {
-            if (_eventsToCapture.Count > 0 && !_eventsToCapture.Contains(typeof(TEvent)))
+            if (_eventsToCapture.Count > 0 && !_eventsToCapture.ContainsKey(typeof(TEvent)))
             {
                 handler = null;
                 return false;
             }
 
-            if (!_subscriber.TryGetEventHandler<TEvent>(out handler))
+            if (!_subscriber.TryGetEventHandler(out handler))
             {
                 handler = e => Capture(e);
             }
@@ -75,8 +79,14 @@ namespace MongoDB.Driver.Core
             return true;
         }
 
-        private void Capture(object @event)
+        private void Capture<TEvent>(TEvent @event)
         {
+            Func<object, bool> predicate;
+            if (_eventsToCapture.TryGetValue(typeof(TEvent), out predicate) && !predicate(@event))
+            {
+                return;
+            }
+
             _capturedEvents.Enqueue(@event);
         }
 

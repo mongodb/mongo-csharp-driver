@@ -36,9 +36,22 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private static EventCapturer __capturedEvents;
         private static Dictionary<string, Func<ICrudOperationTest>> __tests;
 
+        private static string[] __commandsToCapture;
+
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
+            __commandsToCapture = new string[]
+            {
+                "delete",
+                "insert",
+                "update",
+                "find",
+                "count",
+                "killCursors",
+                "getMore"
+            };
+
             __tests = new Dictionary<string, Func<ICrudOperationTest>>
             {
                 { "bulkWrite", () => new BulkWriteTest() },
@@ -57,9 +70,9 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         public void TestFixtureSetUp()
         {
             __capturedEvents = new EventCapturer()
-                .Capture<CommandStartedEvent>()
-                .Capture<CommandSucceededEvent>()
-                .Capture<CommandFailedEvent>();
+                .Capture<CommandStartedEvent>(e => __commandsToCapture.Contains(e.CommandName))
+                .Capture<CommandSucceededEvent>(e => __commandsToCapture.Contains(e.CommandName))
+                .Capture<CommandFailedEvent>(e => __commandsToCapture.Contains(e.CommandName));
 
             var settings = new MongoClientSettings
             {
