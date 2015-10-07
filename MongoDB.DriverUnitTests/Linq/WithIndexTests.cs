@@ -1,4 +1,4 @@
-/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestQueryWithConditionHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().Where(o=>o.a == 1 && o.b == 3).WithIndex("i");
+            var query = _collection.AsQueryable().Where(o => o.a == 1 && o.b == 3).WithIndex("i");
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
             Assert.AreEqual("i", selectQuery.IndexHint.AsString);
             Assert.AreEqual("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
@@ -115,7 +115,7 @@ namespace MongoDB.DriverUnitTests.Linq
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
                 var stage = winningPlan["stage"].AsString;
-                Assert.That(stage, Is.EqualTo("COLLSCAN"));
+                Assert.That(stage, Is.Not.EqualTo("IXSCAN"));
             }
 
             // Now check that we can force it to use our index
@@ -128,6 +128,10 @@ namespace MongoDB.DriverUnitTests.Linq
             else
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                if (winningPlan.Contains("shards"))
+                {
+                    winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                }
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
                 var keyPattern = inputStage["keyPattern"].AsBsonDocument;
@@ -196,7 +200,7 @@ namespace MongoDB.DriverUnitTests.Linq
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
                 var stage = winningPlan["stage"].AsString;
-                Assert.That(stage, Is.EqualTo("COLLSCAN"));
+                Assert.That(stage, Is.Not.EqualTo("IXSCAN"));
             }
 
             // Now check that we can force it to use our index
@@ -211,6 +215,10 @@ namespace MongoDB.DriverUnitTests.Linq
             else
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                if (winningPlan.Contains("shards"))
+                {
+                    winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                }
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
                 var keyPattern = inputStage["keyPattern"].AsBsonDocument;
@@ -229,13 +237,13 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWithIndexCannotBeAfterDistinct()
         {
-            Assert.Throws<NotSupportedException>(()=> _collection.AsQueryable().Select(o => o.a).Distinct().WithIndex("i").ToList());
+            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable().Select(o => o.a).Distinct().WithIndex("i").ToList());
         }
 
         [Test]
         public void TestThereCanOnlyBeOneIndexHint()
         {
-            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable().WithIndex("i").WithIndex(new BsonDocument("a",1)).ToList());
+            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable().WithIndex("i").WithIndex(new BsonDocument("a", 1)).ToList());
         }
 
     }

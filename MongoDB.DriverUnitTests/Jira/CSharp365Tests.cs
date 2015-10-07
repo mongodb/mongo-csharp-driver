@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,6 +49,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp365
                 else
                 {
                     var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                    if (winningPlan.Contains("shards"))
+                    {
+                        winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                    }
                     var inputStage = winningPlan["inputStage"].AsBsonDocument;
                     var stage = inputStage["stage"].AsString;
                     var keyPattern = inputStage["keyPattern"].AsBsonDocument;
