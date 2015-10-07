@@ -49,6 +49,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
                 else
                 {
                     var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                    if (winningPlan.Contains("shards"))
+                    {
+                        winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                    }
                     var inputStage = winningPlan["inputStage"].AsBsonDocument;
                     var stage = inputStage["stage"].AsString;
                     var keyPattern = inputStage["keyPattern"].AsBsonDocument;
