@@ -1,4 +1,4 @@
-version: 2.0.0.{build}
+version: 2.1.0.{build}
 
 branches:
   only:
@@ -12,7 +12,7 @@ test: off
 
 build_script: 
   - build.cmd Build
-  - ps: Start-FileDownload 'https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-2.6.3-signed.msi' -FileName 'C:\build\mongodb.msi'
+  - ps: Start-FileDownload 'https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.0.6-signed.msi' -FileName 'C:\build\mongodb.msi'
   - msiexec /i C:\build\mongodb.msi /qn /log c:\build\mongodb-install.log INSTALLLOCATION=C:\MongoDB
   - ps: mkdir c:\build\data
   - ps: Start-Process -NoNewWindow C:\MongoDB\bin\mongod.exe -ArgumentList "-dbpath c:\build\data -smallfiles -oplogSize 100 -setParameter enableTestCommands=1"

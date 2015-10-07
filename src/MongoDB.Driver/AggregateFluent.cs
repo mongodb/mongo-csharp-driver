@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -83,6 +84,29 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TResult> Limit(int limit)
         {
             return AppendStage<TResult>(new BsonDocument("$limit", limit));
+        }
+
+        public override IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null)
+        {
+            const string operatorName = "$lookup";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    newResultSerializer = newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
+                    return new RenderedPipelineStageDefinition<TNewResult>(
+                        operatorName,
+                        new BsonDocument(operatorName, new BsonDocument
+                        {
+                            { "from", from },
+                            { "localField", localField.Render(s, sr).FieldName },
+                            { "foreignField", foreignField.Render(BsonDocumentSerializer.Instance, sr).FieldName },
+                            { "as", @as.Render(newResultSerializer, sr).FieldName },
+                        }),
+                        newResultSerializer);
+                });
+
+            return AppendStage<TNewResult>(stage);
         }
 
         public override IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter)

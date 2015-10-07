@@ -50,7 +50,7 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
-        /// Adds a project stage to the pipeline to project the result to a new type.
+        /// Appends a project stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="newResultSerializer">The new result serializer.</param>
@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null);
 
         /// <summary>
-        /// Appends a group stage to the stages.
+        /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
         /// <param name="group">The group projection.</param>
@@ -71,6 +71,18 @@ namespace MongoDB.Driver
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TResult> Limit(int limit);
+
+        /// <summary>
+        /// Appens a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="from">From.</param>
+        /// <param name="localField">The local field.</param>
+        /// <param name="foreignField">The foreign field.</param>
+        /// <param name="as">As.</param>
+        /// <param name="newResultSerializer">The new result serializer.</param>
+        /// <returns></returns>
+        IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null);
 
         /// <summary>
         /// Appends a match stage to the pipeline.

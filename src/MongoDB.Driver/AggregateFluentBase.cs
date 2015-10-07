@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,6 +47,12 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Limit(int limit);
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <inheritdoc />
@@ -68,5 +75,6 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);
+
     }
 }

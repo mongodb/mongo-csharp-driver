@@ -1,6 +1,6 @@
 current = "2.0.1"
 [[versions]]
-  version = "2.1.0-rc0"
+  version = "2.1.0-rc1"
   status = "rc"
   docs = "http://mongodb.github.io/mongo-csharp-driver/2.1/"
   api = "http://api.mongodb.org/csharp/2.1"
@@ -22,32 +22,32 @@ current = "2.0.1"
   package = "MongoDB.Driver"
   description = "The driver."
   dependencies = ".NET Core Driver,.NET BSON Library"
-  versions = "2.1.0-rc0,2.0.1"
+  versions = "2.1.0-rc1,2.0.1"
 
 [[drivers]]
   name = ".NET GridFS"
   package = "MongoDB.Driver.GridFS"
   description = "The GridFS library."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.1.0-rc0"
+  versions = "2.1.0-rc1"
 
 [[drivers]]
   name = ".NET Core Driver"
   package = "MongoDB.Driver.Core"
   description = "The core driver."
   dependencies = ".NET BSON Library"
-  versions = "2.1.0-rc0,2.0.1"
+  versions = "2.1.0-rc1,2.0.1"
 
 [[drivers]]
   name = ".NET BSON Library"
   package = "MongoDB.Bson"
   description = "The BSON library."
   dependencies = ""
-  versions = "2.1.0-rc0,2.0.1"
+  versions = "2.1.0-rc1,2.0.1"
 
 [[drivers]]
   name = ".NET Legacy Driver"
   package = "mongocsharpdriver"
   description = "The legacy driver."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.1.0-rc0,2.0.1,1.10.1"
+  versions = "2.1.0-rc1,2.0.1,1.10.1"
