@@ -1497,11 +1497,44 @@
 
 
 
-    <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.1/reference/driver_core/">
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.1/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.1/reference/driver_core/events/">
         <i class='fa'></i>
-        Driver Core
+        Eventing
     </a>
+  </li>
+
+
+        
+        
+    </ul>
   </li>
 
 
@@ -2093,6 +2126,13 @@ Some drivers utilize the database component to indicate which database to work w
 var client = new MongoClient(settings);
 </code></pre>
 
+<h3 id="low-level-customization">Low-Level Customization</h3>
+
+<p>There are a number of settings that are not configurable directly from <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a>. These settings are able to be configured through the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+"><code>ClusterConfigurator</code></a> property which provides a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+"><code>ClusterBuilder</code></a> to manipulate. An example of these is adding a logger using the <a href="/mongo-csharp-driver/2.1/reference/driver_core/events/">eventing infrastructure</a>.</p>
+
 <h3 id="re-use">Re-use</h3>
 
 <p>It is recommended to store a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoClient.htm
@@ -2205,6 +2245,7 @@ var client = new MongoClient(settings);
 </ul></li>
 <li><a href="#mongo-client">Mongo Client</a>
 <ul>
+<li><a href="#low-level-customization">Low-Level Customization</a></li>
 <li><a href="#re-use">Re-use</a></li>
 <li><a href="#monitoring">Monitoring</a></li>
 </ul></li>

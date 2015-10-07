@@ -524,6 +524,180 @@ using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;qu
     </item>
     
     <item>
+      <title>Eventing</title>
+      <link>/mongo-csharp-driver/2.1/reference/driver_core/events/</link>
+      <pubDate>Tue, 08 Sep 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.1/reference/driver_core/events/</guid>
+      <description>
+
+&lt;h2 id=&#34;eventing&#34;&gt;Eventing&lt;/h2&gt;
+
+&lt;p&gt;The .NET Driver core provides a robust model for event publication and subscription. Each event is represented by a class or struct which contains all the information related to the particular event.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterbuilder&#34;&gt;ClusterBuilder&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+&#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; class contains two methods for subscribing to events.&lt;/p&gt;
+
+&lt;h4 id=&#34;ieventsubscriber&#34;&gt;IEventSubscriber&lt;/h4&gt;
+
+&lt;p&gt;The first version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt;. &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt; contains a single method to implement, &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
+&#34;&gt;&lt;code&gt;TryGetEventHandler&lt;/code&gt;&lt;/a&gt;. It takes a generic parameter indicating the type of event and sets an out parameter with the handler.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+This method will be invoked once on each subscriber per event type. Therefore, performance of this method is not critical.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;For instance, to handle the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
+&#34;&gt;&lt;code&gt;ConnectionPoolAddedConnectionEvent&lt;/code&gt;&lt;/a&gt;, the following could be done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        if(typeof(TEvent)) == typeof(ConnectionPoolAddedConnectionEvent))
+        {
+            handler = (Action&amp;lt;TEvent&amp;gt;)HandleConnectionPoolAddedConnectionEvent;
+            return true;
+        }
+
+        handler = null;
+        return false;
+    }
+
+    private void HandleConnectionPoolAddedConnectionEvent(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;. It uses reflection to find all the event handler methods inside a class based on certain constructor parameters for the method name and the binding flags. For instance, we could change the above &lt;code&gt;MyEventSubscriber&lt;/code&gt; class as follows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    private readonly IEventSubscriber _subscriber;
+
+    public MyEventSubscriber()
+    {
+        _subscriber = new ReflectionEventSubscriber(this);
+    }
+
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        return _subscriber.TryGetEventHandler(out handler);
+    }
+
+    private void Handle(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+
+    private void Handle(ConnectionPoolRemovedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Removed a connection from the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The default method name is &amp;ldquo;Handle&amp;rdquo; and the default binding flags are for public instance methods.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/Diagnostics/PerformanceCounterEventSubscriber.cs
+&#34;&gt;&lt;code&gt;PerformanceCounterEventSubscriber&lt;/code&gt;&lt;/a&gt; is a good example of utilizing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;method&#34;&gt;Method&lt;/h4&gt;
+
+&lt;p&gt;The second version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/018hxwa8.aspx&#34;&gt;&lt;code&gt;Action&amp;lt;TEvent&amp;gt;&lt;/code&gt;&lt;/a&gt;. For example, to use a static method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(Handle);
+
+    // ... snip
+}
+
+private static void Handle(ConnectionPoolAddedConnectionEvent @event)
+{
+    Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Alternatively, a lambda expression could be used:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(x =&amp;gt; Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;));
+
+    // ... snip
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;operation-ids&#34;&gt;Operation Ids&lt;/h3&gt;
+
+&lt;p&gt;Any commands that could occur based on user initiation will contain an operation identifier. This identifer can be used to link together all events that occured due to the user initiated action.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterid-serverid-and-connectionid&#34;&gt;ClusterId, ServerId, and ConnectionId&lt;/h3&gt;
+
+&lt;p&gt;All events will contain at least one of these identifiers. They can be used to uniquely attribute a particular event to a cluster, a server, or a connection. In addition, the ConnectionId also contains a local value and a server value where the server value contains the same value that will show up in the server logs for its connection logging.&lt;/p&gt;
+
+&lt;h3 id=&#34;command-events&#34;&gt;Command Events&lt;/h3&gt;
+
+&lt;p&gt;There are three events related to monitoring data sent on the wire. These are the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
+
+&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
+&#34;&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+These are heavy events to generate. Do not subscribe to these unless they provide necessary information.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;commandstartedevent&#34;&gt;CommandStartedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandsucceededevent&#34;&gt;CommandSucceededEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandfailedevent&#34;&gt;CommandFailedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>LINQ</title>
       <link>/mongo-csharp-driver/2.1/reference/driver/crud/linq/</link>
       <pubDate>Tue, 25 Aug 2015 15:36:56 +0000</pubDate>
@@ -1649,6 +1823,13 @@ Some drivers utilize the database component to indicate which database to work w
 var client = new MongoClient(settings);
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;h3 id=&#34;low-level-customization&#34;&gt;Low-Level Customization&lt;/h3&gt;
+
+&lt;p&gt;There are a number of settings that are not configurable directly from &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. These settings are able to be configured through the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property which provides a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+&#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; to manipulate. An example of these is adding a logger using the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver_core/events/&#34;&gt;eventing infrastructure&lt;/a&gt;.&lt;/p&gt;
+
 &lt;h3 id=&#34;re-use&#34;&gt;Re-use&lt;/h3&gt;
 
 &lt;p&gt;It is recommended to store a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoClient.htm
@@ -1818,465 +1999,6 @@ pack.AddMemberMapConvention(
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;For the best examples of writing custom conventions, it is good to consult the source for the pre-packaged conventions.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Definitions and Builders</title>
-      <link>/mongo-csharp-driver/2.1/reference/driver/definitions/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.1/reference/driver/definitions/</guid>
-      <description>
-
-&lt;h2 id=&#34;definitions-and-builders&#34;&gt;Definitions and Builders&lt;/h2&gt;
-
-&lt;p&gt;The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver/crud/&#34;&gt;API&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter &lt;code&gt;TDocument&lt;/code&gt; which represents the type of document with which you are working. It will almost always match the generic &lt;code&gt;TDocument&lt;/code&gt; parameter used in an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;fields&#34;&gt;Fields&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_FieldDefinition_1.htm
-&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_FieldDefinition_2.htm
-&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument, TField&amp;gt;&lt;/code&gt;&lt;/a&gt; define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&amp;rsquo;d like. For instance, to use the field named &amp;ldquo;fn&amp;rdquo; with a &lt;code&gt;TDocument&lt;/code&gt; of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, do the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FieldDefinition&amp;lt;BsonDocument&amp;gt; field = &amp;quot;fn&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;However, if you are working with a &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/bson/mapping/&#34;&gt;mapped class&lt;/a&gt;, then we are able to translate a string that equals the property name. For instance, given the below &lt;code&gt;Person&lt;/code&gt; class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Person
-{
-    [BsonElement(&amp;quot;fn&amp;quot;)]
-    public string FirstName { get; set; }
-
-    [BsonElement(&amp;quot;ln&amp;quot;)]
-    public string LastName { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Since we know the type is &lt;code&gt;Person&lt;/code&gt;, we can provide the property name, &lt;code&gt;FirstName&lt;/code&gt;, from the class and &amp;ldquo;fn&amp;rdquo; will still be used.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FieldDefinition&amp;lt;Person&amp;gt; field = &amp;quot;FirstName&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;We don&amp;rsquo;t validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn&amp;rsquo;t been mapped:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FieldDefinition&amp;lt;Person&amp;gt; field = &amp;quot;fn&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And the output field name of this will be just &amp;ldquo;fn&amp;rdquo;.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h2 id=&#34;filters&#34;&gt;Filters&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_FilterDefinition_1.htm
-&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines a filter. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FilterDefinition&amp;lt;BsonDocument&amp;gt; filter = &amp;quot;{ x: 1 }&amp;quot;;
-
-// or
-
-FilterDefinition&amp;lt;BsonDocument&amp;gt; filter = new BsonDocument(&amp;quot;x&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these will render the filter &lt;code&gt;{ x: 1 }&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;filter-definition-builder&#34;&gt;Filter Definition Builder&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;FilterDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building up both simple and complex &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/
-&#34;&gt;MongoDB queries&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example, to build up the filter &lt;code&gt;{ x: 10, y: { $lt: 20 } }&lt;/code&gt;, the following calls are all equivalent.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;BsonDocument&amp;gt;.Filter;
-var filter = builder.Eq(&amp;quot;x&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quot;y&amp;quot;, 20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The &lt;code&gt;&amp;amp;&lt;/code&gt; operator is overloaded. Other overloaded operators include the &lt;code&gt;|&lt;/code&gt; operator for &amp;ldquo;or&amp;rdquo; and the &lt;code&gt;!&lt;/code&gt; operator for &amp;ldquo;not&amp;rdquo;.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You can achieve the same result in the typed variant:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;Widget&amp;gt;.Filter;
-var filter = builder.Eq(widget =&amp;gt; widget.X, 10) &amp;amp; builder.Lt(widget =&amp;gt; widget.Y, 20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The benefits to this form is the compile-time safety inherent in using types. In addition, your IDE can provide refactoring support.&lt;/p&gt;
-
-&lt;p&gt;Alternatively, you can elect to use a string-based field name instead.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filter = builder.Eq(&amp;quot;X&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quot;Y&amp;quot;, 20);
-
-// or
-
-var filter = builder.Eq(&amp;quot;x&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quot;y&amp;quot;, 20);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For more information on valid lambda expressions, see the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver/expressions/&#34;&gt;expressions documentation&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&#34;array-operators&#34;&gt;Array Operators&lt;/h4&gt;
-
-&lt;p&gt;When using entities with properties or fields that serialize to arrays, you can use the methods prefixed with &amp;ldquo;Any&amp;rdquo; to compare the entire array against a single item.&lt;/p&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class Post
-{
-    public IEnumerable&amp;lt;string&amp;gt; Tags { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To see if any of the tags equals &amp;ldquo;mongodb&amp;rdquo;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filter = Builders&amp;lt;Post&amp;gt;.Filter.AnyEq(x =&amp;gt; x.Tags, &amp;quot;mongodb&amp;quot;);
-
-// This will NOT compile:
-// var filter = Builders&amp;lt;Post&amp;gt;.Filter.Eq(x =&amp;gt; x.Tags, &amp;quot;mongodb&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;pipelines&#34;&gt;Pipelines&lt;/h2&gt;
-
-&lt;p&gt;A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;List&amp;lt;BsonDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
-&#34;&gt;&lt;code&gt;List&amp;lt;IPipelineStageDefinition&amp;gt;&lt;/code&gt;&lt;/a&gt; , and a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
-&#34;&gt;&lt;code&gt;IPipelineStageDefinition[]&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;PipelineDefinition pipeline = new BsonDocument[] 
-{
-    new BsonDocument { { &amp;quot;$match&amp;quot;, new BsonDocument(&amp;quot;x&amp;quot;, 1) } },
-    new BsonDocument { { &amp;quot;$sort&amp;quot;, new BsonDocument(&amp;quot;y&amp;quot;, 1) } }
-};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;There is no builder for a PipelineDefinition. In most cases, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IAggregateFluent_1.htm&#34;&gt;&lt;code&gt;IAggregateFluent&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; interface would be used which is returned from the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;.Aggregate&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h2 id=&#34;projections&#34;&gt;Projections&lt;/h2&gt;
-
-&lt;p&gt;There are two forms of a projection definition: one where the type of the projection is known, &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;, and one where the type of the projection is not yet known, &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. The latter, while implicitly convertible to the first, is merely used as a building block. The &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver/crud/&#34;&gt;high-level APIs&lt;/a&gt; that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &amp;ldquo;interpretation instructions&amp;rdquo; for projecting into a custom class.&lt;/p&gt;
-
-&lt;p&gt;Each projection definition is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;ProjectionDefinition&amp;lt;BsonDocument&amp;gt; projection = &amp;quot;{ x: 1 }&amp;quot;;
-
-// or
-
-ProjectionDefinition&amp;lt;BsonDocument&amp;gt; projection = new BsonDocument(&amp;quot;x&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these will render the projection &lt;code&gt;{ x: 1 }&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;projection-definition-builder&#34;&gt;Projection Definition Builder&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; exists to make it easier to build up projections in MongoDB&amp;rsquo;s syntax. For the projection &lt;code&gt;{ x: 1, y: 1, _id: 0 }&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var projection = Builders&amp;lt;BsonDocument&amp;gt;.Projection.Include(&amp;quot;x&amp;quot;).Include(&amp;quot;y&amp;quot;).Exclude(&amp;quot;_id&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Using the &lt;code&gt;Widget&lt;/code&gt; class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    public ObjectId Id { get; set; }
-
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We can render the same projection in a couple of ways:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Include(&amp;quot;X&amp;quot;).Include(&amp;quot;Y&amp;quot;).Exclude(&amp;quot;Id&amp;quot;);
-
-// or
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Include(&amp;quot;x&amp;quot;).Include(&amp;quot;y&amp;quot;).Exclude(&amp;quot;_id&amp;quot;);
-
-// or
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Include(x =&amp;gt; x.X).Include(x =&amp;gt; x.Y).Exclude(x =&amp;gt; x.Id);
-
-// or
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; new { X = x.X, Y = x.Y });
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This last projection where we&amp;rsquo;ve used the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
-&#34;&gt;&lt;code&gt;Expression&lt;/code&gt;&lt;/a&gt; method is subtly different as is explained below, and its return type is a (&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;) as opposed to the others which return a (&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;).&lt;/p&gt;
-
-&lt;h4 id=&#34;lambda-expressions&#34;&gt;Lambda Expressions&lt;/h4&gt;
-
-&lt;p&gt;The driver supports using expression trees to render projections. The same expression tree will sometimes render differently when used in a Find operation versus when used in an Aggregate operation. Inherently, a lambda expression contains all the information necessary to form both the projection on the server as well as the client-side result and requires no further information.&lt;/p&gt;
-
-&lt;h5 id=&#34;find&#34;&gt;Find&lt;/h5&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;When a Find projection is defined using a lambda expression, it is run client-side. The driver inspects the lambda expression to determine which fields are referenced and automatically constructs a server-side projection to return only those fields.&lt;/p&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    public ObjectId Id { get; set; }
-
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The following lambda expressions will all result in the projection &lt;code&gt;{ x: 1, y: 1, _id: 0 }&lt;/code&gt;. This is because we inspect the expression tree to discover all the fields that are used and tell the server to include them. We then run the lambda expression client-side. As such, Find projections support virtually the entire breadth of the C# language.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; new { X = x.X, Y = x.Y });
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; new { Sum = x.X + x.Y });
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; new { Avg = (x.X + x.Y) / 2 });
-
-var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; (x.X + x.Y) / 2);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;_id&lt;/code&gt; field is excluded automatically when we know for certain that it isn&amp;rsquo;t necessary, as is the case in all the above examples.&lt;/p&gt;
-
-&lt;h5 id=&#34;aggregate&#34;&gt;Aggregate&lt;/h5&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;When an aggregate projection is defined using a lambda expression, a majority of the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/#expression-operators
-&#34;&gt;aggregation expression operators&lt;/a&gt; are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the &lt;a href=&#34;http://docs.mongodb.org/manual/core/aggregation-pipeline/
-&#34;&gt;Aggregation Framework&lt;/a&gt; must be expressible on the server.&lt;/p&gt;
-
-&lt;h5 id=&#34;grouping&#34;&gt;Grouping&lt;/h5&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;A projection is also used when performing grouping in the &lt;a href=&#34;http://docs.mongodb.org/manual/core/aggregation-pipeline/
-&#34;&gt;Aggregation Framework&lt;/a&gt;. In addition to the expression operators used in an aggregate projection, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator
-&#34;&gt;aggregation accumulator operators&lt;/a&gt; are also supported.&lt;/p&gt;
-
-&lt;h2 id=&#34;sorts&#34;&gt;Sorts&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_SortDefinition_1.htm
-&#34;&gt;&lt;code&gt;SortDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;SortDefinition&amp;lt;BsonDocument&amp;gt; sort = &amp;quot;{ x: 1 }&amp;quot;;
-
-// or
-
-SortDefinition&amp;lt;BsonDocument&amp;gt; sort = new BsonDocument(&amp;quot;x&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these will render the sort &lt;code&gt;{ x: 1 }&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;sort-definition-builder&#34;&gt;Sort Definition Builder&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;SortDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building up &lt;a href=&#34;http://docs.mongodb.org/manual/reference/method/cursor.sort/
-&#34;&gt;MongoDB sort syntax&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example, to build up the sort &lt;code&gt;{ x: 1, y: -1 }&lt;/code&gt;, do the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;BsonDocument&amp;gt;.Sort;
-var sort = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We can achieve the same result in the typed variant:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;Widget&amp;gt;.Sort;
-var sort = builder.Ascending(x =&amp;gt; x.X).Descending(x =&amp;gt; x.Y);
-
-// or
-
-var sort = builder.Ascending(&amp;quot;X&amp;quot;).Descending(&amp;quot;Y&amp;quot;);
-
-// or
-
-var sort = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;updates&#34;&gt;Updates&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_UpdateDefinition_1.htm
-&#34;&gt;&lt;code&gt;UpdateDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// invocation
-UpdateDefinition&amp;lt;BsonDocument&amp;gt; update = &amp;quot;{ $set: { x: 1 } }&amp;quot;;
-
-// or
-
-UpdateDefinition&amp;lt;BsonDocument&amp;gt; update = new BsonDocument(&amp;quot;$set&amp;quot;, new BsonDocument(&amp;quot;x&amp;quot;, 1));
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these will render the update &lt;code&gt;{ $set: { x: 1 } }&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;update-definition-builder&#34;&gt;Update Definition Builder&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;UpdateDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/update/
-&#34;&gt;MongoDB update specification&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example, to build up the update &lt;code&gt;{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }&lt;/code&gt;, do the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;BsonDocument&amp;gt;.Update;
-var update = builder.Set(&amp;quot;x&amp;quot;, 1).Set(&amp;quot;y&amp;quot;, 3).Inc(&amp;quot;z&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-
-    [BsonElement(&amp;quot;z&amp;quot;)]
-    public int Z { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We can achieve the same result in a typed variant:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;Widget&amp;gt;.Update;
-var update = builder.Set(widget =&amp;gt; widget.X, 1).Set(widget =&amp;gt; widget.Y, 3).Inc(widget =&amp;gt; widget.Z, 1);
-
-// or
-
-var update = builder.Set(&amp;quot;X&amp;quot;, 1).Set(&amp;quot;Y&amp;quot;, 3).Inc(&amp;quot;Z&amp;quot;, 1);
-
-// or
-
-var update = builder.Set(&amp;quot;x&amp;quot;, 1).Set(&amp;quot;y&amp;quot;, 3).Inc(&amp;quot;z&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;index-keys&#34;&gt;Index Keys&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
-&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines the keys for index. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = &amp;quot;{ x: 1 }&amp;quot;;
-
-// or
-
-IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = new BsonDocument(&amp;quot;x&amp;quot;, 1);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these will render the keys &lt;code&gt;{ x: 1 }&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;index-keys-definition-builder&#34;&gt;Index Keys Definition Builder&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs
-&#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;IndexKeysDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API to build an index keys definition.&lt;/p&gt;
-
-&lt;p&gt;For example, to build up the keys &lt;code&gt;{ x: 1, y: -1 }&lt;/code&gt;, do the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys;
-var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Given the following class:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Widget
-{
-    [BsonElement(&amp;quot;x&amp;quot;)]
-    public int X { get; set; }
-
-    [BsonElement(&amp;quot;y&amp;quot;)]
-    public int Y { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We can achieve the same result in the typed variant:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var builder = Builders&amp;lt;Widget&amp;gt;.IndexKeys;
-var keys = builder.Ascending(x =&amp;gt; x.X).Descending(x =&amp;gt; x.Y);
-
-// or
-
-var keys = builder.Ascending(&amp;quot;X&amp;quot;).Descending(&amp;quot;Y&amp;quot;);
-
-// or
-
-var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

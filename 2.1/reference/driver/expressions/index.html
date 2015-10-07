@@ -1617,11 +1617,44 @@
 
 
 
-    <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.1/reference/driver_core/">
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.1/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.1/reference/driver_core/events/">
         <i class='fa'></i>
-        Driver Core
+        Eventing
     </a>
+  </li>
+
+
+        
+        
+    </ul>
   </li>
 
 
@@ -2243,9 +2276,23 @@ Find(p =&gt; localAges.Contains(p.Age));
 <pre><code class="language-json">{ Age: { $in: [10, 20, 30] } }
 </code></pre>
 
-<h4 id="nin">$nin</h4>
+<pre><code class="language-csharp">int[] localNames = new [] { &quot;Fluffy&quot;, &quot;Scruffy&quot; };
+Find(p =&gt; p.Pets.Any(i =&gt; localNames.Contains(i.Name));
+</code></pre>
 
-<pre><code class="language-csharp">int[] localAges = new [] { 10, 20, 30 };
+<pre><code class="language-json">{ &quot;Pets.Name&quot;: { $in: [&quot;Fluffy&quot;, &quot;Scruffy&quot;] } }
+</code></pre>
+
+<pre><code class="language-csharp">int[] localNumbers = new [] { 30, 40 };
+Find(p =&gt; localNumbers.Any(i =&gt; p.FavoriteNumbers.Contains(i));
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $in: [30, 40] } } 
+
+#### $nin
+
+```csharp
+int[] localAges = new [] { 10, 20, 30 };
 Find(p =&gt; !localAges.Contains(p.Age));
 </code></pre>
 
@@ -2364,14 +2411,18 @@ Find(p =&gt; !localAges.Contains(p.Age));
 <pre><code class="language-csharp">// no example yet
 </code></pre>
 
-<h3 id="geospatial-1">Geospatial</h3>
+<h3 id="array">Array</h3>
 
 <p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#array
 ">MongoDB documentation</a> for more information on each operator.</p>
 
 <h4 id="all">$all</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">var local = new [] { 10, 20 };
+Find(x =&gt; local.All(i =&gt; FavoriteNumbers.Contains(i));
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $all: [10, 20] } }
 </code></pre>
 
 <h4 id="elemmatch">$elemMatch</h4>
@@ -2387,7 +2438,7 @@ Find(p =&gt; !localAges.Contains(p.Age));
 <pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Any(n =&gt; n &lt; 42 &amp;&amp; n &gt; 21));
 </code></pre>
 
-<pre><code class="language-json">{ FavoriteNumbers: { $elemMatch: { { $lt: 42, $gt: 21 } } } }
+<pre><code class="language-json">{ FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
 </code></pre>
 
 <p><div class="admonition note">
@@ -3058,7 +3109,6 @@ These are only supported in a grouping expression.
 <li><a href="#lte">$lte</a></li>
 <li><a href="#ne">$ne</a></li>
 <li><a href="#in">$in</a></li>
-<li><a href="#nin">$nin</a></li>
 </ul></li>
 <li><a href="#logical">Logical</a>
 <ul>
@@ -3086,7 +3136,7 @@ These are only supported in a grouping expression.
 <li><a href="#near">$near</a></li>
 <li><a href="#nearsphere">$nearSphere</a></li>
 </ul></li>
-<li><a href="#geospatial-1">Geospatial</a>
+<li><a href="#array">Array</a>
 <ul>
 <li><a href="#all">$all</a></li>
 <li><a href="#elemmatch">$elemMatch</a></li>

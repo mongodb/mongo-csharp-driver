@@ -1794,11 +1794,44 @@
 
 
 
-    <li class="toctree-l2">
-    <a href="/mongo-csharp-driver/2.1/reference/driver_core/">
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.1/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.1/reference/driver_core/events/">
         <i class='fa'></i>
-        Driver Core
+        Eventing
     </a>
+  </li>
+
+
+        
+        
+    </ul>
   </li>
 
 
@@ -2346,6 +2379,10 @@
 
 <p>Bindings glue together server selection and operation execution by influencing how and where operations get executed. It would be possible to construct bindings that, for instance, pipeline multiple operations down the same connection or ensure that OP_GETMORE requests are sent down the same connection as the initial OP_QUERY.</p>
 
+<h3 id="eventing-hugoshortcode-2"><a href="/mongo-csharp-driver/2.1/reference/driver_core/events/">Eventing</a></h3>
+
+<p>The driver provides many events related to server selection, connection pooling, cluster monitoring, command execution, etc&hellip; These events are subscribable to provide solutions such as logging and performance counters.</p>
+
 
 
 
@@ -2387,6 +2424,7 @@
 <li><a href="#server-selection">Server Selection</a></li>
 <li><a href="#operations">Operations</a></li>
 <li><a href="#bindings">Bindings</a></li>
+<li><a href="#eventing-hugoshortcode-2"><a href="{@{@HUGOSHORTCODE-2@}@}">Eventing</a></a></li>
 </ul></li>
 </ul></li>
 </ul>

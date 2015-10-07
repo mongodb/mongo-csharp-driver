@@ -524,6 +524,180 @@ using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;qu
     </item>
     
     <item>
+      <title>Eventing</title>
+      <link>/mongo-csharp-driver/2.1/reference/driver_core/events/</link>
+      <pubDate>Tue, 08 Sep 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.1/reference/driver_core/events/</guid>
+      <description>
+
+&lt;h2 id=&#34;eventing&#34;&gt;Eventing&lt;/h2&gt;
+
+&lt;p&gt;The .NET Driver core provides a robust model for event publication and subscription. Each event is represented by a class or struct which contains all the information related to the particular event.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterbuilder&#34;&gt;ClusterBuilder&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+&#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; class contains two methods for subscribing to events.&lt;/p&gt;
+
+&lt;h4 id=&#34;ieventsubscriber&#34;&gt;IEventSubscriber&lt;/h4&gt;
+
+&lt;p&gt;The first version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt;. &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt; contains a single method to implement, &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
+&#34;&gt;&lt;code&gt;TryGetEventHandler&lt;/code&gt;&lt;/a&gt;. It takes a generic parameter indicating the type of event and sets an out parameter with the handler.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+This method will be invoked once on each subscriber per event type. Therefore, performance of this method is not critical.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;For instance, to handle the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
+&#34;&gt;&lt;code&gt;ConnectionPoolAddedConnectionEvent&lt;/code&gt;&lt;/a&gt;, the following could be done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        if(typeof(TEvent)) == typeof(ConnectionPoolAddedConnectionEvent))
+        {
+            handler = (Action&amp;lt;TEvent&amp;gt;)HandleConnectionPoolAddedConnectionEvent;
+            return true;
+        }
+
+        handler = null;
+        return false;
+    }
+
+    private void HandleConnectionPoolAddedConnectionEvent(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;. It uses reflection to find all the event handler methods inside a class based on certain constructor parameters for the method name and the binding flags. For instance, we could change the above &lt;code&gt;MyEventSubscriber&lt;/code&gt; class as follows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    private readonly IEventSubscriber _subscriber;
+
+    public MyEventSubscriber()
+    {
+        _subscriber = new ReflectionEventSubscriber(this);
+    }
+
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        return _subscriber.TryGetEventHandler(out handler);
+    }
+
+    private void Handle(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+
+    private void Handle(ConnectionPoolRemovedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Removed a connection from the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The default method name is &amp;ldquo;Handle&amp;rdquo; and the default binding flags are for public instance methods.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/Diagnostics/PerformanceCounterEventSubscriber.cs
+&#34;&gt;&lt;code&gt;PerformanceCounterEventSubscriber&lt;/code&gt;&lt;/a&gt; is a good example of utilizing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;method&#34;&gt;Method&lt;/h4&gt;
+
+&lt;p&gt;The second version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/018hxwa8.aspx&#34;&gt;&lt;code&gt;Action&amp;lt;TEvent&amp;gt;&lt;/code&gt;&lt;/a&gt;. For example, to use a static method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(Handle);
+
+    // ... snip
+}
+
+private static void Handle(ConnectionPoolAddedConnectionEvent @event)
+{
+    Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Alternatively, a lambda expression could be used:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(x =&amp;gt; Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;));
+
+    // ... snip
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;operation-ids&#34;&gt;Operation Ids&lt;/h3&gt;
+
+&lt;p&gt;Any commands that could occur based on user initiation will contain an operation identifier. This identifer can be used to link together all events that occured due to the user initiated action.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterid-serverid-and-connectionid&#34;&gt;ClusterId, ServerId, and ConnectionId&lt;/h3&gt;
+
+&lt;p&gt;All events will contain at least one of these identifiers. They can be used to uniquely attribute a particular event to a cluster, a server, or a connection. In addition, the ConnectionId also contains a local value and a server value where the server value contains the same value that will show up in the server logs for its connection logging.&lt;/p&gt;
+
+&lt;h3 id=&#34;command-events&#34;&gt;Command Events&lt;/h3&gt;
+
+&lt;p&gt;There are three events related to monitoring data sent on the wire. These are the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
+
+&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
+&#34;&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+These are heavy events to generate. Do not subscribe to these unless they provide necessary information.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;commandstartedevent&#34;&gt;CommandStartedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandsucceededevent&#34;&gt;CommandSucceededEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandfailedevent&#34;&gt;CommandFailedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>LINQ</title>
       <link>/mongo-csharp-driver/2.1/reference/driver/crud/linq/</link>
       <pubDate>Tue, 25 Aug 2015 15:36:56 +0000</pubDate>
@@ -1196,78 +1370,6 @@ Even though we used a string here for the command, it could have been a BsonDocu
     </item>
     
     <item>
-      <title>Using a Tailable Cursor</title>
-      <link>/mongo-csharp-driver/2.1/examples/tailable_cursor/</link>
-      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.1/examples/tailable_cursor/</guid>
-      <description>
-
-&lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
-
-&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/core/capped-collections/
-&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
-&#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;private static async Task TailCollectionAsync(IMongoCollection&amp;lt;BsonDocument&amp;gt; collection)
-{
-    // Set lastValue to the smallest value possible
-    BsonValue lastValue = BsonMinKey.Value;
-    
-    var options = new FindOptions&amp;lt;BsonDocument&amp;gt; 
-    { 
-        // Our cursor is a tailable cursor and informs the server to await
-        CursorType = CursorType.TailableAwait
-    };
-    
-    // Initially, we don&#39;t have a filter. An empty BsonDocument matches everything.
-    BsonDocument filter = new BsonDocument();
-    
-    // NOTE: This loops forever. It would be prudent to provide some form of 
-    // an escape condition based on your needs; e.g. the user presses a key.
-    while (true)
-    {
-        // Start the cursor and wait for the initial response
-        using (var cursor = await collection.FindAsync(filter, options))
-        {
-            // This callback will get invoked with each new document found
-            await cursor.ForEachAsync(document =&amp;gt;
-            {
-                // Set the last value we saw 
-                lastValue = document[&amp;quot;insertDate&amp;quot;];
-                
-                // Write the document to the console.
-                await Console.WriteLineAsync(document.ToString());
-            });
-        }
-
-        // The tailable cursor died so loop through and restart it
-        // Now, we want documents that are strictly greater than the last value we saw
-        filter = new BsonDocument(&amp;quot;$gt&amp;quot;, new BsonDocument(&amp;quot;insertDate&amp;quot;, lastId));
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
-you could track all the documents you&amp;rsquo;ve seen by their identifiers for the same &lt;code&gt;lastValue&lt;/code&gt; and ignore them in the callback. In addition, you would need to change the &lt;code&gt;$gt&lt;/code&gt; condition to &lt;code&gt;$gte&lt;/code&gt;&lt;/p&gt;
-
-&lt;/div&gt;
-.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Mixing Static and Dynamic Data</title>
       <link>/mongo-csharp-driver/2.1/examples/mixing_static_and_dynamic/</link>
       <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
@@ -1392,6 +1494,78 @@ It is still possible to filter, sort, project, update, etc&amp;hellip; this dyna
 There is a danger with this approach that dynamic field names could clash with names already being used by members of the class.
 &lt;/div&gt;
 &lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using a Tailable Cursor</title>
+      <link>/mongo-csharp-driver/2.1/examples/tailable_cursor/</link>
+      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.1/examples/tailable_cursor/</guid>
+      <description>
+
+&lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
+
+&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/core/capped-collections/
+&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
+&#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;private static async Task TailCollectionAsync(IMongoCollection&amp;lt;BsonDocument&amp;gt; collection)
+{
+    // Set lastValue to the smallest value possible
+    BsonValue lastValue = BsonMinKey.Value;
+    
+    var options = new FindOptions&amp;lt;BsonDocument&amp;gt; 
+    { 
+        // Our cursor is a tailable cursor and informs the server to await
+        CursorType = CursorType.TailableAwait
+    };
+    
+    // Initially, we don&#39;t have a filter. An empty BsonDocument matches everything.
+    BsonDocument filter = new BsonDocument();
+    
+    // NOTE: This loops forever. It would be prudent to provide some form of 
+    // an escape condition based on your needs; e.g. the user presses a key.
+    while (true)
+    {
+        // Start the cursor and wait for the initial response
+        using (var cursor = await collection.FindAsync(filter, options))
+        {
+            // This callback will get invoked with each new document found
+            await cursor.ForEachAsync(document =&amp;gt;
+            {
+                // Set the last value we saw 
+                lastValue = document[&amp;quot;insertDate&amp;quot;];
+                
+                // Write the document to the console.
+                await Console.WriteLineAsync(document.ToString());
+            });
+        }
+
+        // The tailable cursor died so loop through and restart it
+        // Now, we want documents that are strictly greater than the last value we saw
+        filter = new BsonDocument(&amp;quot;$gt&amp;quot;, new BsonDocument(&amp;quot;insertDate&amp;quot;, lastId));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
+you could track all the documents you&amp;rsquo;ve seen by their identifiers for the same &lt;code&gt;lastValue&lt;/code&gt; and ignore them in the callback. In addition, you would need to change the &lt;code&gt;$gt&lt;/code&gt; condition to &lt;code&gt;$gte&lt;/code&gt;&lt;/p&gt;
+
+&lt;/div&gt;
+.&lt;/p&gt;
 </description>
     </item>
     
@@ -1663,185 +1837,63 @@ using (var streamWriter = new StreamWriter(outputFileName))
     </item>
     
     <item>
-      <title>Admin Quick Tour</title>
-      <link>/mongo-csharp-driver/2.1/getting_started/admin_quick_tour/</link>
+      <title>Importing JSON</title>
+      <link>/mongo-csharp-driver/2.1/examples/importing_json/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
       
-      <guid>/mongo-csharp-driver/2.1/getting_started/admin_quick_tour/</guid>
+      <guid>/mongo-csharp-driver/2.1/examples/importing_json/</guid>
       <description>
 
-&lt;h2 id=&#34;mongodb-driver-admin-quick-tour&#34;&gt;MongoDB Driver Admin Quick Tour&lt;/h2&gt;
+&lt;h2 id=&#34;importing-json&#34;&gt;Importing JSON&lt;/h2&gt;
 
-&lt;p&gt;This is the second part of the MongoDB driver quick tour. In this part, we&amp;rsquo;ll look at performing some adminstrative functions. In the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/getting_started/quick_tour/&#34;&gt;first part&lt;/a&gt;, we looked at how to perform basic CRUD (create, read, update, delete) operations.&lt;/p&gt;
+&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-See the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/getting_started/installation/&#34;&gt;installation guide&lt;/a&gt; for instructions on how to install the MongoDB Driver.
-&lt;/div&gt;
-&lt;/p&gt;
+&lt;p&gt;The program below will import all documents from a file with one document per line into the collection.&lt;/p&gt;
 
-&lt;h2 id=&#34;setup&#34;&gt;Setup&lt;/h2&gt;
+&lt;p&gt;Given the input file&amp;rsquo;s contents:&lt;/p&gt;
 
-&lt;p&gt;To get started we’ll quickly connect and create &lt;code&gt;client&lt;/code&gt;, &lt;code&gt;database&lt;/code&gt;, and &lt;code&gt;collection&lt;/code&gt; variables for use in the examples below:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var client = new MongoClient();
-var database = client.GetDatabase(&amp;quot;foo&amp;quot;);
-var collection = client.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;bar&amp;quot;);
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Calling the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_MongoClient_GetDatabase.htm&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; method on &lt;code&gt;client&lt;/code&gt; does not create a database. Likewise, calling the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm&#34;&gt;&lt;code&gt;GetCollection&amp;lt;BsonDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method on &lt;code&gt;database&lt;/code&gt; will not create a collection. Only when a database or collection are written to will they be created. Examples include the creation of an index or the insertion of a document into a previously non-existent collection.&lt;/p&gt;
+&lt;p&gt;And the program:&lt;/p&gt;
 
-&lt;/div&gt;
-&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 
-&lt;h2 id=&#34;list-the-databases&#34;&gt;List the Databases&lt;/h2&gt;
+// ...
 
-&lt;p&gt;You can list all the databases using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
-&#34;&gt;&lt;code&gt;ListDatabasesAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+string inputFileName; // initialize to the input file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to write to.
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.ListDatabasesAsync())
+using (var streamReader = new StreamReader(inputFileName))
 {
-    await cursor.ForEachAsync(d =&amp;gt; Console.WriteLine(d.ToString()));
+    string line;
+    while ((line = await streamReader.ReadLineAsync()) != null)
+    {
+        using (var jsonReader = new JsonReader(line))
+        {
+            var context = BsonDeserializationContext.CreateRoot(jsonReader);
+            var document = collection.DocumentSerializer.Deserialize(context);
+            await collection.InsertOneAsync(document);
+        }
+    }
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;drop-a-database&#34;&gt;Drop a Database&lt;/h2&gt;
+&lt;p&gt;The collection&amp;rsquo;s contents should look like this:&lt;/p&gt;
 
-&lt;p&gt;You can drop a database using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
-&#34;&gt;&lt;code&gt;DropDatabaseAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await client.DropDatabaseAsync(&amp;quot;foo&amp;quot;);
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;&amp;gt; db.mydata.find()
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
 &lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;create-a-collection&#34;&gt;Create a Collection&lt;/h2&gt;
-
-&lt;p&gt;A collections in MongoDB is created automatically simply by inserting a document into it. Using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
-&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method, you can also create a collection explicitly in order to to customize its configuration. For example, to create a capped collection sized to 1 megabyte:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var options = new CreateCollectionOptions { Capped = true, MaxSize = 1024 * 1024 };
-
-await database.CreateCollectionAsync(&amp;quot;cappedBar&amp;quot;, options);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;drop-a-collection&#34;&gt;Drop a Collection&lt;/h2&gt;
-
-&lt;p&gt;You can drop a collection with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
-&#34;&gt;&lt;code&gt;DropCollectionAsync&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await database.DropCollectionAsync(&amp;quot;cappedBar&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;create-an-index&#34;&gt;Create an Index&lt;/h2&gt;
-
-&lt;p&gt;MongoDB supports secondary indexes. To create an index, you just specify the field or combination of fields, and for each field specify the direction of the index for that field; &lt;code&gt;1&lt;/code&gt; for ascending and &lt;code&gt;-1&lt;/code&gt; for descending. The following creates an ascending index on the &lt;code&gt;i&lt;/code&gt; field:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;i&amp;quot;, 1));
-
-// or
-
-var keys = Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;i&amp;quot;);
-await collection.Indexes.CreateOneAsync(keys);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;More information about the IndexKeys definition builder is in the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver/definitions/#index-keys&#34;&gt;reference section&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;list-the-indexes-in-a-collection&#34;&gt;List the Indexes in a Collection&lt;/h2&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
-&#34;&gt;&lt;code&gt;ListAsync&lt;/code&gt;&lt;/a&gt; method to list the indexes in a collection:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.Indexes.ListAsync())
-{
-    await cursor.ForEachAsync(i =&amp;gt; Console.WriteLine(i.ToString()));    
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The example should print the following indexes:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;v&amp;quot; : 1, &amp;quot;key&amp;quot; : { &amp;quot;_id&amp;quot; : 1 }, &amp;quot;name&amp;quot; : &amp;quot;_id_&amp;quot;, &amp;quot;ns&amp;quot; : &amp;quot;mydb.test&amp;quot; }
-{ &amp;quot;v&amp;quot; : 1, &amp;quot;key&amp;quot; : { &amp;quot;i&amp;quot; : 1 }, &amp;quot;name&amp;quot; : &amp;quot;i_1&amp;quot;, &amp;quot;ns&amp;quot; : &amp;quot;mydb.test&amp;quot; }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;text-indexes&#34;&gt;Text Indexes&lt;/h3&gt;
-
-&lt;p&gt;MongoDB also provides text indexes to support searching of string content. Text indexes can include any field whose value is a string or an array of string elements. To create a text index specify the string literal “text” in the index document:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;content&amp;quot;, &amp;quot;text&amp;quot;));
-
-// or
-
-var keys = Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Text(&amp;quot;content&amp;quot;);
-await collection.Indexes.CreateOneAsync(keys);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;As of MongoDB 2.6, text indexes are now integrated into the main query language and enabled by default:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// insert some documents
-await collection.InsertManyAsync(new []
-{
-    new BsonDocument(&amp;quot;_id&amp;quot;, 0).Add(&amp;quot;content&amp;quot;, &amp;quot;textual content&amp;quot;),
-    new BsonDocument(&amp;quot;_id&amp;quot;, 1).Add(&amp;quot;content&amp;quot;, &amp;quot;additional content&amp;quot;),
-    new BsonDocument(&amp;quot;_id&amp;quot;, 2).Add(&amp;quot;content&amp;quot;, &amp;quot;irrelevant content&amp;quot;),
-});
-
-// find them using the text index
-var filter = Builders&amp;lt;BsonDocument&amp;gt;.Filter.Text(&amp;quot;textual content -irrelevant&amp;quot;);
-var matchCount = await collection.CountAsync(filter);
-Console.WriteLine(&amp;quot;Text search matches: {0}&amp;quot;, matchCount);
-
-// find them using the text index with the $language operator
-var englishFilter = Builders&amp;lt;BsonDocument&amp;gt;.Filter.Text(&amp;quot;textual content -irrelevant&amp;quot;, &amp;quot;english&amp;quot;);
-var matchCount = await collection.CountAsync(filter);
-Console.WriteLine(&amp;quot;Text search matches (english): {0}&amp;quot;, matchCount);
-
-// find the highest scoring match
-var projection = Builders&amp;lt;BsonDocument&amp;gt;.Projection.MetaTextScore(&amp;quot;score&amp;quot;);
-var doc = await collection.Find(filter).Project(projection).FirstAsync();
-Console.WriteLine(&amp;quot;Highest scoring document: {0}&amp;quot;, doc);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;and it should print:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-text&#34;&gt;Text search matches: 2
-Text search matches (english): 2
-Highest scoring document: { &amp;quot;_id&amp;quot; : 1, &amp;quot;content&amp;quot; : &amp;quot;additional content&amp;quot;, &amp;quot;score&amp;quot; : 0.75 }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For more information about text search, see the &lt;a href=&#34;http://docs.mongodb.org/manual/core/index-text/
-&#34;&gt;text index&lt;/a&gt; and the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/text/
-&#34;&gt;$text query operator&lt;/a&gt; documentation.&lt;/p&gt;
-
-&lt;h2 id=&#34;running-a-command&#34;&gt;Running a Command&lt;/h2&gt;
-
-&lt;p&gt;Not all commands have a specific helper, however you can run any command by using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
-&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method. Here we call the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/buildInfo
-&#34;&gt;buildInfo&lt;/a&gt; command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var buildInfoCommand = new BsonDocument(&amp;quot;buildinfo&amp;quot;, 1);
-var result = await database.RunCommandAsync(buildInfoCommand);
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Getting Started</title>
-      <link>/mongo-csharp-driver/2.1/getting_started/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.1/getting_started/</guid>
-      <description>
-
-&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
-
-&lt;p&gt;To help you get started quickly on the new driver, follow:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/getting_started/installation/&#34;&gt;Installation&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/getting_started/quick_tour/&#34;&gt;Quick Tour&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/getting_started/admin_quick_tour/&#34;&gt;Admin Quick Tour&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
