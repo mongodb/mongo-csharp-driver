@@ -231,6 +231,32 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
+        [Test]
+        public void Unwind_with_options_with_includeArrayIndex_set()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age", new AggregateUnwindOptions<BsonDocument> { IncludeArrayIndex = "AgeIndex" });
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: { path: '$Age', includeArrayIndex: 'AgeIndex' } }");
+
+            AssertLast(subject, expectedUnwind);
+        }
+
+        [Test]
+        public void Unwind_with_options_with_includeArrayIndex_set_and_preserveNullAndEmptyArrays_set()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age", new AggregateUnwindOptions<BsonDocument>
+                {
+                    IncludeArrayIndex = "AgeIndex",
+                    PreserveNullAndEmptyArrays = true
+                });
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: { path: '$Age', preserveNullAndEmptyArrays: true, includeArrayIndex: 'AgeIndex' } }");
+
+            AssertLast(subject, expectedUnwind);
+        }
+
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
             var pipeline = new PipelineStagePipelineDefinition<Person, TDocument>(fluent.Stages);

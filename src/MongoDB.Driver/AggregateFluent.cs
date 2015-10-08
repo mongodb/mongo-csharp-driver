@@ -204,20 +204,29 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr) =>
                 {
+                    var newResultSerializer = options.ResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
+
                     var fieldName = "$" + field.Render(s, sr).FieldName;
+                    string includeArrayIndexFieldName = null;
+                    if (options.IncludeArrayIndex != null)
+                    {
+                        includeArrayIndexFieldName = options.IncludeArrayIndex.Render(newResultSerializer, sr).FieldName;
+                    }
+
                     BsonValue value = fieldName;
-                    if (options.PreserveNullAndEmptyArrays.HasValue)
+                    if (options.PreserveNullAndEmptyArrays.HasValue || includeArrayIndexFieldName != null)
                     {
                         value = new BsonDocument
                         {
                             { "path", fieldName },
-                            { "preserveNullAndEmptyArrays", options.PreserveNullAndEmptyArrays, options.PreserveNullAndEmptyArrays.HasValue }
+                            { "preserveNullAndEmptyArrays", options.PreserveNullAndEmptyArrays, options.PreserveNullAndEmptyArrays.HasValue },
+                            { "includeArrayIndex", includeArrayIndexFieldName, includeArrayIndexFieldName != null }
                         };
                     }
                     return new RenderedPipelineStageDefinition<TNewResult>(
                         operatorName,
                         new BsonDocument(operatorName, value),
-                        options.ResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>());
+                        newResultSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);

@@ -22,8 +22,18 @@ namespace MongoDB.Driver
     /// </summary>
     public class AggregateUnwindOptions<TResult>
     {
+        private FieldDefinition<TResult> _includeArrayIndex;
         private bool? _preserveNullAndEmptyArrays;
         private IBsonSerializer<TResult> _resultSerializer;
+
+        /// <summary>
+        /// Gets or sets the field with which to include the array index.
+        /// </summary>
+        public FieldDefinition<TResult> IncludeArrayIndex
+        {
+            get { return _includeArrayIndex; }
+            set { _includeArrayIndex = value; }
+        }
 
         /// <summary>
         /// Gets or sets whether to preserve null and empty arrays.
