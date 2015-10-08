@@ -192,14 +192,33 @@ namespace MongoDB.Driver
 
         public override IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer)
         {
+            return Unwind(field, new AggregateUnwindOptions<TNewResult> { ResultSerializer = newResultSerializer });
+        }
+
+        public override IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options)
+        {
+            options = options ?? new AggregateUnwindOptions<TNewResult>();
+
             const string operatorName = "$unwind";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
-                (s, sr) => new RenderedPipelineStageDefinition<TNewResult>(
-                    operatorName, new BsonDocument(
+                (s, sr) =>
+                {
+                    var fieldName = "$" + field.Render(s, sr).FieldName;
+                    BsonValue value = fieldName;
+                    if (options.PreserveNullAndEmptyArrays.HasValue)
+                    {
+                        value = new BsonDocument
+                        {
+                            { "path", fieldName },
+                            { "preserveNullAndEmptyArrays", options.PreserveNullAndEmptyArrays, options.PreserveNullAndEmptyArrays.HasValue }
+                        };
+                    }
+                    return new RenderedPipelineStageDefinition<TNewResult>(
                         operatorName,
-                        "$" + field.Render(s, sr).FieldName),
-                    newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>()));
+                        new BsonDocument(operatorName, value),
+                        options.ResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>());
+                });
 
             return AppendStage<TNewResult>(stage);
         }

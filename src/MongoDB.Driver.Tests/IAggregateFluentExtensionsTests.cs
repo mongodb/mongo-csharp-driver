@@ -202,9 +202,31 @@ namespace MongoDB.Driver.Tests
         public void Unwind_to_new_result_with_a_serializer_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
-                .Unwind("Age", BsonDocumentSerializer.Instance);
+                .Unwind("Age", new AggregateUnwindOptions<BsonDocument> { ResultSerializer = BsonDocumentSerializer.Instance });
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
+
+            AssertLast(subject, expectedUnwind);
+        }
+
+        [Test]
+        public void Unwind_with_options_where_no_options_are_set()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age", new AggregateUnwindOptions<BsonDocument>());
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
+
+            AssertLast(subject, expectedUnwind);
+        }
+
+        [Test]
+        public void Unwind_with_options_with_preserveNullAndEmptyArrays_set()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true });
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: { path: '$Age', preserveNullAndEmptyArrays: true } }");
 
             AssertLast(subject, expectedUnwind);
         }

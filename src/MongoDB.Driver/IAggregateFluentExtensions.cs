@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Translators;
 
@@ -232,7 +233,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(field, nameof(field));
 
-            return aggregate.Unwind<BsonDocument>(field);
+            return aggregate.Unwind(
+                field,
+                new AggregateUnwindOptions<BsonDocument>());
         }
 
         /// <summary>
@@ -249,7 +252,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(field, nameof(field));
 
-            return aggregate.Unwind<BsonDocument>(new ExpressionFieldDefinition<TResult>(field));
+            return aggregate.Unwind(
+                new ExpressionFieldDefinition<TResult>(field),
+                new AggregateUnwindOptions<BsonDocument>());
         }
 
         /// <summary>
@@ -263,12 +268,36 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer = null)
+        [Obsolete("Use the Unwind overload which takes an options parameter.")]
+        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(field, nameof(field));
 
-            return aggregate.Unwind<TNewResult>(new ExpressionFieldDefinition<TResult>(field), newResultSerializer);
+            return aggregate.Unwind(
+                new ExpressionFieldDefinition<TResult>(field),
+                new AggregateUnwindOptions<TNewResult> { ResultSerializer = newResultSerializer });
+        }
+
+        /// <summary>
+        /// Appends an unwind stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="field">The field to unwind.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, AggregateUnwindOptions<TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(field, nameof(field));
+
+            return aggregate.Unwind(
+                new ExpressionFieldDefinition<TResult>(field),
+                options);
         }
 
         /// <summary>
