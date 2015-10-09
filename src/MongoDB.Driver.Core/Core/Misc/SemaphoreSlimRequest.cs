@@ -64,22 +64,10 @@ namespace MongoDB.Driver.Core.Misc
         /// <inheritdoc/>
         public void Dispose()
         {
+            _disposeCancellationTokenSource.Cancel(); // if we haven't gotten the lock by now we no longer want it
             if (_task.Status == TaskStatus.RanToCompletion)
             {
-                _semaphore.Release(); // we already had the lock
-            }
-            else
-            {
-                _disposeCancellationTokenSource.Cancel();
-                try
-                {
-                    _task.GetAwaiter().GetResult(); // will throw OperationCanceledException if we didn't get the lock
-                    _semaphore.Release(); // we got the lock while we were trying to cancel the request
-                }
-                catch (OperationCanceledException)
-                {
-                    // ignore
-                }
+                _semaphore.Release();
             }
 
             _disposeCancellationTokenSource.Dispose();
