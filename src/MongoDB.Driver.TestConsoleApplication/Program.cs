@@ -27,6 +27,7 @@ namespace MongoDB.Driver.TestConsoleApplication
             //FilterMeasuring.TestAsync().GetAwaiter().GetResult();
             int numConcurrentWorkers = 50;
             //new CoreApi().Run(numConcurrentWorkers, ConfigureCluster);
+            new CoreApiSync().Run(numConcurrentWorkers, ConfigureCluster);
 
             new Api().Run(numConcurrentWorkers, ConfigureCluster);
 

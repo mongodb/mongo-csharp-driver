@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreApiSync.cs" />
     <Compile Include="CoreApi.cs" />
     <Compile Include="Api.cs" />
     <Compile Include="FilterMeasuring.cs" />
