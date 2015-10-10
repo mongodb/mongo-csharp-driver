@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         // private fields
         private readonly CancellationTokenSource _disposeCancellationTokenSource;
+        private readonly CancellationTokenSource _linkedCancellationTokenSource;
         private readonly SemaphoreSlim _semaphore;
         private readonly Task _task;
 
@@ -44,11 +45,8 @@ namespace MongoDB.Driver.Core.Misc
             _semaphore = Ensure.IsNotNull(semaphore, nameof(semaphore));
 
             _disposeCancellationTokenSource = new CancellationTokenSource();
-            var disposeCancellationToken = _disposeCancellationTokenSource.Token;
-            var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, disposeCancellationToken);
-            var linkedCancellationToken = linkedCancellationTokenSource.Token;
-
-            _task = semaphore.WaitAsync(linkedCancellationToken);
+            _linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
+            _task = semaphore.WaitAsync(_linkedCancellationTokenSource.Token);
         }
 
         // public properties
@@ -64,13 +62,14 @@ namespace MongoDB.Driver.Core.Misc
         /// <inheritdoc/>
         public void Dispose()
         {
-            _disposeCancellationTokenSource.Cancel(); // if we haven't gotten the lock by now we no longer want it
+            _disposeCancellationTokenSource.Cancel(); // does nothing if we have the lock, otherwise cancels the request
             if (_task.Status == TaskStatus.RanToCompletion)
             {
                 _semaphore.Release();
             }
 
             _disposeCancellationTokenSource.Dispose();
+            _linkedCancellationTokenSource.Dispose();
         }
     }
 }

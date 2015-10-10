@@ -61,6 +61,50 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
+        public void CreateStream_should_throw_when_cancellation_is_requested(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new TcpStreamFactory();
+            var endPoint = new IPEndPoint(new IPAddress(0x01010101), 12345); // a non-existent host and port
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(20));
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.CreateStreamAsync(endPoint, cancellationTokenSource.Token).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.CreateStream(endPoint, cancellationTokenSource.Token);
+            }
+
+            action.ShouldThrow<OperationCanceledException>();
+        }
+
+        [Test]
+        public void CreateStream_should_throw_when_connect_timeout_has_expired(
+            [Values(false, true)]
+            bool async)
+        {
+            var settings = new TcpStreamSettings(connectTimeout: TimeSpan.FromMilliseconds(20));
+            var subject = new TcpStreamFactory(settings);
+            var endPoint = new IPEndPoint(new IPAddress(0x01010101), 12345); // a non-existent host and port
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.CreateStream(endPoint, CancellationToken.None);
+            }
+
+            action.ShouldThrow<TimeoutException>();
+        }
+
+        [Test]
         [RequiresServer]
         public void CreateStream_should_call_the_socketConfigurator(
             [Values(false, true)]
