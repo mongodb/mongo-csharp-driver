@@ -1,5 +1,5 @@
 githubRepo = "mongo-csharp-driver"
 githubBranch = "master"
-currentVersion = "2.1"
+currentVersion = "2.2"
 highlightTheme = "idea.css"
-apiUrl = "http://api.mongodb.org/csharp/2.1/html"
+apiUrl = "http://api.mongodb.org/csharp/2.2/html"
