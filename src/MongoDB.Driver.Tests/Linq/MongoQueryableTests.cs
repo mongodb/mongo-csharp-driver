@@ -565,6 +565,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void Sample()
         {
             var query = CreateQuery().Sample(100);
@@ -732,6 +733,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void Select_method_array_index()
         {
             var query = CreateQuery().Select(x => x.M[0]);
@@ -742,6 +744,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void Select_syntax_array_index()
         {
             var query = from x in CreateQuery()
@@ -753,6 +756,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void Select_method_embedded_pipeline()
         {
             var query = CreateQuery().Select(x => x.M.First());
@@ -948,6 +952,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void StandardDeviationPopulation()
         {
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulation();
@@ -956,6 +961,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void StandardDeviationPopulation_with_selector()
         {
             var result = CreateQuery().StandardDeviationPopulation(x => x.C.E.F);
@@ -964,6 +970,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public async Task StandardDeviationPopulationAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulationAsync();
@@ -972,6 +979,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public async Task StandardDeviationPopulationAsync_with_selector()
         {
             var result = await CreateQuery().StandardDeviationPopulationAsync(x => x.C.E.F);
@@ -980,6 +988,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void StandardDeviationSample()
         {
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationSample();
@@ -988,6 +997,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void StandardDeviationSample_with_selector()
         {
             var result = CreateQuery().StandardDeviationSample(x => x.C.E.F);
@@ -996,6 +1006,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public async Task StandardDeviationSampleAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationSampleAsync();
@@ -1004,6 +1015,7 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public async Task StandardDeviationSampleAsync_with_selector()
         {
             var result = await CreateQuery().StandardDeviationSampleAsync(x => x.C.E.F);
