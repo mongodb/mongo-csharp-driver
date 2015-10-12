@@ -10,7 +10,7 @@ Build Status
 
 .NET: [![Build status](https://ci.appveyor.com/api/projects/status/09m14g973xjfsndv)](https://ci.appveyor.com/project/craiggwilson/mongo-csharp-driver)
 
-Mono: [![Build Status](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)
+Mono: [![Build Status](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)](https://github.com/mongodb/mongo-csharp-driver)
 
 
 Getting Started
