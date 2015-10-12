@@ -28,6 +28,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Configuration
 {
     [TestFixture]
+    [Category("ConnectionString")]
     public class ConnectionStringTests
     {
         [Test]
@@ -427,7 +428,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString("mongodb://localhost?readPreferenceTags=dc:east,rack:1");
 
-            var tagSet = new TagSet(new List<Tag> 
+            var tagSet = new TagSet(new List<Tag>
             {
                 new Tag("dc", "east"),
                 new Tag("rack", "1")
@@ -442,13 +443,13 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString("mongodb://localhost?readPreferenceTags=dc:east,rack:1&readPreferenceTags=dc:west,rack:2");
 
-            var tagSet1 = new TagSet(new List<Tag> 
+            var tagSet1 = new TagSet(new List<Tag>
             {
                 new Tag("dc", "east"),
                 new Tag("rack", "1")
             });
 
-            var tagSet2 = new TagSet(new List<Tag> 
+            var tagSet2 = new TagSet(new List<Tag>
             {
                 new Tag("dc", "west"),
                 new Tag("rack", "2")

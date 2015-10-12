@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.Configuration
             var databaseGroup = match.Groups["database"];
             if (databaseGroup.Success)
             {
-                _databaseName = databaseGroup.Value;
+                _databaseName = Uri.UnescapeDataString(databaseGroup.Value);
             }
         }
 
@@ -395,7 +395,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 var parts = option.Value.Split('=');
                 _allOptions.Add(parts[0], parts[1]);
-                ParseOption(parts[0].Trim(), parts[1].Trim());
+                ParseOption(parts[0].Trim(), Uri.UnescapeDataString(parts[1].Trim()));
             }
         }
 
@@ -416,14 +416,15 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void Parse()
         {
-            const string serverPattern = @"(?<host>((\[[^]]+?\]|[^:,/?#]+)(:\d+)?))";
+            const string serverPattern = @"(?<host>((\[[^]]+?\]|[^:@,/?#]+)(:\d+)?))";
+            const string serversPattern = serverPattern + @"(," + serverPattern + ")*";
+            const string databasePattern = @"(?<database>[^/?]+)";
             const string optionPattern = @"(?<option>[^&;]+=[^&;]+)";
+            const string optionsPattern = @"(\?" + optionPattern + @"((&|;)" + optionPattern + ")*)?";
             const string pattern =
                 @"^mongodb://" +
-                @"((?<username>[^:@]+)(:(?<password>[^@]*))?@)?" +
-                serverPattern + @"(," + serverPattern + ")*" +
-                @"(/(?<database>[^/?]+))?" +
-                @"/?(\?" + optionPattern + @"((&|;)" + optionPattern + ")*)?$";
+                @"((?<username>[^:@]+)(:(?<password>[^:@]*))?@)?" +
+                serversPattern + @"(/" + databasePattern + ")?/?" + optionsPattern + "$";
 
             var match = Regex.Match(_originalConnectionString, pattern);
             if (!match.Success)

@@ -23,6 +23,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
+    [Category("ConnectionString")]
     public class MongoUrlTests
     {
         [Test]

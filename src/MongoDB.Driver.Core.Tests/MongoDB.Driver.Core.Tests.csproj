@@ -147,6 +147,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\EndPointServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
     <Compile Include="SetUpFixture.cs" />
+    <Compile Include="Specifications\connection-string\TestRunner.cs" />
     <Compile Include="Specifications\server-discovery-and-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\server-selection\ServerSelectionTestRunner.cs" />
     <Compile Include="Specifications\server-selection\RttTestRunner.cs" />
@@ -231,6 +232,22 @@
   <ItemGroup>
     <Compile Include="Core\Clusters\MultiServerClusterTests.cs" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\invalid-uris.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\invalid-uris.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\Makefile" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-auth.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-auth.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-host_identifiers.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-host_identifiers.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-options.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-options.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-absolute.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-absolute.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-relative.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-relative.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.yml" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\Makefile" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\README.rst" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discovery.json" />

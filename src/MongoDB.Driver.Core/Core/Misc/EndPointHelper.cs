@@ -186,7 +186,16 @@ namespace MongoDB.Driver.Core.Misc
                 {
                     var addressString = match.Groups["address"].Value;
                     var portString = match.Groups["port"].Value;
-                    var port = portString.Length == 0 ? 27017 : int.Parse(portString, CultureInfo.InvariantCulture);
+                    var port = 27017;
+                    if (portString.Length != 0 && !int.TryParse(portString, out port))
+                    {
+                        return false;
+                    }
+
+                    if (!IsValidPort(port))
+                    {
+                        return false;
+                    }
 
                     IPAddress address;
                     if (IPAddress.TryParse(addressString, out address))
@@ -203,7 +212,16 @@ namespace MongoDB.Driver.Core.Misc
                 {
                     var host = match.Groups["host"].Value;
                     var portString = match.Groups["port"].Value;
-                    var port = portString.Length == 0 ? 27017 : int.Parse(portString, CultureInfo.InvariantCulture);
+                    var port = 27017;
+                    if (portString.Length != 0 && !int.TryParse(portString, out port))
+                    {
+                        return false;
+                    }
+
+                    if (!IsValidPort(port))
+                    {
+                        return false;
+                    }
 
                     IPAddress address;
                     if (IPAddress.TryParse(host, out address))
@@ -225,6 +243,11 @@ namespace MongoDB.Driver.Core.Misc
             }
 
             return false;
+        }
+
+        private static bool IsValidPort(int port)
+        {
+            return port > 0 && port <= ushort.MaxValue;
         }
 
         // nested classes
