@@ -17,12 +17,14 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core
 {
     public class EventCapturer : IEventSubscriber
     {
         private readonly Queue<object> _capturedEvents;
+        private readonly object _lock = new object();
         private readonly IEventSubscriber _subscriber;
         private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
 
@@ -45,22 +47,31 @@ namespace MongoDB.Driver.Core
 
         public void Clear()
         {
-            _capturedEvents.Clear();
+            lock (_lock)
+            {
+                _capturedEvents.Clear();
+            }
         }
 
         public object Next()
         {
-            if (_capturedEvents.Count == 0)
+            lock (_lock)
             {
-                throw new Exception("No captured events exist.");
-            }
+                if (_capturedEvents.Count == 0)
+                {
+                    throw new Exception("No captured events exist.");
+                }
 
-            return _capturedEvents.Dequeue();
+                return _capturedEvents.Dequeue();
+            }
         }
 
         public bool Any()
         {
-            return _capturedEvents.Count > 0;
+            lock (_lock)
+            {
+                return _capturedEvents.Count > 0;
+            }
         }
 
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
@@ -81,13 +92,22 @@ namespace MongoDB.Driver.Core
 
         private void Capture<TEvent>(TEvent @event)
         {
+            var obj = @event as object;
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
             Func<object, bool> predicate;
             if (_eventsToCapture.TryGetValue(typeof(TEvent), out predicate) && !predicate(@event))
             {
                 return;
             }
 
-            _capturedEvents.Enqueue(@event);
+            lock (_lock)
+            {
+                _capturedEvents.Enqueue(@event);
+            }
         }
 
         private class CommandCapturer

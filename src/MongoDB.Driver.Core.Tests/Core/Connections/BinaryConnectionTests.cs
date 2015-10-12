@@ -161,29 +161,37 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void Open_should_not_complete_the_second_call_until_the_first_is_completed(
             [Values(false, true)]
-            bool async)
+            bool async1,
+            [Values(false, true)]
+            bool async2)
         {
+            var task1IsBlocked = false;
             var completionSource = new TaskCompletionSource<Stream>();
-            Task openTask1, openTask2;
+            _streamFactory.CreateStream(null, CancellationToken.None)
+               .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return completionSource.Task.GetAwaiter().GetResult(); });
+            _streamFactory.CreateStreamAsync(null, CancellationToken.None)
+                .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return completionSource.Task; });
 
-            if (async)
+            Task openTask1;
+            if (async1)
             {
-                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(completionSource.Task);
 
                 openTask1 = _subject.OpenAsync(CancellationToken.None);
+            }
+            else
+            {
+                openTask1 = Task.Run(() => _subject.Open(CancellationToken.None));
+            }
+            SpinWait.SpinUntil(() => task1IsBlocked);
+
+            Task openTask2;
+            if (async2)
+            {
                 openTask2 = _subject.OpenAsync(CancellationToken.None);
             }
             else
             {
-                var task1IsBlocked = false;
-                var task2IsRunning = false;
-                _streamFactory.CreateStream(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return completionSource.Task.GetAwaiter().GetResult(); });
-
-                openTask1 = Task.Run(() => _subject.Open(CancellationToken.None));
-                openTask2 = Task.Run(() => { SpinWait.SpinUntil(() => task1IsBlocked); task2IsRunning = true; _subject.Open(CancellationToken.None); });
-                SpinWait.SpinUntil(() => task2IsRunning);
+                openTask2 = Task.Run(() => _subject.Open(CancellationToken.None));
             }
 
             openTask1.IsCompleted.Should().BeFalse();
@@ -191,10 +199,8 @@ namespace MongoDB.Driver.Core.Connections
             _subject.Description.Should().BeNull();
 
             completionSource.SetResult(Substitute.For<Stream>());
-            SpinWait.SpinUntil(() => openTask2.IsCompleted, 100);
-
-            openTask1.IsCompleted.Should().BeTrue();
-            openTask2.IsCompleted.Should().BeTrue();
+            SpinWait.SpinUntil(() => openTask1.IsCompleted);
+            SpinWait.SpinUntil(() => openTask2.IsCompleted);
             _subject.Description.Should().NotBeNull();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionOpeningEvent>();
@@ -356,37 +362,46 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void ReceiveMessage_should_handle_out_of_order_replies(
             [Values(false, true)]
-            bool async)
+            bool async1,
+            [Values(false, true)]
+            bool async2)
         {
             using (var stream = new BlockingMemoryStream())
             {
+                _streamFactory.CreateStream(null, CancellationToken.None)
+                    .ReturnsForAnyArgs(stream);
+                _subject.Open(CancellationToken.None);
+                _capturedEvents.Clear();
+
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
 
-                Task<ResponseMessage> receivedTask10, receivedTask11;
-                if (async)
+                Task<ResponseMessage> receivedTask10;
+                if (async1)
                 {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
-                    _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    _capturedEvents.Clear();
-
                     receivedTask10 = _subject.ReceiveMessageAsync(10, encoderSelector, _messageEncoderSettings, CancellationToken.None);
+                }
+                else
+                {
+                    var receivedTask10IsRunning = false;
+                    receivedTask10 = Task.Run(() => { receivedTask10IsRunning = true; return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => receivedTask10IsRunning);
+                }
+
+                Task<ResponseMessage> receivedTask11;
+                if (async2)
+                {
                     receivedTask11 = _subject.ReceiveMessageAsync(11, encoderSelector, _messageEncoderSettings, CancellationToken.None);
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(stream);
-                    _subject.Open(CancellationToken.None);
-                    _capturedEvents.Clear();
-
-                    receivedTask10 = Task.Run(() => _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
-                    receivedTask11 = Task.Run(() => _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None));
+                    var receivedTask11IsRunning = false;
+                    receivedTask11 = Task.Run(() => { receivedTask11IsRunning = true; return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => receivedTask11IsRunning);
                 }
 
-                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
-                var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 11);
-                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive11, messageToReceive10 });
+                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
+                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive11, messageToReceive10 }); // out of order
 
                 var received10 = receivedTask10.GetAwaiter().GetResult();
                 var received11 = receivedTask11.GetAwaiter().GetResult();
@@ -407,37 +422,46 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void ReceiveMessage_should_throw_network_exception_to_all_awaiters(
             [Values(false, true)]
-            bool async)
+            bool async1,
+            [Values(false, true)]
+            bool async2)
         {
             using (var stream = Substitute.For<Stream>())
             {
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
 
+                _streamFactory.CreateStream(null, CancellationToken.None)
+                  .ReturnsForAnyArgs(stream);
                 var readTcs = new TaskCompletionSource<int>();
-                Task task1, task2;
-                if (async)
-                {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                       .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
-                    stream.ReadAsync(null, 0, 0, CancellationToken.None)
-                        .ReturnsForAnyArgs(readTcs.Task);
-                    _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    _capturedEvents.Clear();
+                stream.Read(null, 0, 0)
+                    .ReturnsForAnyArgs(_ => readTcs.Task.GetAwaiter().GetResult());
+                stream.ReadAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(readTcs.Task);
+                _subject.Open(CancellationToken.None);
+                _capturedEvents.Clear();
 
+                Task task1;
+                if (async1)
+                {
                     task1 = _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None);
+                }
+                else
+                {
+                    var task1IsRunning = false;
+                    task1 = Task.Run(() => { task1IsRunning = true; return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => task1IsRunning, 100);
+                }
+
+                Task task2;
+                if (async2)
+                {
                     task2 = _subject.ReceiveMessageAsync(2, encoderSelector, _messageEncoderSettings, CancellationToken.None);
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                      .ReturnsForAnyArgs(stream);
-                    stream.Read(null, 0, 0)
-                        .ReturnsForAnyArgs(_ => readTcs.Task.GetAwaiter().GetResult());
-                    _subject.Open(CancellationToken.None);
-                    _capturedEvents.Clear();
-
-                    task1 = Task.Run(() => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
-                    task2 = Task.Run(() => _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None));
+                    var task2IsRunning = false;
+                    task2 = Task.Run(() => { task2IsRunning = true; return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => task2IsRunning);
                 }
 
                 readTcs.SetException(new SocketException());
@@ -464,37 +488,42 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void ReceiveMessage_should_throw_MongoConnectionClosedException_when_connection_has_failed(
             [Values(false, true)]
-            bool async)
+            bool async1,
+            [Values(false, true)]
+            bool async2)
         {
             using (var stream = Substitute.For<Stream>())
             {
+                _streamFactory.CreateStream(null, CancellationToken.None)
+                   .ReturnsForAnyArgs(stream);
+                var readTcs = new TaskCompletionSource<int>();
+                readTcs.SetException(new SocketException());
+                stream.Read(null, 0, 0)
+                    .ReturnsForAnyArgs(_ => readTcs.Task.GetAwaiter().GetResult());
+                stream.ReadAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(readTcs.Task);
+                _subject.Open(CancellationToken.None);
+                _capturedEvents.Clear();
+
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
 
-                Action act1, act2;
-                if (async)
+                Action act1;
+                if (async1)
                 {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
-                    var readTcs = new TaskCompletionSource<int>();
-                    readTcs.SetException(new SocketException());
-                    stream.ReadAsync(null, 0, 0, CancellationToken.None)
-                        .ReturnsForAnyArgs(readTcs.Task);
-                    _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    _capturedEvents.Clear();
-
                     act1 = () => _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    act1 = () => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None);
+                }
+
+                Action act2;
+                if (async2)
+                {
                     act2 = () => _subject.ReceiveMessageAsync(2, encoderSelector, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(stream);
-                    stream.Read(null, 0, 0)
-                        .ReturnsForAnyArgs(_ => { throw new SocketException(); });
-                    _subject.Open(CancellationToken.None);
-                    _capturedEvents.Clear();
-
-                    act1 = () => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None);
                     act2 = () => _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None);
                 }
 
@@ -615,42 +644,49 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void SendMessageshould_throw_MongoConnectionClosedException_for_waiting_tasks(
             [Values(false, true)]
-            bool async)
+            bool async1,
+            [Values(false, true)]
+            bool async2)
         {
             using (var stream = Substitute.For<Stream>())
             {
                 var message1 = new KillCursorsMessage(1, new[] { 1L });
                 var message2 = new KillCursorsMessage(2, new[] { 2L });
 
+                _streamFactory.CreateStream(null, CancellationToken.None)
+                    .ReturnsForAnyArgs(stream);
+                var task1IsBlocked = false;
                 var writeTcs = new TaskCompletionSource<int>();
-                Task task1, task2;
-                if (async)
-                {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
-                    stream.WriteAsync(null, 0, 0, CancellationToken.None)
-                        .ReturnsForAnyArgs(writeTcs.Task);
-                    _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    _capturedEvents.Clear();
+                stream
+                    .When(s => s.Write(Arg.Any<byte[]>(), Arg.Any<int>(), Arg.Any<int>()))
+                    .Do(_ => { task1IsBlocked = true; writeTcs.Task.GetAwaiter().GetResult(); });
+                stream.WriteAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return writeTcs.Task; });
+                _subject.Open(CancellationToken.None);
+                _capturedEvents.Clear();
 
+
+                Task task1;
+                if (async1)
+                {
                     task1 = _subject.SendMessageAsync(message1, _messageEncoderSettings, CancellationToken.None);
+                }
+                else
+                {
+                    task1 = Task.Run(() => { _subject.SendMessage(message1, _messageEncoderSettings, CancellationToken.None); });
+                }
+                SpinWait.SpinUntil(() => task1IsBlocked);
+
+                Task task2;
+                if (async2)
+                {
                     task2 = _subject.SendMessageAsync(message2, _messageEncoderSettings, CancellationToken.None);
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(stream);
-                    var task1IsBlocked = false;
                     var task2IsRunning = false;
-                    stream
-                        .When(s => s.Write(Arg.Any<byte[]>(), Arg.Any<int>(), Arg.Any<int>()))
-                        .Do(_ => { task1IsBlocked = true; writeTcs.Task.GetAwaiter().GetResult(); });
-                    _subject.Open(CancellationToken.None);
-                    _capturedEvents.Clear();
-
-                    task1 = Task.Run(() => _subject.SendMessage(message1, _messageEncoderSettings, CancellationToken.None));
-                    task2 = Task.Run(() => { SpinWait.SpinUntil(() => task1IsBlocked); task2IsRunning = true; _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task2IsRunning);
+                    task2 = Task.Run(() => { task2IsRunning = true; _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => task2IsRunning, 100);
                 }
 
                 writeTcs.SetException(new SocketException());

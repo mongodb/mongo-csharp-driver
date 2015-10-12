@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch
                 {
-                    if (!cancelled && ! timedOut)
+                    if (!cancelled && !timedOut)
                     {
                         throw;
                     }

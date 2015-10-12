@@ -822,8 +822,16 @@ namespace MongoDB.Driver.Core.Connections
                 serializationStopwatch.Stop();
                 _serializationDuration = serializationStopwatch.Elapsed;
 
-                _networkStopwatch = Stopwatch.StartNew();
                 return buffer;
+            }
+
+            public void EncodingMessages()
+            {
+                var handler = _connection._sendingMessagesEventHandler;
+                if (handler != null)
+                {
+                    handler(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
+                }
             }
 
             public void FailedSendingMessages(Exception ex)
@@ -840,21 +848,14 @@ namespace MongoDB.Driver.Core.Connections
                 }
             }
 
-            public void EncodingMessages()
-            {
-                var handler = _connection._sendingMessagesEventHandler;
-                if (handler != null)
-                {
-                    handler(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
-                }
-            }
-
             public void SendingMessages(IByteBuffer buffer)
             {
                 if (_connection._commandEventHelper.ShouldCallBeforeSending)
                 {
                     _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, buffer, _messageEncoderSettings, _commandStopwatch);
                 }
+
+                _networkStopwatch = Stopwatch.StartNew();
             }
 
             public void SentMessages(int bufferLength)
