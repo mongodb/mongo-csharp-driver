@@ -74,11 +74,12 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
+            var connected = false;
             var cancelled = false;
             var timedOut = false;
 
-            using (var registration = cancellationToken.Register(() => { cancelled = true; try { socket.Close(); } catch { } }))
-            using (var timer = new Timer(_ => { timedOut = true; try { socket.Close(); } catch { } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Close(); } catch { } } }))
+            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Close(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
             {
                 try
                 {
@@ -92,6 +93,8 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         socket.Connect(endPoint);
                     }
+                    connected = true;
+                    return;
                 }
                 catch
                 {
@@ -100,6 +103,11 @@ namespace MongoDB.Driver.Core.Connections
                         throw;
                     }
                 }
+            }
+
+            if (socket.Connected)
+            {
+                try { socket.Close(); } catch { }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -112,11 +120,12 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
+            var connected = false;
             var cancelled = false;
             var timedOut = false;
 
-            using (var registration = cancellationToken.Register(() => { cancelled = true; try { socket.Close(); } catch { } }))
-            using (var timer = new Timer(_ => { timedOut = true; try { socket.Close(); } catch { } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Close(); } catch { } } }))
+            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Close(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
             {
                 try
                 {
@@ -130,6 +139,8 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
                     }
+                    connected = true;
+                    return;
                 }
                 catch
                 {
@@ -138,6 +149,11 @@ namespace MongoDB.Driver.Core.Connections
                         throw;
                     }
                 }
+            }
+
+            if (socket.Connected)
+            {
+                try { socket.Close(); } catch { }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
