@@ -50,9 +50,11 @@ namespace MongoDB.Driver.Operations
         public bool Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 IWriteOperation<bool> operation;
-                if (channelSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
+                if (channel.ConnectionDescription.ServerVersion >= __serverVersionSupportingUserManagementCommands)
                 {
                     operation = new DropUserUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
@@ -61,7 +63,7 @@ namespace MongoDB.Driver.Operations
                     operation = new DropUserUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
 
-                return operation.Execute(channelSource, cancellationToken);
+                return operation.Execute(channelBinding, cancellationToken);
             }
         }
 

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a Find operation.
+    /// Represents a Find opcode operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>
+    public class FindOpcodeOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>
     {
         // fields
         private bool? _allowPartialResults;
@@ -55,23 +55,20 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _noCursorTimeout;
         private bool? _oplogReplay;
         private BsonDocument _projection;
-        private int? _readConcern;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
-        private bool? _returnKey;
         private bool? _showRecordId;
-        private bool? _singleBatch;
         private int? _skip;
         private bool? _snapshot;
         private BsonDocument _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOperation{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="FindOpcodeOperation{TDocument}"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public FindOperation(
+        public FindOpcodeOperation(
             CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
@@ -211,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxScan
         {
             get { return _maxScan; }
-            set { _maxScan = value; }
+            set { _maxScan = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -223,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -298,18 +295,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
-        /// <value>
-        /// The read concern.
-        /// </value>
-        public int? ReadConcern
-        {
-            get { return _readConcern; }
-            set { _readConcern = value; }
-        }
-
-        /// <summary>
         /// Gets the result serializer.
         /// </summary>
         /// <value>
@@ -318,18 +303,6 @@ namespace MongoDB.Driver.Core.Operations
         public IBsonSerializer<TDocument> ResultSerializer
         {
             get { return _resultSerializer; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to only return the key values.
-        /// </summary>
-        /// <value>
-        /// Whether to only return the key values.
-        /// </value>
-        public bool? ReturnKey
-        {
-            get { return _returnKey; }
-            set { _returnKey = value; }
         }
 
         /// <summary>
@@ -342,18 +315,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _showRecordId; }
             set { _showRecordId = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to return only a single batch.
-        /// </summary>
-        /// <value>
-        /// Whether to return only a single batchThe single batch.
-        /// </value>
-        public bool? SingleBatch
-        {
-            get { return _singleBatch; }
-            set { _singleBatch = value; }
         }
 
         /// <summary>
@@ -392,18 +353,108 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        // public methods
+        // methods
+        private CursorBatch<TDocument> ExecuteProtocol(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
+        {
+            var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
+
+            return channel.Query<TDocument>(
+                _collectionNamespace,
+                wrappedQuery,
+                _projection,
+                NoOpElementNameValidator.Instance,
+                _skip ?? 0,
+                firstBatchSize,
+                slaveOk,
+                _allowPartialResults ?? false,
+                _noCursorTimeout ?? false,
+                _oplogReplay ?? false,
+                _cursorType != CursorType.NonTailable, // tailable
+                _cursorType == CursorType.TailableAwait, //await data
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
+        private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
+        {
+            var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
+
+            return channel.QueryAsync<TDocument>(
+                _collectionNamespace,
+                wrappedQuery,
+                _projection,
+                NoOpElementNameValidator.Instance,
+                _skip ?? 0,
+                firstBatchSize,
+                slaveOk,
+                _allowPartialResults ?? false,
+                _noCursorTimeout ?? false,
+                _oplogReplay ?? false,
+                _cursorType != CursorType.NonTailable, // tailable
+                _cursorType == CursorType.TailableAwait, //await data
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
+        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)
+        {
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference);
+
+            var wrappedQuery = new BsonDocument
+            {
+                { "$query", _filter ?? new BsonDocument() },
+                { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
+                { "$orderby", _sort, _sort != null },
+                { "$comment", _comment, _comment != null },
+                { "$maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "$hint", _hint, _hint != null },
+                { "$max", _max, _max != null },
+                { "$maxScan", () => _maxScan.Value, _maxScan.HasValue },
+                { "$min", _min, _min != null },
+                { "$showDiskLoc", () => _showRecordId.Value, _showRecordId.HasValue },
+                { "$snapshot", () => _snapshot.Value, _snapshot.HasValue }
+            };
+
+            if (_modifiers != null)
+            {
+                wrappedQuery.Merge(_modifiers, overwriteExistingElements: false);
+            }
+
+            if (wrappedQuery.ElementCount == 1 && wrappedQuery.GetElement(0).Name == "$query")
+            {
+                var unwrappedQuery = wrappedQuery[0].AsBsonDocument;
+                if (!unwrappedQuery.Contains("query"))
+                {
+                    return unwrappedQuery;
+                }
+            }
+
+            return wrappedQuery;
+        }
+
         /// <inheritdoc/>
         public IAsyncCursor<TDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (EventContext.BeginOperation())
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.Execute(channelBinding, cancellationToken);
+                var readPreference = binding.ReadPreference;
+                var serverDescription = channelSource.ServerDescription;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
+                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+
+                CursorBatch<TDocument> batch;
+                using (EventContext.BeginFind(_batchSize, _limit))
+                {
+                    batch = ExecuteProtocol(channel, wrappedQuery, slaveOk, cancellationToken);
+                }
+
+                return CreateCursor(channelSource, wrappedQuery, batch);
             }
         }
 
@@ -412,127 +463,101 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-            }
-        }
+                var readPreference = binding.ReadPreference;
+                var serverDescription = channelSource.ServerDescription;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
+                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
-        // private methods
-        internal FindCommandOperation<TDocument> CreateFindCommandOperation()
-        {
-            var comment = _comment;
-            var hint = _hint;
-            var max = _max;
-            var maxScan = _maxScan;
-            var maxTime = _maxTime;
-            var min = _min;
-            var returnKey = _returnKey;
-            var showRecordId = _showRecordId;
-            var snapshot = _snapshot;
-            var sort = _sort;
-
-            if (_modifiers != null)
-            {
-                foreach (var element in _modifiers)
+                CursorBatch<TDocument> batch;
+                using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    var value = element.Value;
-                    switch (element.Name)
-                    {
-                        case "$comment": comment = _comment ?? value.AsString; break;
-                        case "$hint": hint = _hint ?? value; break;
-                        case "$max": max = _max ?? value.AsBsonDocument; break;
-                        case "$maxScan": maxScan = _maxScan ?? value.ToInt32(); break;
-                        case "$maxTimeMS": maxTime = _maxTime ?? TimeSpan.FromMilliseconds(value.ToDouble()); break;
-                        case "$min": min = _min ?? value.AsBsonDocument; break;
-                        case "$orderby": sort = _sort ?? value.AsBsonDocument; break;
-                        case "$returnKey": returnKey = _returnKey ?? value.ToBoolean(); break;
-                        case "$showDiskLoc": showRecordId = _showRecordId ?? value.ToBoolean(); break;
-                        case "$snapshot": snapshot = _snapshot ?? value.ToBoolean(); break;
-                        default: throw new ArgumentException($"Modifier not supported by the Find command: '{element.Name}'.");
-                    }
+                    batch = await ExecuteProtocolAsync(channel, wrappedQuery, slaveOk, cancellationToken).ConfigureAwait(false);
                 }
+
+                return CreateCursor(channelSource, wrappedQuery, batch);
             }
-
-            var operation = new FindCommandOperation<TDocument>(
-                _collectionNamespace,
-                _resultSerializer,
-                _messageEncoderSettings)
-            {
-                AllowPartialResults = _allowPartialResults,
-                BatchSize = _batchSize,
-                Comment = comment,
-                CursorType = _cursorType,
-                Filter = _filter,
-                Hint = hint,
-                FirstBatchSize = _firstBatchSize,
-                Limit = _limit,
-                Max = max,
-                MaxScan = maxScan,
-                MaxTime = maxTime,
-                Min = min,
-                NoCursorTimeout = _noCursorTimeout,
-                OplogReplay = _oplogReplay,
-                Projection = _projection,
-                ReadConcern = _readConcern,
-                ReturnKey = returnKey,
-                ShowRecordId = showRecordId,
-                SingleBatch = _singleBatch,
-                Skip = _skip,
-                Snapshot = snapshot,
-                Sort = sort
-            };
-
-            return operation;
         }
 
-        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation()
+        /// <summary>
+        /// Returns an explain operation for this find operation.
+        /// </summary>
+        /// <param name="verbosity">The verbosity.</param>
+        /// <returns>An explain operation.</returns>
+        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
         {
-            var operation = new FindOpcodeOperation<TDocument>(
-                _collectionNamespace,
-                _resultSerializer,
-                _messageEncoderSettings)
+            BsonDocument modifiers;
+            if (_modifiers == null)
             {
-                AllowPartialResults = _allowPartialResults,
-                BatchSize = _batchSize,
-                Comment = _comment,
-                CursorType = _cursorType,
-                Filter = _filter,
-                FirstBatchSize = _firstBatchSize,
-                Hint = _hint,
-                Limit = (_singleBatch ?? false) ? -Math.Abs(_limit.Value) : _limit,
-                Max = _max,
-                MaxScan = _maxScan,
-                MaxTime = _maxTime,
-                Min = _min,
-                Modifiers = _modifiers,
-                NoCursorTimeout = _noCursorTimeout,
-                OplogReplay = _oplogReplay,
-                Projection = _projection,
-                ShowRecordId = _showRecordId,
-                Skip = _skip,
-                Snapshot = _snapshot,
-                Sort = _sort
-            };
-
-            return operation;
-        }
-
-        private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
-        {
-            var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (serverVersion >= new SemanticVersion(3, 1, 5) && !hasExplainModifier)
-            {
-                return CreateFindCommandOperation();
+                modifiers = new BsonDocument();
             }
             else
             {
-                return CreateFindOpcodeOperation();
+                modifiers = (BsonDocument)_modifiers.DeepClone();
+            }
+            modifiers["$explain"] = true;
+            var operation = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                _allowPartialResults = _allowPartialResults,
+                _batchSize = _batchSize,
+                _comment = _comment,
+                _cursorType = _cursorType,
+                _filter = _filter,
+                _firstBatchSize = _firstBatchSize,
+                _limit = _limit,
+                _maxTime = _maxTime,
+                _modifiers = modifiers,
+                _noCursorTimeout = _noCursorTimeout,
+                _oplogReplay = _oplogReplay,
+                _projection = _projection,
+                _skip = _skip,
+                _sort = _sort,
+            };
+
+            return new FindOpcodeExplainOperation(operation);
+        }
+
+        // private methods
+        private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument query, CursorBatch<TDocument> batch)
+        {
+            return new AsyncCursor<TDocument>(
+                channelSource.Fork(),
+                _collectionNamespace,
+                query,
+                batch.Documents,
+                batch.CursorId,
+                _batchSize,
+                _limit < 0 ? Math.Abs(_limit.Value) : _limit,
+                _resultSerializer,
+                _messageEncoderSettings);
+        }
+
+        // nested types
+        private class FindOpcodeExplainOperation : IReadOperation<BsonDocument>
+        {
+            private readonly FindOpcodeOperation<BsonDocument> _explainOperation;
+
+            public FindOpcodeExplainOperation(FindOpcodeOperation<BsonDocument> explainOperation)
+            {
+                _explainOperation = explainOperation;
+            }
+
+            public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+            {
+                var cursor = _explainOperation.Execute(binding, cancellationToken);
+                var documents = cursor.ToList(cancellationToken);
+                return documents.Single();
+            }
+
+            public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+            {
+                var cursor = await _explainOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var documents = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                return documents.Single();
             }
         }
     }
 }
-

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -25,54 +24,57 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Operations
 {
-    internal class FindUsersOperation : IReadOperation<IEnumerable<BsonDocument>>
+    internal class CurrentOpOperation : IReadOperation<BsonDocument>
     {
         #region static
-        // static fields
-        private static readonly SemanticVersion __serverVersionSupportingUserManagementCommands = new SemanticVersion(2, 6, 0);
+        // private static fields
+        private static readonly SemanticVersion __serverVersionSupportingCurrentOpCommand = new SemanticVersion(3, 1, 2);
         #endregion
 
-        // fields
+        // private fields
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly string _username;
 
         // constructors
-        public FindUsersOperation(
-            DatabaseNamespace databaseNamespace,
-            string username,
-            MessageEncoderSettings messageEncoderSettings)
+        public CurrentOpOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseNamespace = databaseNamespace;
-            _username = username;
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // methods
-        public IEnumerable<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        // public properties
+        public DatabaseNamespace DatabaseNamespace => _databaseNamespace;
+
+        public MessageEncoderSettings MessageEncoderSettings => _messageEncoderSettings;
+
+        // public methods
+        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                IReadOperation<IEnumerable<BsonDocument>> operation;
-
-                if (channel.ConnectionDescription.ServerVersion >= __serverVersionSupportingUserManagementCommands)
-                {
-                    operation = new FindUsersUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
-                else
-                {
-                    operation = new FindUsersUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
-
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
 
-        public Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotSupportedException();
+        }
+
+        // private methods
+        internal IReadOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
+        {
+            if (serverVersion >= __serverVersionSupportingCurrentOpCommand)
+            {
+                return new CurrentOpUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
+            }
+            else
+            {
+                return new CurrentOpUsingFindOperation(_databaseNamespace, _messageEncoderSettings);
+            }
         }
     }
 }

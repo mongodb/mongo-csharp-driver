@@ -92,18 +92,6 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void Limit_set_should_throw_when_value_is_invalid(
-            [Values(-1, 0)]
-            int value)
-        {
-            var subject = new GridFSFindOptions();
-
-            Action action = () => subject.Limit = value;
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
-        }
-
-        [Test]
         public void MaxTime_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { MaxTime = TimeSpan.FromSeconds(123) };

@@ -251,8 +251,8 @@ namespace MongoDB.Driver.Core.Operations
                 command,
                 result.Results,
                 result.CursorId.GetValueOrDefault(0),
-                _batchSize ?? 0,
-                0, // limit
+                _batchSize,
+                null, // limit
                 _resultSerializer,
                 MessageEncoderSettings);
         }
@@ -264,9 +264,9 @@ namespace MongoDB.Driver.Core.Operations
                 CollectionNamespace,
                 command,
                 result.Results,
-                0,
-                0, // batchSize
-                0, // limit
+                0, // cursorId
+                null, // batchSize
+                null, // limit
                 _resultSerializer,
                 MessageEncoderSettings);
         }

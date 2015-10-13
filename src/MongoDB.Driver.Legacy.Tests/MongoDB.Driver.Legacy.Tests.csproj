@@ -156,6 +156,9 @@
     <Compile Include="MongoServerTests.cs" />
     <Compile Include="MongoUserTests.cs" />
     <Compile Include="Operations\BulkWriteOperationTests.cs" />
+    <Compile Include="Operations\CurrentOpOperationTests.cs" />
+    <Compile Include="Operations\CurrentOpUsingCommandOperation.cs" />
+    <Compile Include="Operations\CurrentOpUsingFindOperationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
     <Compile Include="SystemProfileInfoTests.cs" />

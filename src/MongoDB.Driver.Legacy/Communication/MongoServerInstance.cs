@@ -291,10 +291,9 @@ namespace MongoDB.Driver
             var operation = new PingOperation(messageEncoderSettings);
 
             var server = GetServer();
-            using (var channelSource = new ChannelSourceHandle(new ServerChannelSource(server)))
-            using (var channelSourceBinding = new ChannelSourceReadWriteBinding(channelSource, ReadPreference.PrimaryPreferred))
+            using (var binding = new SingleServerReadBinding(server, ReadPreference.PrimaryPreferred))
             {
-                operation.Execute(channelSourceBinding, CancellationToken.None);
+                operation.Execute(binding, CancellationToken.None);
             }
         }
 

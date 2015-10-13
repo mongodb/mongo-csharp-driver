@@ -53,7 +53,7 @@ namespace MongoDB.Driver.GridFS
         public int? Limit
         {
             get { return _limit; }
-            set { _limit = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
+            set { _limit = value; }
         }
 
         /// <summary>

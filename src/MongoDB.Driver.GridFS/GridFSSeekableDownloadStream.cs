@@ -68,8 +68,8 @@ namespace MongoDB.Driver.GridFS
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, "offset");
-            Ensure.IsBetween(count, 0, buffer.Length - offset, "count");
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
             ThrowIfClosedOrDisposed();
 
             var bytesRead = 0;

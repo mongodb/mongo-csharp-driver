@@ -141,6 +141,9 @@
     <Compile Include="Core\Operations\ListCollectionsUsingQueryOperation.cs" />
     <Compile Include="Core\Operations\ListIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\ListIndexesUsingQueryOperation.cs" />
+    <Compile Include="Core\Operations\CursorBatchDeserializationHelper.cs" />
+    <Compile Include="Core\Operations\FindCommandOperation.cs" />
+    <Compile Include="Core\Operations\FindOpcodeOperation.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\IMessageEncoderSelector.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\ReplyMessageEncoderSelector.cs" />
     <Compile Include="Core\WireProtocol\Messages\MongoDBMessageType.cs" />

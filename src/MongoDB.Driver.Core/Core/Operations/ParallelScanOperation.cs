@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _numberOfCursors = Ensure.IsBetween(numberOfCursors, 0, 10000, "numberOfCursors");
+            _numberOfCursors = Ensure.IsBetween(numberOfCursors, 0, 10000, nameof(numberOfCursors));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
         }

@@ -517,7 +517,8 @@ namespace MongoDB.Driver.GridFS
                 messageEncoderSettings)
             {
                 Filter = filter,
-                Limit = -1
+                Limit = 1,
+                SingleBatch = true
             };
 
             using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
@@ -605,6 +606,7 @@ namespace MongoDB.Driver.GridFS
             var operation = new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
             {
                 Limit = 1,
+                SingleBatch = true,
                 Projection = new BsonDocument("_id", 1)
             };
 

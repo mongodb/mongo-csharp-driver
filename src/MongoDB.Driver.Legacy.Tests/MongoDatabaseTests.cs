@@ -263,6 +263,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestGetCurrentOp()
+        {
+            var adminDatabase = _server.GetDatabase("admin");
+            var currentOp = adminDatabase.GetCurrentOp();
+            Assert.AreEqual("inprog", currentOp.GetElement(0).Name);
+        }
+
+        [Test]
         public void TestGetProfilingInfo()
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)

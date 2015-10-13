@@ -154,6 +154,7 @@
     <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonDocumentSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\RawBsonArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\RawBsonDocumentSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\SerializeFlagsTests.cs" />

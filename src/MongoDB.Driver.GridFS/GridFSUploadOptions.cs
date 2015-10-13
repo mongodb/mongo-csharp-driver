@@ -57,8 +57,7 @@ namespace MongoDB.Driver.GridFS
             get { return _batchSize; }
             set
             {
-                Ensure.IsNullOrGreaterThanZero(value, nameof(value));
-                _batchSize = value;
+                _batchSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
             }
         }
 

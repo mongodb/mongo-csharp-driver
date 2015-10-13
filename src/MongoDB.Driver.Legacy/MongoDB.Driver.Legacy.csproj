@@ -148,6 +148,9 @@
     <Compile Include="Operations\BulkUpdateRequestBuilder.cs" />
     <Compile Include="Operations\BulkWriteOperation.cs" />
     <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
+    <Compile Include="Operations\CurrentOpOperation.cs" />
+    <Compile Include="Operations\CurrentOpUsingCommandOperation.cs" />
+    <Compile Include="Operations\CurrentOpUsingFindOperation.cs" />
     <Compile Include="Operations\DropUserOperation.cs" />
     <Compile Include="Operations\DropUserUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="Operations\DropUserUsingUserManagementCommandsOperation.cs" />

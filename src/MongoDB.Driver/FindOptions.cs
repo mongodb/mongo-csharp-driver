@@ -29,14 +29,14 @@ namespace MongoDB.Driver
     public abstract class FindOptionsBase
     {
         // fields
-        private bool _allowPartialResults;
+        private bool? _allowPartialResults;
         private int? _batchSize;
         private string _comment;
         private CursorType _cursorType;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
-        private bool _noCursorTimeout;
-        private bool _oplogReplay;
+        private bool? _noCursorTimeout;
+        private bool? _oplogReplay;
 
         // constructors
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to allow partial results when some shards are unavailable.
         /// </summary>
-        public bool AllowPartialResults
+        public bool? AllowPartialResults
         {
             get { return _allowPartialResults; }
             set { _allowPartialResults = value; }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver
         public int? BatchSize
         {
             get { return _batchSize; }
-            set { _batchSize = value; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether a cursor will time out.
         /// </summary>
-        public bool NoCursorTimeout
+        public bool? NoCursorTimeout
         {
             get { return _noCursorTimeout; }
             set { _noCursorTimeout = value; }
@@ -114,7 +114,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether the OplogReplay bit will be set.
         /// </summary>
-        public bool OplogReplay
+        public bool? OplogReplay
         {
             get { return _oplogReplay; }
             set { _oplogReplay = value; }

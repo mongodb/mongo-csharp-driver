@@ -539,8 +539,8 @@ namespace MongoDB.Driver
         /// <returns>The current operation.</returns>
         public virtual BsonDocument GetCurrentOp()
         {
-            var collection = GetCollection("$cmd.sys.inprog");
-            return collection.FindOne();
+            var operation = new CurrentOpOperation(_namespace, GetMessageEncoderSettings());
+            return ExecuteReadOperation(operation);
         }
 
         /// <summary>

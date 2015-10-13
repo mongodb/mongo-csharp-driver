@@ -151,7 +151,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.funny");
-            operation.AllowPartialResults.Should().BeFalse();
+            operation.AllowPartialResults.Should().NotHaveValue();
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().BeNull();
             operation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
@@ -159,8 +159,8 @@ namespace MongoDB.Driver
             operation.Limit.Should().Be(null);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().BeNull();
-            operation.NoCursorTimeout.Should().BeFalse();
-            operation.OplogReplay.Should().BeFalse();
+            operation.NoCursorTimeout.Should().NotHaveValue();
+            operation.OplogReplay.Should().NotHaveValue();
             operation.Projection.Should().BeNull();
             operation.Skip.Should().Be(null);
             operation.Sort.Should().BeNull();

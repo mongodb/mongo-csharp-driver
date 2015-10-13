@@ -19,7 +19,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -34,8 +36,15 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TDocument">The type of the documents.</typeparam>
     public class AsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
+        #region static
+        // private static fields
+        private static IBsonSerializer<BsonDocument> __getMoreCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
+            "cursor", new PartiallyRawBsonDocumentSerializer(
+                "nextBatch", new RawBsonArraySerializer()));
+        #endregion
+
         // fields
-        private readonly int _batchSize;
+        private readonly int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IChannelSource _channelSource;
         private int _count;
@@ -43,11 +52,13 @@ namespace MongoDB.Driver.Core.Operations
         private long _cursorId;
         private bool _disposed;
         private IReadOnlyList<TDocument> _firstBatch;
-        private readonly int _limit;
+        private readonly int? _limit;
+        private readonly TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly long? _operationId;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
+        private bool _slaveOk;
 
         // constructors
         /// <summary>
@@ -62,16 +73,20 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="limit">The limit.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="maxTime">The maxTime for each batch.</param>
+        /// <param name="slaveOk">The slaveOk value (for getMore commands)</param>
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
-            int batchSize,
-            int limit,
+            int? batchSize,
+            int? limit,
             IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime = null,
+            bool slaveOk = false)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -79,18 +94,16 @@ namespace MongoDB.Driver.Core.Operations
             _query = Ensure.IsNotNull(query, nameof(query));
             _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
-            _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
-            _limit = Ensure.IsGreaterThanOrEqualToZero(limit, nameof(limit));
+            _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
+            _limit = Ensure.IsNullOrGreaterThanOrEqualToZero(limit, nameof(limit));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _maxTime = maxTime;
+            _slaveOk = slaveOk;
 
-            if (_limit == 0)
+            if (_limit > 0 && _firstBatch.Count > _limit)
             {
-                _limit = int.MaxValue;
-            }
-            if (_firstBatch.Count > _limit)
-            {
-                _firstBatch = _firstBatch.Take(_limit).ToList();
+                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
             }
             _count = _firstBatch.Count;
 
@@ -114,17 +127,89 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private CursorBatch<TDocument> ExecuteGetMoreProtocol(IChannelHandle channel, CancellationToken cancellationToken)
+        private int CalculateGetMoreProtocolNumberToReturn()
         {
-            var numberToReturn = _batchSize;
-            if (_limit != 0)
+            var numberToReturn = _batchSize ?? 0;
+            if (_limit > 0)
             {
-                numberToReturn = Math.Abs(_limit) - _count;
-                if (_batchSize != 0 && numberToReturn > _batchSize)
+                numberToReturn = _limit.Value - _count;
+                if (_batchSize != 0 && numberToReturn > _batchSize.Value)
                 {
-                    numberToReturn = _batchSize;
+                    numberToReturn = _batchSize.Value;
                 }
             }
+            return numberToReturn;
+        }
+
+        private CursorBatch<TDocument> CreateCursorBatch(BsonDocument result)
+        {
+            var cursorDocument = result["cursor"].AsBsonDocument;
+            var cursorId = cursorDocument["id"].ToInt64();
+            var batch = (RawBsonArray)cursorDocument["nextBatch"];
+
+            using (batch)
+            {
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
+                return new CursorBatch<TDocument>(cursorId, documents);
+            }
+        }
+
+        private BsonDocument CreateGetMoreCommand()
+        {
+            var getMoreBatchSize = _batchSize;
+            if (_limit > 0)
+            {
+                getMoreBatchSize = _limit.Value - _count;
+                if (_batchSize > 0 && getMoreBatchSize.Value > _batchSize.Value)
+                {
+                    getMoreBatchSize = _batchSize.Value;
+                }
+            }
+
+            var command = new BsonDocument
+            {
+                { "getMore", _cursorId },
+                { "collection", _collectionNamespace.CollectionName },
+                { "batchSize", () => getMoreBatchSize.Value, getMoreBatchSize > 0 },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+            };
+
+            return command;
+        }
+
+        private CursorBatch<TDocument> ExecuteGetMoreCommand(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            var command = CreateGetMoreCommand();
+            var result = channel.Command<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                command,
+                NoOpElementNameValidator.Instance,
+                _slaveOk,
+                __getMoreCommandResultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+
+            return CreateCursorBatch(result);
+        }
+
+        private async Task<CursorBatch<TDocument>> ExecuteGetMoreCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            var command = CreateGetMoreCommand();
+            var result = await channel.CommandAsync<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                command,
+                NoOpElementNameValidator.Instance,
+                _slaveOk,
+                __getMoreCommandResultSerializer,
+                _messageEncoderSettings,
+                cancellationToken).ConfigureAwait(false);
+
+            return CreateCursorBatch(result);
+        }
+
+        private CursorBatch<TDocument> ExecuteGetMoreProtocol(IChannelHandle channel, CancellationToken cancellationToken)
+        {
+            var numberToReturn = CalculateGetMoreProtocolNumberToReturn();
 
             return channel.GetMore<TDocument>(
                 _collectionNamespace,
@@ -138,15 +223,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var numberToReturn = _batchSize;
-            if (_limit != 0)
-            {
-                numberToReturn = Math.Abs(_limit) - _count;
-                if (_batchSize != 0 && numberToReturn > _batchSize)
-                {
-                    numberToReturn = _batchSize;
-                }
-            }
+            var numberToReturn = CalculateGetMoreProtocolNumberToReturn();
 
             return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
@@ -211,7 +288,14 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = _channelSource.GetChannel(cancellationToken))
             {
-                return ExecuteGetMoreProtocol(channel, cancellationToken);
+                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                {
+                    return ExecuteGetMoreCommand(channel, cancellationToken);
+                }
+                else
+                {
+                    return ExecuteGetMoreProtocol(channel, cancellationToken);
+                }
             }
         }
 
@@ -220,7 +304,14 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                {
+                    return await ExecuteGetMoreCommandAsync(channel,cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
@@ -279,12 +370,12 @@ namespace MongoDB.Driver.Core.Operations
             var documents = batch.Documents;
 
             _count += documents.Count;
-            if (_count > _limit)
+            if (_limit > 0 && _count > _limit.Value)
             {
-                var remove = _count - _limit;
+                var remove = _count - _limit.Value;
                 var take = documents.Count - remove;
                 documents = documents.Take(take).ToList();
-                _count = _limit;
+                _count = _limit.Value;
             }
 
             _currentBatch = documents;
@@ -316,7 +407,7 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            if (_cursorId == 0 || _count == _limit)
+            if (_cursorId == 0 || (_limit > 0 && _count == _limit.Value))
             {
                 _currentBatch = null;
                 return true;

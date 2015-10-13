@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         public int? BatchSize
         {
             get { return _batchSize; }
-            set { _batchSize = value; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         /// <summary>
