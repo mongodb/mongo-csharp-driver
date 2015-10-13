@@ -60,6 +60,7 @@
     <Compile Include="Core\Connections\BinaryConnection_CommandEventTests.cs" />
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
+    <Compile Include="Core\Misc\SemaphoreSlimRequestTests.cs" />
     <Compile Include="Core\Misc\StreamExtensionMethodsTests.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
