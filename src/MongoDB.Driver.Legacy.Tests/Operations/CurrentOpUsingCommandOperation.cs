@@ -73,12 +73,12 @@ namespace MongoDB.Driver.Tests.Operations
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.1")]
-        public async Task ExecuteAsync_should_return_expected_result()
+        public void Execute_should_return_expected_result()
         {
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {
-                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var result = subject.Execute(binding, CancellationToken.None);
 
                 result.Contains("inprog");
             }
