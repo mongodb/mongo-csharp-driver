@@ -40,13 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private static readonly SemanticVersion __serverVersionSupportingWriteConcern = new SemanticVersion(3, 1, 1);
 
         // public static properties
-        /// <summary>
-        /// Gets the server version supporting write concern.
-        /// </summary>
-        /// <value>
-        /// The server version supporting write concern.
-        /// </value>
-        public static SemanticVersion ServerVersionSupportingWriteConcern
+        internal static SemanticVersion ServerVersionSupportingWriteConcern
         {
             get { return __serverVersionSupportingWriteConcern; }
         }
