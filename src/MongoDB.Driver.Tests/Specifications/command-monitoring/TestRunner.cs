@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
@@ -120,8 +119,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
             await database.DropCollectionAsync(collection.CollectionNamespace.CollectionName);
             await collection.InsertManyAsync(data);
-
-            definition = MassageTestDefinition(definition, __client.Cluster.Description);
 
             __capturedEvents.Clear();
             try
@@ -280,22 +277,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             expectedReply.Merge(reply, false);
 
             return massagedReply;
-        }
-
-        private BsonDocument MassageTestDefinition(BsonDocument definition, ClusterDescription clusterDescription)
-        {
-            var description = definition["description"].AsString;
-            var serverVersion = clusterDescription.Servers.Max(s => s.Version);
-
-            if (description == "A successful find event with a getmore and killcursors" && serverVersion >= new SemanticVersion(3, 1, 1))
-            {
-                var events = definition["expectations"].AsBsonArray;
-                events[3]["command_succeeded_event"]["reply"]["cursor"]["id"] = 0L;
-                events.RemoveAt(4);
-                events.RemoveAt(4);
-            }
-
-            return definition;
         }
 
         private BsonValue DeepCopy(BsonValue value)

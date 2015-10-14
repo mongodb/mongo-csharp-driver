@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\" }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}' }}");
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", allowPartialResults : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', allowPartialResults : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", comment : \"{value}\" }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', comment : '{value}' }}");
         }
 
         [TestCase(CursorType.Tailable, "")]
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", tailable : true{awaitJson} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', tailable : true{awaitJson} }}");
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", filter : {json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', filter : {json} }}");
         }
 
         [Test]
@@ -239,12 +239,12 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", batchSize : {value} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', batchSize : {value} }}");
         }
 
         [Test]
         public void CreateCommand_should_return_expected_result_when_hint_is_provided(
-            [Values("{ value : \"b_1\" }", "{ value : { b : 1 } }")]
+            [Values("{ value : 'b_1' }", "{ value : { b : 1 } }")]
             string json)
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", hint : {subject.Hint.ToJson()} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', hint : {subject.Hint.ToJson()} }}");
         }
 
         [TestCase(-1, ", limit : 1, singleBatch : true")]
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\"{json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}'{json} }}");
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", max : {json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', max : {json} }}");
         }
 
         [Test]
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", maxScan : {value} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxScan : {value} }}");
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", maxTimeMS : {value * 1000} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxTimeMS : {value * 1000} }}");
         }
 
         [Test]
@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", min : {json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', min : {json} }}");
         }
 
         [Test]
@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", noCursorTimeout : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', noCursorTimeout : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", oplogReplay : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', oplogReplay : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", projection : {json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', projection : {json} }}");
         }
 
         [Test]
@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", readConcern : {value} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readConcern : {value} }}");
         }
 
         [Test]
@@ -407,7 +407,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var mode = value.ToString();
             var camelCaseMode = char.ToLower(mode[0]) + mode.Substring(1);
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", readPreference : {{ mode : \"{camelCaseMode}\" }} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readPreference : {{ mode : '{camelCaseMode}' }} }}");
         }
 
         [Test]
@@ -422,7 +422,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", returnKey : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', returnKey : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -437,7 +437,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", showRecordId : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', showRecordId : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -452,7 +452,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", singleBatch : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', singleBatch : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -467,7 +467,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", skip : {value} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', skip : {value} }}");
         }
 
         [Test]
@@ -482,7 +482,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", snapshot : {(value ? "true" : "false")} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', snapshot : {(value ? "true" : "false")} }}");
         }
 
         [Test]
@@ -497,7 +497,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : \"{_collectionNamespace.CollectionName}\", sort : {json} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', sort : {json} }}");
         }
 
         [Test]
@@ -612,7 +612,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         public void Hint_get_and_set_should_work(
-            [Values(null, "{ value : \"b_1\" }", "{ value : { b : 1 } }")]
+            [Values(null, "{ value : 'b_1' }", "{ value : { b : 1 } }")]
             string json)
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);

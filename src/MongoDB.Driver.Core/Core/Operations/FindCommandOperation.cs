@@ -435,8 +435,7 @@ namespace MongoDB.Driver.Core.Operations
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
                 _messageEncoderSettings,
-                null, // maxTime
-                slaveOk);
+                null); // maxTime
         }
 
         private CursorBatch<TDocument> CreateCursorBatch(BsonDocument result)

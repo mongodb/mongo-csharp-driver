@@ -58,7 +58,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly long? _operationId;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private bool _slaveOk;
 
         // constructors
         /// <summary>
@@ -74,7 +73,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="maxTime">The maxTime for each batch.</param>
-        /// <param name="slaveOk">The slaveOk value (for getMore commands)</param>
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -85,8 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime = null,
-            bool slaveOk = false)
+            TimeSpan? maxTime = null)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -99,7 +96,6 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
-            _slaveOk = slaveOk;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -156,21 +152,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private BsonDocument CreateGetMoreCommand()
         {
-            var getMoreBatchSize = _batchSize;
-            if (_limit > 0)
-            {
-                getMoreBatchSize = _limit.Value - _count;
-                if (_batchSize > 0 && getMoreBatchSize.Value > _batchSize.Value)
-                {
-                    getMoreBatchSize = _batchSize.Value;
-                }
-            }
-
             var command = new BsonDocument
             {
                 { "getMore", _cursorId },
                 { "collection", _collectionNamespace.CollectionName },
-                { "batchSize", () => getMoreBatchSize.Value, getMoreBatchSize > 0 },
+                { "batchSize", () => _batchSize.Value, _batchSize > 0 },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
 
@@ -184,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
-                _slaveOk,
+                false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -199,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
-                _slaveOk,
+                false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken).ConfigureAwait(false);

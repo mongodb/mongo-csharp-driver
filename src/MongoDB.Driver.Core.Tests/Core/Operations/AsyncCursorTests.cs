@@ -55,7 +55,6 @@ namespace MongoDB.Driver.Core.Operations
             var serializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
             var maxTime = TimeSpan.FromSeconds(1);
-            var slaveOk = true;
 
             var result = new AsyncCursor<BsonDocument>(
                 channelSource,
@@ -67,8 +66,7 @@ namespace MongoDB.Driver.Core.Operations
                 limit,
                 serializer,
                 messageEncoderSettings,
-                maxTime,
-                slaveOk);
+                maxTime);
 
             var reflector = new Reflector(result);
             reflector.BatchSize.Should().Be(batchSize);
@@ -84,7 +82,6 @@ namespace MongoDB.Driver.Core.Operations
             reflector.MessageEncoderSettings.Should().BeEquivalentTo(messageEncoderSettings);
             reflector.Query.Should().Be(query);
             reflector.Serializer.Should().Be(serializer);
-            reflector.SlaveOk.Should().Be(slaveOk);
         }
 
         [Test]
@@ -193,8 +190,7 @@ namespace MongoDB.Driver.Core.Operations
             Optional<long> cursorId = default(Optional<long>),
             Optional<int?> batchSize = default(Optional<int?>),
             Optional<int?> limit = default(Optional<int?>),
-            Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>),
-            Optional<bool> slaveOk = default(Optional<bool>))
+            Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>))
         {
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(Substitute.For<IChannelSource>()),
@@ -206,8 +202,7 @@ namespace MongoDB.Driver.Core.Operations
                 limit.WithDefault(null),
                 serializer.WithDefault(BsonDocumentSerializer.Instance),
                 new MessageEncoderSettings(),
-                maxTime.WithDefault(null),
-                slaveOk.WithDefault(false));
+                maxTime.WithDefault(null));
         }
 
         // nested types
@@ -337,15 +332,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     var fieldInfo = _instance.GetType().GetField("_serializer", BindingFlags.NonPublic | BindingFlags.Instance);
                     return (IBsonSerializer<BsonDocument>)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public bool SlaveOk
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_slaveOk", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)fieldInfo.GetValue(_instance);
                 }
             }
 
