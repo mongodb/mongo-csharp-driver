@@ -806,6 +806,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
             Assert(subject.Text("funny"), "{$text: {$search: 'funny'}}");
             Assert(subject.Text("funny", "en"), "{$text: {$search: 'funny', $language: 'en'}}");
+            Assert(subject.Text("funny", new TextSearchOptions { Language = "en" }), "{$text: {$search: 'funny', $language: 'en'}}");
+            Assert(subject.Text("funny", new TextSearchOptions { CaseSensitive = true }), "{$text: {$search: 'funny', $caseSensitive: true}}");
+            Assert(subject.Text("funny", new TextSearchOptions { DiacriticSensitive = true }), "{$text: {$search: 'funny', $diacriticSensitive: true}}");
         }
 
         [Test]

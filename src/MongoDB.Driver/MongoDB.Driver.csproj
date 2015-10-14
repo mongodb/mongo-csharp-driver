@@ -270,6 +270,7 @@
     <Compile Include="Sync\AsyncCursorEnumerableAdapter.cs" />
     <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="AggregateUnwindOptions.cs" />
+    <Compile Include="TextSearchOptions.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />
     <Compile Include="OfTypeMongoCollection.cs" />
     <Compile Include="IFilteredMongoCollection.cs" />

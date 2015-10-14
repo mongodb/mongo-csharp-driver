@@ -1121,16 +1121,30 @@ namespace MongoDB.Driver
         /// Creates a text filter.
         /// </summary>
         /// <param name="search">The search.</param>
-        /// <param name="language">The language.</param>
+        /// <param name="options">The text search options.</param>
         /// <returns>A text filter.</returns>
-        public FilterDefinition<TDocument> Text(string search, string language = null)
+        public FilterDefinition<TDocument> Text(string search, TextSearchOptions options = null)
         {
             var document = new BsonDocument
             {
                 { "$search", search },
-                { "$language", language, language != null }
+                { "$language", () => options.Language, options != null && options.Language != null },
+                { "$caseSensitive", () => options.CaseSensitive.Value, options != null && options.CaseSensitive.HasValue },
+                { "$diacriticSensitive", () => options.DiacriticSensitive.Value, options != null && options.DiacriticSensitive.HasValue }
             };
             return new BsonDocumentFilterDefinition<TDocument>(new BsonDocument("$text", document));
+        }
+
+        /// <summary>
+        /// Creates a text filter.
+        /// </summary>
+        /// <param name="search">The search.</param>
+        /// <param name="language">The language.</param>
+        /// <returns>A text filter.</returns>
+        public FilterDefinition<TDocument> Text(string search, string language)
+        {
+            var options = new TextSearchOptions { Language = language };
+            return Text(search, options);
         }
 
         /// <summary>
