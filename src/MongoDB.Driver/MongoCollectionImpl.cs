@@ -261,7 +261,8 @@ namespace MongoDB.Driver
             {
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
+                WriteConcern = options.WriteConcern ?? _settings.WriteConcern
             };
 
             return ExecuteWriteOperationAsync(operation, cancellationToken);
@@ -288,7 +289,8 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
+                WriteConcern = options.WriteConcern ?? _settings.WriteConcern
             };
 
             return ExecuteWriteOperationAsync(operation, cancellationToken);
@@ -314,7 +316,8 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
+                WriteConcern = options.WriteConcern ?? _settings.WriteConcern
             };
 
             return ExecuteWriteOperationAsync(operation, cancellationToken);

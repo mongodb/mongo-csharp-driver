@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
         private SortDefinition<TDocument> _sort;
+        private WriteConcern _writeConcern;
 
         // properties
         /// <summary>
@@ -60,6 +61,15 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
         }
     }
 

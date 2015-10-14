@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TResult> _resultSerializer;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -88,29 +89,50 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // public methods
         /// <inheritdoc/>
         public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return operation.Execute(binding, cancellationToken);
+
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                return operation.Execute(channelBinding, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
-        public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return operation.ExecuteAsync(binding, cancellationToken);
+
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         // private methods
-        internal abstract BsonDocument CreateCommand();
+        internal abstract BsonDocument CreateCommand(SemanticVersion serverVersion);
 
-        private WriteCommandOperation<TResult> CreateOperation()
+        private WriteCommandOperation<TResult> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             return new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings)
             {
                 CommandValidator = GetCommandValidator()

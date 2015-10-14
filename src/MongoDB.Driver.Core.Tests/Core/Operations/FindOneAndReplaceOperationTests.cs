@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -94,17 +95,22 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, 10)] int? maxTimeMS,
             [Values(null, "{a: 1}")] string projection,
             [Values(ReturnDocument.Before, ReturnDocument.After)] ReturnDocument returnDocument,
-            [Values(null, "{b: 1}")] string sort)
+            [Values(null, "{b: 1}")] string sort,
+            [Values(null, "{ w : 2 }")] string writeConcernString,
+            [Values("3.0.0", "3.1.1")] string serverVersionString)
         {
             var projectionDoc = projection == null ? (BsonDocument)null : BsonDocument.Parse(projection);
             var sortDoc = sort == null ? (BsonDocument)null : BsonDocument.Parse(sort);
+            var writeConcern = writeConcernString == null ? null : WriteConcern.FromBsonDocument(BsonDocument.Parse(writeConcernString));
+            var serverVersion = SemanticVersion.Parse(serverVersionString);
             var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 IsUpsert = isUpsert,
                 MaxTime = maxTimeMS.HasValue ? TimeSpan.FromMilliseconds(maxTimeMS.Value) : (TimeSpan?)null,
                 Projection = projectionDoc,
                 ReturnDocument = returnDocument,
-                Sort = sortDoc
+                Sort = sortDoc,
+                WriteConcern = writeConcern
             };
 
             var expectedResult = new BsonDocument
@@ -116,10 +122,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "new", returnDocument == ReturnDocument.After },
                 { "fields", projectionDoc, projectionDoc != null },
                 { "upsert", isUpsert },
-                { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue }
+                { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(serverVersion);
 
             result.Should().Be(expectedResult);
         }

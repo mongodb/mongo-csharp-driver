@@ -35,6 +35,7 @@ namespace MongoDB.Driver
         private ProjectionDefinition<TDocument, TProjection> _projection;
         private ReturnDocument _returnDocument;
         private SortDefinition<TDocument> _sort;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -89,6 +90,15 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
         }
     }
 

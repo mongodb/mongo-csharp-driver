@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal override BsonDocument CreateCommand()
+        internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             return new BsonDocument
             {
@@ -155,7 +155,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "new", _returnDocument == ReturnDocument.After },
                 { "fields", _projection, _projection != null },
                 { "upsert", _isUpsert },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
             };
         }
 
