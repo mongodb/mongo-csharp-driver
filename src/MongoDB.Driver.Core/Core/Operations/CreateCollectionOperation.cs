@@ -200,8 +200,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue},
                 { "storageEngine", () => _storageEngine, _storageEngine != null },
                 { "validator", _validator, _validator != null },
-                { "validationAction", () => _validationAction.Value.ToString().ToLower(), _validationAction.HasValue },
-                { "validationLevel", () => _validationLevel.Value.ToString().ToLower(), _validationLevel.HasValue }
+                { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
+                { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue }
             };
         }
 

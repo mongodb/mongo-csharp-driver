@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "validationAction", value.ToString().ToLower() }
+                { "validationAction", value.ToString().ToLowerInvariant() }
             };
 
             var result = subject.CreateCommand();
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "validationLevel", value.ToString().ToLower() }
+                { "validationLevel", value.ToString().ToLowerInvariant() }
             };
 
             var result = subject.CreateCommand();
