@@ -35,6 +35,23 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>
     {
+        #region static
+        // private static fields
+        private static readonly SemanticVersion __serverVersionSupportingWriteConcern = new SemanticVersion(3, 1, 1);
+
+        // public static properties
+        /// <summary>
+        /// Gets the server version supporting write concern.
+        /// </summary>
+        /// <value>
+        /// The server version supporting write concern.
+        /// </value>
+        public static SemanticVersion ServerVersionSupportingWriteConcern
+        {
+            get { return __serverVersionSupportingWriteConcern; }
+        }
+        #endregion
+
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;

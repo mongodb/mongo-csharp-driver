@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "remove", true },
                 { "fields", _projection, _projection != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && serverVersion >= ServerVersionSupportingWriteConcern }
             };
         }
 
