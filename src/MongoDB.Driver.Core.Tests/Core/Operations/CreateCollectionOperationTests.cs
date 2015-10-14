@@ -231,6 +231,65 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void CreateCommand_should_return_expected_result_when_ValidationAction_is_set(
+            [Values(DocumentValidationAction.Error, DocumentValidationAction.Warn)]
+            DocumentValidationAction value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                ValidationAction = value
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "validationAction", value.ToString().ToLower() }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateCommand_should_return_expected_result_when_ValidationLevel_is_set(
+            [Values(DocumentValidationLevel.Moderate, DocumentValidationLevel.Off)]
+            DocumentValidationLevel value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                ValidationLevel = value
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "validationLevel", value.ToString().ToLower() }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateCommand_should_return_expected_result_when_Validator_is_set()
+        {
+            var value = new BsonDocument("x", 1);
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Validator = value
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "validator", value }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
         [RequiresServer("DropCollection")]
         public void Execute_should_create_collection(
             [Values(false, true)]
@@ -453,6 +512,46 @@ namespace MongoDB.Driver.Core.Operations
             subject.UsePowerOf2Sizes = true;
 
             subject.UsePowerOf2Sizes.Should().BeTrue();
+        }
+
+        [Test]
+        public void ValidationAction_should_work(
+            [Values(null, DocumentValidationAction.Error, DocumentValidationAction.Warn)]
+            DocumentValidationAction? value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.ValidationAction.Should().BeNull();
+
+            subject.ValidationAction = value;
+
+            subject.ValidationAction.Should().Be(value);
+        }
+
+        [Test]
+        public void ValidationLevel_should_work(
+            [Values(null, DocumentValidationLevel.Moderate, DocumentValidationLevel.Off)]
+            DocumentValidationLevel? value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.ValidationLevel.Should().BeNull();
+
+            subject.ValidationLevel = value;
+
+            subject.ValidationLevel.Should().Be(value);
+        }
+
+        [Test]
+        public void Validator_should_work(
+            [Values(null, "{ x : 1 }")]
+            string json)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = json == null ? null : BsonDocument.Parse(json);
+            subject.Validator.Should().BeNull();
+
+            subject.Validator = value;
+
+            subject.Validator.Should().Be(value);
         }
 
         // helper methods

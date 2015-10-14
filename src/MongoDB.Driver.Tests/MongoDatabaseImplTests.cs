@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -77,7 +78,10 @@ namespace MongoDB.Driver
                 MaxDocuments = 10,
                 MaxSize = 11,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = false
+                UsePowerOf2Sizes = false,
+                ValidationAction = DocumentValidationAction.Warn,
+                ValidationLevel = DocumentValidationLevel.Off,
+                Validator = new BsonDocument("x", 1)
             };
             await _subject.CreateCollectionAsync("bar", options, CancellationToken.None);
 
@@ -92,6 +96,12 @@ namespace MongoDB.Driver
             op.MaxSize.Should().Be(options.MaxSize);
             op.StorageEngine.Should().Be(storageEngine);
             op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
+            op.ValidationAction.Should().Be(options.ValidationAction);
+            op.ValidationLevel.Should().Be(options.ValidationLevel);
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<BsonDocument>();
+            var renderedValidator = options.Validator.Render(documentSerializer, serializerRegistry);
+            op.Validator.Should().Be(renderedValidator);
         }
 
         [Test]

@@ -14,20 +14,28 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Options for creating a collection.
     /// </summary>
-    public class CreateCollectionOptions
+    public class CreateCollectionOptions<TDocument>
     {
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private IBsonSerializer<TDocument> _documentSerializer;
         private long? _maxDocuments;
         private long? _maxSize;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
+        private IBsonSerializerRegistry _serializerRegistry;
+        private DocumentValidationAction? _validationAction;
+        private DocumentValidationLevel? _validationLevel;
+        private FilterDefinition<TDocument> _validator;
 
         // properties
         /// <summary>
@@ -49,6 +57,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the document serializer.
+        /// </summary>
+        public IBsonSerializer<TDocument> DocumentSerializer
+        {
+            get { return _documentSerializer; }
+            set { _documentSerializer = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum number of documents (used with capped collections).
         /// </summary>
         public long? MaxDocuments
@@ -64,6 +81,15 @@ namespace MongoDB.Driver
         {
             get { return _maxSize; }
             set { _maxSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the serializer registry.
+        /// </summary>
+        public IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return _serializerRegistry; }
+            set { _serializerRegistry = value; }
         }
 
         /// <summary>
@@ -83,5 +109,48 @@ namespace MongoDB.Driver
             get { return _usePowerOf2Sizes; }
             set { _usePowerOf2Sizes = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the validation action.
+        /// </summary>
+        /// <value>
+        /// The validation action.
+        /// </value>
+        public DocumentValidationAction? ValidationAction
+        {
+            get { return _validationAction; }
+            set { _validationAction = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the validation level.
+        /// </summary>
+        /// <value>
+        /// The validation level.
+        /// </value>
+        public DocumentValidationLevel? ValidationLevel
+        {
+            get { return _validationLevel; }
+            set { _validationLevel = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the validator.
+        /// </summary>
+        /// <value>
+        /// The validator.
+        /// </value>
+        public FilterDefinition<TDocument> Validator
+        {
+            get { return _validator; }
+            set { _validator = value; }
+        }
+    }
+
+    /// <summary>
+    /// Options for creating a collection.
+    /// </summary>
+    public class CreateCollectionOptions : CreateCollectionOptions<BsonDocument>
+    {
     }
 }

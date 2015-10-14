@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -35,6 +36,12 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public virtual Task CreateCollectionAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract Task DropCollectionAsync(string name, CancellationToken cancellationToken = default(CancellationToken));

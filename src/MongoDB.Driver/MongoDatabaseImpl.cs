@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -66,9 +67,23 @@ namespace MongoDB.Driver
         // methods
         public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
+            return CreateCollectionAsync<BsonDocument>(name, options, cancellationToken);
+        }
+
+        public override Task CreateCollectionAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
+        {
             Ensure.IsNotNullOrEmpty(name, nameof(name));
-            options = options ?? new CreateCollectionOptions();
+            options = options ?? new CreateCollectionOptions<TDocument>();
+
             var messageEncoderSettings = GetMessageEncoderSettings();
+            BsonDocument validator = null;
+            if (options.Validator != null)
+            {
+                var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+                var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+                validator = options.Validator.Render(documentSerializer, serializerRegistry);
+            }
+
             var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
             {
                 AutoIndexId = options.AutoIndexId,
@@ -76,7 +91,10 @@ namespace MongoDB.Driver
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
                 StorageEngine = options.StorageEngine,
-                UsePowerOf2Sizes = options.UsePowerOf2Sizes
+                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
+                ValidationAction = options.ValidationAction,
+                ValidationLevel = options.ValidationLevel,
+                Validator = validator
             };
 
             return ExecuteWriteOperationAsync(operation, cancellationToken);

@@ -38,6 +38,9 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
+        private DocumentValidationAction? _validationAction;
+        private DocumentValidationLevel? _validationLevel;
+        private BsonDocument _validator;
 
         // constructors
         /// <summary>
@@ -148,6 +151,42 @@ namespace MongoDB.Driver.Core.Operations
             set { _usePowerOf2Sizes = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the validation action.
+        /// </summary>
+        /// <value>
+        /// The validation action.
+        /// </value>
+        public DocumentValidationAction? ValidationAction
+        {
+            get { return _validationAction; }
+            set { _validationAction = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the validation level.
+        /// </summary>
+        /// <value>
+        /// The validation level.
+        /// </value>
+        public DocumentValidationLevel? ValidationLevel
+        {
+            get { return _validationLevel; }
+            set { _validationLevel = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the validator.
+        /// </summary>
+        /// <value>
+        /// The validator.
+        /// </value>
+        public BsonDocument Validator
+        {
+            get { return _validator; }
+            set { _validator = value; }
+        }
+
         // methods
         internal BsonDocument CreateCommand()
         {
@@ -159,7 +198,10 @@ namespace MongoDB.Driver.Core.Operations
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
                 { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue},
-                { "storageEngine", () => _storageEngine, _storageEngine != null }
+                { "storageEngine", () => _storageEngine, _storageEngine != null },
+                { "validator", _validator, _validator != null },
+                { "validationAction", () => _validationAction.Value.ToString().ToLower(), _validationAction.HasValue },
+                { "validationLevel", () => _validationLevel.Value.ToString().ToLower(), _validationLevel.HasValue }
             };
         }
 
