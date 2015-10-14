@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Specifications.connection_string
                             var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
                             if (_ignoredTestNames.Contains(testName))
                             {
-                                data = data.Ignore();
+                                data = data.Ignore("Does not apply");
                             }
                             list.Add(data.SetName(testName));
                         }
