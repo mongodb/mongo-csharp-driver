@@ -25,7 +25,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
     {
         // fields
         protected string _filename;
-        protected GridFSDownloadByNameOptions _options = new GridFSDownloadByNameOptions();
+        protected GridFSDownloadByNameOptions _options = null;
 
         // constructors
         public GridFSGetByNameAsyncTestBase(BsonDocument data, BsonDocument testDefinition)
@@ -70,6 +70,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             foreach (var option in options.Elements)
             {
+                _options = _options ?? new GridFSDownloadByNameOptions();
                 switch (option.Name)
                 {
                     case "checkMD5":

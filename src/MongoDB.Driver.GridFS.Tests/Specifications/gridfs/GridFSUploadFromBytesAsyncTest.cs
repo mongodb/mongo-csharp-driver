@@ -26,7 +26,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
     {
         // fields
         protected string _filename;
-        protected GridFSUploadOptions _options = new GridFSUploadOptions();
+        protected GridFSUploadOptions _options = null;
         protected byte[] _source;
 
         // constructors
@@ -76,6 +76,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             foreach (var option in options.Elements)
             {
+                _options = _options ?? new GridFSUploadOptions();
                 switch (option.Name)
                 {
                     case "aliases":
