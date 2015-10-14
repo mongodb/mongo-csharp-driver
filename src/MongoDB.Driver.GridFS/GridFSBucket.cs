@@ -100,12 +100,14 @@ namespace MongoDB.Driver.GridFS
         public Task<byte[]> DownloadAsBytesAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(id, nameof(id));
+            options = options ?? new GridFSDownloadOptions();
             return DownloadAsBytesHelperAsync(id, options, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<byte[]> DownloadAsBytesAsync(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            options = options ?? new GridFSDownloadOptions();
             return DownloadAsBytesHelperAsync(new BsonObjectId(id), options, cancellationToken);
         }
 
@@ -135,6 +137,7 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
+            options = options ?? new GridFSDownloadOptions();
             return DownloadToStreamHelperAsync(id, destination, options, cancellationToken);
         }
 
@@ -142,6 +145,7 @@ namespace MongoDB.Driver.GridFS
         public Task DownloadToStreamAsync(ObjectId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(destination, nameof(destination));
+            options = options ?? new GridFSDownloadOptions();
             return DownloadToStreamHelperAsync(new BsonObjectId(id), destination, options, cancellationToken);
         }
 
@@ -220,12 +224,14 @@ namespace MongoDB.Driver.GridFS
         public Task<GridFSDownloadStream> OpenDownloadStreamAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(id, nameof(id));
+            options = options ?? new GridFSDownloadOptions();
             return OpenDownloadStreamHelperAsync(id, options, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<GridFSDownloadStream> OpenDownloadStreamAsync(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            options = options ?? new GridFSDownloadOptions();
             return OpenDownloadStreamHelperAsync(new BsonObjectId(id), options, cancellationToken);
         }
 
@@ -366,7 +372,7 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        private GridFSDownloadStream CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private GridFSDownloadStream CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
             var seekable = options.Seekable ?? false;
@@ -423,7 +429,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task<byte[]> DownloadAsBytesHelperAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<byte[]> DownloadAsBytesHelperAsync(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -446,7 +452,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
 
@@ -467,7 +473,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task DownloadToStreamHelperAsync(BsonValue id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task DownloadToStreamHelperAsync(BsonValue id, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -617,10 +623,8 @@ namespace MongoDB.Driver.GridFS
             return true;
         }
 
-        private async Task<GridFSDownloadStream> OpenDownloadStreamHelperAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<GridFSDownloadStream> OpenDownloadStreamHelperAsync(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            options = options ?? new GridFSDownloadByNameOptions();
-
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
                 var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
