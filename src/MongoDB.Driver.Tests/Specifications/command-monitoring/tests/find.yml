@@ -134,6 +134,7 @@ tests:
           command_name: "getMore"
   -
     description: "A successful find event with a getmore and killcursors"
+    ignore_if_server_version_greater_than: "3.0"
     operation:
       name: "find"
       arguments:
@@ -197,6 +198,57 @@ tests:
             cursorsUnknown:
               - { $numberLong: "42" }
           command_name: "killCursors"
+  -
+    description: "A successful find event with a getmore and the server kills the cursor"
+    ignore_if_server_version_less_than: "3.1"
+    operation:
+      name: "find"
+      arguments:
+        filter: { _id: { $gte: 1 }}
+        sort: { _id: 1 }
+        batchSize: 3
+        limit: 4
+    expectations:
+      -
+        command_started_event:
+          command:
+            find: *collection_name
+            filter: { _id: { $gte : 1 }}
+            sort: { _id: 1 }
+            batchSize: 3
+            limit: 4
+          command_name: "find"
+          database_name: *database_name
+      -
+        command_succeeded_event:
+          reply:
+            ok: 1.0
+            cursor:
+              id: { $numberLong: "42" }
+              ns: *namespace
+              firstBatch:
+                - { _id: 1, x: 11 }
+                - { _id: 2, x: 22 }
+                - { _id: 3, x: 33 }
+          command_name: "find"
+      -
+        command_started_event:
+          command:
+            getMore: { $numberLong: "42" }
+            collection: *collection_name
+            batchSize: 3
+          command_name: "getMore"
+          database_name: *database_name
+      -
+        command_succeeded_event:
+          reply:
+            ok: 1.0
+            cursor:
+              id: { $numberLong: "0" }
+              ns: *namespace
+              nextBatch:
+                - { _id: 4, x: 44 }
+          command_name: "getMore"
   -
     description: "A failed find event"
     operation:

@@ -92,6 +92,26 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
         public async Task RunTestDefinitionAsync(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition)
         {
+            BsonValue bsonValue;
+            if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
+            {
+                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var maxServerVersion = SemanticVersion.Parse(bsonValue.AsString);
+                if (serverVersion > maxServerVersion)
+                {
+                    Assert.Ignore($"Test ignored because server version {serverVersion} is greater than max server version {maxServerVersion}.");
+                }
+            }
+            if (definition.TryGetValue("ignore_if_server_version_less_than", out bsonValue))
+            {
+                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var minServerVersion = SemanticVersion.Parse(bsonValue.AsString);
+                if (serverVersion < minServerVersion)
+                {
+                    Assert.Ignore($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
+                }
+            }
+
             var database = __client
                 .GetDatabase(databaseName);
             var collection = database

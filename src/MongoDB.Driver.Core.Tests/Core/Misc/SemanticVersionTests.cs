@@ -74,10 +74,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Test]
         [TestCase("1")]
-        [TestCase("1.0")]
-        [TestCase("1.0.a")]
         [TestCase("1-rc2")]
-        [TestCase("1.0-rc2")]
         [TestCase("alpha")]
         public void Parse_should_throw_a_FormatException_when_the_version_string_is_invalid(string versionString)
         {

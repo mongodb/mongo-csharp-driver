@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Core.Misc
                 {
                     var major = int.Parse(match.Groups["major"].Value);
                     var minor = int.Parse(match.Groups["minor"].Value);
-                    var patch = int.Parse(match.Groups["patch"].Value);
+                    var patch = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
                     var preRelease = match.Groups["preRelease"].Success ? match.Groups["preRelease"].Value : null;
 
                     result = new SemanticVersion(major, minor, patch, preRelease);
