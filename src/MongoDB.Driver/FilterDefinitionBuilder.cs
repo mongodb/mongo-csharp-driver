@@ -1150,7 +1150,28 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A type filter.</returns>
+        public FilterDefinition<TDocument> Type(FieldDefinition<TDocument> field, string type)
+        {
+            return new OperatorFilterDefinition<TDocument>("$type", field, type);
+        }
+
+        /// <summary>
+        /// Creates a type filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>A type filter.</returns>
         public FilterDefinition<TDocument> Type(Expression<Func<TDocument, object>> field, BsonType type)
+        {
+            return Type(new ExpressionFieldDefinition<TDocument>(field), type);
+        }
+        /// <summary>
+        /// Creates a type filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>A type filter.</returns>
+        public FilterDefinition<TDocument> Type(Expression<Func<TDocument, object>> field, string type)
         {
             return Type(new ExpressionFieldDefinition<TDocument>(field), type);
         }

@@ -817,11 +817,27 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Type_string()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Type("x", "string"), "{x: {$type: \"string\"}}");
+        }
+
+        [Test]
         public void Type_Typed()
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Type(x => x.FirstName, BsonType.String), "{fn: {$type: 2}}");
             Assert(subject.Type("FirstName", BsonType.String), "{fn: {$type: 2}}");
+        }
+
+        [Test]
+        public void Type_Typed_string()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Type(x => x.FirstName, "string"), "{fn: {$type: \"string\"}}");
+            Assert(subject.Type("FirstName", "string"), "{fn: {$type: \"string\"}}");
         }
 
         private void Assert<TDocument>(FilterDefinition<TDocument> filter, string expected)
