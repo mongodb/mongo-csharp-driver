@@ -127,16 +127,17 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating a collection.
     /// </summary>
-    public class CreateCollectionOptions<TDocument> : CreateCollectionOptions
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class CreateCollectionOptions<TDocument> : CreateCollectionOptions
     {
         #region static
-        // public static methods
+        // internal static methods
         /// <summary>
         /// Coerces a generic CreateCollectionOptions{TDocument} from a non-generic CreateCollectionOptions.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The generic options.</returns>
-        public static CreateCollectionOptions<TDocument> CoercedFrom(CreateCollectionOptions options)
+        internal static CreateCollectionOptions<TDocument> CoercedFrom(CreateCollectionOptions options)
         {
             if (options == null)
             {
