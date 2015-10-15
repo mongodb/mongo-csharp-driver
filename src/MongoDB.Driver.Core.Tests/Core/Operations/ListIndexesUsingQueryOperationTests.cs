@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_expected_result_when_collection_does_not_exist(
             [Values(false, true)]
             bool async)
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_expected_result_when_database_does_not_exist(
             [Values(false, true)]
             bool async)

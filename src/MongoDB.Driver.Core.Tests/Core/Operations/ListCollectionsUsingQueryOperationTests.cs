@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("EnsureCollectionsExist", StorageEngines = "mmapv1")]
+        [RequiresServer("EnsureCollectionsExist", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result(
             [Values(false, true)]
             bool async)
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
         [TestCase("{ name : \"regular\" }", "regular", true)]
         [TestCase("{ \"options.capped\" : true }", "capped", false)]
         [TestCase("{ \"options.capped\" : true }", "capped", true)]
-        [RequiresServer("EnsureCollectionsExist", StorageEngines = "mmapv1")]
+        [RequiresServer("EnsureCollectionsExist", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
             var filter = BsonDocument.Parse(filterString);
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result_when_the_database_does_not_exist(
             [Values(false, true)]
             bool async)
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(VersionLessThan = "2.7.0")]
+        [RequiresServer(VersionLessThan = "2.7.0", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void Execute_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server(
             [Values(false, true)]
             bool async)

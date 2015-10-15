@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Operations
         }
 
         [Test]
-        [RequiresServer(MinimumVersion = "3.1.1")]
+        [RequiresServer(MinimumVersion = "3.1.2")]
         public void Execute_should_return_expected_result()
         {
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
