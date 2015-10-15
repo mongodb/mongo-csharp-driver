@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _noCursorTimeout;
         private bool? _oplogReplay;
         private BsonDocument _projection;
-        private int? _readConcern;
+        private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private bool? _returnKey;
         private bool? _showRecordId;
@@ -296,10 +296,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The read concern.
         /// </value>
-        public int? ReadConcern
+        public ReadConcern ReadConcern
         {
             get { return _readConcern; }
-            set { _readConcern = value; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         /// <summary>
@@ -388,6 +388,8 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         private BsonDocument CreateCommand(ServerDescription serverDescription, ReadPreference readPreference)
         {
+            _readConcern.ThrowIfNotSupported(serverDescription.Version);
+
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
             var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverDescription.Type, readPreference);
             var isShardRouter = serverDescription.Type == ServerType.ShardRouter;
@@ -417,7 +419,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
-                { "readConcern", () => _readConcern.Value, _readConcern.HasValue }
+                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverDescription.Version) }
             };
 
             return command;

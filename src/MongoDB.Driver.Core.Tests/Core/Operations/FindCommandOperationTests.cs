@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoCursorTimeout.Should().NotHaveValue();
             subject.OplogReplay.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
-            subject.ReadConcern.Should().NotHaveValue();
+            subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             subject.ReturnKey.Should().NotHaveValue();
             subject.ShowRecordId.Should().NotHaveValue();
@@ -380,17 +381,17 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         public void CreateCommand_should_return_expected_result_when_readConcern_is_provided(
-            [Values(0, 1)]
-            int value)
+            [Values("{level: 'local'}", "{level: 'majority'}")]
+            string readConcernJson)
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            subject.ReadConcern = value;
+            subject.ReadConcern = ReadConcern.FromBsonDocument(BsonDocument.Parse(readConcernJson));
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
             var result = reflector.CreateCommand(serverDescription, null);
 
-            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readConcern : {value} }}");
+            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readConcern : {readConcernJson} }}");
         }
 
         [Test]
@@ -746,16 +747,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void ReadConcern_get_and_set_should_work(
-            [Values(null, 0, 1)]
-            int? value)
+        public void ReadConcern_get_and_set_should_work()
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.ReadConcern = value;
+            subject.ReadConcern = ReadConcern.Majority;
             var result = subject.ReadConcern;
 
-            result.Should().Be(value);
+            result.Should().Be(ReadConcern.Majority);
         }
 
         [Test]
@@ -866,7 +865,7 @@ namespace MongoDB.Driver.Core.Operations
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            return new ServerDescription(serverId, endPoint, type: type);
+            return new ServerDescription(serverId, endPoint, type: type, version: new SemanticVersion(3, 2, 0));
         }
 
         private void EnsureTestData()

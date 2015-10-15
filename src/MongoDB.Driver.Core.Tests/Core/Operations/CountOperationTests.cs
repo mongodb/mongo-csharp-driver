@@ -44,8 +44,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_create_the_correct_command()
+        public void CreateCommand_should_create_the_correct_command(
+            [Values("3.0.0", "3.2.0")] string serverVersion,
+            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
+            var semanticServerVersion = SemanticVersion.Parse(serverVersion);
             var filter = new BsonDocument("x", 1);
             var hint = "funny";
             var limit = 10;
@@ -69,9 +72,21 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", maxTime.TotalMilliseconds }
             };
 
-            var result = subject.CreateCommand();
+            if (subject.ReadConcern.ShouldBeSent(semanticServerVersion))
+            {
+                expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
+            }
 
-            result.Should().Be(expectedResult);
+            if (semanticServerVersion < new SemanticVersion(3, 2, 0) && subject.ReadConcern.Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local)
+            {
+                Action act = () => subject.CreateCommand(semanticServerVersion);
+                act.ShouldThrow<MongoClientException>();
+            }
+            else
+            {
+                var result = subject.CreateCommand(semanticServerVersion);
+                result.Should().Be(expectedResult);
+            }
         }
 
         [Test]

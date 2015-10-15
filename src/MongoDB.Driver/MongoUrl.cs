@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         private readonly int _maxConnectionPoolSize;
         private readonly int _minConnectionPoolSize;
         private readonly string _password;
+        private readonly ReadConcernLevel? _readConcernLevel;
         private readonly ReadPreference _readPreference;
         private readonly string _replicaSetName;
         private readonly TimeSpan _localThreshold;
@@ -86,6 +87,7 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = builder.MaxConnectionPoolSize;
             _minConnectionPoolSize = builder.MinConnectionPoolSize;
             _password = builder.Password;
+            _readConcernLevel = builder.ReadConcernLevel;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
             _servers = builder.Servers;
@@ -247,6 +249,14 @@ namespace MongoDB.Driver
         public string Password
         {
             get { return _password; }
+        }
+
+        /// <summary>
+        /// Gets the read concern level.
+        /// </summary>
+        public ReadConcernLevel? ReadConcernLevel
+        {
+            get { return _readConcernLevel; }
         }
 
         /// <summary>

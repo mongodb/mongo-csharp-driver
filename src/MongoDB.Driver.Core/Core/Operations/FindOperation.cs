@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _noCursorTimeout;
         private bool? _oplogReplay;
         private BsonDocument _projection;
-        private int? _readConcern;
+        private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private bool? _returnKey;
         private bool? _showRecordId;
@@ -303,10 +303,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The read concern.
         /// </value>
-        public int? ReadConcern
+        public ReadConcern ReadConcern
         {
             get { return _readConcern; }
-            set { _readConcern = value; }
+            set { _readConcern = Ensure.IsNotNull(value, "value"); }
         }
 
         /// <summary>
@@ -530,9 +530,11 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
+                // this is here because FindOpcodeOperation doesn't support
+                // read concern
+                _readConcern.ThrowIfNotSupported(serverVersion);
                 return CreateFindOpcodeOperation();
             }
         }
     }
 }
-

@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Tests
                 MaxConnectionPoolSize = 4,
                 MinConnectionPoolSize = 5,
                 Password = "password",
+                ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
                 LocalThreshold = TimeSpan.FromSeconds(6),
@@ -76,6 +77,7 @@ namespace MongoDB.Driver.Tests
                 "sslVerifyCertificate=false", // VerifySslCertificate
                 "connect=replicaSet",
                 "replicaSet=name",
+                "readConcernLevel=majority",
                 "readPreference=secondary;readPreferenceTags=dc:1",
                 "fsync=true",
                 "journal=true",
@@ -112,6 +114,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(4, url.MaxConnectionPoolSize);
                 Assert.AreEqual(5, url.MinConnectionPoolSize);
                 Assert.AreEqual("password", url.Password);
+                Assert.AreEqual(ReadConcernLevel.Majority, url.ReadConcernLevel);
                 Assert.AreEqual(readPreference, url.ReadPreference);
                 Assert.AreEqual("name", url.ReplicaSetName);
                 Assert.AreEqual(TimeSpan.FromSeconds(6), url.LocalThreshold);

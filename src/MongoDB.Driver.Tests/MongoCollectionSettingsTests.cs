@@ -30,12 +30,14 @@ namespace MongoDB.Driver.Tests
             {
                 AssignIdOnInsert = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                ReadConcern = ReadConcern.Majority,
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual(true, settings.AssignIdOnInsert);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
+            Assert.AreEqual(ReadConcern.Majority, settings.ReadConcern);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
         }
@@ -63,6 +65,7 @@ namespace MongoDB.Driver.Tests
             {
                 AssignIdOnInsert = !MongoDefaults.AssignIdOnInsert,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                ReadConcern = ReadConcern.Majority,
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.W2
             };
@@ -76,6 +79,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoCollectionSettings();
             Assert.AreEqual(false, settings.AssignIdOnInsert);
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.AreEqual(null, settings.ReadConcern);
             Assert.AreEqual(null, settings.ReadPreference);
             Assert.AreEqual(null, settings.WriteConcern);
         }
@@ -99,6 +103,9 @@ namespace MongoDB.Driver.Tests
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
             Assert.IsFalse(clone.Equals(settings));
 
+            clone = settings.Clone();
+            clone.ReadConcern = ReadConcern.Majority;
+            Assert.IsFalse(clone.Equals(settings));
             clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
             Assert.IsFalse(clone.Equals(settings));
@@ -151,6 +158,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
             Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
+        }
+
+        [Test]
+        public void TestReadConcern()
+        {
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(null, settings.ReadConcern);
+
+            var readConcern = ReadConcern.Majority;
+            settings.ReadConcern = readConcern;
+            Assert.AreEqual(readConcern, settings.ReadConcern);
+
+            settings.Freeze();
+            Assert.AreEqual(readConcern, settings.ReadConcern);
+            Assert.Throws<InvalidOperationException>(() => { settings.ReadConcern = readConcern; });
         }
 
         [Test]

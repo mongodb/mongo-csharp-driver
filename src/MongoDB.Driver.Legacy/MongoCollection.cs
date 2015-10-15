@@ -158,6 +158,7 @@ namespace MongoDB.Driver
                     AllowDiskUse = args.AllowDiskUse,
                     BatchSize = args.BatchSize,
                     MaxTime = args.MaxTime,
+                    ReadConcern = _settings.ReadConcern,
                     UseCursor = args.OutputMode == AggregateOutputMode.Cursor
                 };
                 return new AggregateEnumerable(this, operation, _settings.ReadPreference);
@@ -205,6 +206,7 @@ namespace MongoDB.Driver
                 Hint = args.Hint,
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
+                ReadConcern = _settings.ReadConcern,
                 Skip = args.Skip
             };
 
@@ -282,6 +284,7 @@ namespace MongoDB.Driver
             {
                 Filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
+                ReadConcern = _settings.ReadConcern
             };
 
             return ExecuteReadOperation(operation).ToList();
@@ -2031,12 +2034,12 @@ namespace MongoDB.Driver
 
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer)
         {
-            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer);
+            return MongoCursor.Create(documentType, this, query, _settings.ReadConcern, _settings.ReadPreference, serializer);
         }
 
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
-            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
+            return new MongoCursor<TDocument>(this, query, _settings.ReadConcern, _settings.ReadPreference, serializer);
         }
     }
 

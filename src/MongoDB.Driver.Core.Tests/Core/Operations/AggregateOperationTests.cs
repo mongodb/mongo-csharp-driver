@@ -120,10 +120,11 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         public void CreateCommand_should_create_the_correct_command(
-            [Values("2.4.0", "2.6.0", "2.8.0")] string serverVersion,
+            [Values("2.4.0", "2.6.0", "2.8.0", "3.0.0", "3.2.0")] string serverVersion,
             [Values(null, false, true)] bool? allowDiskUse,
             [Values(null, 10, 20)] int? batchSize,
             [Values(null, 2000)] int? maxTime,
+            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel,
             [Values(null, false, true)] bool? useCursor)
         {
             var semanticServerVersion = SemanticVersion.Parse(serverVersion);
@@ -132,6 +133,7 @@ namespace MongoDB.Driver.Core.Operations
                 AllowDiskUse = allowDiskUse,
                 BatchSize = batchSize,
                 MaxTime = maxTime.HasValue ? TimeSpan.FromMilliseconds(maxTime.Value) : (TimeSpan?)null,
+                ReadConcern = new ReadConcern(readConcernLevel),
                 UseCursor = useCursor
             };
 
@@ -143,6 +145,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
             };
 
+            if (subject.ReadConcern.ShouldBeSent(semanticServerVersion))
+            {
+                expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
+            }
+
             if (semanticServerVersion >= new SemanticVersion(2, 6, 0) && useCursor.GetValueOrDefault(true))
             {
                 expectedResult["cursor"] = new BsonDocument
@@ -151,9 +158,16 @@ namespace MongoDB.Driver.Core.Operations
                 };
             }
 
-            var result = subject.CreateCommand(semanticServerVersion);
-
-            result.Should().Be(expectedResult);
+            if (semanticServerVersion < new SemanticVersion(3, 2, 0) && subject.ReadConcern.Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local)
+            {
+                Action act = () => subject.CreateCommand(semanticServerVersion);
+                act.ShouldThrow<MongoClientException>();
+            }
+            else
+            {
+                var result = subject.CreateCommand(semanticServerVersion);
+                result.Should().Be(expectedResult);
+            }
         }
 
         [Test]

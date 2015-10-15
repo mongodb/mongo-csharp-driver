@@ -25,6 +25,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver
 {
     [TestFixture]
+    [Category("WriteConcern")]
     public class WriteConcernTests
     {
         [Test]
@@ -322,11 +323,11 @@ namespace MongoDB.Driver
 
         [TestCase(0, null, null, null, false)]
         [TestCase(1, null, null, null, true)]
-        [TestCase(0, false, null, null, true)]
+        [TestCase(0, false, null, null, false)]
         [TestCase(0, true, null, null, true)]
-        [TestCase(0, null, false, null, true)]
+        [TestCase(0, null, false, null, false)]
         [TestCase(0, null, true, null, true)]
-        [TestCase(0, null, null, 1, true)]
+        [TestCase(0, null, null, 1, false)]
         public void IsAcknowledged_should_return_expected_result(
             int? w,
             bool? fsync,
@@ -394,7 +395,7 @@ namespace MongoDB.Driver
             var subject = new WriteConcern(wValue, wTimeout, fsync, journal);
 
             var result = subject.ToString();
-            
+
             result.Should().Be(expectedResult);
         }
 
@@ -692,7 +693,7 @@ namespace MongoDB.Driver
             var subject = new WriteConcern.WCount(1);
 
             var result = subject.ToString();
-            
+
             result.Should().Be("1");
         }
     }
@@ -781,7 +782,7 @@ namespace MongoDB.Driver
             var subject = new WriteConcern.WMode("mode");
 
             var result = subject.ToString();
-            
+
             result.Should().Be("mode");
         }
     }

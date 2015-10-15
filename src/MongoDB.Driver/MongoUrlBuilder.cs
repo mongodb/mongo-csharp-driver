@@ -51,6 +51,7 @@ namespace MongoDB.Driver
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
         private string _password;
+        private ReadConcernLevel? _readConcernLevel;
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private IEnumerable<MongoServerAddress> _servers;
@@ -86,6 +87,7 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             _password = null;
+            _readConcernLevel = null;
             _readPreference = null;
             _replicaSetName = null;
             _localThreshold = MongoDefaults.LocalThreshold;
@@ -332,6 +334,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read concern level.
+        /// </summary>
+        public ReadConcernLevel? ReadConcernLevel
+        {
+            get { return _readConcernLevel; }
+            set { _readConcernLevel = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the read preference.
         /// </summary>
         public ReadPreference ReadPreference
@@ -569,6 +580,7 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
             _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
             _password = connectionString.Password;
+            _readConcernLevel = connectionString.ReadConcernLevel;
             if (connectionString.ReadPreference != null)
             {
                 _readPreference = new ReadPreference(connectionString.ReadPreference.Value);
@@ -709,6 +721,10 @@ namespace MongoDB.Driver
             if (!string.IsNullOrEmpty(_replicaSetName))
             {
                 query.AppendFormat("replicaSet={0};", _replicaSetName);
+            }
+            if (_readConcernLevel != null)
+            {
+                query.AppendFormat("readConcernLevel={0};", MongoUtils.ToCamelCase(_readConcernLevel.Value.ToString()));
             }
             if (_readPreference != null)
             {

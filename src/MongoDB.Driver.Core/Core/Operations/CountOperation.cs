@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private long? _limit;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private ReadConcern _readConcern = ReadConcern.Default;
         private long? _skip;
 
         // constructors
@@ -122,6 +123,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        /// <summary>
         /// Gets or sets the number of documents to skip before counting the remaining matching documents.
         /// </summary>
         /// <value>
@@ -134,8 +147,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            _readConcern.ThrowIfNotSupported(serverVersion);
+
             return new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName },
@@ -143,7 +158,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverVersion) }
             };
         }
 
@@ -151,39 +167,33 @@ namespace MongoDB.Driver.Core.Operations
         public long Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var document = operation.Execute(binding, cancellationToken);
-            return document["n"].ToInt64();
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var document = operation.Execute(channelBinding, cancellationToken);
+                return document["n"].ToInt64();
+            }
         }
 
         /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var document = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return document["n"].ToInt64();
-        }
-
-        /// <summary>
-        /// Returns an explain operation for this count operation.
-        /// </summary>
-        /// <param name="verbosity">The verbosity.</param>
-        /// <returns>An explain operation.</returns>
-        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
-        {
-            return new ExplainOperation(
-                _collectionNamespace.DatabaseNamespace,
-                CreateCommand(),
-                _messageEncoderSettings)
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                Verbosity = verbosity
-            };
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var document = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                return document["n"].ToInt64();
+            }
         }
 
-        private ReadCommandOperation<BsonDocument> CreateOperation()
+        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }

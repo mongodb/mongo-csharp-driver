@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver
 {
     internal class OfTypeMongoCollection<TRootDocument, TDerivedDocument> : FilteredMongoCollectionBase<TDerivedDocument>
@@ -35,6 +37,11 @@ namespace MongoDB.Driver
         public override IFilteredMongoCollection<TMoreDerivedDocument> OfType<TMoreDerivedDocument>()
         {
             return _rootDocumentCollection.OfType<TMoreDerivedDocument>();
+        }
+
+        public override IMongoCollection<TDerivedDocument> WithReadConcern(ReadConcern readConcern)
+        {
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadConcern(readConcern), Filter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)

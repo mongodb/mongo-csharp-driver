@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -43,6 +44,7 @@ namespace MongoDB.Driver
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
         private TimeSpan _operationTimeout;
+        private ReadConcern _readConcern;
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
@@ -79,6 +81,7 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             _operationTimeout = MongoDefaults.OperationTimeout;
+            _readConcern = ReadConcern.Default;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
@@ -269,6 +272,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _operationTimeout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _readConcern = Ensure.IsNotNull(value, nameof(value));
             }
         }
 
@@ -517,6 +533,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = clientSettings.MinConnectionPoolSize;
+            serverSettings.ReadConcern = clientSettings.ReadConcern;
             serverSettings.ReadEncoding = clientSettings.ReadEncoding;
             serverSettings.ReadPreference = clientSettings.ReadPreference;
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
@@ -571,6 +588,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
+            serverSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             serverSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             serverSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             serverSettings.ReplicaSetName = url.ReplicaSetName;
@@ -607,6 +625,7 @@ namespace MongoDB.Driver
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
             clone._operationTimeout = _operationTimeout;
+            clone._readConcern = _readConcern;
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
@@ -659,6 +678,7 @@ namespace MongoDB.Driver
                _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                _operationTimeout == rhs._operationTimeout &&
+               object.Equals(_readConcern, rhs._readConcern) &&
                object.Equals(_readEncoding, rhs._readEncoding) &&
                _readPreference.Equals(rhs._readPreference) &&
                _replicaSetName == rhs._replicaSetName &&
@@ -729,6 +749,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
                 .Hash(_operationTimeout)
+                .Hash(_readConcern)
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
@@ -768,6 +789,7 @@ namespace MongoDB.Driver
             parts.Add(string.Format("MaxConnectionPoolSize={0}", _maxConnectionPoolSize));
             parts.Add(string.Format("MinConnectionPoolSize={0}", _minConnectionPoolSize));
             parts.Add(string.Format("OperationTimeout={0}", _operationTimeout));
+            parts.Add(string.Format("ReadConcern={0}", _readConcern));
             if (_readEncoding != null)
             {
                 parts.Add("ReadEncoding=UTF8Encoding");

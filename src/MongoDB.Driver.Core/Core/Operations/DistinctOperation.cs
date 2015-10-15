@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private string _fieldName;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
+        private ReadConcern _readConcern = ReadConcern.Default;
         private IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
@@ -115,6 +116,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        /// <summary>
         /// Gets the value serializer.
         /// </summary>
         /// <value>
@@ -130,35 +143,48 @@ namespace MongoDB.Driver.Core.Operations
         public IAsyncCursor<TValue> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var values = operation.Execute(binding, cancellationToken);
-            return new SingleBatchAsyncCursor<TValue>(values);
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var values = operation.Execute(channelBinding, cancellationToken);
+                return new SingleBatchAsyncCursor<TValue>(values);
+            }
         }
 
         /// <inheritdoc/>
         public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var values = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return new SingleBatchAsyncCursor<TValue>(values);
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var values = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                return new SingleBatchAsyncCursor<TValue>(values);
+            }
         }
 
         // private methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            _readConcern.ThrowIfNotSupported(serverVersion);
+
             return new BsonDocument
             {
                 { "distinct", _collectionNamespace.CollectionName },
                 { "key", _fieldName },
                 { "query", _filter, _filter != null },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverVersion) }
            };
         }
 
-        private ReadCommandOperation<TValue[]> CreateOperation()
+        private ReadCommandOperation<TValue[]> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
             return new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);

@@ -139,6 +139,7 @@ namespace MongoDB.Driver
                     AllowDiskUse = options.AllowDiskUse,
                     BatchSize = options.BatchSize,
                     MaxTime = options.MaxTime,
+                    ReadConcern = _settings.ReadConcern,
                     UseCursor = options.UseCursor
                 };
                 return await ExecuteReadOperationAsync(aggregateOperation, cancellationToken).ConfigureAwait(false);
@@ -187,6 +188,7 @@ namespace MongoDB.Driver
                 Hint = options.Hint,
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
                 Skip = options.Skip
             };
 
@@ -208,7 +210,8 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                MaxTime = options.MaxTime
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern
             };
 
             return ExecuteReadOperationAsync(operation, cancellationToken);
@@ -238,6 +241,7 @@ namespace MongoDB.Driver
                 NoCursorTimeout = options.NoCursorTimeout,
                 OplogReplay = options.OplogReplay,
                 Projection = renderedProjection.Document,
+                ReadConcern = _settings.ReadConcern,
                 Skip = options.Skip,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
@@ -411,6 +415,13 @@ namespace MongoDB.Driver
             var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(renderedOfTypeFilter);
 
             return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
+        }
+
+        public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoCollectionImpl<TDocument>(_database, _collectionNamespace, newSettings, _cluster, _operationExecutor);
         }
 
         public override IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference)

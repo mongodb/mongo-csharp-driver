@@ -37,6 +37,7 @@ namespace MongoDB.Driver
     public class MongoCollectionImplTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+        private readonly ReadConcern _readConcern = ReadConcern.Majority;
         private MockOperationExecutor _operationExecutor;
 
         [SetUp]
@@ -47,7 +48,10 @@ namespace MongoDB.Driver
 
         private MongoCollectionImpl<TDocument> CreateSubject<TDocument>()
         {
-            var settings = new MongoCollectionSettings();
+            var settings = new MongoCollectionSettings
+            {
+                ReadConcern = _readConcern
+            };
             var dbSettings = new MongoDatabaseSettings();
             dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
@@ -109,6 +113,7 @@ namespace MongoDB.Driver
             operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
             operation.UseCursor.Should().Be(options.UseCursor);
         }
 
@@ -320,6 +325,7 @@ namespace MongoDB.Driver
             operation.Hint.Should().Be(options.Hint);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
             operation.Skip.Should().Be(options.Skip);
         }
 
@@ -438,6 +444,7 @@ namespace MongoDB.Driver
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filter);
             operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
         }
 
         [Test]
@@ -484,6 +491,7 @@ namespace MongoDB.Driver
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
+            operation.ReadConcern.Should().Be(_readConcern);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
         }
@@ -532,6 +540,7 @@ namespace MongoDB.Driver
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projection);
+            operation.ReadConcern.Should().Be(_readConcern);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
         }
@@ -554,6 +563,7 @@ namespace MongoDB.Driver
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<BsonDocumentSerializer>();
+            operation.ReadConcern.Should().Be(_readConcern);
         }
 
         [Test]

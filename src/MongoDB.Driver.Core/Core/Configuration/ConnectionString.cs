@@ -56,6 +56,7 @@ namespace MongoDB.Driver.Core.Configuration
         private int? _maxPoolSize;
         private int? _minPoolSize;
         private string _password;
+        private ReadConcernLevel? _readConcernLevel;
         private ReadPreferenceMode? _readPreference;
         private IReadOnlyList<TagSet> _readPreferenceTags;
         private string _replicaSet;
@@ -229,6 +230,17 @@ namespace MongoDB.Driver.Core.Configuration
         public string Password
         {
             get { return _password; }
+        }
+
+        /// <summary>
+        /// Gets the read concern level.
+        /// </summary>
+        /// <value>
+        /// The read concern level.
+        /// </value>
+        public ReadConcernLevel? ReadConcernLevel
+        {
+            get { return _readConcernLevel; }
         }
 
         /// <summary>
@@ -489,6 +501,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);
                     break;
+                case "readconcernlevel":
+                    _readConcernLevel = ParseEnum<ReadConcernLevel>(name, value);
+                    break;
                 case "readpreference":
                     _readPreference = ParseEnum<ReadPreferenceMode>(name, value);
                     break;
@@ -568,6 +583,10 @@ namespace MongoDB.Driver.Core.Configuration
                 case "wtimeout":
                 case "wtimeoutms":
                     _wTimeout = ParseTimeSpan(name, value);
+                    if (_wTimeout < TimeSpan.Zero)
+                    {
+                        throw new MongoConfigurationException($"{name} must be greater than or equal to 0.");
+                    }
                     break;
                 case "waitqueuemultiple":
                     _waitQueueMultiple = ParseDouble(name, value);

@@ -159,6 +159,8 @@
     <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
     <Compile Include="SetUpFixture.cs" />
     <Compile Include="Specifications\connection-string\TestRunner.cs" />
+    <Compile Include="Specifications\read-write-concern\DocumentTestRunner.cs" />
+    <Compile Include="Specifications\read-write-concern\ConnectionStringTestRunner.cs" />
     <Compile Include="Specifications\server-discovery-and-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\server-selection\ServerSelectionTestRunner.cs" />
     <Compile Include="Specifications\server-selection\RttTestRunner.cs" />
@@ -192,6 +194,7 @@
     <Compile Include="Core\Misc\SemanticVersionTests.cs" />
     <Compile Include="Core\Misc\InterlockedInt32Tests.cs" />
     <Compile Include="Core\Misc\TimeSpanParserTests.cs" />
+    <Compile Include="ReadConcernTests.cs" />
     <Compile Include="WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Servers\ServerDescriptionTests.cs" />
@@ -259,6 +262,16 @@
     <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-relative.yml" />
     <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.json" />
     <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\read-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\read-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\write-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\write-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\read-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\read-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\write-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\write-concern.yml" />
+    <None Include="Specifications\read-write-concern\tests\Makefile" />
+    <None Include="Specifications\read-write-concern\tests\README.rst" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\Makefile" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\README.rst" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discovery.json" />

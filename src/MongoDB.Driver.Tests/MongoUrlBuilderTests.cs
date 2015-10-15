@@ -54,6 +54,7 @@ namespace MongoDB.Driver.Tests
                 MaxConnectionPoolSize = 4,
                 MinConnectionPoolSize = 5,
                 Password = "password",
+                ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
                 LocalThreshold = TimeSpan.FromSeconds(6),
@@ -78,6 +79,7 @@ namespace MongoDB.Driver.Tests
                 "sslVerifyCertificate=false", // VerifySslCertificate
                 "connect=replicaSet",
                 "replicaSet=name",
+                "readConcernLevel=majority",
                 "readPreference=secondary;readPreferenceTags=dc:1",
                 "fsync=true",
                 "journal=true",
@@ -114,6 +116,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(4, builder.MaxConnectionPoolSize);
                 Assert.AreEqual(5, builder.MinConnectionPoolSize);
                 Assert.AreEqual("password", builder.Password);
+                Assert.AreEqual(ReadConcernLevel.Majority, builder.ReadConcernLevel);
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.LocalThreshold);
@@ -571,6 +574,20 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MinConnectionPoolSize = -1; });
             builder.MinConnectionPoolSize = 0;
             builder.MinConnectionPoolSize = 1;
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost/?readConcernLevel=local", ReadConcernLevel.Local)]
+        [TestCase("mongodb://localhost/?readConcernLevel=majority", ReadConcernLevel.Majority)]
+        public void TestReadConcernLevel(string connectionString, ReadConcernLevel readConcernLevel)
+        {
+            var built = new MongoUrlBuilder { ReadConcernLevel = readConcernLevel };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(readConcernLevel, builder.ReadConcernLevel);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
         }
 
         [Test]

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
             var connectionString =
                 "mongodb://user1:password1@somehost/?" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
+                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(ReadConcern.Default, settings.ReadConcern);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(_localHost, settings.Server);
@@ -159,6 +160,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.MaxConnectionPoolSize = settings.MaxConnectionPoolSize + 1;
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.ReadConcern = ReadConcern.Majority;
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -236,7 +241,7 @@ namespace MongoDB.Driver.Tests
             var connectionString =
                 "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
+                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
@@ -259,6 +264,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(url.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(url.ReadConcernLevel, settings.ReadConcern.Level);
             Assert.AreEqual(url.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
             Assert.AreEqual(url.LocalThreshold, settings.LocalThreshold);
@@ -388,6 +394,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(minConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Throws<InvalidOperationException>(() => { settings.MinConnectionPoolSize = minConnectionPoolSize; });
+        }
+
+        [Test]
+        public void TestReadConcern()
+        {
+            var settings = new MongoClientSettings();
+            Assert.AreEqual(ReadConcern.Default, settings.ReadConcern);
+
+            var readConcern = ReadConcern.Majority;
+            settings.ReadConcern = readConcern;
+            Assert.AreSame(readConcern, settings.ReadConcern);
+
+            settings.Freeze();
+            Assert.AreEqual(readConcern, settings.ReadConcern);
+            Assert.Throws<InvalidOperationException>(() => { settings.ReadConcern = ReadConcern.Default; });
         }
 
         [Test]

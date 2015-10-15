@@ -206,6 +206,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
         /// <inheritdoc />

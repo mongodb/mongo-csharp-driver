@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -28,6 +29,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
@@ -66,6 +68,19 @@ namespace MongoDB.Driver
         public bool IsFrozen
         {
             get { return _isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern.Value; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _readConcern.Value = Ensure.IsNotNull(value, nameof(value));
+            }
         }
 
         /// <summary>
@@ -145,6 +160,7 @@ namespace MongoDB.Driver
         {
             var clone = new MongoDatabaseSettings();
             clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
@@ -174,8 +190,9 @@ namespace MongoDB.Driver
                 {
                     return
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                        _readConcern.Value == rhs._readConcern.Value &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
-                        _readPreference.Value == rhs._readPreference.Value &&
+                        object.Equals(_readPreference.Value, rhs._readPreference.Value) &&
                         _writeConcern.Value == rhs._writeConcern.Value &&
                         object.Equals(_writeEncoding, rhs._writeEncoding);
                 }
@@ -227,6 +244,7 @@ namespace MongoDB.Driver
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
@@ -247,6 +265,7 @@ namespace MongoDB.Driver
 
             var parts = new List<string>();
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
+            parts.Add(string.Format("ReadConcern={0}", _readConcern.Value));
             if (_readEncoding.HasBeenSet)
             {
                 parts.Add(string.Format("ReadEncoding={0}", (_readEncoding.Value == null) ? "null" : "UTF8Encoding"));
@@ -266,6 +285,10 @@ namespace MongoDB.Driver
             if (!_guidRepresentation.HasBeenSet)
             {
                 GuidRepresentation = clientSettings.GuidRepresentation;
+            }
+            if (!_readConcern.HasBeenSet)
+            {
+                ReadConcern = clientSettings.ReadConcern;
             }
             if (!_readEncoding.HasBeenSet)
             {

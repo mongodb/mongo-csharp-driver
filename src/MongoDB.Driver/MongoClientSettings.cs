@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -42,6 +43,7 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private ReadConcern _readConcern;
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
@@ -77,6 +79,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readConcern = ReadConcern.Default;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
@@ -245,6 +248,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _readConcern = Ensure.IsNotNull(value, nameof(value));
             }
         }
 
@@ -511,6 +527,7 @@ namespace MongoDB.Driver
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
             clientSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
+            clientSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             clientSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             clientSettings.ReplicaSetName = url.ReplicaSetName;
@@ -546,6 +563,7 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
+            clone._readConcern = _readConcern;
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
@@ -598,6 +616,7 @@ namespace MongoDB.Driver
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 object.Equals(_readEncoding, rhs._readEncoding) &&
+                object.Equals(_readConcern, rhs._readConcern) &&
                 _readPreference == rhs._readPreference &&
                 _replicaSetName == rhs._replicaSetName &&
                 _localThreshold == rhs._localThreshold &&
@@ -666,6 +685,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
+                .Hash(_readConcern)
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
@@ -708,6 +728,7 @@ namespace MongoDB.Driver
             {
                 sb.Append("ReadEncoding=UTF8Encoding;");
             }
+            sb.AppendFormat("ReadConcern={0};", _readConcern);
             sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("LocalThreshold={0};", _localThreshold);

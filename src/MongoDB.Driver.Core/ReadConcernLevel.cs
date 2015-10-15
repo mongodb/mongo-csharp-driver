@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using MongoDB.Bson;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
-    internal interface IInheritableMongoClientSettings
+    /// <summary>
+    /// The leve of the read concern.
+    /// </summary>
+    public enum ReadConcernLevel
     {
-        GuidRepresentation GuidRepresentation { get; }
-        ReadConcern ReadConcern { get; }
-        UTF8Encoding ReadEncoding { get; }
-        ReadPreference ReadPreference { get; }
-        WriteConcern WriteConcern { get; }
-        UTF8Encoding WriteEncoding { get; }
+        /// <summary>
+        /// Reads data committed locally.
+        /// </summary>
+        Local,
+        /// <summary>
+        /// Reads data committed to a majority of nodes.
+        /// </summary>
+        Majority
     }
 }

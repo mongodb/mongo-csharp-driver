@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoCursorTimeout.Should().NotHaveValue();
             subject.OplogReplay.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
-            subject.ReadConcern.Should().NotHaveValue();
+            subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             subject.ReturnKey.Should().NotHaveValue();
             subject.ShowRecordId.Should().NotHaveValue();
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoCursorTimeout = true;
             subject.OplogReplay = true;
             subject.Projection = new BsonDocument("projection", 1);
-            subject.ReadConcern = 5;
+            subject.ReadConcern = ReadConcern.Local;
             subject.ReturnKey = true;
             subject.ShowRecordId = true;
             subject.SingleBatch = true;
@@ -211,7 +211,10 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateFindCommandOperation_should_return_expected_result_when_modifiers_are_provided()
         {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                ReadConcern = ReadConcern.Majority
+            };
             subject.Modifiers = new BsonDocument
             {
                 { "$hint", "x_1" },
@@ -231,6 +234,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MaxScan.Should().Be(subject.Modifiers["$maxScan"].AsInt32);
             result.MaxTime.Should().Be(TimeSpan.FromMilliseconds(subject.Modifiers["$maxTimeMS"].AsInt32));
             result.Min.Should().Be(subject.Modifiers["$min"].AsBsonDocument);
+            result.ReadConcern.Should().Be(subject.ReadConcern);
             result.ShowRecordId.Should().Be(subject.Modifiers["$showDiskLoc"].AsBoolean);
             result.Snapshot.Should().Be(subject.Modifiers["$snapshot"].AsBoolean);
             result.Sort.Should().Be(subject.Modifiers["$orderby"].AsBsonDocument);
@@ -254,7 +258,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoCursorTimeout = true;
             subject.OplogReplay = true;
             subject.Projection = new BsonDocument("projection", 1);
-            subject.ReadConcern = 5;
+            subject.ReadConcern = ReadConcern.Local;
             subject.ReturnKey = true;
             subject.ShowRecordId = true;
             subject.SingleBatch = false;
@@ -365,6 +369,21 @@ namespace MongoDB.Driver.Core.Operations
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(1);
+        }
+
+        [Test]
+        [RequiresServer("EnsureTestData", VersionLessThan = "3.1.0")]
+        public void Execute_should_raise_an_error_when_an_unsupported_read_concern_is_specified(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                ReadConcern = ReadConcern.Majority
+            };
+
+            Action act = () => ExecuteOperation(subject, async);
+            act.ShouldThrow<MongoClientException>();
         }
 
         [Test]
@@ -566,16 +585,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void ReadConcern_get_and_set_should_work(
-            [Values(null, 0, 1)]
-            int? value)
+        public void ReadConcern_get_and_set_should_work()
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.ReadConcern = value;
+            subject.ReadConcern = ReadConcern.Local;
             var result = subject.ReadConcern;
 
-            result.Should().Be(value);
+            result.Should().Be(ReadConcern.Local);
         }
 
         [Test]

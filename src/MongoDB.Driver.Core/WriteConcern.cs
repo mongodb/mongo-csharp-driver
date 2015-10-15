@@ -219,11 +219,12 @@ namespace MongoDB.Driver
         {
             get
             {
-                return
-                    (_w == null || !_w.Equals((WValue)0)) ||
-                    _wTimeout.HasValue ||
-                    _fsync.HasValue ||
-                    _journal.HasValue;
+                if (_w == null || !_w.Equals((WValue)0))
+                {
+                    return true;
+                }
+
+                return _journal.GetValueOrDefault(false) || _fsync.GetValueOrDefault(false);
             }
         }
 

@@ -156,6 +156,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(null);
             subject.MinPoolSize.Should().Be(null);
             subject.Password.Should().BeNull();
+            subject.ReadConcernLevel.Should().BeNull();
             subject.ReadPreference.Should().BeNull();
             subject.ReadPreferenceTags.Should().BeNull();
             subject.ReplicaSet.Should().BeNull();
@@ -188,6 +189,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
                 "minPoolSize=15;" +
+                "readConcernLevel=majority;" +
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
                 "replicaSet=funny;" +
@@ -219,6 +221,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(20);
             subject.MinPoolSize.Should().Be(15);
             subject.Password.Should().Be("pass");
+            subject.ReadConcernLevel.Should().Be(ReadConcernLevel.Majority);
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
             subject.ReplicaSet.Should().Be("funny");
@@ -408,6 +411,16 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.Password.Should().Be(password);
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost?readConcernLevel=local", ReadConcernLevel.Local)]
+        [TestCase("mongodb://localhost?readConcernLevel=majority", ReadConcernLevel.Majority)]
+        public void When_readConcernLevel_is_specified(string connectionString, ReadConcernLevel readConcernLevel)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.ReadConcernLevel.Should().Be(readConcernLevel);
         }
 
         [Test]

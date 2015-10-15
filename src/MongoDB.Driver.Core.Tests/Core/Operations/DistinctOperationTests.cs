@@ -19,6 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -70,12 +71,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_create_the_correct_command()
+        public void CreateCommand_should_create_the_correct_command(
+            [Values("3.0.0", "3.2.0")] string serverVersion,
+            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
+            var semanticServerVersion = SemanticVersion.Parse(serverVersion);
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(20),
+                ReadConcern = new ReadConcern(readConcernLevel)
             };
 
             var expectedResult = new BsonDocument
@@ -85,9 +90,22 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", BsonDocument.Parse("{ x: 1 }") },
                 { "maxTimeMS", 20000 }
             };
-            var result = subject.CreateCommand();
 
-            result.Should().Be(expectedResult);
+            if (subject.ReadConcern.ShouldBeSent(semanticServerVersion))
+            {
+                expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
+            }
+
+            if (semanticServerVersion < new SemanticVersion(3, 2, 0) && subject.ReadConcern.Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local)
+            {
+                Action act = () => subject.CreateCommand(semanticServerVersion);
+                act.ShouldThrow<MongoClientException>();
+            }
+            else
+            {
+                var result = subject.CreateCommand(semanticServerVersion);
+                result.Should().Be(expectedResult);
+            }
         }
 
         [Test]

@@ -157,6 +157,8 @@
     <Compile Include="Core\Misc\StringBuilderExtensionMethods.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
     <Compile Include="Core\Operations\MapReduceLegacyOperation.cs" />
+    <Compile Include="ReadConcern.cs" />
+    <Compile Include="ReadConcernLevel.cs" />
     <Compile Include="ServerErrorCategory.cs" />
     <Compile Include="Core\Operations\MongoBulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
