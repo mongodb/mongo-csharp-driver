@@ -40,12 +40,12 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 
         public LambdaExpression CreateAggregator(Type sourceType)
         {
-            return ResultTransformerHelper.CreateAggregator("Single", sourceType);
+            return ResultTransformerHelper.CreateAggregator("SingleOrDefault", sourceType);
         }
 
         public LambdaExpression CreateAsyncAggregator(Type sourceType)
         {
-            return ResultTransformerHelper.CreateAsyncAggregator("SingleAsync", sourceType);
+            return ResultTransformerHelper.CreateAsyncAggregator("SingleOrDefaultAsync", sourceType);
         }
     }
 }

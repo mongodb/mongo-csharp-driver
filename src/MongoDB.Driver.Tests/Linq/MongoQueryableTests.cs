@@ -124,6 +124,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Count_with_no_matches()
+        {
+            var result = CreateQuery().Count(x => x.C.E.F == 13151235);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task CountAsync()
         {
             var result = await CreateQuery().CountAsync();
@@ -137,6 +145,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().CountAsync(x => x.C.E.F == 11);
 
             result.Should().Be(1);
+        }
+
+        [Test]
+        public async Task CountAsync_with_no_matches()
+        {
+            var result = await CreateQuery().CountAsync(x => x.C.E.F == 123412523);
+
+            result.Should().Be(0);
         }
 
         [Test]
@@ -365,6 +381,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void LongCount_with_no_results()
+        {
+            var result = CreateQuery().LongCount(x => x.C.E.F == 123452135);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task LongCountAsync()
         {
             var result = await CreateQuery().LongCountAsync();
@@ -378,6 +402,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 11);
 
             result.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LongCountAsync_with_no_results()
+        {
+            var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 12351235);
+
+            result.Should().Be(0);
         }
 
         [Test]
@@ -1040,6 +1072,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Sum_with_no_results()
+        {
+            var result = CreateQuery().Where(x => x.C.E.F == 12341235).Sum(x => x.C.E.F);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task SumAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).SumAsync();
@@ -1053,6 +1093,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().SumAsync(x => x.C.E.F);
 
             result.Should().Be(122);
+        }
+
+        [Test]
+        public async Task SumAsync_with_no_results()
+        {
+            var result = await CreateQuery().Where(x => x.C.E.F == 21341235).SumAsync(x => x.C.E.F);
+
+            result.Should().Be(0);
         }
 
         [Test]
