@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("EnsureCollectionsExist")]
+        [RequiresServer("EnsureCollectionsExist", StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result(
             [Values(false, true)]
             bool async)
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
         [TestCase("{ name : \"regular\" }", "regular", true)]
         [TestCase("{ \"options.capped\" : true }", "capped", false)]
         [TestCase("{ \"options.capped\" : true }", "capped", true)]
-        [RequiresServer("EnsureCollectionsExist")]
+        [RequiresServer("EnsureCollectionsExist", StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
             var filter = BsonDocument.Parse(filterString);
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Execute_should_return_the_expected_result_when_the_database_does_not_exist(
             [Values(false, true)]
             bool async)
