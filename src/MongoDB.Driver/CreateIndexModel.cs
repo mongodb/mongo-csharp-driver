@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     public sealed class CreateIndexModel<TDocument>
     {
         private readonly IndexKeysDefinition<TDocument> _keys;
-        private readonly CreateIndexOptions _options;
+        private readonly CreateIndexOptions<TDocument> _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateIndexModel{TDocument}"/> class.
@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public CreateIndexModel(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null)
         {
             _keys = Ensure.IsNotNull(keys, nameof(keys));
-            _options = options;
+            _options = CreateIndexOptions<TDocument>.CoercedFrom(options);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the options.
         /// </summary>
-        public CreateIndexOptions Options
+        public CreateIndexOptions<TDocument> Options
         {
             get { return _options; }
         }

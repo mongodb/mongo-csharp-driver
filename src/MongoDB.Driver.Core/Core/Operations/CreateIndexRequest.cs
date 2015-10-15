@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private double? _max;
         private double? _min;
         private string _name;
+        private BsonDocument _partialFilterExpression;
         private bool? _sparse;
         private int? _sphereIndexVersion;
         private BsonDocument _storageEngine;
@@ -189,6 +190,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the partial filter expression.
+        /// </summary>
+        /// <value>
+        /// The partial filter expression.
+        /// </value>
+        public BsonDocument PartialFilterExpression
+        {
+            get { return _partialFilterExpression; }
+            set { _partialFilterExpression = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the index is a sparse index.
         /// </summary>
         /// <value>
@@ -298,6 +311,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "language_override", () => _languageOverride, _languageOverride != null },
                 { "max", () => _max.Value, _max.HasValue },
                 { "min", () => _min.Value, _min.HasValue },
+                { "partialFilterExpression", _partialFilterExpression, _partialFilterExpression != null },
                 { "sparse", () => _sparse.Value, _sparse.HasValue },
                 { "2dsphereIndexVersion", () => _sphereIndexVersion.Value, _sphereIndexVersion.HasValue },
                 { "storageEngine", () => _storageEngine, _storageEngine != null },

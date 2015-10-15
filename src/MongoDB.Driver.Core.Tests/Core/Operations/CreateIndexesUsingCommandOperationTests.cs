@@ -142,6 +142,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [RequiresServer("DropCollection", MinimumVersion = "3.1.1")]
+        public void Execute_should_work_when_partialFilterExpression_has_value(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0)) } };
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            var result = ExecuteOperation(subject, async);
+
+            result["ok"].ToBoolean().Should().BeTrue();
+
+            var indexes = ListIndexes(async);
+            var index = indexes.Single(i => i["name"].AsString == "x_1");
+            index["partialFilterExpression"].AsBsonDocument.Should().Be(requests[0].PartialFilterExpression);
+        }
+
+        [Test]
         [RequiresServer("DropCollection", MinimumVersion = "2.7.6")]
         public void Execute_should_work_when_sparse_is_true(
             [Values(false, true)]

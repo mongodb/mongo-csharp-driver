@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -184,6 +185,67 @@ namespace MongoDB.Driver
         {
             get { return _weights; }
             set { _weights = value; }
+        }
+    }
+
+    /// <summary>
+    /// Options for creating an index.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public class CreateIndexOptions<TDocument> : CreateIndexOptions
+    {
+        #region static
+        // public static methods
+        /// <summary>
+        /// Coerces a generic <see cref="CreateIndexOptions{TDocument}"/> from a non-generic <see cref="CreateIndexOptions"/> value.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>A generic <see cref="CreateIndexOptions{TDocument}"/> .</returns>
+        public static CreateIndexOptions<TDocument> CoercedFrom(CreateIndexOptions options)
+        {
+            if (options == null)
+            {
+                return null;
+            }
+
+            if (options.GetType() == typeof(CreateIndexOptions))
+            {
+                return new CreateIndexOptions<TDocument>
+                {
+                    Background = options.Background,
+                    Bits = options.Bits,
+                    BucketSize = options.BucketSize,
+                    DefaultLanguage = options.DefaultLanguage,
+                    ExpireAfter = options.ExpireAfter,
+                    LanguageOverride = options.LanguageOverride,
+                    Max = options.Max,
+                    Min = options.Min,
+                    Name = options.Name,
+                    Sparse = options.Sparse,
+                    SphereIndexVersion = options.SphereIndexVersion,
+                    StorageEngine = options.StorageEngine,
+                    TextIndexVersion = options.TextIndexVersion,
+                    Unique = options.Unique,
+                    Version = options.Version,
+                    Weights = options.Weights
+                };
+            }
+
+            return (CreateIndexOptions<TDocument>)options;
+        }
+        #endregion
+
+        // private fields
+        private FilterDefinition<TDocument> _partialFilterExpression;
+
+        // public properties
+        /// <summary>
+        /// Gets or sets the partial filter expression.
+        /// </summary>
+        public FilterDefinition<TDocument> PartialFilterExpression
+        {
+            get { return _partialFilterExpression; }
+            set { _partialFilterExpression = value; }
         }
     }
 }

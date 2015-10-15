@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AdditionalOptions.Should().BeNull();
             subject.Background.Should().NotHaveValue();
             subject.Name.Should().BeNull();
+            subject.PartialFilterExpression.Should().BeNull();
             subject.Sparse.Should().NotHaveValue();
             subject.ExpireAfter.Should().NotHaveValue();
             subject.Unique.Should().NotHaveValue();
@@ -261,6 +262,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_partialFilterExpression_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0));
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "partialFilterExpression", subject.PartialFilterExpression }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
         public void CreateIndexDocument_should_return_expected_result_when_sparse_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -425,6 +444,18 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Keys;
 
             result.Should().Be(keys);
+        }
+
+        [Test]
+        public void PartialFilterExpression_get_and_set_should_work()
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+            var value = new BsonDocument("x", new BsonDocument("$gt", 0));
+
+            subject.PartialFilterExpression = value;
+            var result = subject.PartialFilterExpression;
+
+            result.Should().Be(value);
         }
 
         [Test]

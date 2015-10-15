@@ -723,9 +723,11 @@ namespace MongoDB.Driver
         public async Task Indexes_CreateOneAsync_should_execute_the_CreateIndexesOperation()
         {
             var keys = new BsonDocument("x", 1);
+            var partialFilterExpression = Builders<BsonDocument>.Filter.Gt("x", 0);
+            var renderedPartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0));
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
-            var options = new CreateIndexOptions
+            var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
                 Bits = 10,
@@ -736,6 +738,7 @@ namespace MongoDB.Driver
                 Max = 30,
                 Min = 40,
                 Name = "awesome",
+                PartialFilterExpression = partialFilterExpression,
                 Sparse = false,
                 SphereIndexVersion = 50,
                 StorageEngine = storageEngine,
@@ -766,6 +769,7 @@ namespace MongoDB.Driver
             request.Max.Should().Be(options.Max);
             request.Min.Should().Be(options.Min);
             request.Name.Should().Be(options.Name);
+            request.PartialFilterExpression.Should().Be(renderedPartialFilterExpression);
             request.Sparse.Should().Be(options.Sparse);
             request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
             request.StorageEngine.Should().Be(storageEngine);
@@ -781,9 +785,11 @@ namespace MongoDB.Driver
         {
             var keys = new BsonDocument("x", 1);
             var keys2 = new BsonDocument("z", 1);
+            var partialFilterExpression = Builders<BsonDocument>.Filter.Gt("x", 0);
+            var renderedPartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0));
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
-            var options = new CreateIndexOptions
+            var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
                 Bits = 10,
@@ -794,6 +800,7 @@ namespace MongoDB.Driver
                 Max = 30,
                 Min = 40,
                 Name = "awesome",
+                PartialFilterExpression = partialFilterExpression,
                 Sparse = false,
                 SphereIndexVersion = 50,
                 StorageEngine = storageEngine,
@@ -828,6 +835,7 @@ namespace MongoDB.Driver
             request1.Max.Should().Be(options.Max);
             request1.Min.Should().Be(options.Min);
             request1.Name.Should().Be(options.Name);
+            request1.PartialFilterExpression.Should().Be(renderedPartialFilterExpression);
             request1.Sparse.Should().Be(options.Sparse);
             request1.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
             request1.StorageEngine.Should().Be(storageEngine);
@@ -849,6 +857,7 @@ namespace MongoDB.Driver
             request2.Max.Should().NotHaveValue();
             request2.Min.Should().NotHaveValue(); ;
             request2.Name.Should().BeNull();
+            request2.PartialFilterExpression.Should().BeNull();
             request2.Sparse.Should().NotHaveValue(); ;
             request2.SphereIndexVersion.Should().NotHaveValue();
             request2.StorageEngine.Should().BeNull();

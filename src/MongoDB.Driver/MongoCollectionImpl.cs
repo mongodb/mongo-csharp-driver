@@ -583,8 +583,10 @@ namespace MongoDB.Driver
 
                 var requests = models.Select(m =>
                 {
+                    var options = m.Options ?? new CreateIndexOptions<TDocument>();
                     var keysDocument = m.Keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
-                    var options = m.Options ?? new CreateIndexOptions();
+                    var renderedPartialFilterExpression = options.PartialFilterExpression == null ? null : options.PartialFilterExpression.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+
                     return new CreateIndexRequest(keysDocument)
                     {
                         Name = options.Name,
@@ -596,6 +598,7 @@ namespace MongoDB.Driver
                         LanguageOverride = options.LanguageOverride,
                         Max = options.Max,
                         Min = options.Min,
+                        PartialFilterExpression = renderedPartialFilterExpression,
                         Sparse = options.Sparse,
                         SphereIndexVersion = options.SphereIndexVersion,
                         StorageEngine = options.StorageEngine,
