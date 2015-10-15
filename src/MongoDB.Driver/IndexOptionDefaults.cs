@@ -15,7 +15,7 @@
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents index option defaults.
@@ -35,12 +35,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _storageEngine = value; }
         }
 
-        // public methods
+        // internal methods
         /// <summary>
         /// Returns this instance represented as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public BsonDocument ToBsonDocument()
+        internal BsonDocument ToBsonDocument()
         {
             return new BsonDocument
             {

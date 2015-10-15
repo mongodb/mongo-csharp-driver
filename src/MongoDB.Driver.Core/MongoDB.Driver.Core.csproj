@@ -139,7 +139,6 @@
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
     <Compile Include="Core\Operations\DocumentValidationAction.cs" />
     <Compile Include="Core\Operations\DocumentValidationLevel.cs" />
-    <Compile Include="Core\Operations\IndexOptionDefaults.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingQueryOperation.cs" />
     <Compile Include="Core\Operations\ListIndexesUsingCommandOperation.cs" />

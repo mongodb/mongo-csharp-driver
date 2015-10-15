@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_return_expected_result_when_IndexOptionDefaults_is_set()
         {
-            var value = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) };
+            var value = new BsonDocument("storageEngine", new BsonDocument("x", 1));
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 IndexOptionDefaults = value
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "indexOptionDefaults", new BsonDocument("storageEngine", new BsonDocument("x", 1)) }
+                { "indexOptionDefaults", value }
             };
 
             var result = subject.CreateCommand();
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Core.Operations
         public void IndexOptionDefaults_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            var value = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) };
+            var value = new BsonDocument("storageEngine", new BsonDocument("x", 1));
             subject.IndexOptionDefaults.Should().BeNull();
 
             subject.IndexOptionDefaults = value;
