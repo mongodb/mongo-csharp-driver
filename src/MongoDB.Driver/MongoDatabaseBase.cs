@@ -38,12 +38,6 @@ namespace MongoDB.Driver
         public abstract Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public virtual Task CreateCollectionAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc />
         public abstract Task DropCollectionAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />

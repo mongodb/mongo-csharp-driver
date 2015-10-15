@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -67,37 +68,21 @@ namespace MongoDB.Driver
         // methods
         public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
-            return CreateCollectionAsync<BsonDocument>(name, options, cancellationToken);
-        }
-
-        public override Task CreateCollectionAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNullOrEmpty(name, nameof(name));
-            options = options ?? new CreateCollectionOptions<TDocument>();
-
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            BsonDocument validator = null;
-            if (options.Validator != null)
+            if (options == null)
             {
-                var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
-                var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-                validator = options.Validator.Render(documentSerializer, serializerRegistry);
+                return CreateCollectionHelperAsync<BsonDocument>(name, null, cancellationToken);
             }
 
-            var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            if (options.GetType() == typeof(CreateCollectionOptions))
             {
-                AutoIndexId = options.AutoIndexId,
-                Capped = options.Capped,
-                MaxDocuments = options.MaxDocuments,
-                MaxSize = options.MaxSize,
-                StorageEngine = options.StorageEngine,
-                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
-                ValidationAction = options.ValidationAction,
-                ValidationLevel = options.ValidationLevel,
-                Validator = validator
-            };
+                var genericOptions = CreateCollectionOptions<BsonDocument>.CoercedFrom(options);
+                return CreateCollectionHelperAsync<BsonDocument>(name, genericOptions, cancellationToken);
+            }
 
-            return ExecuteWriteOperationAsync(operation, cancellationToken);
+            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetMethod("CreateCollectionHelperAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+            var documentType = options.GetType().GetGenericArguments()[0];
+            var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
+            return (Task)methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
         }
 
         public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
@@ -157,6 +142,36 @@ namespace MongoDB.Driver
 
             var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
             return ExecuteReadOperationAsync(operation, readPreference, cancellationToken);
+        }
+
+        private Task CreateCollectionHelperAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+            options = options ?? new CreateCollectionOptions<TDocument>();
+
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            BsonDocument validator = null;
+            if (options.Validator != null)
+            {
+                var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+                var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+                validator = options.Validator.Render(documentSerializer, serializerRegistry);
+            }
+
+            var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            {
+                AutoIndexId = options.AutoIndexId,
+                Capped = options.Capped,
+                MaxDocuments = options.MaxDocuments,
+                MaxSize = options.MaxSize,
+                StorageEngine = options.StorageEngine,
+                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
+                ValidationAction = options.ValidationAction,
+                ValidationLevel = options.ValidationLevel,
+                Validator = validator
+            };
+
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
         private Task<T> ExecuteReadOperationAsync<T>(IReadOperation<T> operation, CancellationToken cancellationToken)

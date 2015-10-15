@@ -22,12 +22,11 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating a collection.
     /// </summary>
-    public class CreateCollectionOptions<TDocument>
+    public class CreateCollectionOptions
     {
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
-        private IBsonSerializer<TDocument> _documentSerializer;
         private long? _maxDocuments;
         private long? _maxSize;
         private BsonDocument _storageEngine;
@@ -35,7 +34,6 @@ namespace MongoDB.Driver
         private IBsonSerializerRegistry _serializerRegistry;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
-        private FilterDefinition<TDocument> _validator;
 
         // properties
         /// <summary>
@@ -54,15 +52,6 @@ namespace MongoDB.Driver
         {
             get { return _capped; }
             set { _capped = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the document serializer.
-        /// </summary>
-        public IBsonSerializer<TDocument> DocumentSerializer
-        {
-            get { return _documentSerializer; }
-            set { _documentSerializer = value; }
         }
 
         /// <summary>
@@ -133,6 +122,60 @@ namespace MongoDB.Driver
             get { return _validationLevel; }
             set { _validationLevel = value; }
         }
+    }
+
+    /// <summary>
+    /// Options for creating a collection.
+    /// </summary>
+    public class CreateCollectionOptions<TDocument> : CreateCollectionOptions
+    {
+        #region static
+        // public static methods
+        /// <summary>
+        /// Coerces a generic CreateCollectionOptions{TDocument} from a non-generic CreateCollectionOptions.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>The generic options.</returns>
+        public static CreateCollectionOptions<TDocument> CoercedFrom(CreateCollectionOptions options)
+        {
+            if (options == null)
+            {
+                return null;
+            }
+
+            if (options.GetType() == typeof(CreateCollectionOptions))
+            {
+                return new CreateCollectionOptions<TDocument>
+                {
+                    AutoIndexId = options.AutoIndexId,
+                    Capped = options.Capped,
+                    MaxDocuments = options.MaxDocuments,
+                    MaxSize = options.MaxSize,
+                    SerializerRegistry = options.SerializerRegistry,
+                    StorageEngine = options.StorageEngine,
+                    UsePowerOf2Sizes = options.UsePowerOf2Sizes,
+                    ValidationAction = options.ValidationAction,
+                    ValidationLevel = options.ValidationLevel                  
+                };
+            }
+
+            return (CreateCollectionOptions<TDocument>)options;
+        }
+        #endregion
+
+        // private fields
+        private IBsonSerializer<TDocument> _documentSerializer;
+        private FilterDefinition<TDocument> _validator;
+
+        // public properties
+        /// <summary>
+        /// Gets or sets the document serializer.
+        /// </summary>
+        public IBsonSerializer<TDocument> DocumentSerializer
+        {
+            get { return _documentSerializer; }
+            set { _documentSerializer = value; }
+        }
 
         /// <summary>
         /// Gets or sets the validator.
@@ -145,12 +188,5 @@ namespace MongoDB.Driver
             get { return _validator; }
             set { _validator = value; }
         }
-    }
-
-    /// <summary>
-    /// Options for creating a collection.
-    /// </summary>
-    public class CreateCollectionOptions : CreateCollectionOptions<BsonDocument>
-    {
     }
 }

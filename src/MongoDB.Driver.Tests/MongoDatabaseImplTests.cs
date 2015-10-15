@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         public async Task CreateCollectionAsync_should_execute_the_CreateCollectionOperation()
         {
             var storageEngine = new BsonDocument("awesome", true);
-            var options = new CreateCollectionOptions
+            var options = new CreateCollectionOptions<BsonDocument>
             {
                 AutoIndexId = false,
                 Capped = true,
