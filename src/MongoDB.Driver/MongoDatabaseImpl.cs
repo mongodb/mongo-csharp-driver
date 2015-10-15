@@ -162,6 +162,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = options.AutoIndexId,
                 Capped = options.Capped,
+                IndexOptionDefaults = options.IndexOptionDefaults,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
                 StorageEngine = options.StorageEngine,

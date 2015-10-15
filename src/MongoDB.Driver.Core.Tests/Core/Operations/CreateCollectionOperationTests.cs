@@ -150,6 +150,25 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void CreateCommand_should_return_expected_result_when_IndexOptionDefaults_is_set()
+        {
+            var value = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) };
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                IndexOptionDefaults = value
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "indexOptionDefaults", new BsonDocument("storageEngine", new BsonDocument("x", 1)) }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
         public void CreateCommand_should_return_expected_result_when_MaxDocuments_is_set(
             [Values(1, 2)]
             long maxDocuments)
@@ -447,6 +466,18 @@ namespace MongoDB.Driver.Core.Operations
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 stats["userFlags"].ToInt32().Should().Be(usePowerOf2Sizes ? 1 : 0);
             }
+        }
+
+        [Test]
+        public void IndexOptionDefaults_should_work()
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) };
+            subject.IndexOptionDefaults.Should().BeNull();
+
+            subject.IndexOptionDefaults = value;
+
+            subject.IndexOptionDefaults.Should().Be(value);
         }
 
         [Test]

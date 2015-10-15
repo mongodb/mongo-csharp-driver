@@ -75,6 +75,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = false,
                 Capped = true,
+                IndexOptionDefaults = new IndexOptionDefaults {  StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
                 StorageEngine = storageEngine,
@@ -92,6 +93,7 @@ namespace MongoDB.Driver
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
             op.AutoIndexId.Should().Be(options.AutoIndexId);
             op.Capped.Should().Be(options.Capped);
+            op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
             op.StorageEngine.Should().Be(storageEngine);

@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _autoIndexId;
         private bool? _capped;
         private readonly CollectionNamespace _collectionNamespace;
+        private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -90,6 +91,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the index option defaults.
+        /// </summary>
+        /// <value>
+        /// The index option defaults.
+        /// </value>
+        public IndexOptionDefaults IndexOptionDefaults
+        {
+            get { return _indexOptionDefaults; }
+            set { _indexOptionDefaults = value; }
         }
 
         /// <summary>
@@ -199,6 +212,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
                 { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue},
                 { "storageEngine", () => _storageEngine, _storageEngine != null },
+                { "indexOptionDefaults", () => _indexOptionDefaults.ToBsonDocument(), _indexOptionDefaults != null },
                 { "validator", _validator, _validator != null },
                 { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue }

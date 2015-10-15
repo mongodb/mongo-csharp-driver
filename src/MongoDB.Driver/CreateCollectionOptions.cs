@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
         private BsonDocument _storageEngine;
@@ -52,6 +53,18 @@ namespace MongoDB.Driver
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the index option defaults.
+        /// </summary>
+        /// <value>
+        /// The index option defaults.
+        /// </value>
+        public IndexOptionDefaults IndexOptionDefaults
+        {
+            get { return _indexOptionDefaults; }
+            set { _indexOptionDefaults = value; }
         }
 
         /// <summary>
