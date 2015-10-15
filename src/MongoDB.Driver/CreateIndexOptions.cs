@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -195,13 +194,8 @@ namespace MongoDB.Driver
     public class CreateIndexOptions<TDocument> : CreateIndexOptions
     {
         #region static
-        // public static methods
-        /// <summary>
-        /// Coerces a generic <see cref="CreateIndexOptions{TDocument}"/> from a non-generic <see cref="CreateIndexOptions"/> value.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>A generic <see cref="CreateIndexOptions{TDocument}"/> .</returns>
-        public static CreateIndexOptions<TDocument> CoercedFrom(CreateIndexOptions options)
+        // internal static methods
+        internal static CreateIndexOptions<TDocument> CoercedFrom(CreateIndexOptions options)
         {
             if (options == null)
             {
