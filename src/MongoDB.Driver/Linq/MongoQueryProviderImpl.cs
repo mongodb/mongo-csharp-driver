@@ -79,7 +79,14 @@ namespace MongoDB.Driver.Linq
                 Translate(expression));
 
             var lambda = Expression.Lambda(executionPlan);
-            return lambda.Compile().DynamicInvoke(null);
+            try
+            {
+                return lambda.Compile().DynamicInvoke(null);
+            }
+            catch (TargetInvocationException tie)
+            {
+                throw tie.InnerException;
+            }
         }
 
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken))
