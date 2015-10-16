@@ -166,6 +166,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void BitsAllClear_with_bitwise_operators()
         {
             Assert(
@@ -175,6 +176,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void BitsAllSet_with_bitwise_operators()
         {
             Assert(
@@ -184,6 +186,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void BitsAllSet_with_HasFlag()
         {
             Assert(
@@ -193,6 +196,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void BitsAnyClear_with_bitwise_operators()
         {
             Assert(
@@ -202,6 +206,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
         public void BitsAnySet_with_bitwise_operators()
         {
             Assert(
