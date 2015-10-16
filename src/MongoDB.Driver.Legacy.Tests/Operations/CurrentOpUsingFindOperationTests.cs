@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Operations
         }
 
         [Test]
-        [RequiresServer(VersionLessThan = "3.0.0")]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
         public void Execute_should_return_expected_result()
         {
             var subject = new CurrentOpUsingFindOperation(_adminDatabaseNamespace, _messageEncoderSettings);
