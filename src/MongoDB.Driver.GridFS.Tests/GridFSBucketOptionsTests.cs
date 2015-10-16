@@ -101,13 +101,14 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void constructor_with_immutable_other_should_initialize_instance()
         {
-            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
             var other = new ImmutableGridFSBucketOptions(mutable);
 
             var result = new GridFSBucketOptions(other);
 
             result.BucketName.Should().Be(other.BucketName);
             result.ChunkSizeBytes.Should().Be(other.ChunkSizeBytes);
+            result.ReadConcern.Should().Be(other.ReadConcern);
             result.ReadPreference.Should().Be(other.ReadPreference);
             result.WriteConcern.Should().Be(other.WriteConcern);
         }
@@ -115,12 +116,13 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void constructor_with_mutable_other_should_initialize_instance()
         {
-            var other = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+            var other = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
 
             var result = new GridFSBucketOptions(other);
 
             result.BucketName.Should().Be(other.BucketName);
             result.ChunkSizeBytes.Should().Be(other.ChunkSizeBytes);
+            result.ReadConcern.Should().Be(other.ReadConcern);
             result.ReadPreference.Should().Be(other.ReadPreference);
             result.WriteConcern.Should().Be(other.WriteConcern);
         }
@@ -144,6 +146,26 @@ namespace MongoDB.Driver.GridFS.Tests
             var result = subject.ReadPreference;
 
             result.Should().Be(ReadPreference.Secondary);
+        }
+
+        [Test]
+        public void ReadConcern_get_should_return_expected_result()
+        {
+            var subject = new GridFSBucketOptions { ReadConcern = ReadConcern.Majority };
+
+            var result = subject.ReadConcern;
+
+            result.Should().Be(ReadConcern.Majority);
+        }
+
+        [Test]
+        public void ReadConcern_set_should_have_expected_result()
+        {
+            var subject = new GridFSBucketOptions();
+
+            subject.ReadConcern = ReadConcern.Majority;
+
+            subject.ReadConcern.Should().Be(ReadConcern.Majority);
         }
 
         [Test]
@@ -203,12 +225,13 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void constructor_with_arguments_should_initialize_instance()
         {
-            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
 
             var result = new ImmutableGridFSBucketOptions(mutable);
 
             result.BucketName.Should().Be("bucket");
             result.ChunkSizeBytes.Should().Be(123);
+            result.ReadConcern.Should().Be(ReadConcern.Majority);
             result.ReadPreference.Should().Be(ReadPreference.Secondary);
             result.WriteConcern.Should().Be(WriteConcern.WMajority);
         }
@@ -220,6 +243,7 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
+            result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
         }
@@ -240,8 +264,19 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
+            result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
+        }
+
+        [Test]
+        public void ReadConcern_get_should_return_expected_result()
+        {
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { ReadConcern = ReadConcern.Majority });
+
+            var result = subject.ReadConcern;
+
+            result.Should().Be(ReadConcern.Majority);
         }
 
         [Test]

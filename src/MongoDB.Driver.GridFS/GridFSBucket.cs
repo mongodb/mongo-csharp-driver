@@ -203,6 +203,7 @@ namespace MongoDB.Driver.GridFS
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 NoCursorTimeout = options.NoCursorTimeout ?? false,
+                ReadConcern = GetReadConcern(),
                 Skip = options.Skip,
                 Sort = renderedSort
             };
@@ -518,6 +519,7 @@ namespace MongoDB.Driver.GridFS
             {
                 Filter = filter,
                 Limit = 1,
+                ReadConcern = GetReadConcern(),
                 SingleBatch = true
             };
 
@@ -551,6 +553,7 @@ namespace MongoDB.Driver.GridFS
             {
                 Filter = filter,
                 Limit = limit,
+                ReadConcern = GetReadConcern(),
                 Skip = skip,
                 Sort = sort
             };
@@ -606,6 +609,7 @@ namespace MongoDB.Driver.GridFS
             var operation = new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
             {
                 Limit = 1,
+                ReadConcern = GetReadConcern(),
                 SingleBatch = true,
                 Projection = new BsonDocument("_id", 1)
             };
@@ -652,6 +656,11 @@ namespace MongoDB.Driver.GridFS
                     throw new GridFSFileNotFoundException(id);
                 }
             }
+        }
+
+        private ReadConcern GetReadConcern()
+        {
+            return _options.ReadConcern ?? _database.Settings.ReadConcern;
         }
     }
 }
