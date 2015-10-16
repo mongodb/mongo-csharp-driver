@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverVersion) }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
 
             if (serverVersion >= __version26 && _useCursor.GetValueOrDefault(true))

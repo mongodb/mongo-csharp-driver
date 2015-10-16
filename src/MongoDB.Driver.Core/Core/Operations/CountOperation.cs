@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverVersion) }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
         }
 
