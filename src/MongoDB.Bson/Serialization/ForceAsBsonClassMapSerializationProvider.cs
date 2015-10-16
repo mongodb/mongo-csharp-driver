@@ -60,7 +60,7 @@
         {
             if (forcedTypes == null || forcedTypes.Count() == 0)
                 throw new ArgumentException("Cannot configure a forced BSON class map serialization provider which contains no types to be forced as BSON class maps", "forcedTypes");
-            if (forcedTypes.All(type => type.IsClass || type.IsInterface))
+            if (!forcedTypes.All(type => type.IsClass || type.IsInterface))
                 throw new ArgumentException("Forced types must be classes or interfaces");
 
             _forcedTypes = new HashSet<Type>(forcedTypes);
