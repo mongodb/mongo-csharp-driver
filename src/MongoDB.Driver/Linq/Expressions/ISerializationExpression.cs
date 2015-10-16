@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
@@ -44,6 +46,8 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             Ensure.IsNotNull(field, nameof(field));
 
+            value = ConvertEnumIfNecessary(field.Serializer.ValueType, value);
+
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
@@ -67,7 +71,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    field.Serializer.Serialize(context, value);
+                    field.Serializer.Serialize(context, ConvertEnumIfNecessary(field.Serializer.ValueType, value));
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -88,6 +92,24 @@ namespace MongoDB.Driver.Linq.Expressions
             }
 
             return prefix + "." + suffix;
+        }
+
+        private static object ConvertEnumIfNecessary(Type valueType, object value)
+        {
+            if (valueType.IsEnum || valueType.IsNullableEnum())
+            {
+                if (value != null)
+                {
+                    if (valueType.IsNullableEnum())
+                    {
+                        valueType = valueType.GetNullableUnderlyingType();
+                    }
+
+                    value = Enum.ToObject(valueType, value);
+                }
+            }
+
+            return value;
         }
     }
 }

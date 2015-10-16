@@ -128,6 +128,70 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void BitsAllClear()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.BitsAllClear("a", 43), "{a: {$bitsAllClear: 43}}");
+        }
+
+        [Test]
+        public void BitsAllClear_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.BitsAllClear(x => x.Age, 43), "{age: {$bitsAllClear: 43}}");
+        }
+
+        [Test]
+        public void BitsAllSet()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.BitsAllSet("a", 43), "{a: {$bitsAllSet: 43}}");
+        }
+
+        [Test]
+        public void BitsAllSet_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.BitsAllSet(x => x.Age, 43), "{age: {$bitsAllSet: 43}}");
+        }
+
+        [Test]
+        public void BitsAnyClear()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.BitsAnyClear("a", 43), "{a: {$bitsAnyClear: 43}}");
+        }
+
+        [Test]
+        public void BitsAnyClear_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.BitsAnyClear(x => x.Age, 43), "{age: {$bitsAnyClear: 43}}");
+        }
+
+        [Test]
+        public void BitsAnySet()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.BitsAnySet("a", 43), "{a: {$bitsAnySet: 43}}");
+        }
+
+        [Test]
+        public void BitsAnySet_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.BitsAnySet(x => x.Age, 43), "{age: {$bitsAnySet: 43}}");
+        }
+
+        [Test]
         public void ElemMatch()
         {
             var subject = CreateSubject<BsonDocument>();

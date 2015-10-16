@@ -166,6 +166,51 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void BitsAllClear_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 20) == 0,
+                1,
+                "{'C.E.F': { $bitsAllClear: 20 } }");
+        }
+
+        [Test]
+        public void BitsAllSet_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 7) == 7,
+                1,
+                "{'C.E.F': { $bitsAllSet: 7 } }");
+        }
+
+        [Test]
+        public void BitsAllSet_with_HasFlag()
+        {
+            Assert(
+                x => x.Q.HasFlag(Q.One),
+                1,
+                "{Q: { $bitsAllSet: 1 } }");
+        }
+
+        [Test]
+        public void BitsAnyClear_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 7) != 7,
+                1,
+                "{'C.E.F': { $bitsAnyClear: 7 } }");
+        }
+
+        [Test]
+        public void BitsAnySet_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 20) != 0,
+                1,
+                "{'C.E.F': { $bitsAnySet: 20 } }");
+        }
+
+        [Test]
         public void LocalIListContains()
         {
             IList<int> local = new[] { 10, 20, 30 };

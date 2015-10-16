@@ -29,6 +29,8 @@ class Person
 	public HashSet<string> FavoriteNames { get; set; }
 
 	public DateTime CreatedAtUtc { get; set; }
+
+	public int PermissionFlags { get; set; }
 }
 
 class Pet
@@ -137,6 +139,42 @@ Find(p => !localAges.Contains(p.Age));
 ```
 ```json
 { Age: { $nin: [10, 20, 30] } }
+```
+
+#### $bitsAllClear
+
+```csharp
+Find(p => (p.PermissionFlags & 7) == 0);
+```
+```json
+{ PermissionFlags: { $bitsAllClear: 7 } }
+```
+
+#### $bitsAllSet
+
+```csharp
+Find(p => (p.PermissionFlags & 7) == 7);
+```
+```json
+{ PermissionFlags: { $bitsAllSet: 7 } }
+```
+
+#### $bitsAnyClear
+
+```csharp
+Find(p => (p.PermissionFlags & 7) != 7);
+```
+```json
+{ PermissionFlags: { $bitsAnyClear: 7 } }
+```
+
+#### $bitsAnySet
+
+```csharp
+Find(p => (p.PermissionFlags & 7) != 0);
+```
+```json
+{ PermissionFlags: { $bitsAnySet: 7 } }
 ```
 
 ### Logical
