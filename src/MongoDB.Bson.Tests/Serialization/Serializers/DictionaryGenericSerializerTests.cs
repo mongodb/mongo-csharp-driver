@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -41,6 +43,19 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             public IDictionary<object, object> ID { get; set; }
             public SortedDictionary<object, object> SD { get; set; }
             public SortedList<object, object> SL { get; set; }
+        }
+
+        public class RO<TKey, TValue> : ReadOnlyDictionary<TKey, TValue>
+        {
+            private RO(IDictionary<TKey, TValue> dictionary)
+                : base(dictionary)
+            {
+            }
+
+            public static RO<TKey, TValue> ConstructorReplacement(IDictionary<TKey, TValue> dictionary)
+            {
+                return new RO<TKey, TValue>(dictionary);
+            }
         }
 
         [Test]
@@ -386,6 +401,28 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             };
             var obj = new T { D = d, ID = d, SD = null, SL = null };
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
+        }
+
+        [Test]
+        public void TestImmutablePrivateConstructorDictionaryImplementation()
+        {
+            var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
+            var id = RO<object, object>.ConstructorReplacement(d);
+            var sd = CreateSortedDictionary(d);
+            var sl = CreateSortedList(d);
+            var obj = new T { D = d, ID = id, SD = sd, SL = sl };
+            var json = obj.ToJson();
+            var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
+            var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         private SortedDictionary<object, object> CreateSortedDictionary(Dictionary<object, object> d)
