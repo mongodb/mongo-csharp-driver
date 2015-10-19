@@ -84,6 +84,66 @@ foreach (var file in files)
     </item>
     
     <item>
+      <title>Getting Started</title>
+      <link>/mongo-csharp-driver/2.1/reference/gridfs/gettingstarted/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.1/reference/gridfs/gettingstarted/</guid>
+      <description>
+
+&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
+
+&lt;p&gt;GridFS files are stored in the database using two collections, normally called &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;. Each file uploaded to GridFS has one document in the &amp;ldquo;fs.files&amp;rdquo; collection containing information about the file and as many chunks as necessary in the &amp;ldquo;fs.chunks&amp;rdquo; collection to store the contents of the file.&lt;/p&gt;
+
+&lt;p&gt;A GridFS &amp;ldquo;bucket&amp;rdquo; is the combination of an &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo; collection which together represent a bucket where GridFS files can be stored.&lt;/p&gt;
+
+&lt;h3 id=&#34;gridfsbucket&#34;&gt;GridFSBucket&lt;/h3&gt;
+
+&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object is the root object representing a GridFS bucket.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+&lt;p&gt;You should always use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object to interact with GridFS instead of directly referencing the underlying collections.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;You create a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; instance by calling its constructor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
+
+var bucket = new GridFSBucket(database);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can also provide options when instantiating the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
+
+var bucket = new GridFSBucket(database, new GridFSOptions
+{
+    BucketName = &amp;quot;videos&amp;quot;,
+    ChunkSizeBytes = 1048576, // 1MB
+    WriteConcern = WriteConcern.Majority,
+    ReadPreference = ReadPeference.Secondary
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
+&#34;&gt;&lt;code&gt;BucketName&lt;/code&gt;&lt;/a&gt; value is the root part of the files and chunks collection names, so in this example the two collections would be named &amp;ldquo;videos.files&amp;rdquo; and &amp;ldquo;videos.chunks&amp;rdquo; instead of &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
+&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255MB).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
+&#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
+&#34;&gt;&lt;code&gt;ReadPreference&lt;/code&gt;&lt;/a&gt; is used when downloading files from GridFS.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Downloading Files</title>
       <link>/mongo-csharp-driver/2.1/reference/gridfs/downloadingfiles/</link>
       <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
@@ -302,66 +362,6 @@ using (var cursor = await bucket.FindAsync(filter, options))
 &lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
 &#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
 &#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Getting Started</title>
-      <link>/mongo-csharp-driver/2.1/reference/gridfs/gettingstarted/</link>
-      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.1/reference/gridfs/gettingstarted/</guid>
-      <description>
-
-&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
-
-&lt;p&gt;GridFS files are stored in the database using two collections, normally called &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;. Each file uploaded to GridFS has one document in the &amp;ldquo;fs.files&amp;rdquo; collection containing information about the file and as many chunks as necessary in the &amp;ldquo;fs.chunks&amp;rdquo; collection to store the contents of the file.&lt;/p&gt;
-
-&lt;p&gt;A GridFS &amp;ldquo;bucket&amp;rdquo; is the combination of an &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo; collection which together represent a bucket where GridFS files can be stored.&lt;/p&gt;
-
-&lt;h3 id=&#34;gridfsbucket&#34;&gt;GridFSBucket&lt;/h3&gt;
-
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
-&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object is the root object representing a GridFS bucket.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
-&lt;p&gt;You should always use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object to interact with GridFS instead of directly referencing the underlying collections.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;You create a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
-&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; instance by calling its constructor:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
-
-var bucket = new GridFSBucket(database);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You can also provide options when instantiating the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
-&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
-
-var bucket = new GridFSBucket(database, new GridFSOptions
-{
-    BucketName = &amp;quot;videos&amp;quot;,
-    ChunkSizeBytes = 1048576, // 1MB
-    WriteConcern = WriteConcern.Majority,
-    ReadPreference = ReadPeference.Secondary
-});
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
-&#34;&gt;&lt;code&gt;BucketName&lt;/code&gt;&lt;/a&gt; value is the root part of the files and chunks collection names, so in this example the two collections would be named &amp;ldquo;videos.files&amp;rdquo; and &amp;ldquo;videos.chunks&amp;rdquo; instead of &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;.&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
-&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255MB).&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
-&#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
-&#34;&gt;&lt;code&gt;ReadPreference&lt;/code&gt;&lt;/a&gt; is used when downloading files from GridFS.&lt;/p&gt;
 </description>
     </item>
     
@@ -1370,6 +1370,78 @@ Even though we used a string here for the command, it could have been a BsonDocu
     </item>
     
     <item>
+      <title>Using a Tailable Cursor</title>
+      <link>/mongo-csharp-driver/2.1/examples/tailable_cursor/</link>
+      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.1/examples/tailable_cursor/</guid>
+      <description>
+
+&lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
+
+&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/core/capped-collections/
+&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
+&#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;private static async Task TailCollectionAsync(IMongoCollection&amp;lt;BsonDocument&amp;gt; collection)
+{
+    // Set lastValue to the smallest value possible
+    BsonValue lastValue = BsonMinKey.Value;
+    
+    var options = new FindOptions&amp;lt;BsonDocument&amp;gt; 
+    { 
+        // Our cursor is a tailable cursor and informs the server to await
+        CursorType = CursorType.TailableAwait
+    };
+    
+    // Initially, we don&#39;t have a filter. An empty BsonDocument matches everything.
+    BsonDocument filter = new BsonDocument();
+    
+    // NOTE: This loops forever. It would be prudent to provide some form of 
+    // an escape condition based on your needs; e.g. the user presses a key.
+    while (true)
+    {
+        // Start the cursor and wait for the initial response
+        using (var cursor = await collection.FindAsync(filter, options))
+        {
+            // This callback will get invoked with each new document found
+            await cursor.ForEachAsync(document =&amp;gt;
+            {
+                // Set the last value we saw 
+                lastValue = document[&amp;quot;insertDate&amp;quot;];
+                
+                // Write the document to the console.
+                await Console.WriteLineAsync(document.ToString());
+            });
+        }
+
+        // The tailable cursor died so loop through and restart it
+        // Now, we want documents that are strictly greater than the last value we saw
+        filter = new BsonDocument(&amp;quot;$gt&amp;quot;, new BsonDocument(&amp;quot;insertDate&amp;quot;, lastId));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
+you could track all the documents you&amp;rsquo;ve seen by their identifiers for the same &lt;code&gt;lastValue&lt;/code&gt; and ignore them in the callback. In addition, you would need to change the &lt;code&gt;$gt&lt;/code&gt; condition to &lt;code&gt;$gte&lt;/code&gt;&lt;/p&gt;
+
+&lt;/div&gt;
+.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Mixing Static and Dynamic Data</title>
       <link>/mongo-csharp-driver/2.1/examples/mixing_static_and_dynamic/</link>
       <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
@@ -1494,78 +1566,6 @@ It is still possible to filter, sort, project, update, etc&amp;hellip; this dyna
 There is a danger with this approach that dynamic field names could clash with names already being used by members of the class.
 &lt;/div&gt;
 &lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Using a Tailable Cursor</title>
-      <link>/mongo-csharp-driver/2.1/examples/tailable_cursor/</link>
-      <pubDate>Tue, 26 May 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.1/examples/tailable_cursor/</guid>
-      <description>
-
-&lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
-
-&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/core/capped-collections/
-&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
-&#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; the capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;private static async Task TailCollectionAsync(IMongoCollection&amp;lt;BsonDocument&amp;gt; collection)
-{
-    // Set lastValue to the smallest value possible
-    BsonValue lastValue = BsonMinKey.Value;
-    
-    var options = new FindOptions&amp;lt;BsonDocument&amp;gt; 
-    { 
-        // Our cursor is a tailable cursor and informs the server to await
-        CursorType = CursorType.TailableAwait
-    };
-    
-    // Initially, we don&#39;t have a filter. An empty BsonDocument matches everything.
-    BsonDocument filter = new BsonDocument();
-    
-    // NOTE: This loops forever. It would be prudent to provide some form of 
-    // an escape condition based on your needs; e.g. the user presses a key.
-    while (true)
-    {
-        // Start the cursor and wait for the initial response
-        using (var cursor = await collection.FindAsync(filter, options))
-        {
-            // This callback will get invoked with each new document found
-            await cursor.ForEachAsync(document =&amp;gt;
-            {
-                // Set the last value we saw 
-                lastValue = document[&amp;quot;insertDate&amp;quot;];
-                
-                // Write the document to the console.
-                await Console.WriteLineAsync(document.ToString());
-            });
-        }
-
-        // The tailable cursor died so loop through and restart it
-        // Now, we want documents that are strictly greater than the last value we saw
-        filter = new BsonDocument(&amp;quot;$gt&amp;quot;, new BsonDocument(&amp;quot;insertDate&amp;quot;, lastId));
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
-you could track all the documents you&amp;rsquo;ve seen by their identifiers for the same &lt;code&gt;lastValue&lt;/code&gt; and ignore them in the callback. In addition, you would need to change the &lt;code&gt;$gt&lt;/code&gt; condition to &lt;code&gt;$gte&lt;/code&gt;&lt;/p&gt;
-
-&lt;/div&gt;
-.&lt;/p&gt;
 </description>
     </item>
     
@@ -1774,65 +1774,24 @@ await collection.Indexes.DropAllAsync();
     </item>
     
     <item>
-      <title>Exporting JSON</title>
-      <link>/mongo-csharp-driver/2.1/examples/exporting_json/</link>
+      <title>Examples</title>
+      <link>/mongo-csharp-driver/2.1/examples/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
       
-      <guid>/mongo-csharp-driver/2.1/examples/exporting_json/</guid>
+      <guid>/mongo-csharp-driver/2.1/examples/</guid>
       <description>
 
-&lt;h2 id=&#34;exporting-json&#34;&gt;Exporting JSON&lt;/h2&gt;
+&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
+&lt;p&gt;A number of examples have been compiled to show a more thorough usage of certain features and how they interact.&lt;/p&gt;
 
-&lt;p&gt;The program below will export all documents from a collection to a file with one document per line.&lt;/p&gt;
-
-&lt;p&gt;Given the collection&amp;rsquo;s contents:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;&amp;gt; db.mydata.find()
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And the program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-
-// ...
-
-string outputFileName; // initialize to the output file
-IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
-
-using (var streamWriter = new StreamWriter(outputFileName))
-{
-    await collection.Find(new BsonDocument())
-        .ForEachAsync(async (document) =&amp;gt;
-        {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(jsonWriter);
-                collection.DocumentSerializer.Serialize(context, document);
-                var line = stringWriter.ToString();
-                await streamWriter.WriteLineAsync(line);
-            }
-        });
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The output file should look this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
-&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/examples/importing_json/&#34;&gt;Importing JSON&lt;/a&gt;: How to read JSON from a file and insert it into a collection.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/examples/exporting_json/&#34;&gt;Exporting JSON&lt;/a&gt;: How to read data from a collection and export it to a JSON file.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/examples/mixing_static_and_dynamic/&#34;&gt;Mixing Static and Dynamic Data&lt;/a&gt;: How to have both static and dynamic data inside your classes.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/examples/tailable_cursor/&#34;&gt;Using Tailable Cursors&lt;/a&gt;: How to use a tailable cursor.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/examples/user_management/&#34;&gt;Managing Users&lt;/a&gt;: How to manage users.&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
