@@ -1,6 +1,4 @@
-# .NET Driver Version 2.1.0-rc1 Release Notes
-
-(Preliminary)
+# .NET Driver Version 2.1.0 Release Notes
 
 This is a minor release which supports all MongoDB server versions since 2.4.
 
