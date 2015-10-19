@@ -25,6 +25,7 @@ namespace MongoDB.Driver.GridFS
         // fields
         private string _bucketName;
         private int _chunkSizeBytes;
+        private ReadConcern _readConcern;
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
 
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
         }
@@ -59,6 +61,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
         }
@@ -94,6 +97,18 @@ namespace MongoDB.Driver.GridFS
                 Ensure.IsGreaterThanZero(value, nameof(value));
                 _chunkSizeBytes = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = value; }
         }
 
         /// <summary>
@@ -146,6 +161,7 @@ namespace MongoDB.Driver.GridFS
         // fields
         private readonly string _bucketName;
         private readonly int _chunkSizeBytes;
+        private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
 
@@ -156,7 +172,7 @@ namespace MongoDB.Driver.GridFS
         public ImmutableGridFSBucketOptions()
         {
             _bucketName = "fs";
-            _chunkSizeBytes = 255 * 1024;           
+            _chunkSizeBytes = 255 * 1024;
         }
 
         /// <summary>
@@ -168,6 +184,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
         }
@@ -193,6 +210,17 @@ namespace MongoDB.Driver.GridFS
         public int ChunkSizeBytes
         {
             get { return _chunkSizeBytes; }
+        }
+
+        /// <summary>
+        /// Gets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
         }
 
         /// <summary>

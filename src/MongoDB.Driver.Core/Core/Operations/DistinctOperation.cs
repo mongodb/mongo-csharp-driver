@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "key", _fieldName },
                 { "query", _filter, _filter != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverVersion) }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
            };
         }
 

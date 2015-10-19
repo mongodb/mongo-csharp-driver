@@ -241,6 +241,7 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be(options.BucketName);
             result.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+            result.ReadConcern.Should().Be(options.ReadConcern);
             result.ReadPreference.Should().Be(options.ReadPreference);
             result.WriteConcern.Should().Be(options.WriteConcern);
         }

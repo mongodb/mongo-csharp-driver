@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [Category("ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
@@ -72,12 +73,12 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", maxTime.TotalMilliseconds }
             };
 
-            if (subject.ReadConcern.ShouldBeSent(semanticServerVersion))
+            if (!subject.ReadConcern.IsServerDefault)
             {
                 expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
             }
 
-            if (semanticServerVersion < new SemanticVersion(3, 2, 0) && subject.ReadConcern.Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local)
+            if (!subject.ReadConcern.IsSupported(semanticServerVersion))
             {
                 Action act = () => subject.CreateCommand(semanticServerVersion);
                 act.ShouldThrow<MongoClientException>();

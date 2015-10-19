@@ -419,7 +419,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
-                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverDescription.Version) }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
 
             return command;

@@ -187,17 +187,20 @@ namespace MongoDB.Driver
             }
         }
 
-        internal bool ShouldBeSent(SemanticVersion serverVersion)
+        internal bool IsSupported(SemanticVersion serverVersion)
         {
-            return !IsServerDefault && serverVersion >= __supportedServerVersion;
+            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
+
+            return IsServerDefault || serverVersion >= __supportedServerVersion;
         }
 
         internal void ThrowIfNotSupported(SemanticVersion serverVersion)
         {
-            if (Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local
-                && serverVersion < __supportedServerVersion)
+            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
+
+            if (!IsSupported(serverVersion))
             {
-                throw new MongoClientException($"ReadConcernLevel {_level} is not supported by server {serverVersion}.");
+                throw new MongoClientException($"ReadConcern {ToString()} is not supported by server {serverVersion}.");
             }
         }
     }
