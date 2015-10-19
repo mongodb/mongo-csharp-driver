@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint,
                 Limit = limit,
                 MaxTime = maxTime,
+                ReadConcern = new ReadConcern(readConcernLevel),
                 Skip = skip
             };
             var expectedResult = new BsonDocument

@@ -68,6 +68,8 @@
     <Compile Include="Core\Operations\AsyncCursorTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
+    <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
+    <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperationTests.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Core\Operations\ListIndexesUsingCommandOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesUsingQueryOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
+    <Compile Include="Core\Operations\MapReduceLegacyOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOutputToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />

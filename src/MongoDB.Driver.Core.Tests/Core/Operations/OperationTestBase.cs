@@ -171,6 +171,16 @@ namespace MongoDB.Driver.Core.Operations
             return await operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
+        protected void CreateIndexes(params CreateIndexRequest[] requests)
+        {
+            var operation = new CreateIndexesOperation(
+                _collectionNamespace,
+                requests,
+                _messageEncoderSettings);
+
+            ExecuteOperation(operation);
+        }
+
         protected void Insert(params BsonDocument[] documents)
         {
             Insert((IEnumerable<BsonDocument>)documents);

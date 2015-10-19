@@ -28,7 +28,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class MapReduceOperationTests : OperationTestBase
+    public class MapReduceLegacyOperationTests : OperationTestBase
     {
         // fields
         private readonly BsonJavaScript _mapFunction = "map";
@@ -39,28 +39,19 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_initialize_instance()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             subject.Filter.Should().BeNull();
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
-            subject.ResultSerializer.Should().BeSameAs(_resultSerializer);
-        }
-
-        [Test]
-        public void constructor_should_throw_when_resultSerializer_is_null()
-        {
-            Action action = () => new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, null, _messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
 
         [Test]
         public void CreateOutputOptions_should_return_expected_result()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var subjectReflector = new Reflector(subject);
             var expectedResult = new BsonDocument("inline", 1);
 
@@ -79,17 +70,16 @@ namespace MongoDB.Driver.Core.Operations
 
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
             var expectedResults = new List<BsonDocument>
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },
                 new BsonDocument { {"_id", 2 }, { "value", 4 } },
             };
 
-            var cursor = ExecuteOperation(subject, async);
-            var results = ReadCursorToEnd(cursor, async);
+            var result = ExecuteOperation(subject, async);
 
-            results.Should().Equal(expectedResults);
+            result["results"].Should().Be(new BsonArray(expectedResults));
         }
 
         [Test]
@@ -99,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             var readConcern = new ReadConcern(readConcernLevel);
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, _resultSerializer, _messageEncoderSettings)
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
             {
                 ReadConcern = readConcern
             };
@@ -121,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, _resultSerializer, _messageEncoderSettings)
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
             {
                 ReadConcern = ReadConcern.Majority
             };
@@ -135,21 +125,11 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             Action act = () => ExecuteOperation(subject, null, async);
 
             act.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
-        }
-
-        [Test]
-        public void ResultSerializer_should_get_value()
-        {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
-
-            var result = subject.ResultSerializer;
-
-            result.Should().BeSameAs(_resultSerializer);
         }
 
         // helper methods
@@ -166,10 +146,10 @@ namespace MongoDB.Driver.Core.Operations
         private class Reflector
         {
             // fields
-            private readonly MapReduceOperation<BsonDocument> _instance;
+            private readonly MapReduceLegacyOperation _instance;
 
             // constructor
-            public Reflector(MapReduceOperation<BsonDocument> instance)
+            public Reflector(MapReduceLegacyOperation instance)
             {
                 _instance = instance;
             }
@@ -177,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             public BsonDocument CreateOutputOptions()
             {
-                var method = typeof(MapReduceOperation<BsonDocument>).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);
+                var method = typeof(MapReduceLegacyOperation).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);
                 return (BsonDocument)method.Invoke(_instance, new object[0]);
             }
         }
