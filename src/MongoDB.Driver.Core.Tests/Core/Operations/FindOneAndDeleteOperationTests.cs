@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "remove", true },
                 { "fields", projectionDoc, projectionDoc != null },
                 { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) }
 
             };
 

@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteOperationResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int? _maxBatchCount;
@@ -52,6 +53,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -101,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return ExecuteBatches(channel, cancellationToken);
                 }
@@ -126,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
@@ -155,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
             var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
             var maxWireDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
             var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
-            return CreateWriteCommand(batchSerializer, requestSource);
+            return CreateWriteCommand(batchSerializer, requestSource, channel.ConnectionDescription.ServerVersion);
         }
 
         private BulkWriteBatchResult CreateBatchResult(BatchableSource<WriteRequest> requestSource, int originalIndex, BsonDocument writeCommandResult)
@@ -172,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract BulkUnmixedWriteOperationEmulatorBase CreateEmulator();
 
-        private BsonDocument CreateWriteCommand(BatchSerializer batchSerializer, BatchableSource<WriteRequest> requestSource)
+        private BsonDocument CreateWriteCommand(BatchSerializer batchSerializer, BatchableSource<WriteRequest> requestSource, SemanticVersion serverVersion)
         {
             var batchWrapper = new BsonDocumentWrapper(requestSource, batchSerializer);
 
@@ -187,7 +194,8 @@ namespace MongoDB.Driver.Core.Operations
                 { CommandName, _collectionNamespace.CollectionName },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "ordered", _isOrdered },
-                { RequestsElementName, new BsonArray { batchWrapper } }
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
+                { RequestsElementName, new BsonArray { batchWrapper } } // should be last
             };
         }
 

@@ -105,14 +105,25 @@ namespace MongoDB.Driver
         public abstract Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public virtual async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default(CancellationToken))
+        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
+        public virtual Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
+        {
+            return InsertOneAsync(document, null, _cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)document, "document");
 
             var model = new InsertOneModel<TDocument>(document);
             try
             {
-                await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
+                var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                await BulkWriteAsync(new[] { model }, bulkWriteOptions, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoBulkWriteException<TDocument> ex)
             {
@@ -126,7 +137,11 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(documents, nameof(documents));
 
             var models = documents.Select(x => new InsertOneModel<TDocument>(x));
-            BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
+            var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+            {
+                BypassDocumentValidation = options.BypassDocumentValidation,
+                IsOrdered = options.IsOrdered
+            };
             return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
         }
 
@@ -150,7 +165,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = await BulkWriteAsync(new[] { model }, bulkWriteOptions, cancellationToken).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)
@@ -173,7 +192,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = await BulkWriteAsync(new[] { model }, bulkWriteOptions, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)
@@ -196,7 +219,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = await BulkWriteAsync(new[] { model }, bulkWriteOptions, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)

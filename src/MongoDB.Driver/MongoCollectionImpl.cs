@@ -105,6 +105,7 @@ namespace MongoDB.Driver
                     _messageEncoderSettings)
                 {
                     AllowDiskUse = options.AllowDiskUse,
+                    BypassDocumentValidation = options.BypassDocumentValidation,
                     MaxTime = options.MaxTime
                 };
 
@@ -161,6 +162,7 @@ namespace MongoDB.Driver
                 requests.Select(ConvertWriteModelToWriteRequest),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 IsOrdered = options.IsOrdered,
                 WriteConcern = _settings.WriteConcern
             };
@@ -289,6 +291,7 @@ namespace MongoDB.Driver
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
@@ -316,6 +319,7 @@ namespace MongoDB.Driver
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
@@ -372,6 +376,7 @@ namespace MongoDB.Driver
                     reduce,
                     _messageEncoderSettings)
                 {
+                    BypassDocumentValidation = options.BypassDocumentValidation,
                     Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                     FinalizeFunction = options.Finalize,
                     JavaScriptMode = options.JavaScriptMode,

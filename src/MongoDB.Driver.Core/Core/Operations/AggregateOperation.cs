@@ -35,9 +35,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TResult">The type of the result values.</typeparam>
     public class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
     {
-        // static fields
-        private static readonly SemanticVersion __version26 = new SemanticVersion(2, 6, 0);
-
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
@@ -232,7 +229,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
 
-            if (serverVersion >= __version26 && _useCursor.GetValueOrDefault(true))
+            if (SupportedFeatures.IsAggregateCursorResultSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
             {
                 command["cursor"] = new BsonDocument
                 {
@@ -251,7 +248,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
-            if (channel.ConnectionDescription.ServerVersion >= __version26 && _useCursor.GetValueOrDefault(true))
+            if (SupportedFeatures.IsAggregateCursorResultSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }

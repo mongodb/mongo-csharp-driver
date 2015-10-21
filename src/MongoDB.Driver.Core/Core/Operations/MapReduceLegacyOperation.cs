@@ -85,24 +85,25 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.ExecuteAsync(channelBinding, cancellationToken);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
+        /// <inheritdoc/>
+        protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             _readConcern.ThrowIfNotSupported(serverVersion);
 
-            var command = CreateCommand();
+            var command = base.CreateCommand(serverVersion);
             if (!_readConcern.IsServerDefault)
             {
                 command["readConcern"] = _readConcern.ToBsonDocument();

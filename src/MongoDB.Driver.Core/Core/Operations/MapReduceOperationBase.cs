@@ -207,7 +207,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateCommand()
+        /// <summary>
+        /// Creates the command.
+        /// </summary>
+        /// <returns>The command.</returns>
+        protected internal virtual BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             return new BsonDocument
             {

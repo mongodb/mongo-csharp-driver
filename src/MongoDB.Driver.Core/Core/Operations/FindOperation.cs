@@ -524,7 +524,7 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (serverVersion >= new SemanticVersion(3, 1, 5) && !hasExplainModifier)
+            if (SupportedFeatures.IsFindCommandSupported(serverVersion) && !hasExplainModifier)
             {
                 return CreateFindCommandOperation();
             }

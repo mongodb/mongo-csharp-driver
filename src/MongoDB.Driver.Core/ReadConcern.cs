@@ -25,8 +25,6 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class ReadConcern : IEquatable<ReadConcern>, IConvertibleToBsonDocument
     {
-        private static readonly SemanticVersion __supportedServerVersion = new SemanticVersion(3, 1, 7);
-
         private static readonly ReadConcern __default = new ReadConcern();
         private static readonly ReadConcern __local = new ReadConcern(ReadConcernLevel.Local);
         private static readonly ReadConcern __majority = new ReadConcern(ReadConcernLevel.Majority);
@@ -191,7 +189,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(serverVersion, nameof(serverVersion));
 
-            return IsServerDefault || serverVersion >= __supportedServerVersion;
+            return IsServerDefault || SupportedFeatures.IsReadConcernSupported(serverVersion);
         }
 
         internal void ThrowIfNotSupported(SemanticVersion serverVersion)

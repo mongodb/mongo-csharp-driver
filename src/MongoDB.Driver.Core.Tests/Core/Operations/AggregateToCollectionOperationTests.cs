@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -81,6 +82,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void BypassDocumentValidation_should_have_the_correct_value()
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
+
+            subject.BypassDocumentValidation.Should().Be(null);
+
+            subject.BypassDocumentValidation = true;
+
+            subject.BypassDocumentValidation.Should().Be(true);
+        }
+
+        [Test]
         public void AllowDiskUse_should_have_the_correct_value()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
@@ -107,23 +120,28 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_create_the_correct_command(
             [Values(null, false, true)] bool? allowDiskUse,
-            [Values(null, 2000)] int? maxTime)
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(null, 2000)] int? maxTime,
+            [Values("3.0.0", "3.1.3")] string serverVersionString)
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = allowDiskUse,
+                BypassDocumentValidation = bypassDocumentValidation,
                 MaxTime = maxTime.HasValue ? TimeSpan.FromMilliseconds(maxTime.Value) : (TimeSpan?)null,
             };
+            var serverVersion = SemanticVersion.Parse(serverVersionString);
 
             var expectedResult = new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(subject.Pipeline) },
                 { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse.HasValue },
+                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
                 { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(serverVersion);
 
             result.Should().Be(expectedResult);
         }
@@ -137,6 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = true,
+                BypassDocumentValidation = true,
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 

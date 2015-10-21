@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -11,28 +11,24 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
+ * 
 */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for updating a single document.
+    /// Options for inserting one document.
     /// </summary>
-    public sealed class UpdateOptions
+    public sealed class InsertOneOptions
     {
-        // fields
+        // private fields
         private bool? _bypassDocumentValidation;
-        private bool _isUpsert;
 
-        // properties
+        // public properties
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.
         /// </summary>
@@ -40,15 +36,6 @@ namespace MongoDB.Driver
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
-        /// </summary>
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
         }
     }
 }

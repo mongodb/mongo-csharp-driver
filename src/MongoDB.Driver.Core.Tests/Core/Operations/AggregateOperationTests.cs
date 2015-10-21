@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
                 expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
             }
 
-            if (semanticServerVersion >= new SemanticVersion(2, 6, 0) && useCursor.GetValueOrDefault(true))
+            if (SupportedFeatures.IsAggregateCursorResultSupported(semanticServerVersion) && useCursor.GetValueOrDefault(true))
             {
                 expectedResult["cursor"] = new BsonDocument
                 {

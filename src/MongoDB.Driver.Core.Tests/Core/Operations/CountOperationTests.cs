@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
+            if (SupportedFeatures.AreFailPointsSupported(CoreTestConfiguration.ServerVersion))
             {
                 // TODO: port FailPoint infrastructure from Driver.Tests to Core.Tests
             }

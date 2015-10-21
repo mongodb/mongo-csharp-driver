@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneAndReplaceOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly BsonDocument _filter;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
@@ -61,6 +62,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the filter.
         /// </summary>
@@ -156,7 +169,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "fields", _projection, _projection != null },
                 { "upsert", _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && serverVersion >= ServerVersionSupportingWriteConcern }
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) }
             };
         }
 

@@ -30,6 +30,7 @@ namespace MongoDB.Driver
     public class FindOneAndReplaceOptions<TDocument, TProjection>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
@@ -46,6 +47,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>

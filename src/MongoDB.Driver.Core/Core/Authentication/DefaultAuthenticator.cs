@@ -26,9 +26,6 @@ namespace MongoDB.Driver.Core.Authentication
     /// </summary>
     public class DefaultAuthenticator : IAuthenticator
     {
-        // static
-        private static readonly SemanticVersion __scramVersionRequirement = new SemanticVersion(2, 7, 5);
-
         // fields
         private readonly UsernamePasswordCredential _credential;
         private readonly IRandomStringGenerator _randomStringGenerator;
@@ -79,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         private IAuthenticator CreateAuthenticator(ConnectionDescription description)
         {
-            if (description.BuildInfoResult.ServerVersion >= __scramVersionRequirement)
+            if (SupportedFeatures.IsScramSha1AuthenticationSupported(description.ServerVersion))
             {
                 return new ScramSha1Authenticator(_credential, _randomStringGenerator);
             }

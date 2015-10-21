@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 6, 0))
+            if (SupportedFeatures.IsMaxTimeSupported(CoreTestConfiguration.ServerVersion))
             {
                 // TODO: implement EvalOperation MaxTime test
             }

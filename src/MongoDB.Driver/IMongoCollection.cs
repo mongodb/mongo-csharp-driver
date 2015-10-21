@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -169,11 +170,23 @@ namespace MongoDB.Driver
         /// Inserts a single document.
         /// </summary>
         /// <param name="document">The document.</param>
+        /// <param name="_cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
+        Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken);
+
+        /// <summary>
+        /// Inserts a single document.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default(CancellationToken));
+        Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts many documents.

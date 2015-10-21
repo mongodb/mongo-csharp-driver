@@ -359,7 +359,7 @@ namespace MongoDB.Driver.GridFS
             };
 
             var filesCollection = GetFilesCollection();
-            await filesCollection.InsertOneAsync(filesCollectionDocument, cancellationToken).ConfigureAwait(false);
+            await filesCollection.InsertOneAsync(filesCollectionDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         private async Task WriteFinalBatchAsync(CancellationToken cancellationToken)

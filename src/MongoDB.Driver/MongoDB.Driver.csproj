@@ -81,6 +81,7 @@
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
+    <Compile Include="InsertOneOptions.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\ExecutionPlanBuilder.cs" />
     <Compile Include="Linq\ExpressionHelper.cs" />

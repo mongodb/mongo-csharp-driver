@@ -135,6 +135,7 @@
     <Compile Include="Core\Events\SingleEventSubscriber.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequest.cs" />
+    <Compile Include="Core\Misc\SupportedFeatures.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
     <Compile Include="Core\Operations\DocumentValidationAction.cs" />

@@ -274,7 +274,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = _channelSource.GetChannel(cancellationToken))
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                if (SupportedFeatures.IsFindCommandSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return ExecuteGetMoreCommand(channel, cancellationToken);
                 }
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                if (SupportedFeatures.IsFindCommandSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return await ExecuteGetMoreCommandAsync(channel,cancellationToken).ConfigureAwait(false);
                 }

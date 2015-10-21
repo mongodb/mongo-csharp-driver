@@ -32,11 +32,6 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
-        #region static
-        // static fields
-        private static readonly SemanticVersion __versionSupportingListCollectionsCommand = new SemanticVersion(2, 7, 6);
-        #endregion
-
         // fields
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
@@ -125,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (channel.ConnectionDescription.ServerVersion >= __versionSupportingListCollectionsCommand)
+            if (SupportedFeatures.IsListCollectionsCommandSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings) { Filter = _filter };
             }

@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
+        private bool? _bypassDocumentValidation;
         private TimeSpan? _maxTime;
         private bool? _useCursor;
 
@@ -50,6 +51,15 @@ namespace MongoDB.Driver
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
         }
 
         /// <summary>

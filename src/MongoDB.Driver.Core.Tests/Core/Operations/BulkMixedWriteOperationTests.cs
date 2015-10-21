@@ -26,6 +26,18 @@ namespace MongoDB.Driver.Core.Operations
     public class BulkMixedWriteOperationTests : OperationTestBase
     {
         [Test]
+        public void BypassDocumentValidation_should_work()
+        {
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
+
+            subject.BypassDocumentValidation.Should().NotHaveValue();
+
+            subject.BypassDocumentValidation = true;
+
+            subject.BypassDocumentValidation.Should().BeTrue();
+        }
+
+        [Test]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => new BulkMixedWriteOperation(null, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -54,6 +66,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
 
+            subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Requests.Should().BeEmpty();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
@@ -432,7 +445,10 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true
+            };
 
             var result = ExecuteOperation(subject, async);
 
