@@ -263,6 +263,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestGetCurrentOp()
         {
             var adminDatabase = _server.GetDatabase("admin");

@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("EnsureTestData")]
+        [RequiresServer("EnsureTestData", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
