@@ -52,7 +52,14 @@ namespace MongoDB.Driver
         /// Counts the number of documents.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent find interface.</returns>
+        /// <returns>The count.</returns>
+        long Count(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Counts the number of documents.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the count.</returns>
         Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>

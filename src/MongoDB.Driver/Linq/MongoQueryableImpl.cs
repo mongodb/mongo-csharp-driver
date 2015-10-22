@@ -71,6 +71,11 @@ namespace MongoDB.Driver.Linq
             return _queryProvider.GetExecutionModel(_expression);
         }
 
+        public IAsyncCursor<TOutput> ToCursor(CancellationToken cancellationToken)
+        {
+            return _queryProvider.ExecuteAsync<IAsyncCursor<TOutput>>(_expression, cancellationToken).GetAwaiter().GetResult();
+        }
+
         public Task<IAsyncCursor<TOutput>> ToCursorAsync(CancellationToken cancellationToken)
         {
             return _queryProvider.ExecuteAsync<IAsyncCursor<TOutput>>(_expression, cancellationToken);

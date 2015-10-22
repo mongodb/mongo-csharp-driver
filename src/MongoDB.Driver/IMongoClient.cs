@@ -47,6 +47,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="name">The name of the database to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the database with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the database to drop.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -57,6 +64,13 @@ namespace MongoDB.Driver
         /// <param name="settings">The database settings.</param>
         /// <returns>An implementation of a database.</returns>
         IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
+
+        /// <summary>
+        /// Lists the databases on the server.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Lists the databases on the server.

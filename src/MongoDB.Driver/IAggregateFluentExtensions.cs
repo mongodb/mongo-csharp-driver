@@ -379,11 +379,43 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
+        public static TResult First<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return AsyncCursorHelper.First(aggregate.Limit(1).ToCursor(cancellationToken), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first document of the aggregate result.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
         public static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first document of the aggregate result, or the default value if the result set is empty.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult FirstOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return AsyncCursorHelper.FirstOrDefault(aggregate.Limit(1).ToCursor(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -411,11 +443,43 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
+        public static TResult Single<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return AsyncCursorHelper.Single(aggregate.Limit(2).ToCursor(cancellationToken), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result. Throws an exception if the result set does not contain exactly one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
         public static Task<TResult> SingleAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result, or the default value if the result set is empty. Throws an exception if the result set contains more than one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult SingleOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return AsyncCursorHelper.SingleOrDefault(aggregate.Limit(2).ToCursor(cancellationToken), cancellationToken);
         }
 
         /// <summary>

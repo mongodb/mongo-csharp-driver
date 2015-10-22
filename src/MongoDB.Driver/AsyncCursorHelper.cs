@@ -37,6 +37,21 @@ namespace MongoDB.Driver
             }
         }
 
+        public static T First<T>(IAsyncCursor<T> cursor, CancellationToken cancellationToken)
+        {
+            using (cursor)
+            {
+                if (cursor.MoveNext(cancellationToken))
+                {
+                    return cursor.Current.First();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
         public async static Task<T> FirstAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
@@ -48,6 +63,21 @@ namespace MongoDB.Driver
                 else
                 {
                     throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        public static T FirstOrDefault<T>(IAsyncCursor<T> cursor, CancellationToken cancellationToken)
+        {
+            using (cursor)
+            {
+                if (cursor.MoveNext(cancellationToken))
+                {
+                    return cursor.Current.FirstOrDefault();
+                }
+                else
+                {
+                    return default(T);
                 }
             }
         }
@@ -67,6 +97,21 @@ namespace MongoDB.Driver
             }
         }
 
+        public static T Single<T>(IAsyncCursor<T> cursor, CancellationToken cancellationToken)
+        {
+            using (cursor)
+            {
+                if (cursor.MoveNext(cancellationToken))
+                {
+                    return cursor.Current.Single();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
         public async static Task<T> SingleAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
@@ -78,6 +123,21 @@ namespace MongoDB.Driver
                 else
                 {
                     throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        public static T SingleOrDefault<T>(IAsyncCursor<T> cursor, CancellationToken cancellationToken)
+        {
+            using (cursor)
+            {
+                if (cursor.MoveNext(cancellationToken))
+                {
+                    return cursor.Current.SingleOrDefault();
+                }
+                else
+                {
+                    return default(T);
                 }
             }
         }

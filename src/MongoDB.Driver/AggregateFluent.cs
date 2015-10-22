@@ -146,6 +146,12 @@ namespace MongoDB.Driver
             return AppendStage<TNewResult>(stage);
         }
 
+        public override IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken)
+        {
+            return AppendStage<TResult>(new BsonDocument("$out", collectionName))
+                .ToCursor(cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
             return AppendStage<TResult>(new BsonDocument("$out", collectionName))
@@ -231,6 +237,12 @@ namespace MongoDB.Driver
                 });
 
             return AppendStage<TNewResult>(stage);
+        }
+
+        public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
+        {
+            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
+            return _collection.Aggregate(pipeline, _options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken)

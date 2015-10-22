@@ -30,6 +30,13 @@ namespace MongoDB.Driver
         /// Executes the operation and returns a cursor to the results.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<TDocument> ToCursor(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes the operation and returns a cursor to the results.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
@@ -110,6 +117,21 @@ namespace MongoDB.Driver
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Returns a list containing all the documents returned by the cursor returned by a cursor source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The list of documents.</returns>
+        public static List<TDocument> ToList<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var cursor = source.ToCursor(cancellationToken))
+            {
+                return cursor.ToList(cancellationToken);
             }
         }
 

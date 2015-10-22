@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Sync
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            while (_cursor.MoveNextAsync(_cancellationToken).GetAwaiter().GetResult())
+            while (_cursor.MoveNext(_cancellationToken))
             {
                 var batch = _cursor.Current;
                 foreach (var document in batch)
