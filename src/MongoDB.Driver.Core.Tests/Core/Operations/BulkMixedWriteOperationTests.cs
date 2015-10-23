@@ -1010,6 +1010,133 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
+        //
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = false,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            var result = ExecuteOperation(subject);
+
+            result.ProcessedRequests.Should().HaveCount(5);
+            result.RequestCount.Should().Be(5);
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(3);
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
+        {
+            var keys = new BsonDocument("x", 1);
+            var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
+            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
+
+            ExecuteOperation(createIndexOperation, async);
+
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = true,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            var result = ExecuteOperation(subject);
+            result.ProcessedRequests.Should().HaveCount(5);
+            result.RequestCount.Should().Be(5);
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(1);
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 2 }}),
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = false,
+                MaxBatchCount = 2,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            var result = ExecuteOperation(subject);
+            result.ProcessedRequests.Should().HaveCount(5);
+            result.RequestCount.Should().Be(5);
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(4);
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 2 }}),
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = true,
+                MaxBatchCount = 2,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            var result = ExecuteOperation(subject);
+            result.ProcessedRequests.Should().HaveCount(4);
+            result.RequestCount.Should().Be(5);
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(3);
+        }
+
         private void EnsureTestData()
         {
             DropCollection();

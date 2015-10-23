@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly BsonDocument _command;
-        private readonly CommandResponseStrategy<TCommandResult> _responseStrategy;
+        private readonly Func<CommandResponseStrategy> _responseStrategy;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 databaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
-                CommandResponseStrategy<TCommandResult>.Read,
+                () => CommandResponseStrategy.Return,
                 slaveOk,
                 resultSerializer,
                 messageEncoderSettings)
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IElementNameValidator commandValidator,
-            CommandResponseStrategy<TCommandResult> responseStrategy,
+            Func<CommandResponseStrategy> responseStrategy,
             bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
@@ -100,11 +100,15 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
             var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
 
-            return _responseStrategy.Decide(() =>
+            switch (_responseStrategy())
             {
-                var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
-                return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
-            });
+                case CommandResponseStrategy.Ignore:
+                    connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).IgnoreExceptions();
+                    return default(TCommandResult);
+                default:
+                    var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                    return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+            }
         }
 
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
@@ -112,12 +116,15 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
-
-            return await _responseStrategy.DecideAsync(async () =>
+            switch (_responseStrategy())
             {
-                var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
-            }).ConfigureAwait(false);
+                case CommandResponseStrategy.Ignore:
+                    connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).IgnoreExceptions();
+                    return default(TCommandResult);
+                default:
+                    var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]

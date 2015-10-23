@@ -184,16 +184,16 @@ namespace MongoDB.Driver.Core.Operations
         {
             var batchWrapper = new BsonDocumentWrapper(requestSource, batchSerializer);
 
-            var writeConcern = _writeConcern.ToBsonDocument();
-            if (writeConcern.ElementCount == 0)
+            WriteConcern effectiveWriteConcern = _writeConcern;
+            if (!effectiveWriteConcern.IsAcknowledged && _isOrdered)
             {
-                writeConcern = null; // omit field if writeConcern is { }
+                effectiveWriteConcern = WriteConcern.W1; // ignore the server's default, whatever it may be.
             }
 
             return new BsonDocument
             {
                 { CommandName, _collectionNamespace.CollectionName },
-                { "writeConcern", writeConcern, writeConcern != null },
+                { "writeConcern", () => effectiveWriteConcern.ToBsonDocument(), !effectiveWriteConcern.IsServerDefault },
                 { "ordered", _isOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
                 { RequestsElementName, new BsonArray { batchWrapper } } // should be last
@@ -208,14 +208,14 @@ namespace MongoDB.Driver.Core.Operations
         private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = ExecuteProtocol(channel, writeCommand, cancellationToken);
+            var writeCommandResult = ExecuteProtocol(channel, writeCommand, () => GetResponseStrategy(requestSource), cancellationToken);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, cancellationToken).ConfigureAwait(false);
+            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, () => GetResponseStrategy(requestSource), cancellationToken).ConfigureAwait(false);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
@@ -241,40 +241,40 @@ namespace MongoDB.Driver.Core.Operations
             return helper.CreateFinalResultOrThrow(channel);
         }
 
-        private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
+        private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, Func<CommandResponseStrategy> responseStrategy, CancellationToken cancellationToken)
         {
-            var commandValidator = NoOpElementNameValidator.Instance;
-            var responseStrategy = _writeConcern.IsAcknowledged ?
-                CommandResponseStrategy<BsonDocument>.Read :
-                CommandResponseStrategy<BsonDocument>.ThrowAway(new BsonDocument("ok", 1));
-
             return channel.Command<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
-                commandValidator,
+                NoOpElementNameValidator.Instance,
                 responseStrategy,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
-                cancellationToken);
+                cancellationToken) ?? new BsonDocument("ok", 1);
         }
 
-        private Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
+        private async Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, Func<CommandResponseStrategy> responseStrategy, CancellationToken cancellationToken)
         {
-            var commandValidator = NoOpElementNameValidator.Instance;
-            var responseStrategy = _writeConcern.IsAcknowledged ?
-                CommandResponseStrategy<BsonDocument>.Read :
-                CommandResponseStrategy<BsonDocument>.ThrowAway(new BsonDocument("ok", 1));
-
-            return channel.CommandAsync<BsonDocument>(
+            return (await channel.CommandAsync<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
-                commandValidator,
+                NoOpElementNameValidator.Instance,
                 responseStrategy,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false)) ?? new BsonDocument("ok", 1);
+        }
+
+        private CommandResponseStrategy GetResponseStrategy(BatchableSource<WriteRequest> source)
+        {
+            if (_writeConcern.IsAcknowledged || source.HasMore)
+            {
+                return CommandResponseStrategy.Return;
+            }
+
+            return CommandResponseStrategy.Ignore;
         }
 
         // nested types

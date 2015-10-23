@@ -25,60 +25,15 @@ namespace MongoDB.Driver.Core.WireProtocol
     /// <summary>
     /// Strategy for handling the response from a command.
     /// </summary>
-    public abstract class CommandResponseStrategy<TCommandResult>
+    public enum CommandResponseStrategy
     {
         /// <summary>
-        /// Gets the default command response strategy.
+        /// Return the response from the server.
         /// </summary>
-        public static CommandResponseStrategy<TCommandResult> Read { get; } = new DefaultCommandResponseStrategy();
-
+        Return,
         /// <summary>
-        /// Gets a strategy that throws away the response and returns the provided result.
+        /// Ignore the response from the server.
         /// </summary>
-        /// <param name="result">The result.</param>
-        /// <returns></returns>
-        public static CommandResponseStrategy<TCommandResult> ThrowAway(TCommandResult result)
-        {
-            return new ThrowAwayResponseCommandResponseStrategy(result);
-        }
-
-        internal abstract TCommandResult Decide(Func<TCommandResult> read);
-
-        internal abstract Task<TCommandResult> DecideAsync(Func<Task<TCommandResult>> readAsync);
-
-        private class DefaultCommandResponseStrategy : CommandResponseStrategy<TCommandResult>
-        {
-            internal override TCommandResult Decide(Func<TCommandResult> read)
-            {
-                return read();
-            }
-
-            internal override Task<TCommandResult> DecideAsync(Func<Task<TCommandResult>> readAsync)
-            {
-                return readAsync();
-            }
-        }
-
-        private class ThrowAwayResponseCommandResponseStrategy : CommandResponseStrategy<TCommandResult>
-        {
-            private readonly TCommandResult _result;
-
-            public ThrowAwayResponseCommandResponseStrategy(TCommandResult result)
-            {
-                _result = result;
-            }
-
-            internal override TCommandResult Decide(Func<TCommandResult> read)
-            {
-                Task.Run(read).IgnoreExceptions();
-                return _result;
-            }
-
-            internal override Task<TCommandResult> DecideAsync(Func<Task<TCommandResult>> readAsync)
-            {
-                readAsync().IgnoreExceptions();
-                return Task.FromResult(_result);
-            }
-        }
+        Ignore
     }
 }

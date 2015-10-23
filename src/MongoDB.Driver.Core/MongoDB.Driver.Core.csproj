@@ -68,6 +68,7 @@
     <Compile Include="Core\Bindings\ChannelReadBinding.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
+    <Compile Include="Core\Misc\ReadAheadEnumerable.cs" />
     <Compile Include="Core\Misc\TaskExtensions.cs" />
     <Compile Include="Core\WireProtocol\CommandResponseStrategy.cs" />
     <Compile Include="Core\Bindings\ReadWriteBindingHandle.cs" />

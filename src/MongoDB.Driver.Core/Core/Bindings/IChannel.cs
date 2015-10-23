@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <value>
         /// The connection description.
         /// </value>
-        ConnectionDescription ConnectionDescription { get;  }
+        ConnectionDescription ConnectionDescription { get; }
 
         /// <summary>
         /// Executes a Command protocol.
@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="command">The command.</param>
         /// <param name="commandValidator">The command validator.</param>
+        /// <param name="responseStrategy">The response strategy.</param>
         /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IElementNameValidator commandValidator,
+            Func<CommandResponseStrategy> responseStrategy,
             bool slaveOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
@@ -68,6 +70,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="command">The command.</param>
         /// <param name="commandValidator">The command validator.</param>
+        /// <param name="responseStrategy">The response strategy.</param>
         /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
@@ -77,6 +80,7 @@ namespace MongoDB.Driver.Core.Bindings
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IElementNameValidator commandValidator,
+            Func<CommandResponseStrategy> responseStrategy,
             bool slaveOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,

@@ -170,6 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                () => CommandResponseStrategy.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
@@ -185,6 +186,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                () => CommandResponseStrategy.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
@@ -292,7 +294,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (SupportedFeatures.IsFindCommandSupported(channel.ConnectionDescription.ServerVersion))
                 {
-                    return await ExecuteGetMoreCommandAsync(channel,cancellationToken).ConfigureAwait(false);
+                    return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

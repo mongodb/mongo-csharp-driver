@@ -161,12 +161,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public BulkWriteOperationResult CreateResultOrThrowIfHasErrors(ConnectionId connectionId, IReadOnlyList<WriteRequest> remainingRequests)
         {
-            if (_batchResults.Any(r => r.HasWriteErrors || r.HasWriteConcernError))
+            if (_batchResults.Any(r => r.HasWriteErrors || r.HasWriteConcernError) && _isAcknowledged)
             {
                 throw CreateBulkWriteException(connectionId, remainingRequests);
             }
 
-            return CreateBulkWriteResult(0);
+            return CreateBulkWriteResult(remainingRequests.Count);
         }
     }
 }
