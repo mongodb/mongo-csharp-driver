@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -243,10 +244,15 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
         {
             var commandValidator = NoOpElementNameValidator.Instance;
+            var responseStrategy = _writeConcern.IsAcknowledged ?
+                CommandResponseStrategy<BsonDocument>.Read :
+                CommandResponseStrategy<BsonDocument>.ThrowAway(new BsonDocument("ok", 1));
+
             return channel.Command<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 commandValidator,
+                responseStrategy,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
@@ -256,10 +262,15 @@ namespace MongoDB.Driver.Core.Operations
         private Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
         {
             var commandValidator = NoOpElementNameValidator.Instance;
+            var responseStrategy = _writeConcern.IsAcknowledged ?
+                CommandResponseStrategy<BsonDocument>.Read :
+                CommandResponseStrategy<BsonDocument>.ThrowAway(new BsonDocument("ok", 1));
+
             return channel.CommandAsync<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 commandValidator,
+                responseStrategy,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,

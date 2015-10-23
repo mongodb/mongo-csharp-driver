@@ -105,6 +105,7 @@
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
+    <Compile Include="Core\WireProtocol\CommandResponseStrategyTests.cs" />
     <Compile Include="MongoAuthenticationExceptionTests.cs" />
     <Compile Include="MongoClientExceptionTests.cs" />
     <Compile Include="MongoConfigurationExceptionTests.cs" />

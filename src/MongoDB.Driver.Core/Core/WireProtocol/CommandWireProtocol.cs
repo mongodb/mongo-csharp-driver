@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly BsonDocument _command;
+        private readonly CommandResponseStrategy<TCommandResult> _responseStrategy;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 databaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                CommandResponseStrategy<TCommandResult>.Read,
                 slaveOk,
                 resultSerializer,
                 messageEncoderSettings)
@@ -59,6 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IElementNameValidator commandValidator,
+            CommandResponseStrategy<TCommandResult> responseStrategy,
             bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
@@ -66,6 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
             _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
+            _responseStrategy = responseStrategy;
             _slaveOk = slaveOk;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
@@ -95,8 +99,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
             var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
-            var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
-            return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+
+            return _responseStrategy.Decide(() =>
+            {
+                var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+            });
         }
 
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
@@ -104,8 +112,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
-            var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+
+            return await _responseStrategy.DecideAsync(async () =>
+            {
+                var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+            }).ConfigureAwait(false);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
