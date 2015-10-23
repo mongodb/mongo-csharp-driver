@@ -324,7 +324,7 @@ if (result.IsModifiedCountAvailable)
 }
 ```
 ```csharp
-var result = await collection.UpdateOneAsync(filter, update);
+var result = await collection.UpdateManyAsync(filter, update);
 
 if (result.IsModifiedCountAvailable)
 {
