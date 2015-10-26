@@ -154,6 +154,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
                 else if (expected.Contains("command_succeeded_event"))
                 {
+                    SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5));
                     var actual = (CommandSucceededEvent)__capturedEvents.Next();
                     actual.OperationId.Should().Be(operationId);
                     VerifyCommandSucceededEvent(actual, (BsonDocument)expected["command_succeeded_event"], databaseName, collectionName);
