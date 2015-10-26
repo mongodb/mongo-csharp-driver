@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
@@ -218,7 +219,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Configures the cluster builder to use performance counters.
+        /// Configures the cluster to write performance counters.
         /// </summary>
         /// <param name="builder">The cluster builder.</param>
         /// <param name="applicationName">The name of the application.</param>
@@ -235,6 +236,34 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subscriber = new PerformanceCounterEventSubscriber(applicationName);
             return builder.Subscribe(subscriber);
+        }
+
+        /// <summary>
+        /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="traceSource">The trace source.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder TraceWith(this ClusterBuilder builder, TraceSource traceSource)
+        {
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNull(traceSource, nameof(traceSource));
+
+            return builder.Subscribe(new TraceSourceEventSubscriber(traceSource));
+        }
+
+        /// <summary>
+        /// Configures the cluster to trace command events to the specified <paramref name="traceSource"/>.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="traceSource">The trace source.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder TraceCommandsWith(this ClusterBuilder builder, TraceSource traceSource)
+        {
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNull(traceSource, nameof(traceSource));
+
+            return builder.Subscribe(new TraceSourceCommandEventSubscriber(traceSource));
         }
     }
 }

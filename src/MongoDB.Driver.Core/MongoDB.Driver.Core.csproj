@@ -106,6 +106,9 @@
     <Compile Include="Core\Events\ConnectionSendingMessagesEvent.cs" />
     <Compile Include="Core\Events\ConnectionSendingMessagesFailedEvent.cs" />
     <Compile Include="Core\Events\ConnectionSentMessagesEvent.cs" />
+    <Compile Include="Core\Events\Diagnostics\TraceSourceCommandEventSubscriber.cs" />
+    <Compile Include="Core\Events\Diagnostics\TraceSourceEventHelper.cs" />
+    <Compile Include="Core\Events\Diagnostics\TraceSourceEventSubscriber.cs" />
     <Compile Include="Core\Events\EventAggregator.cs" />
     <Compile Include="Core\Events\EventContext.cs" />
     <Compile Include="Core\Events\IEventSubscriber.cs" />

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -112,6 +113,12 @@ namespace MongoDB.Driver
                     });
                 }
             }
+
+            var traceSource = new TraceSource("mongodb-tests", SourceLevels.Information);
+            traceSource.Listeners.Clear(); // remove the default listener
+            var listener = new ConsoleTraceListener();
+            traceSource.Listeners.Add(listener);
+            builder = builder.TraceWith(traceSource);
 
             return builder;
         }

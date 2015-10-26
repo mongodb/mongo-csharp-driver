@@ -14,7 +14,10 @@
 */
 
 using System;
+using System.Diagnostics;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events.Diagnostics;
 
 namespace MongoDB.Driver.Tests
 {
@@ -46,6 +49,14 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeoutString = "10000";
             }
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
+            clientSettings.ClusterConfigurator = cb =>
+            {
+                var traceSource = new TraceSource("mongodb-tests", SourceLevels.Information);
+                traceSource.Listeners.Clear(); // remove the default listener
+                var listener = new ConsoleTraceListener();
+                traceSource.Listeners.Add(listener);
+                cb.TraceWith(traceSource);
+            };
 
             __client = new MongoClient(clientSettings);
             __databaseNamespace = mongoUrl.DatabaseName == null ? CoreTestConfiguration.DatabaseNamespace : new DatabaseNamespace(mongoUrl.DatabaseName);
