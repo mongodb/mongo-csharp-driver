@@ -590,6 +590,86 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Correlates the elements of two sequences based on key equality and groups the results.
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The sequence to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from an element from the first sequence and a collection of matching elements from the second sequence.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TResult}" /> that contains elements of type <typeparamref name="TResult" /> obtained by performing a grouped join on two sequences.
+        /// </returns>
+        public static IMongoQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IMongoQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+        {
+            return (IMongoQueryable<TResult>)Queryable.GroupJoin(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
+        }
+
+        /// <summary>
+        /// Correlates the elements of two sequences based on key equality and groups the results.
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The collection to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from an element from the first sequence and a collection of matching elements from the second sequence.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TResult}" /> that contains elements of type <typeparamref name="TResult" /> obtained by performing a grouped join on two sequences.
+        /// </returns>
+        public static IMongoQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IMongoQueryable<TOuter> outer, IMongoCollection<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+        {
+            return GroupJoin(outer, inner.AsQueryable(), outerKeySelector, innerKeySelector, resultSelector);
+        }
+
+        /// <summary>
+        /// Correlates the elements of two sequences based on matching keys.
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The sequence to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
+        /// <returns>
+        /// An <see cref="T:System.Linq.IQueryable`1" /> that has elements of type <typeparamref name="TResult" /> obtained by performing an inner join on two sequences.
+        /// </returns>
+        public static IMongoQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IMongoQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        {
+            return (IMongoQueryable<TResult>)Queryable.Join(outer, inner.AsQueryable(), outerKeySelector, innerKeySelector, resultSelector);
+        }
+
+        /// <summary>
+        /// Correlates the elements of two sequences based on matching keys.
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The sequence to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
+        /// <returns>
+        /// An <see cref="T:System.Linq.IQueryable`1" /> that has elements of type <typeparamref name="TResult" /> obtained by performing an inner join on two sequences.
+        /// </returns>
+        public static IMongoQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IMongoQueryable<TOuter> outer, IMongoCollection<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        {
+            return Join(outer, inner.AsQueryable(), outerKeySelector, innerKeySelector, resultSelector);
+        }
+
+        /// <summary>
         /// Returns the number of elements in a sequence.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>

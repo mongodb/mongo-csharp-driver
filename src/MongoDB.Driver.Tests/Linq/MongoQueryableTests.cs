@@ -365,6 +365,133 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_method()
+        {
+            var query = CreateQuery()
+                .GroupJoin(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.Id,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id into joined
+                        select new { A = p.A, SumCEF = joined.Sum(x => x.CEF) };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $project: { A: '$A', SumCEF: { $sum: '$joined.CEF' }, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_a_transparent_identifier()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id into joined
+                        orderby p.B
+                        select new { A = p.A, Joined = joined };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $sort: { B: 1 } }",
+                "{ $project: { A: '$A', Joined: '$joined', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_select_many()
+        {
+            var query = from p in CreateQuery()
+                        join o in _otherCollection on p.Id equals o.Id into joined
+                        from subo in joined
+                        select new { A = p.A, CEF = subo.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $unwind: '$joined' }",
+                "{ $project: { A: '$A', CEF: '$joined.CEF', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
+        {
+            var query = from p in CreateQuery()
+                        join o in _otherCollection on p.Id equals o.Id into joined
+                        from subo in joined.DefaultIfEmpty()
+                        select new { A = p.A, CEF = (int?)subo.CEF ?? null };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $unwind: { path: '$joined', preserveNullAndEmptyArrays: true } }",
+                "{ $project: { A: '$A', CEF: { $ifNull: ['$joined.CEF', null] }, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_method()
+        {
+            var query = CreateQuery()
+                .Join(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.Id,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_syntax()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id
+                        select new { A = p.A, CEF = o.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }",
+                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_syntax_with_a_transparent_identifier()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id
+                        orderby p.B, o.Id
+                        select new { A = p.A, CEF = o.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }",
+                "{ $sort: { B: 1, 'o._id': 1 } }",
+                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+        }
+
+        [Test]
         public void LongCount()
         {
             var result = CreateQuery().LongCount();
@@ -1167,6 +1294,11 @@ namespace MongoDB.Driver.Tests.Linq
         private IMongoQueryable<Root> CreateQuery()
         {
             return _collection.AsQueryable();
+        }
+
+        private IMongoQueryable<Other> CreateOtherQuery()
+        {
+            return _otherCollection.AsQueryable();
         }
     }
 }

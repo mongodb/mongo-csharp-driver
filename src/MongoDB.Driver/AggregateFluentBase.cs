@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Limit(int limit);
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null)
+        public virtual IAggregateFluent<TNewResult> Lookup<TForeignCollection, TNewResult>(string otherCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignCollection> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignCollection, TNewResult> options)
         {
             throw new NotImplementedException();
         }

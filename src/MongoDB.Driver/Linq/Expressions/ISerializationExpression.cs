@@ -26,6 +26,8 @@ namespace MongoDB.Driver.Linq.Expressions
     internal interface ISerializationExpression
     {
         IBsonSerializer Serializer { get; }
+
+        Type Type { get; }
     }
 
     internal static class ISerializationExpressionExtensions

@@ -14,22 +14,31 @@
 */
 
 using System;
+using System.Collections.Generic;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class ListResultOperator : ResultOperator
     {
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public ListResultOperator(Type type)
+        public ListResultOperator(Type type, IBsonSerializer serializer)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         public override string Name
         {
             get { return "List"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type

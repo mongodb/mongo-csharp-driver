@@ -22,30 +22,19 @@ using MongoDB.Driver.Linq.Expressions.ResultOperators;
 
 namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
 {
-    internal sealed class SumBinder : IMethodCallBinder<EmbeddedPipelineBindingContext>
+    internal sealed class DefaultIfEmptyBinder : IMethodCallBinder<EmbeddedPipelineBindingContext>
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {
-            return MethodHelper.GetEnumerableAndQueryableMethodDefinitions("Sum");
+            yield return MethodHelper.GetMethodDefinition(() => Enumerable.DefaultIfEmpty<object>(null));
+            yield return MethodHelper.GetMethodDefinition(() => Queryable.DefaultIfEmpty<object>(null));
         }
 
         public Expression Bind(PipelineExpression pipeline, EmbeddedPipelineBindingContext bindingContext, MethodCallExpression node, IEnumerable<Expression> arguments)
         {
-            var source = pipeline.Source;
-            if (arguments.Any())
-            {
-                source = BinderHelper.BindSelect(
-                    pipeline,
-                    bindingContext,
-                    ExpressionHelper.GetLambda(arguments.Single()));
-            }
-
             return new PipelineExpression(
-                source,
-                pipeline.Projector,
-                new SumResultOperator(
-                    node.Type,
-                    bindingContext.GetSerializer(node.Type, node)));
+                new DefaultIfEmptyExpression(pipeline.Source),
+                pipeline.Projector);
         }
     }
 }

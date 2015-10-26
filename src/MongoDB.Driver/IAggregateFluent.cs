@@ -74,16 +74,17 @@ namespace MongoDB.Driver
         IAggregateFluent<TResult> Limit(int limit);
 
         /// <summary>
-        /// Appens a lookup stage to the pipeline.
+        /// Appends a lookup stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TForeignDocument">The type of the foreign document.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="from">From.</param>
+        /// <param name="foreignCollectionName">Name of the other collection.</param>
         /// <param name="localField">The local field.</param>
         /// <param name="foreignField">The foreign field.</param>
-        /// <param name="as">As.</param>
-        /// <param name="newResultSerializer">The new result serializer.</param>
-        /// <returns></returns>
-        IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null);
+        /// <param name="as">The field in <typeparamref name="TNewResult" /> to place the foreign results.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options = null);
 
         /// <summary>
         /// Appends a match stage to the pipeline.

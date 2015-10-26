@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core
     public class RequiresServerAttribute : CategoryAttribute, ITestAction
     {
         // fields
+        private IList<string> _modules;
         private IList<string> _storageEngines;
 
         // constructors
@@ -80,6 +81,18 @@ namespace MongoDB.Driver.Core
 
         public string MinimumVersion { get; set; }
 
+        public string Modules
+        {
+            get
+            {
+                return _modules == null ? null : string.Join(",", _modules);
+            }
+            set
+            {
+                _modules = value == null ? null : value.Split(',');
+            }
+        }
+
         public string StorageEngines
         {
             get
@@ -110,6 +123,7 @@ namespace MongoDB.Driver.Core
             EnsureAuthentication();
             EnsureVersion();
             EnsureClusterTypes();
+            EnsureModules();
             EnsureStorageEngine();
 
             InvokeMethod(details.Fixture, BeforeTestMethodName);
@@ -179,6 +193,22 @@ namespace MongoDB.Driver.Core
 
             var message = string.Format("Requires server type of {0}, but is connected to {1}.", ClusterTypes, clusterType);
             Assert.Ignore(message);
+        }
+
+        private void EnsureModules()
+        {
+            if (_modules != null)
+            {
+                var modules = CoreTestConfiguration.GetModules();
+
+                if (!_modules.All(x => modules.Contains(x)))
+                {
+                    var message = string.Format("Requires modules [{0}], but currently connected to a server with [{1}] modules.",
+                        string.Join(", ", _modules),
+                        string.Join(", ", modules));
+                    Assert.Ignore(message);
+                }
+            }
         }
 
         private void EnsureStorageEngine()

@@ -59,7 +59,9 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             return new PipelineExpression(
                 source,
                 new FieldExpression(accumulator.FieldName, accumulator.Serializer),
-                new CountResultOperator(node.Type));
+                new CountResultOperator(
+                    node.Type,
+                    bindingContext.GetSerializer(node.Type, node)));
         }
     }
 }

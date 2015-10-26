@@ -55,6 +55,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(Visit(node.Expression));
         }
 
+        protected internal virtual Expression VisitDefaultIfEmpty(DefaultIfEmptyExpression node)
+        {
+            return node.Update(Visit(node.Source));
+        }
+
         protected internal virtual Expression VisitDistinct(DistinctExpression node)
         {
             return node.Update(Visit(node.Source));
@@ -105,11 +110,29 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(Visit(node.Expression));
         }
 
+        protected internal virtual Expression VisitGroupJoin(GroupJoinExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Joined),
+                Visit(node.SourceKeySelector),
+                Visit(node.JoinedKeySelector));
+        }
+
         protected internal virtual Expression VisitIntersect(IntersectExpression node)
         {
             return node.Update(
                 Visit(node.Source),
                 Visit(node.Other));
+        }
+
+        protected internal virtual Expression VisitJoin(JoinExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Joined),
+                Visit(node.SourceKeySelector),
+                Visit(node.JoinedKeySelector));
         }
 
         protected internal virtual Expression VisitOrderBy(OrderByExpression node)

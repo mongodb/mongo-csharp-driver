@@ -70,6 +70,76 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="foreignCollectionName">Name of the foreign collection.</param>
+        /// <param name="localField">The local field.</param>
+        /// <param name="foreignField">The foreign field.</param>
+        /// <param name="as">The field in the result to place the foreign matches.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> Lookup<TResult>(this IAggregateFluent<TResult> aggregate,
+            string foreignCollectionName,
+            FieldDefinition<TResult> localField,
+            FieldDefinition<BsonDocument> foreignField,
+            FieldDefinition<BsonDocument> @as)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(foreignCollectionName, nameof(foreignCollectionName));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            return aggregate.Lookup(
+                foreignCollectionName,
+                localField,
+                foreignField,
+                @as,
+                new AggregateLookupOptions<BsonDocument, BsonDocument>());
+        }
+
+        /// <summary>
+        /// Appends a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TForeignCollection">The type of the foreign collection.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="foreignCollection">The foreign collection.</param>
+        /// <param name="localField">The local field.</param>
+        /// <param name="foreignField">The foreign field.</param>
+        /// <param name="as">The field in the result to place the foreign matches.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignCollection, TNewResult>(this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TForeignCollection> foreignCollection,
+            Expression<Func<TResult, object>> localField,
+            Expression<Func<TForeignCollection, object>> foreignField,
+            Expression<Func<TNewResult, object>> @as,
+            AggregateLookupOptions<TForeignCollection, TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            options = options ?? new AggregateLookupOptions<TForeignCollection, TNewResult>();
+            if (options.ForeignSerializer == null)
+            {
+                options.ForeignSerializer = foreignCollection.DocumentSerializer;
+            }
+
+            return aggregate.Lookup(
+                foreignCollection.CollectionNamespace.CollectionName,
+                new ExpressionFieldDefinition<TResult>(localField),
+                new ExpressionFieldDefinition<TForeignCollection>(foreignField),
+                new ExpressionFieldDefinition<TNewResult>(@as),
+                options);
+        }
+
+        /// <summary>
         /// Appends a match stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

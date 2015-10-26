@@ -86,22 +86,23 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$limit", limit));
         }
 
-        public override IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null)
+        public override IAggregateFluent<TNewResult> Lookup<TForeignCollection, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignCollection> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignCollection, TNewResult> options)
         {
+            options = options ?? new AggregateLookupOptions<TForeignCollection, TNewResult>();
             const string operatorName = "$lookup";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
-                (s, sr) =>
+                (localSerializer, sr) =>
                 {
-                    newResultSerializer = newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
+                    var foreignSerializer = options.ForeignSerializer ?? (localSerializer as IBsonSerializer<TForeignCollection>) ?? sr.GetSerializer<TForeignCollection>();
+                    var newResultSerializer = options.ResultSerializer ?? (localSerializer as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
                     return new RenderedPipelineStageDefinition<TNewResult>(
-                        operatorName,
-                        new BsonDocument(operatorName, new BsonDocument
+                        operatorName, new BsonDocument(operatorName, new BsonDocument
                         {
-                            { "from", from },
-                            { "localField", localField.Render(s, sr).FieldName },
-                            { "foreignField", foreignField.Render(BsonDocumentSerializer.Instance, sr).FieldName },
-                            { "as", @as.Render(newResultSerializer, sr).FieldName },
+                            { "from", foreignCollectionName },
+                            { "localField", localField.Render(localSerializer, sr).FieldName },
+                            { "foreignField", foreignField.Render(foreignSerializer, sr).FieldName },
+                            { "as", @as.Render(newResultSerializer, sr).FieldName }
                         }),
                         newResultSerializer);
                 });

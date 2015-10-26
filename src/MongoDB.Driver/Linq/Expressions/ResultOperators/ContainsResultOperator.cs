@@ -15,12 +15,15 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class ContainsResultOperator : ResultOperator
     {
+        private static readonly BooleanSerializer __serializer = new BooleanSerializer();
         private readonly Expression _value;
 
         public ContainsResultOperator(Expression value)
@@ -31,6 +34,11 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
         public override string Name
         {
             get { return "Contains"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return __serializer; }
         }
 
         public override Type Type

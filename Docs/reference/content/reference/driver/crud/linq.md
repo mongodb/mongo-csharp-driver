@@ -265,6 +265,59 @@ The [`$geoNear`]({{< docsref "reference/operator/aggregation/geoNear/" >}}) stag
 The [`$out`]({{< docsref "reference/operator/aggregation/out/" >}}) stage is not currently supported using LINQ.
 
 
+#### $lookup
+
+The [`GroupJoin`]({{< msdnref "bb549264" >}}) method is used to generate a [`$lookup`]({{< docsref "reference/operator/aggregation/lookup/" >}}) stage.
+
+This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.
+
+First, you may project into most anything as long as it is supported by the `$project` operator and you do not project the original collection variable. Below is an example of a valid query:
+
+```csharp
+var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p.Name, AgeSum: joined.Sum(x => x.Age) };
+```
+```json
+[
+    { $lookup: { from: "other_collection", localField: 'Name', foreignField: 'Key', as: 'joined' } }",
+    { $project: { Name: "$Name", AgeSum: { $sum: "$joined.Age" }, _id: 0 } }
+]
+```
+
+Second, you may project into a type with two constructor parameters, the first being the collection variable and the second being the joined variable. Below is an example of this:
+
+```csharp
+var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p, joined };
+```
+```json
+[
+    { $lookup: { from: "other_collection", localField: 'Name', foreignField: 'Key', as: 'joined' } }"
+]
+```
+
+.. note::
+   An anonymous type, as above, has a constructor with two parameters as required.
+
+Sometimes, the compiler will also generate this two-parameter anonymous type transparently. Below is an example of this with a custom projection:
+
+```csharp
+var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            from sub_o in joined.DefaultIfEmpty()
+            select new { p.Name, sub_o.Age };
+```
+```json
+[
+    { $lookup: { from: "other_collection", localField: 'Name', foreignField: 'Key', as: 'joined' } }",
+    { $unwind: "$joined" },
+    { $project: { Name: "$Name", Age: "$joined.Age", _id: 0 }}
+]
+```
+
+
 ### Supported Methods
 
 The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the [MongoQueryableTests]({{< srcref "MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs" >}}).
@@ -406,6 +459,11 @@ var result = collection.AsQueryable().FirstOrDefault(p => p.Age > 21);
 #### GroupBy
 
 See [`$group`]({{< relref "#group" >}}).
+
+
+#### GroupJoin
+
+See [`$lookup`]({{< relref "#lookup" >}}).
 
 
 #### Max

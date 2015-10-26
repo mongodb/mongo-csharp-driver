@@ -22,6 +22,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
@@ -69,6 +70,12 @@ namespace MongoDB.Driver.Linq.Translators
                         return;
                     case ExtensionExpressionType.GroupByWithResultSelector:
                         TranslateGroupByWithResultSelector((GroupByWithResultSelectorExpression)node);
+                        return;
+                    case ExtensionExpressionType.GroupJoin:
+                        TranslateGroupJoin((GroupJoinExpression)node);
+                        return;
+                    case ExtensionExpressionType.Join:
+                        TranslateJoin((JoinExpression)node);
                         return;
                     case ExtensionExpressionType.OrderBy:
                         TranslateOrderBy((OrderByExpression)node);
@@ -126,6 +133,78 @@ namespace MongoDB.Driver.Linq.Translators
             _stages.Add(new BsonDocument("$group", projection));
         }
 
+        private void TranslateGroupJoin(GroupJoinExpression node)
+        {
+            Translate(node.Source);
+
+            var joined = node.Joined as CollectionExpression;
+            if (joined == null)
+            {
+                throw new NotSupportedException("Only a collection is allowed to be joined.");
+            }
+
+            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            if (localFieldValue.BsonType != BsonType.String)
+            {
+                throw new NotSupportedException("Could not translate the local field.");
+            }
+
+            var localField = localFieldValue.ToString().Substring(1); // remove '$'
+
+            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            if (foreignFieldValue.BsonType != BsonType.String)
+            {
+                throw new NotSupportedException("Could not translate the foreign field.");
+            }
+
+            var foreignField = foreignFieldValue.ToString().Substring(1); // remove '$'
+
+            _stages.Add(new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", ((CollectionExpression)node.Joined).CollectionNamespace.CollectionName },
+                { "localField", localField },
+                { "foreignField", foreignField },
+                { "as", node.JoinedItemName }
+            }));
+        }
+
+        private void TranslateJoin(JoinExpression node)
+        {
+            Translate(node.Source);
+
+            var joined = node.Joined as CollectionExpression;
+            if (joined == null)
+            {
+                throw new NotSupportedException("Only a collection is allowed to be joined.");
+            }
+
+            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            if (localFieldValue.BsonType != BsonType.String)
+            {
+                throw new NotSupportedException("Could not translate the local field.");
+            }
+
+            var localField = localFieldValue.ToString().Substring(1); // remove '$'
+
+            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            if (foreignFieldValue.BsonType != BsonType.String)
+            {
+                throw new NotSupportedException("Could not translate the foreign field.");
+            }
+
+            var foreignField = foreignFieldValue.ToString().Substring(1); // remove '$'
+
+            _stages.Add(new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", ((CollectionExpression)node.Joined).CollectionNamespace.CollectionName },
+                { "localField", localField },
+                { "foreignField", foreignField },
+                { "as", node.JoinedItemName }
+            }));
+
+            _stages.Add(new BsonDocument("$unwind", "$" + node.JoinedItemName));
+        }
+
         private void TranslateOrderBy(OrderByExpression node)
         {
             Translate(node.Source);
@@ -133,7 +212,7 @@ namespace MongoDB.Driver.Linq.Translators
             BsonDocument sort = new BsonDocument();
             foreach (var clause in node.Clauses)
             {
-                var field = clause.Expression as IFieldExpression;
+                var field = FieldExpressionFlattener.FlattenFields(clause.Expression) as IFieldExpression;
                 if (field == null)
                 {
                     throw new NotSupportedException("Only fields are allowed in a $sort.");
@@ -214,14 +293,45 @@ namespace MongoDB.Driver.Linq.Translators
         {
             Translate(node.Source);
 
-            var field = node.CollectionSelector as IFieldExpression;
+            var isLeftOuterJoin = false;
+            IFieldExpression field;
+            var collectionSelector = node.CollectionSelector as PipelineExpression;
+            if (collectionSelector != null)
+            {
+                var defaultIfEmpty = collectionSelector.Source as DefaultIfEmptyExpression;
+                if (defaultIfEmpty != null)
+                {
+                    isLeftOuterJoin = true;
+                    field = defaultIfEmpty.Source as IFieldExpression;
+                }
+                else
+                {
+                    field = collectionSelector.Source as IFieldExpression;
+                }
+            }
+            else
+            {
+                field = node.CollectionSelector as IFieldExpression;
+            }
+
             if (field == null)
             {
                 var message = string.Format("The collection selector must be a field: {0}", node.ToString());
                 throw new NotSupportedException(message);
             }
 
-            _stages.Add(new BsonDocument("$unwind", "$" + field.FieldName));
+            BsonValue unwindValue = "$" + field.FieldName;
+            var groupJoin = node.Source as GroupJoinExpression;
+            if (groupJoin != null && isLeftOuterJoin)
+            {
+                unwindValue = new BsonDocument
+                {
+                    { "path", unwindValue },
+                    { "preserveNullAndEmptyArrays", true }
+                };
+            }
+
+            _stages.Add(new BsonDocument("$unwind", unwindValue));
 
             var projectValue = TranslateProjectValue(node.ResultSelector);
             _stages.Add(new BsonDocument("$project", projectValue));

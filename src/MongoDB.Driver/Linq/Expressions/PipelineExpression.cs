@@ -16,19 +16,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal sealed class PipelineExpression : ExtensionExpression, ISourcedExpression
+    internal sealed class PipelineExpression : SerializationExpression, ISourcedExpression
     {
         private readonly Expression _source;
         private readonly SerializationExpression _projector;
         private readonly ResultOperator _resultOperator;
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
         public PipelineExpression(Expression source, SerializationExpression projector)
-            : this(source, projector, (ResultOperator)null)
+            : this(source, projector, null)
         {
         }
 
@@ -38,9 +40,16 @@ namespace MongoDB.Driver.Linq.Expressions
             _projector = Ensure.IsNotNull(projector, nameof(projector));
             _resultOperator = resultOperator;
 
-            _type = _resultOperator == null ?
-                typeof(IEnumerable<>).MakeGenericType(_projector.Type) :
-                _resultOperator.Type;
+            if (_resultOperator == null)
+            {
+                _serializer = SerializerHelper.CreateEnumerableSerializer(_projector.Serializer);
+                _type = typeof(IEnumerable<>).MakeGenericType(_projector.Type);
+            }
+            else
+            {
+                _serializer = _resultOperator.Serializer;
+                _type = _resultOperator.Type;
+            }
         }
 
         public SerializationExpression Projector
@@ -51,6 +60,11 @@ namespace MongoDB.Driver.Linq.Expressions
         public ResultOperator ResultOperator
         {
             get { return _resultOperator; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public Expression Source

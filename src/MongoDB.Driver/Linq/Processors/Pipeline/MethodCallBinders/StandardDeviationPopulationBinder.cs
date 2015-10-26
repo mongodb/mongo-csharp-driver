@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 
@@ -28,9 +29,9 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             return MethodHelper.GetEnumerableAndQueryableMethodDefinitions(nameof(MongoQueryable.StandardDeviationPopulation));
         }
 
-        protected override ResultOperator CreateResultOperator(Type resultType)
+        protected override ResultOperator CreateResultOperator(Type resultType, IBsonSerializer serializer)
         {
-            return new StandardDeviationResultOperator(resultType, false);
+            return new StandardDeviationResultOperator(resultType, serializer, false);
         }
 
         protected override AccumulatorType GetAccumulatorType()

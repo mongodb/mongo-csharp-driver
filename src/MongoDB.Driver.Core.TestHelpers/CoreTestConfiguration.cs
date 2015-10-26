@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -197,6 +199,25 @@ namespace MongoDB.Driver
         public static IReadWriteBinding GetReadWriteBinding()
         {
             return new WritableServerBinding(__cluster.Value);
+        }
+
+        public static IEnumerable<string> GetModules()
+        {
+            using (var binding = GetReadBinding())
+            {
+                var command = new BsonDocument("buildinfo", 1);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var response = operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                BsonValue modules;
+                if (response.TryGetValue("modules", out modules))
+                {
+                    return modules.AsBsonArray.Select(x => x.ToString());
+                }
+                else
+                {
+                    return Enumerable.Empty<string>();
+                }
+            }
         }
 
         public static string GetStorageEngine()

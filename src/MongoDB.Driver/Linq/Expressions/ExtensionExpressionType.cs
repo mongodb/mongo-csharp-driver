@@ -21,11 +21,14 @@ namespace MongoDB.Driver.Linq.Expressions
 
         // Sequence
         Concat,
+        DefaultIfEmpty,
         Distinct,
         Except,
         GroupBy,
         GroupByWithResultSelector,
+        GroupJoin,
         Intersect,
+        Join,
         OrderBy,
         Sample,
         Select,

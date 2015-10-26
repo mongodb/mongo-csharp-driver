@@ -267,7 +267,7 @@ namespace MongoDB.Driver
             var bound = bindingContext.Bind(lambda.Body);
             bound = FieldExpressionFlattener.FlattenFields(bound);
             IFieldExpression field;
-            if (!ExpressionHelper.TryGetExpression(bound, out field))
+            if (!Linq.ExpressionHelper.TryGetExpression(bound, out field))
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
                 throw new InvalidOperationException(message);

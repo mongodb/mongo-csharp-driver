@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
@@ -22,11 +23,13 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
     internal sealed class StandardDeviationResultOperator : ResultOperator, IResultTransformer
     {
         private readonly bool _isSample;
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public StandardDeviationResultOperator(Type type, bool isSample)
+        public StandardDeviationResultOperator(Type type, IBsonSerializer serializer, bool isSample)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _isSample = isSample;
         }
 
@@ -38,6 +41,11 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
         public override string Name
         {
             get { return "StandardDeviation" + (_isSample ? "Sample" : "Population"); }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type

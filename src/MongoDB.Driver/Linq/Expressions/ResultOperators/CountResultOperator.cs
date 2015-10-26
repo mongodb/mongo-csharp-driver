@@ -15,22 +15,30 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class CountResultOperator : ResultOperator, IResultTransformer
     {
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public CountResultOperator(Type type)
+        public CountResultOperator(Type type, IBsonSerializer serializer)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         public override string Name
         {
             get { return "Count"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type

@@ -14,12 +14,15 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
     internal abstract class ResultOperator
     {
         public abstract string Name { get; }
+
+        public abstract IBsonSerializer Serializer { get; }
 
         public abstract Type Type { get; }
 

@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Tests.Linq
     public abstract class IntegrationTestBase
     {
         protected IMongoCollection<Root> _collection;
+        protected IMongoCollection<Other> _otherCollection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
@@ -30,10 +31,13 @@ namespace MongoDB.Driver.Tests.Linq
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            _otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
             db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName + "_other");
 
             InsertFirst();
             InsertSecond();
+            InsertJoin();
         }
 
         private void InsertFirst()
@@ -145,6 +149,16 @@ namespace MongoDB.Driver.Tests.Linq
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
 
+
+        private void InsertJoin()
+        {
+            _otherCollection.InsertOneAsync(new Other
+            {
+                Id = 10, // will join with first
+                CEF = 111 // will join with second
+            }).GetAwaiter().GetResult();
+        }
+
         public class RootView
         {
             public RootView()
@@ -235,6 +249,13 @@ namespace MongoDB.Driver.Tests.Linq
         {
             Zero,
             One
+        }
+
+        public class Other
+        {
+            public int Id { get; set; }
+
+            public int CEF { get; set; }
         }
     }
 }

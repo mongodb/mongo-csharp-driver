@@ -63,14 +63,25 @@ namespace MongoDB.Driver.Linq.Processors
             {
                 serializer = _serializerRegistry.GetSerializer(node.Type);
                 var childConfigurable = serializer as IChildSerializerConfigurable;
-                var arraySerializer = serializer as IBsonArraySerializer;
-                BsonSerializationInfo itemSerializationInfo;
-                if (childConfigurable != null && arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                if (childConfigurable != null)
                 {
-                    IBsonSerializer itemSerializer;
-                    if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, itemSerializationInfo.Serializer.ValueType, out itemSerializer))
+                    var arraySerializer = serializer as IBsonArraySerializer;
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
-                        serializer = ConfigureChildSerializer(childConfigurable, itemSerializer);
+                        IBsonSerializer itemSerializer;
+                        if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, itemSerializationInfo.Serializer.ValueType, out itemSerializer))
+                        {
+                            serializer = RecursiveConfigureChildSerializer(childConfigurable, itemSerializer);
+                        }
+                    }
+                    else
+                    {
+                        IBsonSerializer childSerializer;
+                        if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, childConfigurable.ChildSerializer.ValueType, out childSerializer))
+                        {
+                            serializer = childConfigurable.WithChildSerializer(childSerializer);
+                        }
                     }
                 }
             }
@@ -78,12 +89,12 @@ namespace MongoDB.Driver.Linq.Processors
             return serializer;
         }
 
-        private IBsonSerializer ConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
+        private IBsonSerializer RecursiveConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
         {
             var childConfigurable = configurable.ChildSerializer as IChildSerializerConfigurable;
             if (childConfigurable != null)
             {
-                childSerializer = ConfigureChildSerializer(childConfigurable, childSerializer);
+                childSerializer = RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
             }
 
             return configurable.WithChildSerializer(childSerializer);

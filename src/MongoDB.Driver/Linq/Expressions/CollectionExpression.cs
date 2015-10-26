@@ -17,22 +17,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
     internal sealed class CollectionExpression : SerializationExpression
     {
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly IBsonSerializer _serializer;
 
-        public CollectionExpression(IBsonSerializer serializer)
+        public CollectionExpression(CollectionNamespace collectionNamespace, IBsonSerializer itemSerializer)
         {
-            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _serializer = SerializerHelper.CreateEnumerableSerializer(Ensure.IsNotNull(itemSerializer, nameof(itemSerializer)));
         }
 
         public override ExtensionExpressionType ExtensionType
         {
             get { return ExtensionExpressionType.Collection; }
+        }
+
+        public CollectionNamespace CollectionNamespace
+        {
+            get { return _collectionNamespace; }
         }
 
         public override IBsonSerializer Serializer
@@ -47,7 +55,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return "[collection]";
+            return $"[{_collectionNamespace}]";
         }
 
         protected internal override Expression Accept(ExtensionExpressionVisitor visitor)

@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Linq.Processors.Pipeline;
@@ -38,10 +39,9 @@ namespace MongoDB.Driver.Linq
             _options = Ensure.IsNotNull(options, nameof(options));
         }
 
-        public AggregateOptions Options
-        {
-            get { return _options; }
-        }
+        public CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
+
+        public IBsonSerializer CollectionDocumentSerializer => _collection.DocumentSerializer;
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = PartialEvaluator.Evaluate(expression);
             expression = Transformer.Transform(expression);
-            expression = PipelineBinder.Bind(expression, _collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+            expression = PipelineBinder.Bind(expression, _collection.Settings.SerializerRegistry);
 
             return expression;
         }

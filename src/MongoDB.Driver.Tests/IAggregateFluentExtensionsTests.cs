@@ -50,6 +50,32 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Lookup_should_generate_the_correct_group_when_using_BsonDocument()
+        {
+            var subject = CreateSubject()
+                .Lookup("from", "local", "foreign", "as");
+
+            var expectedLookup = BsonDocument.Parse("{$lookup: { from: 'from', localField: 'local', foreignField: 'foreign', as: 'as' } }");
+
+            AssertLast(subject, expectedLookup);
+        }
+
+        [Test]
+        public void Lookup_should_generate_the_correct_group_when_using_lambdas()
+        {
+            var subject = CreateSubject()
+                .Lookup<Person, NameMeaning, LookedUpPerson>(
+                    CreateCollection<NameMeaning>(),
+                    x => x.FirstName,
+                    x => x.Name,
+                    x => x.Meanings);
+
+            var expectedLookup = BsonDocument.Parse("{$lookup: { from: 'NameMeaning', localField: 'FirstName', foreignField: 'Name', as: 'Meanings' } }");
+
+            AssertLast(subject, expectedLookup);
+        }
+
+        [Test]
         public void Match_should_generate_the_correct_match()
         {
             var subject = CreateSubject()
@@ -268,13 +294,20 @@ namespace MongoDB.Driver.Tests
 
         private IAggregateFluent<Person> CreateSubject()
         {
-            var settings = new MongoCollectionSettings();
-            var collection = Substitute.For<IMongoCollection<Person>>();
-            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
-            collection.Settings.Returns(settings);
+            var collection = CreateCollection<Person>();
             var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<IPipelineStageDefinition>(), new AggregateOptions());
 
             return subject;
+        }
+
+        private IMongoCollection<T> CreateCollection<T>()
+        {
+            var settings = new MongoCollectionSettings();
+            var collection = Substitute.For<IMongoCollection<T>>();
+            collection.CollectionNamespace.Returns(new CollectionNamespace(new DatabaseNamespace("test"), typeof(T).Name));
+            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<T>());
+            collection.Settings.Returns(settings);
+            return collection;
         }
 
         public class Person
@@ -282,6 +315,20 @@ namespace MongoDB.Driver.Tests
             public string FirstName;
             public string LastName;
             public int Age;
+        }
+
+        public class NameMeaning
+        {
+            public string Name;
+            public string Definition;
+        }
+
+        public class LookedUpPerson
+        {
+            public string FirstName;
+            public string LastName;
+            public int Age;
+            public IEnumerable<NameMeaning> Meanings;
         }
     }
 }

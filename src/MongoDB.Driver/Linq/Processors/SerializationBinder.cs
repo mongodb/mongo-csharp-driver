@@ -21,6 +21,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors.EmbeddedPipeline;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Processors
 {
@@ -84,6 +85,21 @@ namespace MongoDB.Driver.Linq.Processors
             return newNode;
         }
 
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            if (node.Type.IsGenericType &&
+                node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
+            {
+                var queryable = (IMongoQueryable)node.Value;
+                var provider = (IMongoQueryProvider)queryable.Provider;
+                return new CollectionExpression(
+                    provider.CollectionNamespace,
+                    provider.CollectionDocumentSerializer);
+            }
+
+            return base.VisitConstant(node);
+        }
+
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             // Don't visit the parameters. We cannot replace a parameter expression
@@ -121,11 +137,18 @@ namespace MongoDB.Driver.Linq.Processors
                     BsonSerializationInfo memberSerializationInfo;
                     if (documentSerializer != null && documentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out memberSerializationInfo))
                     {
-                        newNode = new FieldExpression(
-                            mex.Expression,
-                            memberSerializationInfo.ElementName,
-                            memberSerializationInfo.Serializer,
-                            mex);
+                        if (memberSerializationInfo.ElementName == null)
+                        {
+                            newNode = new DocumentExpression(memberSerializationInfo.Serializer);
+                        }
+                        else
+                        {
+                            newNode = new FieldExpression(
+                                mex.Expression,
+                                memberSerializationInfo.ElementName,
+                                memberSerializationInfo.Serializer,
+                                mex);
+                        }
                     }
                 }
             }
@@ -157,6 +180,20 @@ namespace MongoDB.Driver.Linq.Processors
             }
 
             return base.VisitMethodCall(node);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            var newNode = (UnaryExpression)base.VisitUnary(node);
+            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
+            {
+                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))
+                {
+                    return newNode.Operand;
+                }
+            }
+
+            return newNode;
         }
 
         // private methods
@@ -204,6 +241,9 @@ namespace MongoDB.Driver.Linq.Processors
             {
                 return node;
             }
+
+            // we need to discover if this is rooted at an IMongoQueryable... If so, it 
+            // gets processed as a top-level pipeline...
 
             return EmbeddedPipelineBinder.Bind(node, _bindingContext);
         }

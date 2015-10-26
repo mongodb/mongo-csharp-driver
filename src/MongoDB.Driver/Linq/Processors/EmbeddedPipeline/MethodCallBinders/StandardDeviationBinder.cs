@@ -44,7 +44,10 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
             return new PipelineExpression(
                 source,
                 pipeline.Projector,
-                new StandardDeviationResultOperator(node.Type, node.Method.Name.EndsWith("Sample")));
+                new StandardDeviationResultOperator(
+                    node.Type,
+                    bindingContext.GetSerializer(node.Type, node),
+                    node.Method.Name == nameof(MongoEnumerable.StandardDeviationSample)));
         }
     }
 }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
@@ -21,17 +22,24 @@ namespace MongoDB.Driver.Linq.Expressions.ResultOperators
     internal sealed class LastResultOperator : ResultOperator
     {
         private readonly bool _isDefault;
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public LastResultOperator(Type type, bool isDefault)
+        public LastResultOperator(Type type, IBsonSerializer serializer, bool isDefault)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _isDefault = isDefault;
         }
 
         public override string Name
         {
             get { return _isDefault ? "LastOrDefault" : "Last"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type
