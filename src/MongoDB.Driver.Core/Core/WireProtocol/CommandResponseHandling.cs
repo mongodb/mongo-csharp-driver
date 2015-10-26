@@ -23,9 +23,9 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.WireProtocol
 {
     /// <summary>
-    /// Strategy for handling the response from a command.
+    /// Instructions for handling the response from a command.
     /// </summary>
-    public enum CommandResponseStrategy
+    public enum CommandResponseHandling
     {
         /// <summary>
         /// Return the response from the server.

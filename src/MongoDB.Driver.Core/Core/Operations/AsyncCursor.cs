@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Return,
+                () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Return,
+                () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,

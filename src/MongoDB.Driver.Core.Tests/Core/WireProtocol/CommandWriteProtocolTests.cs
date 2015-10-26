@@ -38,13 +38,13 @@ namespace MongoDB.Driver.Core.WireProtocol
     public class CommandWriteProtocolTests
     {
         [Test]
-        public void Execute_should_wait_for_response_when_CommandResponseStrategy_is_Return()
+        public void Execute_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Return,
+                () => CommandResponseHandling.Return,
                 true,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
@@ -59,13 +59,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         [Test]
-        public void Execute_should_not_wait_for_response_when_CommandResponseStrategy_is_Ignore()
+        public void Execute_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Ignore,
+                () => CommandResponseHandling.Ignore,
                 true,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
@@ -79,13 +79,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         [Test]
-        public void ExecuteAsync_should_wait_for_response_when_CommandResponseStrategy_is_Return()
+        public void ExecuteAsync_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Return,
+                () => CommandResponseHandling.Return,
                 true,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
@@ -100,13 +100,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         [Test]
-        public void ExecuteAsync_should_not_wait_for_response_when_CommandResponseStrategy_is_Ignore()
+        public void ExecuteAsync_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
-                () => CommandResponseStrategy.Ignore,
+                () => CommandResponseHandling.Ignore,
                 true,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());

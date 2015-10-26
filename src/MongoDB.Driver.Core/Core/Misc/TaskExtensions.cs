@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         public static void IgnoreExceptions(this Task task)
         {
-            task.ContinueWith(c => { var ignored = c.Exception; },
+            task.ContinueWith(t => { var ignored = t.Exception; },
                 TaskContinuationOptions.OnlyOnFaulted |
                 TaskContinuationOptions.ExecuteSynchronously);
         }
