@@ -14,10 +14,14 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -1033,13 +1037,19 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            var result = ExecuteOperation(subject);
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
 
-            result.ProcessedRequests.Should().HaveCount(5);
-            result.RequestCount.Should().Be(5);
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
 
-            var list = ReadAllFromCollection(async);
-            list.Should().HaveCount(3);
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(3);
+            }
         }
 
         [Test]
@@ -1069,12 +1079,18 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            var result = ExecuteOperation(subject);
-            result.ProcessedRequests.Should().HaveCount(5);
-            result.RequestCount.Should().Be(5);
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
 
-            var list = ReadAllFromCollection(async);
-            list.Should().HaveCount(1);
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(1);
+            }
         }
 
         [Test]
@@ -1099,12 +1115,18 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            var result = ExecuteOperation(subject);
-            result.ProcessedRequests.Should().HaveCount(5);
-            result.RequestCount.Should().Be(5);
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
 
-            var list = ReadAllFromCollection(async);
-            list.Should().HaveCount(4);
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(4);
+            }
         }
 
         [Test]
@@ -1129,12 +1151,25 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            var result = ExecuteOperation(subject);
-            result.ProcessedRequests.Should().HaveCount(4);
-            result.RequestCount.Should().Be(5);
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(4);
+                result.RequestCount.Should().Be(5);
 
-            var list = ReadAllFromCollection(async);
-            list.Should().HaveCount(3);
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(3);
+            }
+        }
+
+        private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
+        {
+            var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var cursor = ExecuteOperation(operation, binding, false);
+            return ReadCursorToEnd(cursor);
         }
 
         private void EnsureTestData()
