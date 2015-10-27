@@ -133,7 +133,7 @@ Target "Test" (fun _ ->
             { p with 
                 OutputFile = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
                 DisableShadowCopy = true
-                ShowLabels = Boolean.Parse(getBuildParamOrDefault "testLabels" Boolean.FalseString)
+                ShowLabels = true
                 Framework = !framework
                 IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 ExcludeCategory = getBuildParamOrDefault "testExclude" ""
