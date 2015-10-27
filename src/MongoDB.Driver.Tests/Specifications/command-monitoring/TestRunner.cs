@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             long? operationId = null;
             foreach (BsonDocument expected in (BsonArray)definition["expectations"])
             {
-                if (!__capturedEvents.Any())
+                if (!__capturedEvents.Any() && !SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5)))
                 {
                     Assert.Fail("Expected an event, but no events were captured.");
                 }
@@ -154,7 +154,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
                 else if (expected.Contains("command_succeeded_event"))
                 {
-                    SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5));
                     var actual = (CommandSucceededEvent)__capturedEvents.Next();
                     actual.OperationId.Should().Be(operationId);
                     VerifyCommandSucceededEvent(actual, (BsonDocument)expected["command_succeeded_event"], databaseName, collectionName);
