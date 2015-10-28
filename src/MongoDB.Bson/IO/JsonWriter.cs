@@ -191,8 +191,16 @@ namespace MongoDB.Bson.IO
                     if (value >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
                         value <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
                     {
-                        var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
-                        _textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+                        if (_jsonWriterSettings.UseLocalTime)
+                        {
+                            var localDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value).ToLocalTime();
+                            _textWriter.Write("ISODate(\"{0}\")", localDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFzzz"));
+                        }
+                        else
+                        {
+                            var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
+                            _textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+                        }
                     }
                     else
                     {

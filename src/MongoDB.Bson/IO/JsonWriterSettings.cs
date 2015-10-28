@@ -34,6 +34,7 @@ namespace MongoDB.Bson.IO
         private string _newLineChars = "\r\n";
         private JsonOutputMode _outputMode = JsonOutputMode.Shell;
         private Version _shellVersion;
+        private bool _useLocalTime = false;
 
         // constructors
         /// <summary>
@@ -140,6 +141,20 @@ namespace MongoDB.Bson.IO
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to serialize DateTime fields as UTC or local time.
+        /// </summary>
+        public bool UseLocalTime
+        {
+            get { return _useLocalTime; }
+            set
+            {
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _useLocalTime = value;
+            }
+        }
+
+
         // public methods
         /// <summary>
         /// Creates a clone of the settings.
@@ -168,7 +183,8 @@ namespace MongoDB.Bson.IO
                 MaxSerializationDepth = MaxSerializationDepth,
                 NewLineChars = _newLineChars,
                 OutputMode = _outputMode,
-                ShellVersion = _shellVersion
+                ShellVersion = _shellVersion,
+                UseLocalTime = _useLocalTime
             };
             return clone;
         }
