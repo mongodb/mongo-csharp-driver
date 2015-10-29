@@ -97,6 +97,7 @@
     <Compile Include="Operations\ListIndexesOperation.cs" />
     <Compile Include="Operations\ParallelScanOperation.cs" />
     <Compile Include="ParallelScanArgs.cs" />
+    <Compile Include="TextSearchOptions.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="BulkWriteResult.cs" />
