@@ -685,6 +685,27 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type(string name, string type)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            var condition = new BsonDocument("$type", type);
+            return new QueryDocument(name, condition);
+        }
+
+        /// <summary>
         /// Tests that a JavaScript expression is true (see $where).
         /// </summary>
         /// <param name="javascript">The javascript.</param>
@@ -1449,6 +1470,18 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, string type)
+        {
+            return new QueryBuilder<TDocument>().Type(memberExpression, type);
+        }
+
+        /// <summary>
         /// Tests that any of the values in the named array element is equal to some type (see $type).
         /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -1456,6 +1489,18 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
+        {
+            return new QueryBuilder<TDocument>().Type(memberExpression, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, string type)
         {
             return new QueryBuilder<TDocument>().Type(memberExpression, type);
         }
@@ -2302,6 +2347,24 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, string type)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Type(serializationInfo.ElementName, type);
+        }
+
+        /// <summary>
         /// Tests that any of the values in the named array element is equal to some type (see $type).
         /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -2309,6 +2372,24 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Type(serializationInfo.ElementName, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, string type)
         {
             if (memberExpression == null)
             {

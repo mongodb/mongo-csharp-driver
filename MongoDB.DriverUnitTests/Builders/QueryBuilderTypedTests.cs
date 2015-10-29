@@ -929,6 +929,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestType_number()
+        {
+            var query = Query<A>.Type(a => a.S, "number");
+            var expected = "{ \"s\" : { \"$type\" : \"number\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestType_Not()
         {
             var query = Query.Not(Query<A>.Type(a => a.S, BsonType.String));
@@ -937,10 +945,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestType_Not_number()
+        {
+            var query = Query.Not(Query<A>.Type(a => a.S, "number"));
+            var expected = "{ \"s\" : { \"$not\" : { \"$type\" : \"number\" } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestType_Array()
         {
             var query = Query<A>.Type(a => a.J, BsonType.String);
             var expected = "{ \"j\" : { \"$type\" : 2 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestType_Array_number()
+        {
+            var query = Query<A>.Type(a => a.J, "number");
+            var expected = "{ \"j\" : { \"$type\" : \"number\" } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
