@@ -717,8 +717,22 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestTextQueryGenerationWithNullLanguage()
         {
-            var query = Query.Text("foo", null);
+            var query = Query.Text("foo", (string)null);
             var expected = "{ \"$text\" : { \"$search\" : \"foo\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestTextWithOptionsQueryGeneration()
+        {
+            var options = new TextSearchOptions
+            {
+                Language = "norwegian",
+                CaseSensitive = true,
+                DiacriticSensitive = true
+            };
+            var query = Query.Text("foo", options);
+            var expected = "{ \"$text\" : { \"$search\" : \"foo\", \"$language\" : \"norwegian\", \"$caseSensitive\" : true, \"$diacriticSensitive\" : true } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

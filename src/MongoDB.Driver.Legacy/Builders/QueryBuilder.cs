@@ -870,7 +870,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery that represents the text search.</returns>
         public static IMongoQuery Text(string searchString)
         {
-            return Text(searchString, null);
+            return Text(searchString, new TextSearchOptions());
         }
 
         /// <summary>
@@ -886,10 +886,29 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("searchString");
             }
+            var options = new TextSearchOptions { Language = language };
+            return Text(searchString, options);
+        }
+
+        /// <summary>
+        /// Generate a text search query that tests whether the given search string is present using the specified language's rules. 
+        /// Specifies use of language appropriate stop words, stemming rules etc.
+        /// </summary>
+        /// <param name="searchString">The search string.</param>
+        /// <param name="options">The text search options.</param>
+        /// <returns>An IMongoQuery that represents the text search for the particular language.</returns>
+        public static IMongoQuery Text(string searchString, TextSearchOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
             var condition = new BsonDocument
             {
                 { "$search", searchString },
-                { "$language", language, language != null }
+                { "$language", options.Language, options.Language != null },
+                { "$caseSensitive", () => options.CaseSensitive.Value, options.CaseSensitive.HasValue },
+                { "$diacriticSensitive", () => options.DiacriticSensitive.Value, options.DiacriticSensitive.HasValue }
             };
             return Query.Create("$text", condition);
         }
