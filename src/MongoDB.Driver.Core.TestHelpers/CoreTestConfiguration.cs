@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var server = __cluster.Value.SelectServerAsync(WritableServerSelector.Instance, CancellationToken.None).GetAwaiter().GetResult();
+                var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
                 return server.Description.Version;
             }
         }
@@ -207,7 +207,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                var response = operation.Execute(binding, CancellationToken.None);
                 BsonValue modules;
                 if (response.TryGetValue("modules", out modules))
                 {
@@ -226,7 +226,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("serverStatus", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                var response = operation.Execute(binding, CancellationToken.None);
                 BsonValue storageEngine;
                 if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
                 {
@@ -316,7 +316,7 @@ namespace MongoDB.Driver
 
             using (var binding = GetReadWriteBinding())
             {
-                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                operation.Execute(binding, CancellationToken.None);
             }
         }
 

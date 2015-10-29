@@ -34,32 +34,8 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-
-            var mongoUrl = new MongoUrl(connectionString);
-            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            if (!clientSettings.WriteConcern.IsAcknowledged)
-            {
-                clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
-            }
-
-            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
-            if (serverSelectionTimeoutString == null)
-            {
-                serverSelectionTimeoutString = "10000";
-            }
-            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
-            clientSettings.ClusterConfigurator = cb =>
-            {
-                var traceSource = new TraceSource("mongodb-tests", SourceLevels.Information);
-                traceSource.Listeners.Clear(); // remove the default listener
-                var listener = new ConsoleTraceListener();
-                traceSource.Listeners.Add(listener);
-                cb.TraceWith(traceSource);
-            };
-
-            __client = new MongoClient(clientSettings);
-            __databaseNamespace = mongoUrl.DatabaseName == null ? CoreTestConfiguration.DatabaseNamespace : new DatabaseNamespace(mongoUrl.DatabaseName);
+            __client = new MongoClient(CoreTestConfiguration.Cluster);
+            __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
         }
 

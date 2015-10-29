@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -68,6 +69,13 @@ namespace MongoDB.Driver
         public MongoClient(string connectionString)
             : this(ParseConnectionString(connectionString))
         {
+        }
+
+        internal MongoClient(ICluster cluster)
+        {
+            _settings = new MongoClientSettings();
+            _cluster = Ensure.IsNotNull(cluster, "cluster");
+            _operationExecutor = new OperationExecutor();
         }
 
         internal MongoClient(IOperationExecutor operationExecutor)

@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
@@ -95,7 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
             {
-                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var serverVersion = GetServerVersion();
                 var maxServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion > maxServerVersion)
                 {
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             }
             if (definition.TryGetValue("ignore_if_server_version_less_than", out bsonValue))
             {
-                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var serverVersion = GetServerVersion();
                 var minServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion < minServerVersion)
                 {
@@ -169,6 +170,12 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     Assert.Fail("Unknown event type.");
                 }
             }
+        }
+
+        private SemanticVersion GetServerVersion()
+        {
+            var server = __client.Cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+            return server.Description.Version;
         }
 
         private Task ExecuteOperationAsync(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation)
