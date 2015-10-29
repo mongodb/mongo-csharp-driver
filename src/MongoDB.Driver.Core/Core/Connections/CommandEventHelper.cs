@@ -599,7 +599,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             finally
             {
-                if (disposeOfDocuments)
+                if (disposeOfDocuments && replyMessage.Documents != null)
                 {
                     replyMessage.Documents.ForEach(d => d.Dispose());
                 }
