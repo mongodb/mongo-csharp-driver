@@ -732,6 +732,15 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestType_number()
+        {
+            var query = Query.Type("a", "number");
+            var selector = "{ \"$type\" : \"number\" }";
+            Assert.AreEqual(PositiveTest("a", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("a", selector), Query.Not(query).ToJson());
+        }
+
+        [Test]
         public void TestWhere()
         {
             var query = Query.Where("this.a > 3");
