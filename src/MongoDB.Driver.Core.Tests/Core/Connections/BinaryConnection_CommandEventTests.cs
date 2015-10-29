@@ -676,6 +676,45 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
+        public void Should_process_a_failed_query()
+        {
+            var expectedCommand = new BsonDocument
+            {
+                { "find", MessageHelper.DefaultCollectionNamespace.CollectionName },
+                { "filter", new BsonDocument("x", 1) },
+            };
+            var queryFailureDocument = BsonDocument.Parse("{ $err: \"Can't canonicalize query: BadValue $or needs an array\", code: 17287 }");
+
+            var requestMessage = MessageHelper.BuildQuery(
+                (BsonDocument)expectedCommand["filter"],
+                requestId: 10);
+            SendMessages(requestMessage);
+
+
+            var replyMessage = MessageHelper.BuildQueryFailedReply<BsonDocument>(
+                queryFailureDocument,
+                requestMessage.RequestId);
+            ReceiveMessages(replyMessage);
+
+            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
+            var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
+
+            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
+            commandStartedEvent.Command.Should().Be(expectedCommand);
+            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
+            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
+            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
+            commandStartedEvent.RequestId.Should().Be(requestMessage.RequestId);
+
+            commandFailedEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
+            commandFailedEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
+            commandFailedEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
+            commandFailedEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
+            ((MongoCommandException)commandFailedEvent.Failure).Result.Should().Be(queryFailureDocument);
+            commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
+        }
+
+        [Test]
         public void Should_process_an_update_without_gle()
         {
             var update = BsonDocument.Parse("{ q: { x: 1 }, u: { $set: { x: 2 } }, upsert: false, multi: false }");
