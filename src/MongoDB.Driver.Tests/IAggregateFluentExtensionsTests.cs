@@ -13,20 +13,139 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
     public class IAggregateFluentExtensionsTests
     {
+        // public methods
+        [Test]
+        public void First_should_add_limit_and_call_ToCursor(
+            [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IAggregateFluent<Person>>();
+            var subject2 = Substitute.For<IAggregateFluent<Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" },
+                new Person { FirstName = "Jane" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(1).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.FirstAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.First(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void First_should_throw_when_aggregate_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAggregateFluent<Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FirstAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.First();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+        }
+
+        [Test]
+        public void FirstOrDefault_should_add_limit_and_call_ToCursor(
+            [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IAggregateFluent<Person>>();
+            var subject2 = Substitute.For<IAggregateFluent<Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" },
+                new Person { FirstName = "Jane" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(1).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.FirstOrDefault(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void FirstOrDefault_should_throw_when_aggregate_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAggregateFluent<Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FirstOrDefaultAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.FirstOrDefault();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+        }
+
         [Test]
         public void Group_should_generate_the_correct_group_when_a_result_type_is_not_specified()
         {
@@ -106,6 +225,116 @@ namespace MongoDB.Driver.Tests
             var expectedProject = BsonDocument.Parse("{$project: {Name: {'$concat': ['$FirstName', ' ', '$LastName']}, _id: 0}}");
 
             AssertLast(subject, expectedProject);
+        }
+
+        [Test]
+        public void Single_should_add_limit_and_call_ToCursor(
+           [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IAggregateFluent<Person>>();
+            var subject2 = Substitute.For<IAggregateFluent<Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(2).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.SingleAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.Single(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void Single_should_throw_when_aggregate_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAggregateFluent<Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.SingleAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Single();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+        }
+
+        [Test]
+        public void SingleOrDefault_should_add_limit_and_call_ToCursor(
+            [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IAggregateFluent<Person>>();
+            var subject2 = Substitute.For<IAggregateFluent<Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(2).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.SingleOrDefault(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void SingleOrDefault_should_throw_when_aggregate_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAggregateFluent<Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.SingleOrDefaultAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.SingleOrDefault();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
         [Test]
@@ -283,6 +512,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
+        // private methods
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
             var pipeline = new PipelineStagePipelineDefinition<Person, TDocument>(fluent.Stages);
@@ -292,10 +522,17 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(expectedLast, last);
         }
 
-        private IAggregateFluent<Person> CreateSubject()
+        private IAggregateFluent<Person> CreateSubject(
+            CancellationToken cancellationToken = default(CancellationToken),
+            IAsyncCursor<Person> cursor = null)
         {
             var collection = CreateCollection<Person>();
             var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<IPipelineStageDefinition>(), new AggregateOptions());
+            if (cursor != null)
+            {
+                subject.ToCursor(cancellationToken).Returns(cursor);
+                subject.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+            }
 
             return subject;
         }
@@ -310,6 +547,24 @@ namespace MongoDB.Driver.Tests
             return collection;
         }
 
+        private IAsyncCursor<Person> CreateCursor(params Person[] persons)
+        {
+            var firstBatch = persons ?? new Person[0];
+
+            return new AsyncCursor<Person>(
+                Substitute.For<IChannelSource>(),
+                new CollectionNamespace(new DatabaseNamespace("foo"), "bar"),
+                new BsonDocument(),
+                firstBatch,
+                0,
+                null,
+                null,
+                BsonSerializer.LookupSerializer<Person>(),
+                new MessageEncoderSettings(),
+                null);
+        }
+
+        // nested types
         public class Person
         {
             public string FirstName;

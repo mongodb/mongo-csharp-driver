@@ -142,10 +142,13 @@
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequest.cs" />
     <Compile Include="Core\Misc\SupportedFeatures.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumerator.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
     <Compile Include="DocumentValidationAction.cs" />
     <Compile Include="DocumentValidationLevel.cs" />
+    <Compile Include="Core\Operations\EnumerableOneTimeAsyncCursor.cs" />
+    <Compile Include="Core\Operations\EnumerableAsyncCursorSource.cs" />
     <Compile Include="Core\Operations\GeoSearchOperation.cs" />
     <Compile Include="Core\Operations\GeoNearOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingCommandOperation.cs" />

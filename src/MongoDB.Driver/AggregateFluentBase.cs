@@ -59,7 +59,10 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> OfType<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer) where TNewResult : TResult;
 
         /// <inheritdoc />
-        public abstract IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken);
+        public virtual IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken);
@@ -83,7 +86,10 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public abstract IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken);
+        public virtual IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);

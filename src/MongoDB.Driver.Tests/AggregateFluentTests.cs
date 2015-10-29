@@ -41,13 +41,11 @@ namespace MongoDB.Driver.Tests
 
             Predicate<PipelineDefinition<C, BsonDocument>> isExpectedPipeline = pipeline =>
             {
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var inputSerializer = serializerRegistry.GetSerializer<C>();
-                var rendederedPipeline = pipeline.Render(inputSerializer, serializerRegistry);
+                var renderedPipeline = RenderPipeline(pipeline);
                 return
-                    rendederedPipeline.Documents.Count == 1 &&
-                    rendederedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
-                    rendederedPipeline.OutputSerializer is BsonDocumentSerializer;
+                    renderedPipeline.Documents.Count == 1 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
+                    renderedPipeline.OutputSerializer is BsonDocumentSerializer;
             };
 
             _collection.Received().AggregateAsync<BsonDocument>(
@@ -69,22 +67,93 @@ namespace MongoDB.Driver.Tests
 
             Predicate<PipelineDefinition<C, D>> isExpectedPipeline = pipeline =>
             {
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var inputSerializer = serializerRegistry.GetSerializer<C>();
-                var rendederedPipeline = pipeline.Render(inputSerializer, serializerRegistry);
-                var isExpected =
-                    rendederedPipeline.Documents.Count == 3 &&
-                    rendederedPipeline.Documents[0] == BsonDocument.Parse("{ $sort : { X : 1 } }") &&
-                    rendederedPipeline.Documents[1] == BsonDocument.Parse("{ $match : { _t : \"D\" } }") &&
-                    rendederedPipeline.Documents[2] == BsonDocument.Parse("{ $match : { Y : 2 } }") &&
-                    rendederedPipeline.OutputSerializer.ValueType == typeof(D);
-                return isExpected;
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 3 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $sort : { X : 1 } }") &&
+                    renderedPipeline.Documents[1] == BsonDocument.Parse("{ $match : { _t : \"D\" } }") &&
+                    renderedPipeline.Documents[2] == BsonDocument.Parse("{ $match : { Y : 2 } }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(D);
             };
 
             _collection.Received().AggregateAsync<D>(
                 Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
                 Arg.Any<AggregateOptions>(),
                 CancellationToken.None);
+        }
+
+        [Test]
+        public void Out_should_add_the_expected_stage_and_call_Aggregate(
+            [Values(false, true)] bool async)
+        {
+            var subject = 
+                CreateSubject()
+                .Match(Builders<C>.Filter.Eq(c => c.X, 1));
+            var collectionName = "test";
+
+            Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 2 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } } }") &&
+                    renderedPipeline.Documents[1] == BsonDocument.Parse("{ $out : \"test\" }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(C);
+            };
+
+            IAsyncCursor<C> cursor;
+            if (async)
+            {
+                cursor = subject.OutAsync(collectionName, CancellationToken.None).GetAwaiter().GetResult();
+                _collection.Received().AggregateAsync<C>(
+                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
+            else
+            {
+                cursor = subject.Out(collectionName, CancellationToken.None);
+                _collection.Received().Aggregate<C>(
+                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
+        }
+
+        [Test]
+        public void ToCursor_should_call_Aggregate(
+            [Values(false, true)] bool async)
+        {
+            var subject =
+                CreateSubject()
+                .Match(Builders<C>.Filter.Eq(c => c.X, 1));
+
+            Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 1 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } } }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(C);
+            };
+
+            IAsyncCursor<C> cursor;
+            if (async)
+            {
+                cursor = subject.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+                _collection.Received().AggregateAsync<C>(
+                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
+            else
+            {
+                cursor = subject.ToCursor(CancellationToken.None);
+                _collection.Received().Aggregate<C>(
+                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
         }
 
         // private methods
@@ -98,6 +167,13 @@ namespace MongoDB.Driver.Tests
             var subject = new AggregateFluent<C, C>(_collection, Enumerable.Empty<IPipelineStageDefinition>(), options);
 
             return subject;
+        }
+
+        private RenderedPipelineDefinition<TOutput> RenderPipeline<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<TInput>();
+            return pipeline.Render(inputSerializer, serializerRegistry);
         }
 
         // nested types

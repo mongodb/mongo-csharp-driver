@@ -66,9 +66,12 @@
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumeratorTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
+    <Compile Include="Core\Operations\EnumerableAsyncCursorSourceTests.cs" />
+    <Compile Include="Core\Operations\EnumerableOneTimeAsyncCursorTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
@@ -107,6 +110,8 @@
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
     <Compile Include="Core\WireProtocol\CommandWriteProtocolTests.cs" />
+    <Compile Include="IAsyncCursorExtensionsTests.cs" />
+    <Compile Include="IAsyncCursorSourceExtensionsTests.cs" />
     <Compile Include="MongoAuthenticationExceptionTests.cs" />
     <Compile Include="MongoClientExceptionTests.cs" />
     <Compile Include="MongoConfigurationExceptionTests.cs" />

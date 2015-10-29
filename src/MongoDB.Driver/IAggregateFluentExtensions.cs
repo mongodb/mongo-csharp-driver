@@ -383,7 +383,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.First(aggregate.Limit(1).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.First(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstAsync(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -415,7 +415,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstOrDefault(aggregate.Limit(1).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefault(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefaultAsync(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.Single(aggregate.Limit(2).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.Single(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -463,7 +463,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleAsync(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -479,7 +479,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleOrDefault(aggregate.Limit(2).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefault(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(aggregate.Limit(2), cancellationToken);
         }
 
         private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>

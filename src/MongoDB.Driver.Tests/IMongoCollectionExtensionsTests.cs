@@ -70,47 +70,80 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void CountAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void Count_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            subject.CountAsync(x => x.FirstName == "Jack");
 
-            subject.Received().CountAsync(Arg.Any<FilterDefinition<Person>>(), null, default(CancellationToken));
+            if (async)
+            {
+                subject.CountAsync(x => x.FirstName == "Jack");
+                subject.Received().CountAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
+            else
+            {
+                subject.Count(x => x.FirstName == "Jack");
+                subject.Received().Count(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void DeleteManyAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void DeleteMany_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            subject.DeleteManyAsync(x => x.FirstName == "Jack");
 
-            subject.Received().DeleteManyAsync(Arg.Any<FilterDefinition<Person>>(), default(CancellationToken));
+            if (async)
+            {
+                subject.DeleteManyAsync(x => x.FirstName == "Jack");
+                subject.Received().DeleteManyAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+            }
+            else
+            {
+                subject.DeleteMany(x => x.FirstName == "Jack");
+                subject.Received().DeleteMany(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+            }
         }
 
         [Test]
-        public void DeleteOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void DeleteOne_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            subject.DeleteOneAsync(x => x.FirstName == "Jack");
 
-            subject.Received().DeleteOneAsync(Arg.Any<FilterDefinition<Person>>(), default(CancellationToken));
+            if (async)
+            {
+                subject.DeleteOneAsync(x => x.FirstName == "Jack");
+                subject.Received().DeleteOneAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+            }
+            else
+            {
+                subject.DeleteOne(x => x.FirstName == "Jack");
+                subject.Received().DeleteOne(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+            }
         }
 
         [Test]
-        public void DistinctAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void Distinct_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
 
-            subject.Received().DistinctAsync(
-                Arg.Any<ExpressionFieldDefinition<Person, string>>(),
-                Arg.Any<ExpressionFilterDefinition<Person>>(),
-                null,
-                default(CancellationToken));
+            if (async)
+            {
+                subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
+                subject.Received().DistinctAsync(Arg.Any<ExpressionFieldDefinition<Person, string>>(), Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
+            else
+            {
+                subject.Distinct(x => x.LastName, x => x.FirstName == "Jack");
+                subject.Received().Distinct(Arg.Any<ExpressionFieldDefinition<Person, string>>(), Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void Find_should_call_collection_FindAsync_with_correct_options()
+        public void ToCursor_should_call_collection_Find_with_correct_options(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var filter = BsonDocument.Parse("{x:1}");
@@ -137,12 +170,25 @@ namespace MongoDB.Driver.Tests
 
             FilterDefinition<Person> actualFilter = null;
             FindOptions<Person, BsonDocument> actualOptions = null;
-            subject.FindAsync(
-                Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                Arg.Any<CancellationToken>());
 
-            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (async)
+            {
+                subject.FindAsync(
+                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
+                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindSync(
+                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
+                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursor(CancellationToken.None);
+            }
 
             ((BsonDocumentFilterDefinition<Person>)actualFilter).Document.Should().Be(filter);
             actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
@@ -161,7 +207,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Find_with_an_expression_should_call_collection_FindAsync_with_correct_options()
+        public void ToCursor_with_an_expression_should_call_collection_FindAsync_with_correct_options(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var filter = BsonDocument.Parse("{Age:1}");
@@ -188,12 +235,25 @@ namespace MongoDB.Driver.Tests
 
             FilterDefinition<Person> actualFilter = null;
             FindOptions<Person, BsonDocument> actualOptions = null;
-            subject.FindAsync(
-                Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                Arg.Any<CancellationToken>());
 
-            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (async)
+            {
+                subject.FindAsync(
+                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
+                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindSync(
+                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
+                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursor(CancellationToken.None);
+            }
 
             actualFilter.Should().BeOfType<ExpressionFilterDefinition<Person>>();
             actualFilter.Render(subject.DocumentSerializer, subject.Settings.SerializerRegistry).Should().Be(filter);
@@ -213,111 +273,225 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void FindOneAndDeleteAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void FindOneAndDelete_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
-            subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<FilterDefinition<Person>>(), null, default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
+
+                subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndDelete(x => x.FirstName == "Jack");
+
+                subject.Received().FindOneAndDelete<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void FindOneAndDeleteAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
+        public void FindOneAndDelete_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new FindOneAndDeleteOptions<Person, BsonDocument>();
-            subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
-            subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<FilterDefinition<Person>>(), options, default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
+
+                subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndDelete(x => x.FirstName == "Jack", options);
+
+                subject.Received().FindOneAndDelete<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void FindOneAndReplaceAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void FindOneAndReplace_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var replacement = new Person();
-            subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
-            subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<FilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
+
+                subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndReplace(x => x.FirstName == "Jack", replacement);
+
+                subject.Received().FindOneAndReplace<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void FindOneAndReplaceAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
+        public void FindOneAndReplaceAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var replacement = new Person();
             var options = new FindOneAndReplaceOptions<Person, BsonDocument>();
-            subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
-            subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<FilterDefinition<Person>>(), replacement, options, default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
+
+                subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndReplace(x => x.FirstName == "Jack", replacement, options);
+
+                subject.Received().FindOneAndReplace<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void FindOneAndUpdateAsync_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var update = new BsonDocument();
-            subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().FindOneAndUpdateAsync<Person>(
-                Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                null,
-                default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
+
+                subject.Received().FindOneAndUpdateAsync<Person>(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndUpdate(x => x.FirstName == "Jack", update);
+
+                subject.Received().FindOneAndUpdate<Person>(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
         }
 
         [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
+        public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var update = new BsonDocument();
             var options = new FindOneAndUpdateOptions<Person, BsonDocument>();
-            subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(
-                Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                options,
-                default(CancellationToken));
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
+
+                subject.Received().FindOneAndUpdateAsync<BsonDocument>(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    options,
+                    default(CancellationToken));
+            }
+            else
+            {
+                subject.FindOneAndUpdate(x => x.FirstName == "Jack", update, options);
+
+                subject.Received().FindOneAndUpdate<BsonDocument>(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    options,
+                    default(CancellationToken));
+            }
         }
 
         [Test]
-        public void ReplaceOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void ReplaceOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var replacement = new Person();
-            subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
 
-            subject.Received().ReplaceOneAsync(Arg.Any<FilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            if (async)
+            {
+                subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
+
+                subject.Received().ReplaceOneAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            }
+            else
+            {
+                subject.ReplaceOne(x => x.FirstName == "Jack", replacement);
+
+                subject.Received().ReplaceOne(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+            }
         }
 
         [Test]
-        public void UpdateManyAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void UpdateManyAsync_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var update = new BsonDocument();
-            subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
+            if (async)
+            {
+                subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().UpdateManyAsync(
-                Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                null,
-                default(CancellationToken));
+                subject.Received().UpdateManyAsync(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
+            else
+            {
+                subject.UpdateMany(x => x.FirstName == "Jack", update);
+
+                subject.Received().UpdateMany(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
         }
 
         [Test]
-        public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
+        public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var update = new BsonDocument();
-            subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().UpdateOneAsync(
-                Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                null,
-                default(CancellationToken));
+            if (async)
+            {
+                subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
+
+                subject.Received().UpdateOneAsync(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
+            else
+            {
+                subject.UpdateOne(x => x.FirstName == "Jack", update);
+
+                subject.Received().UpdateOne(
+                    Arg.Any<ExpressionFilterDefinition<Person>>(),
+                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                    null,
+                    default(CancellationToken));
+            }
         }
 
         private bool Matches(object o, BsonDocument doc)

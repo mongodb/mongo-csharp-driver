@@ -152,7 +152,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.First(find.Limit(1).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.First(find.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.FirstAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstAsync(find.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.FirstOrDefault(find.Limit(1).ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefault(find.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefaultAsync(find.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.Single(find.ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.Single(find, cancellationToken);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.SingleAsync(find.ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleAsync(find, cancellationToken);
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.SingleOrDefault(find.ToCursor(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefault(find, cancellationToken);
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.SingleOrDefaultAsync(find.ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(find, cancellationToken);
         }
     }
 }

@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq
 
         internal override object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options)
         {
-            return new AsyncCursorEnumerableAdapter<TOutput>(ct => (Task<IAsyncCursor<TOutput>>)ExecuteAsync(collection, options, ct), CancellationToken.None);
+            return new AsyncCursorEnumerableAdapter<TOutput>(ct => ((Task<IAsyncCursor<TOutput>>)ExecuteAsync(collection, options, ct)).GetAwaiter().GetResult(), CancellationToken.None);
         }
     }
 }

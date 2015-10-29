@@ -52,16 +52,45 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void CountAsync_should_not_throw_a_null_reference_exception()
+        public void Count_should_call_collection_Count(
+            [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var findOptions = new FindOptions<Person, Person>
+            {
+                Limit = 1,
+                MaxTime = TimeSpan.FromSeconds(1),
+                Modifiers = new BsonDocument("$hint", "hint"),
+                Skip = 2
+            };
+            var subject = CreateSubject(findOptions);
 
-            subject.CountAsync().GetAwaiter().GetResult();
+            Predicate<CountOptions> countOptionsPredicate = countOptions =>
+            {
+                return
+                    countOptions.Hint == findOptions.Modifiers["$hint"].AsString &&
+                    countOptions.Limit == findOptions.Limit &&
+                    countOptions.MaxTime == findOptions.MaxTime &&
+                    countOptions.Skip == findOptions.Skip;
+            };
 
-            _collection.Received().CountAsync(
-                subject.Filter,
-                Arg.Any<CountOptions>(),
-                Arg.Any<CancellationToken>());
+            if (async)
+            {
+                subject.CountAsync().GetAwaiter().GetResult();
+
+                _collection.Received().CountAsync(
+                    subject.Filter,
+                    Arg.Is<CountOptions>(o => countOptionsPredicate(o)),
+                    Arg.Any<CancellationToken>());
+            }
+            else
+            {
+                subject.Count();
+
+                _collection.Received().Count(
+                    subject.Filter,
+                    Arg.Is<CountOptions>(o => countOptionsPredicate(o)),
+                    Arg.Any<CancellationToken>());
+            }
         }
 
         [Test]
@@ -97,13 +126,13 @@ namespace MongoDB.Driver.Tests
                 "._addSpecial(\"$hint\", \"ix_1\")");
         }
 
-        private IFindFluent<Person, Person> CreateSubject()
+        private IFindFluent<Person, Person> CreateSubject(FindOptions<Person, Person> options = null)
         {
             var settings = new MongoCollectionSettings();
             _collection = Substitute.For<IMongoCollection<Person>>();
             _collection.DocumentSerializer.Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
             _collection.Settings.Returns(settings);
-            var options = new FindOptions<Person, Person>();
+            options = options ?? new FindOptions<Person, Person>();
             var subject = new FindFluent<Person, Person>(_collection, new BsonDocument(), options);
 
             return subject;

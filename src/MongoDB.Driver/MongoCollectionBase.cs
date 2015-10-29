@@ -240,7 +240,11 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(documents, nameof(documents));
 
             var models = documents.Select(x => new InsertOneModel<TDocument>(x));
-            BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
+            BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions
+            {
+                BypassDocumentValidation = options.BypassDocumentValidation,
+                IsOrdered = options.IsOrdered
+            };
             BulkWrite(models, bulkWriteOptions, cancellationToken);
         }
 
@@ -284,7 +288,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = BulkWrite(new[] { model }, null, cancellationToken);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = BulkWrite(new[] { model }, bulkWriteOptions, cancellationToken);
                 return ReplaceOneResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)
@@ -334,7 +342,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = BulkWrite(new[] { model }, null, cancellationToken);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = BulkWrite(new[] { model }, bulkWriteOptions, cancellationToken);
                 return UpdateResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)
@@ -384,7 +396,11 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = BulkWrite(new[] { model }, null, cancellationToken);
+                var bulkWriteOptions = new BulkWriteOptions
+                {
+                    BypassDocumentValidation = options.BypassDocumentValidation
+                };
+                var result = BulkWrite(new[] { model }, bulkWriteOptions, cancellationToken);
                 return UpdateResult.FromCore(result);
             }
             catch (MongoBulkWriteException<TDocument> ex)
