@@ -594,7 +594,12 @@ namespace MongoDB.Driver
                 }
                 else if ((ipEndPoint = endPoint as IPEndPoint) != null)
                 {
-                    return new MongoServerAddress(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                    var address = ipEndPoint.Address.ToString();
+                    if (ipEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                    {
+                        address = "[" + address + "]";
+                    }
+                    return new MongoServerAddress(address, ipEndPoint.Port);
                 }
                 else
                 {
