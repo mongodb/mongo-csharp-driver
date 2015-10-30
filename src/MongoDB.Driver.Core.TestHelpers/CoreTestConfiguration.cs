@@ -171,6 +171,11 @@ namespace MongoDB.Driver
 
         private static DatabaseNamespace GetDatabaseNamespace()
         {
+            if (!string.IsNullOrEmpty(__connectionString.DatabaseName))
+            {
+                return new DatabaseNamespace(__connectionString.DatabaseName);
+            }
+
             var timestamp = DateTime.Now.ToString("MMddHHmm");
             return new DatabaseNamespace("Tests" + timestamp);
         }
