@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -79,7 +80,7 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-            var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
+            var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
             return settings.With(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Enumerable(endPoints),
@@ -139,6 +140,11 @@ namespace MongoDB.Driver
 
         private TcpStreamSettings ConfigureTcp(TcpStreamSettings settings, ClusterKey clusterKey)
         {
+            if (clusterKey.IPv6)
+            {
+                settings = settings.With(addressFamily: AddressFamily.InterNetworkV6);
+            }
+
             return settings.With(
                 connectTimeout: clusterKey.ConnectTimeout,
                 readTimeout: clusterKey.SocketTimeout,

@@ -745,6 +745,7 @@ namespace MongoDB.Driver.Tests
         [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, null }, "mongodb://host1:27018,host2")]
         [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, 27017 }, "mongodb://host1:27018,host2")]
         [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, 27018 }, "mongodb://host1:27018,host2:27018")]
+        [TestCase(new string[] { "[::1]", "host2" }, new object[] { 27018, 27018 }, "mongodb://[::1]:27018,host2:27018")]
         public void TestServers(string[] hosts, object[] ports, string connectionString)
         {
             var servers = (hosts == null) ? null : new List<MongoServerAddress>();
