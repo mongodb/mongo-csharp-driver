@@ -27,14 +27,14 @@ namespace MongoDB.Driver.Tests
     public static class DriverTestConfiguration
     {
         // private static fields
-        private static MongoClient __client;
+        private static Lazy<MongoClient> __client;
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
 
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new MongoClient(CoreTestConfiguration.Cluster);
+            __client = new Lazy<MongoClient>(() => new MongoClient(CoreTestConfiguration.Cluster), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
         }
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests
         /// </summary>
         public static MongoClient Client
         {
-            get { return __client; }
+            get { return __client.Value; }
         }
 
         /// <summary>

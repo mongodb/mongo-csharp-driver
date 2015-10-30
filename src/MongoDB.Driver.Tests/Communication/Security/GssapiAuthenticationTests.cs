@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -33,7 +35,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SetUp]
         public void Setup()
         {
-            _settings = DriverTestConfiguration.Client.Settings.Clone();
+            _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
         [Test]
@@ -53,6 +55,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                     .GetResult();
             });
         }
+
 
         [Test]
         public void TestSuccessfulAuthentication()
@@ -74,7 +77,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public void TestBadPassword()
         {
             var currentCredentialUsername = _settings.Credentials.Single().Username;
-            _settings.Credentials = new[] 
+            _settings.Credentials = new[]
             {
                 MongoCredential.CreateGssapiCredential(currentCredentialUsername, "wrongPassword")
             };
