@@ -144,8 +144,8 @@
     <Compile Include="Core\Misc\SupportedFeatures.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
-    <Compile Include="Core\Operations\DocumentValidationAction.cs" />
-    <Compile Include="Core\Operations\DocumentValidationLevel.cs" />
+    <Compile Include="DocumentValidationAction.cs" />
+    <Compile Include="DocumentValidationLevel.cs" />
     <Compile Include="Core\Operations\GeoSearchOperation.cs" />
     <Compile Include="Core\Operations\GeoNearOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingCommandOperation.cs" />

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents the document validation level.
