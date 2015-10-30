@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
-            var servers = new[] { new MongoServerAddress("localhost") };
+            var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
 
             var sslSettings = new SslSettings
             {
@@ -77,8 +77,12 @@ namespace MongoDB.Driver.Tests
 
             using (var cluster = subject.GetOrCreateCluster(clientSettings.ToClusterKey()))
             {
-                var address = clientSettings.Servers.Single();
-                var endPoints = new[] { new DnsEndPoint(address.Host, address.Port) };
+                var endPoints = new EndPoint[]
+                {
+                    new DnsEndPoint("localhost", 27017),
+                    new IPEndPoint(IPAddress.Parse("127.0.0.1"), 30000),
+                    new IPEndPoint(IPAddress.Parse("[::1]"), 27018)
+                };
                 cluster.Settings.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
                 cluster.Settings.EndPoints.Equals(endPoints);
                 cluster.Settings.ReplicaSetName.Should().Be("rs");
@@ -86,8 +90,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(20);
 
-                var serverDescription = cluster.Description.Servers.Single(s => s.EndPoint.Equals(endPoints[0]));
-                serverDescription.EndPoint.Should().Be(endPoints[0]);
+                cluster.Description.Servers.Select(s => s.EndPoint).Should().Contain(endPoints);
 
                 // TODO: don't know how to test the rest of the settings because they are all private to the cluster
             }
