@@ -86,7 +86,7 @@ namespace MongoDB.Driver
             var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
             if (serverSelectionTimeoutString == null)
             {
-                serverSelectionTimeoutString = "10000";
+                serverSelectionTimeoutString = "30000";
             }
 
             builder = builder

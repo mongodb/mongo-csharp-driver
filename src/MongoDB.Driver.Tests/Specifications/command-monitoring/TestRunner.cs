@@ -39,8 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         private static string[] __commandsToCapture;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        static TestRunner()
         {
             __commandsToCapture = new string[]
             {
