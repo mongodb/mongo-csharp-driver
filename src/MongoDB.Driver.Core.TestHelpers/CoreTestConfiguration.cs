@@ -116,13 +116,16 @@ namespace MongoDB.Driver
                 }
             }
 
+            return ConfigureLogging(builder);
+        }
+
+        public static ClusterBuilder ConfigureLogging(ClusterBuilder builder)
+        {
             var traceSource = new TraceSource("mongodb-tests", SourceLevels.Information);
             traceSource.Listeners.Clear(); // remove the default listener
             var listener = new ConsoleTraceListener();
             traceSource.Listeners.Add(listener);
-            builder = builder.TraceWith(traceSource);
-
-            return builder;
+            return builder.TraceWith(traceSource);
         }
 
         public static ICluster CreateCluster()

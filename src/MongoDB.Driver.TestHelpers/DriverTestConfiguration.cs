@@ -34,7 +34,18 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new Lazy<MongoClient>(() => new MongoClient(CoreTestConfiguration.Cluster), true);
+            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+
+            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
+            if (serverSelectionTimeoutString == null)
+            {
+                serverSelectionTimeoutString = "30000";
+            }
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
+            clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
+
+            __client = new Lazy<MongoClient>(() => new MongoClient(clientSettings), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
         }

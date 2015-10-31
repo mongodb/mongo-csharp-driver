@@ -71,13 +71,6 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(ICluster cluster)
-        {
-            _settings = new MongoClientSettings();
-            _cluster = Ensure.IsNotNull(cluster, "cluster");
-            _operationExecutor = new OperationExecutor();
-        }
-
         internal MongoClient(IOperationExecutor operationExecutor)
             : this()
         {
