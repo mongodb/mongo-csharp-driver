@@ -469,6 +469,36 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [RequiresServer("DropCollection", MinimumVersion = "3.2.0-rc0")]
+        public void Execute_should_create_collection_when_Validator_is_set(
+            [Values(false, true)] bool async)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                ValidationAction = DocumentValidationAction.Error,
+                ValidationLevel = DocumentValidationLevel.Strict,
+                Validator = new BsonDocument("_id", new BsonDocument("$exists", true))
+            };
+
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                var result = ExecuteOperation(subject, binding, async);
+
+                result["ok"].ToBoolean().Should().BeTrue();
+                var commandOperation = new ReadCommandOperation<BsonDocument>(
+                    _collectionNamespace.DatabaseNamespace,
+                    new BsonDocument("listCollections", 1),
+                    BsonDocumentSerializer.Instance,
+                    new MessageEncoderSettings());
+                var commandResult = commandOperation.Execute(binding, CancellationToken.None);
+                var collectionInfo = commandResult["cursor"]["firstBatch"].AsBsonArray.Where(c => c["name"] == _collectionNamespace.CollectionName).Single();
+                Assert.That(collectionInfo["options"]["validator"], Is.EqualTo(new BsonDocument("_id", new BsonDocument("$exists", true))));
+                Assert.That(collectionInfo["options"]["validationAction"].AsString, Is.EqualTo("error"));
+                Assert.That(collectionInfo["options"]["validationLevel"].AsString, Is.EqualTo("strict"));
+            }
+        }
+
+        [Test]
         public void IndexOptionDefaults_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);

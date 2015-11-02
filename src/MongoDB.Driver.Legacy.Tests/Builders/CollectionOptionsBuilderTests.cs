@@ -89,5 +89,29 @@ namespace MongoDB.Driver.Tests.Builders
             var expected = "{ }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
+
+        [Test]
+        public void TestSetValidationAction()
+        {
+            var options = CollectionOptions.SetValidationAction(DocumentValidationAction.Error);
+            var expected = "{ \"validationAction\" : \"error\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetValidationLevel()
+        {
+            var options = CollectionOptions.SetValidationLevel(DocumentValidationLevel.Strict);
+            var expected = "{ \"validationLevel\" : \"strict\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetValidator()
+        {
+            var options = CollectionOptions.SetValidator(new QueryDocument("_id", new BsonDocument("$exists", true)));
+            var expected = "{ \"validator\" : { \"_id\" : { \"$exists\" : true } } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
     }
 }

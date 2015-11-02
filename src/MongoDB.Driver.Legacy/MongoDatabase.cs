@@ -211,6 +211,9 @@ namespace MongoDB.Driver
             long? maxSize = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
+            DocumentValidationAction? validationAction = null;
+            DocumentValidationLevel? validationLevel = null;
+            BsonDocument validator = null;
 
             if (options != null)
             {
@@ -241,6 +244,18 @@ namespace MongoDB.Driver
                 {
                     usePowerOf2Sizes = value.ToInt32() == 1;
                 }
+                if (optionsDocument.TryGetValue("validationAction", out value))
+                {
+                    validationAction = (DocumentValidationAction)Enum.Parse(typeof(DocumentValidationAction), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validationLevel", out value))
+                {
+                    validationLevel = (DocumentValidationLevel)Enum.Parse(typeof(DocumentValidationLevel), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validator", out value))
+                {
+                    validator = value.AsBsonDocument;
+                }
             }
 
             var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
@@ -250,7 +265,10 @@ namespace MongoDB.Driver
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = usePowerOf2Sizes
+                UsePowerOf2Sizes = usePowerOf2Sizes,
+                ValidationAction = validationAction,
+                ValidationLevel = validationLevel,
+                Validator = validator
             };
 
             var response = ExecuteWriteOperation(operation);
