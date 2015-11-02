@@ -103,6 +103,50 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllClear(string name, long bitmask)
+        {
+            return new QueryDocument(name, new BsonDocument("$bitsAllClear", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllSet(string name, long bitmask)
+        {
+            return new QueryDocument(name, new BsonDocument("$bitsAllSet", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnyClear(string name, long bitmask)
+        {
+            return new QueryDocument(name, new BsonDocument("$bitsAnyClear", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnySet(string name, long bitmask)
+        {
+            return new QueryDocument(name, new BsonDocument("$bitsAnySet", bitmask));
+        }
+
+        /// <summary>
         /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -1073,6 +1117,50 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAllClear(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllSet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAllSet(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnyClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAnyClear(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnySet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAnySet(memberExpression, bitmask);
+        }
+
+        /// <summary>
         /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
@@ -1658,6 +1746,74 @@ namespace MongoDB.Driver.Builders
         public IMongoQuery And(params IMongoQuery[] queries)
         {
             return And((IEnumerable<IMongoQuery>)queries);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAllClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAllClear(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAllSet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAllSet(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAnyClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAnyClear(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAnySet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAnySet(serializationInfo.ElementName, bitmask);
         }
 
         /// <summary>

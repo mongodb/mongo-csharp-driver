@@ -113,6 +113,38 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestBitsAllClear()
+        {
+            var query = Query<A>.BitsAllClear(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAllClear\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAllSet()
+        {
+            var query = Query<A>.BitsAllSet(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAllSet\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAnyClear()
+        {
+            var query = Query<A>.BitsAnyClear(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAnyClear\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAnySet()
+        {
+            var query = Query<A>.BitsAnySet(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAnySet\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestBooleanExpressionTrueForMethods()
         {
             var query = Query<A>.Where(a => a.S.StartsWith("k"));
