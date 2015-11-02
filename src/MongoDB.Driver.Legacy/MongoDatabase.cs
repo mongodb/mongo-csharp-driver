@@ -207,6 +207,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             bool? autoIndexId = null;
             bool? capped = null;
+            BsonDocument indexOptionDefaults = null;
             int? maxDocuments = null;
             long? maxSize = null;
             BsonDocument storageEngine = null;
@@ -227,6 +228,10 @@ namespace MongoDB.Driver
                 if (optionsDocument.TryGetValue("capped", out value))
                 {
                     capped = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("indexOptionDefaults", out value))
+                {
+                    indexOptionDefaults = value.AsBsonDocument;
                 }
                 if (optionsDocument.TryGetValue("max", out value))
                 {
@@ -262,6 +267,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = autoIndexId,
                 Capped = capped,
+                IndexOptionDefaults = indexOptionDefaults,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
                 StorageEngine = storageEngine,

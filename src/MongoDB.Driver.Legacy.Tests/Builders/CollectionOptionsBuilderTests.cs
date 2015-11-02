@@ -67,6 +67,14 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestSetIndexOptionDefaults()
+        {
+            var options = CollectionOptions.SetIndexOptionDefaults(new IndexOptionDefaults { StorageEngine = new BsonDocument("mmapv1", new BsonDocument()) });
+            var expected = "{ \"indexOptionDefaults\" : { \"storageEngine\" : { \"mmapv1\" : { } } } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestSetMaxDocuments()
         {
             var options = CollectionOptions.SetMaxDocuments(100);
