@@ -161,6 +161,20 @@ namespace MongoDB.Driver.Linq.Processors
             return base.VisitMethodCall(node);
         }
 
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            var newNode = (UnaryExpression)base.VisitUnary(node);
+            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
+            {
+                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))
+                {
+                    return newNode.Operand;
+                }
+            }
+
+            return newNode;
+        }
+
         // private methods
         private Expression BindElementAt(MethodCallExpression node)
         {
