@@ -85,6 +85,36 @@ namespace MongoDB.Driver.Builders
         {
             return new CollectionOptionsBuilder().SetStorageEngineOptions(value);
         }
+
+        /// <summary>
+        /// Sets the validation action.
+        /// </summary>
+        /// <param name="validationAction">The validation action.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static CollectionOptionsBuilder SetValidationAction(DocumentValidationAction validationAction)
+        {
+            return new CollectionOptionsBuilder().SetValidationAction(validationAction);
+        }
+
+        /// <summary>
+        /// Sets the validation level.
+        /// </summary>
+        /// <param name="validationLevel">The validation level.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static CollectionOptionsBuilder SetValidationLevel(DocumentValidationLevel validationLevel)
+        {
+            return new CollectionOptionsBuilder().SetValidationLevel(validationLevel);
+        }
+
+        /// <summary>
+        /// Sets the validator.
+        /// </summary>
+        /// <param name="validator">The validator.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static CollectionOptionsBuilder SetValidator(IMongoQuery validator)
+        {
+            return new CollectionOptionsBuilder().SetValidator(validator);
+        }
     }
 
     /// <summary>
@@ -158,6 +188,39 @@ namespace MongoDB.Driver.Builders
         public CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
             _document["storageEngine"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the validation action.
+        /// </summary>
+        /// <param name="validationAction">The validation action.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetValidationAction(DocumentValidationAction validationAction)
+        {
+            _document["validationAction"] = validationAction.ToString().ToLowerInvariant();
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the validation level.
+        /// </summary>
+        /// <param name="validationLevel">The validation level.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetValidationLevel(DocumentValidationLevel validationLevel)
+        {
+            _document["validationLevel"] = validationLevel.ToString().ToLowerInvariant();
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the validator.
+        /// </summary>
+        /// <param name="validator">The validator.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetValidator(IMongoQuery validator)
+        {
+            _document["validator"] = validator.ToBsonDocument();
             return this;
         }
 

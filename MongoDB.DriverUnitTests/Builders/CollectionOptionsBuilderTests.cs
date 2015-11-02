@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -87,6 +88,30 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var options = new CollectionOptionsBuilder();
             var expected = "{ }".Replace("'", "\"");
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetValidationAction()
+        {
+            var options = CollectionOptions.SetValidationAction(DocumentValidationAction.Error);
+            var expected = "{ \"validationAction\" : \"error\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetValidationLevel()
+        {
+            var options = CollectionOptions.SetValidationLevel(DocumentValidationLevel.Strict);
+            var expected = "{ \"validationLevel\" : \"strict\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetValidator()
+        {
+            var options = CollectionOptions.SetValidator(new QueryDocument("_id", new BsonDocument("$exists", true)));
+            var expected = "{ \"validator\" : { \"_id\" : { \"$exists\" : true } } }";
             Assert.AreEqual(expected, options.ToJson());
         }
     }

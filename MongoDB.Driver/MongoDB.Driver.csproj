@@ -90,6 +90,8 @@
     <Compile Include="Communication\FeatureDetection\InstanceTypeDependency.cs" />
     <Compile Include="Communication\FeatureDetection\NotDependency.cs" />
     <Compile Include="Communication\Security\Mechanisms\ScramSha1Mechanism.cs" />
+    <Compile Include="DocumentValidationAction.cs" />
+    <Compile Include="DocumentValidationLevel.cs" />
     <Compile Include="Exceptions\MongoBulkWriteException.cs" />
     <Compile Include="Exceptions\MongoExecutionTimeoutException.cs" />
     <Compile Include="Exceptions\MongoWriteConcernException.cs" />

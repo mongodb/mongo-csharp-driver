@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,6 +68,27 @@ namespace MongoDB.DriverUnitTests
 
             _database.CreateCollection(collectionName);
             Assert.IsTrue(_database.CollectionExists(collectionName));
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9999")]
+        public void TestCreateCollectionSetValidator()
+        {
+            var collection = _database.GetCollection("testvalidation");
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var options = CollectionOptions
+                .SetValidator(new QueryDocument("_id", new BsonDocument("$exists", true)))
+                .SetValidationAction(DocumentValidationAction.Error)
+                .SetValidationLevel(DocumentValidationLevel.Strict);
+
+            _database.CreateCollection(collection.Name, options);
+
+            var commandResult = _database.RunCommand("listCollections");
+            var collectionInfo = commandResult.Response["cursor"]["firstBatch"].AsBsonArray.Where(c => c["name"] == collection.Name).Single();
+            Assert.That(collectionInfo["options"]["validator"], Is.EqualTo(new BsonDocument("_id", new BsonDocument("$exists", true))));
+            Assert.That(collectionInfo["options"]["validationAction"].AsString, Is.EqualTo("error"));
+            Assert.That(collectionInfo["options"]["validationLevel"].AsString, Is.EqualTo("strict"));
         }
 
         [Test]
