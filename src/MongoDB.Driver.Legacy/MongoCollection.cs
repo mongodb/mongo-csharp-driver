@@ -571,7 +571,8 @@ namespace MongoDB.Driver
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
             else
@@ -583,7 +584,8 @@ namespace MongoDB.Driver
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
 
@@ -640,8 +642,8 @@ namespace MongoDB.Driver
             {
                 MaxTime = args.MaxTime,
                 Projection = projection,
-                Sort = sort
-
+                Sort = sort,
+                WriteConcern = _settings.WriteConcern
             };
 
             try
