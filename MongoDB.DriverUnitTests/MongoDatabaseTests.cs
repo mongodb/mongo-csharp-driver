@@ -72,6 +72,25 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.9999")]
+        public void TestCreateCollectionSetIndexOptionDefaults()
+        {
+            var collection = _database.GetCollection("testindexoptiondefaults");
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var storageEngineOptions = new BsonDocument("mmapv1", new BsonDocument());
+            var indexOptionDefaults = new IndexOptionDefaults { StorageEngine = storageEngineOptions };
+            var expectedIndexOptionDefaultsDocument = new BsonDocument("storageEngine", storageEngineOptions);
+            var options = CollectionOptions.SetIndexOptionDefaults(indexOptionDefaults);
+
+            _database.CreateCollection(collection.Name, options);
+
+            var commandResult = _database.RunCommand("listCollections");
+            var collectionInfo = commandResult.Response["cursor"]["firstBatch"].AsBsonArray.Where(doc => doc["name"] == collection.Name).Single().AsBsonDocument;
+            Assert.AreEqual(expectedIndexOptionDefaultsDocument, collectionInfo["options"]["indexOptionDefaults"]);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9999")]
         public void TestCreateCollectionSetValidator()
         {
             var collection = _database.GetCollection("testvalidation");

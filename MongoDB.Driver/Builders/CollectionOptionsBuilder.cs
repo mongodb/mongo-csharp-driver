@@ -57,6 +57,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the index options defaults.
+        /// </summary>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns></returns>
+        public static CollectionOptionsBuilder SetIndexOptionDefaults(IndexOptionDefaults value)
+        {
+            return new CollectionOptionsBuilder().SetIndexOptionDefaults(value);
+        }
+
+        /// <summary>
         /// Sets the max number of documents in a capped collection.
         /// </summary>
         /// <param name="value">The max number of documents.</param>
@@ -155,6 +165,17 @@ namespace MongoDB.Driver.Builders
         public CollectionOptionsBuilder SetCapped(bool value)
         {
             _document["capped"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the index options defaults.
+        /// </summary>
+        /// <param name="value">The index options defaults.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetIndexOptionDefaults(IndexOptionDefaults value)
+        {
+            _document["indexOptionDefaults"] = value.ToBsonDocument();
             return this;
         }
 
