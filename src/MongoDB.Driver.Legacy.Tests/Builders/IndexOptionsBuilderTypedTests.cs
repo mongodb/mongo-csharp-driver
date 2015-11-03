@@ -72,6 +72,14 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestPartialFilterExpression()
+        {
+            var options = IndexOptions<TestClass>.SetPartialFilterExpression(Query.GT("x", 0));
+            string expected = "{ \"partialFilterExpression\" : { \"x\" : { \"$gt\" : 0 } } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestSparse()
         {
             var options = IndexOptions<TestClass>.SetSparse(true);
