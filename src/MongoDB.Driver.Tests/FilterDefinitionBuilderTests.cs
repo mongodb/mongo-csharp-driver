@@ -907,6 +907,19 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("FirstName", "string"), "{fn: {$type: \"string\"}}");
         }
 
+        [Test]
+        public void Generic_type_constraint_causing_base_class_conversion()
+        {
+            var filter = TypeConstrainedFilter<Twin>(21);
+
+            Assert(filter, "{ age: 21 }");
+        }
+
+        private FilterDefinition<T> TypeConstrainedFilter<T>(int age) where T : Person
+        {
+            return CreateSubject<T>().Eq(x => x.Age, age);
+        }
+
         private void Assert<TDocument>(FilterDefinition<TDocument> filter, string expected)
         {
             Assert(filter, BsonDocument.Parse(expected));
