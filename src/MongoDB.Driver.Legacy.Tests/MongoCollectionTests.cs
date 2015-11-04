@@ -25,6 +25,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.GeoJsonObjectModel;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -952,6 +953,58 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(1, result.ModifiedDocument["count"].AsInt32);
         }
 
+        [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestFindAndModifyReplaceWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("_id", 1),
+                Update = Update.Replace(new BsonDocument { { "_id", 1 }, { "x", 2 } }),
+                VersionReturned = FindAndModifyDocumentVersion.Modified
+            };
+
+            Action action = () => collection.FindAndModify(args);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result.Should().Be("{ _id : 1, x : 2 }");
+        }
+
+        [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestFindAndModifyUpdateWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("x", 1),
+                Update = Update.Set("x", 2),
+                VersionReturned = FindAndModifyDocumentVersion.Modified
+            };
+
+            Action action = () => collection.FindAndModify(args);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result.Should().Be("{ _id : 1, x : 2 }");
+        }
+
         private class FindAndModifyClass
         {
             public ObjectId Id;
@@ -1046,6 +1099,31 @@ namespace MongoDB.Driver.Tests
                     }
                 }
             }
+        }
+
+        [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestFindAndRemoveWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+            var args = new FindAndRemoveArgs
+            {
+                Query = Query.EQ("x", 1)              
+            };
+
+            Action action = () => collection.FindAndRemove(args);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result["x"].Should().Be(1);
+            _collection.Count().Should().Be(0);
         }
 
         [Test]
@@ -2282,6 +2360,24 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestInsertWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            var document = new BsonDocument { { "_id", 1 }, { "x", 1 } };
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+
+            Action action = () => collection.Insert(document);
+
+            action.ShouldThrow<MongoWriteConcernException>();
+            _collection.FindOne().Should().Be(document);
+        }
+
+        [Test]
         public void TestIsCappedFalse()
         {
             var collection = _database.GetCollection("notcappedcollection");
@@ -2728,6 +2824,25 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestRemoveWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+            var query = Query.EQ("x", 1);
+
+            Action action = () => collection.Remove(query);
+
+            action.ShouldThrow<MongoWriteConcernException>();
+            _collection.Count().Should().Be(0);
+        }
+
+        [Test]
         public void TestSetFields()
         {
             _collection.RemoveAll();
@@ -2965,6 +3080,26 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(2, document["x"].AsInt32);
                 Assert.AreEqual(1, _collection.Count());
             }
+        }
+
+        [Test]
+        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void TestUpdateWithWriteConcernError()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
+            var collectionSettings = new MongoCollectionSettings
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+            var collection = _database.GetCollection(_collection.Name, collectionSettings);
+            var query = Query.EQ("x", 1);
+            var update = Update.Set("x", 2);
+
+            Action action = () => collection.Update(query, update);
+
+            action.ShouldThrow<MongoWriteConcernException>();
+            _collection.FindOne().Should().Be("{ _id : 1, x : 2 }");
         }
 
         [Test]
