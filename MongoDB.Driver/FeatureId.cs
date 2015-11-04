@@ -41,6 +41,10 @@ namespace MongoDB.Driver
         /// </summary>
         CreateIndexCommand,
         /// <summary>
+        /// The find and modify write concern feature.
+        /// </summary>
+        FindAndModifyWriteConcern,
+        /// <summary>
         /// The max time feature.
         /// </summary>
         MaxTime,

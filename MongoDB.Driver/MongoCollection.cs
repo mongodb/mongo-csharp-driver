@@ -635,36 +635,58 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
-            var command = new CommandDocument
+            using (var request = _server.RequestStart(null))
             {
-                { "findAndModify", _name },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "update", BsonDocumentWrapper.Create(args.Update, true) }, // isUpdateDocument = true
-                { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
-                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
-                { "upsert", true, args.Upsert}, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            try
-            {
-                return RunCommandAs<FindAndModifyResult>(command);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ex.ErrorMessage == "No matching object found")
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                var writeConcern = _settings.WriteConcern.ToBsonDocument();
+                if (writeConcern.ElementCount == 0)
                 {
-                    // create a new command result with what the server should have responded
-                    var response = new BsonDocument
+                    writeConcern = null;
+                }
+
+                var command = new CommandDocument
+                {
+                    { "findAndModify", _name },
+                    { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                    { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                    { "update", BsonDocumentWrapper.Create(args.Update, true) }, // isUpdateDocument = true
+                    { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
+                    { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
+                    { "upsert", true, args.Upsert}, // optional
+                    { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, // optional
+                    { "writeConcern", writeConcern, writeConcern != null && serverInstance.Supports(FeatureId.FindAndModifyWriteConcern) }
+                };
+                try
+                {
+                    var result = RunCommandAs<FindAndModifyResult>(command);
+
+                    BsonValue writeConcernError;
+                    if (result.Response.TryGetValue("writeConcernError", out writeConcernError))
+                    {
+                        var message = writeConcernError["errmsg"].AsString;
+                        var writeConcernResult = new WriteConcernResult(result.Response);
+                        throw new MongoWriteConcernException(message, writeConcernResult);
+                    }
+
+                    return result;
+                }
+                catch (MongoCommandException ex)
+                {
+                    if (ex.ErrorMessage == "No matching object found")
+                    {
+                        // create a new command result with what the server should have responded
+                        var response = new BsonDocument
                     {
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
 #pragma warning disable 618
-                    return new FindAndModifyResult(response) { Command = command };
+                        return new FindAndModifyResult(response) { Command = command };
 #pragma warning restore
+                    }
+                    throw;
                 }
-                throw;
             }
         }
 
@@ -689,35 +711,57 @@ namespace MongoDB.Driver
         public virtual FindAndModifyResult FindAndRemove(FindAndRemoveArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
-            
-            var command = new CommandDocument
+
+            using (var request = _server.RequestStart(null))
             {
-                { "findAndModify", _name },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "remove", true },
-                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            try
-            {
-                return RunCommandAs<FindAndModifyResult>(command);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ex.ErrorMessage == "No matching object found")
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                var writeConcern = _settings.WriteConcern.ToBsonDocument();
+                if (writeConcern.ElementCount == 0)
                 {
-                    // create a new command result with what the server should have responded
-                    var response = new BsonDocument
+                    writeConcern = null;
+                }
+
+                var command = new CommandDocument
+                {
+                    { "findAndModify", _name },
+                    { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                    { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                    { "remove", true },
+                    { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
+                    { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, // optional
+                    { "writeConcern", writeConcern, writeConcern != null && serverInstance.Supports(FeatureId.FindAndModifyWriteConcern) }
+                };
+                try
+                {
+                    var result = RunCommandAs<FindAndModifyResult>(command);
+
+                    BsonValue writeConcernError;
+                    if (result.Response.TryGetValue("writeConcernError", out writeConcernError))
+                    {
+                        var message = writeConcernError["errmsg"].AsString;
+                        var writeConcernResult = new WriteConcernResult(result.Response);
+                        throw new MongoWriteConcernException(message, writeConcernResult);
+                    }
+
+                    return result;
+                }
+                catch (MongoCommandException ex)
+                {
+                    if (ex.ErrorMessage == "No matching object found")
+                    {
+                        // create a new command result with what the server should have responded
+                        var response = new BsonDocument
                     {
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
 #pragma warning disable 618
-                    return new FindAndModifyResult(response) { Command = command };
+                        return new FindAndModifyResult(response) { Command = command };
 #pragma warning restore
+                    }
+                    throw;
                 }
-                throw;
             }
         }
 

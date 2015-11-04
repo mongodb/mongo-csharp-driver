@@ -56,7 +56,12 @@ namespace MongoDB.Driver.Communication.FeatureDetection
 
             new FeatureSetDependency(
                 new ServerVersionDependency(2, 7, 5),
-                FeatureId.ScramSha1)
+                FeatureId.ScramSha1),
+
+            // added in 3.2.0
+            new FeatureSetDependency(
+                new ServerVersionDependency(3, 1, 9999),
+                FeatureId.FindAndModifyWriteConcern)
        };
 
         // public methods
