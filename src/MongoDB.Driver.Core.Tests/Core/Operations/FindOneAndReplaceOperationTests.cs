@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -292,6 +292,34 @@ namespace MongoDB.Driver.Core.Operations
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
+        [Test]
+        [RequiresServer("EnsureTestData", MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void Execute_should_throw_when_there_is_a_write_concern_error(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(
+                _collectionNamespace,
+                _filter,
+                _replacement,
+                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
+                _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true,
+                ReturnDocument = ReturnDocument.Before,
+                WriteConcern = new WriteConcern(9)
+            };
+
+            Action action = () => ExecuteOperation(subject, async);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result.Should().Be("{_id: 10, x: 1}");
+            var serverList = ReadAllFromCollection(async);
+            serverList[0].Should().Be("{_id: 10, a: 2}");
+        }
+
 
         private void EnsureTestData()
         {

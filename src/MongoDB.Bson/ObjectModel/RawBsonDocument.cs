@@ -690,6 +690,22 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Materializes the RawBsonDocument into a regular BsonDocument.
+        /// </summary>
+        /// <param name="binaryReaderSettings">The binary reader settings.</param>
+        /// <returns>A BsonDocument.</returns>
+        public BsonDocument Materialize(BsonBinaryReaderSettings binaryReaderSettings)
+        {
+            ThrowIfDisposed();
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
+            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
+            {
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                return BsonDocumentSerializer.Instance.Deserialize(context);
+            }
+        }
+
+        /// <summary>
         /// Merges another document into this one. Existing elements are not overwritten.
         /// </summary>
         /// <param name="document">The other document.</param>

@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -109,7 +110,10 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.Execute(channelBinding, cancellationToken);
+                using (var rawBsonDocument = operation.Execute(channelBinding, cancellationToken))
+                {
+                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
+                }
             }
         }
 
@@ -123,17 +127,20 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                using (var rawBsonDocument = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false))
+                {
+                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
+                }
             }
         }
 
         // private methods
         internal abstract BsonDocument CreateCommand(SemanticVersion serverVersion);
 
-        private WriteCommandOperation<TResult> CreateOperation(SemanticVersion serverVersion)
+        private WriteCommandOperation<RawBsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
             var command = CreateCommand(serverVersion);
-            return new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings)
+            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 CommandValidator = GetCommandValidator()
             };
@@ -144,5 +151,31 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         /// <returns>An element name validator for the command.</returns>
         protected abstract IElementNameValidator GetCommandValidator();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)
+        {
+            var binaryReaderSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict),
+                GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy)
+            };
+
+            BsonValue writeConcernError;
+            if (rawBsonDocument.TryGetValue("writeConcernError", out writeConcernError))
+            {
+                var message = writeConcernError["errmsg"].AsString;
+                var response = rawBsonDocument.Materialize(binaryReaderSettings);
+                var writeConcernResult = new WriteConcernResult(response);
+                throw new MongoWriteConcernException(connectionId, message, writeConcernResult);
+            }
+
+            using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
+            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
+            {
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                return _resultSerializer.Deserialize(context);
+            }
+        }
     }
 }
