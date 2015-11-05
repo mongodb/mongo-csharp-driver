@@ -133,7 +133,7 @@ Target "Test" (fun _ ->
             { p with 
                 OutputFile = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
                 DisableShadowCopy = true
-                ShowLabels = true
+                ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
                 Framework = !framework
                 IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 ExcludeCategory = getBuildParamOrDefault "testExclude" ""
