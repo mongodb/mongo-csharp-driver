@@ -985,12 +985,23 @@ namespace MongoDB.Driver.Tests
                 VersionReturned = FindAndModifyDocumentVersion.Modified
             };
 
-            Action action = () => collection.FindAndModify(args);
+            BsonDocument modifiedDocument;
+            if (_server.BuildInfo.Version >= new Version(3, 2, 0))
+            {
+                Action action = () => collection.FindAndModify(args);
 
-            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
-            var commandResult = exception.Result;
-            var result = commandResult["value"].AsBsonDocument;
-            result.Should().Be("{ _id : 1, x : 2 }");
+                var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+                var commandResult = exception.Result;
+                modifiedDocument = commandResult["value"].AsBsonDocument;
+            }
+            else
+            {
+                var result = collection.FindAndModify(args);
+
+                modifiedDocument = result.ModifiedDocument;
+            }
+
+            modifiedDocument.Should().Be("{ _id : 1, x : 2 }");
         }
 
         [Test]
@@ -1011,12 +1022,23 @@ namespace MongoDB.Driver.Tests
                 VersionReturned = FindAndModifyDocumentVersion.Modified
             };
 
-            Action action = () => collection.FindAndModify(args);
+            BsonDocument modifiedDocument;
+            if (_server.BuildInfo.Version >= new Version(3, 2, 0))
+            {
+                Action action = () => collection.FindAndModify(args);
 
-            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
-            var commandResult = exception.Result;
-            var result = commandResult["value"].AsBsonDocument;
-            result.Should().Be("{ _id : 1, x : 2 }");
+                var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+                var commandResult = exception.Result;
+                modifiedDocument = commandResult["value"].AsBsonDocument;
+            }
+            else
+            {
+                var result = collection.FindAndModify(args);
+
+                modifiedDocument = result.ModifiedDocument;
+            }
+
+            modifiedDocument.Should().Be("{ _id : 1, x : 2 }");
         }
 
         private class FindAndModifyClass
@@ -1120,7 +1142,7 @@ namespace MongoDB.Driver.Tests
         public void TestFindAndRemoveWithWriteConcernError()
         {
             _collection.RemoveAll();
-            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
                 WriteConcern = new WriteConcern(9)
@@ -1131,12 +1153,23 @@ namespace MongoDB.Driver.Tests
                 Query = Query.EQ("x", 1)              
             };
 
-            Action action = () => collection.FindAndRemove(args);
+            BsonDocument modifiedDocument;
+            if (_server.BuildInfo.Version >= new Version(3, 2, 0))
+            {
+                Action action = () => collection.FindAndRemove(args);
 
-            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
-            var commandResult = exception.Result;
-            var result = commandResult["value"].AsBsonDocument;
-            result["x"].Should().Be(1);
+                var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+                var commandResult = exception.Result;
+                modifiedDocument = commandResult["value"].AsBsonDocument;
+            }
+            else
+            {
+                var result = collection.FindAndRemove(args);
+
+                modifiedDocument = result.ModifiedDocument;
+            }
+
+            modifiedDocument.Should().Be("{ _id : 1, x : 1 }");
             _collection.Count().Should().Be(0);
         }
 
@@ -2374,7 +2407,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        [RequiresServer(MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
         public void TestInsertWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -2838,7 +2871,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        [RequiresServer(MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
         public void TestRemoveWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -3097,7 +3130,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(ClusterTypes = ClusterTypes.ReplicaSet)]
+        [RequiresServer(MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
         public void TestUpdateWithWriteConcernError()
         {
             _collection.RemoveAll();
