@@ -715,7 +715,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(MinimumVersion = "3.1.9999")]
+        [RequiresServer(MinimumVersion = "3.2.0")]
         public void TestCreateIndexWithPartialFilterExpression()
         {
             _collection.Drop();
@@ -995,7 +995,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.2.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestFindAndModifyReplaceWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -1020,7 +1020,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.2.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestFindAndModifyUpdateWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -1141,7 +1141,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.2.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestFindAndRemoveWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -2410,7 +2410,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.0.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestInsertWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -2881,7 +2881,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.0.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestRemoveWithWriteConcernError()
         {
             _collection.RemoveAll();
@@ -3157,7 +3157,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "3.0.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestUpdateWithWriteConcernError()
         {
             _collection.RemoveAll();

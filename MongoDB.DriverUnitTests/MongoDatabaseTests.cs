@@ -71,7 +71,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(MinimumVersion = "3.1.9999")]
+        [RequiresServer(MinimumVersion = "3.2.0")]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
             var collection = _database.GetCollection("testindexoptiondefaults");
@@ -90,7 +90,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(MinimumVersion = "3.1.9999")]
+        [RequiresServer(MinimumVersion = "3.2.0")]
         public void TestCreateCollectionSetValidator()
         {
             var collection = _database.GetCollection("testvalidation");
