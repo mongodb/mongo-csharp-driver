@@ -715,6 +715,21 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9999")]
+        public void TestCreateIndexWithPartialFilterExpression()
+        {
+            _collection.Drop();
+            var keys = IndexKeys.Ascending("x");
+            var options = IndexOptions<BsonDocument>.SetPartialFilterExpression(Query.GT("x", 0));
+
+            _collection.CreateIndex(keys, options);
+
+            var indexes = _collection.GetIndexes();
+            var index = indexes.Where(i => i.Name == "x_1").Single();
+            Assert.That(index.RawDocument["partialFilterExpression"], Is.EqualTo(BsonDocument.Parse("{ x : { $gt : 0 } }")));
+        }
+
+        [Test]
         public void TestDistinct()
         {
             _collection.RemoveAll();
