@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
         private readonly BatchableSource<TDocument> _documentSource;
@@ -64,6 +65,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -234,6 +247,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 ContinueOnError = _continueOnError,
                 MaxBatchCount = _maxBatchCount,
                 MaxDocumentSize = _maxDocumentSize,

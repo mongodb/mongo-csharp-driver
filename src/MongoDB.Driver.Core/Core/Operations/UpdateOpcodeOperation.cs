@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private int? _maxDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -56,6 +57,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -161,6 +174,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 MaxDocumentSize = _maxDocumentSize,
                 WriteConcern = _writeConcern
             };

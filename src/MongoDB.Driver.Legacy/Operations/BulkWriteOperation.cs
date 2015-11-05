@@ -32,6 +32,7 @@ namespace MongoDB.Driver
     public sealed class BulkWriteOperation<TDocument>
     {
         // private fields
+        private bool? _bypassDocumentValidation;
         private readonly MongoCollection _collection;
         private readonly bool _isOrdered;
         private readonly List<WriteRequest> _requests = new List<WriteRequest>();
@@ -42,6 +43,19 @@ namespace MongoDB.Driver
         {
             _collection = collection;
             _isOrdered = isOrdered;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
         }
 
         // public methods
@@ -151,6 +165,7 @@ namespace MongoDB.Driver
 
             var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 IsOrdered = _isOrdered,
                 WriteConcern = writeConcern
             };

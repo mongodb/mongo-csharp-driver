@@ -205,6 +205,7 @@ namespace MongoDB.Driver.Tests
 
                 var query = _collection.Aggregate(new AggregateArgs
                 {
+                    BypassDocumentValidation = true,
                     Pipeline = new BsonDocument[]
                     {
                         new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
@@ -873,6 +874,7 @@ namespace MongoDB.Driver.Tests
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             var args = new FindAndModifyArgs
             {
+                BypassDocumentValidation = true,
                 Query = Query.EQ("inprogress", false),
                 SortBy = SortBy.Descending("priority"),
                 Update = Update.Set("inprogress", true).Set("started", started),
@@ -2143,7 +2145,11 @@ namespace MongoDB.Driver.Tests
                     document.Remove("_id");
                 }
 
-                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                var options = new MongoInsertOptions
+                {
+                    BypassDocumentValidation = true,
+                    Flags = InsertFlags.ContinueOnError
+                };
                 exception = Assert.Throws<MongoDuplicateKeyException>(() => collection.InsertBatch(batch, options));
                 result = exception.WriteConcernResult;
 
@@ -2526,6 +2532,7 @@ namespace MongoDB.Driver.Tests
 
             var result = _collection.MapReduce(new MapReduceArgs
             {
+                BypassDocumentValidation = true,
                 MapFunction = map,
                 ReduceFunction = reduce,
                 OutputMode = MapReduceOutputMode.Replace,
@@ -3043,7 +3050,9 @@ namespace MongoDB.Driver.Tests
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+            var options = new MongoUpdateOptions { BypassDocumentValidation = true };
+
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), options);
 
             var expectedResult = new ExpectedWriteConcernResult
             {

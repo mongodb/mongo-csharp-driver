@@ -135,6 +135,7 @@ namespace MongoDB.Driver
                 var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
                 {
                     AllowDiskUse = args.AllowDiskUse,
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     MaxTime = args.MaxTime
                 };
                 ExecuteWriteOperation(aggregateOperation);
@@ -567,6 +568,7 @@ namespace MongoDB.Driver
             {
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
@@ -580,6 +582,7 @@ namespace MongoDB.Driver
                 var replacement = updateDocument;
                 operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
@@ -1405,6 +1408,7 @@ namespace MongoDB.Driver
 
                 var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = options.BypassDocumentValidation,
                     ContinueOnError = continueOnError,
                     WriteConcern = writeConcern
                 };
@@ -1543,6 +1547,7 @@ namespace MongoDB.Driver
                     args.ReduceFunction,
                     messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1905,6 +1910,7 @@ namespace MongoDB.Driver
             };
             var operation = new UpdateOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 WriteConcern = writeConcern
             };
 

@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     internal class UpdateOpcodeOperationEmulator
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private int? _maxDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -44,6 +45,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -124,6 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = new[] { _request };
             return new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 IsOrdered = true,
                 WriteConcern = _writeConcern
             };
