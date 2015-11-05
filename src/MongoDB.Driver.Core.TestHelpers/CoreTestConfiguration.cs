@@ -121,9 +121,10 @@ namespace MongoDB.Driver
 
         public static ClusterBuilder ConfigureLogging(ClusterBuilder builder)
         {
-            var traceSource = new TraceSource("mongodb-tests", SourceLevels.Information);
+            var traceSource = new TraceSource("mongodb-tests", SourceLevels.Verbose);
             traceSource.Listeners.Clear(); // remove the default listener
             var listener = new ConsoleTraceListener();
+            listener.TraceOutputOptions = TraceOptions.DateTime;
             traceSource.Listeners.Add(listener);
             return builder.TraceWith(traceSource);
         }
