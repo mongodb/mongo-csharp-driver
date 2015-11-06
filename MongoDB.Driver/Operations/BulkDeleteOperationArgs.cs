@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Operations
                 maxBatchCount,
                 maxBatchLength,
                 isOrdered,
+                null, // bypassDocumentValidation
                 readerSettings,
                 requests.Cast<WriteRequest>(),
                 writeConcern,

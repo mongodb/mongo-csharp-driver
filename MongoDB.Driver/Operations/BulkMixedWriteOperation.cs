@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Operations
     {
         // private fields
         private readonly Action<InsertRequest> _assignId;
+        private readonly bool? _bypassDocumentValidation;
         private readonly bool _checkElementNames;
         private readonly string _collectionName;
         private readonly string _databaseName;
@@ -52,6 +53,7 @@ namespace MongoDB.Driver.Operations
             int maxDocumentSize,
             int maxWireDocumentSize,
             bool isOrdered,
+            bool? bypassDocumentValidation,
             BsonBinaryReaderSettings readerSettings,
             IEnumerable<WriteRequest> requests,
             WriteConcern writeConcern,
@@ -66,6 +68,7 @@ namespace MongoDB.Driver.Operations
             _maxDocumentSize = maxDocumentSize;
             _maxWireDocumentSize = maxWireDocumentSize;
             _isOrdered = isOrdered;
+            _bypassDocumentValidation = bypassDocumentValidation;
             _readerSettings = readerSettings;
             _requests = requests;
             _writeConcern = writeConcern;
@@ -161,6 +164,7 @@ namespace MongoDB.Driver.Operations
                 _maxBatchCount,
                 _maxBatchLength,
                 _isOrdered,
+                _bypassDocumentValidation,
                 _readerSettings,
                 requests,
                 _writeConcern,
@@ -177,6 +181,7 @@ namespace MongoDB.Driver.Operations
                 _maxBatchCount,
                 _maxBatchLength,
                 _isOrdered,
+                _bypassDocumentValidation,
                 _readerSettings,
                 requests,
                 _writeConcern,

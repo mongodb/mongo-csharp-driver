@@ -37,6 +37,10 @@ namespace MongoDB.Driver
         /// </summary>
         AggregateOutputToCollection,
         /// <summary>
+        /// The bypass document validation feature.
+        /// </summary>
+        BypassDocumentValidation,
+        /// <summary>
         /// The create index command feature.
         /// </summary>
         CreateIndexCommand,

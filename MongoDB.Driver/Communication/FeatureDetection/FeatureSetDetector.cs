@@ -60,7 +60,8 @@ namespace MongoDB.Driver.Communication.FeatureDetection
 
             // added in 3.2.0
             new FeatureSetDependency(
-                new ServerVersionDependency(3, 1, 9999),
+                new ServerVersionDependency(3, 2, 0),
+                FeatureId.BypassDocumentValidation,
                 FeatureId.FindAndModifyWriteConcern)
        };
 

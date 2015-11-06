@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Operations
                 1, // maxBatchCount
                 serverInstance.MaxMessageLength, // maxBatchLength
                 true, // isOrdered
+                _args.BypassDocumentValidation,
                 _args.ReaderSettings,
                 updateRequests,
                 _args.WriteConcern,

@@ -220,6 +220,7 @@ namespace MongoDB.Driver
                     maxDocumentSize,
                     maxWireDocumentSize,
                     args.IsOrdered ?? true,
+                    args.BypassDocumentValidation,
                     GetBinaryReaderSettings(),
                     args.Requests,
                     writeConcern,
@@ -655,7 +656,8 @@ namespace MongoDB.Driver
                     { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
                     { "upsert", true, args.Upsert}, // optional
                     { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, // optional
-                    { "writeConcern", writeConcern, writeConcern != null && serverInstance.Supports(FeatureId.FindAndModifyWriteConcern) }
+                    { "writeConcern", writeConcern, writeConcern != null && serverInstance.Supports(FeatureId.FindAndModifyWriteConcern) },
+                    { "bypassDocumentValidation", () => args.BypassDocumentValidation.Value, args.BypassDocumentValidation.HasValue && serverInstance.Supports(FeatureId.BypassDocumentValidation) }
                 };
                 try
                 {
@@ -1603,6 +1605,7 @@ namespace MongoDB.Driver
                     maxBatchCount,
                     maxBatchLength,
                     isOrdered,
+                    options.BypassDocumentValidation,
                     GetBinaryReaderSettings(),
                     requests,
                     writeConcern,
@@ -1703,43 +1706,49 @@ namespace MongoDB.Driver
             if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
             if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
 
-            BsonDocument output;
-            if (args.OutputMode == MapReduceOutputMode.Inline)
+            using (var request = _server.RequestStart(null))
             {
-                output = new BsonDocument("inline", 1);
-            }
-            else
-            {
-                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null and OutputMode is not Inline.", "args"); }
-                var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
-                output = new BsonDocument
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                BsonDocument output;
+                if (args.OutputMode == MapReduceOutputMode.Inline)
+                {
+                    output = new BsonDocument("inline", 1);
+                }
+                else
+                {
+                    if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null and OutputMode is not Inline.", "args"); }
+                    var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
+                    output = new BsonDocument
                 {
                     { action, args.OutputCollectionName },
                     { "db", args.OutputDatabaseName, args.OutputDatabaseName != null }, // optional
                     { "sharded", () => args.OutputIsSharded.Value, args.OutputIsSharded.HasValue }, // optional
                     { "nonAtomic", () => args.OutputIsNonAtomic.Value, args.OutputIsNonAtomic.HasValue } // optional
                 };
+                }
+
+                var command = new CommandDocument
+                {
+                    { "mapreduce", _name }, // all lowercase for backwards compatibility
+                    { "map", args.MapFunction },
+                    { "reduce", args.ReduceFunction },
+                    { "out", output },
+                    { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                    { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                    { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                    { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
+                    { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
+                    { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
+                    { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
+                    { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, // optional
+                    { "bypassDocumentValidation", () => args.BypassDocumentValidation.Value, args.BypassDocumentValidation.HasValue && serverInstance.Supports(FeatureId.BypassDocumentValidation) }
+                };
+                var result = RunCommandAs<MapReduceResult>(command);
+                result.SetInputDatabase(_database);
+
+                return result;
             }
-
-            var command = new CommandDocument
-            {
-                { "mapreduce", _name }, // all lowercase for backwards compatibility
-                { "map", args.MapFunction },
-                { "reduce", args.ReduceFunction },
-                { "out", output },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
-                { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
-                { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
-                { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            var result = RunCommandAs<MapReduceResult>(command);
-            result.SetInputDatabase(_database);
-
-            return result;
         }
 
         /// <summary>
@@ -2101,6 +2110,7 @@ namespace MongoDB.Driver
                     maxBatchCount,
                     maxBatchLength,
                     isOrdered,
+                    options.BypassDocumentValidation,
                     GetBinaryReaderSettings(),
                     requests,
                     writeConcern,
@@ -2216,25 +2226,31 @@ namespace MongoDB.Driver
 
         internal AggregateResult RunAggregateCommand(AggregateArgs args)
         {
-            BsonDocument cursor = null;
-            if (args.OutputMode == AggregateOutputMode.Cursor)
+            using (var request = _server.RequestStart(null))
             {
-                cursor = new BsonDocument
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                BsonDocument cursor = null;
+                if (args.OutputMode == AggregateOutputMode.Cursor)
+                {
+                    cursor = new BsonDocument
                 {
                     { "batchSize", () => args.BatchSize.Value, args.BatchSize.HasValue }
                 };
+                }
+
+                var aggregateCommand = new CommandDocument
+                {
+                    { "aggregate", _name },
+                    { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
+                    { "cursor", cursor, cursor != null }, // optional
+                    { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue }, // optional
+                    { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, // optional
+                    { "bypassDocumentValidation", () => args.BypassDocumentValidation.Value, args.BypassDocumentValidation.HasValue && serverInstance.Supports(FeatureId.BypassDocumentValidation) }
+                };
+
+                return RunCommandAs<AggregateResult>(aggregateCommand);
             }
-
-            var aggregateCommand = new CommandDocument
-            {
-                { "aggregate", _name },
-                { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
-                { "cursor", cursor, cursor != null }, // optional
-                { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-
-            return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
         // private methods

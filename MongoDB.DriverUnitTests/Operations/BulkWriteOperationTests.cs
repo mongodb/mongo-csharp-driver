@@ -319,6 +319,7 @@ namespace MongoDB.DriverUnitTests.Operations
             _collection.Drop();
 
             var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.BypassDocumentValidation = true;
             bulk.Insert(new BsonDocument("a", 1));
             bulk.Find(Query.EQ("a", 1)).UpdateOne(Update.Set("b", 1));
             bulk.Find(Query.EQ("a", 2)).Upsert().UpdateOne(Update.Set("b", 2));

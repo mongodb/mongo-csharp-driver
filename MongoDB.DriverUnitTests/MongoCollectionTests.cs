@@ -204,6 +204,7 @@ namespace MongoDB.DriverUnitTests
 
                 var query = _collection.Aggregate(new AggregateArgs
                 {
+                    BypassDocumentValidation = true,
                     Pipeline = new BsonDocument[]
                     {
                         new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
@@ -253,6 +254,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Drop();
             _collection.BulkWrite(new BulkWriteArgs
             {
+                BypassDocumentValidation = true,
                 WriteConcern = WriteConcern.Acknowledged,
                 Requests = new WriteRequest[]
                 {
@@ -275,6 +277,7 @@ namespace MongoDB.DriverUnitTests
 
             _collection.BulkWrite(new BulkWriteArgs
             {
+                BypassDocumentValidation = true,
                 WriteConcern = WriteConcern.Acknowledged,
                 Requests = new WriteRequest[]
                 {
@@ -300,6 +303,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Drop();
             _collection.BulkWrite(new BulkWriteArgs
             {
+                BypassDocumentValidation = true,
                 WriteConcern = WriteConcern.Acknowledged,
                 Requests = new WriteRequest[]
                 {
@@ -895,11 +899,11 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
 
-
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             var args = new FindAndModifyArgs
             {
+                BypassDocumentValidation = true,
                 Query = Query.EQ("inprogress", false),
                 SortBy = SortBy.Descending("priority"),
                 Update = Update.Set("inprogress", true).Set("started", started),
@@ -2139,7 +2143,11 @@ namespace MongoDB.DriverUnitTests
             // try the batch again with ContinueOnError
             if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
-                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                var options = new MongoInsertOptions
+                {
+                    BypassDocumentValidation = true,
+                    Flags = InsertFlags.ContinueOnError
+                };
                 exception = Assert.Throws<MongoDuplicateKeyException>(() => collection.InsertBatch(batch, options));
                 result = exception.WriteConcernResult;
 
@@ -2528,6 +2536,7 @@ namespace MongoDB.DriverUnitTests
 
             var result = _collection.MapReduce(new MapReduceArgs
             {
+                BypassDocumentValidation = true,
                 MapFunction = map,
                 ReduceFunction = reduce,
                 OutputMode = MapReduceOutputMode.Replace,
@@ -3070,7 +3079,9 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+            var options = new MongoUpdateOptions { BypassDocumentValidation = true };
+
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), options);
 
             var expectedResult = new ExpectedWriteConcernResult
             {

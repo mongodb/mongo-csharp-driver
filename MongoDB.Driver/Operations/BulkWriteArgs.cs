@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     internal class BulkWriteArgs
     {
         // private fields
+        private bool? _bypassDocumentValidation;
         private Action<InsertRequest> _assignId;
         private bool? _checkElementNames;
         private bool? _isOrdered;
@@ -33,6 +34,18 @@ namespace MongoDB.Driver
         private WriteConcern _writeConcern;
 
         // public properties
+        /// <summary>
+        /// Gets or sets whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        ///  Whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a delegate that is called before a document is inserted to assign an id if the id is empty.
         /// </summary>

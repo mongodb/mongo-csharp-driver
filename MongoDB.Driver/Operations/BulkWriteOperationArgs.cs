@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Operations
     internal abstract class BulkWriteOperationArgs
     {
         // private fields
+        private readonly bool? _bypassDocumentValidation;
         private readonly string _collectionName;
         private readonly string _databaseName;
         private readonly bool _isOrdered;
@@ -41,6 +42,7 @@ namespace MongoDB.Driver.Operations
             int maxBatchCount,
             int maxBatchLength,
             bool isOrdered,
+            bool? bypassDocumentValidation,
             BsonBinaryReaderSettings readerSettings,
             IEnumerable<WriteRequest> requests,
             WriteConcern writeConcern,
@@ -51,6 +53,7 @@ namespace MongoDB.Driver.Operations
             _maxBatchCount = maxBatchCount;
             _maxBatchLength = maxBatchLength;
             _isOrdered = isOrdered;
+            _bypassDocumentValidation = bypassDocumentValidation;
             _readerSettings = readerSettings;
             _requests = requests;
             _writeConcern = writeConcern;
@@ -58,6 +61,11 @@ namespace MongoDB.Driver.Operations
         }
 
         // public properties
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+        }
+
         public string CollectionName
         {
             get { return _collectionName; }

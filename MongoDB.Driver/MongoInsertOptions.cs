@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     public class MongoInsertOptions
     {
         // private fields
+        private bool? _bypassDocumentValidation;
         private bool _checkElementNames;
         private InsertFlags _flags;
         private WriteConcern _writeConcern;
@@ -48,6 +49,18 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets whether to check element names before proceeding with the Insert.
         /// </summary>
