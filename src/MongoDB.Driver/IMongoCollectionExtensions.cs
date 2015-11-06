@@ -212,6 +212,7 @@ namespace MongoDB.Driver
                     BatchSize = options.BatchSize,
                     Comment = options.Comment,
                     CursorType = options.CursorType,
+                    MaxAwaitTime = options.MaxAwaitTime,
                     MaxTime = options.MaxTime,
                     Modifiers = options.Modifiers,
                     NoCursorTimeout = options.NoCursorTimeout,

@@ -238,6 +238,7 @@ namespace MongoDB.Driver
                 CursorType = options.CursorType.ToCore(),
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 Limit = options.Limit,
+                MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 Modifiers = options.Modifiers,
                 NoCursorTimeout = options.NoCursorTimeout,

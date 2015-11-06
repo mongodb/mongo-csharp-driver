@@ -166,6 +166,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit = 3;
             subject.Max = new BsonDocument("max", 1);
             subject.MaxScan = 4;
+            subject.MaxAwaitTime = TimeSpan.FromSeconds(2);
             subject.MaxTime = TimeSpan.FromSeconds(1);
             subject.Min = new BsonDocument("min", 1);
             subject.NoCursorTimeout = true;
@@ -192,6 +193,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Limit.Should().Be(subject.Limit);
             result.Max.Should().Be(subject.Max);
             result.MaxScan.Should().Be(subject.MaxScan);
+            result.MaxAwaitTime.Should().Be(subject.MaxAwaitTime);
             result.MaxTime.Should().Be(subject.MaxTime);
             result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
             result.Min.Should().Be(subject.Min);
@@ -485,6 +487,20 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.MaxScan = value;
             var result = subject.MaxScan;
+
+            result.Should().Be(value);
+        }
+
+        [Test]
+        public void MaxAwaitTime_get_and_set_should_work(
+            [Values(null, 1)]
+            int? seconds)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = seconds == null ? (TimeSpan?)null : TimeSpan.FromSeconds(seconds.Value);
+
+            subject.MaxAwaitTime = value;
+            var result = subject.MaxAwaitTime;
 
             result.Should().Be(value);
         }

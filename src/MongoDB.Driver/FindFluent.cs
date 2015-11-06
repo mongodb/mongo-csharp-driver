@@ -90,6 +90,7 @@ namespace MongoDB.Driver
                 Comment = _options.Comment,
                 CursorType = _options.CursorType,
                 Limit = _options.Limit,
+                MaxAwaitTime = _options.MaxAwaitTime,
                 MaxTime = _options.MaxTime,
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,

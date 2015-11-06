@@ -122,6 +122,7 @@ namespace MongoDB.Driver.Tests
                 BatchSize = 20,
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
@@ -149,6 +150,7 @@ namespace MongoDB.Driver.Tests
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
             actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
             actualOptions.Limit.Should().Be(fluent.Options.Limit);
+            actualOptions.MaxAwaitTime.Should().Be(fluent.Options.MaxAwaitTime);
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
@@ -171,6 +173,7 @@ namespace MongoDB.Driver.Tests
                 BatchSize = 20,
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
@@ -199,6 +202,7 @@ namespace MongoDB.Driver.Tests
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
             actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
             actualOptions.Limit.Should().Be(fluent.Options.Limit);
+            actualOptions.MaxAwaitTime.Should().Be(fluent.Options.MaxAwaitTime);
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);

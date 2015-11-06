@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _hint;
         private int? _limit;
         private BsonDocument _max;
+        private TimeSpan? _maxAwaitTime;
         private int? _maxScan;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -205,6 +206,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _max; }
             set { _max = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>
@@ -437,7 +450,7 @@ namespace MongoDB.Driver.Core.Operations
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
                 _messageEncoderSettings,
-                null); // maxTime
+                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
         }
 
         private CursorBatch<TDocument> CreateCursorBatch(BsonDocument result)

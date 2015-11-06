@@ -667,6 +667,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void MaxAwaitTime_get_and_set_should_work(
+            [Values(null, 1)]
+            int? seconds)
+        {
+            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = seconds == null ? (TimeSpan?)null : TimeSpan.FromSeconds(seconds.Value);
+
+            subject.MaxAwaitTime = value;
+            var result = subject.MaxAwaitTime;
+
+            result.Should().Be(value);
+        }
+
+        [Test]
         public void MaxTime_get_and_set_should_work(
             [Values(null, 1)]
             int? seconds)
