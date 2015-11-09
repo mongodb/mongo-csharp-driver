@@ -18,7 +18,7 @@ using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq.Translators
+namespace MongoDB.Driver.Linq
 {
     internal class FieldExpressionFlattener : ExtensionExpressionVisitor
     {

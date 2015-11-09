@@ -90,9 +90,18 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    return new PipelineExpression(
-                        node,
-                        new DocumentExpression(itemSerializationInfo.Serializer));
+                    if (itemSerializationInfo.ElementName == null)
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new DocumentExpression(itemSerializationInfo.Serializer));
+                    }
+                    else
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new FieldExpression(itemSerializationInfo.ElementName, itemSerializationInfo.Serializer));
+                    }
                 }
             }
             else if (node.NodeType == ExpressionType.Constant)

@@ -234,7 +234,7 @@
     <Compile Include="Linq\Translators\AggregateGroupTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslator.cs" />
-    <Compile Include="Linq\Translators\FieldExpressionFlattener.cs" />
+    <Compile Include="Linq\FieldExpressionFlattener.cs" />
     <Compile Include="Linq\Translators\FieldNamePrefixer.cs" />
     <Compile Include="Linq\QueryableTranslation.cs" />
     <Compile Include="Linq\Translators\FindProjectionTranslator.cs" />

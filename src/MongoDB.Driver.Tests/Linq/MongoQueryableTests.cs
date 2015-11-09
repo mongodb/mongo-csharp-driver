@@ -1037,6 +1037,29 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void SelectMany_followed_by_a_group()
+        {
+            var first = from x in CreateQuery()
+                        from y in x.G
+                        select y;
+
+            var query = from f in first
+                        group f by f.D into g
+                        select new
+                        {
+                            g.Key,
+                            SumF = g.Sum(x => x.E.F)
+                        };
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: '$G', _id: 0 } }",
+                "{ $group: { _id: '$G.D', __agg0: { $sum : '$G.E.F' } } }",
+                "{ $project: { Key: '$_id', SumF: '$__agg0', _id: 0 } }");
+        }
+
+        [Test]
         public void Single()
         {
             var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).Single();
