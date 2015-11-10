@@ -62,13 +62,17 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
 
         private Expression BuildProjector(PipelineBindingContext bindingContext, Expression idSelector, Expression elementSelector)
         {
+            var elementSerializer = bindingContext.GetSerializer(elementSelector.Type, elementSelector);
+            var elementFieldName = (elementSelector as IFieldExpression)?.FieldName;
+
             var serializerType = typeof(GroupingDeserializer<,>).MakeGenericType(
                 idSelector.Type,
                 elementSelector.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(
                 serializerType,
                 bindingContext.GetSerializer(idSelector.Type, idSelector),
-                bindingContext.GetSerializer(elementSelector.Type, elementSelector));
+                bindingContext.GetSerializer(elementSelector.Type, elementSelector),
+                elementFieldName);
 
             return new DocumentExpression(serializer);
         }
@@ -100,13 +104,15 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
 
         private class GroupingDeserializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonDocumentSerializer, IBsonArraySerializer
         {
+            private readonly string _elementFieldName;
             private readonly IBsonSerializer _elementSerializer;
             private readonly IBsonSerializer _idSerializer;
 
-            public GroupingDeserializer(IBsonSerializer idSerializer, IBsonSerializer elementSerializer)
+            public GroupingDeserializer(IBsonSerializer idSerializer, IBsonSerializer elementSerializer, string elementFieldName)
             {
                 _idSerializer = idSerializer;
                 _elementSerializer = elementSerializer;
+                _elementFieldName = elementFieldName;
             }
 
             public override IGrouping<TKey, TElement> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
@@ -144,7 +150,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
 
             public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
             {
-                serializationInfo = new BsonSerializationInfo(null, _elementSerializer, typeof(TElement));
+                serializationInfo = new BsonSerializationInfo(_elementFieldName, _elementSerializer, typeof(TElement));
                 return true;
             }
         }
