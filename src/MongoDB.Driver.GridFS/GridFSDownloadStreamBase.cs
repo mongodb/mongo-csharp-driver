@@ -74,9 +74,21 @@ namespace MongoDB.Driver.GridFS
         }
 
         // public methods
+        public override void Close()
+        {
+            Close(CancellationToken.None);
+        }
+
+        public override void Close(CancellationToken cancellationToken)
+        {
+            _closed = true;
+            base.Close();
+        }
+
         public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             _closed = true;
+            base.Close();
             return Task.FromResult(true);
         }
 
@@ -91,11 +103,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         public override Task FlushAsync(CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();
         }
@@ -122,15 +129,6 @@ namespace MongoDB.Driver.GridFS
             {
                 if (disposing)
                 {
-                    try
-                    {
-                        CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-
                     _binding.Dispose();
                 }
 

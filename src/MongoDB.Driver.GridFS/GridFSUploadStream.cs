@@ -39,11 +39,29 @@ namespace MongoDB.Driver.GridFS
         /// Aborts an upload operation.
         /// </summary>
         /// <remarks>
+        /// Any partial results already written to the server are deleted when Abort is called.
+        /// </remarks>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Abort(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Aborts an upload operation.
+        /// </summary>
+        /// <remarks>
         /// Any partial results already written to the server are deleted when AbortAsync is called.
         /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Closes the Stream and completes the upload operation.
+        /// </summary>
+        /// <remarks>
+        /// Any data remaining in the Stream is flushed to the server and the GridFS files collection document is written.
+        /// </remarks>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Close(CancellationToken cancellationToken);
 
         /// <summary>
         /// Closes the Stream and completes the upload operation.

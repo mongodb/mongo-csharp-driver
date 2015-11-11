@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 
@@ -42,21 +41,21 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             return true;
         }
 
-        public async Task RunAsync(GridFSBucket bucket)
+        public void Run(GridFSBucket bucket, bool async)
         {
-            await ArrangeAsync(bucket);
-            await ActAsync(bucket);
-            await AssertAsync(bucket);
+            Arrange(bucket);
+            Act(bucket, async);
+            Assert(bucket);
         }
 
         // protected methods
-        protected abstract Task ActAsync(GridFSBucket bucket);
+        protected abstract void Act(GridFSBucket bucket, bool async);
 
-        protected virtual async Task ArrangeAsync(GridFSBucket bucket)
+        protected virtual void Arrange(GridFSBucket bucket)
         {
-            await InitializeFilesCollectionAsync(bucket);
-            await InitializeChunksCollectionAsync(bucket);
-            await RunArrangeCommandsAsync(bucket);
+            InitializeFilesCollection(bucket);
+            InitializeChunksCollection(bucket);
+            RunArrangeCommands(bucket);
         }
 
         protected virtual void Assert(List<BsonDocument> filesCollectionDocuments, List<BsonDocument> chunks, List<BsonDocument> expectedFilesCollectionDocuments, List<BsonDocument> expectedChunks)
@@ -65,17 +64,17 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             chunks.Should().BeEquivalentTo(expectedChunks);
         }
 
-        protected virtual async Task AssertAsync(GridFSBucket bucket)
+        protected virtual void Assert(GridFSBucket bucket)
         {
-            var actualFilesCollectionDocuments = await GetActualFilesCollectionDocumentsAsync(bucket);
-            var actualChunks = await GetActualChunksAsync(bucket);
+            var actualFilesCollectionDocuments = GetActualFilesCollectionDocuments(bucket);
+            var actualChunks = GetActualChunks(bucket);
 
-            await InitializeExpectedFilesCollectionAsync(bucket);
-            await InitializeExpectedChunksCollectionAsync(bucket);
-            await RunAssertCommandsAsync(bucket, actualFilesCollectionDocuments, actualChunks);
+            InitializeExpectedFilesCollection(bucket);
+            InitializeExpectedChunksCollection(bucket);
+            RunAssertCommands(bucket, actualFilesCollectionDocuments, actualChunks);
 
-            var expectedFilesCollectionDocuments = await GetExpectedFilesCollectionDocumentsAsync(bucket);
-            var expectedChunks = await GetExpectedChunksAsync(bucket);
+            var expectedFilesCollectionDocuments = GetExpectedFilesCollectionDocuments(bucket);
+            var expectedChunks = GetExpectedChunks(bucket);
 
             Assert(actualFilesCollectionDocuments, actualChunks, expectedFilesCollectionDocuments, expectedChunks);
         }
@@ -98,16 +97,16 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
 
         // private methods
-        private Task<List<BsonDocument>> GetActualChunksAsync(GridFSBucket bucket)
+        private List<BsonDocument> GetActualChunks(GridFSBucket bucket)
         {
             var chunksCollection = GetChunksCollection(bucket);
-            return GetCollectionDocumentsAsync(chunksCollection);
+            return GetCollectionDocuments(chunksCollection);
         }
 
-        private Task<List<BsonDocument>> GetActualFilesCollectionDocumentsAsync(GridFSBucket bucket)
+        private List<BsonDocument> GetActualFilesCollectionDocuments(GridFSBucket bucket)
         {
             var filesCollection = GetFilesCollection(bucket);
-            return GetCollectionDocumentsAsync(filesCollection);
+            return GetCollectionDocuments(filesCollection);
         }
 
         private List<BsonDocument> GetArrangeCommands()
@@ -138,9 +137,9 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             return new List<BsonDocument>();
         }
 
-        private Task<List<BsonDocument>> GetCollectionDocumentsAsync(IMongoCollection<BsonDocument> collection)
+        private List<BsonDocument> GetCollectionDocuments(IMongoCollection<BsonDocument> collection)
         {
-            return collection.Find(new BsonDocument()).ToListAsync();
+            return collection.FindSync(new BsonDocument()).ToList();
         }
 
         private IMongoCollection<BsonDocument> GetChunksCollection(GridFSBucket bucket)
@@ -150,10 +149,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             return database.GetCollection<BsonDocument>(chunksCollectionName);
         }
 
-        private Task<List<BsonDocument>> GetExpectedChunksAsync(GridFSBucket bucket)
+        private List<BsonDocument> GetExpectedChunks(GridFSBucket bucket)
         {
             var expectedChunksCollection = GetExpectedChunksCollection(bucket);
-            return GetCollectionDocumentsAsync(expectedChunksCollection);
+            return GetCollectionDocuments(expectedChunksCollection);
         }
 
         private IMongoCollection<BsonDocument> GetExpectedChunksCollection(GridFSBucket bucket)
@@ -170,10 +169,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             return database.GetCollection<BsonDocument>(collectionName);
         }
 
-        private Task<List<BsonDocument>> GetExpectedFilesCollectionDocumentsAsync(GridFSBucket bucket)
+        private List<BsonDocument> GetExpectedFilesCollectionDocuments(GridFSBucket bucket)
         {
             var expectedFilesCollection = GetExpectedFilesCollection(bucket);
-            return GetCollectionDocumentsAsync(expectedFilesCollection);
+            return GetCollectionDocuments(expectedFilesCollection);
         }
 
         private IMongoCollection<BsonDocument> GetFilesCollection(GridFSBucket bucket)
@@ -199,49 +198,49 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                 .ToList();
         }
 
-        private async Task InitializeChunksCollectionAsync(GridFSBucket bucket)
+        private void InitializeChunksCollection(GridFSBucket bucket)
         {
             var chunksCollection = GetChunksCollection(bucket);
-            await InitializeChunksCollectionAsync(chunksCollection);
+            InitializeChunksCollection(chunksCollection);
         }
 
-        private async Task InitializeChunksCollectionAsync(IMongoCollection<BsonDocument> chunksCollection)
+        private void InitializeChunksCollection(IMongoCollection<BsonDocument> chunksCollection)
         {
             var chunks = GetInitialChunks();
-            await InitializeCollectionAsync(chunksCollection, chunks);
+            InitializeCollection(chunksCollection, chunks);
         }
 
-        private async Task InitializeCollectionAsync(IMongoCollection<BsonDocument> collection, List<BsonDocument> documents)
+        private void InitializeCollection(IMongoCollection<BsonDocument> collection, List<BsonDocument> documents)
         {
-            await collection.DeleteManyAsync(new BsonDocument());
+            collection.DeleteMany(new BsonDocument());
             if (documents.Count > 0)
             {
-                await collection.InsertManyAsync(documents);
+                collection.InsertMany(documents);
             }
         }
 
-        private async Task InitializeExpectedChunksCollectionAsync(GridFSBucket bucket)
+        private void InitializeExpectedChunksCollection(GridFSBucket bucket)
         {
             var expectedChunksCollection = GetExpectedChunksCollection(bucket);
-            await InitializeChunksCollectionAsync(expectedChunksCollection);
+            InitializeChunksCollection(expectedChunksCollection);
         }
 
-        private async Task InitializeExpectedFilesCollectionAsync(GridFSBucket bucket)
+        private void InitializeExpectedFilesCollection(GridFSBucket bucket)
         {
             var expectedFilesCollection = GetExpectedFilesCollection(bucket);
-            await InitializeFilesCollectionAsync(expectedFilesCollection);
+            InitializeFilesCollection(expectedFilesCollection);
         }
 
-        private async Task InitializeFilesCollectionAsync(GridFSBucket bucket)
+        private void InitializeFilesCollection(GridFSBucket bucket)
         {
             var filesCollection = GetFilesCollection(bucket);
-            await InitializeFilesCollectionAsync(filesCollection);
+            InitializeFilesCollection(filesCollection);
         }
 
-        private async Task InitializeFilesCollectionAsync(IMongoCollection<BsonDocument> filesCollection)
+        private void InitializeFilesCollection(IMongoCollection<BsonDocument> filesCollection)
         {
             var filesCollectionDocuments = GetInitialFilesCollectionDocuments();
-            await InitializeCollectionAsync(filesCollection, filesCollectionDocuments);
+            InitializeCollection(filesCollection, filesCollectionDocuments);
         }
 
         private void PreprocessChunksCollectionAssertCommand(BsonDocument command, BsonValue result, List<BsonDocument> actualFilesCollectionDocuments)
@@ -309,40 +308,40 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             }
         }
 
-        private async Task RunArrangeCommandsAsync(GridFSBucket bucket)
+        private void RunArrangeCommands(GridFSBucket bucket)
         {
             var commands = GetArrangeCommands();
-            await RunCommandsAsync(bucket, commands);
+            RunCommands(bucket, commands);
         }
 
-        private async Task RunAssertCommandsAsync(GridFSBucket bucket, List<BsonDocument> actualFilesCollectionDocuments, List<BsonDocument> actualChunks)
+        private void RunAssertCommands(GridFSBucket bucket, List<BsonDocument> actualFilesCollectionDocuments, List<BsonDocument> actualChunks)
         {
             var commands = GetAssertCommands();
             PreprocessAssertCommands(commands, actualFilesCollectionDocuments, actualChunks);
-            await RunCommandsAsync(bucket, commands);
+            RunCommands(bucket, commands);
         }
 
-        private Task RunCommandAsync(GridFSBucket bucket, BsonDocument command)
+        private void RunCommand(GridFSBucket bucket, BsonDocument command)
         {
             var commandName = command.Names.First();
             switch (commandName)
             {
-                case "delete": return RunDeleteCommandAsync(bucket, command);
-                case "insert": return RunInsertCommandAsync(bucket, command);
-                case "update": return RunUpdateCommandAsync(bucket, command);
+                case "delete": RunDeleteCommand(bucket, command); break;
+                case "insert": RunInsertCommand(bucket, command); break;
+                case "update": RunUpdateCommand(bucket, command); break;
                 default: throw new ArgumentException("Unexpected command.");
             }
         }
 
-        private async Task RunCommandsAsync(GridFSBucket bucket, IEnumerable<BsonDocument> commands)
+        private void RunCommands(GridFSBucket bucket, IEnumerable<BsonDocument> commands)
         {
             foreach (var command in commands)
             {
-                await RunCommandAsync(bucket, command);
+                RunCommand(bucket, command);
             }
         }
 
-        private Task RunDeleteCommandAsync(GridFSBucket bucket, BsonDocument command)
+        private void RunDeleteCommand(GridFSBucket bucket, BsonDocument command)
         {
             var collectionName = command["delete"].AsString;
             var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
@@ -362,10 +361,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                 }
                 requests.Add(request);
             }
-            return collection.BulkWriteAsync(requests);
+            collection.BulkWrite(requests);
         }
 
-        private Task RunInsertCommandAsync(GridFSBucket bucket, BsonDocument command)
+        private void RunInsertCommand(GridFSBucket bucket, BsonDocument command)
         {
             var collectionName = command["insert"].AsString;
             var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
@@ -376,10 +375,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                 var request = new InsertOneModel<BsonDocument>(document);
                 requests.Add(request);
             }
-            return collection.BulkWriteAsync(requests);
+            collection.BulkWrite(requests);
         }
 
-        private Task RunUpdateCommandAsync(GridFSBucket bucket, BsonDocument command)
+        private void RunUpdateCommand(GridFSBucket bucket, BsonDocument command)
         {
             var collectionName = command["update"].AsString;
             var collection = bucket.Database.GetCollection<BsonDocument>(collectionName);
@@ -401,7 +400,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                 }
                 requests.Add(request);
             }
-            return collection.BulkWriteAsync(requests);
+            collection.BulkWrite(requests);
         }
     }
 }

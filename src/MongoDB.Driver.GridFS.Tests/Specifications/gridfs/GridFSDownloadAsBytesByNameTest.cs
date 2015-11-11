@@ -21,14 +21,14 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
-    public abstract class GridFSGetByNameAsyncTestBase : GridFSTestBase
+    public abstract class GridFSDownloadAsBytesByNameTestBase : GridFSTestBase
     {
         // fields
         protected string _filename;
         protected GridFSDownloadByNameOptions _options = null;
 
         // constructors
-        public GridFSGetByNameAsyncTestBase(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDownloadAsBytesByNameTestBase(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
             var operationName = testDefinition["act"]["operation"].AsString;
@@ -40,6 +40,11 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
 
         // protected methods
+        protected byte[] InvokeMethod(GridFSBucket bucket)
+        {
+            return bucket.DownloadAsBytesByName(_filename, _options);
+        }
+
         protected Task<byte[]> InvokeMethodAsync(GridFSBucket bucket)
         {
             return bucket.DownloadAsBytesByNameAsync(_filename, _options);
@@ -88,54 +93,67 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
     }
 
-    public class GridFSDownloadAsBytesByNameAsyncTest : GridFSGetByNameAsyncTestBase
+    public class GridFSDownloadAsBytesByNameTest : GridFSDownloadAsBytesByNameTestBase
     {
         // fields
         private readonly byte[] _expectedResult;
         private byte[] _result;
 
         // constructors
-        public GridFSDownloadAsBytesByNameAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDownloadAsBytesByNameTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
             _expectedResult = testDefinition["assert"]["result"].AsByteArray;
         }
 
         // protected methods
-        protected override async Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
-            _result = await InvokeMethodAsync(bucket);
+            if (async)
+            {
+                _result = InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _result = InvokeMethod(bucket);
+            }
         }
 
-        protected override Task AssertAsync(GridFSBucket bucket)
+        protected override void Assert(GridFSBucket bucket)
         {
             _result.Should().Equal(_expectedResult);
-            return Task.FromResult(true); // don't call base.AssertAsync
+            // don't call base.Assert
         }
     }
 
-    public class GridFSGetByNameAsyncTest<TException> : GridFSGetByNameAsyncTestBase where TException : Exception
+    public class GridFSDownloadAsBytesByNameTest<TException> : GridFSDownloadAsBytesByNameTestBase where TException : Exception
     {
         // fields
-        private Func<Task> _action;
+        private Action _action;
 
         // constructors
-        public GridFSGetByNameAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDownloadAsBytesByNameTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
 
         // protected methods
-        protected override Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
-            _action = () => InvokeMethodAsync(bucket);
-            return Task.FromResult(true);
+            if (async)
+            {
+                _action = () => InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _action = () => InvokeMethod(bucket);
+            }
         }
 
-        protected override Task AssertAsync(GridFSBucket bucket)
+        protected override void Assert(GridFSBucket bucket)
         {
             _action.ShouldThrow<TException>();
-            return Task.FromResult(true); // don't call base.AssertAsync
+            // don't call base.Assert
         }
     }
 }

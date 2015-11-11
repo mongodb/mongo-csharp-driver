@@ -22,7 +22,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
-    public abstract class GridFSPutAsyncTestBase : GridFSTestBase
+    public abstract class GridFSUploadFromBytesTestBase : GridFSTestBase
     {
         // fields
         protected string _filename;
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         protected byte[] _source;
 
         // constructors
-        public GridFSPutAsyncTestBase(BsonDocument data, BsonDocument testDefinition)
+        public GridFSUploadFromBytesTestBase(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
             var operationName = testDefinition["act"]["operation"].AsString;
@@ -42,6 +42,11 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
 
         // protected methods
+        protected ObjectId InvokeMethod(GridFSBucket bucket)
+        {
+            return bucket.UploadFromBytes(_filename, _source, _options);
+        }
+
         protected Task<ObjectId> InvokeMethodAsync(GridFSBucket bucket)
         {
             return bucket.UploadFromBytesAsync(_filename, _source, _options);
@@ -106,7 +111,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
     }
 
-    public class GridFSUploadFromBytesAsyncTest : GridFSPutAsyncTestBase
+    public class GridFSUploadFromBytesTest : GridFSUploadFromBytesTestBase
     {
         // fields
         private ObjectId _referenceObjectId;
@@ -114,17 +119,24 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         private DateTime _startTime;
 
         // constructors
-        public GridFSUploadFromBytesAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSUploadFromBytesTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
 
         // protected methods
-        protected override async Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
             _referenceObjectId = ObjectId.GenerateNewId();
             _startTime = DateTime.UtcNow;
-            _result = await InvokeMethodAsync(bucket);
+            if (async)
+            {
+                _result = InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _result = InvokeMethod(bucket);
+            }
         }
 
         protected override void Assert(List<BsonDocument> filesCollectionDocuments, List<BsonDocument> chunks, List<BsonDocument> expectedFilesCollectionDocuments, List<BsonDocument> expectedChunks)
@@ -136,13 +148,13 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             base.Assert(filesCollectionDocuments, chunks, expectedFilesCollectionDocuments, expectedChunks);
         }
 
-        protected override Task AssertAsync(GridFSBucket bucket)
+        protected override void Assert(GridFSBucket bucket)
         {
             _result.Timestamp.Should().BeInRange(_referenceObjectId.Timestamp, _referenceObjectId.Timestamp + 1);
             _result.Machine.Should().Be(_referenceObjectId.Machine);
             _result.Pid.Should().Be(_referenceObjectId.Pid);
 
-            return base.AssertAsync(bucket);
+            base.Assert(bucket);
         }
 
         protected override void PreprocessAssertCommands(List<BsonDocument> commands, List<BsonDocument> actualFilesCollectionDocuments, List<BsonDocument> actualChunks)
@@ -151,28 +163,34 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
     }
 
-    public class GridFSPutAsyncTest<TException> : GridFSPutAsyncTestBase where TException : Exception
+    public class GridFSUploadFromBytesTest<TException> : GridFSUploadFromBytesTestBase where TException : Exception
     {
         // fields
-        private Func<Task> _action;
+        private Action _action;
 
         // constructors
-        public GridFSPutAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSUploadFromBytesTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
 
         // protected methods
-        protected override Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
-            _action = () => InvokeMethodAsync(bucket);
-            return Task.FromResult(true);
+            if (async)
+            {
+                _action = () => InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _action = () => InvokeMethod(bucket);
+            }
         }
 
-        protected override Task AssertAsync(GridFSBucket bucket)
+        protected override void Assert(GridFSBucket bucket)
         {
             _action.ShouldThrow<TException>();
-            return base.AssertAsync(bucket);
+            base.Assert(bucket);
         }
     }
 }
