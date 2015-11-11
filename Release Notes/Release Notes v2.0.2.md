@@ -9,20 +9,12 @@ https://github.com/mongodb/mongo-csharp-driver/blob/v2.0.x/Release%20Notes/Relea
 
 The full list of JIRA issues resolved in this release is available at:
 
-{{TODO}}
+https://jira.mongodb.org/browse/CSHARP-1462?filter=18755
 
 Documentation on the .NET driver can be found at:
 
 http://mongodb.github.io/mongo-csharp-driver/
 
-## General Changes
-
-The key issues fixed in 2.0.2 are:
-
-{{TODO}}
-
 ## Compatibility Changes
 
-There were no intentional backwards breaking changes.  If you come across any,
-please inform us as soon as possible by email dotnetdriver@mongodb.com or by reporting 
-an issue at jira.mongodb.com.
+There were no intentional backwards breaking changes.
