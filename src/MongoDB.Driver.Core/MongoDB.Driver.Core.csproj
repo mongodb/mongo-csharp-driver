@@ -147,8 +147,8 @@
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />
     <Compile Include="DocumentValidationAction.cs" />
     <Compile Include="DocumentValidationLevel.cs" />
-    <Compile Include="Core\Operations\EnumerableOneTimeAsyncCursor.cs" />
-    <Compile Include="Core\Operations\EnumerableAsyncCursorSource.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapter.cs" />
+    <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapter.cs" />
     <Compile Include="Core\Operations\GeoSearchOperation.cs" />
     <Compile Include="Core\Operations\GeoNearOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsUsingCommandOperation.cs" />

@@ -145,43 +145,43 @@ namespace MongoDB.Driver
 
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken)
         {
-            var requestsList = Ensure.IsNotNull(requests, nameof(requests)).ToList();
-            if (requestsList.Count == 0)
+            Ensure.IsNotNull(requests, nameof(requests));
+            if (!requests.Any())
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requestsList, options);
+            var operation = CreateBulkWriteOperation(requests, options);
             try
             {
                 var result = ExecuteWriteOperation(operation, cancellationToken);
-                return BulkWriteResult<TDocument>.FromCore(result, requestsList);
+                return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestsList);
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
             }
         }
 
         public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken)
         {
-            var requestsList = Ensure.IsNotNull(requests, nameof(requests)).ToList();
-            if (requestsList.Count == 0)
+            Ensure.IsNotNull(requests, nameof(requests));
+            if (!requests.Any())
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requestsList, options);
+            var operation = CreateBulkWriteOperation(requests, options);
             try
             {
                 var result = await ExecuteWriteOperationAsync(operation, cancellationToken).ConfigureAwait(false);
-                return BulkWriteResult<TDocument>.FromCore(result, requestsList);
+                return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestsList);
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
             }
         }
 
@@ -520,7 +520,7 @@ namespace MongoDB.Driver
             };
         }
 
-        private BulkMixedWriteOperation CreateBulkWriteOperation(List<WriteModel<TDocument>> requests, BulkWriteOptions options)
+        private BulkMixedWriteOperation CreateBulkWriteOperation(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options)
         {
             return new BulkMixedWriteOperation(
                 _collectionNamespace,

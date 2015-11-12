@@ -23,12 +23,12 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class EnumerableAsyncCursorSourceTests
+    public class AsyncCursorSourceEnumerableAdapterTests
     {
         [Test]
         public void constructor_should_throw_when_source_is_null()
         {
-            Action action = () => new EnumerableAsyncCursorSource<BsonDocument>(null, CancellationToken.None);
+            Action action = () => new AsyncCursorSourceEnumerableAdapter<BsonDocument>(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             var source = Substitute.For<IAsyncCursorSource<BsonDocument>>();
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             source.ToCursor().Returns(cursor);
-            var subject = new EnumerableAsyncCursorSource<BsonDocument>(source, CancellationToken.None);
+            var subject = new AsyncCursorSourceEnumerableAdapter<BsonDocument>(source, CancellationToken.None);
 
             for (var i = 0; i < times; i++)
             {

@@ -23,12 +23,12 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class EnumerableOneTimeAsyncCursorTests
+    public class AsyncCursorEnumerableOneTimeAdapterTests
     {
         [Test]
         public void constructor_should_throw_when_cursor_is_null()
         {
-            Action action = () => new EnumerableOneTimeAsyncCursor<BsonDocument>(null, CancellationToken.None);
+            Action action = () => new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("cursor");
         }
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             cursor.MoveNext().Returns(true, false);
             cursor.Current.Returns(new[] { new BsonDocument("_id", 0) });
-            var subject = new EnumerableOneTimeAsyncCursor<BsonDocument>(cursor, CancellationToken.None);
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(cursor, CancellationToken.None);
 
             var result = subject.GetEnumerator();
 
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         public void GetEnumerator_should_throw_when_called_more_than_once()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            var subject = new EnumerableOneTimeAsyncCursor<BsonDocument>(cursor, CancellationToken.None);
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(cursor, CancellationToken.None);
             subject.GetEnumerator();
 
             Action action = () => subject.GetEnumerator();

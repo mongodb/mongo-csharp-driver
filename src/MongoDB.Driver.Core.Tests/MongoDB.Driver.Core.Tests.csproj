@@ -70,8 +70,8 @@
     <Compile Include="Core\Operations\AsyncCursorTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
-    <Compile Include="Core\Operations\EnumerableAsyncCursorSourceTests.cs" />
-    <Compile Include="Core\Operations\EnumerableOneTimeAsyncCursorTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />

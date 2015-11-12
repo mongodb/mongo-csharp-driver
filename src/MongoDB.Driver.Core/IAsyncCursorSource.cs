@@ -282,7 +282,7 @@ namespace MongoDB.Driver
         /// <returns>An IEnumerable.</returns>
         public static IEnumerable<TDocument> ToEnumerable<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return new EnumerableAsyncCursorSource<TDocument>(source, cancellationToken);
+            return new AsyncCursorSourceEnumerableAdapter<TDocument>(source, cancellationToken);
         }
 
         /// <summary>
