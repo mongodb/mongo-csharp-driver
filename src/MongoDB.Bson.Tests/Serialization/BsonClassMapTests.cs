@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
@@ -428,16 +427,20 @@ namespace MongoDB.Bson.Tests.Serialization
 
             classMap.Freeze();
 
+            var defaultClassMap = new BsonClassMap<TestClass>();
+
+            defaultClassMap.Freeze();
+
             Assert.DoesNotThrow(() => classMap.CreateInstance());
-            Assert.AreEqual(0, classMap.DeclaredMemberMaps.Count());
-            Assert.AreEqual("TestClass", classMap.Discriminator);
-            Assert.IsFalse(classMap.DiscriminatorIsRequired);
-            Assert.IsNull(classMap.ExtraElementsMemberMap);
-            Assert.IsNull(classMap.IdMemberMap);
-            Assert.IsTrue(classMap.IgnoreExtraElements);
-            Assert.IsFalse(classMap.IgnoreExtraElementsIsInherited);
-            Assert.IsFalse(classMap.IsRootClass);
-            Assert.AreEqual(0, classMap.KnownTypes.Count());
+            Assert.AreEqual(defaultClassMap.DeclaredMemberMaps.Count(), classMap.DeclaredMemberMaps.Count());
+            Assert.AreEqual(defaultClassMap.Discriminator, classMap.Discriminator);
+            Assert.AreEqual(defaultClassMap.DiscriminatorIsRequired, classMap.DiscriminatorIsRequired);
+            Assert.AreEqual(defaultClassMap.ExtraElementsMemberMap, classMap.ExtraElementsMemberMap);
+            Assert.AreEqual(defaultClassMap.IdMemberMap, classMap.IdMemberMap);
+            Assert.AreEqual(defaultClassMap.IgnoreExtraElements, classMap.IgnoreExtraElements);
+            Assert.AreEqual(defaultClassMap.IgnoreExtraElementsIsInherited, classMap.IgnoreExtraElementsIsInherited);
+            Assert.AreEqual(defaultClassMap.IsRootClass, classMap.IsRootClass);
+            Assert.AreEqual(defaultClassMap.KnownTypes.Count(), classMap.KnownTypes.Count());
         }
 
         private class TestClass

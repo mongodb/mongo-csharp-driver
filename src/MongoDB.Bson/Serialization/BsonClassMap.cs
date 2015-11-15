@@ -915,7 +915,7 @@ namespace MongoDB.Bson.Serialization
             _discriminatorIsRequired = false;
             _extraElementsMemberMap = null;
             _idMemberMap = null;
-            _ignoreExtraElements = true; // TODO: should this really be false?
+            _ignoreExtraElements = false; // TODO: should this really be false?
             _ignoreExtraElementsIsInherited = false;
             _isRootClass = false;
             _knownTypes.Clear();
