@@ -1,13 +1,13 @@
-C#/.NET Driver Version 1.10.2 Release Notes (PRE_RELEASE)
+C#/.NET Driver Version 1.11.0-rc0 Release Notes (PRE_RELEASE)
 =================================================================
 
-This is a minor release...
+This is a major release support mongodb 3.2.
 
 It also fixes some issues reported since 1.10.1 was released.
 
 An online version of these release notes is available at:
 
-https://github.com/mongodb/mongo-csharp-driver/blob/v1.x/Release%20Notes/Release%20Notes%20v1.10.1.md
+https://github.com/mongodb/mongo-csharp-driver/blob/v1.x/Release%20Notes/Release%20Notes%20v1.11.md
 
 Documentation on the C# driver can be found at:
 
@@ -18,8 +18,6 @@ General Changes
 ===============
 
 The 1.x releases will be the last non-bug fix release supporting .NET 3.5.
-
-The issues fixed in 1.10.1 are:
 
 
 Compatibility Changes
