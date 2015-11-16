@@ -143,19 +143,20 @@ namespace MongoDB.Driver
 
         public static ICluster CreateCluster()
         {
-            var hasWritableServer = false;
+            var hasWritableServer = 0;
             var builder = ConfigureCluster();
             var cluster = builder.BuildCluster();
             cluster.DescriptionChanged += (o, e) =>
             {
-                hasWritableServer = e.NewClusterDescription.Servers.Any(
+                var anyWritableServer = e.NewClusterDescription.Servers.Any(
                     description => description.Type.IsWritable());
+                Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
             };
             cluster.Initialize();
 
             // wait until the cluster has connected to a writable server
-            SpinWait.SpinUntil(() => hasWritableServer, TimeSpan.FromSeconds(30));
-            if (!hasWritableServer)
+            SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasWritableServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
+            if (Interlocked.CompareExchange(ref hasWritableServer, 0, 0) == 0)
             {
                 var message = string.Format(
                     "Test cluster has no writable server. Client view of the cluster is {0}.",
