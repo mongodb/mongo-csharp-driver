@@ -234,6 +234,27 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Enumerable_foreach()
+        {
+            var query = from x in CreateQuery()
+                        select x.M;
+
+            int sum = 0;
+
+            foreach (var item in query)
+            {
+                sum += item.Sum();
+            }
+
+            foreach (var item in query)
+            {
+                sum += item.Sum();
+            }
+
+            sum.Should().Be(50);
+        }
+
+        [Test]
         public void GroupBy_method()
         {
             var query = CreateQuery()
