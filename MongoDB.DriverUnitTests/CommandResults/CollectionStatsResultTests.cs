@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ServerTypes = ServerTypes.StandaloneOrReplicaSetMember)]
         public void Test()
         {
             // make sure collection exists and has exactly one document
