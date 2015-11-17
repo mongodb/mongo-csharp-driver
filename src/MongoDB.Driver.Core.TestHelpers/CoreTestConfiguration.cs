@@ -44,6 +44,7 @@ namespace MongoDB.Driver
         private static ConnectionString __connectionString = GetConnectionString();
         private static DatabaseNamespace __databaseNamespace = GetDatabaseNamespace();
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
+        private static TraceSource __traceSource;
 
         // static properties
         public static ICluster Cluster
@@ -73,6 +74,11 @@ namespace MongoDB.Driver
                 var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
                 return server.Description.Version;
             }
+        }
+
+        public static TraceSource TraceSource
+        {
+            get { return __traceSource; }
         }
 
         // static methods
@@ -133,12 +139,12 @@ namespace MongoDB.Driver
                 return builder;
             }
 
-            var traceSource = new TraceSource("mongodb-tests", defaultLevel);
-            traceSource.Listeners.Clear(); // remove the default listener
+            __traceSource = new TraceSource("mongodb-tests", defaultLevel);
+            __traceSource.Listeners.Clear(); // remove the default listener
             var listener = new ConsoleTraceListener();
             listener.TraceOutputOptions = TraceOptions.DateTime;
-            traceSource.Listeners.Add(listener);
-            return builder.TraceWith(traceSource);
+            __traceSource.Listeners.Add(listener);
+            return builder.TraceWith(__traceSource);
         }
 
         public static ICluster CreateCluster()
@@ -150,8 +156,18 @@ namespace MongoDB.Driver
             {
                 var anyWritableServer = e.NewClusterDescription.Servers.Any(
                     description => description.Type.IsWritable());
+                if (__traceSource != null)
+                {
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: anyWritableServer = {anyWritableServer}.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
+                }
                 Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
             };
+            if (__traceSource != null)
+            {
+                __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: initializing cluster.");
+            }
             cluster.Initialize();
 
             // wait until the cluster has connected to a writable server
@@ -162,6 +178,11 @@ namespace MongoDB.Driver
                     "Test cluster has no writable server. Client view of the cluster is {0}.",
                     cluster.Description.ToString());
                 throw new Exception(message);
+            }
+
+            if (__traceSource != null)
+            {
+                __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: writable server found.");
             }
 
             return cluster;
