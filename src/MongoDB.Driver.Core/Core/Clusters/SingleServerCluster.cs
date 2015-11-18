@@ -118,19 +118,21 @@ namespace MongoDB.Driver.Core.Clusters
                     _addingServerEventHandler(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
                 }
                 _server.DescriptionChanged += ServerDescriptionChanged;
-                _server.Initialize();
                 stopwatch.Stop();
 
                 if (_addedServerEventHandler != null)
                 {
                     _addedServerEventHandler(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
                 }
+
+                UpdateClusterDescription(newClusterDescription);
+
+                _server.Initialize();
+
                 if (_openedEventHandler != null)
                 {
                     _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
                 }
-
-                UpdateClusterDescription(newClusterDescription);
             }
         }
 
