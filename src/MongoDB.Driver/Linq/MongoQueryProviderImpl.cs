@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq
             return Translate(expression).Model;
         }
 
-        private object ExecuteModel(QueryableExecutionModel model)
+        internal object ExecuteModel(QueryableExecutionModel model)
         {
             return model.Execute(_collection, _options);
         }

@@ -73,7 +73,9 @@ namespace MongoDB.Driver.Linq
 
         public IAsyncCursor<TOutput> ToCursor(CancellationToken cancellationToken)
         {
-            return _queryProvider.ExecuteAsync<IAsyncCursor<TOutput>>(_expression, cancellationToken).GetAwaiter().GetResult();
+            var model = _queryProvider.GetExecutionModel(_expression);
+            var mongoQueryProvider = (MongoQueryProviderImpl<TInput>)_queryProvider;
+            return (IAsyncCursor<TOutput>)mongoQueryProvider.ExecuteModel(model);
         }
 
         public Task<IAsyncCursor<TOutput>> ToCursorAsync(CancellationToken cancellationToken)
