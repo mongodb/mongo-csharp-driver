@@ -30,14 +30,14 @@ namespace MongoDB.Driver.Tests
         private IMongoCollection<C> _collection;
 
         [Test]
-        public void As_should_add_the_expected_stage()
+        public void As_should_add_the_expected_stage(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
             var result = subject
                 .Match("{ X : 1 }")
                 .As<BsonDocument>();
-            result.ToCursorAsync().GetAwaiter().GetResult();
 
             Predicate<PipelineDefinition<C, BsonDocument>> isExpectedPipeline = pipeline =>
             {
@@ -48,14 +48,29 @@ namespace MongoDB.Driver.Tests
                     renderedPipeline.OutputSerializer is BsonDocumentSerializer;
             };
 
-            _collection.Received().AggregateAsync<BsonDocument>(
-                Arg.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
-                Arg.Any<AggregateOptions>(),
-                CancellationToken.None);
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _collection.Received().AggregateAsync<BsonDocument>(
+                    Arg.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _collection.Received().Aggregate<BsonDocument>(
+                    Arg.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void OfType_should_add_the_expected_stage()
+        public void OfType_should_add_the_expected_stage(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
@@ -63,7 +78,6 @@ namespace MongoDB.Driver.Tests
                 .SortBy(c => c.X)
                 .OfType<D>()
                 .Match(d => d.Y == 2);
-            result.ToCursorAsync().GetAwaiter().GetResult();
 
             Predicate<PipelineDefinition<C, D>> isExpectedPipeline = pipeline =>
             {
@@ -76,10 +90,24 @@ namespace MongoDB.Driver.Tests
                     renderedPipeline.OutputSerializer.ValueType == typeof(D);
             };
 
-            _collection.Received().AggregateAsync<D>(
-                Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
-                Arg.Any<AggregateOptions>(),
-                CancellationToken.None);
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _collection.Received().AggregateAsync<D>(
+                    Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _collection.Received().Aggregate<D>(
+                    Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
+                    Arg.Any<AggregateOptions>(),
+                    CancellationToken.None);
+            }
         }
 
         [Test]
@@ -105,6 +133,7 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
                 cursor = subject.OutAsync(collectionName, CancellationToken.None).GetAwaiter().GetResult();
+
                 _collection.Received().AggregateAsync<C>(
                     Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
                     Arg.Any<AggregateOptions>(),
@@ -113,6 +142,7 @@ namespace MongoDB.Driver.Tests
             else
             {
                 cursor = subject.Out(collectionName, CancellationToken.None);
+
                 _collection.Received().Aggregate<C>(
                     Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
                     Arg.Any<AggregateOptions>(),
@@ -141,6 +171,7 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
                 cursor = subject.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+
                 _collection.Received().AggregateAsync<C>(
                     Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
                     Arg.Any<AggregateOptions>(),
@@ -149,6 +180,7 @@ namespace MongoDB.Driver.Tests
             else
             {
                 cursor = subject.ToCursor(CancellationToken.None);
+
                 _collection.Received().Aggregate<C>(
                     Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
                     Arg.Any<AggregateOptions>(),

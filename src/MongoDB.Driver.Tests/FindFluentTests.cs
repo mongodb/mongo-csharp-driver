@@ -30,12 +30,12 @@ namespace MongoDB.Driver.Tests
         private IMongoCollection<Person> _collection;
 
         [Test]
-        public void As_should_change_the_result_type()
+        public void As_should_change_the_result_type(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
             var result = subject.As<BsonDocument>();
-            result.ToCursorAsync().GetAwaiter().GetResult();
 
             Predicate<FindOptions<Person, BsonDocument>> hasExpectedProjection = options =>
             {
@@ -45,10 +45,24 @@ namespace MongoDB.Driver.Tests
                 return renderedProjection.Document == null && renderedProjection.ProjectionSerializer is BsonDocumentSerializer;
             };
 
-            _collection.Received().FindAsync<BsonDocument>(
-                subject.Filter,
-                Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
-                CancellationToken.None);
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _collection.Received().FindAsync<BsonDocument>(
+                    subject.Filter,
+                    Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
+                    CancellationToken.None);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _collection.Received().FindSync<BsonDocument>(
+                    subject.Filter,
+                    Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
+                    CancellationToken.None);
+            }
         }
 
         [Test]

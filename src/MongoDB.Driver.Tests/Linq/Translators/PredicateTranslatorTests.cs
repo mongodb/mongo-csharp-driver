@@ -678,31 +678,31 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public async Task Binding_through_an_unnecessary_conversion()
+        public void Binding_through_an_unnecessary_conversion()
         {
-            var root = await Find(_collection, 10);
+            var root = FindFirstOrDefault(_collection, 10);
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
         [Test]
-        public async Task Binding_through_an_unnecessary_conversion_with_a_builder()
+        public void Binding_through_an_unnecessary_conversion_with_a_builder()
         {
-            var root = await FindWithBuilder(_collection, 10);
+            var root = FindFirstOrDefaultWithBuilder(_collection, 10);
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
-        private Task<T> Find<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        private T FindFirstOrDefault<T>(IMongoCollection<T> collection, int id) where T : IRoot
         {
-            return collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return collection.FindSync(x => x.Id == id).FirstOrDefault();
         }
 
-        private Task<T> FindWithBuilder<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        private T FindFirstOrDefaultWithBuilder<T>(IMongoCollection<T> collection, int id) where T : IRoot
         {
-            return collection.Find(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();
+            return collection.FindSync(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefault();
         }
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
@@ -715,12 +715,10 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
             var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);
 
-            using (var cursor = _collection.FindAsync(filterDocument).GetAwaiter().GetResult())
-            {
-                var list = cursor.ToListAsync().GetAwaiter().GetResult();
-                filterDocument.Should().Be(expectedFilter);
-                list.Count.Should().Be(expectedCount);
-            }
+            var list = _collection.FindSync(filterDocument).ToList();
+
+            filterDocument.Should().Be(expectedFilter);
+            list.Count.Should().Be(expectedCount);
         }
     }
 }

@@ -25,9 +25,17 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private BsonDocument _filter;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.WithWriteConcern(_writeConcern).DeleteOneAsync(_filter);
+            var collectionWithWriteConcern = collection.WithWriteConcern(_writeConcern);
+            if (async)
+            {
+                collectionWithWriteConcern.DeleteOneAsync(_filter).GetAwaiter().GetResult();
+            }
+            else
+            {
+                collectionWithWriteConcern.DeleteOne(_filter);
+            }
         }
 
         protected override bool TrySetArgument(string name, BsonValue value)

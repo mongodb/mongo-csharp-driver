@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             return true;
         }
 
-        public async Task ExecuteAsync(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments)
+        public void Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, bool async)
         {
             ClusterDescription = clusterDescription;
 
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
             }
 
-            await ExecuteAsync(collection);
+            Execute(collection, async);
         }
 
         public virtual BsonDocument MassageReply(BsonDocument reply)
@@ -63,6 +63,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         protected abstract bool TrySetArgument(string name, BsonValue value);
 
-        protected abstract Task ExecuteAsync(IMongoCollection<BsonDocument> collection);
+        protected abstract void Execute(IMongoCollection<BsonDocument> collection, bool async);
     }
 }

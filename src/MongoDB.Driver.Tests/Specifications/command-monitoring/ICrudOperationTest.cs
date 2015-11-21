@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
     {
         bool CanExecute(ClusterDescription clusterDescription, BsonDocument arguments, out string reason);
 
-        Task ExecuteAsync(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments);
+        void Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, bool async);
 
         BsonDocument MassageReply(BsonDocument reply);
     }

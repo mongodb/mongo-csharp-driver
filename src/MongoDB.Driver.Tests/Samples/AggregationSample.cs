@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Tests.Samples
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            db.DropCollectionAsync(DriverTestConfiguration.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             _collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             // This is a subset of the data from the mongodb docs zip code aggregation examples
-            _collection.InsertManyAsync(new[]
+            _collection.InsertMany(new[]
             {
                 new ZipEntry { Zip = "01053", City = "LEEDS", State = "MA", Population = 1350 },
                 new ZipEntry { Zip = "01054", City = "LEVERETT", State = "MA", Population = 1748 },
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Samples
                 new ZipEntry { Zip = "36782", City = "SWEET WATER", State = "AL", Population = 2444 },
                 new ZipEntry { Zip = "36783", City = "THOMASTON", State = "AL", Population = 1527 },
                 new ZipEntry { Zip = "36784", City = "THOMASVILLE", State = "AL", Population = 6229 },
-            }).GetAwaiter().GetResult();
+            });
         }
 
         [Test]

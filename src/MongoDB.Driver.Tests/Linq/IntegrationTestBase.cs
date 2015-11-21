@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Tests.Linq
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             _otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
-            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
-            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName + "_other");
+            db.DropCollection(_collection.CollectionNamespace.CollectionName);
+            db.DropCollection(_collection.CollectionNamespace.CollectionName + "_other");
 
             InsertFirst();
             InsertSecond();
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
                 U = 1.23456571661743267789m
             };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
+            _collection.InsertOne(root);
         }
 
         private void InsertSecond()
@@ -146,17 +146,17 @@ namespace MongoDB.Driver.Tests.Linq
                 P = 1.1,
                 U = -1.234565723762724332233489m
             };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
+            _collection.InsertOne(root);
         }
 
 
         private void InsertJoin()
         {
-            _otherCollection.InsertOneAsync(new Other
+            _otherCollection.InsertOne(new Other
             {
                 Id = 10, // will join with first
                 CEF = 111 // will join with second
-            }).GetAwaiter().GetResult();
+            });
         }
 
         public class RootView

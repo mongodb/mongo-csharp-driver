@@ -27,7 +27,8 @@ namespace MongoDB.Driver.Tests
     public class IMongoCollectionExtensionsTests
     {
         [Test]
-        public void Aggregate_should_call_collection_AggregateAsync_with_correct_options()
+        public void Aggregate_should_call_collection_AggregateAsync_with_correct_options(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
@@ -53,12 +54,25 @@ namespace MongoDB.Driver.Tests
 
             PipelineDefinition<Person, BsonDocument> actualPipeline = null;
             AggregateOptions actualOptions = null;
-            subject.AggregateAsync(
-                Arg.Do<PipelineStagePipelineDefinition<Person, BsonDocument>>(x => actualPipeline = x),
-                Arg.Do<AggregateOptions>(x => actualOptions = x),
-                Arg.Any<CancellationToken>());
 
-            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (async)
+            {
+                subject.AggregateAsync(
+                    Arg.Do<PipelineStagePipelineDefinition<Person, BsonDocument>>(x => actualPipeline = x),
+                    Arg.Do<AggregateOptions>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Aggregate(
+                    Arg.Do<PipelineStagePipelineDefinition<Person, BsonDocument>>(x => actualPipeline = x),
+                    Arg.Do<AggregateOptions>(x => actualOptions = x),
+                    Arg.Any<CancellationToken>());
+
+                fluent.ToCursor(CancellationToken.None);
+            }
 
             var inputSerializer = subject.DocumentSerializer;
             var serializerRegistry = subject.Settings.SerializerRegistry;

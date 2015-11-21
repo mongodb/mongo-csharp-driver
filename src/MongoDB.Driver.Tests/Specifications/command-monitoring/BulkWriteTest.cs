@@ -28,9 +28,17 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private BulkWriteOptions _options = new BulkWriteOptions();
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.WithWriteConcern(_writeConcern).BulkWriteAsync(_requests, _options);
+            var collectionWithWriteConcern = collection.WithWriteConcern(_writeConcern);
+            if (async)
+            {
+                collectionWithWriteConcern.BulkWriteAsync(_requests, _options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                collectionWithWriteConcern.BulkWrite(_requests, _options);
+            }
         }
 
         protected override bool TrySetArgument(string name, BsonValue value)

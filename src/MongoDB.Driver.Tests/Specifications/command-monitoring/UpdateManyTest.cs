@@ -48,9 +48,17 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             return false;
         }
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.WithWriteConcern(_writeConcern).UpdateManyAsync(_filter, _update, _options);
+            var collectionWithWriteConcern = collection.WithWriteConcern(_writeConcern);
+            if (async)
+            {
+                collectionWithWriteConcern.UpdateManyAsync(_filter, _update, _options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                collectionWithWriteConcern.UpdateMany(_filter, _update, _options);
+            }
         }
     }
 }

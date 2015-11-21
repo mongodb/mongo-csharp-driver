@@ -34,9 +34,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return false;
         }
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection, BsonDocument outcome)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
         {
-            return collection.InsertOneAsync(_document);
+            if (async)
+            {
+                collection.InsertOneAsync(_document).GetAwaiter().GetResult();
+            }
+            else
+            {
+                collection.InsertOne(_document);
+            }
         }
     }
 }

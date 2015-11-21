@@ -49,10 +49,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
 
@@ -65,10 +63,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var result = client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(__collectionName)
-                .Find(new BsonDocument())
-                .ToListAsync()
-                .GetAwaiter()
-                .GetResult();
+                .FindSync(new BsonDocument())
+                .ToList();
 
             Assert.IsNotNull(result);
         }
@@ -89,10 +85,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
     }

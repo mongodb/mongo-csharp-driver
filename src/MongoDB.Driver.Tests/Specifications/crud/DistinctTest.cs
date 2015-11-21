@@ -47,11 +47,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return ((BsonArray)expectedResult).Select(x => x.ToInt32()).ToList();
         }
 
-        protected override async Task<List<int>> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
+        protected override List<int> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
-            using (var cursor = await collection.DistinctAsync<int>(_fieldName, _filter, _options))
+            if (async)
             {
-                return await cursor.ToListAsync();
+                var cursor = collection.DistinctAsync<int>(_fieldName, _filter, _options).GetAwaiter().GetResult();
+                return cursor.ToListAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                return collection.Distinct<int>(_fieldName, _filter, _options).ToList();
             }
         }
 
