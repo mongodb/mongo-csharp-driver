@@ -92,11 +92,6 @@ namespace MongoDB.Driver.GridFS
             return Task.FromResult(true);
         }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Flush()
         {
             throw new NotSupportedException();

@@ -60,12 +60,14 @@
     <Compile Include="GridFSChunkExceptionTests.cs" />
     <Compile Include="GridFSDownloadByNameOptionsTests.cs" />
     <Compile Include="GridFSDownloadOptionsTests.cs" />
+    <Compile Include="GridFSDownloadStreamBaseTests.cs" />
     <Compile Include="GridFSExceptionTests.cs" />
     <Compile Include="GridFSFileNotFoundExceptionTests.cs" />
     <Compile Include="GridFSFileInfoTests.cs" />
     <Compile Include="GridFSFindOptionsTests.cs" />
     <Compile Include="GridFSMD5ExceptionTests.cs" />
     <Compile Include="GridFSUploadOptionsTests.cs" />
+    <Compile Include="GridFSUploadStreamTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="Specifications\gridfs\GridFSDeleteTest.cs" />

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -176,11 +175,6 @@ namespace MongoDB.Driver.GridFS
             }
 
             base.Close();
-        }
-
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
         }
 
         public override void Flush()
