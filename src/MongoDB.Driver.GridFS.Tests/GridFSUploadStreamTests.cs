@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Tests;
 using NUnit.Framework;
@@ -46,6 +47,26 @@ namespace MongoDB.Driver.GridFS.Tests
 
                 action.ShouldThrow<NotSupportedException>();
             }
+        }
+
+        [Test]
+        public void Flush_should_not_throw(
+            [Values(false, true)] bool async)
+        {
+            var bucket = CreateBucket();
+            var subject = bucket.OpenUploadStream("Filename");
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FlushAsync(CancellationToken.None).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.Flush();
+            }
+
+            action.ShouldNotThrow();
         }
 
         // private methods
