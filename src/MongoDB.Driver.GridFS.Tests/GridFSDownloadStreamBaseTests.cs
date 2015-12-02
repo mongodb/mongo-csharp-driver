@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -74,6 +75,28 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
+        [Test]
+        public void Flush_should_throw(
+            [Values(false, true)] bool async)
+        {
+            var bucket = CreateBucket(128);
+            var content = CreateContent();
+            var id = CreateGridFSFile(bucket, content);
+            var subject = bucket.OpenDownloadStreamAsync(id).GetAwaiter().GetResult();
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FlushAsync(CancellationToken.None).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.Flush();
+            }
+
+            action.ShouldThrow<NotSupportedException>();
+        }
+
         // private methods
         private IGridFSBucket CreateBucket(int chunkSize)
         {
@@ -84,7 +107,7 @@ namespace MongoDB.Driver.GridFS.Tests
             return new GridFSBucket(database, bucketOptions);
         }
 
-        private byte[] CreateContent(int contentSize)
+        private byte[] CreateContent(int contentSize = 0)
         {
             return Enumerable.Range(0, contentSize).Select(i => (byte)i).ToArray();
         }

@@ -27,6 +27,11 @@ namespace MongoDB.Driver.GridFS
 {
     internal class GridFSForwardOnlyUploadStream : GridFSUploadStream
     {
+        #region static
+        // private static fields
+        private static readonly Task __completedTask = Task.FromResult(true);
+        #endregion
+
         // fields
         private bool _aborted;
         private readonly List<string> _aliases;
@@ -155,7 +160,8 @@ namespace MongoDB.Driver.GridFS
 
         public override Task FlushAsync(CancellationToken cancellationToken)
         {
-            throw new NotSupportedException();
+            // do nothing
+            return __completedTask;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
