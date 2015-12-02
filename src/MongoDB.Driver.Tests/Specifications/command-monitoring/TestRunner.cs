@@ -92,6 +92,8 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
         public void RunTestDefinition(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition, bool async)
         {
+            definition = (BsonDocument)DeepCopy(definition); // protect against side effects when the same definition is run twice (async=false/true)
+
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
             {
