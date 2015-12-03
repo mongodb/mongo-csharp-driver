@@ -35,7 +35,6 @@ namespace MongoDB.DriverUnitTests
             _server = Configuration.TestServer;
             _primary = Configuration.TestServer.Primary;
             _database = Configuration.TestDatabase;
-            _database.Drop();
         }
 
         // TODO: more tests for MongoDatabase
@@ -256,11 +255,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetCollectionNames()
         {
-            _database.Drop();
-            _database.GetCollection("a").Insert(new BsonDocument("a", 1));
-            _database.GetCollection("b").Insert(new BsonDocument("b", 1));
-            _database.GetCollection("c").Insert(new BsonDocument("c", 1));
-            var collectionNames = _database.GetCollectionNames();
+            var databaseName = Configuration.TestDatabase.Name + "-TestGetCollectionNames";
+            var database = _server.GetDatabase(databaseName);
+            database.GetCollection("a").Insert(new BsonDocument("a", 1));
+            database.GetCollection("b").Insert(new BsonDocument("b", 1));
+            database.GetCollection("c").Insert(new BsonDocument("c", 1));
+            var collectionNames = database.GetCollectionNames();
             Assert.AreEqual(new[] { "a", "b", "c" }, collectionNames.Where(n => n != "system.indexes"));
         }
 

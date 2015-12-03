@@ -27,7 +27,6 @@ namespace MongoDB.DriverUnitTests
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
-        private bool _isMasterSlavePair;
         private bool _isReplicaSet;
 
         [TestFixtureSetUp]
@@ -37,11 +36,6 @@ namespace MongoDB.DriverUnitTests
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
             _isReplicaSet = Configuration.TestServerIsReplicaSet;
-
-            var adminDatabase = _server.GetDatabase("admin");
-            var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
-            var argv = commandResult.Response["argv"].AsBsonArray;
-            _isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
         }
 
         [Test]
@@ -100,28 +94,28 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDatabaseExists()
         {
-            if (!_isMasterSlavePair)
-            {
-                _database.Drop();
-                Assert.IsFalse(_server.DatabaseExists(_database.Name));
-                _collection.Insert(new BsonDocument("x", 1));
-                Assert.IsTrue(_server.DatabaseExists(_database.Name));
-            }
+            var databaseName = Configuration.TestDatabase.Name + "-TestDatabaseExists";
+            var database = _server.GetDatabase(databaseName);
+            var collection = database.GetCollection("TestDatabaseExists");
+            Assert.IsFalse(_server.DatabaseExists(databaseName));
+            collection.Insert(new BsonDocument("x", 1));
+            Assert.IsTrue(_server.DatabaseExists(databaseName));
         }
 
         [Test]
+        [RequiresServer(ServerTypes = ServerTypes.Standalone)]
         public void TestDropDatabase()
         {
-            if (!_isMasterSlavePair)
-            {
-                _collection.Insert(new BsonDocument());
-                var databaseNames = _server.GetDatabaseNames();
-                Assert.IsTrue(databaseNames.Contains(_database.Name));
+            var databaseName = Configuration.TestDatabase.Name + "-TestDropDatabase";
+            var database = _server.GetDatabase(databaseName);
+            var collection = database.GetCollection("TestDropDatabase");
+            collection.Insert(new BsonDocument());
+            var databaseNames = _server.GetDatabaseNames();
+            Assert.IsTrue(databaseNames.Contains(databaseName));
 
-                var result = _server.DropDatabase(_database.Name);
-                databaseNames = _server.GetDatabaseNames();
-                Assert.IsFalse(databaseNames.Contains(_database.Name));
-            }
+            var result = _server.DropDatabase(databaseName);
+            databaseNames = _server.GetDatabaseNames();
+            Assert.IsFalse(databaseNames.Contains(databaseName));
         }
 
         [Test]

@@ -46,7 +46,7 @@ namespace MongoDB.DriverUnitTests
 
             __testClient = new MongoClient(clientSettings);
             __testServer = __testClient.GetServer();
-            __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
+            __testDatabase = __testServer.GetDatabase(GetDatabaseName(mongoUrl));
             __testCollection = __testDatabase.GetCollection("testcollection");
 
             // connect early so BuildInfo will be populated
@@ -157,6 +157,18 @@ namespace MongoDB.DriverUnitTests
 
                 return new ReplicationRestarter(secondary);
             }
+        }
+
+        // private methods
+        private static string GetDatabaseName(MongoUrl mongoUrl)
+        {
+            if (mongoUrl.DatabaseName != null)
+            {
+                return mongoUrl.DatabaseName;
+            }
+
+            var timestamp = DateTime.Now.ToString("MMddHHmm");
+            return "Tests" + timestamp;
         }
 
         // nested types
