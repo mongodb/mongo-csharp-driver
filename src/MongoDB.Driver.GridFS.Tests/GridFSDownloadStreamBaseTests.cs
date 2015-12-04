@@ -32,6 +32,33 @@ namespace MongoDB.Driver.GridFS.Tests
     {
         // public methods
         [Test]
+        public void Read_should_read(
+           [Values(0.5, 1.0, 1.5, 2.0, 2.5)] double contentSizeMultiple,
+           [Values(false, true)] bool async,
+           [Values(false, true)] bool seekable)
+        {
+            var bucket = CreateBucket(128);
+            var contentSize = (int)(bucket.Options.ChunkSizeBytes * contentSizeMultiple);
+            var content = CreateContent(contentSize);
+            var id = CreateGridFSFile(bucket, content);
+            var options = new GridFSDownloadOptions() { Seekable = seekable };
+            var subject = bucket.OpenDownloadStream(id, options);
+
+            var destination = new byte[contentSize];
+
+            if (async)
+            {
+                subject.ReadAsync(destination, 0, contentSize).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Read(destination, 0, contentSize);
+            }
+
+            destination.Should().Equal(content);
+        }
+
+        [Test]
         public void CopyTo_should_copy_stream(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double contentSizeMultiple,
             [Values(null, 128)] int? bufferSize,

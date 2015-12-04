@@ -186,7 +186,7 @@ namespace MongoDB.Driver.GridFS
             var data = document["data"].AsBsonBinaryData.Bytes;
 
             var chunkSizeBytes = FileInfo.ChunkSizeBytes;
-            var lastChunk = 0;
+            var lastChunk = FileInfo.Length / FileInfo.ChunkSizeBytes;
             var expectedChunkSize = n == lastChunk ? FileInfo.Length % chunkSizeBytes : chunkSizeBytes;
             if (data.Length != expectedChunkSize)
             {
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.GridFS
         private ArraySegment<byte> GetSegment(CancellationToken cancellationToken)
         {
             var n = _position / FileInfo.ChunkSizeBytes;
-            if (_n != n)
+            if (_n != n || _chunk == null)
             {
                 GetChunk(n, cancellationToken);
             }
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.GridFS
         private async Task<ArraySegment<byte>> GetSegmentAsync(CancellationToken cancellationToken)
         {
             var n = _position / FileInfo.ChunkSizeBytes;
-            if (_n != n)
+            if (_n != n || _chunk == null)
             {
                 await GetChunkAsync(n, cancellationToken).ConfigureAwait(false);
             }
