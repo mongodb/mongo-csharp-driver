@@ -15,22 +15,30 @@ These methods allow you to delete or rename GridFS files.
 
 ### Deleting a single file
 
-The [`DeleteAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_DeleteAsync_1" >}}) method is used to delete a single file identified by its Id.
+Use the [`Delete`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Delete" >}}) or [`DeleteAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync" >}}) methods to delete a single file identified by its Id.
 
 ```csharp
 IGridFSBucket bucket;
 ObjectId id;
-
+```
+```csharp
+bucket.Delete(id);
+```
+```csharp
 await bucket.DeleteAsync(id);
 ```
 
 ### Dropping an entire GridFS bucket
 
-If you want to drop an entire GridFS bucket at once use the [`DropAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_DropAsync" >}}) method.
+Use the [`Drop`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Drop" >}}) or [`DropAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync" >}}) methods to drop an entire GridFS bucket at once.
 
 ```csharp
 IGridFSBucket bucket;
-
+```
+```csharp
+bucket.Drop();
+```
+```csharp
 await bucket.DropAsync();
 ```
 
@@ -38,27 +46,40 @@ await bucket.DropAsync();
 
 ### Renaming a single file
 
-The [`RenameAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1" >}}) method is used to rename a single file identified by its Id.
+Use the [`Rename`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Rename" >}}) or [`RenameAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync" >}}) methods to rename a single file identified by its Id.
 
 ```csharp
 IGridFSBucket bucket;
 ObjectId id;
 string newFilename;
-
+```
+```csharp
+bucket.Rename(id, newFilename);
+```
+```csharp
 await bucket.RenameAsync(id, newFilename);
 ```
 
 ### Renaming all revisions of a file
 
-If you want to rename all revisions of a file you first use [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) to find their ids and then call [`RenameAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1" >}}) in a loop to rename them one at a time.
+To rename all revisions of a file you first use the [`Find`]({{< apiref "_MongoDB_Driver_GridFS_IGridFSBucket_Find" >}}) or [`FindAsync`]({{< apiref "_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync" >}}) method to find all the revisions, and then loop over the revisions and use the [`Rename`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Rename" >}}) or [`RenameAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync" >}}) method to rename each revision one at a time.
 
 ```csharp
 IGridFSBucket bucket;
-ObjectId id;
 string oldFilename;
 string newFilename;
-
 var filter = Builders<GridFSFileInfo>.Filter.EQ(x => x.Filename, oldFilename);
+```
+```csharp
+var filesCursor = bucket.Find(filter);
+var files = filesCursor.ToList();
+
+foreach (var file in files)
+{
+    bucket.Rename(file.Id, newFilename);
+}
+```
+```csharp
 var filesCursor = await bucket.FindAsync(filter);
 var files = await filesCursor.ToListAsync();
 

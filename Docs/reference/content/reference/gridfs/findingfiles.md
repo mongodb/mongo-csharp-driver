@@ -13,11 +13,11 @@ title = "Finding Files"
 
 Each file stored in GridFS has a unique Id assigned to it, and that is the primary way of accessing the stored files.
 
-### FindAsync method
+### Find and FindAsync methods
 
-If you don't know the Id, you can use [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) to find matching files using a filter. The filter must be of type [`FilterDefinition<GridFSFileInfo>`]({{< apiref "T_MongoDB_Driver_FilterDefinition_1" >}}).
+If you don't know the Id, you can use the [`Find`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Find" >}}) or [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync" >}}) method to find matching files using a filter. The filter must be of type [`FilterDefinition<GridFSFileInfo>`]({{< apiref "T_MongoDB_Driver_FilterDefinition_1" >}}).
 
-For example, to find the newest revision of the file named "securityvideo" uploaded in January 2015 we could use [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) like this:
+For example, to find the newest revision of the file named "securityvideo" uploaded in January 2015:
 
 ```csharp
 IGridFSBucket bucket;
@@ -31,7 +31,15 @@ var options = new GridFSFindOptions
     Limit = 1,
     Sort = sort
 };
-
+```
+```csharp
+using (var cursor = bucket.Find(filter, options))
+{
+   var fileInfo = cursor.ToList().FirstOrDefault();
+   // fileInfo either has the matching file information or is null
+}
+```
+```csharp
 using (var cursor = await bucket.FindAsync(filter, options))
 {
    var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
