@@ -255,7 +255,7 @@ To update all documents matching the filter use the [`UpdateManyAsync`]({{< apir
 var filter = Builders<BsonDocument>.Filter.Lt("i", 100);
 var update = Builders<BsonDocument>.Update.Inc("i", 100);
 
-var result = await collection.UpdateOneAsync(filter, update);
+var result = await collection.UpdateManyAsync(filter, update);
 
 if (result.IsModifiedCountAvailable)
 {
