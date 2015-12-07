@@ -86,15 +86,15 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$limit", limit));
         }
 
-        public override IAggregateFluent<TNewResult> Lookup<TForeignCollection, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignCollection> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignCollection, TNewResult> options)
+        public override IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options)
         {
-            options = options ?? new AggregateLookupOptions<TForeignCollection, TNewResult>();
+            options = options ?? new AggregateLookupOptions<TForeignDocument, TNewResult>();
             const string operatorName = "$lookup";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
                 (localSerializer, sr) =>
                 {
-                    var foreignSerializer = options.ForeignSerializer ?? (localSerializer as IBsonSerializer<TForeignCollection>) ?? sr.GetSerializer<TForeignCollection>();
+                    var foreignSerializer = options.ForeignSerializer ?? (localSerializer as IBsonSerializer<TForeignDocument>) ?? sr.GetSerializer<TForeignDocument>();
                     var newResultSerializer = options.ResultSerializer ?? (localSerializer as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
                     return new RenderedPipelineStageDefinition<TNewResult>(
                         operatorName, new BsonDocument(operatorName, new BsonDocument

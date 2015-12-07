@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Sets the index options defaults.
         /// </summary>
+        /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        /// <returns></returns>
         public static CollectionOptionsBuilder SetIndexOptionDefaults(IndexOptionDefaults value)
         {
             return new CollectionOptionsBuilder().SetIndexOptionDefaults(value);

@@ -66,6 +66,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Determines whether the cursor returned by a cursor source contains any documents.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is true if the cursor contains any documents.</returns>

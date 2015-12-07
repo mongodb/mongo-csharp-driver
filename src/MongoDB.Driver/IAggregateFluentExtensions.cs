@@ -103,7 +103,7 @@ namespace MongoDB.Driver
         /// Appends a lookup stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <typeparam name="TForeignCollection">The type of the foreign collection.</typeparam>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="foreignCollection">The foreign collection.</param>
@@ -112,12 +112,12 @@ namespace MongoDB.Driver
         /// <param name="as">The field in the result to place the foreign matches.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignCollection, TNewResult>(this IAggregateFluent<TResult> aggregate,
-            IMongoCollection<TForeignCollection> foreignCollection,
+        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignDocument, TNewResult>(this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TForeignDocument> foreignCollection,
             Expression<Func<TResult, object>> localField,
-            Expression<Func<TForeignCollection, object>> foreignField,
+            Expression<Func<TForeignDocument, object>> foreignField,
             Expression<Func<TNewResult, object>> @as,
-            AggregateLookupOptions<TForeignCollection, TNewResult> options = null)
+            AggregateLookupOptions<TForeignDocument, TNewResult> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
@@ -125,7 +125,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(foreignField, nameof(foreignField));
             Ensure.IsNotNull(@as, nameof(@as));
 
-            options = options ?? new AggregateLookupOptions<TForeignCollection, TNewResult>();
+            options = options ?? new AggregateLookupOptions<TForeignDocument, TNewResult>();
             if (options.ForeignSerializer == null)
             {
                 options.ForeignSerializer = foreignCollection.DocumentSerializer;
@@ -134,7 +134,7 @@ namespace MongoDB.Driver
             return aggregate.Lookup(
                 foreignCollection.CollectionNamespace.CollectionName,
                 new ExpressionFieldDefinition<TResult>(localField),
-                new ExpressionFieldDefinition<TForeignCollection>(foreignField),
+                new ExpressionFieldDefinition<TForeignDocument>(foreignField),
                 new ExpressionFieldDefinition<TNewResult>(@as),
                 options);
         }

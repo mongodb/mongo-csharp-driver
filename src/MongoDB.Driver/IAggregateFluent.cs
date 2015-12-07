@@ -159,7 +159,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="options">The options.</param>
-        /// The fluent aggregate interface.
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
     }
 
