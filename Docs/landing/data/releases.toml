@@ -1,59 +1,59 @@
-current = "2.1.0"
+current = "2.2.0"
 [[versions]]
   version = "2.2.0"
-  status = "beta"
+  status = "current"
   docs = "http://mongodb.github.io/mongo-csharp-driver/2.2/"
   api = "http://api.mongodb.org/csharp/2.2"
 
 [[versions]]
-  version = "2.1.0"
-  status = "rc"
+  version = "2.1.1"
+  status = "current"
   docs = "http://mongodb.github.io/mongo-csharp-driver/2.1/"
   api = "http://api.mongodb.org/csharp/2.1"
 
 [[versions]]
-  version = "2.0.1"
+  version = "2.0.2"
   status = "current"
   docs = "http://mongodb.github.io/mongo-csharp-driver/2.0/"
   api = "http://api.mongodb.org/csharp/2.0"
 
 [[versions]]
-  version = "1.10.1"
+  version = "1.11"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/1.10"
-  api = "http://api.mongodb.org/csharp/1.10"
+  docs = "http://mongodb.github.io/mongo-csharp-driver/1.11"
+  api = "http://api.mongodb.org/csharp/1.11"
 
 [[drivers]]
   name = ".NET Driver"
   package = "MongoDB.Driver"
   description = "The driver."
   dependencies = ".NET Core Driver,.NET BSON Library"
-  versions = "2.2.0-beta,2.1.0,2.0.1"
+  versions = "2.2.0,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET GridFS"
   package = "MongoDB.Driver.GridFS"
   description = "The GridFS library."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.2.0-beta,2.1.0"
+  versions = "2.2.0,2.1.1"
 
 [[drivers]]
   name = ".NET Core Driver"
   package = "MongoDB.Driver.Core"
   description = "The core driver."
   dependencies = ".NET BSON Library"
-  versions = "2.2.0-beta,2.1.0,2.0.1"
+  versions = "2.2.0,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET BSON Library"
   package = "MongoDB.Bson"
   description = "The BSON library."
   dependencies = ""
-  versions = "2.2.0-beta,2.1.0,2.0.1"
+  versions = "2.2.0,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET Legacy Driver"
   package = "mongocsharpdriver"
   description = "The legacy driver."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.2.0-beta,2.1.0,2.0.1,1.10.1"
+  versions = "2.2.0,2.1.1,2.0.2,1.11"
