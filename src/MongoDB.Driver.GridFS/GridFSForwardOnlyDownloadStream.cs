@@ -102,7 +102,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-            ThrowIfClosedOrDisposed();
+            ThrowIfDisposed();
 
             var bytesRead = 0;
             while (count > 0 && _position < FileInfo.Length)
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-            ThrowIfClosedOrDisposed();
+            ThrowIfDisposed();
 
             var bytesRead = 0;
             while (count > 0 && _position < FileInfo.Length)

@@ -26,7 +26,6 @@ namespace MongoDB.Driver.GridFS
         // private fields
         private readonly IReadBinding _binding;
         private readonly GridFSBucket _bucket;
-        private bool _closed;
         private bool _disposed;
         private readonly GridFSFileInfo _fileInfo;
 
@@ -81,13 +80,11 @@ namespace MongoDB.Driver.GridFS
 
         public override void Close(CancellationToken cancellationToken)
         {
-            _closed = true;
             base.Close();
         }
 
         public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            _closed = true;
             base.Close();
             return Task.FromResult(true);
         }
@@ -131,15 +128,6 @@ namespace MongoDB.Driver.GridFS
             }
 
             base.Dispose(disposing);
-        }
-
-        protected void ThrowIfClosedOrDisposed()
-        {
-            if (_closed)
-            {
-                throw new InvalidOperationException("Stream is closed.");
-            }
-            ThrowIfDisposed();
         }
 
         protected virtual void ThrowIfDisposed()
