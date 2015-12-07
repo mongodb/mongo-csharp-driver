@@ -1,10 +1,6 @@
-# .NET Driver Version 2.2.0-rc0 Release Notes
+# .NET Driver Version 2.2.0 Release Notes
 
-(Preliminary)
-This is a release candidate. It is not recommended for production use.
-
-This is a minor release which supports all MongoDB server versions from 2.4 through the upcoming
-3.2 release.
+This is a minor release which supports all MongoDB server versions from 2.4 through 3.2.
 
 An online version of these release notes is available at:
 
