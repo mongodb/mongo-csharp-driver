@@ -11,4 +11,4 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-As 2.1 is a minor revision that comes with new features. There should not be any backwards breaking changes.
+2.2 is a minor revision that comes with new features. There should not be any backwards breaking changes.
