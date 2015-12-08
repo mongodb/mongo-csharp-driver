@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         public abstract long DeletedCount { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the result is acknowleded.
+        /// Gets a value indicating whether the result is acknowledged.
         /// </summary>
         public abstract bool IsAcknowledged { get; }
 
