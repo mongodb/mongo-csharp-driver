@@ -46,7 +46,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets a value indicating whether the result is acknowleded.
+        /// Gets a value indicating whether the result is acknowledged.
         /// </summary>
         public abstract bool IsAcknowledged { get; }
 

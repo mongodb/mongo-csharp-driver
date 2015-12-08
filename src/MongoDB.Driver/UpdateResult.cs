@@ -46,7 +46,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets a value indicating whether the result is acknowleded.
+        /// Gets a value indicating whether the result is acknowledged.
         /// </summary>
         public abstract bool IsAcknowledged { get; }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver
 
         // nested classes
         /// <summary>
-        /// The result of an acknowledgede update operation.
+        /// The result of an acknowledged update operation.
         /// </summary>
         public class Acknowledged : UpdateResult
         {
@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// The result of an acknowledgede update operation.
+        /// The result of an acknowledged update operation.
         /// </summary>
         public class Unacknowledged : UpdateResult
         {
