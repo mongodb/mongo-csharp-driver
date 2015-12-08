@@ -1,13 +1,19 @@
-C#/.NET Driver Version 1.11.0-rc0 Release Notes (PRE_RELEASE)
-=================================================================
+C#/.NET Driver Version 1.11.0 Release Notes
+===========================================
 
-This is a major release support mongodb 3.2.
+This is a minor release to support MongoDB server version 3.2.
 
 It also fixes some issues reported since 1.10.1 was released.
+
+This is likely to be the last point release in the 1.x series. We recommend that you upgrade to the 2.x series as soon as possible.
 
 An online version of these release notes is available at:
 
 https://github.com/mongodb/mongo-csharp-driver/blob/v1.x/Release%20Notes/Release%20Notes%20v1.11.md
+
+The full list of JIRA issues resolved in this release is available at:
+
+https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND%20fixVersion%20%3D%201.11%20ORDER%20BY%20key%20ASC%2C%20summary%20ASC
 
 Documentation on the C# driver can be found at:
 
