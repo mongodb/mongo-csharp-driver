@@ -11,7 +11,7 @@ title = "Using a Tailable Cursor"
 
 ## Using a Tailable Cursor
 
-MongoDB offers the option to watch a [capped collection]({{< docsref "manual/core/capped-collections/" >}}) for changes using a [tailable cursor]({{< docsref "manual/tutorial/create-tailable-cursor/" >}}).
+MongoDB offers the option to watch a [capped collection]({{< docsref "core/capped-collections/" >}}) for changes using a [tailable cursor]({{< docsref "tutorial/create-tailable-cursor/" >}}).
 
 The code below "tails" a capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field `insertDate`. New documents are added with increasing values of `insertDate`.
 
