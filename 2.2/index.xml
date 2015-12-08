@@ -10,106 +10,6 @@
     <atom:link href="/mongo-csharp-driver/2.2/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Deleting and Renaming Files</title>
-      <link>/mongo-csharp-driver/2.2/reference/gridfs/deletingandrenamingfiles/</link>
-      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.2/reference/gridfs/deletingandrenamingfiles/</guid>
-      <description>
-
-&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
-
-&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
-
-&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
-&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
-&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
-&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
-&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-string newFilename;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
-
-&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-string oldFilename;
-string newFilename;
-var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
-var files = filesCursor.ToList();
-
-foreach (var file in files)
-{
-    bucket.Rename(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
-var files = await filesCursor.ToListAsync();
-
-foreach (var file in files)
-{
-    await bucket.RenameAsync(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Downloading Files</title>
       <link>/mongo-csharp-driver/2.2/reference/gridfs/downloadingfiles/</link>
       <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
@@ -394,6 +294,106 @@ var bucket = new GridFSBucket(database, new GridFSOptions
 &lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
 &#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
 &#34;&gt;&lt;code&gt;ReadPreference&lt;/code&gt;&lt;/a&gt; is used when downloading files from GridFS.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deleting and Renaming Files</title>
+      <link>/mongo-csharp-driver/2.2/reference/gridfs/deletingandrenamingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.2/reference/gridfs/deletingandrenamingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
+
+&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
+
+&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
+&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
+&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
+&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
+&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+string newFilename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
+
+&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string oldFilename;
+string newFilename;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
+var files = filesCursor.ToList();
+
+foreach (var file in files)
+{
+    bucket.Rename(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
+var files = await filesCursor.ToListAsync();
+
+foreach (var file in files)
+{
+    await bucket.RenameAsync(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -1590,8 +1590,8 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
 
-&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/core/capped-collections/
-&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/manual/tutorial/create-tailable-cursor/
+&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/core/capped-collections/
+&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/create-tailable-cursor/
 &#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; a capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
@@ -2104,98 +2104,6 @@ await collection.Indexes.DropAllAsync();
     </item>
     
     <item>
-      <title>Exporting JSON</title>
-      <link>/mongo-csharp-driver/2.2/examples/exporting_json/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.2/examples/exporting_json/</guid>
-      <description>
-
-&lt;h2 id=&#34;exporting-json&#34;&gt;Exporting JSON&lt;/h2&gt;
-
-&lt;p&gt;The .NET BSON library supports writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
-
-&lt;p&gt;The programs below will export all documents from a collection to a file with one document per line. There are two versions of the program, one using the synchronous API and the other using the asynchronous API.&lt;/p&gt;
-
-&lt;p&gt;Given the collection&amp;rsquo;s contents:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;&amp;gt; db.mydata.find()
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And the synchronous version of the program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-
-// ...
-
-string outputFileName; // initialize to the output file
-IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
-
-using (var streamWriter = new StreamWriter(outputFileName))
-{
-    var cursor = collection.Find(new BsonDocument()).ToCursor();
-    foreach (var document in cursor.ToEnumerable())
-    {
-        using (var stringWriter = new StringWriter())
-        using (var jsonWriter = new JsonWriter(stringWriter))
-        {
-            var context = BsonSerializationContext.CreateRoot(jsonWriter);
-            collection.DocumentSerializer.Serialize(context, document);
-            var line = stringWriter.ToString();
-            streamWriter.WriteLine(line);
-        }
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or the asynchronous version of the program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-
-// ...
-
-string outputFileName; // initialize to the output file
-IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
-
-using (var streamWriter = new StreamWriter(outputFileName))
-{
-    await collection.Find(new BsonDocument())
-        .ForEachAsync(async (document) =&amp;gt;
-        {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(jsonWriter);
-                collection.DocumentSerializer.Serialize(context, document);
-                var line = stringWriter.ToString();
-                await streamWriter.WriteLineAsync(line);
-            }
-        });
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The output file should look this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
-{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Examples</title>
       <link>/mongo-csharp-driver/2.2/examples/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
@@ -2214,6 +2122,94 @@ using (var streamWriter = new StreamWriter(outputFileName))
 &lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/examples/tailable_cursor/&#34;&gt;Using Tailable Cursors&lt;/a&gt;: How to use a tailable cursor.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/examples/user_management/&#34;&gt;Managing Users&lt;/a&gt;: How to manage users.&lt;/li&gt;
 &lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Importing JSON</title>
+      <link>/mongo-csharp-driver/2.2/examples/importing_json/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.2/examples/importing_json/</guid>
+      <description>
+
+&lt;h2 id=&#34;importing-json&#34;&gt;Importing JSON&lt;/h2&gt;
+
+&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
+
+&lt;p&gt;The programs below will import all documents from a file with one document per line into the collection. There are two versions of the program, one using the synchronous API and the other using the asynchronous API.&lt;/p&gt;
+
+&lt;p&gt;Given the input file&amp;rsquo;s contents:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the synchronous version of the program::&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+
+// ...
+
+string inputFileName; // initialize to the input file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to write to.
+
+using (var streamReader = new StreamReader(inputFileName))
+{
+    string line;
+    while ((line = streamReader.ReadLine()) != null)
+    {
+        using (var jsonReader = new JsonReader(line))
+        {
+            var context = BsonDeserializationContext.CreateRoot(jsonReader);
+            var document = collection.DocumentSerializer.Deserialize(context);
+            collection.InsertOne(document);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or the asynchronous version of the program:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+
+// ...
+
+string inputFileName; // initialize to the input file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to write to.
+
+using (var streamReader = new StreamReader(inputFileName))
+{
+    string line;
+    while ((line = await streamReader.ReadLineAsync()) != null)
+    {
+        using (var jsonReader = new JsonReader(line))
+        {
+            var context = BsonDeserializationContext.CreateRoot(jsonReader);
+            var document = collection.DocumentSerializer.Deserialize(context);
+            await collection.InsertOneAsync(document);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The collection&amp;rsquo;s contents should look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;&amp;gt; db.mydata.find()
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

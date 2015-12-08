@@ -1717,24 +1717,23 @@
 
 
 
-<h2 id="what-s-new-in-the-mongodb-net-2-1-driver">What&rsquo;s New in the MongoDB .NET 2.1 Driver</h2>
+<h2 id="what-s-new-in-the-mongodb-net-2-2-driver">What&rsquo;s New in the MongoDB .NET 2.2 Driver</h2>
 
-<p>The 2.1 driver ships with a number of new features. The most notable are discussed below.</p>
+<p>The 2.2 driver ships with a number of new features. The most notable are discussed below.</p>
 
-<h2 id="gridfs">GridFS</h2>
+<h2 id="sync-api">Sync API</h2>
 
-<p><a href="https://jira.mongodb.org/browse/CSHARP-1191">CSHARP-1191</a> - GridFS support has been implemented.</p>
+<p>The 2.0 and 2.1 versions of the .NET driver featured a new async-only API. Version 2.2 introduces sync versions of every async method.</p>
 
-<h2 id="linq">LINQ</h2>
+<h2 id="support-for-server-3-2">Support for server 3.2</h2>
 
-<p><a href="https://jira.mongodb.org/browse/CSHARP-935">CSHARP-935</a> - LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.</p>
-
-<p>Simply use the new <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1.htm
-"><code>AsQueryable</code></a> method to work with LINQ.</p>
-
-<h2 id="eventing-implementation">Eventing Implementation</h2>
-
-<p><a href="https://jira.mongodb.org/browse/CSHARP-1374">CSHARP-1374</a> - An eventing API has been added allowing a user to subscribe to one or more events from the core driver for insight into server discovery, server selection, connection pooling, and commands.</p>
+<ul>
+<li>Support for bypassing document validation for write operations on collections where document validation has been enabled</li>
+<li>Support for write concern for FindAndModify methods</li>
+<li>Support for read concern</li>
+<li>Builder support for new aggregation stages and new accumulators in $group stage</li>
+<li>Support for version 3 text indexes</li>
+</ul>
 
 
 
@@ -1758,10 +1757,9 @@
 <ul>
 <li>
 <ul>
-<li><a href="#what-s-new-in-the-mongodb-net-2-1-driver">What&rsquo;s New in the MongoDB .NET 2.1 Driver</a></li>
-<li><a href="#gridfs">GridFS</a></li>
-<li><a href="#linq">LINQ</a></li>
-<li><a href="#eventing-implementation">Eventing Implementation</a></li>
+<li><a href="#what-s-new-in-the-mongodb-net-2-2-driver">What&rsquo;s New in the MongoDB .NET 2.2 Driver</a></li>
+<li><a href="#sync-api">Sync API</a></li>
+<li><a href="#support-for-server-3-2">Support for server 3.2</a></li>
 </ul></li>
 </ul>
 </nav>
