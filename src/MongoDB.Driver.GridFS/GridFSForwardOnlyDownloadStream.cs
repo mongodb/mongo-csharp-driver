@@ -85,25 +85,15 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
+        public override void Close()
+        {
+            CloseHelper();
+            base.Close();
+        }
+
         public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!_closed)
-            {
-                _closed = true;
-
-                if (_checkMD5 && _position == FileInfo.Length)
-                {
-                    _md5.TransformFinalBlock(new byte[0], 0, 0);
-                    var md5 = BsonUtils.ToHexString(_md5.Hash);
-                    if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
-                    {
-#pragma warning disable 618
-                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
-#pragma warning restore
-                    }
-                }
-            }
-
+            CloseHelper();
             return base.CloseAsync(cancellationToken);
         }
 
@@ -112,7 +102,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, "offset");
             Ensure.IsBetween(count, 0, buffer.Length - offset, "count");
-            ThrowIfClosedOrDisposed();
+            ThrowIfDisposed();
 
             var bytesRead = 0;
             while (count > 0 && _position < FileInfo.Length)
@@ -169,6 +159,26 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+        private void CloseHelper()
+        {
+            if (!_closed)
+            {
+                _closed = true;
+
+                if (_checkMD5 && _position == FileInfo.Length)
+                {
+                    _md5.TransformFinalBlock(new byte[0], 0, 0);
+                    var md5 = BsonUtils.ToHexString(_md5.Hash);
+                    if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
+                    {
+#pragma warning disable 618
+                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
+#pragma warning restore
+                    }
+                }
+            }
+        }
+
         private async Task GetFirstBatchAsync(CancellationToken cancellationToken)
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();

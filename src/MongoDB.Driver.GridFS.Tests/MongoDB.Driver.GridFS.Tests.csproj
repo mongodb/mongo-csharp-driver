@@ -66,6 +66,7 @@
     <Compile Include="GridFSFileInfoTests.cs" />
     <Compile Include="GridFSFindOptionsTests.cs" />
     <Compile Include="GridFSMD5ExceptionTests.cs" />
+    <Compile Include="GridFSSeekableDownloadStreamTests.cs" />
     <Compile Include="GridFSUploadOptionsTests.cs" />
     <Compile Include="GridFSUploadStreamTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

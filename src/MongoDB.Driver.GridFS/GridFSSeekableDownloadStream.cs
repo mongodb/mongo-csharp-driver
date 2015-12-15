@@ -32,7 +32,7 @@ namespace MongoDB.Driver.GridFS
     {
         // private fields
         private byte[] _chunk;
-        private long _n;
+        private long _n = -1;
         private long _position;
 
         // constructors
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, "offset");
             Ensure.IsBetween(count, 0, buffer.Length - offset, "count");
-            ThrowIfClosedOrDisposed();
+            ThrowIfDisposed();
 
             var bytesRead = 0;
             while (count > 0 && _position < FileInfo.Length)
@@ -98,6 +98,10 @@ namespace MongoDB.Driver.GridFS
                 case SeekOrigin.Current: newPosition = _position + offset; break;
                 case SeekOrigin.End: newPosition = _position + offset; break;
                 default: throw new ArgumentException("Invalid origin.", "origin");
+            }
+            if (newPosition < 0)
+            {
+                throw new IOException("Position must be greater than or equal to zero.");
             }
             Position = newPosition;
             return newPosition;
@@ -139,7 +143,7 @@ namespace MongoDB.Driver.GridFS
                 var data = document["data"].AsBsonBinaryData.Bytes;
 
                 var chunkSizeBytes = FileInfo.ChunkSizeBytes;
-                var lastChunk = 0;
+                var lastChunk = FileInfo.Length / FileInfo.ChunkSizeBytes;
                 var expectedChunkSize = n == lastChunk ? FileInfo.Length % chunkSizeBytes : chunkSizeBytes;
                 if (data.Length != expectedChunkSize)
                 {
