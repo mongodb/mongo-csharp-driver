@@ -128,10 +128,10 @@ namespace MongoDB.Driver.Core.Operations
             var numberToReturn = _batchSize ?? 0;
             if (_limit > 0)
             {
-                numberToReturn = _limit.Value - _count;
-                if (_batchSize != 0 && numberToReturn > _batchSize.Value)
+                var remaining = _limit.Value - _count;
+                if (numberToReturn == 0 || numberToReturn > remaining)
                 {
-                    numberToReturn = _batchSize.Value;
+                    numberToReturn = remaining;
                 }
             }
             return numberToReturn;
