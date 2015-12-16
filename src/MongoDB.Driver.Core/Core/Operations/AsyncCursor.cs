@@ -119,12 +119,13 @@ namespace MongoDB.Driver.Core.Operations
             var numberToReturn = _batchSize;
             if (_limit != 0)
             {
-                numberToReturn = Math.Abs(_limit) - _count;
-                if (_batchSize != 0 && numberToReturn > _batchSize)
+                var remaining = Math.Abs(_limit) - _count;
+                if (numberToReturn == 0 || numberToReturn > remaining)
                 {
-                    numberToReturn = _batchSize;
+                    numberToReturn = remaining;
                 }
             }
+
             return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
                 _query,
