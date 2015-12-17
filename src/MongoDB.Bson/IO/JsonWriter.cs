@@ -693,7 +693,7 @@ namespace MongoDB.Bson.IO
                     case '\r': sb.Append("\\r"); break;
                     case '\t': sb.Append("\\t"); break;
                     default:
-                        switch (char.GetUnicodeCategory(c))
+                        switch (CharUnicodeInfo.GetUnicodeCategory(c))
                         {
                             case UnicodeCategory.UppercaseLetter:
                             case UnicodeCategory.LowercaseLetter:
@@ -799,7 +799,7 @@ namespace MongoDB.Bson.IO
                     return true;
 
                 default:
-                    switch (char.GetUnicodeCategory(c))
+                    switch (CharUnicodeInfo.GetUnicodeCategory(c))
                     {
                         case UnicodeCategory.UppercaseLetter:
                         case UnicodeCategory.LowercaseLetter:

@@ -52,6 +52,7 @@ namespace MongoDB.Bson
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the TruncationException class (this overload used by deserialization).
         /// </summary>
@@ -61,5 +62,6 @@ namespace MongoDB.Bson
             : base(info, context)
         {
         }
+#endif
     }
 }

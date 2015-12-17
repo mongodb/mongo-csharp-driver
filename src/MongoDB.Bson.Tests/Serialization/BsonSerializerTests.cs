@@ -137,14 +137,18 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        public class InventoryItem : ISupportInitialize
+        public class InventoryItem
+#if NET45
+            : ISupportInitialize
+#endif
         {
+            public int Price { get; set; }
+
+#if NET45
             [BsonIgnore]
             public bool WasBeginInitCalled;
             [BsonIgnore]
             public bool WasEndInitCalled;
-
-            public int Price { get; set; }
 
             public void BeginInit()
             {
@@ -155,6 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization
             {
                 WasEndInitCalled = true;
             }
+#endif
         }
 
         [Test]
@@ -164,8 +169,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = item.ToBson();
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
+
+            Assert.That(rehydrated.Price, Is.EqualTo(42));
+#if NET45
             Assert.IsTrue(rehydrated.WasBeginInitCalled);
             Assert.IsTrue(rehydrated.WasEndInitCalled);
+#endif
         }
 
         [BsonKnownTypes(typeof(B), typeof(C))]

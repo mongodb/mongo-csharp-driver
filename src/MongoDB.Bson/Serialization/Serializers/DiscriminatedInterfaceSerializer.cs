@@ -14,7 +14,7 @@
 */
 
 using System;
-
+using System.Reflection;
 using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -47,7 +47,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
         {
-            if (!typeof(TInterface).IsInterface)
+            var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
+            if (!interfaceTypeInfo.IsInterface)
             {
                 var message = string.Format("{0} is not an interface.", typeof(TInterface).FullName);
                 throw new ArgumentException(message, "<TInterface>");

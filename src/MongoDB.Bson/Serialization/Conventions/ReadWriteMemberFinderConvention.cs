@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             // skip overridden properties (they are already included by the base class)
-            var getMethodInfo = propertyInfo.GetGetMethod(true);
+            var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != classMap.ClassType)
             {
                 return;

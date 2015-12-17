@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 
@@ -187,7 +188,8 @@ namespace MongoDB.Bson
             }
 
             var valueType = value.GetType();
-            if (valueType.IsEnum)
+            var valueTypeInfo = valueType.GetTypeInfo();
+            if (valueTypeInfo.IsEnum)
             {
                 valueType = Enum.GetUnderlyingType(valueType);
                 switch (Type.GetTypeCode(valueType))
@@ -439,7 +441,8 @@ namespace MongoDB.Bson
             }
 
             var valueType = value.GetType();
-            if (valueType.IsEnum)
+            var valueTypeInfo = valueType.GetTypeInfo();
+            if (valueTypeInfo.IsEnum)
             {
                 valueType = Enum.GetUnderlyingType(valueType);
                 switch (Type.GetTypeCode(valueType))

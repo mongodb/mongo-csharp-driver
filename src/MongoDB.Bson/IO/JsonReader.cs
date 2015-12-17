@@ -851,7 +851,7 @@ namespace MongoDB.Bson.IO
                 offset = -offset;
                 offsetSign = "-";
             }
-            var timeZone = TimeZone.CurrentTimeZone;
+            var timeZone = TimeZoneInfo.Local;
             var timeZoneName = local.IsDaylightSavingTime() ? timeZone.DaylightName : timeZone.StandardName;
             var dateTimeString = string.Format(
                 "{0} GMT{1}{2:D2}{3:D2} ({4})",

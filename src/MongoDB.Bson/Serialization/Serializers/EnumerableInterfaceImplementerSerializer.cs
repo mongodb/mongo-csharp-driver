@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -163,7 +164,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             // otherwise try to find a no-argument constructor and an Add method
-            var noArgumentConstructorInfo = typeof(TValue).GetConstructor(new Type[] { });
+            var valueTypeInfo = typeof(TValue).GetTypeInfo();
+            var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
             var addMethodInfo = typeof(TValue).GetMethod("Add", new Type[] { typeof(TItem) });
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {

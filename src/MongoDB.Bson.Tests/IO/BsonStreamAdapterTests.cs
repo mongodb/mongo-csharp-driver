@@ -54,6 +54,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
+#if NET45
         [Test]
         public void BeginRead_should_call_wrapped_stream()
         {
@@ -72,7 +73,9 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(asyncResult);
             stream.Received(1).BeginRead(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         [Test]
         public void BeginRead_should_throw_when_subject_is_diposed()
         {
@@ -89,7 +92,9 @@ namespace MongoDB.Mini.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
+#endif
 
+#if NET45
         [Test]
         public void BeginWrite_should_call_wrapped_stream()
         {
@@ -108,7 +113,9 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(asyncResult);
             stream.Received(1).BeginWrite(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         [Test]
         public void BeginWrite_should_throw_when_subject_is_disposed()
         {
@@ -125,6 +132,7 @@ namespace MongoDB.Mini.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
+#endif
 
         [Test]
         public void CanRead_should_call_wrapped_stream(
@@ -377,6 +385,7 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
+#if NET45
         [Test]
         public void EndRead_should_call_wrapped_stream()
         {
@@ -391,7 +400,9 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(numberOfBytesRead);
             stream.Received(1).EndRead(asyncResult);
         }
+#endif
 
+#if NET45
         [Test]
         public void EndRead_should_throw_when_subject_is_disposed()
         {
@@ -404,7 +415,9 @@ namespace MongoDB.Mini.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
+#endif
 
+#if NET45
         [Test]
         public void EndWrite_should_call_wrapped_stream()
         {
@@ -416,7 +429,9 @@ namespace MongoDB.Mini.Bson.Tests
 
             stream.Received(1).EndWrite(asyncResult);
         }
+#endif
 
+#if NET45
         [Test]
         public void EndWrite_should_throw_when_subject_is_disposed()
         {
@@ -429,6 +444,7 @@ namespace MongoDB.Mini.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
+#endif
 
         [Test]
         public void Flush_should_call_wrapped_stream()

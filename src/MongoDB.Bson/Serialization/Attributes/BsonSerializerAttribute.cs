@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {
@@ -71,21 +72,23 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>A serializer for the type.</returns>
         internal IBsonSerializer CreateSerializer(Type type)
         {
-            if (type.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.ContainsGenericParameters)
             {
                 var message = "Cannot create a serializer because the type to serialize is an open generic type.";
                 throw new InvalidOperationException(message);
             }
 
-            if (_serializerType.ContainsGenericParameters && !type.IsGenericType)
+            var serializerTypeInfo = _serializerType.GetTypeInfo();
+            if (serializerTypeInfo.ContainsGenericParameters && !typeInfo.IsGenericType)
             {
                 var message = "Cannot create a serializer because the serializer type is an open generic type and the type to serialize is not generic.";
                 throw new InvalidOperationException(message);
             }
 
-            if (_serializerType.ContainsGenericParameters)
+            if (serializerTypeInfo.ContainsGenericParameters)
             {
-                var genericArguments = type.GetGenericArguments();
+                var genericArguments = typeInfo.GetGenericArguments();
                 var closedSerializerType = _serializerType.MakeGenericType(genericArguments);
                 return (IBsonSerializer)Activator.CreateInstance(closedSerializerType);
             }

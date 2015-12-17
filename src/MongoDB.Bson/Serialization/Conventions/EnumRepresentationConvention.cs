@@ -14,7 +14,7 @@
 */
 
 using System;
-
+using System.Reflection;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Conventions
@@ -51,7 +51,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            if (memberMap.MemberType.IsEnum)
+            var memberTypeInfo = memberMap.MemberType.GetTypeInfo();
+            if (memberTypeInfo.IsEnum)
             {
                 var serializer = memberMap.GetSerializer();
                 var representationConfigurableSerializer = serializer as IRepresentationConfigurable;

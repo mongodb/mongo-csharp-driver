@@ -180,12 +180,14 @@ namespace MongoDB.Bson.Serialization
             }
             if (_isFrozen) { ThrowFrozenException(); }
 
+            var classTypeInfo = _classMap.ClassType.GetTypeInfo();
             var arguments = new List<MemberInfo>();
             foreach (var argumentName in argumentNames)
             {
-                var memberTypes = MemberTypes.Field | MemberTypes.Property;
-                var bindingAttr = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-                var memberInfos = _classMap.ClassType.GetMember(argumentName, memberTypes, bindingAttr);
+                var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+                var memberInfos = classTypeInfo.GetMembers(bindingFlags)
+                    .Where(m => m.Name == argumentName && (m is FieldInfo || m is PropertyInfo))
+                    .ToArray();
                 if (memberInfos.Length == 0)
                 {
                     var message = string.Format("Class '{0}' does not have a member named '{1}'.", _classMap.ClassType.FullName, argumentName);

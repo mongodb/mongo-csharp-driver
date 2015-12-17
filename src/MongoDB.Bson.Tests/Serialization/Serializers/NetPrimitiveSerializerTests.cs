@@ -503,6 +503,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+#if NET45
         [Test]
         public void TestEnUsUseUserOverrideFalse()
         {
@@ -518,6 +519,25 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+#endif
+
+#if NET45
+        [Test]
+        public void TestEnUsUseUserOverrideTrue()
+        {
+            var obj = new TestClass
+            {
+                V = new CultureInfo("en-US", true)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : 'en-US' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+#endif
     }
 
     [TestFixture]
@@ -1841,5 +1861,4 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
-
 }

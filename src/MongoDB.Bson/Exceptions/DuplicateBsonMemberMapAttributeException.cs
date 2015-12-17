@@ -43,6 +43,7 @@ namespace MongoDB.Bson
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="DuplicateBsonMemberMapAttributeException" /> class.
         /// </summary>
@@ -54,5 +55,6 @@ namespace MongoDB.Bson
             : base(info, context)
         {
         }
+#endif
     }
 }

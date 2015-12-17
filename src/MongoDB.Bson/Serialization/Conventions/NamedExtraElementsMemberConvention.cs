@@ -91,9 +91,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="classMap">The class map.</param>
         public void Apply(BsonClassMap classMap)
         {
+            var classTypeInfo = classMap.ClassType.GetTypeInfo();
             foreach (var name in _names)
             {
-                var member = classMap.ClassType.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
+                var member = classTypeInfo.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
 
                 if (member != null)
                 {

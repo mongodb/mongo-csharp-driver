@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 
 // don't add using statement for MongoDB.Bson.Serialization.Serializers to minimize dependencies on DefaultSerializer
@@ -273,7 +274,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(Type type)
         {
-            return type.IsInterface || __discriminatedTypes.Contains(type);
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsInterface || __discriminatedTypes.Contains(type);
         }
 
         /// <summary>
@@ -351,6 +353,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A discriminator convention.</returns>
         public static IDiscriminatorConvention LookupDiscriminatorConvention(Type type)
         {
+            var typeInfo = type.GetTypeInfo();
+
             __configLock.EnterReadLock();
             try
             {
@@ -377,7 +381,7 @@ namespace MongoDB.Bson.Serialization
                         convention = new ObjectDiscriminatorConvention("_t");
                         RegisterDiscriminatorConvention(typeof(object), convention);
                     }
-                    else if (type.IsInterface)
+                    else if (typeInfo.IsInterface)
                     {
                         // TODO: should convention for interfaces be inherited from parent interfaces?
                         convention = LookupDiscriminatorConvention(typeof(object));
@@ -387,7 +391,7 @@ namespace MongoDB.Bson.Serialization
                     {
                         // inherit the discriminator convention from the closest parent (that isn't object) that has one
                         // otherwise default to the standard hierarchical convention
-                        Type parentType = type.BaseType;
+                        Type parentType = type.GetTypeInfo().BaseType;
                         while (convention == null)
                         {
                             if (parentType == typeof(object))
@@ -399,7 +403,7 @@ namespace MongoDB.Bson.Serialization
                             {
                                 break;
                             }
-                            parentType = parentType.BaseType;
+                            parentType = parentType.GetTypeInfo().BaseType;
                         }
 
                         // register this convention for all types between this and the parent type where we found the convention
@@ -407,7 +411,7 @@ namespace MongoDB.Bson.Serialization
                         while (unregisteredType != parentType)
                         {
                             RegisterDiscriminatorConvention(unregisteredType, convention);
-                            unregisteredType = unregisteredType.BaseType;
+                            unregisteredType = unregisteredType.GetTypeInfo().BaseType;
                         }
                     }
                 }
@@ -427,6 +431,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An IdGenerator for the Id type.</returns>
         public static IIdGenerator LookupIdGenerator(Type type)
         {
+            var typeInfo = type.GetTypeInfo();
             __configLock.EnterReadLock();
             try
             {
@@ -447,7 +452,7 @@ namespace MongoDB.Bson.Serialization
                 IIdGenerator idGenerator;
                 if (!__idGenerators.TryGetValue(type, out idGenerator))
                 {
-                    if (type.IsValueType && __useZeroIdChecker)
+                    if (typeInfo.IsValueType && __useZeroIdChecker)
                     {
                         var iEquatableDefinition = typeof(IEquatable<>);
                         var iEquatableType = iEquatableDefinition.MakeGenericType(type);
@@ -505,7 +510,8 @@ namespace MongoDB.Bson.Serialization
         /// <param name="discriminator">The discriminator.</param>
         public static void RegisterDiscriminator(Type type, BsonValue discriminator)
         {
-            if (type.IsInterface)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsInterface)
             {
                 var message = string.Format("Discriminators can only be registered for classes, not for interface {0}.", type.FullName);
                 throw new BsonSerializationException(message);
@@ -526,7 +532,7 @@ namespace MongoDB.Bson.Serialization
                     hashSet.Add(type);
 
                     // mark all base types as discriminated (so we know that it's worth reading a discriminator)
-                    for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType)
+                    for (var baseType = type.GetTypeInfo().BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
                     {
                         __discriminatedTypes.Add(baseType);
                     }

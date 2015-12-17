@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -60,7 +61,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             // don't know of a way to enforce this at compile time
-            if (!typeof(TEnum).IsEnum)
+            var enumTypeInfo = typeof(TEnum).GetTypeInfo();
+            if (!enumTypeInfo.IsEnum)
             {
                 var message = string.Format("{0} is not an enum type.", typeof(TEnum).FullName);
                 throw new BsonSerializationException(message);

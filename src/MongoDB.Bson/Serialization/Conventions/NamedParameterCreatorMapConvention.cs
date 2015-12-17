@@ -117,8 +117,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         private MemberInfo Match(Type classType, MemberTypes memberType, BindingFlags visibility, ParameterInfo parameter)
         {
+            var classTypeInfo = classType.GetTypeInfo();
             var bindingAttr = BindingFlags.IgnoreCase | BindingFlags.Instance;
-            var memberInfos = classType.GetMember(parameter.Name, memberType, bindingAttr | visibility);
+            var memberInfos = classTypeInfo.GetMember(parameter.Name, memberType, bindingAttr | visibility);
             if (memberInfos.Length == 1 && GetMemberType(memberInfos[0]) == parameter.ParameterType)
             {
                 return memberInfos[0];

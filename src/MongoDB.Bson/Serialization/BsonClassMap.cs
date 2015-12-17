@@ -267,11 +267,11 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentNullException("memberInfo");
             }
 
-            if (memberInfo.MemberType == MemberTypes.Field)
+            if (memberInfo is FieldInfo)
             {
                 return ((FieldInfo)memberInfo).FieldType;
             }
-            else if (memberInfo.MemberType == MemberTypes.Property)
+            else if (memberInfo is PropertyInfo)
             {
                 return ((PropertyInfo)memberInfo).PropertyType;
             }
@@ -456,7 +456,7 @@ namespace MongoDB.Bson.Serialization
                     __freezeNestingLevel++;
                     try
                     {
-                        var baseType = _classType.BaseType;
+                        var baseType = _classType.GetTypeInfo().BaseType;
                         if (baseType != null)
                         {
                             if (_baseClassMap == null)
@@ -512,8 +512,8 @@ namespace MongoDB.Bson.Serialization
                             else
                             {
                                 var conflictingMemberMap = _allMemberMaps[conflictingMemberIndex];
-                                var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
-                                var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
+                                var fieldOrProperty = (memberMap.MemberInfo is FieldInfo) ? "field" : "property";
+                                var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo is FieldInfo) ? "field" : "property";
                                 var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
 
                                 string message;
@@ -1255,7 +1255,10 @@ namespace MongoDB.Bson.Serialization
             {
                 Expression body;
                 var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-                var defaultConstructor = _classType.GetConstructor(bindingFlags, null, new Type[0], null);
+                var classTypeInfo = _classType.GetTypeInfo();
+                var defaultConstructor = classTypeInfo.GetConstructors(bindingFlags)
+                    .Where(c => c.GetParameters().Length == 0)
+                    .SingleOrDefault();
                 if (defaultConstructor != null)
                 {
                     // lambdaExpression = () => (object) new TClass()
@@ -1295,9 +1298,10 @@ namespace MongoDB.Bson.Serialization
         private bool IsAnonymousType(Type type)
         {
             // don't test for too many things in case implementation details change in the future
+            var typeInfo = type.GetTypeInfo();
             return
-                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
-                type.IsGenericType &&
+                typeInfo.GetCustomAttributes<CompilerGeneratedAttribute>(false).Any() &&
+                typeInfo.IsGenericType &&
                 type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
@@ -1524,6 +1528,24 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private static methods
+        private static List<MethodInfo> GetPropertyAccessors(PropertyInfo propertyInfo)
+        {
+#if NET45
+            return propertyInfo.GetAccessors(true);
+#else
+            var accessors = new List<MethodInfo>();
+            if (propertyInfo.GetMethod != null)
+            {
+                accessors.Add(propertyInfo.GetMethod);
+            }
+            if (propertyInfo.SetMethod != null)
+            {
+                accessors.Add(propertyInfo.SetMethod);
+            }
+            return accessors;
+#endif
+        }
+
         private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var body = memberLambda.Body;
@@ -1541,21 +1563,14 @@ namespace MongoDB.Bson.Serialization
                     throw new BsonSerializationException("Invalid lambda expression");
             }
             var memberInfo = memberExpression.Member;
-            switch (memberInfo.MemberType)
+            if (memberInfo is PropertyInfo)
             {
-                case MemberTypes.Field:
-                    break;
-                case MemberTypes.Property:
-                    if (memberInfo.DeclaringType.IsInterface)
-                    {
-                        memberInfo = FindPropertyImplementation((PropertyInfo)memberInfo, typeof(TClass));
-                    }
-                    break;
-                default:
-                    memberInfo = null;
-                    break;
+                if (memberInfo.DeclaringType.GetTypeInfo().IsInterface)
+                {
+                    memberInfo = FindPropertyImplementation((PropertyInfo)memberInfo, typeof(TClass));
+                }
             }
-            if (memberInfo == null)
+            else if (!(memberInfo is FieldInfo))
             {
                 throw new BsonSerializationException("Invalid lambda expression");
             }
@@ -1576,7 +1591,7 @@ namespace MongoDB.Bson.Serialization
             // implemented property name.
             var interfaceMap = actualType.GetInterfaceMap(interfaceType);
 
-            var interfacePropertyAccessors = interfacePropertyInfo.GetAccessors(true);
+            var interfacePropertyAccessors = GetPropertyAccessors(interfacePropertyInfo);
 
             var actualPropertyAccessors = interfacePropertyAccessors.Select(interfacePropertyAccessor =>
             {
@@ -1591,7 +1606,7 @@ namespace MongoDB.Bson.Serialization
                 .Single(propertyInfo =>
                 {
                     // we are looking for a property that implements all the required accessors
-                    var propertyAccessors = propertyInfo.GetAccessors(true);
+                    var propertyAccessors = GetPropertyAccessors(propertyInfo);
                     return actualPropertyAccessors.All(x => propertyAccessors.Contains(x));
                 });
         }

@@ -34,9 +34,9 @@ namespace MongoDB.Bson.Serialization
         {
             __wellKnownAssemblies = new Assembly[]
             {
-                Assembly.GetAssembly(typeof(object)), // mscorlib
-                Assembly.GetAssembly(typeof(Queue<>)), // System
-                Assembly.GetAssembly(typeof(HashSet<>)) // System.Core
+                typeof(object).GetTypeInfo().Assembly, // mscorlib
+                typeof(Queue<>).GetTypeInfo().Assembly, // System
+                typeof(HashSet<>).GetTypeInfo().Assembly // System.Core
             };
         }
 
@@ -102,9 +102,10 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
+            var typeInfo = type.GetTypeInfo();
 
             string typeName;
-            if (type.IsGenericType)
+            if (typeInfo.IsGenericType)
             {
                 var typeArgumentNames = "";
                 foreach (var typeArgument in type.GetGenericArguments())
@@ -127,10 +128,11 @@ namespace MongoDB.Bson.Serialization
                 typeName = type.FullName;
             }
 
+            var assembly = type.GetTypeInfo().Assembly;
             string assemblyName = null;
-            if (!__wellKnownAssemblies.Contains(type.Assembly))
+            if (!__wellKnownAssemblies.Contains(assembly))
             {
-                assemblyName = type.Assembly.FullName;
+                assemblyName = assembly.FullName;
                 Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
                 if (match.Success)
                 {

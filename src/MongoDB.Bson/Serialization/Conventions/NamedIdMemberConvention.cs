@@ -91,9 +91,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="classMap">The class map.</param>
         public void Apply(BsonClassMap classMap)
         {
+            var classTypeInfo = classMap.ClassType.GetTypeInfo();
             foreach (var name in _names)
             {
-                var member = classMap.ClassType.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
+                var member = classTypeInfo.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
 
                 if (member != null)
                 {
@@ -108,9 +109,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         private bool IsValidIdMember(BsonClassMap classMap, MemberInfo member)
         {
-            if (member.MemberType == MemberTypes.Property)
+            if (member is PropertyInfo)
             {
-                var getMethodInfo = ((PropertyInfo)member).GetGetMethod(true);
+                var getMethodInfo = ((PropertyInfo)member).GetMethod;
                 if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != classMap.ClassType)
                 {
                     return false;

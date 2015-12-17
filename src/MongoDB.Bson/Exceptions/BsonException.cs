@@ -62,6 +62,7 @@ namespace MongoDB.Bson
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the BsonException class (this overload used by deserialization).
         /// </summary>
@@ -71,5 +72,6 @@ namespace MongoDB.Bson
             : base(info, context)
         {
         }
+#endif
     }
 }

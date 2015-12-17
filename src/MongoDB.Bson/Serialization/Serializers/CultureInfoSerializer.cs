@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Globalization;
 using MongoDB.Bson.IO;
 
@@ -63,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.Document:
                     string name = null;
-                    bool useUserOverride = false;
+                    bool useUserOverride = true;
                     _helper.DeserializeMembers(context, (elementName, flag) =>
                     {
                         switch (flag)
@@ -72,7 +73,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case Flags.UseUserOverride: useUserOverride = _booleanSerializer.Deserialize(context); break;
                         }
                     });
+#if NET45
                     return new CultureInfo(name, useUserOverride);
+#else
+                    if (!useUserOverride)
+                    {
+                        throw new FormatException("CultureInfo does not support useUserOverride on this version of the .NET Framework.");
+                    }
+                    return new CultureInfo(name);
+#endif
 
                 case BsonType.String:
                     return new CultureInfo(bsonReader.ReadString());
@@ -92,7 +101,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            if (value.UseUserOverride)
+#if NET45
+            var useUserOverride = value.UseUserOverride;
+#else
+            var useUserOverride = true;
+#endif
+
+            if (useUserOverride)
             {
                 // the default for UseUserOverride is true so we don't need to serialize it
                 bsonWriter.WriteString(value.Name);
@@ -101,7 +116,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("Name", value.Name);
-                bsonWriter.WriteBoolean("UseUserOverride", value.UseUserOverride);
+                bsonWriter.WriteBoolean("UseUserOverride", useUserOverride);
                 bsonWriter.WriteEndDocument();
             }
         }

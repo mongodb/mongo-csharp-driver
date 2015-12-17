@@ -144,7 +144,7 @@ namespace MongoDB.Bson.Serialization
             {
                 if (_setter == null)
                 {
-                    if (_memberInfo.MemberType == MemberTypes.Field)
+                    if (_memberInfo is FieldInfo)
                     {
                         _setter = GetFieldSetter();
                     }
@@ -223,20 +223,23 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                switch(_memberInfo.MemberType)
+                if (_memberInfo is FieldInfo)
                 {
-                    case MemberTypes.Field:
-                        var field = (FieldInfo)_memberInfo;
-                        return field.IsInitOnly || field.IsLiteral;
-                    case MemberTypes.Property:
-                        var property = (PropertyInfo)_memberInfo;
-                        return !property.CanWrite;
-                    default:
-                        throw new NotSupportedException(
-                            string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
-                            _memberInfo.Name,
-                            _memberInfo.DeclaringType.Name,
-                            _memberInfo.MemberType));
+                    var field = (FieldInfo)_memberInfo;
+                    return field.IsInitOnly || field.IsLiteral;
+                }
+                else if (_memberInfo is PropertyInfo)
+                {
+                    var property = (PropertyInfo)_memberInfo;
+                    return !property.CanWrite;
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                       string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
+                       _memberInfo.Name,
+                       _memberInfo.DeclaringType.Name,
+                       _memberInfo is FieldInfo ? "field" : "property"));
                 }
             }
         }
@@ -527,7 +530,8 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private static object GetDefaultValue(Type type)
         {
-            if (type.IsEnum)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsEnum)
             {
                 return Enum.ToObject(type, 0);
             }
@@ -539,7 +543,7 @@ namespace MongoDB.Bson.Serialization
                 case TypeCode.String:
                     break;
                 case TypeCode.Object:
-                    if (type.IsValueType)
+                    if (typeInfo.IsValueType)
                     {
                         return Activator.CreateInstance(type);
                     }
@@ -593,7 +597,7 @@ namespace MongoDB.Bson.Serialization
             var propertyInfo = _memberInfo as PropertyInfo;
             if (propertyInfo != null)
             {
-                var getMethodInfo = propertyInfo.GetGetMethod(true);
+                var getMethodInfo = propertyInfo.GetMethod;
                 if (getMethodInfo == null)
                 {
                     var message = string.Format(
@@ -622,7 +626,7 @@ namespace MongoDB.Bson.Serialization
         private Action<object, object> GetPropertySetter()
         {
             var propertyInfo = (PropertyInfo)_memberInfo;
-            var setMethodInfo = propertyInfo.GetSetMethod(true);
+            var setMethodInfo = propertyInfo.SetMethod;
             if (IsReadOnly)
             {
                 var message = string.Format(

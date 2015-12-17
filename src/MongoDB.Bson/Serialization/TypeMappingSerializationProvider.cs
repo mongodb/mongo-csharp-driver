@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -43,7 +44,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
-            if (type.IsGenericType && type.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
@@ -55,7 +57,7 @@ namespace MongoDB.Bson.Serialization
                 return CreateSerializer(serializerType, serializerRegistry);
             }
 
-            if (type.IsGenericType && !type.ContainsGenericParameters)
+            if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
             {
                 Type serializerTypeDefinition;
                 if (_serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
@@ -82,13 +84,15 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializerType");
             }
-            if (type.ContainsGenericParameters != serializerType.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            var serializerTypeInfo = serializerType.GetTypeInfo();
+            if (typeInfo.ContainsGenericParameters != serializerTypeInfo.ContainsGenericParameters)
             {
                 throw new ArgumentException("The type and the serializerType must have the same number of type parameters.");
             }
-            if (type.ContainsGenericParameters)
+            if (typeInfo.ContainsGenericParameters)
             {
-                if (!type.IsGenericTypeDefinition || !serializerType.IsGenericTypeDefinition)
+                if (!typeInfo.IsGenericTypeDefinition || !serializerTypeInfo.IsGenericTypeDefinition)
                 {
                     throw new ArgumentException("A generic type must either have all or none of the type parameters assigned.");
                 }

@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -50,7 +51,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
-            if (type.IsGenericType && type.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
@@ -62,7 +64,7 @@ namespace MongoDB.Bson.Serialization
                 return CreateSerializer(serializerType, serializerRegistry);
             }
 
-            if (type.IsGenericType && !type.ContainsGenericParameters)
+            if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
             {
                 Type serializerTypeDefinition;
                 if (__serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
@@ -103,14 +105,16 @@ namespace MongoDB.Bson.Serialization
             Type implementedEnumerableInterface = null;
 
             var implementedInterfaces = new List<Type>(type.GetInterfaces());
-            if (type.IsInterface)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsInterface)
             {
                 implementedInterfaces.Add(type);
             }
 
             foreach (var implementedInterface in implementedInterfaces)
             {
-                if (implementedInterface.IsGenericType)
+                var implementedInterfaceTypeInfo = implementedInterface.GetType();
+                if (implementedInterfaceTypeInfo.IsGenericType)
                 {
                     var genericInterfaceDefinition = implementedInterface.GetGenericTypeDefinition();
                     if (genericInterfaceDefinition == typeof(IDictionary<,>))
@@ -144,7 +148,7 @@ namespace MongoDB.Bson.Serialization
             {
                 var keyType = implementedGenericDictionaryInterface.GetGenericArguments()[0];
                 var valueType = implementedGenericDictionaryInterface.GetGenericArguments()[1];
-                if (type.IsInterface)
+                if (typeInfo.IsInterface)
                 {
                     var dictionaryDefinition = typeof(Dictionary<,>);
                     var dictionaryType = dictionaryDefinition.MakeGenericType(keyType, valueType);
@@ -159,7 +163,7 @@ namespace MongoDB.Bson.Serialization
             }
             else if (implementedDictionaryInterface != null)
             {
-                if (type.IsInterface)
+                if (typeInfo.IsInterface)
                 {
                     var dictionaryType = typeof(Hashtable);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
@@ -175,7 +179,7 @@ namespace MongoDB.Bson.Serialization
             {
                 var itemType = implementedGenericSetInterface.GetGenericArguments()[0];
 
-                if (type.IsInterface)
+                if (typeInfo.IsInterface)
                 {
                     var hashSetDefinition = typeof(HashSet<>);
                     var hashSetType = hashSetDefinition.MakeGenericType(itemType);
@@ -203,7 +207,7 @@ namespace MongoDB.Bson.Serialization
                     var serializerDefinition = typeof(ReadOnlyCollectionSubclassSerializer<,>);
                     return CreateGenericSerializer(serializerDefinition, new[] { type, itemType }, serializerRegistry);
                 }
-                else if (type.IsInterface)
+                else if (typeInfo.IsInterface)
                 {
                     var listDefinition = typeof(List<>);
                     var listType = listDefinition.MakeGenericType(itemType);
@@ -218,7 +222,7 @@ namespace MongoDB.Bson.Serialization
             }
             else if (implementedEnumerableInterface != null)
             {
-                if (type.IsInterface)
+                if (typeInfo.IsInterface)
                 {
                     var listType = typeof(ArrayList);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);

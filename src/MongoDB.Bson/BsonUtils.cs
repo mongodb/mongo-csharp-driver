@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -34,7 +35,8 @@ namespace MongoDB.Bson
         /// <returns>A friendly class name.</returns>
         public static string GetFriendlyTypeName(Type type)
         {
-            if (!type.IsGenericType)
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType)
             {
                 return type.Name;
             }

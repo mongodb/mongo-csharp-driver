@@ -147,9 +147,18 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         private static byte[] GetMachineHash()
         {
             // use instead of Dns.HostName so it will work offline
-            var hostName = Environment.MachineName; 
+            var machineName = GetMachineName(); 
             var sha1 = SHA1.Create();
-            return sha1.ComputeHash(Encoding.UTF8.GetBytes(hostName));
+            return sha1.ComputeHash(Encoding.UTF8.GetBytes(machineName));
+        }
+
+        private static string GetMachineName()
+        {
+#if NET45
+            return Environment.MachineName;
+#else
+            return Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "";
+#endif
         }
     }
 }
