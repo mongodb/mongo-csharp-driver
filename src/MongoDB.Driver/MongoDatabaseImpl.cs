@@ -73,12 +73,14 @@ namespace MongoDB.Driver
             if (options == null)
             {
                 CreateCollectionHelper<BsonDocument>(name, null, cancellationToken);
+                return;
             }
 
             if (options.GetType() == typeof(CreateCollectionOptions))
             {
                 var genericOptions = CreateCollectionOptions<BsonDocument>.CoercedFrom(options);
                 CreateCollectionHelper<BsonDocument>(name, genericOptions, cancellationToken);
+                return;
             }
 
             var genericMethodDefinition = typeof(MongoDatabaseImpl).GetMethod("CreateCollectionHelper", BindingFlags.NonPublic | BindingFlags.Instance);
