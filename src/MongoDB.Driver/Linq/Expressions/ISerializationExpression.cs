@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             Ensure.IsNotNull(field, nameof(field));
 
-            value = ConvertEnumIfNecessary(field.Serializer.ValueType, value);
+            value = ConvertIfNecessary(field.Serializer.ValueType, value);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    field.Serializer.Serialize(context, ConvertEnumIfNecessary(field.Serializer.ValueType, value));
+                    field.Serializer.Serialize(context, ConvertIfNecessary(field.Serializer.ValueType, value));
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -96,18 +96,25 @@ namespace MongoDB.Driver.Linq.Expressions
             return prefix + "." + suffix;
         }
 
-        private static object ConvertEnumIfNecessary(Type valueType, object value)
+        private static object ConvertIfNecessary(Type targetType, object value)
         {
-            if (valueType.IsEnum || valueType.IsNullableEnum())
+            if (targetType.IsEnum || targetType.IsNullableEnum())
             {
                 if (value != null)
                 {
-                    if (valueType.IsNullableEnum())
+                    if (targetType.IsNullableEnum())
                     {
-                        valueType = valueType.GetNullableUnderlyingType();
+                        targetType = targetType.GetNullableUnderlyingType();
                     }
 
-                    value = Enum.ToObject(valueType, value);
+                    value = Enum.ToObject(targetType, value);
+                }
+            }
+            else if (targetType != typeof(BsonValue) && !targetType.IsNullable())
+            {
+                if (value != null && targetType != value.GetType())
+                {
+                    value = Convert.ChangeType(value, targetType);
                 }
             }
 

@@ -678,6 +678,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Binding_through_a_necessary_conversion()
+        {
+            long id = 10;
+            var root = _collection.FindSync(x => x.Id == id).FirstOrDefault();
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+        }
+
+        [Test]
         public void Binding_through_an_unnecessary_conversion()
         {
             var root = FindFirstOrDefault(_collection, 10);
