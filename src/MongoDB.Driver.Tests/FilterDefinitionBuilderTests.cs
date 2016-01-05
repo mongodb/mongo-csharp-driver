@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -207,6 +208,15 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch<Animal>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+        }
+
+        [Test]
+        public void ElemMatch_over_dictionary_represented_as_array_of_documents()
+        {
+            var subject = CreateSubject<Feature>();
+            var filter = subject.ElemMatch(x => x.Enabled, x => x.Key == ProductType.Auto && x.Value);
+
+            Assert(filter, "{Enabled: {$elemMatch: { k: 0, v: true}}}");
         }
 
         [Test]
@@ -991,6 +1001,20 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("isLapDog")]
             public bool IsLapDog { get; set; }
+        }
+
+        private class Feature
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonDictionaryOptions(Representation = Bson.Serialization.Options.DictionaryRepresentation.ArrayOfDocuments)]
+            public Dictionary<ProductType, bool> Enabled { get; set; }
+        }
+
+        private enum ProductType
+        {
+            Auto,
+            Home
         }
     }
 }
