@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "hosts", new BsonArray(new [] { "localhost:1000", "localhost:1001" })},
                 { "passives", new BsonArray(new [] { "localhost:1002"}) },
                 { "arbiters", new BsonArray(new [] { "localhost:1003"}) },
-                { "version", 20 }
+                { "setVersion", 20 }
             };
 
             var subject = new IsMasterResult(doc);

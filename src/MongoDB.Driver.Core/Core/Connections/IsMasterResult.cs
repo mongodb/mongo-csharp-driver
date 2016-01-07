@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Connections
             var members = GetMembers();
             var name = (string)_wrapped.GetValue("setName", null);
             var primary = GetPrimary();
-            var version = _wrapped.Contains("version") ? (int?)_wrapped["version"].ToInt32() : null;
+            var version = _wrapped.Contains("setVersion") ? (int?)_wrapped["setVersion"].ToInt32() : null;
 
             return new ReplicaSetConfig(members, name, primary, version);
         }
