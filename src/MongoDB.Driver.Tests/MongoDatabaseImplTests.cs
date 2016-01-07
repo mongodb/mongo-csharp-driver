@@ -68,7 +68,7 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void CreateCollection_should_execute_the_CreateCollectionOperation(
+        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool async)
         {
             var storageEngine = new BsonDocument("awesome", true);
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = false,
                 Capped = true,
-                IndexOptionDefaults = new IndexOptionDefaults {  StorageEngine = new BsonDocument("x", 1) },
+                IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
                 StorageEngine = storageEngine,
@@ -113,6 +113,83 @@ namespace MongoDB.Driver
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<BsonDocument>();
             var renderedValidator = options.Validator.Render(documentSerializer, serializerRegistry);
             op.Validator.Should().Be(renderedValidator);
+        }
+
+        [Test]
+        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_not_generic(
+            [Values(false, true)] bool async)
+        {
+            var storageEngine = new BsonDocument("awesome", true);
+            var options = new CreateCollectionOptions
+            {
+                AutoIndexId = false,
+                Capped = true,
+                IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
+                MaxDocuments = 10,
+                MaxSize = 11,
+                StorageEngine = storageEngine,
+                UsePowerOf2Sizes = false,
+                ValidationAction = DocumentValidationAction.Warn,
+                ValidationLevel = DocumentValidationLevel.Off
+            };
+
+            if (async)
+            {
+                _subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateCollection("bar", options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateCollectionOperation>();
+            var op = (CreateCollectionOperation)call.Operation;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            op.AutoIndexId.Should().Be(options.AutoIndexId);
+            op.Capped.Should().Be(options.Capped);
+            op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
+            op.MaxDocuments.Should().Be(options.MaxDocuments);
+            op.MaxSize.Should().Be(options.MaxSize);
+            op.StorageEngine.Should().Be(storageEngine);
+            op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
+            op.ValidationAction.Should().Be(options.ValidationAction);
+            op.ValidationLevel.Should().Be(options.ValidationLevel);
+            op.Validator.Should().BeNull();
+        }
+
+        [Test]
+        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_null(
+           [Values(false, true)] bool async)
+        {
+            var storageEngine = new BsonDocument("awesome", true);
+            CreateCollectionOptions options = null;
+
+            if (async)
+            {
+                _subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateCollection("bar", options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateCollectionOperation>();
+            var op = (CreateCollectionOperation)call.Operation;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            op.AutoIndexId.Should().NotHaveValue();
+            op.Capped.Should().NotHaveValue();
+            op.IndexOptionDefaults.Should().BeNull();
+            op.MaxDocuments.Should().NotHaveValue();
+            op.MaxSize.Should().NotHaveValue();
+            op.StorageEngine.Should().BeNull();
+            op.UsePowerOf2Sizes.Should().NotHaveValue();
+            op.ValidationAction.Should().BeNull();
+            op.ValidationLevel.Should().BeNull();
+            op.Validator.Should().BeNull();
         }
 
         [Test]

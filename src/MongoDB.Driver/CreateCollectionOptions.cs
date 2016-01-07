@@ -162,13 +162,14 @@ namespace MongoDB.Driver
                 {
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
+                    IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
                     SerializerRegistry = options.SerializerRegistry,
                     StorageEngine = options.StorageEngine,
                     UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                     ValidationAction = options.ValidationAction,
-                    ValidationLevel = options.ValidationLevel                  
+                    ValidationLevel = options.ValidationLevel
                 };
             }
 
