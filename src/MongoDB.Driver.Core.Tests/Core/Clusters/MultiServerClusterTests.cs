@@ -394,7 +394,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_and_current_election_id_is_null()
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_and_current_set_version_and_election_id_are_null()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
@@ -418,7 +418,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_an_election_id_and_current_id_is_null()
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_an_election_id_and_current_set_version_and_election_id_are_null()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Clear();
 
             PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary);
-            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(
@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_a_higher_election_id()
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_a_higher_set_version()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
@@ -450,8 +450,8 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
             _capturedEvents.Clear();
 
-            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
-            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.Empty));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 2, electionId: new ElectionId(ObjectId.Empty));
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(
@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        public void Should_invalidate_new_primary_when_it_shows_up_with_a_lesser_election_id()
+        public void Should_invalidate_existing_primary_when_a_new_primary_shows_up_with_the_same_set_version_and_a_higher_election_id()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
@@ -474,8 +474,56 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
             _capturedEvents.Clear();
 
-            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.GenerateNewId()));
-            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, electionId: new ElectionId(ObjectId.Empty));
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.Empty));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
+
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentTo(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }
+                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_firstEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Test]
+        public void Should_invalidate_new_primary_when_it_shows_up_with_a_lesser_set_version()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+            _capturedEvents.Clear();
+
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: 2, electionId: new ElectionId(ObjectId.Empty));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
+
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentTo(
+                new[] { GetDisconnectedDescription(_secondEndPoint) }
+                .Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)));
+
+            _serverFactory.GetServer(_secondEndPoint).Received().Invalidate();
+
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Test]
+        public void Should_invalidate_new_primary_when_it_shows_up_with_the_same_set_version_and_a_lesser_election_id()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+
+            var subject = CreateSubject();
+            subject.Initialize();
+            _capturedEvents.Clear();
+
+            PublishDescription(_firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
+            PublishDescription(_secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.Empty));
 
             var description = subject.Description;
             description.Servers.Should().BeEquivalentTo(
@@ -617,7 +665,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory.PublishDescription(description);
         }
 
-        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null, EndPoint canonicalEndPoint = null)
+        private void PublishDescription(EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null, EndPoint canonicalEndPoint = null, int? setVersion = null)
         {
             var current = _serverFactory.GetServerDescription(endPoint);
 
@@ -625,7 +673,7 @@ namespace MongoDB.Driver.Core.Clusters
                 hosts ?? new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
                 setName ?? "test",
                 primary,
-                null);
+                setVersion);
 
             var description = current.With(
                 averageRoundTripTime: TimeSpan.FromMilliseconds(10),
