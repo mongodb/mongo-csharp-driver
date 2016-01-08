@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
-        private volatile ElectionId _maxElectionId;
+        private volatile PrimaryVersion _maxPrimaryVersion;
         private volatile string _replicaSetName;
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
@@ -321,21 +321,31 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (args.NewServerDescription.Type == ServerType.ReplicaSetPrimary)
             {
-                if (args.NewServerDescription.ElectionId != null)
+                if (args.NewServerDescription.ReplicaSetConfig.Version != null)
                 {
-                    if (_maxElectionId != null && _maxElectionId.CompareTo(args.NewServerDescription.ElectionId) > 0)
+                    bool isCurrentPrimaryStale = true;
+                    if (_maxPrimaryVersion != null)
                     {
-                        // ignore this change because we've already seen this election id
-                        lock (_serversLock)
+                        isCurrentPrimaryStale = _maxPrimaryVersion.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
+                        if (!isCurrentPrimaryStale && args.NewServerDescription.ElectionId != null)
                         {
-                            var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
-                            server.Invalidate();
-                            return clusterDescription.WithServerDescription(
-                                new ServerDescription(server.ServerId, server.EndPoint));
+                            // we only invalidate the "newly" reported primary if electionId was used.
+                            lock (_serversLock)
+                            {
+                                var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
+                                server.Invalidate();
+                                return clusterDescription.WithServerDescription(
+                                    new ServerDescription(server.ServerId, server.EndPoint));
+                            }
                         }
                     }
 
-                    _maxElectionId = args.NewServerDescription.ElectionId;
+                    if (isCurrentPrimaryStale)
+                    {
+                        _maxPrimaryVersion = new PrimaryVersion(
+                            args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                            args.NewServerDescription.ElectionId);
+                    }
                 }
 
                 var currentPrimaryEndPoints = clusterDescription.Servers
@@ -493,6 +503,41 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Initial = 0;
             public const int Open = 1;
             public const int Disposed = 2;
+        }
+
+        private class PrimaryVersion
+        {
+            private readonly int _setVersion;
+            private readonly ElectionId _electionId;
+
+            public PrimaryVersion(int setVersion, ElectionId electionId)
+            {
+                _setVersion = setVersion;
+                _electionId = electionId;
+            }
+
+            public int SetVersion => _setVersion;
+
+            public ElectionId ElectionId => _electionId;
+
+            public bool IsStale(int setVersion, ElectionId electionId)
+            {
+                if (_setVersion < setVersion)
+                {
+                    return true;
+                }
+                if (_setVersion > setVersion)
+                {
+                    return false;
+                }
+
+                if (_electionId == null)
+                {
+                    return true;
+                }
+
+                return _electionId.CompareTo(electionId) <= 0;
+            }
         }
     }
 }
