@@ -25,7 +25,6 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -840,7 +839,7 @@ namespace MongoDB.Driver
             using (var binding = Server.GetReadBinding(ReadPreference))
             {
                 var cursor = operation.Execute(binding, CancellationToken.None);
-                return new AsyncCursorEnumeratorAdapter<TDocument>(cursor, CancellationToken.None).GetEnumerator();
+                return cursor.ToEnumerable().GetEnumerator();
             }
         }
 
