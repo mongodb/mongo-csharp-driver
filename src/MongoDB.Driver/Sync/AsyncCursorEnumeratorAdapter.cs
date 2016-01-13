@@ -42,13 +42,20 @@ namespace MongoDB.Driver.Sync
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            while (_cursor.MoveNext(_cancellationToken))
+            try
             {
-                var batch = _cursor.Current;
-                foreach (var document in batch)
+                while (_cursor.MoveNext(_cancellationToken))
                 {
-                    yield return document;
+                    var batch = _cursor.Current;
+                    foreach (var document in batch)
+                    {
+                        yield return document;
+                    }
                 }
+            }
+            finally
+            {
+                Dispose();
             }
         }
 
