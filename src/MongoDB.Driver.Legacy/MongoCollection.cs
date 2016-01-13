@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -1589,7 +1588,7 @@ namespace MongoDB.Driver
             };
 
             var cursors = ExecuteReadOperation(operation, args.ReadPreference);
-            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c, CancellationToken.None).GetEnumerator()).ToList();
+            var documentEnumerators = cursors.Select(c => c.ToEnumerable().GetEnumerator()).ToList();
             return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
 

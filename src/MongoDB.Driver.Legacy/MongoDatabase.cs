@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
