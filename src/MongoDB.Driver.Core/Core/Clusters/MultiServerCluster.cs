@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
-        private volatile PrimaryVersion _maxPrimaryVersion;
+        private volatile ElectionInfo _maxElectionInfo;
         private volatile string _replicaSetName;
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
@@ -324,12 +324,14 @@ namespace MongoDB.Driver.Core.Clusters
                 if (args.NewServerDescription.ReplicaSetConfig.Version != null)
                 {
                     bool isCurrentPrimaryStale = true;
-                    if (_maxPrimaryVersion != null)
+                    if (_maxElectionInfo != null)
                     {
-                        isCurrentPrimaryStale = _maxPrimaryVersion.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
-                        if (!isCurrentPrimaryStale && args.NewServerDescription.ElectionId != null)
+                        isCurrentPrimaryStale = _maxElectionInfo.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
+                        var isReportedPrimaryStale = !isCurrentPrimaryStale;
+
+                        if (isReportedPrimaryStale && args.NewServerDescription.ElectionId != null)
                         {
-                            // we only invalidate the "newly" reported primary if electionId was used.
+                            // we only invalidate the "newly" reported stale primary if electionId was used.
                             lock (_serversLock)
                             {
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
@@ -342,7 +344,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (isCurrentPrimaryStale)
                     {
-                        _maxPrimaryVersion = new PrimaryVersion(
+                        _maxElectionInfo = new ElectionInfo(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
                             args.NewServerDescription.ElectionId);
                     }
@@ -505,12 +507,12 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Disposed = 2;
         }
 
-        private class PrimaryVersion
+        private class ElectionInfo
         {
             private readonly int _setVersion;
             private readonly ElectionId _electionId;
 
-            public PrimaryVersion(int setVersion, ElectionId electionId)
+            public ElectionInfo(int setVersion, ElectionId electionId)
             {
                 _setVersion = setVersion;
                 _electionId = electionId;
