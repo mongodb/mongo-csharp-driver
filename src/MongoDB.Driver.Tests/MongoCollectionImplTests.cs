@@ -46,12 +46,10 @@ namespace MongoDB.Driver
             _operationExecutor = new MockOperationExecutor();
         }
 
-        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>()
+        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>(MongoCollectionSettings settings = null)
         {
-            var settings = new MongoCollectionSettings
-            {
-                ReadConcern = _readConcern
-            };
+            settings = settings ?? new MongoCollectionSettings();
+            settings.ReadConcern = _readConcern;
             var dbSettings = new MongoDatabaseSettings();
             dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
@@ -1217,6 +1215,35 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public void InsertOne_should_respect_AssignIdOnInsert(
+            [Values(false, true)] bool assignIdOnInsert,
+            [Values(false, true)] bool async)
+        {
+            var document = BsonDocument.Parse("{ a : 1 }");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
+            var subject = CreateSubject<BsonDocument>(settings);
+
+            if (async)
+            {
+                subject.InsertOneAsync(document, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertOne(document, cancellationToken: CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+            var requests = operation.Requests.ToList(); // call ToList to force evaluation
+            document.Contains("_id").Should().Be(assignIdOnInsert);
+            VerifySingleWrite(expectedRequest, null, true, call);
+        }
+
+        [Test]
         public void InsertMany_should_execute_the_BulkMixedOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isOrdered,
@@ -1250,6 +1277,35 @@ namespace MongoDB.Driver
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifyWrites(expectedRequests, bypassDocumentValidation, isOrdered, call);
+        }
+
+        [Test]
+        public void InsertMany_should_respect_AssignIdOnInsert(
+            [Values(false, true)] bool assignIdOnInsert,
+            [Values(false, true)] bool async)
+        {
+            var document = BsonDocument.Parse("{ a : 1 }");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
+            var subject = CreateSubject<BsonDocument>(settings);
+
+            if (async)
+            {
+                subject.InsertManyAsync(new[] { document }, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertMany(new[] { document }, cancellationToken: CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+            var requests = operation.Requests.ToList(); // call ToList to force evaluation
+            document.Contains("_id").Should().Be(assignIdOnInsert);
+            VerifySingleWrite(expectedRequest, null, true, call);
         }
 
         [Test]
