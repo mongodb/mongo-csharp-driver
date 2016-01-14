@@ -419,7 +419,10 @@ namespace MongoDB.Driver
             {
                 case WriteModelType.InsertOne:
                     var insertOneModel = (InsertOneModel<TDocument>)model;
-                    AssignId(insertOneModel.Document);
+                    if (_settings.AssignIdOnInsert)
+                    {
+                        AssignId(insertOneModel.Document);
+                    }
                     return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer))
                     {
                         CorrelationId = index
