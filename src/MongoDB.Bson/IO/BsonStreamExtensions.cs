@@ -311,7 +311,7 @@ namespace MongoDB.Bson.IO
                 var segment = slice.AccessBackingBytes(position);
                 var partialCount = Math.Min(count, segment.Count);
                 stream.WriteBytes(segment.Array, segment.Offset, partialCount);
-                position += count;
+                position += partialCount;
                 count -= partialCount;
             }
         }
