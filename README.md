@@ -25,7 +25,7 @@ using MongoDB.Driver;
 ```C#
 var client = new MongoClient("mongodb://localhost:27017");
 var database = client.GetDatabase("foo");
-var collection = client.GetCollection<BsonDocument>("bar");
+var collection = database.GetCollection<BsonDocument>("bar");
 
 await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
 
