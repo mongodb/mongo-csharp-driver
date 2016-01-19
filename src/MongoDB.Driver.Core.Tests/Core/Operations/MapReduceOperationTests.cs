@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
@@ -136,8 +137,9 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+            IReadBinding binding = null;
 
-            Action act = () => ExecuteOperation(subject, null, async);
+            Action act = () => ExecuteOperation(subject, binding, async);
 
             act.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

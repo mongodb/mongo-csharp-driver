@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -328,6 +328,20 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().HaveCount(5);
+        }
+
+        [Test]
+        [RequiresServer("EnsureTestData")]
+        public void Execute_should_find_all_the_documents_matching_the_query_when_read_preference_is_used(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as slaveOk = true
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);
