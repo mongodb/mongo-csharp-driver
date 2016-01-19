@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}' }}");
         }
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription(type: ServerType.ShardRouter);
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', allowPartialResults : {(value ? "true" : "false")} }}");
         }
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', comment : '{value}' }}");
         }
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', tailable : true{awaitJson} }}");
         }
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', filter : {json} }}");
         }
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', batchSize : {value} }}");
         }
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', hint : {subject.Hint.ToJson()} }}");
         }
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}'{json} }}");
         }
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', max : {json} }}");
         }
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxScan : {value} }}");
         }
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxTimeMS : {value * 1000} }}");
         }
@@ -329,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', min : {json} }}");
         }
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', noCursorTimeout : {(value ? "true" : "false")} }}");
         }
@@ -359,7 +359,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', oplogReplay : {(value ? "true" : "false")} }}");
         }
@@ -374,7 +374,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', projection : {json} }}");
         }
@@ -390,26 +390,9 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readConcern : {readConcernJson} }}");
-        }
-
-        [Test]
-        public void CreateCommand_should_return_expected_result_when_readPreference_is_provided(
-            [Values(ReadPreferenceMode.PrimaryPreferred, ReadPreferenceMode.Secondary)]
-            ReadPreferenceMode value)
-        {
-            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var readPreference = new ReadPreference(value);
-            var reflector = new Reflector(subject);
-            var serverDescription = CreateServerDescription(type: ServerType.ShardRouter);
-
-            var result = reflector.CreateCommand(serverDescription, readPreference);
-
-            var mode = value.ToString();
-            var camelCaseMode = char.ToLower(mode[0]) + mode.Substring(1);
-            result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readPreference : {{ mode : '{camelCaseMode}' }} }}");
         }
 
         [Test]
@@ -422,7 +405,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', returnKey : {(value ? "true" : "false")} }}");
         }
@@ -437,7 +420,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', showRecordId : {(value ? "true" : "false")} }}");
         }
@@ -452,7 +435,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', singleBatch : {(value ? "true" : "false")} }}");
         }
@@ -467,7 +450,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', skip : {value} }}");
         }
@@ -482,7 +465,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', snapshot : {(value ? "true" : "false")} }}");
         }
@@ -497,7 +480,7 @@ namespace MongoDB.Driver.Core.Operations
             var reflector = new Reflector(subject);
             var serverDescription = CreateServerDescription();
 
-            var result = reflector.CreateCommand(serverDescription, null);
+            var result = reflector.CreateCommand(serverDescription);
 
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', sort : {json} }}");
         }
@@ -910,10 +893,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // public methods
-            public BsonDocument CreateCommand(ServerDescription serverDescription, ReadPreference readPreference)
+            public BsonDocument CreateCommand(ServerDescription serverDescription)
             {
                 var methodInfo = _instance.GetType().GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                return (BsonDocument)methodInfo.Invoke(_instance, new object[] { serverDescription, readPreference });
+                return (BsonDocument)methodInfo.Invoke(_instance, new object[] { serverDescription });
             }
         }
     }
