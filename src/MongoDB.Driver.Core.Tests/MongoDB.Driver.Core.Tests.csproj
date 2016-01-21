@@ -72,6 +72,7 @@
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
+    <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
@@ -105,9 +106,11 @@
     <Compile Include="Core\Operations\MapReduceLegacyOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOutputToCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\ReadCommandOperationTests.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
+    <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
     <Compile Include="Core\WireProtocol\CommandWriteProtocolTests.cs" />
     <Compile Include="IAsyncCursorExtensionsTests.cs" />
