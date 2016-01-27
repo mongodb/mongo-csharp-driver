@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1277,18 +1277,6 @@ namespace MongoDB.Mini.Bson.Tests
             Action action = () => subject.WriteCStringBytes(null);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
-        }
-
-        [Test]
-        public void WriteCStringBytes_should_throw_when_value_contains_nulls()
-        {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var value = new byte[] { 1, 0, 3 };
-
-            Action action = () => subject.WriteCStringBytes(value);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
         [TestCase(new byte[] { })]

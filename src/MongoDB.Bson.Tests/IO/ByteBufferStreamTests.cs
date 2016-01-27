@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1238,19 +1238,6 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.WriteCStringBytes(new byte[0]);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferStream");
-        }
-
-        [TestCase(1, new byte[] { 0 })]
-        [TestCase(2, new byte[] { 0, 1 })]
-        [TestCase(3, new byte[] { 1, 0 })]
-        [TestCase(4, new byte[] { 1, 0, 1 })]
-        public void WriteCStringBytes_should_throw_when_value_contains_null_bytes(int testCase, byte[] value)
-        {
-            var subject = CreateSubject();
-
-            Action action = () => subject.WriteCStringBytes(value);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
         [Test]
