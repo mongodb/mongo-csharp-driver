@@ -358,14 +358,6 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            string value;
-            int bytesRead; // includes the terminating null byte
-            if (CStringUtf8Encoding.TryGetCString(_buffer, _position, out value, out bytesRead))
-            {
-                _position += bytesRead;
-                return value;
-            }
-
             var bytes = ReadCStringBytes();
             return Utf8Helper.DecodeUtf8String(bytes.Array, bytes.Offset, bytes.Count, encoding);
         }

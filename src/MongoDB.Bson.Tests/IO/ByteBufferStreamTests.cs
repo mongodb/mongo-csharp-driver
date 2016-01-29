@@ -1202,7 +1202,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void WriteCString_should_throw_when_value_contains_null_bytes(
+        public void WriteCString_should_throw_when_value_contains_nulls(
             [Values(1, 2)]
             int numberOfChunks,
             [Values("\0", "a\0", "a\0b")]
@@ -1210,6 +1210,19 @@ namespace MongoDB.Bson.Tests.IO
         {
             var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
             var subject = CreateSubject(0, CalculateChunkSizes(maxLength, numberOfChunks));
+
+            Action action = () => subject.WriteCString(value);
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+        }
+
+        [Test]
+        public void WriteCString_should_throw_when_value_contains_nulls_and_tempUtf8_is_not_used()
+        {
+            var value = new string('a', 1024) + '\0';
+            var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
+            var subject = CreateSubject(0, CalculateChunkSizes(maxLength, 2));
+            var expectedBytes = Utf8Encodings.Strict.GetBytes(value).Concat(new byte[] { 0 }).ToArray();
 
             Action action = () => subject.WriteCString(value);
 

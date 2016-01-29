@@ -94,6 +94,7 @@
     <Compile Include="IO\ByteBufferFactoryTests.cs" />
     <Compile Include="IO\ByteBufferSliceTests.cs" />
     <Compile Include="IO\ByteBufferStreamTests.cs" />
+    <Compile Include="IO\CStringUtf8EncodingTests.cs" />
     <Compile Include="IO\InputBufferChunkSourceTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="IO\OutputBufferChunkSourceTests.cs" />
