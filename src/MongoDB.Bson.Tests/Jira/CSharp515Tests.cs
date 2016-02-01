@@ -42,8 +42,10 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-        private string _jsonTemplate = "{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], MongoDB.Bson.Tests', '_v' : #V } }".Replace("'", "\"");
+        private static readonly string STypeAssemblyName = typeof(S<>).Assembly.GetName().GetPublicKey().Length > 0 ? typeof(S<>).Assembly.FullName : typeof(S<>).Assembly.GetName().Name;
 
+        private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + STypeAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
+        
         [Test]
         public void TestNull()
         {
