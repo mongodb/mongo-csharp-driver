@@ -43,7 +43,10 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
             return new PipelineExpression(
                 source,
                 pipeline.Projector,
-                new FirstResultOperator(node.Type, node.Method.Name == "FirstOrDefault"));
+                new FirstResultOperator(
+                    node.Type,
+                    pipeline.Projector.Serializer,
+                    node.Method.Name == nameof(Enumerable.FirstOrDefault)));
         }
     }
 }

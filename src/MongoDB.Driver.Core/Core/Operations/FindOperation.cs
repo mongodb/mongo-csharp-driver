@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _limit;
         private BsonDocument _max;
         private int? _maxScan;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _min;
@@ -200,6 +201,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _max; }
             set { _max = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>
@@ -471,6 +484,7 @@ namespace MongoDB.Driver.Core.Operations
                 FirstBatchSize = _firstBatchSize,
                 Limit = _limit,
                 Max = max,
+                MaxAwaitTime = _maxAwaitTime,
                 MaxScan = maxScan,
                 MaxTime = maxTime,
                 Min = min,
@@ -524,7 +538,7 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (serverVersion >= new SemanticVersion(3, 1, 5) && !hasExplainModifier)
+            if (SupportedFeatures.IsFindCommandSupported(serverVersion) && !hasExplainModifier)
             {
                 return CreateFindCommandOperation();
             }

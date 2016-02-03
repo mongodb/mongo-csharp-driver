@@ -26,13 +26,13 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             switch (operationName)
             {
                 case "delete":
-                    return GridFSDeleteAsyncTestFactory.CreateTest(data, testDefinition);
+                    return GridFSDeleteTestFactory.CreateTest(data, testDefinition);
                 case "download":
-                    return GridFSDownloadAsBytesAsyncTestFactory.CreateTest(data, testDefinition);
+                    return GridFSDownloadAsBytesTestFactory.CreateTest(data, testDefinition);
                 case "download_by_name":
-                    return GridFSDownloadAsBytesByNameAsyncTestFactory.CreateTest(data, testDefinition);
+                    return GridFSDownloadAsBytesByNameTestFactory.CreateTest(data, testDefinition);
                 case "upload":
-                    return GridFSUploadFromBytesAsyncTestFactory.CreateTest(data, testDefinition);
+                    return GridFSUploadFromBytesTestFactory.CreateTest(data, testDefinition);
                 default:
                     throw new NotSupportedException(string.Format("Invalid operation name: {0}.", operationName));
             }

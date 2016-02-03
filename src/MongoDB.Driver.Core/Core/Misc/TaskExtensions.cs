@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,16 +13,17 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
+using System.Threading.Tasks;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Core.Misc
 {
-    public static class GridFSUploadFromBytesAsyncTestFactory
+    internal static class TaskExtensions
     {
-        // static public methods
-        public static IGridFSTest CreateTest(BsonDocument data, BsonDocument testDefinition)
+        public static void IgnoreExceptions(this Task task)
         {
-            return new GridFSUploadFromBytesAsyncTest(data, testDefinition);
+            task.ContinueWith(t => { var ignored = t.Exception; },
+                TaskContinuationOptions.OnlyOnFaulted |
+                TaskContinuationOptions.ExecuteSynchronously);
         }
     }
 }

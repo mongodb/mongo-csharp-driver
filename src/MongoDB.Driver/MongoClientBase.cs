@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver
@@ -31,12 +33,24 @@ namespace MongoDB.Driver
         public abstract MongoClientSettings Settings { get; }
 
         /// <inheritdoc />
+        public virtual void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public abstract IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<Bson.BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

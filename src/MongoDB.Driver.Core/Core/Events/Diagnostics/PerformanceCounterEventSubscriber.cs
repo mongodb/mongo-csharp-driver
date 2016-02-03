@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters;
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
     /// <summary>
     /// Represents an event subscriber that records certain events to Windows performance counters.
     /// </summary>
-    public class PerformanceCounterEventSubscriber : IEventSubscriber
+    public sealed class PerformanceCounterEventSubscriber : IEventSubscriber
     {
         //static 
         /// <summary>
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             _appPackage = GetAppPackage();
             _connectionRecorders = new ConcurrentDictionary<ConnectionId, ConnectionPerformanceRecorder>();
             _connectionPoolRecorders = new ConcurrentDictionary<ServerId, ConnectionPoolPerformanceRecorder>();
-            _subscriber = new ReflectionEventSubscriber(this);
+            _subscriber = new ReflectionEventSubscriber(this, bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         // methods
@@ -70,11 +71,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             return _subscriber.TryGetEventHandler(out handler);
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolClosedEvent @event)
+        private void Handle(ConnectionPoolClosedEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryRemove(@event.ServerId, out recorder))
@@ -83,11 +80,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolOpenedEvent @event)
+        private void Handle(ConnectionPoolOpenedEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ServerId.EndPoint);
             ConnectionPoolPerformanceRecorder recorder = new ConnectionPoolPerformanceRecorder(@event.ConnectionPoolSettings.MaxConnections, _appPackage, serverPackage);
@@ -97,11 +90,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolAddedConnectionEvent @event)
+        private void Handle(ConnectionPoolAddedConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -110,11 +99,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Connections the pool after removing a connection.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolRemovedConnectionEvent @event)
+        private void Handle(ConnectionPoolRemovedConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -123,11 +108,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Connections the pool after entering wait queue.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolCheckingOutConnectionEvent @event)
+        private void Handle(ConnectionPoolCheckingOutConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -136,11 +117,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolCheckedOutConnectionEvent @event)
+        private void Handle(ConnectionPoolCheckedOutConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -150,11 +127,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionPoolCheckedInConnectionEvent @event)
+        private void Handle(ConnectionPoolCheckedInConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -163,11 +136,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionClosedEvent @event)
+        private void Handle(ConnectionClosedEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryRemove(@event.ConnectionId, out recorder))
@@ -176,11 +145,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionOpenedEvent @event)
+        private void Handle(ConnectionOpenedEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ServerId.EndPoint);
             var recorder = new ConnectionPerformanceRecorder(_appPackage, serverPackage);
@@ -190,11 +155,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionReceivedMessageEvent @event)
+        private void Handle(ConnectionReceivedMessageEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
@@ -203,11 +164,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        /// <summary>
-        /// Handles the specified event.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        public void Handle(ConnectionSentMessagesEvent @event)
+        private void Handle(ConnectionSentMessagesEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))

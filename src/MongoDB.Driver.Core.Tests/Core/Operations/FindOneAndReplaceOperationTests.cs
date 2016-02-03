@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -82,6 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+            subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Filter.Should().Be(_filter);
             subject.Replacement.Should().Be(_replacement);
@@ -91,6 +92,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         public void CreateCommand_should_create_the_correct_command(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
             [Values(null, 10)] int? maxTimeMS,
             [Values(null, "{a: 1}")] string projection,
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             var serverVersion = SemanticVersion.Parse(serverVersionString);
             var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
+                BypassDocumentValidation = bypassDocumentValidation,
                 IsUpsert = isUpsert,
                 MaxTime = maxTimeMS.HasValue ? TimeSpan.FromMilliseconds(maxTimeMS.Value) : (TimeSpan?)null,
                 Projection = projectionDoc,
@@ -123,7 +126,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "fields", projectionDoc, projectionDoc != null },
                 { "upsert", isUpsert },
                 { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) },
+                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) }
             };
 
             var result = subject.CreateCommand(serverVersion);
@@ -144,6 +148,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 ReturnDocument = ReturnDocument.Before
             };
 
@@ -169,6 +174,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 ReturnDocument = ReturnDocument.After
             };
 
@@ -194,6 +200,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 ReturnDocument = ReturnDocument.Before
             };
 
@@ -219,6 +226,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 ReturnDocument = ReturnDocument.After
             };
 
@@ -244,6 +252,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 IsUpsert = true,
                 ReturnDocument = ReturnDocument.Before
             };
@@ -270,6 +279,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
+                BypassDocumentValidation = true,
                 IsUpsert = true,
                 ReturnDocument = ReturnDocument.After
             };
@@ -282,6 +292,34 @@ namespace MongoDB.Driver.Core.Operations
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
+        [Test]
+        [RequiresServer("EnsureTestData", MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void Execute_should_throw_when_there_is_a_write_concern_error(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(
+                _collectionNamespace,
+                _filter,
+                _replacement,
+                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
+                _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true,
+                ReturnDocument = ReturnDocument.Before,
+                WriteConcern = new WriteConcern(9)
+            };
+
+            Action action = () => ExecuteOperation(subject, async);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result.Should().Be("{_id: 10, x: 1}");
+            var serverList = ReadAllFromCollection(async);
+            serverList[0].Should().Be("{_id: 10, a: 2}");
+        }
+
 
         private void EnsureTestData()
         {

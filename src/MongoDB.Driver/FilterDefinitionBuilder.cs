@@ -291,6 +291,94 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a bits all clear filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits all clear filter.</returns>
+        public FilterDefinition<TDocument> BitsAllClear(FieldDefinition<TDocument> field, long bitmask)
+        {
+            return new OperatorFilterDefinition<TDocument>("$bitsAllClear", field, bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits all clear filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits all clear filter.</returns>
+        public FilterDefinition<TDocument> BitsAllClear(Expression<Func<TDocument, object>> field, long bitmask)
+        {
+            return BitsAllClear(new ExpressionFieldDefinition<TDocument>(field), bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits all set filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits all set filter.</returns>
+        public FilterDefinition<TDocument> BitsAllSet(FieldDefinition<TDocument> field, long bitmask)
+        {
+            return new OperatorFilterDefinition<TDocument>("$bitsAllSet", field, bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits all set filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits all set filter.</returns>
+        public FilterDefinition<TDocument> BitsAllSet(Expression<Func<TDocument, object>> field, long bitmask)
+        {
+            return BitsAllSet(new ExpressionFieldDefinition<TDocument>(field), bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits any clear filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits any clear filter.</returns>
+        public FilterDefinition<TDocument> BitsAnyClear(FieldDefinition<TDocument> field, long bitmask)
+        {
+            return new OperatorFilterDefinition<TDocument>("$bitsAnyClear", field, bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits any clear filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits any clear filter.</returns>
+        public FilterDefinition<TDocument> BitsAnyClear(Expression<Func<TDocument, object>> field, long bitmask)
+        {
+            return BitsAnyClear(new ExpressionFieldDefinition<TDocument>(field), bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits any set filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits any set filter.</returns>
+        public FilterDefinition<TDocument> BitsAnySet(FieldDefinition<TDocument> field, long bitmask)
+        {
+            return new OperatorFilterDefinition<TDocument>("$bitsAnySet", field, bitmask);
+        }
+
+        /// <summary>
+        /// Creates a bits any set filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>A bits any set filter.</returns>
+        public FilterDefinition<TDocument> BitsAnySet(Expression<Func<TDocument, object>> field, long bitmask)
+        {
+            return BitsAnySet(new ExpressionFieldDefinition<TDocument>(field), bitmask);
+        }
+
+        /// <summary>
         /// Creates an element match filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>

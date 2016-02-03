@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "hosts", new BsonArray(new [] { "localhost:1000", "localhost:1001" })},
                 { "passives", new BsonArray(new [] { "localhost:1002"}) },
                 { "arbiters", new BsonArray(new [] { "localhost:1003"}) },
-                { "version", 20 }
+                { "setVersion", 20 }
             };
 
             var subject = new IsMasterResult(doc);

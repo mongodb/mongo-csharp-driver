@@ -14,10 +14,14 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -25,6 +29,18 @@ namespace MongoDB.Driver.Core.Operations
     [TestFixture]
     public class BulkMixedWriteOperationTests : OperationTestBase
     {
+        [Test]
+        public void BypassDocumentValidation_should_work()
+        {
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
+
+            subject.BypassDocumentValidation.Should().NotHaveValue();
+
+            subject.BypassDocumentValidation = true;
+
+            subject.BypassDocumentValidation.Should().BeTrue();
+        }
+
         [Test]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
@@ -54,6 +70,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
 
+            subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Requests.Should().BeEmpty();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
@@ -432,7 +449,10 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true
+            };
 
             var result = ExecuteOperation(subject, async);
 
@@ -992,6 +1012,164 @@ namespace MongoDB.Driver.Core.Operations
 
             var list = ReadAllFromCollection(async);
             list.Should().HaveCount(3);
+        }
+
+        //
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = false,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
+
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(3);
+            }
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
+        {
+            var keys = new BsonDocument("x", 1);
+            var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
+            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
+
+            ExecuteOperation(createIndexOperation, async);
+
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = true,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
+
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(1);
+            }
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_false(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 2 }}),
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = false,
+                MaxBatchCount = 2,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(5);
+                result.RequestCount.Should().Be(5);
+
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(4);
+            }
+        }
+
+        [Test]
+        [RequiresServer("DropCollection")]
+        public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_true(
+            [Values(false, true)]
+            bool async)
+        {
+            var requests = new[]
+            {
+                new InsertRequest(new BsonDocument { { "_id", 1 }}),
+                new InsertRequest(new BsonDocument { { "_id", 2 }}),
+                new InsertRequest(new BsonDocument { { "_id", 3 }}),
+                new InsertRequest(new BsonDocument { { "_id", 1 }}), // will fail
+                new InsertRequest(new BsonDocument { { "_id", 5 }}),
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                IsOrdered = true,
+                MaxBatchCount = 2,
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
+            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var result = ExecuteOperation(subject, channelBinding, async);
+                result.ProcessedRequests.Should().HaveCount(4);
+                result.RequestCount.Should().Be(5);
+
+                var list = ReadAllFromCollection(channelBinding);
+                list.Should().HaveCount(3);
+            }
+        }
+
+        private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
+        {
+            var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var cursor = ExecuteOperation(operation, binding, false);
+            return ReadCursorToEnd(cursor);
         }
 
         private void EnsureTestData()

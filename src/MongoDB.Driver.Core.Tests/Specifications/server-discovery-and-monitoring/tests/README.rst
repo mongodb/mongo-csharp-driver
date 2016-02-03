@@ -77,7 +77,8 @@ current TopologyDescription. It has the following keys:
 
 - type: A ServerType name, like "RSSecondary".
 - setName: A string with the expected replica set name, or null.
-- electionId: null, or an ObjectId.
+- setVersion: absent or an integer.
+- electionId: absent, null, or an ObjectId.
 
 Use as unittests
 ----------------

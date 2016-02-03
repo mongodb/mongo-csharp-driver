@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     internal class InsertOpcodeOperationEmulator<TDocument>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
         private readonly BatchableSource<TDocument> _documentSource;
@@ -53,6 +54,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -158,6 +165,7 @@ namespace MongoDB.Driver.Core.Operations
             });
             return new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 IsOrdered = !_continueOnError,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxMessageSize,

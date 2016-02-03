@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -32,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteOperationResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int? _maxBatchCount;
@@ -52,6 +54,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -101,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return ExecuteBatches(channel, cancellationToken);
                 }
@@ -126,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(2, 6, 0))
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
@@ -155,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
             var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
             var maxWireDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
             var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
-            return CreateWriteCommand(batchSerializer, requestSource);
+            return CreateWriteCommand(batchSerializer, requestSource, channel.ConnectionDescription.ServerVersion);
         }
 
         private BulkWriteBatchResult CreateBatchResult(BatchableSource<WriteRequest> requestSource, int originalIndex, BsonDocument writeCommandResult)
@@ -172,22 +180,23 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract BulkUnmixedWriteOperationEmulatorBase CreateEmulator();
 
-        private BsonDocument CreateWriteCommand(BatchSerializer batchSerializer, BatchableSource<WriteRequest> requestSource)
+        private BsonDocument CreateWriteCommand(BatchSerializer batchSerializer, BatchableSource<WriteRequest> requestSource, SemanticVersion serverVersion)
         {
             var batchWrapper = new BsonDocumentWrapper(requestSource, batchSerializer);
 
-            var writeConcern = _writeConcern.ToBsonDocument();
-            if (writeConcern.ElementCount == 0)
+            WriteConcern effectiveWriteConcern = _writeConcern;
+            if (!effectiveWriteConcern.IsAcknowledged && _isOrdered)
             {
-                writeConcern = null; // omit field if writeConcern is { }
+                effectiveWriteConcern = WriteConcern.W1; // ignore the server's default, whatever it may be.
             }
 
             return new BsonDocument
             {
                 { CommandName, _collectionNamespace.CollectionName },
-                { "writeConcern", writeConcern, writeConcern != null },
+                { "writeConcern", () => effectiveWriteConcern.ToBsonDocument(), !effectiveWriteConcern.IsServerDefault },
                 { "ordered", _isOrdered },
-                { RequestsElementName, new BsonArray { batchWrapper } }
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
+                { RequestsElementName, new BsonArray { batchWrapper } } // should be last
             };
         }
 
@@ -199,14 +208,14 @@ namespace MongoDB.Driver.Core.Operations
         private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = ExecuteProtocol(channel, writeCommand, cancellationToken);
+            var writeCommandResult = ExecuteProtocol(channel, writeCommand, () => GetResponseHandling(requestSource), cancellationToken);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, cancellationToken).ConfigureAwait(false);
+            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, () => GetResponseHandling(requestSource), cancellationToken).ConfigureAwait(false);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
@@ -232,33 +241,46 @@ namespace MongoDB.Driver.Core.Operations
             return helper.CreateFinalResultOrThrow(channel);
         }
 
-        private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
+        private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
         {
-            var commandValidator = NoOpElementNameValidator.Instance;
             return channel.Command<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
-                commandValidator,
+                NoOpElementNameValidator.Instance,
+                responseHandling,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
-                cancellationToken);
+                cancellationToken) ?? new BsonDocument("ok", 1);
         }
 
-        private Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
+        private async Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
         {
-            var commandValidator = NoOpElementNameValidator.Instance;
-            return channel.CommandAsync<BsonDocument>(
+            return (await channel.CommandAsync<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
-                commandValidator,
+                NoOpElementNameValidator.Instance,
+                responseHandling,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false)) ?? new BsonDocument("ok", 1);
+        }
+
+        private CommandResponseHandling GetResponseHandling(BatchableSource<WriteRequest> source)
+        {
+            if (_writeConcern.IsAcknowledged || source.HasMore)
+            {
+                return CommandResponseHandling.Return;
+            }
+
+            return CommandResponseHandling.Ignore;
         }
 
         // nested types
+        /// <summary>
+        /// 
+        /// </summary>
         private class BatchHelper
         {
             private readonly List<BulkWriteBatchResult> _batchResults = new List<BulkWriteBatchResult>();

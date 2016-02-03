@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -100,6 +101,18 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
+        public sealed override void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
+
+            using (var binding = new WritableServerBinding(_cluster))
+            {
+                _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
         public sealed override async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -121,6 +134,18 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(_settings);
 
             return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
+        }
+
+        /// <inheritdoc/>
+        public sealed override IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
+
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            {
+                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>

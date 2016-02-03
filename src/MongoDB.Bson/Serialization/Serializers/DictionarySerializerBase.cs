@@ -338,6 +338,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> :
         ClassSerializerBase<TDictionary>,
+        IBsonArraySerializer,
         IBsonDocumentSerializer,
         IBsonDictionarySerializer
         where TDictionary : class, IDictionary<TKey, TValue>
@@ -463,6 +464,26 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.ArrayOfDocuments)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            var serializer = new KeyValuePairSerializer<TKey, TValue>(
+                BsonType.Document,
+                _lazyKeySerializer.Value,
+                _lazyValueSerializer.Value);
+            serializationInfo = new BsonSerializationInfo(
+                null,
+                serializer,
+                serializer.ValueType);
+            return true;
+        }
+
         /// <inheritdoc/>
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {

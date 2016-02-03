@@ -69,9 +69,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return (BsonDocument)expectedResult;
         }
 
-        protected override Task<BsonDocument> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
+        protected override BsonDocument ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.FindOneAndReplaceAsync(_filter, _replacement, _options);
+            if (async)
+            {
+                return collection.FindOneAndReplaceAsync(_filter, _replacement, _options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return collection.FindOneAndReplace(_filter, _replacement, _options);
+            }
         }
 
         protected override void VerifyResult(BsonDocument actualResult, BsonDocument expectedResult)
@@ -79,9 +86,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             actualResult.Should().Be(expectedResult);
         }
 
-        protected override async Task VerifyCollectionAsync(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
+        protected override void VerifyCollection(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
         {
-            var data = await collection.Find("{}").ToListAsync();
+            var data = collection.FindSync("{}").ToList();
 
             if (ClusterDescription.Servers[0].Version < new SemanticVersion(2, 6, 0) && _options.IsUpsert)
             {

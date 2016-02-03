@@ -85,7 +85,6 @@ namespace MongoDB.Driver.Core.Operations
                 var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
-                result["dropped"].ToString().Should().Be(_databaseNamespace.DatabaseName);
             }
         }
 

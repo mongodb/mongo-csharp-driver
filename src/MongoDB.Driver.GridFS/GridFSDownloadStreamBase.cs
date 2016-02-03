@@ -26,7 +26,6 @@ namespace MongoDB.Driver.GridFS
         // private fields
         private readonly IReadBinding _binding;
         private readonly GridFSBucket _bucket;
-        private bool _closed;
         private bool _disposed;
         private readonly GridFSFileInfo _fileInfo;
 
@@ -74,15 +73,20 @@ namespace MongoDB.Driver.GridFS
         }
 
         // public methods
-        public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override void Close()
         {
-            _closed = true;
-            return Task.FromResult(true);
+            Close(CancellationToken.None);
         }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        public override void Close(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            base.Close();
+        }
+
+        public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            base.Close();
+            return Task.FromResult(true);
         }
 
         public override void Flush()
@@ -91,11 +95,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         public override Task FlushAsync(CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();
         }
@@ -122,15 +121,6 @@ namespace MongoDB.Driver.GridFS
             {
                 if (disposing)
                 {
-                    try
-                    {
-                        CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-
                     _binding.Dispose();
                 }
 
@@ -138,15 +128,6 @@ namespace MongoDB.Driver.GridFS
             }
 
             base.Dispose(disposing);
-        }
-
-        protected void ThrowIfClosedOrDisposed()
-        {
-            if (_closed)
-            {
-                throw new InvalidOperationException("Stream is closed.");
-            }
-            ThrowIfDisposed();
         }
 
         protected virtual void ThrowIfDisposed()

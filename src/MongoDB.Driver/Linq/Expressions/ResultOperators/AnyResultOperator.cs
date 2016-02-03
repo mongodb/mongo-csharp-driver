@@ -19,14 +19,23 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class AnyResultOperator : ResultOperator, IResultTransformer
     {
+        private static readonly BooleanSerializer __serializer = new BooleanSerializer();
+
         public override string Name
         {
             get { return "Any"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return __serializer; }
         }
 
         public override Type Type

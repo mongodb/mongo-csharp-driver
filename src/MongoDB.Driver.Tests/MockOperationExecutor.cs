@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_calls.Count == 0)
             {
-                throw new InvalidOperationException("No read operation was executed.");
+                throw new InvalidOperationException("No write operation was executed.");
             }
 
             var call = _calls.Dequeue();

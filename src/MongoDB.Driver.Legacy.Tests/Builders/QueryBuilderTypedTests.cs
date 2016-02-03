@@ -113,6 +113,38 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestBitsAllClear()
+        {
+            var query = Query<A>.BitsAllClear(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAllClear\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAllSet()
+        {
+            var query = Query<A>.BitsAllSet(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAllSet\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAnyClear()
+        {
+            var query = Query<A>.BitsAnyClear(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAnyClear\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBitsAnySet()
+        {
+            var query = Query<A>.BitsAnySet(x => x.X, 3);
+            var expected = "{ \"x\" : { \"$bitsAnySet\" : NumberLong(3) } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestBooleanExpressionTrueForMethods()
         {
             var query = Query<A>.Where(a => a.S.StartsWith("k"));
@@ -929,6 +961,14 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestType_number()
+        {
+            var query = Query<A>.Type(a => a.S, "number");
+            var expected = "{ \"s\" : { \"$type\" : \"number\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestType_Not()
         {
             var query = Query.Not(Query<A>.Type(a => a.S, BsonType.String));
@@ -937,10 +977,26 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestType_Not_number()
+        {
+            var query = Query.Not(Query<A>.Type(a => a.S, "number"));
+            var expected = "{ \"s\" : { \"$not\" : { \"$type\" : \"number\" } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestType_Array()
         {
             var query = Query<A>.Type(a => a.J, BsonType.String);
             var expected = "{ \"j\" : { \"$type\" : 2 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestType_Array_number()
+        {
+            var query = Query<A>.Type(a => a.J, "number");
+            var expected = "{ \"j\" : { \"$type\" : \"number\" } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

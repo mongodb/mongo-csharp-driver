@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [Category("ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
@@ -60,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint,
                 Limit = limit,
                 MaxTime = maxTime,
+                ReadConcern = new ReadConcern(readConcernLevel),
                 Skip = skip
             };
             var expectedResult = new BsonDocument
@@ -72,12 +74,12 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", maxTime.TotalMilliseconds }
             };
 
-            if (subject.ReadConcern.ShouldBeSent(semanticServerVersion))
+            if (!subject.ReadConcern.IsServerDefault)
             {
                 expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
             }
 
-            if (semanticServerVersion < new SemanticVersion(3, 2, 0) && subject.ReadConcern.Level.GetValueOrDefault(ReadConcernLevel.Local) != ReadConcernLevel.Local)
+            if (!subject.ReadConcern.IsSupported(semanticServerVersion))
             {
                 Action act = () => subject.CreateCommand(semanticServerVersion);
                 act.ShouldThrow<MongoClientException>();
@@ -150,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
+            if (SupportedFeatures.AreFailPointsSupported(CoreTestConfiguration.ServerVersion))
             {
                 // TODO: port FailPoint infrastructure from Driver.Tests to Core.Tests
             }

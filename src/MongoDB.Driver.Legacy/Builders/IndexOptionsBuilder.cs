@@ -100,6 +100,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetPartialFilterExpression(IMongoQuery value)
+        {
+            return new IndexOptionsBuilder().SetPartialFilterExpression(value);
+        }
+
+        /// <summary>
         /// Sets whether the index is a sparse index.
         /// </summary>
         /// <param name="value">Whether the index is a sparse index.</param>
@@ -258,6 +268,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetName(string value)
         {
             _document["name"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetPartialFilterExpression(IMongoQuery value)
+        {
+            _document["partialFilterExpression"] = value.ToBsonDocument();
             return this;
         }
 
@@ -444,6 +465,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetPartialFilterExpression(IMongoQuery value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetPartialFilterExpression(value);
+        }
+
+        /// <summary>
         /// Sets whether the index is a sparse index.
         /// </summary>
         /// <param name="value">Whether the index is a sparse index.</param>
@@ -607,6 +638,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetName(string value)
         {
             _indexOptionsBuilder.SetName(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetPartialFilterExpression(IMongoQuery value)
+        {
+            _indexOptionsBuilder.SetPartialFilterExpression(value);
             return this;
         }
 

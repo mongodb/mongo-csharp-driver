@@ -1,4 +1,4 @@
-description: "Disconnected from primary, reject stale primary"
+description: "Disconnected from primary, reject primary with stale electionId"
 
 uri: "mongodb://a/?replicaSet=rs"
 
@@ -12,6 +12,7 @@ phases: [
                 ismaster: true,
                 hosts: ["a:27017", "b:27017"],
                 setName: "rs",
+                setVersion: 1,
                 electionId: {"$oid": "000000000000000000000001"}
             }],
             ["b:27017", {
@@ -19,6 +20,7 @@ phases: [
                 ismaster: true,
                 hosts: ["a:27017", "b:27017"],
                 setName: "rs",
+                setVersion: 1,
                 electionId: {"$oid": "000000000000000000000002"}
             }]
         ],
@@ -27,12 +29,13 @@ phases: [
             servers: {
                 "a:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
                 },
                 "b:27017": {
                     type: "RSPrimary",
                     setName: "rs",
+                    setVersion: 1,
                     electionId: {"$oid": "000000000000000000000002"}
                 }
             },
@@ -50,12 +53,12 @@ phases: [
             servers: {
                 "a:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
                 },
                 "b:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
                 }
             },
@@ -72,6 +75,7 @@ phases: [
                 ismaster: true,
                 hosts: ["a:27017", "b:27017"],
                 setName: "rs",
+                setVersion: 1,
                 electionId: {"$oid": "000000000000000000000001"}
             }]
         ],
@@ -79,12 +83,12 @@ phases: [
             servers: {
                 "a:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
                 },
                 "b:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
                 }
             },
@@ -101,6 +105,7 @@ phases: [
                 ismaster: true,
                 hosts: ["a:27017", "b:27017"],
                 setName: "rs",
+                setVersion: 1,
                 electionId: {"$oid": "000000000000000000000003"}
             }]
         ],
@@ -109,12 +114,43 @@ phases: [
                 "a:27017": {
                     type: "RSPrimary",
                     setName: "rs",
+                    setVersion: 1,
                     electionId: {"$oid": "000000000000000000000003"}
                 },
                 "b:27017": {
                     type: "Unknown",
-                    setName:,
+                    setName: ,
                     electionId:
+                }
+            },
+            topologyType: "ReplicaSetWithPrimary",
+            setName: "rs",
+        }
+    },
+
+    # B comes back as secondary.
+    {
+        responses: [
+            ["b:27017", {
+                ok: 1,
+                ismaster: false,
+                secondary: true,
+                hosts: ["a:27017", "b:27017"],
+                setName: "rs",
+                setVersion: 2
+            }]
+        ],
+        outcome: {
+            servers: {
+                "a:27017": {
+                    type: "RSPrimary",
+                    setName: "rs",
+                    setVersion: 1,
+                    electionId: {"$oid": "000000000000000000000002"}
+                },
+                "b:27017": {
+                    type: "RSSecondary",
+                    setName: "rs"
                 }
             },
             topologyType: "ReplicaSetWithPrimary",

@@ -78,17 +78,6 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void ThrowIfNotSupported_should_not_throw_when_level_is_local()
-        {
-            var serverVersion = new SemanticVersion(3, 0, 2);
-            var subject = ReadConcern.Local;
-
-            Action act = () => subject.ThrowIfNotSupported(serverVersion);
-
-            act.ShouldNotThrow<MongoClientException>();
-        }
-
-        [Test]
         public void ThrowIfNotSupported_should_not_throw_when_the_serverVersion_is_greater_than_317()
         {
             var serverVersion = new SemanticVersion(3, 2, 0);

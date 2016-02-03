@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     public class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int? _maxBatchCount;
@@ -61,6 +62,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -177,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
                 var helper = new BatchHelper(this, channel);
                 foreach (var batch in helper.GetBatches())
                 {
-                    batch.Result = ExecuteBatch(channel, batch.Run, cancellationToken);
+                    batch.Result = ExecuteBatch(channel, batch.Run, batch.IsLast, cancellationToken);
                 }
                 return helper.GetFinalResultOrThrow();
             }
@@ -193,47 +206,49 @@ namespace MongoDB.Driver.Core.Operations
                 var helper = new BatchHelper(this, channel);
                 foreach (var batch in helper.GetBatches())
                 {
-                    batch.Result = await ExecuteBatchAsync(channel, batch.Run, cancellationToken).ConfigureAwait(false);
+                    batch.Result = await ExecuteBatchAsync(channel, batch.Run, batch.IsLast, cancellationToken).ConfigureAwait(false);
                 }
                 return helper.GetFinalResultOrThrow();
             }
         }
 
         // private methods
-        private BulkDeleteOperation CreateDeleteOperation(IEnumerable<DeleteRequest> requests)
+        private BulkDeleteOperation CreateDeleteOperation(IEnumerable<DeleteRequest> requests, bool isLast)
         {
             return new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
-                WriteConcern = _writeConcern
+                WriteConcern = GetEffectiveWriteConcern(isLast)
             };
         }
 
-        private BulkInsertOperation CreateInsertOperation(IEnumerable<InsertRequest> requests)
+        private BulkInsertOperation CreateInsertOperation(IEnumerable<InsertRequest> requests, bool isLast)
         {
             return new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
                 MessageEncoderSettings = _messageEncoderSettings,
-                WriteConcern = _writeConcern
+                WriteConcern = GetEffectiveWriteConcern(isLast)
             };
         }
 
-        private BulkUpdateOperation CreateUpdateOperation(IEnumerable<UpdateRequest> requests)
+        private BulkUpdateOperation CreateUpdateOperation(IEnumerable<UpdateRequest> requests, bool isLast)
         {
             return new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
-                WriteConcern = _writeConcern
+                WriteConcern = GetEffectiveWriteConcern(isLast)
             };
         }
 
-        private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, Run run, CancellationToken cancellationToken)
+        private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, Run run, bool isLast, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
             MongoBulkWriteOperationException exception = null;
@@ -242,13 +257,13 @@ namespace MongoDB.Driver.Core.Operations
                 switch (run.RequestType)
                 {
                     case WriteRequestType.Delete:
-                        result = ExecuteDeletes(channel, run.Requests.Cast<DeleteRequest>(), cancellationToken);
+                        result = ExecuteDeletes(channel, run.Requests.Cast<DeleteRequest>(), isLast, cancellationToken);
                         break;
                     case WriteRequestType.Insert:
-                        result = ExecuteInserts(channel, run.Requests.Cast<InsertRequest>(), cancellationToken);
+                        result = ExecuteInserts(channel, run.Requests.Cast<InsertRequest>(), isLast, cancellationToken);
                         break;
                     case WriteRequestType.Update:
-                        result = ExecuteUpdates(channel, run.Requests.Cast<UpdateRequest>(), cancellationToken);
+                        result = ExecuteUpdates(channel, run.Requests.Cast<UpdateRequest>(), isLast, cancellationToken);
                         break;
                     default:
                         throw new MongoInternalException("Unrecognized RequestType.");
@@ -263,7 +278,7 @@ namespace MongoDB.Driver.Core.Operations
             return BulkWriteBatchResult.Create(result, exception, run.IndexMap);
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, Run run, CancellationToken cancellationToken)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, Run run, bool isLast, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
             MongoBulkWriteOperationException exception = null;
@@ -272,13 +287,13 @@ namespace MongoDB.Driver.Core.Operations
                 switch (run.RequestType)
                 {
                     case WriteRequestType.Delete:
-                        result = await ExecuteDeletesAsync(channel, run.Requests.Cast<DeleteRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteDeletesAsync(channel, run.Requests.Cast<DeleteRequest>(), isLast, cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Insert:
-                        result = await ExecuteInsertsAsync(channel, run.Requests.Cast<InsertRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteInsertsAsync(channel, run.Requests.Cast<InsertRequest>(), isLast, cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Update:
-                        result = await ExecuteUpdatesAsync(channel, run.Requests.Cast<UpdateRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteUpdatesAsync(channel, run.Requests.Cast<UpdateRequest>(), isLast, cancellationToken).ConfigureAwait(false);
                         break;
                     default:
                         throw new MongoInternalException("Unrecognized RequestType.");
@@ -293,40 +308,50 @@ namespace MongoDB.Driver.Core.Operations
             return BulkWriteBatchResult.Create(result, exception, run.IndexMap);
         }
 
-        private BulkWriteOperationResult ExecuteDeletes(IChannelHandle channel, IEnumerable<DeleteRequest> requests, CancellationToken cancellationToken)
+        private BulkWriteOperationResult ExecuteDeletes(IChannelHandle channel, IEnumerable<DeleteRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateDeleteOperation(requests);
+            var operation = CreateDeleteOperation(requests, isLast);
             return operation.Execute(channel, cancellationToken);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteDeletesAsync(IChannelHandle channel, IEnumerable<DeleteRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteDeletesAsync(IChannelHandle channel, IEnumerable<DeleteRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateDeleteOperation(requests);
+            var operation = CreateDeleteOperation(requests, isLast);
             return operation.ExecuteAsync(channel, cancellationToken);
         }
 
-        private BulkWriteOperationResult ExecuteInserts(IChannelHandle channel, IEnumerable<InsertRequest> requests, CancellationToken cancellationToken)
+        private BulkWriteOperationResult ExecuteInserts(IChannelHandle channel, IEnumerable<InsertRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateInsertOperation(requests);
+            var operation = CreateInsertOperation(requests, isLast);
             return operation.Execute(channel, cancellationToken);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteInsertsAsync(IChannelHandle channel, IEnumerable<InsertRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteInsertsAsync(IChannelHandle channel, IEnumerable<InsertRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateInsertOperation(requests);
+            var operation = CreateInsertOperation(requests, isLast);
             return operation.ExecuteAsync(channel, cancellationToken);
         }
 
-        private BulkWriteOperationResult ExecuteUpdates(IChannelHandle channel, IEnumerable<UpdateRequest> requests, CancellationToken cancellationToken)
+        private BulkWriteOperationResult ExecuteUpdates(IChannelHandle channel, IEnumerable<UpdateRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateUpdateOperation(requests);
+            var operation = CreateUpdateOperation(requests, isLast);
             return operation.Execute(channel, cancellationToken);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteUpdatesAsync(IChannelHandle channel, IEnumerable<UpdateRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteUpdatesAsync(IChannelHandle channel, IEnumerable<UpdateRequest> requests, bool isLast, CancellationToken cancellationToken)
         {
-            var operation = CreateUpdateOperation(requests);
+            var operation = CreateUpdateOperation(requests, isLast);
             return operation.ExecuteAsync(channel, cancellationToken);
+        }
+
+        private WriteConcern GetEffectiveWriteConcern(bool isLast)
+        {
+            if (_isOrdered && !isLast && !_writeConcern.IsAcknowledged)
+            {
+                return WriteConcern.W1; // explicitly do not use the server's default.
+            }
+
+            return _writeConcern;
         }
 
         // nested types
@@ -348,26 +373,33 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var runCount = 0;
                 var maxRunLength = Math.Min(_operation._maxBatchCount ?? int.MaxValue, _channel.ConnectionDescription.MaxBatchCount);
-                foreach (var run in FindRuns(maxRunLength))
+                using (var runsEnumerator = (ReadAheadEnumerable<Run>.ReadAheadEnumerator)new ReadAheadEnumerable<Run>(FindRuns(maxRunLength)).GetEnumerator())
                 {
-                    runCount++;
-
-                    if (_hasWriteErrors && _operation._isOrdered)
+                    while (runsEnumerator.MoveNext())
                     {
-                        _remainingRequests = _remainingRequests.Concat(run.Requests);
-                        continue;
+                        runCount++;
+
+                        if (_hasWriteErrors && _operation._isOrdered)
+                        {
+                            _remainingRequests = _remainingRequests.Concat(runsEnumerator.Current.Requests);
+                            continue;
+                        }
+
+                        var batch = new Batch
+                        {
+                            IsLast = !runsEnumerator.HasNext,
+                            Run = runsEnumerator.Current
+                        };
+                        yield return batch;
+                        _batchResults.Add(batch.Result);
+
+                        _hasWriteErrors |= batch.Result.HasWriteErrors;
                     }
 
-                    var batch = new Batch { Run = run };
-                    yield return batch;
-                    _batchResults.Add(batch.Result);
-
-                    _hasWriteErrors |= batch.Result.HasWriteErrors;
-                }
-
-                if (runCount == 0)
-                {
-                    throw new InvalidOperationException("Bulk write operation is empty.");
+                    if (runCount == 0)
+                    {
+                        throw new InvalidOperationException("Bulk write operation is empty.");
+                    }
                 }
             }
 
@@ -460,6 +492,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public class Batch
             {
+                public bool IsLast;
                 public BulkWriteBatchResult Result;
                 public Run Run;
             }

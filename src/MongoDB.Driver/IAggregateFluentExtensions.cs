@@ -70,6 +70,76 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="foreignCollectionName">Name of the foreign collection.</param>
+        /// <param name="localField">The local field.</param>
+        /// <param name="foreignField">The foreign field.</param>
+        /// <param name="as">The field in the result to place the foreign matches.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> Lookup<TResult>(this IAggregateFluent<TResult> aggregate,
+            string foreignCollectionName,
+            FieldDefinition<TResult> localField,
+            FieldDefinition<BsonDocument> foreignField,
+            FieldDefinition<BsonDocument> @as)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(foreignCollectionName, nameof(foreignCollectionName));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            return aggregate.Lookup(
+                foreignCollectionName,
+                localField,
+                foreignField,
+                @as,
+                new AggregateLookupOptions<BsonDocument, BsonDocument>());
+        }
+
+        /// <summary>
+        /// Appends a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="foreignCollection">The foreign collection.</param>
+        /// <param name="localField">The local field.</param>
+        /// <param name="foreignField">The foreign field.</param>
+        /// <param name="as">The field in the result to place the foreign matches.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignDocument, TNewResult>(this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TForeignDocument> foreignCollection,
+            Expression<Func<TResult, object>> localField,
+            Expression<Func<TForeignDocument, object>> foreignField,
+            Expression<Func<TNewResult, object>> @as,
+            AggregateLookupOptions<TForeignDocument, TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            options = options ?? new AggregateLookupOptions<TForeignDocument, TNewResult>();
+            if (options.ForeignSerializer == null)
+            {
+                options.ForeignSerializer = foreignCollection.DocumentSerializer;
+            }
+
+            return aggregate.Lookup(
+                foreignCollection.CollectionNamespace.CollectionName,
+                new ExpressionFieldDefinition<TResult>(localField),
+                new ExpressionFieldDefinition<TForeignDocument>(foreignField),
+                new ExpressionFieldDefinition<TNewResult>(@as),
+                options);
+        }
+
+        /// <summary>
         /// Appends a match stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -309,11 +379,43 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
+        public static TResult First<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.First(aggregate.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first document of the aggregate result.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
         public static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstAsync(aggregate.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first document of the aggregate result, or the default value if the result set is empty.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult FirstOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.FirstOrDefault(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -329,7 +431,23 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefaultAsync(aggregate.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result. Throws an exception if the result set does not contain exactly one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult Single<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.Single(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -345,7 +463,23 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleAsync(aggregate.Limit(2), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result, or the default value if the result set is empty. Throws an exception if the result set contains more than one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult SingleOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.SingleOrDefault(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -361,7 +495,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(aggregate.Limit(2), cancellationToken);
         }
 
         private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>

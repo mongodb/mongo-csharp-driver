@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,24 +13,27 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Operations
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
+
+namespace MongoDB.Driver.Core.WireProtocol
 {
     /// <summary>
-    /// Represents the document validation level.
+    /// Instructions for handling the response from a command.
     /// </summary>
-    public enum DocumentValidationLevel
+    public enum CommandResponseHandling
     {
         /// <summary>
-        /// Strict document validation.
+        /// Return the response from the server.
         /// </summary>
-        Strict = 0, // the default
+        Return,
         /// <summary>
-        /// Moderate document validation.
+        /// Ignore the response from the server.
         /// </summary>
-        Moderate,
-        /// <summary>
-        /// No document validation.
-        /// </summary>
-        Off
+        Ignore
     }
 }

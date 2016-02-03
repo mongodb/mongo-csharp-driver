@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver.Linq
 {
@@ -82,18 +81,25 @@ namespace MongoDB.Driver.Linq
             return sb.ToString();
         }
 
+        internal override object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options)
+        {
+            var pipeline = CreatePipeline<TInput>();
+
+            return collection.Aggregate(pipeline, options, CancellationToken.None);
+        }
+
         internal override Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken)
         {
-            var pipeline = new BsonDocumentStagePipelineDefinition<TInput, TOutput>(
-                _stages,
-                _outputSerializer);
+            var pipeline = CreatePipeline<TInput>();
 
             return collection.AggregateAsync(pipeline, options, cancellationToken);
         }
 
-        internal override object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options)
+        private BsonDocumentStagePipelineDefinition<TInput, TOutput> CreatePipeline<TInput>()
         {
-            return new AsyncCursorEnumerableAdapter<TOutput>(ct => (Task<IAsyncCursor<TOutput>>)ExecuteAsync(collection, options, ct), CancellationToken.None);
+            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(
+                _stages,
+                _outputSerializer);
         }
     }
 }

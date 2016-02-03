@@ -230,35 +230,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestReplicaSetMemberCount()
-        {
-            if (_isReplicaSet)
-            {
-                var isMasterResult = _database.RunCommand("isMaster").Response;
-                BsonValue hosts;
-                int hostCount = 0;
-                if (isMasterResult.TryGetValue("hosts", out hosts))
-                {
-                    hostCount = hosts.AsBsonArray.Count;
-                }
-                BsonValue passives;
-                int passiveCount = 0;
-                if (isMasterResult.TryGetValue("passives", out passives))
-                {
-                    passiveCount = passives.AsBsonArray.Count;
-                }
-                BsonValue arbiters;
-                int arbiterCount = 0;
-                if (isMasterResult.TryGetValue("arbiters", out arbiters))
-                {
-                    arbiterCount = arbiters.AsBsonArray.Count;
-                }
-                Assert.AreEqual(hostCount + passiveCount + arbiterCount,
-                    _server.Instances.Length);
-            }
-        }
-
-        [Test]
         public void TestRequestStart()
         {
             Assert.AreEqual(0, _server.RequestNestingLevel);

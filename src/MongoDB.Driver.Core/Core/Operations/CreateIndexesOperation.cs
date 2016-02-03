@@ -33,11 +33,6 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class CreateIndexesOperation : IWriteOperation<BsonDocument>
     {
-        #region static
-        // static fields
-        private static readonly SemanticVersion __serverVersionSupportingCreateIndexesCommand = new SemanticVersion(2, 7, 6);
-        #endregion
-
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -137,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IWriteOperation<BsonDocument> CreateOperation(IChannel channel)
         {
-            if (channel.ConnectionDescription.ServerVersion >= __serverVersionSupportingCreateIndexesCommand)
+            if (SupportedFeatures.IsCreateIndexesCommandSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings);
             }

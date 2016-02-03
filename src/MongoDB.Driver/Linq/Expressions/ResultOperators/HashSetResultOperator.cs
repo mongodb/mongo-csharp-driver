@@ -14,22 +14,31 @@
 */
 
 using System;
+using System.Collections.Generic;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class HashSetResultOperator : ResultOperator
     {
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public HashSetResultOperator(Type type)
+        public HashSetResultOperator(Type type, IBsonSerializer serializer)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         public override string Name
         {
             get { return "HashSet"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type

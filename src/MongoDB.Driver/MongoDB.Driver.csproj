@@ -75,12 +75,14 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateLookupOptions.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
+    <Compile Include="InsertOneOptions.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\ExecutionPlanBuilder.cs" />
     <Compile Include="Linq\ExpressionHelper.cs" />
@@ -101,6 +103,8 @@
     <Compile Include="Linq\Expressions\FieldExpression.cs" />
     <Compile Include="Linq\Expressions\GroupByWithResultSelectorExpression.cs" />
     <Compile Include="Linq\Expressions\GroupingKeyExpression.cs" />
+    <Compile Include="Linq\Expressions\JoinExpression.cs" />
+    <Compile Include="Linq\Expressions\GroupJoinExpression.cs" />
     <Compile Include="Linq\Expressions\OrderByExpression.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\HashSetResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\ContainsResultOperator.cs" />
@@ -110,6 +114,7 @@
     <Compile Include="Linq\Expressions\ResultOperators\ResultTransformerHelper.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\StandardDeviationResultOperator.cs" />
     <Compile Include="Linq\Expressions\SelectManyExpression.cs" />
+    <Compile Include="Linq\Expressions\DefaultIfEmptyExpression.cs" />
     <Compile Include="Linq\Expressions\SkipExpression.cs" />
     <Compile Include="Linq\Expressions\SelectExpression.cs" />
     <Compile Include="Linq\Expressions\IFieldExpression.cs" />
@@ -177,7 +182,10 @@
     <Compile Include="Linq\Processors\MethodInfoMethodCallBinder.cs" />
     <Compile Include="Linq\Processors\NameBasedMethodCallBinder.cs" />
     <Compile Include="Linq\Processors\PartialEvaluator.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\DefaultIfEmptyBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\GroupByWithResultSelectorBinder.cs" />
+    <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\JoinBinder.cs" />
+    <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\JoinSerializer.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationSampleBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\StandardDeviationPopulationBinder.cs" />
     <Compile Include="Linq\Processors\Pipeline\MethodCallBinders\SampleBinder.cs" />
@@ -222,10 +230,11 @@
     <Compile Include="Linq\Processors\Transformers\VBNothingConversionRemovalTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\VBStringIndexComparisonTransformer.cs" />
     <Compile Include="Linq\QueryableExecutionModel.cs" />
+    <Compile Include="Linq\SerializerHelper.cs" />
     <Compile Include="Linq\Translators\AggregateGroupTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslator.cs" />
-    <Compile Include="Linq\Translators\FieldExpressionFlattener.cs" />
+    <Compile Include="Linq\FieldExpressionFlattener.cs" />
     <Compile Include="Linq\Translators\FieldNamePrefixer.cs" />
     <Compile Include="Linq\QueryableTranslation.cs" />
     <Compile Include="Linq\Translators\FindProjectionTranslator.cs" />
@@ -267,8 +276,6 @@
     <Compile Include="FindFluentBase.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Support\ReflectionExtensions.cs" />
-    <Compile Include="Sync\AsyncCursorEnumerableAdapter.cs" />
-    <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="AggregateUnwindOptions.cs" />
     <Compile Include="TextSearchOptions.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />

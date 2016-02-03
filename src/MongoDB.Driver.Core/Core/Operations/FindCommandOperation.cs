@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _hint;
         private int? _limit;
         private BsonDocument _max;
+        private TimeSpan? _maxAwaitTime;
         private int? _maxScan;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -205,6 +206,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _max; }
             set { _max = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>
@@ -386,12 +399,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private BsonDocument CreateCommand(ServerDescription serverDescription, ReadPreference readPreference)
+        private BsonDocument CreateCommand(ServerDescription serverDescription)
         {
             _readConcern.ThrowIfNotSupported(serverDescription.Version);
 
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
-            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverDescription.Type, readPreference);
             var isShardRouter = serverDescription.Type == ServerType.ShardRouter;
 
             var command = new BsonDocument
@@ -408,7 +420,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "comment", _comment, _comment != null },
                 { "maxScan", () => _maxScan.Value, _maxScan.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readPreference", readPreferenceDocument, readPreferenceDocument != null },
                 { "max", _max, _max != null },
                 { "min", _min, _min != null },
                 { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
@@ -419,7 +430,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
-                { "readConcern", () => _readConcern.ToBsonDocument(), _readConcern.ShouldBeSent(serverDescription.Version) }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
 
             return command;
@@ -427,8 +438,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, CursorBatch<TDocument> batch, bool slaveOk)
         {
+            var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
             return new AsyncCursor<TDocument>(
-                channelSource.Fork(),
+                getMoreChannelSource,
                 _collectionNamespace,
                 _filter ?? new BsonDocument(),
                 batch.Documents,
@@ -437,7 +449,7 @@ namespace MongoDB.Driver.Core.Operations
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
                 _messageEncoderSettings,
-                null); // maxTime
+                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
         }
 
         private CursorBatch<TDocument> CreateCursorBatch(BsonDocument result)
@@ -461,6 +473,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
@@ -468,7 +481,7 @@ namespace MongoDB.Driver.Core.Operations
                 CursorBatch<TDocument> batch;
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    batch = ExecuteProtocol(channel, channelSource.ServerDescription, readPreference, slaveOk, cancellationToken);
+                    batch = ExecuteCommand(channelBinding, channelSource.ServerDescription, cancellationToken);
                 }
 
                 return CreateCursor(channelSource, batch, slaveOk);
@@ -483,6 +496,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
@@ -490,42 +504,36 @@ namespace MongoDB.Driver.Core.Operations
                 CursorBatch<TDocument> batch;
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    batch = await ExecuteProtocolAsync(channel, channelSource.ServerDescription, readPreference, slaveOk, cancellationToken).ConfigureAwait(false);
+                    batch = await ExecuteCommandAsync(channelBinding, channelSource.ServerDescription, cancellationToken).ConfigureAwait(false);
                 }
 
                 return CreateCursor(channelSource, batch, slaveOk);
             }
         }
 
-        private CursorBatch<TDocument> ExecuteProtocol(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, bool slaveOk, CancellationToken cancellationToken)
+        private ReadCommandOperation<BsonDocument> CreateCommandOperation(BsonDocument command)
         {
-            var command = CreateCommand(serverDescription, readPreference);
-
-            var result = channel.Command<BsonDocument>(
+            var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
-                NoOpElementNameValidator.Instance,
-                slaveOk,
                 __findCommandResultSerializer,
-                _messageEncoderSettings,
-                cancellationToken);
+                _messageEncoderSettings);
+            return operation;
+        }
 
+        private CursorBatch<TDocument> ExecuteCommand(IReadBinding binding, ServerDescription serverDescription, CancellationToken cancellationToken)
+        {
+            var command = CreateCommand(serverDescription);
+            var operation = CreateCommandOperation(command);
+            var result = operation.Execute(binding, cancellationToken);
             return CreateCursorBatch(result);
         }
 
-        private async Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, bool slaveOk, CancellationToken cancellationToken)
+        private async Task<CursorBatch<TDocument>> ExecuteCommandAsync(IReadBinding binding, ServerDescription serverDescription, CancellationToken cancellationToken)
         {
-            var command = CreateCommand(serverDescription, readPreference);
-
-            var result = await channel.CommandAsync<BsonDocument>(
-                _collectionNamespace.DatabaseNamespace,
-                command,
-                NoOpElementNameValidator.Instance,
-                slaveOk,
-                __findCommandResultSerializer,
-                _messageEncoderSettings,
-                cancellationToken).ConfigureAwait(false);
-
+            var command = CreateCommand(serverDescription);
+            var operation = CreateCommandOperation(command);
+            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             return CreateCursorBatch(result);
         }
     }

@@ -24,10 +24,17 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private BsonDocument _filter;
         private FindOptions<BsonDocument> _options = new FindOptions<BsonDocument>();
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            var cursor = collection.FindAsync(_filter, _options).GetAwaiter().GetResult();
-            return cursor.ToListAsync();
+            if (async)
+            {
+                var cursor = collection.FindAsync(_filter, _options).GetAwaiter().GetResult();
+                cursor.ToListAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                collection.FindSync(_filter, _options).ToList();
+            }
         }
 
         protected override bool TrySetArgument(string name, BsonValue value)

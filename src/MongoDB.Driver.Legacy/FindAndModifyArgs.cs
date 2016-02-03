@@ -38,6 +38,7 @@ namespace MongoDB.Driver
     public class FindAndModifyArgs
     {
         // private fields
+        private bool? _bypassDocumentValidation;
         private IMongoFields _fields;
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
@@ -47,6 +48,18 @@ namespace MongoDB.Driver
         private FindAndModifyDocumentVersion? _versionReturned;
 
         // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets the fields specification.
         /// </summary>

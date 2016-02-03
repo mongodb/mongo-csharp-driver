@@ -128,10 +128,10 @@ namespace MongoDB.Driver.Core.Operations
             var numberToReturn = _batchSize ?? 0;
             if (_limit > 0)
             {
-                numberToReturn = _limit.Value - _count;
-                if (_batchSize != 0 && numberToReturn > _batchSize.Value)
+                var remaining = _limit.Value - _count;
+                if (numberToReturn == 0 || numberToReturn > remaining)
                 {
-                    numberToReturn = _batchSize.Value;
+                    numberToReturn = remaining;
                 }
             }
             return numberToReturn;
@@ -170,6 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
@@ -185,6 +186,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
@@ -274,7 +276,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = _channelSource.GetChannel(cancellationToken))
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                if (SupportedFeatures.IsFindCommandSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return ExecuteGetMoreCommand(channel, cancellationToken);
                 }
@@ -290,9 +292,9 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (channel.ConnectionDescription.ServerVersion >= new SemanticVersion(3, 1, 5))
+                if (SupportedFeatures.IsFindCommandSupported(channel.ConnectionDescription.ServerVersion))
                 {
-                    return await ExecuteGetMoreCommandAsync(channel,cancellationToken).ConfigureAwait(false);
+                    return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

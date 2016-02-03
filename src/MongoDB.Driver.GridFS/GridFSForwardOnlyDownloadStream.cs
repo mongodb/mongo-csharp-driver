@@ -85,26 +85,40 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
+        public override void Close(CancellationToken cancellationToken)
+        {
+            CloseHelper();
+            base.Close(cancellationToken);
+        }
+
         public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!_closed)
-            {
-                _closed = true;
+            CloseHelper();
+            return base.CloseAsync(cancellationToken);
+        }
 
-                if (_checkMD5 && _position == FileInfo.Length)
-                {
-                    _md5.TransformFinalBlock(new byte[0], 0, 0);
-                    var md5 = BsonUtils.ToHexString(_md5.Hash);
-                    if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
-                    {
-#pragma warning disable 618
-                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
-#pragma warning restore
-                    }
-                }
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+            ThrowIfDisposed();
+
+            var bytesRead = 0;
+            while (count > 0 && _position < FileInfo.Length)
+            {
+                var segment = GetSegment(CancellationToken.None);
+
+                var partialCount = Math.Min(count, segment.Count);
+                Buffer.BlockCopy(segment.Array, segment.Offset, buffer, offset, partialCount);
+
+                bytesRead += partialCount;
+                offset += partialCount;
+                count -= partialCount;
+                _position += partialCount;
             }
 
-            return base.CloseAsync(cancellationToken);
+            return bytesRead;
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -112,7 +126,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-            ThrowIfClosedOrDisposed();
+            ThrowIfDisposed();
 
             var bytesRead = 0;
             while (count > 0 && _position < FileInfo.Length)
@@ -169,7 +183,27 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
-        private async Task GetFirstBatchAsync(CancellationToken cancellationToken)
+        private void CloseHelper()
+        {
+            if (!_closed)
+            {
+                _closed = true;
+
+                if (_checkMD5 && _position == FileInfo.Length)
+                {
+                    _md5.TransformFinalBlock(new byte[0], 0, 0);
+                    var md5 = BsonUtils.ToHexString(_md5.Hash);
+                    if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
+                    {
+#pragma warning disable 618
+                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
+#pragma warning restore
+                    }
+                }
+            }
+        }
+
+        private FindOperation<BsonDocument> CreateFirstBatchOperation()
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
@@ -178,7 +212,7 @@ namespace MongoDB.Driver.GridFS
 #pragma warning restore
             var sort = new BsonDocument("n", 1);
 
-            var operation = new FindOperation<BsonDocument>(
+            return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings)
@@ -186,16 +220,36 @@ namespace MongoDB.Driver.GridFS
                 Filter = filter,
                 Sort = sort
             };
+        }
 
+        private void GetFirstBatch(CancellationToken cancellationToken)
+        {
+            var operation = CreateFirstBatchOperation();
+            _cursor = operation.Execute(Binding, cancellationToken);
+            GetNextBatch(cancellationToken);
+        }
+
+        private async Task GetFirstBatchAsync(CancellationToken cancellationToken)
+        {
+            var operation = CreateFirstBatchOperation();
             _cursor = await operation.ExecuteAsync(Binding, cancellationToken).ConfigureAwait(false);
             await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        private void GetNextBatch(CancellationToken cancellationToken)
+        {
+            var hasMore = _cursor.MoveNext(cancellationToken);
+            GetNextBatchFromCursor(hasMore);
+        }
+
         private async Task GetNextBatchAsync(CancellationToken cancellationToken)
         {
-            var previousBatch = _batch;
-
             var hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+            GetNextBatchFromCursor(hasMore);
+        }
+
+        private void GetNextBatchFromCursor(bool hasMore)
+        {
             if (!hasMore)
             {
 #pragma warning disable 618
@@ -203,7 +257,9 @@ namespace MongoDB.Driver.GridFS
 #pragma warning restore
             }
 
+            var previousBatch = _batch;
             _batch = _cursor.Current.ToList();
+
             if (previousBatch != null)
             {
                 _batchPosition += previousBatch.Count * FileInfo.ChunkSizeBytes; ;
@@ -243,6 +299,23 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        private ArraySegment<byte> GetSegment(CancellationToken cancellationToken)
+        {
+            var batchIndex = (int)((_position - _batchPosition) / FileInfo.ChunkSizeBytes);
+
+            if (_cursor == null)
+            {
+                GetFirstBatch(cancellationToken);
+            }
+            else if (batchIndex == _batch.Count)
+            {
+                GetNextBatch(cancellationToken);
+                batchIndex = 0;
+            }
+
+            return GetSegmentHelper(batchIndex);
+        }
+
         private async Task<ArraySegment<byte>> GetSegmentAsync(CancellationToken cancellationToken)
         {
             var batchIndex = (int)((_position - _batchPosition) / FileInfo.ChunkSizeBytes);
@@ -257,6 +330,11 @@ namespace MongoDB.Driver.GridFS
                 batchIndex = 0;
             }
 
+            return GetSegmentHelper(batchIndex);
+        }
+
+        private ArraySegment<byte> GetSegmentHelper(int batchIndex)
+        {
             var bytes = _batch[batchIndex]["data"].AsBsonBinaryData.Bytes;
             var segmentOffset = (int)(_position % FileInfo.ChunkSizeBytes);
             var segmentCount = bytes.Length - segmentOffset;

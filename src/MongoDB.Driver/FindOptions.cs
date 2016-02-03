@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         private int? _batchSize;
         private string _comment;
         private CursorType _cursorType;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
         private bool? _noCursorTimeout;
@@ -82,6 +83,15 @@ namespace MongoDB.Driver
         {
             get { return _cursorType; }
             set { _cursorType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>

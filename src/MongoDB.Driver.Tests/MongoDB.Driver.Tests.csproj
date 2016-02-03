@@ -116,6 +116,7 @@
     <Compile Include="Specifications\command-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\command-monitoring\UpdateManyTest.cs" />
     <Compile Include="Specifications\command-monitoring\UpdateOneTest.cs" />
+    <Compile Include="Specifications\crud\CrudOperationTestBase.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
     <Compile Include="FilterDefinitionBuilderTests.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />

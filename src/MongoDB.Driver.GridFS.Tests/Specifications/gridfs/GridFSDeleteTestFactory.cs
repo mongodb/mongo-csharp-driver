@@ -19,26 +19,21 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
-    public static class GridFSDownloadAsBytesAsyncTestFactory
+    public static class GridFSDeleteTestFactory
     {
         // static public methods
         public static IGridFSTest CreateTest(BsonDocument data, BsonDocument testDefinition)
         {
             if (testDefinition["assert"].AsBsonDocument.Contains("result"))
             {
-                return new GridFSDownloadAsBytesAsyncTest(data, testDefinition);
+                return new GridFSDeleteTest(data, testDefinition);
             }
 
             var error = testDefinition["assert"]["error"].AsString;
             switch (error)
             {
-                case "ChunkIsMissing":
-                case "ChunkIsWrongSize":
-                case "ChunksAreCorrupt":
-                case "ExtraChunk":
-                    return new GridFSDownloadAsyncTest<GridFSChunkException>(data, testDefinition);
                 case "FileNotFound":
-                    return new GridFSDownloadAsyncTest<GridFSFileNotFoundException>(data, testDefinition);
+                    return new GridFSDeleteTest<GridFSFileNotFoundException>(data, testDefinition);
                 default:
                     throw new NotSupportedException(string.Format("Invalid error: {0}.", error));
             }

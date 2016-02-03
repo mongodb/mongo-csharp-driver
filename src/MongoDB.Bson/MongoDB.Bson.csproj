@@ -87,6 +87,7 @@
     <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="IO\ByteArrayChunk.cs" />
     <Compile Include="IO\ByteBufferSlice.cs" />
+    <Compile Include="IO\CStringUtf8Encoding.cs" />
     <Compile Include="IO\IBsonChunk.cs" />
     <Compile Include="IO\IBsonChunkSource.cs" />
     <Compile Include="IO\IBsonReader.cs" />

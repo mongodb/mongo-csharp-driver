@@ -74,8 +74,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Next().Should().BeOfType<ClusterOpeningEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
-            _capturedEvents.Next().Should().BeOfType<ClusterOpenedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterOpenedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 

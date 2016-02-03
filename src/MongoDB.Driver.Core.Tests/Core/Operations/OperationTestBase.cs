@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -113,6 +113,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
+        {
+            var cluster = CoreTestConfiguration.Cluster;
+            using (var binding = new ReadPreferenceBinding(cluster, readPreference))
+            {
+                return ExecuteOperation(operation, binding, async);
+            }
+        }
+
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
@@ -169,6 +178,16 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
             return await operation.ExecuteAsync(binding, CancellationToken.None);
+        }
+
+        protected void CreateIndexes(params CreateIndexRequest[] requests)
+        {
+            var operation = new CreateIndexesOperation(
+                _collectionNamespace,
+                requests,
+                _messageEncoderSettings);
+
+            ExecuteOperation(operation);
         }
 
         protected void Insert(params BsonDocument[] documents)

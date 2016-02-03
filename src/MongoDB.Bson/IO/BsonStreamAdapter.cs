@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -431,21 +431,19 @@ namespace MongoDB.Bson.IO
             byte[] bytes;
             int length;
 
-            var encoding = Utf8Encodings.Strict;
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
+            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
             {
                 bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
+                length = CStringUtf8Encoding.GetBytes(value, _tempUtf8, 0, Utf8Encodings.Strict);
             }
             else
             {
-                bytes = encoding.GetBytes(value);
+                bytes = Utf8Encodings.Strict.GetBytes(value);
+                if (Array.IndexOf<byte>(bytes, 0) != -1)
+                {
+                    throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                }
                 length = bytes.Length;
-            }
-
-            if (Array.IndexOf<byte>(bytes, 0, 0, length) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
             }
 
             _stream.Write(bytes, 0, length);
@@ -458,10 +456,6 @@ namespace MongoDB.Bson.IO
             if (value == null)
             {
                 throw new ArgumentNullException("value");
-            }
-            if (Array.IndexOf<byte>(value, 0) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
             }
             ThrowIfDisposed();
 

@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     public sealed class BulkWriteOptions
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private bool _isOrdered;
 
         // constructors
@@ -37,6 +38,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the requests are fulfilled in order.
         /// </summary>

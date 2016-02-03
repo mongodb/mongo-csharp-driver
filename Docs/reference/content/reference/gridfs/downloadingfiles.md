@@ -23,7 +23,11 @@ This is the easiest way to download a file from GridFS, assuming that the file i
 ```csharp
 IGridFSBucket bucket;
 ObjectId id;
-
+```
+```csharp
+var bytes = bucket.DownloadAsBytes(id);
+```
+```csharp
 var bytes = await bucket.DownloadAsBytesAsync(id);
 ```
 
@@ -35,7 +39,11 @@ If you don't want to hold the entire contents of the downloaded file in memory a
 IGridFSBucket bucket;
 ObjectId id;
 Stream destination;
-
+```
+```csharp
+bucket.DownloadToStream(id, destination);
+```
+```csharp
 await bucket.DownloadToStreamAsync(id, destination);
 ```
 
@@ -50,7 +58,15 @@ In some cases the application might prefer to read the contents of the GridFS fi
 ```csharp
 IGridFSBucket bucket;
 ObjectId id;
-
+```
+```csharp
+using (var stream = bucket.OpenDownloadStream(id))
+{
+    // read from stream until end of file is reached
+    stream.Close();
+}
+```
+```csharp
 using (var stream = await bucket.OpenDownloadStreamAsync(id))
 {
     // read from stream until end of file is reached
@@ -58,7 +74,7 @@ using (var stream = await bucket.OpenDownloadStreamAsync(id))
 }
 ```
 
-The [`Stream`]({{< msdnref "system.io.stream" >}}) object returned by [`OpenDownloadStreamAsync`]({{< apiref "M_MongoDB_Driver_GridFS_OpenDownloadStreamAsync_1." >}}) is actually a [`GridFSDownloadStream`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSDownloadStream" >}}) (a subclass of [`Stream`]({{< msdnref "system.io.stream" >}})), which has the following additional members in addition to those found in [`Stream`]({{< msdnref "system.io.stream" >}}):
+The [`Stream`]({{< msdnref "system.io.stream" >}}) object returned by [`OpenDownloadStream`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStream" >}}) or [`OpenDownloadStreamAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStreamAsync" >}}) is actually a [`GridFSDownloadStream`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSDownloadStream" >}}) (a subclass of [`Stream`]({{< msdnref "system.io.stream" >}})), which has the following additional members in addition to those found in [`Stream`]({{< msdnref "system.io.stream" >}}):
 
 ```csharp
 public abstract class GridFSDownloadStream : Stream
@@ -68,7 +84,7 @@ public abstract class GridFSDownloadStream : Stream
 };
 ```
 
-The [`FileInfo`]({{< apiref "P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo" >}}) property contains information about the GridFS file being dowloaded. See the [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync" >}}) method for details about the [`GridFSFileInfo`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSFileInfo" >}}) class.
+The [`FileInfo`]({{< apiref "P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo" >}}) property contains information about the GridFS file being dowloaded. See the [`Find`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_Find" >}}) or [`FindAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync" >}}) method for details about the [`GridFSFileInfo`]({{< apiref "T_MongoDB_Driver_GridFS_GridFSFileInfo" >}}) class.
 
 {{% note %}}Calling [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) is optional, but recommended. Since [`Stream`]({{< msdnref "system.io.stream" >}}) is [`IDisposable`]({{< msdnref "system.idisposable" >}}) and it is used inside a using statement, it would be closed automatically when [`Dispose`]({{< msdnref "system.idisposable.dispose" >}}) is called. However, in async programming we want to avoid blocking and calling [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) first allows the [`Stream`]({{< msdnref "system.io.stream" >}}) to be closed with an async call. If you call [`CloseAsync`]({{< apiref "M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync." >}}) first then [`Dispose`]({{< msdnref "system.idisposable.dispose" >}}) will no longer block.{{% /note %}}
 
@@ -84,7 +100,15 @@ var options = new GridFSDownloadOptions
 {
     Seekable = true
 };
-
+```
+```csharp
+using (var stream = bucket.OpenDownloadStream(id, options))
+{
+    // this time the Stream returned supports seeking
+    stream.Close();
+}
+```
+```csharp
 using (var stream = await bucket.OpenDownloadStreamAsync(id, options))
 {
     // this time the Stream returned supports seeking
@@ -112,7 +136,24 @@ The following examples all download the newest revision:
 ```csharp
 IGridFSBucket bucket;
 string filename;
+```
+```csharp
+var bytes = bucket.DownloadAsBytesByName(filename);
 
+// or
+
+Stream destination;
+bucket.DownloadToStreamByName(filename, destination);
+
+// or
+
+using (var stream = bucket.OpenDownloadStreamByName(filename))
+{
+    // read from stream until end of file is reached
+    stream.Close(); 
+}
+```
+```csharp
 var bytes = await bucket.DownloadAsBytesByNameAsync(filename);
 
 // or
@@ -139,7 +180,24 @@ var options = new GridFSDownloadByNameOptions
 {
     Revision = 0
 };
+```
+```csharp
+var bytes = bucket.DownloadAsBytesByName(filename, options);
 
+// or
+
+Stream destination;
+bucket.DownloadToStreamByName(filename, destination, options);
+
+// or
+
+using (var stream = bucket.OpenDownloadStreamByName(filename, options))
+{
+    // read from stream until end of file is reached
+    stream.Close(); 
+}
+```
+```csharp
 var bytes = await bucket.DownloadAsBytesByNameAsync(filename, options);
 
 // or

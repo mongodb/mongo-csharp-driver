@@ -29,7 +29,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
     {
         [TestCaseSource(typeof(TestCaseSource))]
         [Category("Specifications_gridfs")]
-        public async Task RunTestAsync(BsonDocument data, BsonDocument testDefinition)
+        public void RunTest(BsonDocument data, BsonDocument testDefinition)
         {
             var test = GridFSTestFactory.CreateTest(data, testDefinition);
 
@@ -44,7 +44,8 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var bucket = new GridFSBucket(database);
 
-            await test.RunAsync(bucket);
+            test.Run(bucket, async: false);
+            test.Run(bucket, async: true);
         }
 
         public class TestCaseSource : IEnumerable

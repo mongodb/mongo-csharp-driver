@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Limit(int limit);
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TNewResult> Lookup<TNewResult>(string from, FieldDefinition<TResult> localField, FieldDefinition<BsonDocument> foreignField, FieldDefinition<TNewResult> @as, IBsonSerializer<TNewResult> newResultSerializer = null)
+        public virtual IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options)
         {
             throw new NotImplementedException();
         }
@@ -57,6 +57,12 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TNewResult> OfType<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer) where TNewResult : TResult;
+
+        /// <inheritdoc />
+        public virtual IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken);
@@ -80,7 +86,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);
+        public virtual IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);
     }
 }

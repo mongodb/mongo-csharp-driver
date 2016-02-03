@@ -14,14 +14,23 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class AllResultOperator : ResultOperator
     {
+        private static readonly BooleanSerializer __serializer = new BooleanSerializer();
+
         public override string Name
         {
             get { return "All"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return __serializer; }
         }
 
         public override Type Type

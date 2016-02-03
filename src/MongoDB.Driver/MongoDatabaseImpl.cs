@@ -32,7 +32,7 @@ namespace MongoDB.Driver
 {
     internal sealed class MongoDatabaseImpl : MongoDatabaseBase
     {
-        // fields
+        // private fields
         private readonly IMongoClient _client;
         private readonly ICluster _cluster;
         private readonly DatabaseNamespace _databaseNamespace;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
         }
 
-        // properties
+        // public properties
         public override IMongoClient Client
         {
             get { return _client; }
@@ -65,9 +65,34 @@ namespace MongoDB.Driver
             get { return _settings; }
         }
 
-        // methods
+        // public methods
+        public override void CreateCollection(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+
+            if (options == null)
+            {
+                CreateCollectionHelper<BsonDocument>(name, null, cancellationToken);
+                return;
+            }
+
+            if (options.GetType() == typeof(CreateCollectionOptions))
+            {
+                var genericOptions = CreateCollectionOptions<BsonDocument>.CoercedFrom(options);
+                CreateCollectionHelper<BsonDocument>(name, genericOptions, cancellationToken);
+                return;
+            }
+
+            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetMethod("CreateCollectionHelper", BindingFlags.NonPublic | BindingFlags.Instance);
+            var documentType = options.GetType().GetGenericArguments()[0];
+            var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
+            methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
+        }
+
         public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+
             if (options == null)
             {
                 return CreateCollectionHelperAsync<BsonDocument>(name, null, cancellationToken);
@@ -85,10 +110,17 @@ namespace MongoDB.Driver
             return (Task)methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
         }
 
+        public override void DropCollection(string name, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+            var operation = CreateDropCollectionOperation(name);
+            ExecuteWriteOperation(operation, cancellationToken);
+        }
+
         public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings);
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+            var operation = CreateDropCollectionOperation(name);
             return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
@@ -105,31 +137,47 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<TDocument>(this, new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
+        public override IAsyncCursor<BsonDocument> ListCollections(ListCollectionsOptions options, CancellationToken cancellationToken)
+        {
+            options = options ?? new ListCollectionsOptions();
+            var operation = CreateListCollectionsOperation(options);
+            return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
-            {
-                Filter = options == null ? null : options.Filter.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
-            };
+            options = options ?? new ListCollectionsOptions();
+            var operation = CreateListCollectionsOperation(options);
             return ExecuteReadOperationAsync(operation, ReadPreference.Primary, cancellationToken);
+        }
+
+        public override void RenameCollection(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(oldName, nameof(oldName));
+            Ensure.IsNotNullOrEmpty(newName, nameof(newName));
+            options = options ?? new RenameCollectionOptions();
+
+            var operation = CreateRenameCollectionOperation(oldName, newName, options);
+            ExecuteWriteOperation(operation, cancellationToken);
         }
 
         public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(oldName, nameof(oldName));
             Ensure.IsNotNullOrEmpty(newName, nameof(newName));
+            options = options ?? new RenameCollectionOptions();
 
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new RenameCollectionOperation(
-                new CollectionNamespace(_databaseNamespace, oldName),
-                new CollectionNamespace(_databaseNamespace, newName),
-                messageEncoderSettings)
-            {
-                DropTarget = options == null ? null : options.DropTarget
-            };
-
+            var operation = CreateRenameCollectionOperation(oldName, newName, options);
             return ExecuteWriteOperationAsync(operation, cancellationToken);
+        }
+
+        public override TResult RunCommand<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(command, nameof(command));
+            readPreference = readPreference ?? ReadPreference.Primary;
+
+            var operation = CreateRunCommandOperation(command);
+            return ExecuteReadOperation(operation, readPreference, cancellationToken);
         }
 
         public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -137,18 +185,45 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(command, nameof(command));
             readPreference = readPreference ?? ReadPreference.Primary;
 
-            var renderedCommand = command.Render(_settings.SerializerRegistry);
-            var messageEncoderSettings = GetMessageEncoderSettings();
-
-            var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+            var operation = CreateRunCommandOperation(command);
             return ExecuteReadOperationAsync(operation, readPreference, cancellationToken);
+        }
+
+        // private methods
+        private void CreateCollectionHelper<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
+        {
+            options = options ?? new CreateCollectionOptions<TDocument>();
+
+            var operation = CreateCreateCollectionOperation(name, options);
+            ExecuteWriteOperation(operation, cancellationToken);
         }
 
         private Task CreateCollectionHelperAsync<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNullOrEmpty(name, nameof(name));
             options = options ?? new CreateCollectionOptions<TDocument>();
 
+            var operation = CreateCreateCollectionOperation(name, options);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
+        }
+
+        private CreateCollectionOperation CreateCreateCollectionOperation(string name, CreateCollectionOptions options)
+        {
+            options = options ?? new CreateCollectionOptions();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
+            return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            {
+                AutoIndexId = options.AutoIndexId,
+                Capped = options.Capped,
+                MaxDocuments = options.MaxDocuments,
+                MaxSize = options.MaxSize,
+                StorageEngine = options.StorageEngine,
+                UsePowerOf2Sizes = options.UsePowerOf2Sizes
+            };
+        }
+
+        private CreateCollectionOperation CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
+        {
             var messageEncoderSettings = GetMessageEncoderSettings();
             BsonDocument validator = null;
             if (options.Validator != null)
@@ -158,7 +233,7 @@ namespace MongoDB.Driver
                 validator = options.Validator.Render(documentSerializer, serializerRegistry);
             }
 
-            var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
             {
                 AutoIndexId = options.AutoIndexId,
                 Capped = options.Capped,
@@ -171,13 +246,49 @@ namespace MongoDB.Driver
                 ValidationLevel = options.ValidationLevel,
                 Validator = validator
             };
-
-            return ExecuteWriteOperationAsync(operation, cancellationToken);
         }
 
-        private Task<T> ExecuteReadOperationAsync<T>(IReadOperation<T> operation, CancellationToken cancellationToken)
+        private DropCollectionOperation CreateDropCollectionOperation(string name)
         {
-            return ExecuteReadOperationAsync(operation, _settings.ReadPreference, cancellationToken);
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+        }
+
+        private ListCollectionsOperation CreateListCollectionsOperation(ListCollectionsOptions options)
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
+            {
+                Filter = options.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
+            };
+        }
+
+        private RenameCollectionOperation CreateRenameCollectionOperation(string oldName, string newName, RenameCollectionOptions options)
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new RenameCollectionOperation(
+                new CollectionNamespace(_databaseNamespace, oldName),
+                new CollectionNamespace(_databaseNamespace, newName),
+                messageEncoderSettings)
+            {
+                DropTarget = options.DropTarget
+            };
+        }
+
+        private ReadCommandOperation<TResult> CreateRunCommandOperation<TResult>(Command<TResult> command)
+        {
+            var renderedCommand = command.Render(_settings.SerializerRegistry);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+        }
+
+        private T ExecuteReadOperation<T>(IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
+            {
+                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
+            }
         }
 
         private async Task<T> ExecuteReadOperationAsync<T>(IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
@@ -185,6 +296,14 @@ namespace MongoDB.Driver
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        private T ExecuteWriteOperation<T>(IWriteOperation<T> operation, CancellationToken cancellationToken)
+        {
+            using (var binding = new WritableServerBinding(_cluster))
+            {
+                return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
         }
 

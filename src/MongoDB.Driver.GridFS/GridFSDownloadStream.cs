@@ -38,6 +38,12 @@ namespace MongoDB.Driver.GridFS
         /// Closes the GridFS stream.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Close(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         public abstract Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken));
     }

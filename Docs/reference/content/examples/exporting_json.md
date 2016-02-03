@@ -13,7 +13,7 @@ title = "Exporting JSON"
 
 The .NET BSON library supports writing JSON documents with the [`JsonWriter`]({{< apiref "T_MongoDB_Bson_IO_JsonWriter" >}}) class. 
 
-The program below will export all documents from a collection to a file with one document per line. 
+The programs below will export all documents from a collection to a file with one document per line. There are two versions of the program, one using the synchronous API and the other using the asynchronous API.
 
 Given the collection's contents:
 
@@ -25,7 +25,37 @@ Given the collection's contents:
 { "_id" : ObjectId("551330712dfd32ffd580e326"), "x" : 4.0 }
 ```
 
-And the program:
+And the synchronous version of the program:
+
+```csharp
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+
+// ...
+
+string outputFileName; // initialize to the output file
+IMongoCollection<BsonDocument> collection; // initialize to the collection to read from
+
+using (var streamWriter = new StreamWriter(outputFileName))
+{
+    var cursor = collection.Find(new BsonDocument()).ToCursor();
+    foreach (var document in cursor.ToEnumerable())
+    {
+        using (var stringWriter = new StringWriter())
+        using (var jsonWriter = new JsonWriter(stringWriter))
+        {
+            var context = BsonSerializationContext.CreateRoot(jsonWriter);
+            collection.DocumentSerializer.Serialize(context, document);
+            var line = stringWriter.ToString();
+            streamWriter.WriteLine(line);
+        }
+    }
+}
+```
+
+Or the asynchronous version of the program:
 
 ```csharp
 using MongoDB.Bson;

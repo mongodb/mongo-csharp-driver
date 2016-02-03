@@ -15,22 +15,30 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Expressions.ResultOperators
 {
     internal sealed class MaxResultOperator : ResultOperator, IResultTransformer
     {
+        private readonly IBsonSerializer _serializer;
         private readonly Type _type;
 
-        public MaxResultOperator(Type type)
+        public MaxResultOperator(Type type, IBsonSerializer serializer)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         public override string Name
         {
             get { return "Max"; }
+        }
+
+        public override IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         public override Type Type

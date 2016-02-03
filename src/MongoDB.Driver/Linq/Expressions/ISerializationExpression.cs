@@ -13,17 +13,21 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
     internal interface ISerializationExpression
     {
         IBsonSerializer Serializer { get; }
+
+        Type Type { get; }
     }
 
     internal static class ISerializationExpressionExtensions
@@ -43,6 +47,8 @@ namespace MongoDB.Driver.Linq.Expressions
         public static BsonValue SerializeValue(this ISerializationExpression field, object value)
         {
             Ensure.IsNotNull(field, nameof(field));
+
+            value = ConvertIfNecessary(field.Serializer.ValueType, value);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -67,7 +73,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    field.Serializer.Serialize(context, value);
+                    field.Serializer.Serialize(context, ConvertIfNecessary(field.Serializer.ValueType, value));
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -88,6 +94,31 @@ namespace MongoDB.Driver.Linq.Expressions
             }
 
             return prefix + "." + suffix;
+        }
+
+        private static object ConvertIfNecessary(Type targetType, object value)
+        {
+            if (targetType.IsEnum || targetType.IsNullableEnum())
+            {
+                if (value != null)
+                {
+                    if (targetType.IsNullableEnum())
+                    {
+                        targetType = targetType.GetNullableUnderlyingType();
+                    }
+
+                    value = Enum.ToObject(targetType, value);
+                }
+            }
+            else if (targetType != typeof(BsonValue) && !targetType.IsNullable())
+            {
+                if (value != null && targetType != value.GetType())
+                {
+                    value = Convert.ChangeType(value, targetType);
+                }
+            }
+
+            return value;
         }
     }
 }

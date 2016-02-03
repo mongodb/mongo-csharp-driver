@@ -47,10 +47,23 @@ namespace MongoDB.Driver.Core.Operations
 
         // test methods
         [Test]
+        public void BypassDocumentValidation_should_get_and_set_value()
+        {
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+            var value = true;
+
+            subject.BypassDocumentValidation = value;
+            var result = subject.BypassDocumentValidation;
+
+            result.Should().Be(value);
+        }
+
+        [Test]
         public void constructor_should_initialize_instance()
         {
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
+            subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.OutputCollectionNamespace.Should().BeSameAs(_outputCollectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
@@ -134,7 +147,10 @@ namespace MongoDB.Driver.Core.Operations
 
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true
+            };
             var expectedDocuments = new BsonDocument[]
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },

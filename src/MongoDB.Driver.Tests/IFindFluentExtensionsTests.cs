@@ -16,10 +16,12 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Translators;
+using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -28,6 +30,119 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class IFindFluentExtensionsTests
     {
+        // public methods
+        [Test]
+        public void First_should_add_limit_and_call_ToCursor(
+            [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
+            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" },
+                new Person { FirstName = "Jane" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(1).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.FirstAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.First(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void First_should_throw_when_find_is_null(
+          [Values(false, true)] bool async)
+        {
+            IFindFluent<Person, Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FirstAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.First();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
+        }
+
+        [Test]
+        public void FirstOrDefault_should_add_limit_and_call_ToCursor(
+           [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
+            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" },
+                new Person { FirstName = "Jane" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Limit(1).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.FirstOrDefault(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void FirstOrDefault_should_throw_when_find_is_null(
+            [Values(false, true)] bool async)
+        {
+            IFindFluent<Person, Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.FirstOrDefaultAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.FirstOrDefault();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
+        }
+
         [Test]
         public void Project_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
         {
@@ -59,6 +174,120 @@ namespace MongoDB.Driver.Tests
             var expectedProjection = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
 
             AssertProjection(subject, expectedProjection);
+        }
+
+        [Test]
+        public void Single_should_add_limit_and_call_ToCursor(
+          [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
+            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var findOptions = new FindOptions<Person, Person>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Options.Returns(findOptions);
+            subject1.Limit(2).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.SingleAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.Single(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void Single_should_throw_when_find_is_null(
+            [Values(false, true)] bool async)
+        {
+            IFindFluent<Person, Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.SingleAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Single();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
+        }
+
+        [Test]
+        public void SingleOrDefault_should_add_limit_and_call_ToCursor(
+            [Values(false, true)] bool async)
+        {
+            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
+            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var findOptions = new FindOptions<Person, Person>();
+            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var firstBatch = new Person[]
+            {
+                new Person { FirstName = "John" }
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            subject1.Options.Returns(findOptions);
+            subject1.Limit(2).Returns(subject2);
+            cursor.Current.Returns(firstBatch);
+
+            Person result;
+            if (async)
+            {
+                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
+                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+
+                result = subject1.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                subject2.ToCursor(cancellationToken).Returns(cursor);
+                cursor.MoveNext(cancellationToken).Returns(true);
+
+                result = subject1.SingleOrDefault(cancellationToken);
+            }
+
+            result.FirstName = "John";
+        }
+
+        [Test]
+        public void SingleOrDefault_should_throw_when_find_is_null(
+            [Values(false, true)] bool async)
+        {
+            IFindFluent<Person, Person> subject = null;
+
+            Action action;
+            if (async)
+            {
+                action = () => subject.SingleOrDefaultAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.SingleOrDefault();
+            }
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
         }
 
         [Test]

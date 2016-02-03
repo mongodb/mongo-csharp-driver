@@ -52,20 +52,20 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         }
 
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
-        public async Task RunTestDefinitionAsync(IEnumerable<BsonDocument> data, BsonDocument definition)
+        public void RunTestDefinition(IEnumerable<BsonDocument> data, BsonDocument definition, bool async)
         {
             var database = DriverTestConfiguration.Client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database
                 .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            await database.DropCollectionAsync(collection.CollectionNamespace.CollectionName);
-            await collection.InsertManyAsync(data);
+            database.DropCollection(collection.CollectionNamespace.CollectionName);
+            collection.InsertMany(data);
 
-            await ExecuteOperationAsync(database, collection, (BsonDocument)definition["operation"], (BsonDocument)definition["outcome"]);
+            ExecuteOperation(database, collection, (BsonDocument)definition["operation"], (BsonDocument)definition["outcome"], async);
         }
 
-        private Task ExecuteOperationAsync(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome)
+        private void ExecuteOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)
         {
             var name = (string)operation["name"];
             Func<ICrudOperationTest> factory;
@@ -80,10 +80,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
                 Assert.Ignore(reason);
-                return Task.FromResult(false);
+                return;
             }
 
-            return factory().ExecuteAsync(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome);
+            test.Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome, async);
         }
 
         private static class TestCaseFactory
@@ -91,23 +91,28 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             public static IEnumerable<ITestCaseData> GetTestCases()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.crud.tests.";
-                return Assembly
+                var testDocuments = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .SelectMany(path =>
-                    {
-                        var doc = ReadDocument(path);
-                        var data = ((BsonArray)doc["data"]).Select(x => (BsonDocument)x).ToList();
+                    .Select(path => ReadDocument(path));
 
-                        return ((BsonArray)doc["tests"]).Select(def =>
+                foreach (var testDocument in testDocuments)
+                {
+                    var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
+
+                    foreach (BsonDocument definition in testDocument["tests"].AsBsonArray)
+                    {
+                        foreach (var async in new[] { false, true})
                         {
-                            var testCase = new TestCaseData(data, (BsonDocument)def);
+                            var testCase = new TestCaseData(data, definition, async);
                             testCase.Categories.Add("Specifications");
                             testCase.Categories.Add("crud");
-                            return testCase.SetName((string)def["description"]);
-                        });
-                    });
+                            testCase.SetName($"{definition["description"]}({async})");
+                            yield return testCase;
+                        }
+                    }
+                }
             }
 
             private static BsonDocument ReadDocument(string path)

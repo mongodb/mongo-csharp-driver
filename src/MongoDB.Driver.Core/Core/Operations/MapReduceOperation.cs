@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
     {
         // fields
+        private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
@@ -56,6 +57,18 @@ namespace MongoDB.Driver.Core.Operations
 
         // properties
         /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        /// <summary>
         /// Gets the result serializer.
         /// </summary>
         /// <value>
@@ -77,23 +90,49 @@ namespace MongoDB.Driver.Core.Operations
         public IAsyncCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var result = operation.Execute(binding, cancellationToken);
-            return new SingleBatchAsyncCursor<TResult>(result);
+
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                return new SingleBatchAsyncCursor<TResult>(result);
+            }
         }
 
         /// <inheritdoc/>
         public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return new SingleBatchAsyncCursor<TResult>(result);
+
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                return new SingleBatchAsyncCursor<TResult>(result);
+            }
         }
 
-        private ReadCommandOperation<TResult[]> CreateOperation()
+        /// <inheritdoc/>
+        protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            _readConcern.ThrowIfNotSupported(serverVersion);
+
+            var command = base.CreateCommand(serverVersion);
+            if (!_readConcern.IsServerDefault)
+            {
+                command["readConcern"] = _readConcern.ToBsonDocument();
+            }
+
+            return command;
+        }
+
+        private ReadCommandOperation<TResult[]> CreateOperation(SemanticVersion serverVersion)
+        {
+            var command = CreateCommand(serverVersion);
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
             return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);

@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Tests.Linq
     public abstract class IntegrationTestBase
     {
         protected IMongoCollection<Root> _collection;
+        protected IMongoCollection<Other> _otherCollection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
@@ -30,10 +31,13 @@ namespace MongoDB.Driver.Tests.Linq
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            _otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
+            db.DropCollection(_collection.CollectionNamespace.CollectionName);
+            db.DropCollection(_collection.CollectionNamespace.CollectionName + "_other");
 
             InsertFirst();
             InsertSecond();
+            InsertJoin();
         }
 
         private void InsertFirst()
@@ -92,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
                 U = 1.23456571661743267789m
             };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
+            _collection.InsertOne(root);
         }
 
         private void InsertSecond()
@@ -142,7 +146,17 @@ namespace MongoDB.Driver.Tests.Linq
                 P = 1.1,
                 U = -1.234565723762724332233489m
             };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
+            _collection.InsertOne(root);
+        }
+
+
+        private void InsertJoin()
+        {
+            _otherCollection.InsertOne(new Other
+            {
+                Id = 10, // will join with first
+                CEF = 111 // will join with second
+            });
         }
 
         public class RootView
@@ -235,6 +249,13 @@ namespace MongoDB.Driver.Tests.Linq
         {
             Zero,
             One
+        }
+
+        public class Other
+        {
+            public int Id { get; set; }
+
+            public int CEF { get; set; }
         }
     }
 }

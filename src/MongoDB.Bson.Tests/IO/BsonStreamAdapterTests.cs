@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1201,11 +1201,28 @@ namespace MongoDB.Mini.Bson.Tests
         }
 
         [Test]
-        public void WriteCString_should_throw_when_value_contains_null_bytes()
+        public void WriteCString_should_throw_when_value_contains_nulls()
         {
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
             var value = "a\0b";
+
+            Action action = () => subject.WriteCString(value);
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+        }
+
+        [Test]
+        public void WriteCString_should_throw_when_value_with_maxByteCount_near_tempUtf8_contains_nulls(
+            [Values(-1, 0, 1)] int delta)
+        {
+            var stream = new MemoryStream();
+            var subject = new BsonStreamAdapter(stream);
+            var subjectReflector = new Reflector(subject);
+            var valueLength = (subjectReflector._tempUtf8.Length / 3) + delta;
+            var length1 = valueLength / 2;
+            var length2 = valueLength - length1 - 1;
+            var value = new string('x', length1) + '\0' + new string('x', length2);
 
             Action action = () => subject.WriteCString(value);
 
@@ -1238,17 +1255,16 @@ namespace MongoDB.Mini.Bson.Tests
         }
 
         [Test]
-        public void WriteCString_should_write_expected_bytes_when_size_is_near_tempUtf8_length(
+        public void WriteCString_should_write_expected_bytes_when_maxByteCount_is_near_tempUtf8_length(
             [Values(-1, 0, 1)]
             int delta)
         {
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
             var subjectReflector = new Reflector(subject);
-            var size = subjectReflector._tempUtf8.Length + delta;
-            var length = size - 1;
-            var value = new string('a', length);
-            var expectedBytes = Enumerable.Repeat<byte>(97, length).Concat(new byte[] { 0 }).ToArray();
+            var valueLength = (subjectReflector._tempUtf8.Length / 3) + delta;
+            var value = new string('a', valueLength);
+            var expectedBytes = Enumerable.Repeat<byte>(97, valueLength).Concat(new byte[] { 0 }).ToArray();
 
             subject.WriteCString(value);
 
@@ -1277,18 +1293,6 @@ namespace MongoDB.Mini.Bson.Tests
             Action action = () => subject.WriteCStringBytes(null);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
-        }
-
-        [Test]
-        public void WriteCStringBytes_should_throw_when_value_contains_nulls()
-        {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var value = new byte[] { 1, 0, 3 };
-
-            Action action = () => subject.WriteCStringBytes(value);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
         [TestCase(new byte[] { })]
@@ -1506,10 +1510,12 @@ namespace MongoDB.Mini.Bson.Tests
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
             var subjectReflector = new Reflector(subject);
-            var size = subjectReflector._tempUtf8.Length + delta;
-            var length = size - 1;
-            var value = new string('a', length);
-            var expectedBytes = BitConverter.GetBytes(length + 1).Concat(Enumerable.Repeat<byte>(97, length)).Concat(new byte[] { 0 }).ToArray();
+            var valueLength = ((subjectReflector._tempUtf8.Length - 5) / 3) + delta;
+            var value = new string('a', valueLength);
+            var expectedBytes = BitConverter.GetBytes(valueLength + 1)
+                .Concat(Enumerable.Repeat<byte>(97, valueLength))
+                .Concat(new byte[] { 0 })
+                .ToArray();
 
             subject.WriteString(value, Utf8Encodings.Strict);
 

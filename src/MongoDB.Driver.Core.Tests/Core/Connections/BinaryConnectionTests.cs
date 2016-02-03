@@ -705,8 +705,17 @@ namespace MongoDB.Driver.Core.Connections
                 _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionFailedEvent>();
                 _capturedEvents.Next().Should().BeOfType<CommandFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<CommandFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
+                var events7And8Types = new Type[]
+                {
+                    _capturedEvents.Next().GetType(),
+                    _capturedEvents.Next().GetType()
+                };
+                var expectedEventTypes = new Type[]
+                {
+                    typeof(CommandFailedEvent),
+                    typeof(ConnectionSendingMessagesFailedEvent)
+                };
+                events7And8Types.Should().BeEquivalentTo(expectedEventTypes);
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
                 _capturedEvents.Any().Should().BeFalse();
             }

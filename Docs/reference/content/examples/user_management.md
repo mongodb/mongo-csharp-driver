@@ -11,7 +11,7 @@ title = "Managing Users"
 
 ## How to Manage Users
 
-While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the [MongoDB shell]({{< docsref "reference/mongo-shell/" >}}). However, it is still possible to manage users from the driver by using the [`IMongoDatabase.RunCommandAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1" >}}) method.
+While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the [MongoDB shell]({{< docsref "reference/mongo-shell/" >}}). However, it is still possible to manage users from the driver by using the [`RunCommand`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommand__1" >}}) or [`RunCommandAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1" >}}) methods.
 
 
 ## Listing Users
@@ -24,7 +24,12 @@ var db = client.GetDatabase("products");
 
 // construct the usersInfo command
 var command = new BsonDocument("usersInfo", 1);
-
+```
+```csharp
+// Run the command. If it fails, an exception will be thrown.
+var result = db.RunCommand<BsonDocument>(command);
+```
+```csharp
 // Run the command. If it fails, an exception will be thrown.
 var result = await db.RunCommandAsync<BsonDocument>(command);
 ```
@@ -51,22 +56,27 @@ var command = new BsonDocument
     { "pwd", "cleartext password" },
     { "customData", new BsonDocument("employeeId", 12345) },
     { "roles", new BsonArray
-               {
-                   new BsonDocument
-                   {
-                       { "role", "clusterAdmin" },
-                       { "db", "admin" }   
-                   },
-                   new BsonDocument
-                   {
-                       { "role", "readAnyDatabase" },
-                       { "db", "admin" }   
-                   },
-                   "readWrite"
-               }},
+        {
+            new BsonDocument
+            {
+                { "role", "clusterAdmin" },
+                { "db", "admin" }   
+            },
+            new BsonDocument
+            {
+                { "role", "readAnyDatabase" },
+                { "db", "admin" }   
+            },
+            "readWrite"
+        }},
     { "writeConcern", writeConcern.ToBsonDocument() }
 };
-
+```
+```csharp
+// Run the command. If it fails, an exception will be thrown.
+db.RunCommand<BsonDocument>(command);
+```
+```csharp
 // Run the command. If it fails, an exception will be thrown.
 await db.RunCommandAsync<BsonDocument>(command);
 ```
@@ -85,15 +95,20 @@ var command = new BsonDocument
     { "updateUser", "appClient01" },
     { "customData", new BsonDocument("employeeId", "0x3039") },
     { "roles", new BsonArray
-               {
-                   new BsonDocument
-                   {
-                       { "role", "read" },
-                       { "db", "assets" }   
-                   },
-               }}
+        {
+            new BsonDocument
+            {
+                { "role", "read" },
+                { "db", "assets" }   
+            },
+        }}
 };
-
+```
+```csharp
+// Run the command. If it fails, an exception will be thrown.
+db.RunCommand<BsonDocument>(command);
+```
+```csharp
 // Run the command. If it fails, an exception will be thrown.
 await db.RunCommandAsync<BsonDocument>(command);
 ```
@@ -107,10 +122,17 @@ The following example uses the [`dropUser`]({{< docsref "reference/command/dropU
 var db = client.GetDatabase("products");
 
 // Construct the dropUser command.
-var command = @"{ dropUser: ""accountAdmin01"",
-                  writeConcern: { w: ""majority"", wtimeout: 5000 }
-                }";
-
+var command = 
+    @"{
+        dropUser: ""accountAdmin01"",
+        writeConcern: { w: ""majority"", wtimeout: 5000 }
+    }";
+```
+```csharp
+// Run the command. If it fails, an exception will be thrown.
+db.RunCommand<BsonDocument>(command);
+```
+```csharp
 // Run the command. If it fails, an exception will be thrown.
 await db.RunCommandAsync<BsonDocument>(command);
 ```

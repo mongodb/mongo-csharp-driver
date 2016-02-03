@@ -74,11 +74,13 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             return new PipelineExpression(
                 source,
                 new FieldExpression(accumulator.FieldName, accumulator.Serializer),
-                CreateResultOperator(node.Type));
+                CreateResultOperator(
+                    node.Type,
+                    bindingContext.GetSerializer(node.Type, node)));
         }
 
         protected abstract AccumulatorType GetAccumulatorType();
 
-        protected abstract ResultOperator CreateResultOperator(Type resultType);
+        protected abstract ResultOperator CreateResultOperator(Type resultType, IBsonSerializer serializer);
     }
 }

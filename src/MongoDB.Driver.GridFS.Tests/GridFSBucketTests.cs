@@ -78,154 +78,268 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Test]
-        public void DeleteAsync_with_BsonValue_id_should_throw_when_id_is_null()
+        public void Delete_with_BsonValue_id_should_throw_when_id_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.DeleteAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DeleteAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Delete(null);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
         [Test]
-        public void DownloadAsBytesAsync_with_BsonValue_id_should_throw_when_id_is_null()
+        public void DownloadAsBytes_with_BsonValue_id_should_throw_when_id_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.DownloadAsBytesAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadAsBytesAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadAsBytes(null);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
         [Test]
-        public void DownloadAsBytesByNameAsync_should_throw_when_filename_is_null()
+        public void DownloadAsBytesByName_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            Func<Task> action = () => subject.DownloadAsBytesByNameAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadAsBytesByNameAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadAsBytesByName(null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
         [Test]
-        public void DownloadToStreamAsync_with_BsonValue_id_should_throw_when_id_is_null()
+        public void DownloadToStream_with_BsonValue_id_should_throw_when_id_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var destination = Substitute.For<Stream>();
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.DownloadToStreamAsync(null, destination);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadToStreamAsync(null, destination).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadToStream(null, destination);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
         [Test]
-        public void DownloadToStreamAsync_with_BsonValue_id_should_throw_when_destination_is_null()
+        public void DownloadToStream_with_BsonValue_id_should_throw_when_destination_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var id = (BsonValue)123;
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.DownloadToStreamAsync(id, null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadToStreamAsync(id, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadToStream(id, null);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
         [Test]
-        public void DownloadToStreamAsync_with_ObjectId_id_should_throw_when_destination_is_null()
+        public void DownloadToStream_with_ObjectId_id_should_throw_when_destination_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var id = ObjectId.GenerateNewId();
 
-#pragma warning disable 618
-            Func<Task> action = () => subject.DownloadToStreamAsync(id, null);
-#pragma warning restore
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadToStreamAsync(id, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadToStream(id, null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
         [Test]
-        public void DownloadToStreamByNameAsync_should_throw_when_destination_is_null()
+        public void DownloadToStreamByName_should_throw_when_destination_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var filename = "filename";
 
-            Func<Task> action = () => subject.DownloadToStreamByNameAsync(filename, null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadToStreamByNameAsync(filename, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadToStreamByName(filename, null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
         [Test]
-        public void DownloadToStreamByNameAsync_should_throw_when_filename_is_null()
+        public void DownloadToStreamByName_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var destination = Substitute.For<Stream>();
 
-            Func<Task> action = () => subject.DownloadToStreamByNameAsync(null, destination);
+            Action action;
+            if (async)
+            {
+                action = () => subject.DownloadToStreamByNameAsync(null, destination).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DownloadToStreamByName(null, destination);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
         [Test]
-        public async Task DropAsync_should_drop_the_files_and_chunks_collections()
+        public void Drop_should_drop_the_files_and_chunks_collections(
+            [Values(false, true)] bool async)
         {
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var subject = new GridFSBucket(database);
-            await subject.UploadFromBytesAsync("test", new byte[] { 0 }); // causes the collections to be created
+            subject.UploadFromBytes("test", new byte[] { 0 }); // causes the collections to be created
 
-            await subject.DropAsync();
+            if (async)
+            {
+                subject.DropAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Drop();
+            }
 
-            var collections = await (await database.ListCollectionsAsync()).ToListAsync();
+            var collections = database.ListCollections().ToList();
             var collectionNames = collections.Select(c => c["name"].AsString);
             collectionNames.Should().NotContain("fs.files");
             collectionNames.Should().NotContain("fs.chunks");
         }
 
         [Test]
-        public void Findsync_should_throw_when_filter_is_null()
+        public void Find_should_throw_when_filter_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            Func<Task> action = () => subject.FindAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.FindAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Find(null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filter");
         }
 
         [Test]
-        public void OpenDownloadStreamAsync_with_BsonValue_id_should_throw_when_id_is_null()
+        public void OpenDownloadStream_with_BsonValue_id_should_throw_when_id_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.OpenDownloadStreamAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.OpenDownloadStreamAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.OpenDownloadStream(null);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
         [Test]
-        public void OpenDownloadStreamByNameAsync_should_throw_when_filename_is_null()
+        public void OpenDownloadStreamByName_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            Func<Task> action = () => subject.OpenDownloadStreamByNameAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.OpenDownloadStreamByNameAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.OpenDownloadStreamByName(null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
         [Test]
-        public void OpenUploadStreamAsync_should_throw_when_filename_is_null()
+        public void OpenUploadStream_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            Func<Task> action = () => subject.OpenUploadStreamAsync(null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.OpenUploadStreamAsync(null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.OpenUploadStream(null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
@@ -241,89 +355,151 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be(options.BucketName);
             result.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+            result.ReadConcern.Should().Be(options.ReadConcern);
             result.ReadPreference.Should().Be(options.ReadPreference);
             result.WriteConcern.Should().Be(options.WriteConcern);
         }
 
         [Test]
-        public void RenameAsync_with_BsonValue_id_should_throw_when_id_is_null()
+        public void Rename_with_BsonValue_id_should_throw_when_id_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var newFilename = "filename";
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.RenameAsync(null, newFilename);
+            Action action;
+            if (async)
+            {
+                action = () => subject.RenameAsync(null, newFilename).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.Rename(null, newFilename);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
         [Test]
-        public void RenameAsync_with_BsonValue_id_should_throw_when_newFilename_is_null()
+        public void Rename_with_BsonValue_id_should_throw_when_newFilename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var id = (BsonValue)123;
 
 #pragma warning disable 618
-            Func<Task> action = () => subject.RenameAsync(id, null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.RenameAsync(id, null).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.Rename(id, null);
+            }
 #pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newFilename");
         }
 
         [Test]
-        public void RenameAsync_with_ObjectId_id_should_throw_when_newFilename_is_null()
+        public void Rename_with_ObjectId_id_should_throw_when_newFilename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var id = ObjectId.GenerateNewId();
 
-#pragma warning disable 618
-            Func<Task> action = () => subject.RenameAsync(id, null);
-#pragma warning restore
+            Action action;
+            if (async)
+            {
+                action = () => subject.RenameAsync(id, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Rename(id, null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newFilename");
         }
 
         [Test]
-        public void UploadFromBytesAsync_id_should_throw_when_filename_is_null()
+        public void UploadFromBytes_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var source = new byte[0];
 
-            Func<Task> action = () => subject.UploadFromBytesAsync(null, source);
+            Action action;
+            if (async)
+            {
+                action = () => subject.UploadFromBytesAsync(null, source).GetAwaiter().GetResult(); ;
+            }
+            else
+            {
+                action = () => subject.UploadFromBytes(null, source);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
         [Test]
-        public void UploadFromBytesAsync_id_should_throw_when_source_is_null()
+        public void UploadFromBytes_should_throw_when_source_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var filename = "filename";
 
-            Func<Task> action = () => subject.UploadFromBytesAsync(filename, null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.UploadFromBytesAsync(filename, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.UploadFromBytes(filename, null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }
 
         [Test]
-        public void UploadFromStreamAsync_id_should_throw_when_filename_is_null()
+        public void UploadFromStream_should_throw_when_filename_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var source = Substitute.For<Stream>();
 
-            Func<Task> action = () => subject.UploadFromStreamAsync(null, source);
+            Action action;
+            if (async)
+            {
+                action = () => subject.UploadFromStreamAsync(null, source).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.UploadFromStream(null, source);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
         [Test]
-        public void UploadFromStreamAsync_id_should_throw_when_source_is_null()
+        public void UploadFromStream_should_throw_when_source_is_null(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var filename = "filename";
 
-            Func<Task> action = () => subject.UploadFromStreamAsync(filename, null);
+            Action action;
+            if (async)
+            {
+                action = () => subject.UploadFromStreamAsync(filename, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.UploadFromStream(filename, null);
+            }
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }

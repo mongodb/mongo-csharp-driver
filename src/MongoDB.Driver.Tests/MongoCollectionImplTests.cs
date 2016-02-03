@@ -46,12 +46,10 @@ namespace MongoDB.Driver
             _operationExecutor = new MockOperationExecutor();
         }
 
-        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>()
+        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>(MongoCollectionSettings settings = null)
         {
-            var settings = new MongoCollectionSettings
-            {
-                ReadConcern = _readConcern
-            };
+            settings = settings ?? new MongoCollectionSettings();
+            settings.ReadConcern = _readConcern;
             var dbSettings = new MongoDatabaseSettings();
             dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
@@ -85,7 +83,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
+        public void Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified(
+            [Values(false, true)] bool async)
         {
             var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[]
             {
@@ -103,7 +102,15 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Aggregate<BsonDocument>(stages, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -118,7 +125,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
+        public void Aggregate_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified(
+            [Values(false, true)] bool async)
         {
             var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[]
             {
@@ -129,12 +137,22 @@ namespace MongoDB.Driver
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
+                BypassDocumentValidation = true,
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
             };
 
             var subject = CreateSubject<BsonDocument>();
-            var result = await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
+
+            IAsyncCursor<BsonDocument> result;
+            if (async)
+            {
+                result = subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.Aggregate<BsonDocument>(stages, options, CancellationToken.None);
+            }
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -143,13 +161,21 @@ namespace MongoDB.Driver
             var writeOperation = (AggregateToCollectionOperation)writeCall.Operation;
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
             writeOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            writeOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
             writeOperation.MaxTime.Should().Be(options.MaxTime);
             writeOperation.Pipeline.Should().HaveCount(2);
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await result.MoveNextAsync(CancellationToken.None);
+            if (async)
+            {
+                result.MoveNextAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result.MoveNext(CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -172,9 +198,10 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task BulkWriteAsync_should_execute_the_BulkMixedWriteOperation(bool isOrdered)
+        public void BulkWrite_should_execute_the_BulkMixedWriteOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isOrdered,
+            [Values(false, true)] bool async)
         {
             var requests = new WriteModel<BsonDocument>[]
             {
@@ -190,6 +217,7 @@ namespace MongoDB.Driver
             };
             var bulkOptions = new BulkWriteOptions
             {
+                BypassDocumentValidation = bypassDocumentValidation,
                 IsOrdered = isOrdered
             };
 
@@ -197,7 +225,16 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            var result = await subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
+
+            BulkWriteResult<BsonDocument> result;
+            if (async)
+            {
+                result = subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.BulkWrite(requests, bulkOptions, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
 
@@ -206,6 +243,7 @@ namespace MongoDB.Driver
 
             // I know, this is a lot of stuff in one test :(
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.IsOrdered.Should().Be(isOrdered);
             operation.Requests.Count().Should().Be(9);
             var convertedRequests = operation.Requests.ToList();
@@ -302,7 +340,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task CountAsync_should_execute_the_CountOperation()
+        public void Count_should_execute_the_CountOperation(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("x", 1);
             var options = new CountOptions
@@ -314,7 +353,15 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.CountAsync(filter, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.CountAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Count(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<long>();
 
@@ -330,7 +377,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
+        public void DeleteMany_should_execute_the_BulkMixedOperation(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
@@ -338,16 +386,23 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.DeleteManyAsync(
-                filter,
-                CancellationToken.None);
+
+            if (async)
+            {
+                subject.DeleteManyAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.DeleteMany(filter, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, null, true, call);
         }
 
         [Test]
-        public void DeleteManyAsync_should_throw_a_WriteException_when_an_error_occurs()
+        public void DeleteMany_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
@@ -369,15 +424,23 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.DeleteManyAsync(
-                    filter,
-                    CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.DeleteManyAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DeleteMany(filter, CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
-        public async Task DeleteOneAsync_should_execute_the_BulkMixedOperation()
+        public void DeleteOne_should_execute_the_BulkMixedOperation(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
@@ -385,16 +448,23 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.DeleteOneAsync(
-                filter,
-                CancellationToken.None);
+
+            if (async)
+            {
+                subject.DeleteOneAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.DeleteOne(filter, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, null, true, call);
         }
 
         [Test]
-        public void DeleteOneAsync_should_throw_a_WriteException_when_an_error_occurs()
+        public void DeleteOne_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
@@ -416,15 +486,23 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.DeleteOneAsync(
-                    filter,
-                    CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.DeleteOneAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.DeleteOne(filter, CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
-        public async Task DistinctAsync_should_execute_the_DistinctOperation()
+        public void Distinct_should_execute_the_DistinctOperation(
+            [Values(false, true)] bool async)
         {
             var fieldName = "a.b";
             var filter = new BsonDocument("x", 1);
@@ -434,7 +512,15 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.DistinctAsync<int>("a.b", filter, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.DistinctAsync<int>("a.b", filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Distinct<int>("a.b", filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
@@ -448,7 +534,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindAsync_should_execute_the_FindOperation()
+        public void Find_should_execute_the_FindOperation(
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
@@ -460,6 +547,7 @@ namespace MongoDB.Driver
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 Limit = 30,
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
@@ -473,7 +561,15 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.FindAsync(filter, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.FindAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindSync(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -486,6 +582,7 @@ namespace MongoDB.Driver
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
             operation.Limit.Should().Be(options.Limit);
+            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
@@ -497,7 +594,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindAsync_with_an_expression_should_execute_correctly()
+        public void Find_with_an_expression_should_execute_correctly(
+            [Values(false, true)] bool async)
         {
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
@@ -509,6 +607,7 @@ namespace MongoDB.Driver
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 Limit = 30,
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
@@ -522,7 +621,15 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.FindAsync(filter, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.FindAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindSync(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -535,6 +642,7 @@ namespace MongoDB.Driver
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(new BsonDocument("x", 1));
             operation.Limit.Should().Be(options.Limit);
+            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
@@ -546,7 +654,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindAsync_with_Projection_As_should_execute_correctly()
+        public void Find_with_Projection_As_should_execute_correctly(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<A>();
             var filter = new BsonDocument();
@@ -555,7 +664,14 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            await subject.FindAsync(filter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindSync(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
@@ -567,7 +683,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindOneAndDeleteAsync_should_execute_the_FindOneAndDeleteOperation()
+        public void FindOneAndDelete_should_execute_the_FindOneAndDeleteOperation(
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var projection = BsonDocument.Parse("{x: 1}");
@@ -580,7 +697,15 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndDelete<BsonDocument>(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -594,7 +719,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindOneAndDeleteAsync_with_Projection_As_should_execute_correctly()
+        public void FindOneAndDelete_with_Projection_As_should_execute_correctly(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<A>();
             var filter = new BsonDocument();
@@ -603,7 +729,14 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            await subject.FindOneAndDeleteAsync(filter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndDeleteAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndDelete(filter, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
@@ -614,11 +747,11 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        [TestCase(false, ReturnDocument.Before)]
-        [TestCase(false, ReturnDocument.After)]
-        [TestCase(true, ReturnDocument.Before)]
-        [TestCase(true, ReturnDocument.After)]
-        public async Task FindOneAndReplaceAsync_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
+        public void FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(ReturnDocument.After, ReturnDocument.Before)] ReturnDocument returnDocument,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var replacement = BsonDocument.Parse("{a: 2}");
@@ -626,6 +759,7 @@ namespace MongoDB.Driver
             var sort = BsonDocument.Parse("{a: -1}");
             var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
             {
+                BypassDocumentValidation = bypassDocumentValidation,
                 IsUpsert = isUpsert,
                 Projection = projection,
                 ReturnDocument = returnDocument,
@@ -634,12 +768,21 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndReplace<BsonDocument>(filter, replacement, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
             call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
             var operation = (FindOneAndReplaceOperation<BsonDocument>)call.Operation;
+            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.Replacement.Should().Be(replacement);
@@ -651,7 +794,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindOneAndReplaceAsync_with_Projection_As_should_execute_correctly()
+        public void FindOneAndReplace_with_Projection_As_should_execute_correctly(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<A>();
             var filter = new BsonDocument();
@@ -661,7 +805,14 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            await subject.FindOneAndReplaceAsync(filter, replacement, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndReplaceAsync(filter, replacement, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndReplace(filter, replacement, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
@@ -672,11 +823,11 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        [TestCase(false, ReturnDocument.Before)]
-        [TestCase(false, ReturnDocument.After)]
-        [TestCase(true, ReturnDocument.Before)]
-        [TestCase(true, ReturnDocument.After)]
-        public async Task FindOneAndUpdateAsync_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
+        public void FindOneAndUpdate_should_execute_the_FindOneAndUpdateOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(ReturnDocument.After, ReturnDocument.Before)] ReturnDocument returnDocument,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var update = BsonDocument.Parse("{$set: {a: 2}}");
@@ -684,6 +835,7 @@ namespace MongoDB.Driver
             var sort = BsonDocument.Parse("{a: -1}");
             var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
             {
+                BypassDocumentValidation = bypassDocumentValidation,
                 IsUpsert = isUpsert,
                 Projection = projection,
                 ReturnDocument = returnDocument,
@@ -692,12 +844,21 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndUpdate<BsonDocument>(filter, update, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
             call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
             var operation = (FindOneAndUpdateOperation<BsonDocument>)call.Operation;
+            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.Update.Should().Be(update);
@@ -709,7 +870,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task FindOneAndUpdateAsync_with_Projection_As_should_execute_correctly()
+        public void FindOneAndUpdate_with_Projection_As_should_execute_correctly(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<A>();
             var filter = new BsonDocument();
@@ -719,7 +881,14 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
-            await subject.FindOneAndUpdateAsync(filter, update, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(filter, update, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.FindOneAndUpdate(filter, update, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
@@ -730,7 +899,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Indexes_CreateOneAsync_should_execute_the_CreateIndexesOperation()
+        public void Indexes_CreateOne_should_execute_the_CreateIndexesOperation(
+            [Values(false, true)] bool async)
         {
             var keys = new BsonDocument("x", 1);
             var partialFilterExpression = Builders<BsonDocument>.Filter.Gt("x", 0);
@@ -759,7 +929,15 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.CreateOneAsync(keys, options, CancellationToken.None);
+
+            if (async)
+            {
+                subject.Indexes.CreateOneAsync(keys, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Indexes.CreateOne(keys, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -791,7 +969,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Indexes_CreateManyAsync_should_execute_the_CreateIndexesOperation()
+        public void Indexes_CreateMany_should_execute_the_CreateIndexesOperation(
+            [Values(false, true)] bool async)
         {
             var keys = new BsonDocument("x", 1);
             var keys2 = new BsonDocument("z", 1);
@@ -824,7 +1003,15 @@ namespace MongoDB.Driver
             var second = new CreateIndexModel<BsonDocument>(keys2);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.CreateManyAsync(new[] { first, second }, CancellationToken.None);
+
+            if (async)
+            {
+                subject.Indexes.CreateManyAsync(new[] { first, second }, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Indexes.CreateMany(new[] { first, second }, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -879,10 +1066,19 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Indexes_DropAllAsync_should_execute_the_DropIndexOperation()
+        public void Indexes_DropAll_should_execute_the_DropIndexOperation(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.DropAllAsync(CancellationToken.None);
+
+            if (async)
+            {
+                subject.Indexes.DropAllAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Indexes.DropAll(CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -893,10 +1089,19 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Indexes_DropOneAsync_should_execute_the_DropIndexOperation()
+        public void Indexes_DropOne_should_execute_the_DropIndexOperation(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.DropOneAsync("name", CancellationToken.None);
+
+            if (async)
+            {
+                subject.Indexes.DropOneAsync("name", CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Indexes.DropOne("name", CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -907,19 +1112,38 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void Indexes_DropOneAsync_should_throw_an_exception_if_an_asterick_is_used()
+        public void Indexes_DropOne_should_throw_an_exception_if_an_asterisk_is_used(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            Func<Task> act = () => subject.Indexes.DropOneAsync("*", CancellationToken.None);
 
-            act.ShouldThrow<ArgumentException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.Indexes.DropOneAsync("*", CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.Indexes.DropOne("*", CancellationToken.None);
+            }
+
+            action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
-        public async Task Indexes_ListAsync_should_execute_the_ListIndexesOperation()
+        public void Indexes_List_should_execute_the_ListIndexesOperation(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.ListAsync(CancellationToken.None);
+
+            if (async)
+            {
+                subject.Indexes.ListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Indexes.List(CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -929,7 +1153,8 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task InsertOneAsync_should_execute_the_BulkMixedOperation()
+        public void InsertOne_should_execute_the_BulkMixedOperation(
+            [Values(false, true)] bool async)
         {
             var document = BsonDocument.Parse("{_id:1,a:1}");
             var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
@@ -937,16 +1162,23 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.InsertOneAsync(
-                document,
-                CancellationToken.None);
+
+            if (async)
+            {
+                subject.InsertOneAsync(document, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertOne(document, cancellationToken: CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, null, true, call);
         }
 
         [Test]
-        public void InsertOneAsync_should_throw_a_WriteException_when_an_error_occurs()
+        public void InsertOne_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(false, true)] bool async)
         {
             var document = BsonDocument.Parse("{_id:1,a:1}");
             var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
@@ -968,15 +1200,54 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.InsertOneAsync(
-                    document,
-                    CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.InsertOneAsync(document, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.InsertOne(document, cancellationToken: CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
-        public async Task InsertManyAsync_should_execute_the_BulkMixedOperation()
+        public void InsertOne_should_respect_AssignIdOnInsert(
+            [Values(false, true)] bool assignIdOnInsert,
+            [Values(false, true)] bool async)
+        {
+            var document = BsonDocument.Parse("{ a : 1 }");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
+            var subject = CreateSubject<BsonDocument>(settings);
+
+            if (async)
+            {
+                subject.InsertOneAsync(document, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertOne(document, cancellationToken: CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+            var requests = operation.Requests.ToList(); // call ToList to force evaluation
+            document.Contains("_id").Should().Be(assignIdOnInsert);
+            VerifySingleWrite(expectedRequest, null, true, call);
+        }
+
+        [Test]
+        public void InsertMany_should_execute_the_BulkMixedOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isOrdered,
+            [Values(false, true)] bool async)
         {
             var documents = new[]
             {
@@ -993,17 +1264,53 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.InsertManyAsync(
-                documents,
-                null,
-                CancellationToken.None);
+            var options = new InsertManyOptions { BypassDocumentValidation = bypassDocumentValidation, IsOrdered = isOrdered };
+
+            if (async)
+            {
+                subject.InsertManyAsync(documents, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertMany(documents, options, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifyWrites(expectedRequests, true, call);
+            VerifyWrites(expectedRequests, bypassDocumentValidation, isOrdered, call);
         }
 
         [Test]
-        public async Task MapReduceAsync_with_inline_output_mode_should_execute_the_MapReduceOperation()
+        public void InsertMany_should_respect_AssignIdOnInsert(
+            [Values(false, true)] bool assignIdOnInsert,
+            [Values(false, true)] bool async)
+        {
+            var document = BsonDocument.Parse("{ a : 1 }");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
+            var subject = CreateSubject<BsonDocument>(settings);
+
+            if (async)
+            {
+                subject.InsertManyAsync(new[] { document }, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertMany(new[] { document }, cancellationToken: CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+            var requests = operation.Requests.ToList(); // call ToList to force evaluation
+            document.Contains("_id").Should().Be(assignIdOnInsert);
+            VerifySingleWrite(expectedRequest, null, true, call);
+        }
+
+        [Test]
+        public void MapReduce_with_inline_output_mode_should_execute_the_MapReduceOperation(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("filter", 1);
             var scope = new BsonDocument("test", 3);
@@ -1022,7 +1329,14 @@ namespace MongoDB.Driver
             };
             var subject = CreateSubject<BsonDocument>();
 
-            await subject.MapReduceAsync("map", "reduce", options);
+            if (async)
+            {
+                subject.MapReduceAsync("map", "reduce", options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.MapReduce("map", "reduce", options);
+            }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
@@ -1042,13 +1356,15 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task MapReduceAsync_with_collection_output_mode_should_execute_the_MapReduceOperation()
+        public void MapReduce_with_collection_output_mode_should_execute_the_MapReduceOperation(
+            [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("filter", 1);
             var scope = new BsonDocument("test", 3);
             var sort = new BsonDocument("sort", 1);
             var options = new MapReduceOptions<BsonDocument, BsonDocument>
             {
+                BypassDocumentValidation = true,
                 Filter = new BsonDocument("filter", 1),
                 Finalize = "finalizer",
                 JavaScriptMode = true,
@@ -1061,11 +1377,19 @@ namespace MongoDB.Driver
             };
             var subject = CreateSubject<BsonDocument>();
 
-            await subject.MapReduceAsync("map", "reduce", options);
+            if (async)
+            {
+                subject.MapReduceAsync("map", "reduce", options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.MapReduce("map", "reduce", options);
+            }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
             var operation = (MapReduceOutputToCollectionOperation)call.Operation;
+            operation.BypassDocumentValidation.Should().BeTrue();
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.FinalizeFunction.Should().Be(options.Finalize);
@@ -1084,35 +1408,42 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task ReplaceOneAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        public void ReplaceOne_should_execute_the_BulkMixedOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var replacement = BsonDocument.Parse("{a:2}");
-            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.ReplaceOneAsync(
-                filter,
-                replacement,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None);
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+
+            if (async)
+            {
+                subject.ReplaceOneAsync(filter, replacement, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.ReplaceOne(filter, replacement, updateOptions, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void ReplaceOneAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        public void ReplaceOne_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var replacement = BsonDocument.Parse("{a:2}");
-            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1130,45 +1461,58 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.ReplaceOneAsync(
-                filter,
-                replacement,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None).GetAwaiter().GetResult();
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.ReplaceOneAsync(filter, replacement, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.ReplaceOne(filter, replacement, updateOptions, CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task UpdateManyAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        public void UpdateMany_should_execute_the_BulkMixedOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.UpdateManyAsync(
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None);
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+
+            if (async)
+            {
+                subject.UpdateManyAsync(filter, update, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UpdateMany(filter, update, updateOptions, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void UpdateManyAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        public void UpdateMany_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(null, false,true)] bool? bypassDocumentValidation,
+            [Values(false,true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1186,45 +1530,58 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.UpdateManyAsync(
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None).GetAwaiter().GetResult();
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.UpdateManyAsync(filter, update, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.UpdateMany(filter, update, updateOptions, CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task UpdateOneAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        public void UpdateOne_should_execute_the_BulkMixedOperation(
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.UpdateOneAsync(
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None);
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+
+            if (async)
+            {
+                subject.UpdateOneAsync(filter, update, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UpdateOne(filter, update, updateOptions, CancellationToken.None);
+            }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySingleWrite(expectedRequest, call);
+            VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void UpdateOneAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        public void UpdateOne_should_throw_a_WriteException_when_an_error_occurs(
+            [Values(false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
+            [Values(false, true)] bool async)
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1242,13 +1599,19 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            Action act = () => subject.UpdateOneAsync(
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = upsert },
-                CancellationToken.None).GetAwaiter().GetResult();
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
 
-            act.ShouldThrow<MongoWriteException>();
+            Action action;
+            if (async)
+            {
+                action = () => subject.UpdateOneAsync(filter, update, updateOptions, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                action = () => subject.UpdateOne(filter, update, updateOptions, CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -1267,12 +1630,13 @@ namespace MongoDB.Driver
             newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
         }
 
-        private static void VerifyWrites(WriteRequest[] expectedRequests, bool isOrdered, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
+        private static void VerifyWrites(WriteRequest[] expectedRequests, bool? bypassDocumentValidation, bool isOrdered, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
         {
             call.Operation.Should().BeOfType<BulkMixedWriteOperation>();
             var operation = (BulkMixedWriteOperation)call.Operation;
 
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.IsOrdered.Should().Be(isOrdered);
 
             var actualRequests = operation.Requests.ToList();
@@ -1284,10 +1648,10 @@ namespace MongoDB.Driver
             }
         }
 
-        private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
+        private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, bool? bypassDocumentValidation, bool isOrdered, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
             where TRequest : WriteRequest
         {
-            VerifyWrites(new[] { expectedRequest }, true, call);
+            VerifyWrites(new[] { expectedRequest }, bypassDocumentValidation, isOrdered, call);
         }
 
         private class A

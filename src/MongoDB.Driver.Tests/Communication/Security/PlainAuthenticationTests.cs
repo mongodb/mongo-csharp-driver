@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SetUp]
         public void Setup()
         {
-            _settings = DriverTestConfiguration.Client.Settings.Clone();
+            _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
         [Test]
@@ -48,10 +48,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
 
@@ -63,10 +61,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var result = client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(__collectionName)
-                .Find(new BsonDocument())
-                .ToListAsync()
-                .GetAwaiter()
-                .GetResult();
+                .FindSync(new BsonDocument())
+                .ToList();
 
             Assert.IsNotNull(result);
         }
@@ -75,7 +71,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public void TestBadPassword()
         {
             var currentCredential = _settings.Credentials.Single();
-            _settings.Credentials = new[] 
+            _settings.Credentials = new[]
             {
                 MongoCredential.CreatePlainCredential(currentCredential.Source, currentCredential.Username, "wrongPassword")
             };
@@ -87,10 +83,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
     }

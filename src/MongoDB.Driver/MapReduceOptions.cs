@@ -31,6 +31,7 @@ namespace MongoDB.Driver
     public sealed class MapReduceOptions<TDocument, TResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private FilterDefinition<TDocument> _filter;
         private BsonJavaScript _finalize;
         private bool? _javaScriptMode;
@@ -43,6 +44,15 @@ namespace MongoDB.Driver
         private bool? _verbose;
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>

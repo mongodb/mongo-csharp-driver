@@ -21,13 +21,13 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
-    public abstract class GridFSDeleteAsyncTestBase : GridFSTestBase
+    public abstract class GridFSDeleteTestBase : GridFSTestBase
     {
         // fields
         protected ObjectId _id;
 
         // constructors
-        public GridFSDeleteAsyncTestBase(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTestBase(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
             var operationName = testDefinition["act"]["operation"].AsString;
@@ -39,6 +39,11 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
 
         // protected methods
+        protected void InvokeMethod(GridFSBucket bucket)
+        {
+            bucket.Delete(_id);
+        }
+
         protected Task InvokeMethodAsync(GridFSBucket bucket)
         {
             return bucket.DeleteAsync(_id);
@@ -62,43 +67,56 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         }
     }
 
-    public class GridFSDeleteAsyncTest : GridFSDeleteAsyncTestBase
+    public class GridFSDeleteTest : GridFSDeleteTestBase
     {
         // constructors
-        public GridFSDeleteAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
 
         // protected methods
-        protected override async Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
-            await InvokeMethodAsync(bucket);
+            if (async)
+            {
+                InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                InvokeMethod(bucket);
+            }
         }
     }
 
-    public class GridFSDeleteAsyncTest<TException> : GridFSDeleteAsyncTestBase where TException : Exception
+    public class GridFSDeleteTest<TException> : GridFSDeleteTestBase where TException : Exception
     {
         // fields
-        private Func<Task> _action;
+        private Action _action;
 
         // constructors
-        public GridFSDeleteAsyncTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
 
         // protected methods
-        protected override Task ActAsync(GridFSBucket bucket)
+        protected override void Act(GridFSBucket bucket, bool async)
         {
-            _action = () => InvokeMethodAsync(bucket);
-            return Task.FromResult(true);
+            if (async)
+            {
+                _action = () => InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _action = () => InvokeMethod(bucket);
+            }
         }
 
-        protected override Task AssertAsync(GridFSBucket bucket)
+        protected override void Assert(GridFSBucket bucket)
         {
             _action.ShouldThrow<TException>();
-            return base.AssertAsync(bucket);
+            base.Assert(bucket);
         }
     }
 }

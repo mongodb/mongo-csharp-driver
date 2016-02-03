@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -166,6 +166,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit = 3;
             subject.Max = new BsonDocument("max", 1);
             subject.MaxScan = 4;
+            subject.MaxAwaitTime = TimeSpan.FromSeconds(2);
             subject.MaxTime = TimeSpan.FromSeconds(1);
             subject.Min = new BsonDocument("min", 1);
             subject.NoCursorTimeout = true;
@@ -192,6 +193,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Limit.Should().Be(subject.Limit);
             result.Max.Should().Be(subject.Max);
             result.MaxScan.Should().Be(subject.MaxScan);
+            result.MaxAwaitTime.Should().Be(subject.MaxAwaitTime);
             result.MaxTime.Should().Be(subject.MaxTime);
             result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
             result.Min.Should().Be(subject.Min);
@@ -326,6 +328,20 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().HaveCount(5);
+        }
+
+        [Test]
+        [RequiresServer("EnsureTestData")]
+        public void Execute_should_find_all_the_documents_matching_the_query_when_read_preference_is_used(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as slaveOk = true
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);
@@ -485,6 +501,20 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.MaxScan = value;
             var result = subject.MaxScan;
+
+            result.Should().Be(value);
+        }
+
+        [Test]
+        public void MaxAwaitTime_get_and_set_should_work(
+            [Values(null, 1)]
+            int? seconds)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = seconds == null ? (TimeSpan?)null : TimeSpan.FromSeconds(seconds.Value);
+
+            subject.MaxAwaitTime = value;
+            var result = subject.MaxAwaitTime;
 
             result.Should().Be(value);
         }

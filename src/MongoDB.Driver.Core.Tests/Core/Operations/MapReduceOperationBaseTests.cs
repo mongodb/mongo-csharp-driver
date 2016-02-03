@@ -16,6 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "out", new BsonDocument("fake", 1) }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -126,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", filter }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -148,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "finalize", finalizeFunction }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -170,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "jsMode", javaScriptMode }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -192,7 +193,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "limit", limit }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", 1500.0 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -236,7 +237,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "scope", scope }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -258,7 +259,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "sort", sort }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -280,7 +281,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "verbose", verbose }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 0, 0));
 
             result.Should().Be(expectedResult);
         }

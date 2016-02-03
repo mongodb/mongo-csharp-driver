@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
@@ -25,6 +26,16 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     internal interface IMongoQueryProvider : IQueryProvider
     {
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        CollectionNamespace CollectionNamespace { get; }
+
+        /// <summary>
+        /// Gets the collection document serializer.
+        /// </summary>
+        IBsonSerializer CollectionDocumentSerializer { get; }
+
         /// <summary>
         /// Gets the execution model.
         /// </summary>

@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -33,7 +35,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SetUp]
         public void Setup()
         {
-            _settings = DriverTestConfiguration.Client.Settings.Clone();
+            _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
         [Test]
@@ -47,12 +49,11 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
+
 
         [Test]
         public void TestSuccessfulAuthentication()
@@ -62,10 +63,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var result = client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(__collectionName)
-                .Find(new BsonDocument())
-                .ToListAsync()
-                .GetAwaiter()
-                .GetResult();
+                .FindSync(new BsonDocument())
+                .ToList();
 
             Assert.IsNotNull(result);
         }
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public void TestBadPassword()
         {
             var currentCredentialUsername = _settings.Credentials.Single().Username;
-            _settings.Credentials = new[] 
+            _settings.Credentials = new[]
             {
                 MongoCredential.CreateGssapiCredential(currentCredentialUsername, "wrongPassword")
             };
@@ -86,10 +85,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Find(new BsonDocument())
-                    .ToListAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                    .FindSync(new BsonDocument())
+                    .ToList();
             });
         }
     }

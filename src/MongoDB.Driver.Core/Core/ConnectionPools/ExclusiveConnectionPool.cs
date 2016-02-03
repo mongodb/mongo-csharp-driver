@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     throw MongoWaitQueueFullException.ForConnectionPool(_pool._endPoint);
                 }
 
-                _stopwatch = new Stopwatch();
+                _stopwatch = Stopwatch.StartNew();
             }
 
             public IConnectionHandle EnteredPool(bool enteredPool)

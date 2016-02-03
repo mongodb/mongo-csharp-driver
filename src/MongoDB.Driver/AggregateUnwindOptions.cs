@@ -20,6 +20,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for the $unwind aggregation stage.
     /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class AggregateUnwindOptions<TResult>
     {
         private FieldDefinition<TResult> _includeArrayIndex;

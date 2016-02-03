@@ -25,7 +25,7 @@ namespace MongoDB.Driver
 {
     internal class FindFluent<TDocument, TProjection> : FindFluentBase<TDocument, TProjection>
     {
-        // fields
+        // private fields
         private readonly IMongoCollection<TDocument> _collection;
         private FilterDefinition<TDocument> _filter;
         private readonly FindOptions<TDocument, TProjection> _options;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver
             _options = Ensure.IsNotNull(options, nameof(options));
         }
 
-        // properties
+        // public properties
         public override FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
@@ -50,28 +50,22 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
-        // methods
+        // public methods
         public override IFindFluent<TDocument, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer)
         {
             var projection = Builders<TDocument>.Projection.As<TResult>(resultSerializer);
             return Project(projection);
         }
 
+        public override long Count(CancellationToken cancellationToken)
+        {
+            var options = CreateCountOptions();
+            return _collection.Count(_filter, options, cancellationToken);
+        }
+
         public override Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            BsonValue hint = null;
-            if (_options.Modifiers != null)
-            {
-                _options.Modifiers.TryGetValue("$hint", out hint);
-            }
-            var options = new CountOptions
-            {
-                Hint = hint,
-                Limit = _options.Limit,
-                MaxTime = _options.MaxTime,
-                Skip = _options.Skip
-            };
-
+            var options = CreateCountOptions();
             return _collection.CountAsync(_filter, options, cancellationToken);
         }
 
@@ -90,6 +84,7 @@ namespace MongoDB.Driver
                 Comment = _options.Comment,
                 CursorType = _options.CursorType,
                 Limit = _options.Limit,
+                MaxAwaitTime = _options.MaxAwaitTime,
                 MaxTime = _options.MaxTime,
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
@@ -113,11 +108,15 @@ namespace MongoDB.Driver
             return this;
         }
 
+        public override IAsyncCursor<TProjection> ToCursor(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _collection.FindSync(_filter, _options, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TProjection>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.FindAsync(_filter, _options, cancellationToken);
         }
-
 
         public override string ToString()
         {
@@ -179,6 +178,23 @@ namespace MongoDB.Driver
             }
 
             return sb.ToString();
+        }
+
+        // private methods
+        private CountOptions CreateCountOptions()
+        {
+            BsonValue hint = null;
+            if (_options.Modifiers != null)
+            {
+                _options.Modifiers.TryGetValue("$hint", out hint);
+            }
+            return new CountOptions
+            {
+                Hint = hint,
+                Limit = _options.Limit,
+                MaxTime = _options.MaxTime,
+                Skip = _options.Skip
+            };
         }
 
         private TRendered Render<TRendered>(Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, TRendered> renderer)

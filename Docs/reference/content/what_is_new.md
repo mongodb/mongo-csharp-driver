@@ -8,23 +8,20 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
-## What's New in the MongoDB .NET 2.1 Driver
+## What's New in the MongoDB .NET 2.2 Driver
 
-The 2.1 driver ships with a number of new features. The most notable are discussed below.
-
-
-## GridFS
-
-[CSHARP-1191](https://jira.mongodb.org/browse/CSHARP-1191) - GridFS support has been implemented.
+The 2.2 driver ships with a number of new features. The most notable are discussed below.
 
 
-## LINQ
+## Sync API
 
-[CSHARP-935](https://jira.mongodb.org/browse/CSHARP-935) - LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.
-
-Simply use the new [`AsQueryable`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1" >}}) method to work with LINQ.
+The 2.0 and 2.1 versions of the .NET driver featured a new async-only API. Version 2.2 introduces sync versions of every async method.
 
 
-## Eventing Implementation
+## Support for server 3.2
 
-[CSHARP-1374](https://jira.mongodb.org/browse/CSHARP-1374) - An eventing API has been added allowing a user to subscribe to one or more events from the core driver for insight into server discovery, server selection, connection pooling, and commands.
+* Support for bypassing document validation for write operations on collections where document validation has been enabled
+* Support for write concern for FindAndModify methods
+* Support for read concern
+* Builder support for new aggregation stages and new accumulators in $group stage
+* Support for version 3 text indexes

@@ -1,5 +1,5 @@
 {
-    "description": "New primary with greater electionId", 
+    "description": "New primary with greater setVersion and electionId", 
     "phases": [
         {
             "outcome": {
@@ -9,6 +9,7 @@
                             "$oid": "000000000000000000000001"
                         }, 
                         "setName": "rs", 
+                        "setVersion": 1, 
                         "type": "RSPrimary"
                     }, 
                     "b:27017": {
@@ -33,7 +34,8 @@
                         ], 
                         "ismaster": true, 
                         "ok": 1, 
-                        "setName": "rs"
+                        "setName": "rs", 
+                        "setVersion": 1
                     }
                 ]
             ]
@@ -51,6 +53,7 @@
                             "$oid": "000000000000000000000002"
                         }, 
                         "setName": "rs", 
+                        "setVersion": 1, 
                         "type": "RSPrimary"
                     }
                 }, 
@@ -70,7 +73,8 @@
                         ], 
                         "ismaster": true, 
                         "ok": 1, 
-                        "setName": "rs"
+                        "setName": "rs", 
+                        "setVersion": 1
                     }
                 ]
             ]
@@ -88,6 +92,7 @@
                             "$oid": "000000000000000000000002"
                         }, 
                         "setName": "rs", 
+                        "setVersion": 1, 
                         "type": "RSPrimary"
                     }
                 }, 
@@ -107,7 +112,8 @@
                         ], 
                         "ismaster": true, 
                         "ok": 1, 
-                        "setName": "rs"
+                        "setName": "rs", 
+                        "setVersion": 1
                     }
                 ]
             ]

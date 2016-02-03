@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private int _numberOfCursors = 4;
+        private ReadConcern _readConcern = ReadConcern.Default;
         private IBsonSerializer<TDocument> _serializer;
 
         // constructors
@@ -109,6 +110,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        /// <summary>
         /// Gets the serializer.
         /// </summary>
         /// <value>
@@ -120,18 +133,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            _readConcern.ThrowIfNotSupported(serverVersion);
+
             return new BsonDocument
             {
                 { "parallelCollectionScan", _collectionNamespace.CollectionName },
-                { "numCursors", _numberOfCursors }
+                { "numCursors", _numberOfCursors },
+                { "readConcern", _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
         }
 
-        private ReadCommandOperation<BsonDocument> CreateOperation()
+        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
@@ -139,33 +155,36 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cursors = new List<AsyncCursor<TDocument>>();
 
-            foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
+            using (var getMoreChannelSource = new ChannelSourceHandle(new ServerChannelSource(channelSource.Server)))
             {
-                var cursorId = cursorDocument["id"].ToInt64();
-                var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v =>
+                foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
                 {
-                    var bsonDocument = (BsonDocument)v;
-                    using (var reader = new BsonDocumentReader(bsonDocument))
+                    var cursorId = cursorDocument["id"].ToInt64();
+                    var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v =>
                     {
-                        var context = BsonDeserializationContext.CreateRoot(reader);
-                        var document = _serializer.Deserialize(context);
-                        return document;
-                    }
-                })
-                    .ToList();
+                        var bsonDocument = (BsonDocument)v;
+                        using (var reader = new BsonDocumentReader(bsonDocument))
+                        {
+                            var context = BsonDeserializationContext.CreateRoot(reader);
+                            var document = _serializer.Deserialize(context);
+                            return document;
+                        }
+                    })
+                        .ToList();
 
-                var cursor = new AsyncCursor<TDocument>(
-                    channelSource.Fork(),
-                    _collectionNamespace,
-                    command,
-                    firstBatch,
-                    cursorId,
-                    _batchSize ?? 0,
-                    0, // limit
-                    _serializer,
-                    _messageEncoderSettings);
+                    var cursor = new AsyncCursor<TDocument>(
+                        getMoreChannelSource.Fork(),
+                        _collectionNamespace,
+                        command,
+                        firstBatch,
+                        cursorId,
+                        _batchSize ?? 0,
+                        0, // limit
+                        _serializer,
+                        _messageEncoderSettings);
 
-                cursors.Add(cursor);
+                    cursors.Add(cursor);
+                }
             }
 
             return cursors;
@@ -178,9 +197,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation();
-                var result = operation.Execute(channelSource, binding.ReadPreference, cancellationToken);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = operation.Execute(channelBinding, cancellationToken);
                 return CreateCursors(channelSource, operation.Command, result);
             }
         }
@@ -192,9 +213,11 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation();
-                var result = await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 return CreateCursors(channelSource, operation.Command, result);
             }
         }

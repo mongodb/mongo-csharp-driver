@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,30 +14,34 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Sync
+namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorEnumerableAdapter<TOutput> : IEnumerable<TOutput>
+    internal class AsyncCursorSourceEnumerableAdapter<TDocument> : IEnumerable<TDocument>
     {
-        private readonly Func<CancellationToken, Task<IAsyncCursor<TOutput>>> _executor;
+        // private fields
         private readonly CancellationToken _cancellationToken;
+        private readonly IAsyncCursorSource<TDocument> _source;
 
-        public AsyncCursorEnumerableAdapter(Func<CancellationToken, Task<IAsyncCursor<TOutput>>> executor, CancellationToken cancellationToken)
+        // constructors
+        public AsyncCursorSourceEnumerableAdapter(IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken)
         {
-            _executor = executor;
+            _source = Ensure.IsNotNull(source, nameof(source));
             _cancellationToken = cancellationToken;
         }
 
-        public IEnumerator<TOutput> GetEnumerator()
+        // public methods
+        public IEnumerator<TDocument> GetEnumerator()
         {
-            var cursor = _executor(_cancellationToken).GetAwaiter().GetResult();
-            return new AsyncCursorEnumeratorAdapter<TOutput>(cursor, _cancellationToken).GetEnumerator();
+            var cursor = _source.ToCursor(_cancellationToken);
+            return new AsyncCursorEnumerator<TDocument>(cursor, _cancellationToken);
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }

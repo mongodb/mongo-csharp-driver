@@ -124,6 +124,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Count_with_no_matches()
+        {
+            var result = CreateQuery().Count(x => x.C.E.F == 13151235);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task CountAsync()
         {
             var result = await CreateQuery().CountAsync();
@@ -137,6 +145,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().CountAsync(x => x.C.E.F == 11);
 
             result.Should().Be(1);
+        }
+
+        [Test]
+        public async Task CountAsync_with_no_matches()
+        {
+            var result = await CreateQuery().CountAsync(x => x.C.E.F == 123412523);
+
+            result.Should().Be(0);
         }
 
         [Test]
@@ -215,6 +231,27 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync(x => x == 11);
 
             result.Should().Be(11);
+        }
+
+        [Test]
+        public void Enumerable_foreach()
+        {
+            var query = from x in CreateQuery()
+                        select x.M;
+
+            int sum = 0;
+
+            foreach (var item in query)
+            {
+                sum += item.Sum();
+            }
+
+            foreach (var item in query)
+            {
+                sum += item.Sum();
+            }
+
+            sum.Should().Be(50);
         }
 
         [Test]
@@ -349,6 +386,133 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_method()
+        {
+            var query = CreateQuery()
+                .GroupJoin(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.Id,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id into joined
+                        select new { A = p.A, SumCEF = joined.Sum(x => x.CEF) };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $project: { A: '$A', SumCEF: { $sum: '$joined.CEF' }, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_a_transparent_identifier()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id into joined
+                        orderby p.B
+                        select new { A = p.A, Joined = joined };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $sort: { B: 1 } }",
+                "{ $project: { A: '$A', Joined: '$joined', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_select_many()
+        {
+            var query = from p in CreateQuery()
+                        join o in _otherCollection on p.Id equals o.Id into joined
+                        from subo in joined
+                        select new { A = p.A, CEF = subo.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $unwind: '$joined' }",
+                "{ $project: { A: '$A', CEF: '$joined.CEF', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
+        {
+            var query = from p in CreateQuery()
+                        join o in _otherCollection on p.Id equals o.Id into joined
+                        from subo in joined.DefaultIfEmpty()
+                        select new { A = p.A, CEF = (int?)subo.CEF ?? null };
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
+                "{ $unwind: { path: '$joined', preserveNullAndEmptyArrays: true } }",
+                "{ $project: { A: '$A', CEF: { $ifNull: ['$joined.CEF', null] }, _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_method()
+        {
+            var query = CreateQuery()
+                .Join(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.Id,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_syntax()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id
+                        select new { A = p.A, CEF = o.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }",
+                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void Join_syntax_with_a_transparent_identifier()
+        {
+            var query = from p in CreateQuery()
+                        join o in CreateOtherQuery() on p.Id equals o.Id
+                        orderby p.B, o.Id
+                        select new { A = p.A, CEF = o.CEF };
+
+            Assert(query,
+                1,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
+                "{ $unwind: '$o' }",
+                "{ $sort: { B: 1, 'o._id': 1 } }",
+                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+        }
+
+        [Test]
         public void LongCount()
         {
             var result = CreateQuery().LongCount();
@@ -365,6 +529,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void LongCount_with_no_results()
+        {
+            var result = CreateQuery().LongCount(x => x.C.E.F == 123452135);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task LongCountAsync()
         {
             var result = await CreateQuery().LongCountAsync();
@@ -378,6 +550,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 11);
 
             result.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LongCountAsync_with_no_results()
+        {
+            var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 12351235);
+
+            result.Should().Be(0);
         }
 
         [Test]
@@ -878,6 +1058,29 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void SelectMany_followed_by_a_group()
+        {
+            var first = from x in CreateQuery()
+                        from y in x.G
+                        select y;
+
+            var query = from f in first
+                        group f by f.D into g
+                        select new
+                        {
+                            g.Key,
+                            SumF = g.Sum(x => x.E.F)
+                        };
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: '$G', _id: 0 } }",
+                "{ $group: { _id: '$G.D', __agg0: { $sum : '$G.E.F' } } }",
+                "{ $project: { Key: '$_id', SumF: '$__agg0', _id: 0 } }");
+        }
+
+        [Test]
         public void Single()
         {
             var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).Single();
@@ -1040,6 +1243,14 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void Sum_with_no_results()
+        {
+            var result = CreateQuery().Where(x => x.C.E.F == 12341235).Sum(x => x.C.E.F);
+
+            result.Should().Be(0);
+        }
+
+        [Test]
         public async Task SumAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).SumAsync();
@@ -1053,6 +1264,14 @@ namespace MongoDB.Driver.Tests.Linq
             var result = await CreateQuery().SumAsync(x => x.C.E.F);
 
             result.Should().Be(122);
+        }
+
+        [Test]
+        public async Task SumAsync_with_no_results()
+        {
+            var result = await CreateQuery().Where(x => x.C.E.F == 21341235).SumAsync(x => x.C.E.F);
+
+            result.Should().Be(0);
         }
 
         [Test]
@@ -1119,6 +1338,11 @@ namespace MongoDB.Driver.Tests.Linq
         private IMongoQueryable<Root> CreateQuery()
         {
             return _collection.AsQueryable();
+        }
+
+        private IMongoQueryable<Other> CreateOtherQuery()
+        {
+            return _otherCollection.AsQueryable();
         }
     }
 }

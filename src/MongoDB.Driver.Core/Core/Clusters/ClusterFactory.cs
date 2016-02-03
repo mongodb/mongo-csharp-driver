@@ -67,16 +67,12 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            var shardedCluster = new MultiServerCluster(settings, _serverFactory, _eventSubscriber);
-            shardedCluster.Initialize();
-            return shardedCluster;
+            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber);
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            var standaloneCluster = new SingleServerCluster(settings, _serverFactory, _eventSubscriber);
-            standaloneCluster.Initialize();
-            return standaloneCluster;
+            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber);
         }
     }
 }

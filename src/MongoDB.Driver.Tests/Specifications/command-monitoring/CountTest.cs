@@ -25,9 +25,16 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private BsonDocument _filter;
         private CountOptions _options = new CountOptions();
 
-        protected override Task ExecuteAsync(IMongoCollection<BsonDocument> collection)
+        protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.CountAsync(_filter, _options);
+            if (async)
+            {
+                collection.CountAsync(_filter, _options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                collection.Count(_filter, _options);
+            }
         }
 
         protected override bool TrySetArgument(string name, BsonValue value)

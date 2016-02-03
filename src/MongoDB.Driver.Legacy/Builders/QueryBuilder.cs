@@ -114,6 +114,50 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllClear(string name, long bitmask)
+        {
+            return Query.Create(name, new BsonDocument("$bitsAllClear", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllSet(string name, long bitmask)
+        {
+            return Query.Create(name, new BsonDocument("$bitsAllSet", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnyClear(string name, long bitmask)
+        {
+            return Query.Create(name, new BsonDocument("$bitsAnyClear", bitmask));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnySet(string name, long bitmask)
+        {
+            return Query.Create(name, new BsonDocument("$bitsAnySet", bitmask));
+        }
+
+        /// <summary>
         /// Creates a query manually.
         /// </summary>
         /// <param name="query">The query.</param>
@@ -717,6 +761,27 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type(string name, string type)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            var condition = new BsonDocument("$type", type);
+            return Query.Create(name, condition);
+        }
+
+        /// <summary>
         /// Tests that a JavaScript expression is true (see $where).
         /// </summary>
         /// <param name="javascript">The javascript.</param>
@@ -849,7 +914,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery that represents the text search.</returns>
         public static IMongoQuery Text(string searchString)
         {
-            return Text(searchString, null);
+            return Text(searchString, new TextSearchOptions());
         }
 
         /// <summary>
@@ -865,10 +930,29 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("searchString");
             }
+            var options = new TextSearchOptions { Language = language };
+            return Text(searchString, options);
+        }
+
+        /// <summary>
+        /// Generate a text search query that tests whether the given search string is present using the specified language's rules. 
+        /// Specifies use of language appropriate stop words, stemming rules etc.
+        /// </summary>
+        /// <param name="searchString">The search string.</param>
+        /// <param name="options">The text search options.</param>
+        /// <returns>An IMongoQuery that represents the text search for the particular language.</returns>
+        public static IMongoQuery Text(string searchString, TextSearchOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
             var condition = new BsonDocument
             {
                 { "$search", searchString },
-                { "$language", language, language != null }
+                { "$language", options.Language, options.Language != null },
+                { "$caseSensitive", () => options.CaseSensitive.Value, options.CaseSensitive.HasValue },
+                { "$diacriticSensitive", () => options.DiacriticSensitive.Value, options.DiacriticSensitive.HasValue }
             };
             return Query.Create("$text", condition);
         }
@@ -1062,6 +1146,50 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery All<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             return new QueryBuilder<TDocument>().All(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAllClear(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAllSet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAllSet(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnyClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAnyClear(memberExpression, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery BitsAnySet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            return new QueryBuilder<TDocument>().BitsAnySet(memberExpression, bitmask);
         }
 
         /// <summary>
@@ -1462,6 +1590,18 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, string type)
+        {
+            return new QueryBuilder<TDocument>().Type(memberExpression, type);
+        }
+
+        /// <summary>
         /// Tests that any of the values in the named array element is equal to some type (see $type).
         /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -1469,6 +1609,18 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
+        {
+            return new QueryBuilder<TDocument>().Type(memberExpression, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, string type)
         {
             return new QueryBuilder<TDocument>().Type(memberExpression, type);
         }
@@ -1626,6 +1778,74 @@ namespace MongoDB.Driver.Builders
         public IMongoQuery And(params IMongoQuery[] queries)
         {
             return And((IEnumerable<IMongoQuery>)queries);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAllClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAllClear(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has all of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAllSet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAllSet(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits clear.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAnyClear(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAnyClear(serializationInfo.ElementName, bitmask);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element has any of the specified bits set.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="bitmask">The bitmask.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery BitsAnySet(Expression<Func<TDocument, object>> memberExpression, long bitmask)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.BitsAnySet(serializationInfo.ElementName, bitmask);
         }
 
         /// <summary>
@@ -2315,6 +2535,24 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the type of the named element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, string type)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Type(serializationInfo.ElementName, type);
+        }
+
+        /// <summary>
         /// Tests that any of the values in the named array element is equal to some type (see $type).
         /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -2322,6 +2560,24 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Type(serializationInfo.ElementName, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, string type)
         {
             if (memberExpression == null)
             {

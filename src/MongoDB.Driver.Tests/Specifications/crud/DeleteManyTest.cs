@@ -40,9 +40,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return new DeleteResult.Acknowledged(expectedResult["deletedCount"].ToInt64());
 
         }
-        protected override Task<DeleteResult> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
+        protected override DeleteResult ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.DeleteManyAsync(_filter);
+            if (async)
+            {
+                return collection.DeleteManyAsync(_filter).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return collection.DeleteMany(_filter);
+            }
         }
 
         protected override void VerifyResult(DeleteResult actualResult, DeleteResult expectedResult)

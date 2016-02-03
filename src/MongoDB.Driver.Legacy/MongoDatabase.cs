@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -207,10 +206,14 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             bool? autoIndexId = null;
             bool? capped = null;
+            BsonDocument indexOptionDefaults = null;
             int? maxDocuments = null;
             long? maxSize = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
+            DocumentValidationAction? validationAction = null;
+            DocumentValidationLevel? validationLevel = null;
+            BsonDocument validator = null;
 
             if (options != null)
             {
@@ -224,6 +227,10 @@ namespace MongoDB.Driver
                 if (optionsDocument.TryGetValue("capped", out value))
                 {
                     capped = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("indexOptionDefaults", out value))
+                {
+                    indexOptionDefaults = value.AsBsonDocument;
                 }
                 if (optionsDocument.TryGetValue("max", out value))
                 {
@@ -241,16 +248,32 @@ namespace MongoDB.Driver
                 {
                     usePowerOf2Sizes = value.ToInt32() == 1;
                 }
+                if (optionsDocument.TryGetValue("validationAction", out value))
+                {
+                    validationAction = (DocumentValidationAction)Enum.Parse(typeof(DocumentValidationAction), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validationLevel", out value))
+                {
+                    validationLevel = (DocumentValidationLevel)Enum.Parse(typeof(DocumentValidationLevel), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validator", out value))
+                {
+                    validator = value.AsBsonDocument;
+                }
             }
 
             var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
                 AutoIndexId = autoIndexId,
                 Capped = capped,
+                IndexOptionDefaults = indexOptionDefaults,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = usePowerOf2Sizes
+                UsePowerOf2Sizes = usePowerOf2Sizes,
+                ValidationAction = validationAction,
+                ValidationLevel = validationLevel,
+                Validator = validator
             };
 
             var response = ExecuteWriteOperation(operation);

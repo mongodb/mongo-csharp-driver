@@ -101,7 +101,7 @@ namespace MongoDB.Driver.TestConsoleApplication
                 {
                     try
                     {
-                        await collection.InsertOneAsync(new BsonDocument("i", i), _cancellationTokenSource.Token);
+                        await collection.InsertOneAsync(new BsonDocument("i", i), cancellationToken: _cancellationTokenSource.Token);
                     }
                     catch
                     {
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.TestConsoleApplication
         {
             for (int i = 0; i < 100; i++)
             {
-                await collection.InsertOneAsync(new BsonDocument("i", i), _cancellationTokenSource.Token);
+                await collection.InsertOneAsync(new BsonDocument("i", i), cancellationToken: _cancellationTokenSource.Token);
             }
         }
 

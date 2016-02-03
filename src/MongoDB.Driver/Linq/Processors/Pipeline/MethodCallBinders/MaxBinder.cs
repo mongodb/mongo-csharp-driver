@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 
@@ -28,9 +29,9 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             return MethodHelper.GetEnumerableAndQueryableMethodDefinitions("Max");
         }
 
-        protected override ResultOperator CreateResultOperator(Type resultType)
+        protected override ResultOperator CreateResultOperator(Type resultType, IBsonSerializer serializer)
         {
-            return new MaxResultOperator(resultType);
+            return new MaxResultOperator(resultType, serializer);
         }
 
         protected override AccumulatorType GetAccumulatorType()

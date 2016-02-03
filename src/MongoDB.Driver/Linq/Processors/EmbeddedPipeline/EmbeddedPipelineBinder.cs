@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new AnyBinder(), AnyBinder.GetSupportedMethods());
             infoBinder.Register(new AverageBinder(), AverageBinder.GetSupportedMethods());
             infoBinder.Register(new ConcatBinder(), ConcatBinder.GetSupportedMethods());
+            infoBinder.Register(new DefaultIfEmptyBinder(), DefaultIfEmptyBinder.GetSupportedMethods());
             infoBinder.Register(new DistinctBinder(), DistinctBinder.GetSupportedMethods());
             infoBinder.Register(new ExceptBinder(), ExceptBinder.GetSupportedMethods());
             infoBinder.Register(new FirstBinder(), FirstBinder.GetSupportedMethods());
@@ -89,9 +90,18 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    return new PipelineExpression(
-                        node,
-                        new DocumentExpression(itemSerializationInfo.Serializer));
+                    if (itemSerializationInfo.ElementName == null)
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new DocumentExpression(itemSerializationInfo.Serializer));
+                    }
+                    else
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new FieldExpression(itemSerializationInfo.ElementName, itemSerializationInfo.Serializer));
+                    }
                 }
             }
             else if (node.NodeType == ExpressionType.Constant)

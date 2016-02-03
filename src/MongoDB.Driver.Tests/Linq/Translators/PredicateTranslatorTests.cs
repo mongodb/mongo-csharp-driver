@@ -166,6 +166,56 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
+        public void BitsAllClear_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 20) == 0,
+                1,
+                "{'C.E.F': { $bitsAllClear: 20 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
+        public void BitsAllSet_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 7) == 7,
+                1,
+                "{'C.E.F': { $bitsAllSet: 7 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
+        public void BitsAllSet_with_HasFlag()
+        {
+            Assert(
+                x => x.Q.HasFlag(Q.One),
+                1,
+                "{Q: { $bitsAllSet: 1 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
+        public void BitsAnyClear_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 7) != 7,
+                1,
+                "{'C.E.F': { $bitsAnyClear: 7 } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9")]
+        public void BitsAnySet_with_bitwise_operators()
+        {
+            Assert(
+                x => (x.C.E.F & 20) != 0,
+                1,
+                "{'C.E.F': { $bitsAnySet: 20 } }");
+        }
+
+        [Test]
         public void LocalIListContains()
         {
             IList<int> local = new[] { 10, 20, 30 };
@@ -628,31 +678,41 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public async Task Binding_through_an_unnecessary_conversion()
+        public void Binding_through_a_necessary_conversion()
         {
-            var root = await Find(_collection, 10);
+            long id = 10;
+            var root = _collection.FindSync(x => x.Id == id).FirstOrDefault();
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
         [Test]
-        public async Task Binding_through_an_unnecessary_conversion_with_a_builder()
+        public void Binding_through_an_unnecessary_conversion()
         {
-            var root = await FindWithBuilder(_collection, 10);
+            var root = FindFirstOrDefault(_collection, 10);
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
-        private Task<T> Find<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        [Test]
+        public void Binding_through_an_unnecessary_conversion_with_a_builder()
         {
-            return collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+            var root = FindFirstOrDefaultWithBuilder(_collection, 10);
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
         }
 
-        private Task<T> FindWithBuilder<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        private T FindFirstOrDefault<T>(IMongoCollection<T> collection, int id) where T : IRoot
         {
-            return collection.Find(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();
+            return collection.FindSync(x => x.Id == id).FirstOrDefault();
+        }
+
+        private T FindFirstOrDefaultWithBuilder<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        {
+            return collection.FindSync(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefault();
         }
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
@@ -665,12 +725,10 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
             var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);
 
-            using (var cursor = _collection.FindAsync(filterDocument).GetAwaiter().GetResult())
-            {
-                var list = cursor.ToListAsync().GetAwaiter().GetResult();
-                filterDocument.Should().Be(expectedFilter);
-                list.Count.Should().Be(expectedCount);
-            }
+            var list = _collection.FindSync(filterDocument).ToList();
+
+            filterDocument.Should().Be(expectedFilter);
+            list.Count.Should().Be(expectedCount);
         }
     }
 }

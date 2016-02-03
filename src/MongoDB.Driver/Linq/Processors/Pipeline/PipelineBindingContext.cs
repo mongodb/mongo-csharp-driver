@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq.Processors
                 var serializer = GetSerializer(selector.Type, selector);
                 projector = new DocumentExpression(serializer);
             }
-            else if (projector == null || projector is IFieldExpression || projector is ArrayIndexExpression)
+            else if (projector == null || projector is PipelineExpression || projector is IFieldExpression || projector is ArrayIndexExpression)
             {
                 var newFieldName = "__fld0";
                 if (projector is IFieldExpression)

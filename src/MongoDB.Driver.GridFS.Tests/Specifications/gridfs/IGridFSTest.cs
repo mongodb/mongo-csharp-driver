@@ -20,6 +20,6 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
     public interface IGridFSTest
     {
         bool CanRun(out string reason);
-        Task RunAsync(GridFSBucket bucket);
+        void Run(GridFSBucket bucket, bool async);
     }
 }

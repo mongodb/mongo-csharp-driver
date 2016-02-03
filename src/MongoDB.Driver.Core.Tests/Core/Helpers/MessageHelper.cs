@@ -155,6 +155,24 @@ namespace MongoDB.Driver.Core.Helpers
                 false);
         }
 
+        public static ReplyMessage<T> BuildQueryFailedReply<T>(
+            BsonDocument queryFailureDocument,
+            int responseTo = 0)
+        {
+            return new ReplyMessage<T>(
+                false,
+                0,
+                false,
+                null,
+                1,
+                true,
+                queryFailureDocument,
+                0,
+                responseTo,
+                BsonSerializer.SerializerRegistry.GetSerializer<T>(),
+                0);
+        }
+
         public static ReplyMessage<T> BuildReply<T>(
             T document,
             IBsonSerializer<T> serializer = null,

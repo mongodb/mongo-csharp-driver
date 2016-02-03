@@ -68,9 +68,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return (BsonDocument)expectedResult;
         }
 
-        protected override Task<BsonDocument> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
+        protected override BsonDocument ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
-            return collection.FindOneAndUpdateAsync(_filter, _update, _options);
+            if (async)
+            {
+                return collection.FindOneAndUpdateAsync(_filter, _update, _options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return collection.FindOneAndUpdate(_filter, _update, _options);
+            }
         }
 
         protected override void VerifyResult(BsonDocument actualResult, BsonDocument expectedResult)

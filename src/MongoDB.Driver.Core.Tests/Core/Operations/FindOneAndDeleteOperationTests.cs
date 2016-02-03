@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "remove", true },
                 { "fields", projectionDoc, projectionDoc != null },
                 { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && serverVersion >= new SemanticVersion(3, 1, 1) }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) }
 
             };
 
@@ -133,6 +133,30 @@ namespace MongoDB.Driver.Core.Operations
 
             var serverList = ReadAllFromCollection(async);
 
+            serverList.Should().BeEmpty();
+        }
+
+        [Test]
+        [RequiresServer("EnsureTestData", MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        public void Execute_should_throw_when_there_is_a_write_concern_error(
+            [Values(false, true)] bool async)
+        {
+            var subject = new FindOneAndDeleteOperation<BsonDocument>(
+                _collectionNamespace,
+                BsonDocument.Parse("{ x : 1 }"),
+                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
+                _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(9)
+            };
+
+            Action action = () => ExecuteOperation(subject, async);
+
+            var exception = action.ShouldThrow<MongoWriteConcernException>().Which;
+            var commandResult = exception.Result;
+            var result = commandResult["value"].AsBsonDocument;
+            result.Should().Be("{_id: 10, x: 1}");
+            var serverList = ReadAllFromCollection(async);
             serverList.Should().BeEmpty();
         }
 

@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
             __methodCallBinder.Register(new FirstBinder(), FirstBinder.GetSupportedMethods());
             __methodCallBinder.Register(new GroupByBinder(), GroupByBinder.GetSupportedMethods());
             __methodCallBinder.Register(new GroupByWithResultSelectorBinder(), GroupByWithResultSelectorBinder.GetSupportedMethods());
+            __methodCallBinder.Register(new JoinBinder(), JoinBinder.GetSupportedMethods());
             __methodCallBinder.Register(new MaxBinder(), MaxBinder.GetSupportedMethods());
             __methodCallBinder.Register(new MinBinder(), MinBinder.GetSupportedMethods());
             __methodCallBinder.Register(new OfTypeBinder(), OfTypeBinder.GetSupportedMethods());
@@ -52,10 +53,10 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
             __methodCallBinder.Register(new WhereBinder(), WhereBinder.GetSupportedMethods());
         }
 
-        public static Expression Bind(Expression node, IBsonSerializer rootSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static Expression Bind(Expression node, IBsonSerializerRegistry serializerRegistry)
         {
             var bindingContext = new PipelineBindingContext(serializerRegistry);
-            var binder = new PipelineBinder(bindingContext, rootSerializer);
+            var binder = new PipelineBinder(bindingContext);
 
             node = binder.Bind(node);
             node = AccumulatorBinder.Bind(node, bindingContext);
@@ -63,12 +64,9 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
             return node;
         }
 
-        private readonly IBsonSerializer _rootSerializer;
-
-        private PipelineBinder(PipelineBindingContext bindingContext, IBsonSerializer rootSerializer)
+        private PipelineBinder(PipelineBindingContext bindingContext)
             : base(bindingContext, __methodCallBinder)
         {
-            _rootSerializer = rootSerializer;
         }
 
         protected override Expression BindNonMethodCall(Expression node)
@@ -77,9 +75,11 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
                 node.Type.IsGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
             {
+                var queryable = (IMongoQueryable)((ConstantExpression)node).Value;
+                var provider = (IMongoQueryProvider)queryable.Provider;
                 return new PipelineExpression(
-                    new CollectionExpression(_rootSerializer),
-                    new DocumentExpression(_rootSerializer));
+                    new CollectionExpression(provider.CollectionNamespace, provider.CollectionDocumentSerializer),
+                    new DocumentExpression(provider.CollectionDocumentSerializer));
             }
 
             var message = string.Format("The expression tree is not supported: {0}",

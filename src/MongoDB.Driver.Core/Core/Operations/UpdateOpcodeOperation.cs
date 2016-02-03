@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private int? _maxDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -56,6 +57,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -123,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     return emulator.Execute(channel, cancellationToken);
@@ -144,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
@@ -161,6 +174,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 MaxDocumentSize = _maxDocumentSize,
                 WriteConcern = _writeConcern
             };

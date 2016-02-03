@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -532,19 +532,14 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
             
-            var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
+            var maxLength = CStringUtf8Encoding.GetMaxByteCount(value.Length) + 1;
             PrepareToWrite(maxLength);
 
             int actualLength;
             var segment = _buffer.AccessBackingBytes(_position);
             if (segment.Count >= maxLength)
             {
-                actualLength = Utf8Encodings.Strict.GetBytes(value, 0, value.Length, segment.Array, segment.Offset);
-                if (Array.IndexOf<byte>(segment.Array, 0, segment.Offset, actualLength) != -1)
-                {
-                    throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.", "value");
-                }
-
+                actualLength = CStringUtf8Encoding.GetBytes(value, segment.Array, segment.Offset, Utf8Encodings.Strict);
                 segment.Array[segment.Offset + actualLength] = 0;
             }
             else
@@ -553,17 +548,16 @@ namespace MongoDB.Bson.IO
                 if (maxLength <= _tempUtf8.Length)
                 {
                     bytes = _tempUtf8;
-                    actualLength = Utf8Encodings.Strict.GetBytes(value, 0, value.Length, bytes, 0);
+                    actualLength = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
                 }
                 else
                 {
                     bytes = Utf8Encodings.Strict.GetBytes(value);
+                    if (Array.IndexOf<byte>(bytes, 0) != -1)
+                    {
+                        throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                    }
                     actualLength = bytes.Length;
-                }
-
-                if (Array.IndexOf<byte>(bytes, 0, 0, actualLength) != -1)
-                {
-                    throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.", "value");
                 }
 
                 _buffer.SetBytes(_position, bytes, 0, actualLength);
@@ -579,10 +573,6 @@ namespace MongoDB.Bson.IO
             if (value == null)
             {
                 throw new ArgumentNullException("value");
-            }
-            if (Array.IndexOf<byte>(value, 0) != -1)
-            {
-                throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.", "value");
             }
             ThrowIfDisposed();
 

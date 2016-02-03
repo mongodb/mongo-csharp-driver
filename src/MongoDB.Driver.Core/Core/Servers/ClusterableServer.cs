@@ -519,11 +519,33 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                return Command(databaseNamespace,
+                    command,
+                    commandValidator,
+                    () => CommandResponseHandling.Return,
+                    slaveOk,
+                    resultSerializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+            }
+
+            // methods
+            public TResult Command<TResult>(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                Func<CommandResponseHandling> responseHandling,
+                bool slaveOk,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
                 slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new CommandWireProtocol<TResult>(
                     databaseNamespace,
                     command,
                     commandValidator,
+                    responseHandling,
                     slaveOk,
                     resultSerializer,
                     messageEncoderSettings);
@@ -540,11 +562,32 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                return CommandAsync(databaseNamespace,
+                    command,
+                    commandValidator,
+                    () => CommandResponseHandling.Return,
+                    slaveOk,
+                    resultSerializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+            }
+
+            public Task<TResult> CommandAsync<TResult>(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                Func<CommandResponseHandling> responseHandling,
+                bool slaveOk,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
                 slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new CommandWireProtocol<TResult>(
                     databaseNamespace,
                     command,
                     commandValidator,
+                    responseHandling,
                     slaveOk,
                     resultSerializer,
                     messageEncoderSettings);

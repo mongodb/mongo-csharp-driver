@@ -667,13 +667,29 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void WriteSlice_should_have_expected_effect(
             [Values(0, 1, 2, 16)]
-            int length)
+            int length,
+            [Values(1, 2, 3)]
+            int numberOfChunks)
         {
+            numberOfChunks = length == 0 ? 1 : length < numberOfChunks ? length : numberOfChunks;
+
             using (var memoryStream = new MemoryStream())
             using (var stream = new BsonStreamAdapter(memoryStream))
             {
+                IByteBuffer slice;
                 var bytes = Enumerable.Range(0, length).Select(n => (byte)n).ToArray();
-                var slice = new ByteArrayBuffer(bytes, isReadOnly: true);
+                if (numberOfChunks == 1)
+                {
+                    slice = new ByteArrayBuffer(bytes, isReadOnly: true);
+                }
+                else
+                {
+                    var chunkSize = length / numberOfChunks;
+                    var chunks = Enumerable.Range(0, numberOfChunks)
+                        .Select(i => bytes.Skip(i * chunkSize).Take(i < numberOfChunks - 1 ? chunkSize : int.MaxValue).ToArray())
+                        .Select(b => new ByteArrayChunk(b));
+                    slice = new MultiChunkBuffer(chunks);
+                }
 
                 stream.WriteSlice(slice);
 

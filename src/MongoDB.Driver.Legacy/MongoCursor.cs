@@ -25,7 +25,6 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -43,6 +42,7 @@ namespace MongoDB.Driver
         private IMongoFields _fields;
         private BsonDocument _options;
         private QueryFlags _flags;
+        private TimeSpan? _maxAwaitTime;
         private ReadConcern _readConcern = ReadConcern.Default;
         private ReadPreference _readPreference;
         private IBsonSerializer _serializer;
@@ -162,6 +162,22 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { ThrowFrozen(); }
                 _flags = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public virtual TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _maxAwaitTime = value;
             }
         }
 
@@ -332,6 +348,7 @@ namespace MongoDB.Driver
             clone._flags = _flags;
             clone._skip = _skip;
             clone._limit = _limit;
+            clone._maxAwaitTime = _maxAwaitTime;
             clone._batchSize = _batchSize;
             clone._fields = _fields;
             return clone;
@@ -508,6 +525,18 @@ namespace MongoDB.Driver
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$max", max);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the maximum await time for tailable await cursors.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetMaxAwaitTime(TimeSpan? value)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            _maxAwaitTime = value;
             return this;
         }
 
@@ -799,6 +828,7 @@ namespace MongoDB.Driver
                 CursorType = cursorType,
                 Filter = queryDocument,
                 Limit = Limit,
+                MaxAwaitTime = MaxAwaitTime,
                 Modifiers = Options,
                 NoCursorTimeout = noCursorTimeout,
                 Projection = Fields.ToBsonDocument(),
@@ -809,7 +839,7 @@ namespace MongoDB.Driver
             using (var binding = Server.GetReadBinding(ReadPreference))
             {
                 var cursor = operation.Execute(binding, CancellationToken.None);
-                return new AsyncCursorEnumeratorAdapter<TDocument>(cursor, CancellationToken.None).GetEnumerator();
+                return cursor.ToEnumerable().GetEnumerator();
             }
         }
 
@@ -892,6 +922,16 @@ namespace MongoDB.Driver
         public new virtual MongoCursor<TDocument> SetMax(BsonDocument max)
         {
             return (MongoCursor<TDocument>)base.SetMax(max);
+        }
+
+        /// <summary>
+        /// Sets the maximum await time for tailable await cursors.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor SetMaxAwaitTime(TimeSpan? value)
+        {
+            return (MongoCursor<TDocument>)base.SetMaxAwaitTime(value);
         }
 
         /// <summary>

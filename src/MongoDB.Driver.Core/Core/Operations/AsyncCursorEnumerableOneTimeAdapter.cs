@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2015 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,51 +14,41 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Sync
+namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class AsyncCursorEnumeratorAdapter<TDocument> : IDisposable
+    internal class AsyncCursorEnumerableOneTimeAdapter<TDocument> : IEnumerable<TDocument>
     {
-        // fields
-        private bool _disposed;
+        // private fields
         private readonly CancellationToken _cancellationToken;
         private readonly IAsyncCursor<TDocument> _cursor;
+        private bool _hasBeenEnumerated;
 
-        // constructor
-        public AsyncCursorEnumeratorAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
+        // constructors
+        public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _cancellationToken = cancellationToken;
         }
 
-        // methods
+        // public methods
         public IEnumerator<TDocument> GetEnumerator()
         {
-            if (_disposed)
+            if (_hasBeenEnumerated)
             {
-                throw new ObjectDisposedException(GetType().FullName);
+                throw new InvalidOperationException("An IAsyncCursor can only be enumerated once.");
             }
-
-            while (_cursor.MoveNextAsync(_cancellationToken).GetAwaiter().GetResult())
-            {
-                var batch = _cursor.Current;
-                foreach (var document in batch)
-                {
-                    yield return document;
-                }
-            }
+            _hasBeenEnumerated = true;
+            return new AsyncCursorEnumerator<TDocument>(_cursor, _cancellationToken);
         }
 
-        public void Dispose()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            if (!_disposed)
-            {
-                _cursor.Dispose();
-                _disposed = true;
-            }
+            return GetEnumerator();
         }
     }
 }

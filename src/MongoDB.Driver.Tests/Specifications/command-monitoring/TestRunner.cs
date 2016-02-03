@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
@@ -38,8 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         private static string[] __commandsToCapture;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        static TestRunner()
         {
             __commandsToCapture = new string[]
             {
@@ -90,12 +90,14 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         }
 
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
-        public async Task RunTestDefinitionAsync(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition)
+        public void RunTestDefinition(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition, bool async)
         {
+            definition = (BsonDocument)DeepCopy(definition); // protect against side effects when the same definition is run twice (async=false/true)
+
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
             {
-                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var serverVersion = GetServerVersion();
                 var maxServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion > maxServerVersion)
                 {
@@ -104,7 +106,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             }
             if (definition.TryGetValue("ignore_if_server_version_less_than", out bsonValue))
             {
-                var serverVersion = CoreTestConfiguration.ServerVersion;
+                var serverVersion = GetServerVersion();
                 var minServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion < minServerVersion)
                 {
@@ -117,13 +119,13 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             var collection = database
                 .GetCollection<BsonDocument>(collectionName);
 
-            await database.DropCollectionAsync(collection.CollectionNamespace.CollectionName);
-            await collection.InsertManyAsync(data);
+            database.DropCollection(collection.CollectionNamespace.CollectionName);
+            collection.InsertMany(data);
 
             __capturedEvents.Clear();
             try
             {
-                await ExecuteOperationAsync(database, collection, (BsonDocument)definition["operation"]);
+                ExecuteOperation(database, collection, (BsonDocument)definition["operation"], async);
             }
             catch (NotImplementedException)
             {
@@ -137,7 +139,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             long? operationId = null;
             foreach (BsonDocument expected in (BsonArray)definition["expectations"])
             {
-                if (!__capturedEvents.Any())
+                if (!__capturedEvents.Any() && !SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5)))
                 {
                     Assert.Fail("Expected an event, but no events were captured.");
                 }
@@ -171,7 +173,13 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             }
         }
 
-        private Task ExecuteOperationAsync(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation)
+        private SemanticVersion GetServerVersion()
+        {
+            var server = __client.Cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+            return server.Description.Version;
+        }
+
+        private void ExecuteOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, bool async)
         {
             var name = (string)operation["name"];
             Func<ICrudOperationTest> factory;
@@ -186,10 +194,10 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             if (!test.CanExecute(__client.Cluster.Description, arguments, out reason))
             {
                 Assert.Ignore(reason);
-                return Task.FromResult(false);
+                return;
             }
 
-            return factory().ExecuteAsync(__client.Cluster.Description, database, collection, arguments);
+            test.Execute(__client.Cluster.Description, database, collection, arguments, async);
         }
 
         private void VerifyCommandStartedEvent(CommandStartedEvent actual, BsonDocument expected, string databaseName, string collectionName)
@@ -309,25 +317,30 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             public static IEnumerable<ITestCaseData> GetTestCases()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.";
-                return Assembly
+                var testDocuments = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .SelectMany(path =>
-                    {
-                        var doc = ReadDocument(path);
-                        var data = ((BsonArray)doc["data"]).Select(x => (BsonDocument)x).ToList();
-                        var databaseName = doc["database_name"].ToString();
-                        var collectionName = doc["collection_name"].ToString();
+                    .Select(path => ReadDocument(path));
 
-                        return ((BsonArray)doc["tests"]).Select(def =>
+                foreach (var testDocument in testDocuments)
+                {
+                    var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
+                    var databaseName = testDocument["database_name"].ToString();
+                    var collectionName = testDocument["collection_name"].ToString();
+
+                    foreach (BsonDocument definition in testDocument["tests"].AsBsonArray)
+                    {
+                        foreach (var async in new[] { false, true })
                         {
-                            var testCase = new TestCaseData(data, databaseName, collectionName, (BsonDocument)def);
+                            var testCase = new TestCaseData(data, databaseName, collectionName, definition, async);
                             testCase.Categories.Add("Specifications");
                             testCase.Categories.Add("command-monitoring");
-                            return testCase.SetName((string)def["description"]);
-                        });
-                    });
+                            testCase.SetName($"{definition["description"]}({async})");
+                            yield return testCase;
+                        }
+                    }
+                }
             }
 
             private static BsonDocument ReadDocument(string path)

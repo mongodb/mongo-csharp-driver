@@ -33,7 +33,9 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
             return new PipelineExpression(
                 pipeline.Source,
                 pipeline.Projector,
-                new ArrayResultOperator(node.Type));
+                new ArrayResultOperator(
+                    node.Type,
+                    SerializerHelper.CreateArraySerializer(pipeline.Projector.Serializer)));
         }
     }
 }

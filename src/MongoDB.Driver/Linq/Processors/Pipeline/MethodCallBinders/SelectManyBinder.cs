@@ -37,16 +37,18 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
         {
             var collectionSelectorLambda = ExpressionHelper.GetLambda(arguments.First());
             bindingContext.AddExpressionMapping(collectionSelectorLambda.Parameters[0], pipeline.Projector);
-            var collectionSelector = bindingContext.Bind(collectionSelectorLambda.Body) as IFieldExpression;
-            string collectionItemName = collectionSelectorLambda.Parameters[0].Name;
+            var collectionSelector = bindingContext.Bind(collectionSelectorLambda.Body);
+            var collectionField = GetCollectionField(collectionSelector);
 
-            if (collectionSelector == null)
+            var collectionSerializationExpression = collectionSelector as ISerializationExpression;
+            if (collectionSerializationExpression == null || collectionField == null)
             {
                 var message = string.Format("Unable to determine the serialization information for the collection selector in the tree: {0}", node.ToString());
                 throw new NotSupportedException(message);
             }
 
-            var collectionSerializer = collectionSelector.Serializer as IBsonArraySerializer;
+            var collectionItemName = collectionSelectorLambda.Parameters[0].Name;
+            var collectionSerializer = collectionSerializationExpression.Serializer as IBsonArraySerializer;
             BsonSerializationInfo itemSerializationInfo;
             if (collectionSerializer == null || !collectionSerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
             {
@@ -62,7 +64,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                 bindingContext.AddExpressionMapping(resultLambda.Parameters[0], pipeline.Projector);
                 bindingContext.AddExpressionMapping(
                     resultLambda.Parameters[1],
-                    new FieldExpression(collectionSelector.FieldName, itemSerializationInfo.Serializer));
+                    new FieldExpression(collectionField.FieldName, itemSerializationInfo.Serializer));
 
                 resultItemName = resultLambda.Parameters[1].Name;
                 resultSelector = bindingContext.Bind(resultLambda.Body);
@@ -70,7 +72,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             else
             {
                 resultItemName = "__p";
-                resultSelector = new FieldExpression(collectionSelector.FieldName, itemSerializationInfo.Serializer);
+                resultSelector = new FieldExpression(collectionField.FieldName, itemSerializationInfo.Serializer);
             }
 
             var projector = bindingContext.BindProjector(ref resultSelector);
@@ -83,6 +85,37 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                     resultItemName,
                     resultSelector),
                 projector);
+        }
+
+        private static IFieldExpression GetCollectionField(Expression collectionSelector)
+        {
+            var collectionField = collectionSelector as IFieldExpression;
+            if (collectionField != null)
+            {
+                return collectionField;
+            }
+
+            // we can only work with a field, or a DefaultIfEmpty expression...
+            var sourcedExpression = collectionSelector as ISourcedExpression;
+            while (sourcedExpression != null)
+            {
+                collectionField = sourcedExpression.Source as IFieldExpression;
+                if (collectionField != null)
+                {
+                    return collectionField;
+                }
+
+                if (sourcedExpression.Source is DefaultIfEmptyExpression)
+                {
+                    sourcedExpression = sourcedExpression.Source as ISourcedExpression;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return null;
         }
     }
 }

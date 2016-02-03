@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
@@ -36,6 +37,12 @@ namespace MongoDB.Driver
         public abstract IFindFluent<TDocument, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer);
 
         /// <inheritdoc />
+        public virtual long Count(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
@@ -49,6 +56,12 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract IFindFluent<TDocument, TProjection> Sort(SortDefinition<TDocument> sort);
+
+        /// <inheritdoc />
+        public virtual IAsyncCursor<TProjection> ToCursor(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TProjection>> ToCursorAsync(CancellationToken cancellationToken);

@@ -27,7 +27,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TKey">The type of the keys.</typeparam>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    public class KeyValuePairSerializer<TKey, TValue> : StructSerializerBase<KeyValuePair<TKey, TValue>>
+    public class KeyValuePairSerializer<TKey, TValue> :
+        StructSerializerBase<KeyValuePair<TKey, TValue>>,
+        IBsonDocumentSerializer
     {
         // private constants
         private static class Flags
@@ -204,6 +206,29 @@ namespace MongoDB.Bson.Serialization.Serializers
                         BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>)));
                     throw new BsonSerializationException(message);
             }
+        }
+
+        /// <inheritdoc />
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_representation != BsonType.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            switch (memberName)
+            {
+                case "Key":
+                    serializationInfo = new BsonSerializationInfo("k", _lazyKeySerializer.Value, _lazyKeySerializer.Value.ValueType);
+                    return true;
+                case "Value":
+                    serializationInfo = new BsonSerializationInfo("v", _lazyValueSerializer.Value, _lazyValueSerializer.Value.ValueType);
+                    return true;
+            }
+
+            serializationInfo = null;
+            return false;
         }
 
         // private methods

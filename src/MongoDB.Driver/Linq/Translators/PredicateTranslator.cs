@@ -259,6 +259,48 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
+        private FilterDefinition<BsonDocument> TranslateBitwiseComparison(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            var binaryExpression = variableExpression as BinaryExpression;
+            if (binaryExpression == null ||
+                binaryExpression.NodeType != ExpressionType.And ||
+                binaryExpression.Right.NodeType != ExpressionType.Constant ||
+                (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual))
+            {
+                return null;
+            }
+
+            var field = GetFieldExpression(binaryExpression.Left);
+
+            var value = field.SerializeValue(((ConstantExpression)binaryExpression.Right).Value).ToInt64();
+            var comparison = Convert.ToInt64(constantExpression.Value);
+
+            if (value == comparison)
+            {
+                if (operatorType == ExpressionType.Equal)
+                {
+                    return __builder.BitsAllSet(field.FieldName, value);
+                }
+                else
+                {
+                    return __builder.BitsAnyClear(field.FieldName, value);
+                }
+            }
+            else if (comparison == 0)
+            {
+                if (operatorType == ExpressionType.Equal)
+                {
+                    return __builder.BitsAllClear(field.FieldName, value);
+                }
+                else
+                {
+                    return __builder.BitsAnySet(field.FieldName, value);
+                }
+            }
+
+            return null;
+        }
+
         private FilterDefinition<BsonDocument> TranslateBoolean(bool value)
         {
             if (value)
@@ -347,6 +389,12 @@ namespace MongoDB.Driver.Linq.Translators
                 return query;
             }
 
+            query = TranslateBitwiseComparison(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             return TranslateComparison(variableExpression, operatorType, constantExpression);
         }
 
@@ -389,20 +437,6 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var fieldExpression = GetFieldExpression(variableExpression);
-            var valueType = fieldExpression.Serializer.ValueType;
-            if (valueType.IsEnum || valueType.IsNullableEnum())
-            {
-                if (!valueType.IsEnum && value != null)
-                {
-                    valueType = valueType.GetNullableUnderlyingType();
-                }
-
-                if (value != null)
-                {
-                    value = Enum.ToObject(valueType, value);
-                }
-            }
-
             var serializedValue = fieldExpression.SerializeValue(value);
             switch (operatorType)
             {
@@ -576,6 +610,19 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
+        private FilterDefinition<BsonDocument> TranslateHasFlag(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Object == null)
+            {
+                return null;
+            }
+
+            var field = GetFieldExpression(methodCallExpression.Object);
+            var value = field.SerializeValue(((ConstantExpression)methodCallExpression.Arguments[0]).Value).ToInt64();
+
+            return __builder.BitsAllSet(field.FieldName, value);
+        }
+
         private FilterDefinition<BsonDocument> TranslateIn(MethodCallExpression methodCallExpression)
         {
             var methodDeclaringType = methodCallExpression.Method.DeclaringType;
@@ -683,6 +730,7 @@ namespace MongoDB.Driver.Linq.Translators
                 case "ContainsKey": return TranslateContainsKey(methodCallExpression);
                 case "EndsWith": return TranslateStringQuery(methodCallExpression);
                 case "Equals": return TranslateEquals(methodCallExpression);
+                case "HasFlag": return TranslateHasFlag(methodCallExpression);
                 case "In": return TranslateIn(methodCallExpression);
                 case "IsMatch": return TranslateIsMatch(methodCallExpression);
                 case "IsNullOrEmpty": return TranslateIsNullOrEmpty(methodCallExpression);

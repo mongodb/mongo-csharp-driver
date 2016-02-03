@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -135,6 +134,7 @@ namespace MongoDB.Driver
                 var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
                 {
                     AllowDiskUse = args.AllowDiskUse,
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     MaxTime = args.MaxTime
                 };
                 ExecuteWriteOperation(aggregateOperation);
@@ -567,11 +567,13 @@ namespace MongoDB.Driver
             {
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
             else
@@ -579,11 +581,13 @@ namespace MongoDB.Driver
                 var replacement = updateDocument;
                 operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
 
@@ -640,8 +644,8 @@ namespace MongoDB.Driver
             {
                 MaxTime = args.MaxTime,
                 Projection = projection,
-                Sort = sort
-
+                Sort = sort,
+                WriteConcern = _settings.WriteConcern
             };
 
             try
@@ -863,16 +867,20 @@ namespace MongoDB.Driver
                 search = new BsonDocument(args.AdditionalFieldName, args.AdditionalFieldValue);
             }
 
-            var command = new CommandDocument
+            var operation = new GeoSearchOperation<GeoHaystackSearchResult<TDocument>>(
+                _collectionNamespace,
+                new BsonArray { args.Near.X, args.Near.Y },
+                _settings.SerializerRegistry.GetSerializer<GeoHaystackSearchResult<TDocument>>(),
+                GetMessageEncoderSettings())
             {
-                { "geoSearch", _collectionNamespace.CollectionName },
-                { "near", new BsonArray { args.Near.X, args.Near.Y } },
-                { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
-                { "search", search, search != null }, // optional
-                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                Limit = args.Limit,
+                MaxDistance = args.MaxDistance,
+                MaxTime = args.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                Search = search
             };
-            return _database.RunCommandAs<GeoHaystackSearchResult<TDocument>>(command, _settings.ReadPreference);
+
+            return ExecuteReadOperation(operation);
         }
 
         /// <summary>
@@ -919,20 +927,24 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Near == null) { throw new ArgumentException("Near is null.", "args"); }
 
-            var command = new CommandDocument
+            var operation = new GeoNearOperation<GeoNearResult<TDocument>>(
+                _collectionNamespace,
+                args.Near.ToGeoNearCommandValue(),
+                _settings.SerializerRegistry.GetSerializer<GeoNearResult<TDocument>>(),
+                GetMessageEncoderSettings())
             {
-                { "geoNear", _collectionNamespace.CollectionName },
-                { "near", args.Near.ToGeoNearCommandValue() },
-                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "spherical", () => args.Spherical.Value, args.Spherical.HasValue }, // optional
-                { "distanceMultiplier", () => args.DistanceMultiplier.Value, args.DistanceMultiplier.HasValue }, // optional
-                { "includeLocs", () => args.IncludeLocs.Value, args.IncludeLocs.HasValue }, // optional
-                { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                DistanceMultiplier = args.DistanceMultiplier,
+                Filter = BsonDocumentWrapper.Create(args.Query),
+                IncludeLocs = args.IncludeLocs,
+                Limit = args.Limit,
+                MaxDistance = args.MaxDistance,
+                MaxTime = args.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                Spherical = args.Spherical,
+                UniqueDocs = args.UniqueDocs
             };
-            var result = _database.RunCommandAs<GeoNearResult<TDocument>>(command, _settings.ReadPreference);
+
+            var result = ExecuteReadOperation(operation, _settings.ReadPreference);
             result.Response["ns"] = FullName;
             return result;
         }
@@ -1395,6 +1407,7 @@ namespace MongoDB.Driver
 
                 var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = options.BypassDocumentValidation,
                     ContinueOnError = continueOnError,
                     WriteConcern = writeConcern
                 };
@@ -1512,6 +1525,7 @@ namespace MongoDB.Driver
                     JavaScriptMode = args.JsMode,
                     Limit = args.Limit,
                     MaxTime = args.MaxTime,
+                    ReadConcern = _settings.ReadConcern,
                     Scope = scope,
                     Sort = sort,
                     Verbose = args.Verbose
@@ -1532,6 +1546,7 @@ namespace MongoDB.Driver
                     args.ReduceFunction,
                     messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1568,11 +1583,12 @@ namespace MongoDB.Driver
 
             var operation = new ParallelScanOperation<TDocument>(_collectionNamespace, args.NumberOfCursors, serializer, messageEncoderSettings)
             {
-                BatchSize = batchSize
+                BatchSize = batchSize,
+                ReadConcern = _settings.ReadConcern
             };
 
             var cursors = ExecuteReadOperation(operation, args.ReadPreference);
-            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c, CancellationToken.None).GetEnumerator()).ToList();
+            var documentEnumerators = cursors.Select(c => c.ToEnumerable().GetEnumerator()).ToList();
             return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
 
@@ -1893,6 +1909,7 @@ namespace MongoDB.Driver
             };
             var operation = new UpdateOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 WriteConcern = writeConcern
             };
 

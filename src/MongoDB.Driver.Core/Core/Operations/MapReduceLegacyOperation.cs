@@ -31,6 +31,9 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class MapReduceLegacyOperation : MapReduceOperationBase, IReadOperation<BsonDocument>
     {
+        // fields
+        private ReadConcern _readConcern = ReadConcern.Default;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MapReduceLegacyOperation"/> class.
@@ -48,6 +51,19 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        // properties
+        /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
         // methods
         /// <inheritdoc/>
         protected override BsonDocument CreateOutputOptions()
@@ -59,18 +75,48 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
-            var operation = new ReadCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
-            return operation.Execute(binding, cancellationToken);
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                return operation.Execute(channelBinding, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
-        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var command = CreateCommand();
+
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
+        {
+            _readConcern.ThrowIfNotSupported(serverVersion);
+
+            var command = base.CreateCommand(serverVersion);
+            if (!_readConcern.IsServerDefault)
+            {
+                command["readConcern"] = _readConcern.ToBsonDocument();
+            }
+
+            return command;
+        }
+
+        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
+        {
+            var command = CreateCommand(serverVersion);
             var operation = new ReadCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
-            return operation.ExecuteAsync(binding, cancellationToken);
+            return operation;
         }
     }
 }

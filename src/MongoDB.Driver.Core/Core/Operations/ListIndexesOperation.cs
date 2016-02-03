@@ -28,11 +28,6 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class ListIndexesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
-        #region static
-        // static fields
-        private static readonly SemanticVersion __serverVersionSupportingListIndexesCommand = new SemanticVersion(2, 7, 6);
-        #endregion
-
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -108,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (channel.ConnectionDescription.ServerVersion >= __serverVersionSupportingListIndexesCommand)
+            if (SupportedFeatures.IsListIndexesCommandSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
             }

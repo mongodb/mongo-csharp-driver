@@ -55,226 +55,425 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void AggregateAsync_should_add_match_to_beginning_of_pipeline()
+        public void Aggregate_should_add_match_to_beginning_of_pipeline(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new AggregateOptions();
 
-            subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
-            _derivedCollection.Received().AggregateAsync(
-                Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().AggregateAsync(
+                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.Aggregate<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+
+                _derivedCollection.Received().Aggregate(
+                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void AggregateAsync_should_combine_match_statements_at_the_beginning_of_a_pipeline()
+        public void Aggregate_should_combine_match_statements_at_the_beginning_of_a_pipeline(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new AggregateOptions();
 
-            subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
-            var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
-            _derivedCollection.Received().AggregateAsync(
-                Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
-                options,
-                CancellationToken.None);
+                var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
+                _derivedCollection.Received().AggregateAsync(
+                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.Aggregate<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+
+                var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
+                _derivedCollection.Received().Aggregate(
+                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void BulkWriteAsync_with_DeleteOne()
+        public void BulkWrite_with_DeleteOne(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var model = new DeleteOneModel<B>(_providedFilter);
             var options = new BulkWriteOptions();
 
-            subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _derivedCollection.Received().BulkWriteAsync(
-                Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
-                    .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().BulkWriteAsync(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
+
+                _derivedCollection.Received().BulkWrite(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void BulkWriteAsync_with_DeleteMany()
+        public void BulkWrite_with_DeleteMany(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var model = new DeleteManyModel<B>(_providedFilter);
             var options = new BulkWriteOptions();
 
-            subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _derivedCollection.Received().BulkWriteAsync(
-                Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
-                    .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().BulkWriteAsync(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
+
+                _derivedCollection.Received().BulkWrite(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void BulkWriteAsync_with_ReplaceOne()
+        public void BulkWrite_with_ReplaceOne(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var replacement = new B();
             var model = new ReplaceOneModel<B>(_providedFilter, replacement) { IsUpsert = true };
             var options = new BulkWriteOptions();
 
-            subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _derivedCollection.Received().BulkWriteAsync(
-                Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
-                    .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                        m.Replacement == model.Replacement &&
-                        m.IsUpsert == model.IsUpsert).Count() == 1),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().BulkWriteAsync(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            m.Replacement == model.Replacement &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
+
+                _derivedCollection.Received().BulkWrite(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            m.Replacement == model.Replacement &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void BulkWriteAsync_with_UpdateMany()
+        public void BulkWrite_with_UpdateMany(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
 
-            subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _derivedCollection.Received().BulkWriteAsync(
-                Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                    .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                        RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                        m.IsUpsert == model.IsUpsert).Count() == 1),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().BulkWriteAsync(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
+
+                _derivedCollection.Received().BulkWrite(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void BulkWriteAsync_with_UpdateOne()
+        public void BulkWrite_with_UpdateOne(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}") { IsUpsert = true };
             var options = new BulkWriteOptions();
 
-            subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+            if (async)
+            {
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-            _derivedCollection.Received().BulkWriteAsync(
-                Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                    .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                        RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                        m.IsUpsert == model.IsUpsert).Count() == 1),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().BulkWriteAsync(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
+
+                _derivedCollection.Received().BulkWrite(
+                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
+                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                            m.IsUpsert == model.IsUpsert).Count() == 1),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void CountAsync_should_include_the_filter()
+        public void Count_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new CountOptions();
 
-            subject.CountAsync(_providedFilter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.CountAsync(_providedFilter, options, CancellationToken.None);
 
-            _derivedCollection.Received().CountAsync(
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().CountAsync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.Count(_providedFilter, options, CancellationToken.None);
+
+                _derivedCollection.Received().Count(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void DistinctAsync_should_include_the_filter()
+        public void Distinct_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new DistinctOptions();
 
-            subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
 
-            _derivedCollection.Received().DistinctAsync(
-                Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().DistinctAsync(
+                    Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.Distinct(x => x.PropA, _providedFilter, options, CancellationToken.None);
+
+                _derivedCollection.Received().Distinct(
+                    Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void FindAsync_should_include_the_filter()
+        public void Find_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new FindOptions<B>();
 
-            subject.FindAsync(_providedFilter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindAsync(_providedFilter, options, CancellationToken.None);
 
-            _derivedCollection.Received().FindAsync(
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().FindAsync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.FindSync(_providedFilter, options, CancellationToken.None);
+
+                _derivedCollection.Received().FindSync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void FindOneAndDeleteAsync_should_include_the_filter()
+        public void FindOneAndDelete_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new FindOneAndDeleteOptions<B>();
 
-            subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
 
-            _derivedCollection.Received().FindOneAndDeleteAsync(
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().FindOneAndDeleteAsync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndDelete(_providedFilter, options, CancellationToken.None);
+
+                _derivedCollection.Received().FindOneAndDelete(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void FindOneAndReplaceAsync_should_include_the_filter()
+        public void FindOneAndReplace_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var replacement = new B();
             var options = new FindOneAndReplaceOptions<B>();
 
-            subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
 
-            _derivedCollection.Received().FindOneAndReplaceAsync(
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                replacement,
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().FindOneAndReplaceAsync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    replacement,
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndReplace(_providedFilter, replacement, options, CancellationToken.None);
+
+                _derivedCollection.Received().FindOneAndReplace(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    replacement,
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void FindOneAndUpdateAsync_should_include_the_filter()
+        public void FindOneAndUpdate_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var update = new BsonDocument("$set", new BsonDocument("x", 5));
             var options = new FindOneAndUpdateOptions<B>();
 
-            subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
 
-            _derivedCollection.Received().FindOneAndUpdateAsync(
-                Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
-                options,
-                CancellationToken.None);
+                _derivedCollection.Received().FindOneAndUpdateAsync(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
+                    options,
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndUpdate(_providedFilter, update, options, CancellationToken.None);
+
+                _derivedCollection.Received().FindOneAndUpdate(
+                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                    Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
+                    options,
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void MapReduceAsync_should_include_the_filter_when_one_was_not_provided()
+        public void MapReduce_should_include_the_filter_when_one_was_not_provided(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
+            if (async)
+            {
+                subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
 
-            _derivedCollection.Received().MapReduceAsync(
-                "map",
-                "reduce",
-                Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
-                CancellationToken.None);
+                _derivedCollection.Received().MapReduceAsync(
+                    "map",
+                    "reduce",
+                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.MapReduce<B>("map", "reduce", null, CancellationToken.None);
+
+                _derivedCollection.Received().MapReduce(
+                    "map",
+                    "reduce",
+                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
+                    CancellationToken.None);
+            }
         }
 
         [Test]
-        public void MapReduceAsync_should_include_the_filter()
+        public void MapReduce_should_include_the_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var options = new MapReduceOptions<B, B>
@@ -282,13 +481,26 @@ namespace MongoDB.Driver.Tests
                 Filter = _providedFilter
             };
 
-            subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
+            if (async)
+            {
+                subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
 
-            _derivedCollection.Received().MapReduceAsync(
-                "map",
-                "reduce",
-                Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
-                CancellationToken.None);
+                _derivedCollection.Received().MapReduceAsync(
+                    "map",
+                    "reduce",
+                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
+                    CancellationToken.None);
+            }
+            else
+            {
+                subject.MapReduce("map", "reduce", options, CancellationToken.None);
+
+                _derivedCollection.Received().MapReduce(
+                    "map",
+                    "reduce",
+                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
+                    CancellationToken.None);
+            }
         }
 
         [Test]
@@ -359,7 +571,7 @@ namespace MongoDB.Driver.Tests
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            db.DropCollectionAsync(DriverTestConfiguration.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             _docsCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             _rootCollection = db.GetCollection<A>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -375,73 +587,130 @@ namespace MongoDB.Driver.Tests
             docs.Add(new C { PropA = 8, PropB = 5, PropC = 2 });
             docs.Add(new C { PropA = 9, PropB = 6, PropC = 3 });
 
-            _rootCollection.InsertManyAsync(docs).GetAwaiter().GetResult();
+            _rootCollection.InsertMany(docs);
         }
 
         [Test]
-        public async Task CountAsync_should_only_count_derived_types()
+        public void Count_should_only_count_derived_types(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            var result1 = await subject.CountAsync("{}");
-            var result2 = await subject.OfType<C>().CountAsync("{}");
+            long result1, result2;
+            if (async)
+            {
+                result1 = subject.CountAsync("{}").GetAwaiter().GetResult();
+                result2 = subject.OfType<C>().CountAsync("{}").GetAwaiter().GetResult();
+            }
+            else
+            {
+                result1 = subject.Count("{}");
+                result2 = subject.OfType<C>().Count("{}");
+            }
 
             result1.Should().Be(6);
             result2.Should().Be(3);
         }
 
         [Test]
-        public async Task CountAsync_should_only_count_derived_types_with_a_filter()
+        public void Count_should_only_count_derived_types_with_a_filter(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
-            var result = await subject.CountAsync(x => x.PropB > 2);
+            long result;
+            if (async)
+            {
+                result = subject.CountAsync(x => x.PropB > 2).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.Count(x => x.PropB > 2);
+            }
 
             result.Should().Be(4);
         }
 
         [Test]
-        public async Task InsertOneAsync_should_include_discriminator_when_document_is_of_type_B()
+        public void InsertOne_should_include_discriminator_when_document_is_of_type_B(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            var document = new B { PropA = 10, PropB = 7 };
 
-            await subject.InsertOneAsync(new B { PropA = 10, PropB = 7 });
+            if (async)
+            {
+                subject.InsertOneAsync(document).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertOne(document);
+            }
 
-            var insertedB = await _docsCollection.Find("{PropA: 10}").SingleAsync();
+            var insertedB = _docsCollection.FindSync("{PropA: 10}").Single();
             insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
         }
 
         [Test]
-        public async Task InsertOneAsync_should_include_discriminator_when_document_is_of_type_C()
+        public void InsertOne_should_include_discriminator_when_document_is_of_type_C(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            var document = new C { PropA = 11, PropB = 8, PropC = 4 };
 
-            await subject.InsertOneAsync(new C { PropA = 11, PropB = 8, PropC = 4 });
+            if (async)
+            {
+                subject.InsertOneAsync(document).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.InsertOne(document);
+            }
 
-            var insertedC = await _docsCollection.Find("{PropA: 11}").SingleAsync();
+            var insertedC = _docsCollection.FindSync("{PropA: 11}").Single();
             insertedC["_t"].Should().Be(new BsonArray(new[] { "A", "B", "C" }));
         }
 
         [Test]
-        public async Task ReplaceOneAsync_should_not_match_document_of_wrong_type()
+        public void ReplaceOne_should_not_match_document_of_wrong_type(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            var repacement = new B { PropA = 10, PropB = 7 };
 
-            var result = await subject.ReplaceOneAsync("{PropA: 1}", new B { PropA = 10, PropB = 7 });
+            ReplaceOneResult result;
+            if (async)
+            {
+                result = subject.ReplaceOneAsync("{PropA: 1}", repacement).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.ReplaceOne("{PropA: 1}", repacement);
+            }
 
             result.MatchedCount.Should().Be(0); // document matching { PropA : 1 } is not of type B
         }
 
         [Test]
-        public async Task ReplaceOneAsync_should_match_document_of_right_type()
+        public void ReplaceOne_should_match_document_of_right_type(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var originalDocument = await _docsCollection.Find("{ PropA : 4 }").SingleAsync();
+            var originalDocument = _docsCollection.FindSync("{ PropA : 4 }").Single();
+            var replacement = new B { PropA = 10, PropB = 7 };
 
-            var result = await subject.ReplaceOneAsync("{PropA: 4}", new B { PropA = 10, PropB = 7 });
+            ReplaceOneResult result;
+            if (async)
+            {
+                result = subject.ReplaceOneAsync("{PropA: 4}", replacement).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.ReplaceOne("{PropA: 4}", replacement);
+            }
 
             result.MatchedCount.Should().Be(1); // document matching { PropA : 4 } is of type B
-            var replacedB = await _docsCollection.Find("{ PropA : 10 }").SingleAsync();
+            var replacedB = _docsCollection.FindSync("{ PropA : 10 }").Single();
             replacedB.Should().Be(new BsonDocument
             {
                 { "_id", originalDocument["_id"] },
