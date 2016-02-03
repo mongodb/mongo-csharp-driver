@@ -21,7 +21,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a truncation exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class TruncationException : BsonException
     {
         // constructors

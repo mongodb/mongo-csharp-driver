@@ -21,7 +21,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class BsonException : Exception
     {
         // constructors

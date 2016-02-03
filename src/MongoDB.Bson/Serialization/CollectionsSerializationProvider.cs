@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization
 
             foreach (var implementedInterface in implementedInterfaces)
             {
-                var implementedInterfaceTypeInfo = implementedInterface.GetType();
+                var implementedInterfaceTypeInfo = implementedInterface.GetTypeInfo();
                 if (implementedInterfaceTypeInfo.IsGenericType)
                 {
                     var genericInterfaceDefinition = implementedInterface.GetGenericTypeDefinition();

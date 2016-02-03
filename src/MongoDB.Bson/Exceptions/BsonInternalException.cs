@@ -21,7 +21,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON internal exception (almost surely the result of a bug).
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class BsonInternalException : BsonException
     {
         // constructors

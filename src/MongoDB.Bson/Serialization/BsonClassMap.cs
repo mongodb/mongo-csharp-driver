@@ -1266,9 +1266,14 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
+#if NET45
                     // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
                     var getUnitializedObjectMethodInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
                     body = Expression.Call(getUnitializedObjectMethodInfo, Expression.Constant(_classType));
+#else
+                    var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
+                    throw new BsonSerializationException(message);
+#endif
                 }
                 var lambdaExpression = Expression.Lambda<Func<object>>(body);
                 _creator = lambdaExpression.Compile();
