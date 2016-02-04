@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -188,7 +188,6 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         try
                         {
-                            _stream.Close();
                             _stream.Dispose();
                         }
                         catch
@@ -599,7 +598,12 @@ namespace MongoDB.Driver.Core.Connections
 
         private Exception WrapException(Exception ex, string action)
         {
-            if (ex is ThreadAbortException || ex is StackOverflowException || ex is OutOfMemoryException)
+            if (
+#if NET45
+                ex is ThreadAbortException ||
+                ex is StackOverflowException ||
+#endif
+                ex is OutOfMemoryException)
             {
                 return ex;
             }

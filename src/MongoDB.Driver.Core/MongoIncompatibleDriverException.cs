@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB incompatible driver exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoIncompatibleDriverException : MongoClientException
     {
         #region static
@@ -45,6 +47,7 @@ namespace MongoDB.Driver
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoIncompatibleDriverException"/> class.
         /// </summary>
@@ -54,5 +57,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
+#endif
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private static readonly string[] __writeConcernIndicators = new[] { "wtimeout", "jnote", "wnote" };
-        private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "authenticate",
             "saslStart",

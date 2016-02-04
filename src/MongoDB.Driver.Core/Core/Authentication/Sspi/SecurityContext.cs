@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#if NET45
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -345,7 +346,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 for (int i = 0; i < count; i++)
                 {
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
-                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {
                         return (int)package.MaxTokenSize;
                     }
@@ -370,3 +371,4 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
+#endif

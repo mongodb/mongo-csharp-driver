@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB configuration exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoConfigurationException : MongoClientException
     {
         // constructors
@@ -48,6 +50,7 @@ namespace MongoDB.Driver
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoConfigurationException"/> class.
         /// </summary>
@@ -57,5 +60,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
+#endif
     }
 }

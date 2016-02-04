@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ namespace MongoDB.Driver
             subject.InnerException.Should().BeSameAs(_innerException);
         }
 
+#if NET45
         [Test]
         public void Serialization_should_work()
         {
@@ -61,5 +62,6 @@ namespace MongoDB.Driver
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
             }
         }
+#endif
     }
 }

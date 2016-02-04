@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,9 +81,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
 
-            _allOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
-            _unknownOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
-            _authMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            _allOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+            _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+            _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Parse();
         }
 
@@ -657,7 +657,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private static ClusterConnectionMode ParseClusterConnectionMode(string name, string value)
         {
-            if (value.Equals("shardrouter", StringComparison.InvariantCultureIgnoreCase))
+            if (value.Equals("shardrouter", StringComparison.OrdinalIgnoreCase))
             {
                 value = "sharded";
             }

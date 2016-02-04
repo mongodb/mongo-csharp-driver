@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB command exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoCommandException : MongoServerException
     {
         // fields
@@ -62,6 +64,7 @@ namespace MongoDB.Driver
             _result = result; // can be null
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
         /// </summary>
@@ -73,6 +76,7 @@ namespace MongoDB.Driver
             _command = (BsonDocument)info.GetValue("_command", typeof(BsonDocument));
             _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
+#endif
 
         // properties
         /// <summary>
@@ -120,6 +124,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -127,5 +132,6 @@ namespace MongoDB.Driver
             info.AddValue("_command", _command);
             info.AddValue("_result", _result);
         }
+#endif
     }
 }

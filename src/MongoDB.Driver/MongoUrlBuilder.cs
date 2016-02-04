@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         public MongoUrlBuilder()
         {
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
-            _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
@@ -137,7 +137,7 @@ namespace MongoDB.Driver
                     throw new ArgumentNullException("value");
                 }
 
-                _authenticationMechanismProperties = value.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase);
+                _authenticationMechanismProperties = value.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -549,7 +549,7 @@ namespace MongoDB.Driver
         {
             var connectionString = new ConnectionString(url);
             _authenticationMechanism = connectionString.AuthMechanism;
-            _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase);
+            _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             _authenticationSource = connectionString.AuthSource;
             switch (connectionString.Connect)
             {

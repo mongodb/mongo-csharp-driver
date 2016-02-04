@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -510,7 +510,7 @@ namespace MongoDB.Driver
             {
                 foreach (var property in url.AuthenticationMechanismProperties)
                 {
-                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.OrdinalIgnoreCase))
                     {
                         credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
                     }

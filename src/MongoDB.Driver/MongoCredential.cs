@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -397,12 +397,14 @@ namespace MongoDB.Driver
                 {
                     return new PlainAuthenticator(credential);
                 }
+#if NET45
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         credential,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
+#endif
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
@@ -410,12 +412,14 @@ namespace MongoDB.Driver
                 {
                     return new MongoDBX509Authenticator(_identity.Username);
                 }
+#if NET45
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         _identity.Username,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
+#endif
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");

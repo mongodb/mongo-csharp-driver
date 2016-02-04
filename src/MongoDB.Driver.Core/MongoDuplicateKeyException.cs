@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB duplicate key exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoDuplicateKeyException : MongoWriteConcernException
     {
         /// <summary>
@@ -35,7 +37,8 @@ namespace MongoDB.Driver
             : base(connectionId, message, commandResult)
         {
         }
-        
+
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
         /// </summary>
@@ -45,5 +48,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
+#endif
     }
 }

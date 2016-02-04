@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public abstract class MongoBulkWriteException : MongoServerException
     {
         // private fields
@@ -50,6 +52,7 @@ namespace MongoDB.Driver
             _writeConcernError = writeConcernError;
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -61,6 +64,7 @@ namespace MongoDB.Driver
             _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
             _writeErrors = (IReadOnlyList<BulkWriteError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteError>));
         }
+#endif
 
         // properties
         /// <summary>
@@ -80,6 +84,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <summary>
         /// Gets the object data.
         /// </summary>
@@ -91,6 +96,7 @@ namespace MongoDB.Driver
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeErrors", _writeErrors);
         }
+#endif
 
         // private static methods
         private static string FormatMessage(IEnumerable<BulkWriteError> writeErrors, WriteConcernError writeConcernError)
@@ -116,7 +122,9 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     public sealed class MongoBulkWriteException<TDocument> : MongoBulkWriteException
     {
         // private fields
@@ -145,6 +153,7 @@ namespace MongoDB.Driver
             _unprocessedRequests = unprocessedRequests.ToList();
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -159,6 +168,7 @@ namespace MongoDB.Driver
                 _unprocessedRequests = (IReadOnlyList<WriteModel<TDocument>>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteModel<TDocument>>));
             }
         }
+#endif
 
         // public properties
         /// <summary>
@@ -178,6 +188,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <summary>
         /// Gets the object data.
         /// </summary>
@@ -192,6 +203,7 @@ namespace MongoDB.Driver
                 info.AddValue("_unprocessedRequests", _unprocessedRequests);
             }
         }
+#endif
 
         // internal static methods
         internal static MongoBulkWriteException<TDocument> FromCore(MongoBulkWriteOperationException ex)

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1088,7 +1088,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [TestCase(StringComparison.CurrentCulture)]
         [TestCase(StringComparison.CurrentCultureIgnoreCase)]
         [TestCase(StringComparison.InvariantCulture)]
+#if NET45
         [TestCase(StringComparison.InvariantCultureIgnoreCase)]
+#endif
         public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
         {
             Action act = () => Project(x => new { Result = x.B.Equals("balloon", comparison) });

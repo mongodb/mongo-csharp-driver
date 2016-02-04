@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoQueryException : MongoServerException
     {
         // fields
@@ -46,6 +48,7 @@ namespace MongoDB.Driver
             _queryResult = queryResult;
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
         /// </summary>
@@ -57,6 +60,7 @@ namespace MongoDB.Driver
             _query = (BsonDocument)info.GetValue("_query", typeof(BsonDocument));
             _queryResult = (BsonDocument)info.GetValue("_queryResult", typeof(BsonDocument));
         }
+#endif
 
         // properties
         /// <summary>
@@ -82,6 +86,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -89,5 +94,6 @@ namespace MongoDB.Driver
             info.AddValue("_query", _query);
             info.AddValue("_queryResult", _queryResult);
         }
+#endif
     }
 }

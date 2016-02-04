@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -188,10 +188,12 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new PlainAuthenticator(credential);
                 }
+#if NET45
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties);
                 }
+#endif
             }
             else
             {
@@ -199,10 +201,12 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new MongoDBX509Authenticator(connectionString.Username);
                 }
+#if NET45
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
                 }
+#endif
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");
@@ -210,7 +214,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private static string GetDefaultSource(ConnectionString connectionString)
         {
-            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.InvariantCultureIgnoreCase))
+            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.OrdinalIgnoreCase))
             {
                 return "$external";
             }
@@ -218,6 +222,7 @@ namespace MongoDB.Driver.Core.Configuration
             return "admin";
         }
 
+#if NET45
         /// <summary>
         /// Configures the cluster to write performance counters.
         /// </summary>
@@ -237,6 +242,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subscriber = new PerformanceCounterEventSubscriber(applicationName);
             return builder.Subscribe(subscriber);
         }
+#endif
 
         /// <summary>
         /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.

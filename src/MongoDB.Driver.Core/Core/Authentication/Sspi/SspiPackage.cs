@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#if NET45
 namespace MongoDB.Driver.Core.Authentication.Sspi
 {
     /// <summary>
@@ -26,3 +27,4 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         Kerberos
     }
 }
+#endif

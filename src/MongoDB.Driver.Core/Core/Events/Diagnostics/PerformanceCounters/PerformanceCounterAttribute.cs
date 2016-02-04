@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Diagnostics;
 
+#if NET45
 namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters
 {
     [AttributeUsage(AttributeTargets.Property)]
@@ -51,3 +52,4 @@ namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters
         }
     }
 }
+#endif

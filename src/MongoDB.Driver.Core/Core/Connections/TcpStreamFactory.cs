@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,8 +78,8 @@ namespace MongoDB.Driver.Core.Connections
             var cancelled = false;
             var timedOut = false;
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Close(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Close(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
+            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
             {
                 try
                 {
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (socket.Connected)
             {
-                try { socket.Close(); } catch { }
+                try { socket.Dispose(); } catch { }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -124,8 +124,8 @@ namespace MongoDB.Driver.Core.Connections
             var cancelled = false;
             var timedOut = false;
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Close(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Close(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
+            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
             {
                 try
                 {
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (socket.Connected)
             {
-                try { socket.Close(); } catch { }
+                try { socket.Dispose(); } catch { }
             }
 
             cancellationToken.ThrowIfCancellationRequested();

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#if NET45
 using System;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -42,3 +43,4 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         InitIntegrity = 0x10000
     }
 }
+#endif
