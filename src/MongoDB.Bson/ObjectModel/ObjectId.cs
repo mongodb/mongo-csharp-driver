@@ -390,7 +390,11 @@ namespace MongoDB.Bson
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
+#if NET45
             return Process.GetCurrentProcess().Id;
+#else
+            return 1;
+#endif
         }
 
         private static int GetMachineHash()

@@ -141,13 +141,17 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
+#if NET45
             return Process.GetCurrentProcess().Id;
+#else
+            return 1;
+#endif
         }
 
         private static byte[] GetMachineHash()
         {
             // use instead of Dns.HostName so it will work offline
-            var machineName = GetMachineName(); 
+            var machineName = GetMachineName();
             var sha1 = SHA1.Create();
             return sha1.ComputeHash(Encoding.UTF8.GetBytes(machineName));
         }

@@ -1533,7 +1533,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private static methods
-        private static List<MethodInfo> GetPropertyAccessors(PropertyInfo propertyInfo)
+        private static MethodInfo[] GetPropertyAccessors(PropertyInfo propertyInfo)
         {
 #if NET45
             return propertyInfo.GetAccessors(true);
@@ -1547,7 +1547,7 @@ namespace MongoDB.Bson.Serialization
             {
                 accessors.Add(propertyInfo.SetMethod);
             }
-            return accessors;
+            return accessors.ToArray();
 #endif
         }
 
