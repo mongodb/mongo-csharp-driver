@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var localField = localFieldValue.ToString().Substring(1); // remove '$'
 
-            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.JoinedKeySelector);
             if (foreignFieldValue.BsonType != BsonType.String)
             {
                 throw new NotSupportedException("Could not translate the foreign field.");
