@@ -403,6 +403,22 @@ namespace MongoDB.Driver.Tests.Linq
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void GroupJoinForeignField_method()
+        {
+            var query = CreateQuery()
+                .GroupJoin(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.CEF,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                2,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
         public void GroupJoin_syntax()
         {
             var query = from p in CreateQuery()
