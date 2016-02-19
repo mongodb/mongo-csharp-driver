@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -64,7 +65,6 @@ namespace MongoDB.Driver.Core.Authentication
             using (var md5 = MD5.Create())
             {
                 var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
-                md5.TransformBlock(bytes, 0, bytes.Length, null, 0);
 
                 IntPtr unmanagedPassword = IntPtr.Zero;
                 try
@@ -84,8 +84,12 @@ namespace MongoDB.Driver.Core.Authentication
                         {
                             passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
                             Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-                            md5.TransformFinalBlock(passwordBytes, 0, passwordBytes.Length);
-                            return BsonUtils.ToHexString(md5.Hash);
+
+                            var buffer = new byte[bytes.Length + passwordBytes.Length];
+                            Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
+                            Buffer.BlockCopy(passwordBytes, 0, buffer, bytes.Length, passwordBytes.Length);
+
+                            return BsonUtils.ToHexString(md5.ComputeHash(buffer));
                         }
                         finally
                         {
