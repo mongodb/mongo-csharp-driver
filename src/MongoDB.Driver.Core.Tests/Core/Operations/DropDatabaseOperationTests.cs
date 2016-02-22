@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
 
         // setup methods
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;

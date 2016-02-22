@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Tests
         private WriteModel<BsonDocument>[] _unprocessedRequests;
 
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
             var processedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("b", 1)) };

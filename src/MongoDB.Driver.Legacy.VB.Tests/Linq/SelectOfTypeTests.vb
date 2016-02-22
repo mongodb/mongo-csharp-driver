@@ -48,7 +48,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         Private _database As MongoDatabase
         Private _collection As MongoCollection(Of B)
 
-        <TestFixtureSetUp()> _
+        <OneTimeSetUp()>
         Public Sub Setup()
             _server = LegacyTestConfiguration.Server
             _database = LegacyTestConfiguration.Database

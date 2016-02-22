@@ -21,8 +21,8 @@ Namespace MongoDB.Driver.VB.Tests
     <SetUpFixture()>
     Public Class SetUpFixture
 
-        <TearDown>
-        Public Sub TearDown()
+        <OneTimeTearDown>
+        Public Sub OneTimeTearDown()
             Dim cluster = CoreTestConfiguration.Cluster ' force cluster to be created so database can be dropped
             CoreTestConfiguration.TearDown()
         End Sub

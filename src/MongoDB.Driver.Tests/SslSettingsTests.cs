@@ -14,8 +14,10 @@
 */
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver;
@@ -66,7 +68,8 @@ namespace MongoDB.Driver.Tests
             var settings = new SslSettings();
             Assert.AreEqual(null, settings.ClientCertificates);
 
-            var clientCertificates = new[] { new X509Certificate2("testcert.pfx", "password"), new X509Certificate2("testcert.pfx", "password") };
+            var certificateFileName = GetTestCertificateFileName();
+            var clientCertificates = new[] { new X509Certificate2(certificateFileName, "password"), new X509Certificate2(certificateFileName, "password") };
             settings.ClientCertificates = clientCertificates;
             Assert.IsTrue(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.AreNotSame(clientCertificates[0], settings.ClientCertificates.ElementAt(0));
@@ -95,10 +98,11 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestClone()
         {
+            var certificateFileName = GetTestCertificateFileName();
             var settings = new SslSettings
             {
                 CheckCertificateRevocation = false,
-                ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") },
+                ClientCertificates = new[] { new X509Certificate2(certificateFileName, "password") },
                 ClientCertificateSelectionCallback = ClientCertificateSelectionCallback,
                 EnabledSslProtocols = SslProtocols.Tls,
                 ServerCertificateValidationCallback = ServerCertificateValidationCallback
@@ -131,7 +135,8 @@ namespace MongoDB.Driver.Tests
             Assert.AreNotEqual(settings, clone);
 
             clone = settings.Clone();
-            clone.ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") };
+            var certificateFileName = GetTestCertificateFileName();
+            clone.ClientCertificates = new[] { new X509Certificate2(certificateFileName, "password") };
             Assert.AreNotEqual(settings, clone);
 
             clone = settings.Clone();
@@ -175,6 +180,13 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(callback, settings.ServerCertificateValidationCallback);
             Assert.Throws<InvalidOperationException>(() => { settings.ServerCertificateValidationCallback = callback; });
+        }
+
+        private string GetTestCertificateFileName()
+        {
+            var assemblyFilename = Assembly.GetExecutingAssembly().Location;
+            var assemblyDirectory = Path.GetDirectoryName(assemblyFilename);
+            return Path.Combine(assemblyDirectory, "testcert.pfx");
         }
     }
 }

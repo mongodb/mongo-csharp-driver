@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp172
 
         private MongoCollection<C> _collection;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp172
         public void TestRoundtrip()
         {
             var obj1 = new C { N = 1 };
-            Assert.IsNullOrEmpty(obj1.Id);
+            Assert.That(obj1.Id, Is.Null.Or.Empty);
             _collection.RemoveAll();
             _collection.Insert(obj1);
-            Assert.IsNotNullOrEmpty(obj1.Id);
+            Assert.That(obj1.Id, Is.Not.Null.And.Not.Empty);
 
             var obj2 = _collection.FindOne();
             Assert.AreEqual(obj1.Id, obj2.Id);

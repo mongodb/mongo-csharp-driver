@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Tests
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
-        [TestFixtureSetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _server = LegacyTestConfiguration.Server;
             _primary = _server.Instances.First(x => x.IsPrimary);
@@ -2544,7 +2544,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(9, result.EmitCount);
             Assert.AreEqual(5, result.OutputCount);
             Assert.AreEqual(3, result.InputCount);
-            Assert.IsNotNullOrEmpty(result.CollectionName);
+            Assert.That(result.CollectionName, Is.Not.Null.And.Not.Empty);
 
             var expectedCounts = new Dictionary<string, int>
             {
@@ -2618,7 +2618,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(9, result.EmitCount);
                 Assert.AreEqual(5, result.OutputCount);
                 Assert.AreEqual(3, result.InputCount);
-                Assert.IsNullOrEmpty(result.CollectionName);
+                Assert.That(result.CollectionName, Is.Null.Or.Empty);
 
                 var expectedCounts = new Dictionary<string, int>
                 {
@@ -2729,7 +2729,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(9, result.EmitCount);
                 Assert.AreEqual(5, result.OutputCount);
                 Assert.AreEqual(3, result.InputCount);
-                Assert.IsNullOrEmpty(result.CollectionName);
+                Assert.That(result.CollectionName, Is.Null.Or.Empty);
 
                 var expectedCounts = new Dictionary<string, int>
                 {

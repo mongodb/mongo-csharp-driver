@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Bson.TestHelpers
 {
@@ -34,11 +35,11 @@ namespace MongoDB.Bson.TestHelpers
         }
 
         // public methods
-        public void AfterTest(TestDetails details)
+        public void AfterTest(ITest details)
         {
         }
 
-        public void BeforeTest(TestDetails details)
+        public void BeforeTest(ITest details)
         {
             Ensure64Bit();
         }

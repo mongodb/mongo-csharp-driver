@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Specifications.connection_string
 {
@@ -154,8 +155,8 @@ namespace MongoDB.Driver.Specifications.connection_string
                         foreach (BsonDocument test in tests)
                         {
                             var data = new TestCaseData(test);
-                            data.Categories.Add("Specifications");
-                            data.Categories.Add("ConnectionString");
+                            data.SetCategory("Specifications");
+                            data.SetCategory("ConnectionString");
                             var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
                             if (_ignoredTestNames.Contains(testName))
                             {

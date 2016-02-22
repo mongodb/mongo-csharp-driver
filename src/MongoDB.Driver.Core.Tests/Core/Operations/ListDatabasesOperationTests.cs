@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListDatabasesOperationTests : OperationTestBase
     {
         // setup methods
-        public override void TestFixtureSetUp()
+        public override void OneTimeSetUp()
         {
             _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
         }

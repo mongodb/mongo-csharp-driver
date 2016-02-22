@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         private ObjectId _id4 = ObjectId.GenerateNewId();
         private ObjectId _id5 = ObjectId.GenerateNewId();
 
-        [TestFixtureSetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _database = DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             _collection = _database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);

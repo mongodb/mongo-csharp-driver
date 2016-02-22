@@ -146,7 +146,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         Private _id4 As ObjectId = ObjectId.GenerateNewId()
         Private _id5 As ObjectId = ObjectId.GenerateNewId()
 
-        <TestFixtureSetUp()>
+        <OneTimeSetUp()>
         Public Sub Setup()
             _server = LegacyTestConfiguration.Server
             _server.Connect()
@@ -210,31 +210,51 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregate()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Aggregate(Function(a, b) Nothing)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Aggregate(Function(a, b) Nothing)
+                End Sub
+
+            Dim expectedMessage = "The Aggregate query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregateWithAccumulator()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Aggregate(0, Function(a, c) 0)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Aggregate(0, Function(a, c) 0)
+                End Sub
+
+            Dim expectedMessage = "The Aggregate query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Aggregate query operator is not supported.")>
         Public Sub TestAggregateWithAccumulatorAndSelector()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Aggregate(0, Function(a, c) 0, Function(a) a)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Aggregate(0, Function(a, c) 0, Function(a) a)
+                End Sub
+
+            Dim expectedMessage = "The Aggregate query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The All query operator is not supported.")>
         Public Sub TestAll()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).All(Function(c) True)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).All(Function(c) True)
+                End Sub
+
+            Dim expectedMessage = "The All query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -261,9 +281,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any with predicate after a projection is not supported.")>
         Public Sub TestAnyWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Any(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Any(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "Any with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -292,66 +317,106 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverage()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select 1.0).Average()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select 1.0).Average()
+                End Sub
+
+            Dim expectedMessage = "The Average query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageNullable()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select New Nullable(Of Decimal)(1.0)).Average()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select New Nullable(Of Decimal)(1.0)).Average()
+                End Sub
+
+            Dim expectedMessage = "The Average query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageWithSelector()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Average(Function(c) 1.0)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Average(Function(c) 1.0)
+                End Sub
+
+            Dim expectedMessage = "The Average query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Average query operator is not supported.")>
         Public Sub TestAverageWithSelectorNullable()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Average(Function(c) New Nullable(Of Decimal)(1.0))
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Average(Function(c) New Nullable(Of Decimal)(1.0))
+                End Sub
+
+            Dim expectedMessage = "The Average query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Cast query operator is not supported.")>
         Public Sub TestCast()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Cast(Of C)()
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Cast query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Concat query operator is not supported.")>
         Public Sub TestConcat()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Concat(source2)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Concat query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")>
         Public Sub TestContains()
             Dim item = New C()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Contains(item)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Contains(item)
+                End Sub
+
+            Dim expectedMessage = "The Contains query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Contains query operator is not supported.")>
         Public Sub TestContainsWithEqualityComparer()
             Dim item = New C()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Contains(item, New CEqualityComparer())
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Contains(item, New CEqualityComparer())
+                End Sub
+
+            Dim expectedMessage = "The Contains query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -379,9 +444,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Count with predicate after a projection is not supported.")>
         Public Sub TestCountWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Count(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).Count(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "Count with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -400,21 +470,31 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")>
         Public Sub TestDefaultIfEmpty()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).DefaultIfEmpty()
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The DefaultIfEmpty query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The DefaultIfEmpty query operator is not supported.")>
         Public Sub TestDefaultIfEmptyWithDefaultValue()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).DefaultIfEmpty(Nothing)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The DefaultIfEmpty query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -595,11 +675,16 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The version of the Distinct query operator with an equality comparer is not supported.")>
         Public Sub TestDistinctWithEqualityComparer()
             Dim query = _collection.AsQueryable(Of C)().Distinct(New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The version of the Distinct query operator with an equality comparer is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -649,11 +734,15 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestElementAtWithNoMatch()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.X = 9
-                          Select c).ElementAt(0)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.X = 9
+                                  Select c).ElementAt(0)
+                End Sub
+
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -677,23 +766,33 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")>
         Public Sub TestExcept()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Except(source2)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Except query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Except query operator is not supported.")>
         Public Sub TestExceptWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Except(source2, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Except query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -724,9 +823,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="FirstOrDefault with predicate after a projection is not supported.")>
         Public Sub TestFirstOrDefaultWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).FirstOrDefault(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).FirstOrDefault(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "FirstOrDefault with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -781,11 +885,16 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestFirstWithNoMatch()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.X = 9
-                          Select c).First()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.X = 9
+                                  Select c).First()
+                End Sub
+
+            Dim expectedMessage = ""
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -799,9 +908,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="First with predicate after a projection is not supported.")>
         Public Sub TestFirstWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).First(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).First(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "First with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -849,129 +963,199 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndResultSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, Function(c, e) 1.0)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndElementSelectorAndResultSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(c) c, Function(c, e) e.First(), New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndResultSelector()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(k, e) 1.0)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupBy query operator is not supported.")>
         Public Sub TestGroupByWithKeySelectorAndResultSelectorAndEqualityComparer()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).GroupBy(Function(c) c, Function(k, e) e.First(), New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupBy query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")>
         Public Sub TestGroupJoin()
             Dim inner = New C(-1) {}
             Dim query = _collection.AsQueryable(Of C)().GroupJoin(inner, Function(c) c, Function(c) c, Function(c, e) c)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupJoin query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The GroupJoin query operator is not supported.")>
         Public Sub TestGroupJoinWithEqualityComparer()
             Dim inner = New C(-1) {}
             Dim query = _collection.AsQueryable(Of C)().GroupJoin(inner, Function(c) c, Function(c) c, Function(c, e) c, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The GroupJoin query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")>
         Public Sub TestIntersect()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Intersect(source2)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Intersect query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Intersect query operator is not supported.")>
         Public Sub TestIntersectWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Intersect(source2, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Intersect query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")>
         Public Sub TestJoin()
             Dim query = _collection.AsQueryable(Of C)().Join(_collection.AsQueryable(Of C)(), Function(c) c.X, Function(c) c.X, Function(x, y) x)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Join query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Join query operator is not supported.")>
         Public Sub TestJoinWithEqualityComparer()
             Dim query = _collection.AsQueryable(Of C)().Join(_collection.AsQueryable(Of C)(), Function(c) c.X, Function(c) c.X, Function(x, y) x, New Int32EqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Join query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1012,9 +1196,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="LastOrDefault with predicate after a projection is not supported.")>
         Public Sub TestLastOrDefaultWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).LastOrDefault(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).LastOrDefault(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "LastOrDefault with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1069,11 +1258,16 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestLastWithNoMatch()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.X = 9
-                          Select c).Last()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.X = 9
+                                  Select c).Last()
+                End Sub
+
+            Dim expectedMessage = ""
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -1087,9 +1281,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Last with predicate after a projection is not supported.")>
         Public Sub TestLastWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().Select(Function(c) c.Y).Last(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().Select(Function(c) c.Y).Last(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "Last with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1461,14 +1660,19 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")>
         Public Sub TestOrderByDuplicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Order By c.X
                         Order By c.Y
                         Select c
 
-            MongoQueryTranslator.Translate(query)
+            Dim action As TestDelegate =
+                Sub()
+                    MongoQueryTranslator.Translate(query)
+                End Sub
+
+            Dim expectedMessage = "Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses)."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1497,12 +1701,17 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Reverse query operator is not supported.")>
         Public Sub TestReverse()
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Reverse()
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Reverse query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1527,43 +1736,68 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectMany()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c) New C() {c})
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The SelectMany query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIndex()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c, index) New C() {c})
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The SelectMany query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIntermediateResults()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c) New C() {c}, Function(c, i) i)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The SelectMany query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SelectMany query operator is not supported.")>
         Public Sub TestSelectManyWithIndexAndIntermediateResults()
             Dim query = _collection.AsQueryable(Of C)().SelectMany(Function(c, index) New C() {c}, Function(c, i) i)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The SelectMany query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Select query operator is not supported.")>
         Public Sub TestSelectWithIndex()
             Dim query = _collection.AsQueryable(Of C)().[Select](Function(c, index) c)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The indexed version of the Select query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1575,26 +1809,41 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")>
         Public Sub TestSequenceEqual()
             Dim source2 = New C(-1) {}
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).SequenceEqual(source2)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).SequenceEqual(source2)
+                End Sub
+
+            Dim expectedMessage = "The SequenceEqual query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SequenceEqual query operator is not supported.")>
         Public Sub TestSequenceEqualtWithEqualityComparer()
             Dim source2 = New C(-1) {}
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).SequenceEqual(source2, New CEqualityComparer())
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).SequenceEqual(source2, New CEqualityComparer())
+                End Sub
+
+            Dim expectedMessage = "The SequenceEqual query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleOrDefaultWithManyMatches()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).SingleOrDefault()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).SingleOrDefault()
+                End Sub
+
+            Dim expectedMessage = ""
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -1616,9 +1865,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="SingleOrDefault with predicate after a projection is not supported.")>
         Public Sub TestSingleOrDefaultWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).SingleOrDefault(Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).SingleOrDefault(Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "SingleOrDefault with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1655,26 +1909,38 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleOrDefaultWithTwoMatches()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.Y = 11
-                          Select c).SingleOrDefault()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.Y = 11
+                                  Select c).SingleOrDefault()
+                End Sub
+
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithManyMatches()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).[Single]()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).[Single]()
+                End Sub
+
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithNoMatch()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.X = 9
-                          Select c).[Single]()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.X = 9
+                                  Select c).[Single]()
+                End Sub
+
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -1688,9 +1954,14 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Single with predicate after a projection is not supported.")>
         Public Sub TestSingleWithPredicateAfterProjection()
-            Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).[Single](Function(y) y = 11)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = _collection.AsQueryable(Of C)().[Select](Function(c) c.Y).[Single](Function(y) y = 11)
+                End Sub
+
+            Dim expectedMessage = "Single with predicate after a projection is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1729,11 +2000,15 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(InvalidOperationException))>
         Public Sub TestSingleWithTwoMatches()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Where c.Y = 11
-                          Select c).[Single]()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Where c.Y = 11
+                                  Select c).[Single]()
+                End Sub
+
+            Assert.That(action, Throws.Exception.TypeOf(Of InvalidOperationException))
         End Sub
 
         <Test()>
@@ -1758,39 +2033,64 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The SkipWhile query operator is not supported.")>
         Public Sub TestSkipWhile()
             Dim query = _collection.AsQueryable(Of C)().SkipWhile(Function(c) True)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The SkipWhile query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSum()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select 1.0).Sum()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select 1.0).Sum()
+                End Sub
+
+            Dim expectedMessage = "The Sum query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumNullable()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select New Nullable(Of Integer)(1)).Sum()
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select New Nullable(Of Integer)(1)).Sum()
+                End Sub
+
+            Dim expectedMessage = "The Sum query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumWithSelector()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Sum(Function(c) 1.0)
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Sum(Function(c) 1.0)
+                End Sub
+
+            Dim expectedMessage = "The Sum query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Sum query operator is not supported.")>
         Public Sub TestSumWithSelectorNullable()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).Sum(Function(c) New Nullable(Of Decimal)(1.0))
+            Dim action As TestDelegate =
+                Sub()
+                    Dim result = (From c In _collection.AsQueryable(Of C)()
+                                  Select c).Sum(Function(c) New Nullable(Of Decimal)(1.0))
+                End Sub
+
+            Dim expectedMessage = "The Sum query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1815,40 +2115,60 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The TakeWhile query operator is not supported.")>
         Public Sub TestTakeWhile()
             Dim query = _collection.AsQueryable(Of C)().TakeWhile(Function(c) True)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The TakeWhile query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.")>
         Public Sub TestThenByWithMissingOrderBy()
             ' not sure this could ever happen in real life without deliberate sabotaging like with this cast
             Dim query = DirectCast(_collection.AsQueryable(Of C)(), IOrderedQueryable(Of C)).ThenBy(Function(c) c.X)
 
-            MongoQueryTranslator.Translate(query)
+            Dim action As TestDelegate =
+                Sub()
+                    MongoQueryTranslator.Translate(query)
+                End Sub
+
+            Dim expectedMessage = "ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")>
         Public Sub TestUnion()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Union(source2)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Union query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The Union query operator is not supported.")>
         Public Sub TestUnionWithEqualityComparer()
             Dim source2 = New C(-1) {}
             Dim query = (From c In _collection.AsQueryable(Of C)()
                          Select c).Union(source2, New CEqualityComparer())
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The Union query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -1874,13 +2194,18 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is Int32Serializer and must implement IBsonDocumentSerializer for participation in Any queries.")>
         Public Sub TestWhereAAnyWithPredicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Any(Function(a) a > 3)
                         Select c
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "Any is only support for items that serialize into documents. The current serializer is Int32Serializer and must implement IBsonDocumentSerializer for participation in Any queries."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>
@@ -5813,11 +6138,16 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The indexed version of the Where query operator is not supported.")>
         Public Sub TestWhereWithIndex()
             Dim query = _collection.AsQueryable(Of C)().Where(Function(c, i) True)
-            query.ToList()
-            ' execute query
+            Dim action As TestDelegate =
+                Sub()
+                    query.ToList()
+                    ' execute query
+                End Sub
+
+            Dim expectedMessage = "The indexed version of the Where query operator is not supported."
+            Assert.That(action, Throws.Exception.TypeOf(Of NotSupportedException).With.Message.EqualTo(expectedMessage))
         End Sub
 
         <Test()>

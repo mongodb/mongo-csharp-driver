@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Specifications.server_selection
 {
@@ -197,8 +198,8 @@ namespace MongoDB.Driver.Specifications.server_selection
                         var definition = ReadDefinition(path);
                         var fullName = path.Remove(0, prefix.Length);
                         var data = new TestCaseData(definition);
-                        data.Categories.Add("Specifications");
-                        data.Categories.Add("server-selection");
+                        data.SetCategory("Specifications");
+                        data.SetCategory("server-selection");
                         return data.SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"));
                     });
             }

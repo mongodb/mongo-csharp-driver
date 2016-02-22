@@ -20,8 +20,8 @@ namespace MongoDB.Driver
     [SetUpFixture]
     public class SetUpFixture
     {
-        [TearDown]
-        public void TearDown()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             CoreTestConfiguration.TearDown();
         }

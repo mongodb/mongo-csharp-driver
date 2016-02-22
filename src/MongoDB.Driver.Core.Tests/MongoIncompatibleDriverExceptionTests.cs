@@ -28,8 +28,8 @@ namespace MongoDB.Driver
     {
         private ClusterDescription _clusterDescription;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             var clusterId = new ClusterId(1);
             var connectionMode = ClusterConnectionMode.Standalone;

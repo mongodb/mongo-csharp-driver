@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 {
@@ -66,8 +67,8 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             };
         }
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             __capturedEvents = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => __commandsToCapture.Contains(e.CommandName))
@@ -334,8 +335,8 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                         foreach (var async in new[] { false, true })
                         {
                             var testCase = new TestCaseData(data, databaseName, collectionName, definition, async);
-                            testCase.Categories.Add("Specifications");
-                            testCase.Categories.Add("command-monitoring");
+                            testCase.SetCategory("Specifications");
+                            testCase.SetCategory("command-monitoring");
                             testCase.SetName($"{definition["description"]}({async})");
                             yield return testCase;
                         }

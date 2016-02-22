@@ -32,7 +32,7 @@ Namespace MongoDB.Driver.VB.Tests.Jira
         Private _database As MongoDatabase
         Private _collection As MongoCollection(Of C)
 
-        <TestFixtureSetUp()>
+        <OneTimeSetUp()>
         Public Sub Setup()
             _server = LegacyTestConfiguration.Server
             _database = LegacyTestConfiguration.Database

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private BsonDocument _update;
 
-        public override void TestFixtureSetUp()
+        public override void OneTimeSetUp()
         {
-            base.TestFixtureSetUp();
+            base.OneTimeSetUp();
 
             _filter = new BsonDocument("x", 1);
             _update = BsonDocument.Parse("{$set: {x: 2}}");

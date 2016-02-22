@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -127,7 +127,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Test]
-        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
         public void TestSettingAReadOnlyField()
         {
             var instance = new TestClass();
@@ -138,7 +137,10 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyField");
 
-            memberMap.Setter(instance, 12);
+            TestDelegate action = () => memberMap.Setter(instance, 12);
+
+            var expectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
+            Assert.That(action, Throws.Exception.TypeOf<BsonSerializationException>().With.Message.EqualTo(expectedMessage));
         }
 
         [Test]
@@ -238,7 +240,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Test]
-        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
         public void TestSettingAReadOnlyProperty()
         {
             var instance = new TestClass { Property = 10 };
@@ -249,7 +250,10 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
 
-            memberMap.Setter(instance, 12);
+            TestDelegate action = () => memberMap.Setter(instance, 12);
+
+            var expectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
+            Assert.That(action, Throws.Exception.TypeOf<BsonSerializationException>().With.Message.EqualTo(expectedMessage));
         }
 
         [Test]

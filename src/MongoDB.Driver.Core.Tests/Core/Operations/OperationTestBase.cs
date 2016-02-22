@@ -34,16 +34,16 @@ namespace MongoDB.Driver.Core.Operations
         protected MessageEncoderSettings _messageEncoderSettings;
         private bool _hasOncePerFixtureRun;
 
-        [TestFixtureSetUp]
-        public virtual void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public virtual void OneTimeSetUp()
         {
             _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [TestFixtureTearDown]
-        public virtual void TestFixtureTearDown()
+        [OneTimeTearDown]
+        public virtual void OneTimeTearDown()
         {
             try
             {

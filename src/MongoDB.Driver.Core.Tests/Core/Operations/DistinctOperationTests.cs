@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Core.Operations
         private string _fieldName;
         private IBsonSerializer<int> _valueSerializer;
 
-        public override void TestFixtureSetUp()
+        public override void OneTimeSetUp()
         {
-            base.TestFixtureSetUp();
+            base.OneTimeSetUp();
 
             _fieldName = "y";
             _valueSerializer = new Int32Serializer();

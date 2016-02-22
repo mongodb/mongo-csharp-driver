@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Tests.Operations
         private MongoServerInstance _primary;
         private MongoCollection<BsonDocument> _collection;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _server = LegacyTestConfiguration.Server;
             _primary = _server.Instances.First(x => x.IsPrimary);

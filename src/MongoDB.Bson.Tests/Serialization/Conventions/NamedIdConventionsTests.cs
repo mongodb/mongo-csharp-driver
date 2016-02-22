@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
     {
         private NamedIdMemberConvention _subject;
 
-        [TestFixtureSetUp]
-        public void FixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _subject = new NamedIdMemberConvention(new[] { "One", "Two" });
         }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ namespace MongoDB.Driver.Core.Operations
     [TestFixture]
     public class DatabaseExistsOperationTests : OperationTestBase
     {
-        public override void TestFixtureSetUp()
+        public override void OneTimeSetUp()
         {
-            base.TestFixtureSetUp();
+            base.OneTimeSetUp();
 
             // override this database and collection using special ones for this...
             _databaseNamespace = new DatabaseNamespace("DatabaseExistsOperationTests");

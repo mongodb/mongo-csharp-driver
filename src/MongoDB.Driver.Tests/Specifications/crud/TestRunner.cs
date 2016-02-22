@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
@@ -29,8 +30,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     {
         private static Dictionary<string, Func<ICrudOperationTest>> _tests;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _tests = new Dictionary<string, Func<ICrudOperationTest>>
             {
@@ -106,8 +107,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         foreach (var async in new[] { false, true})
                         {
                             var testCase = new TestCaseData(data, definition, async);
-                            testCase.Categories.Add("Specifications");
-                            testCase.Categories.Add("crud");
+                            testCase.SetCategory("Specifications");
+                            testCase.SetCategory("crud");
                             testCase.SetName($"{definition["description"]}({async})");
                             yield return testCase;
                         }

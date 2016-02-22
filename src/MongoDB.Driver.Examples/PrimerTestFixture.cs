@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Examples
         protected static IMongoDatabase _database;
         private static List<BsonDocument> _dataset;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             _client = new MongoClient(connectionString);

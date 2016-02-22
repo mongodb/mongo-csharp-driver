@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Tests.Linq
         protected IMongoCollection<Root> _collection;
         protected IMongoCollection<Other> _otherCollection;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);

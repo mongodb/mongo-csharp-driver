@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Core.Operations
         private List<BulkWriteOperationError> _writeErrors;
         private BulkWriteConcernError _writeConcernError;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
             _processedRequests = new List<WriteRequest>();

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
@@ -201,8 +202,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                         var definition = ReadDefinition(path);
                         var fullName = path.Remove(0, prefix.Length);
                         var data = new TestCaseData(definition);
-                        data.Categories.Add("Specifications");
-                        data.Categories.Add("server-discovery-and-monitoring");
+                        data.SetCategory("Specifications");
+                        data.SetCategory("server-discovery-and-monitoring");
                         return data
                             .SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"))
                             .SetDescription(definition["description"].ToString());

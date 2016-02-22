@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace MongoDB.Driver.Core
 {
@@ -113,12 +114,12 @@ namespace MongoDB.Driver.Core
         public string VersionLessThan { get; set; }
 
         // methods
-        public void AfterTest(TestDetails details)
+        public void AfterTest(ITest details)
         {
             InvokeMethod(details.Fixture, AfterTestMethodName);
         }
 
-        public void BeforeTest(TestDetails details)
+        public void BeforeTest(ITest details)
         {
             EnsureAuthentication();
             EnsureVersion();

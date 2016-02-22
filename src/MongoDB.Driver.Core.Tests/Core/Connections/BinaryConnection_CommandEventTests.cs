@@ -949,7 +949,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IEnumerable<string> GetRedactedCommands()
+        private static IEnumerable<string> GetRedactedCommands()
         {
             return (IEnumerable<string>)typeof(CommandEventHelper)
                 .GetField("__securitySensitiveCommands", BindingFlags.Static | BindingFlags.NonPublic)
