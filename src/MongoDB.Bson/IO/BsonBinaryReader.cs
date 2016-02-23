@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -200,7 +201,28 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadBsonType", BsonReaderState.Type);
             }
 
-            CurrentBsonType = _bsonStream.ReadBsonType();
+            if (_context.ContextType == ContextType.Array)
+            {
+                _context.CurrentArrayIndex++;
+            }
+
+            try
+            {
+
+                CurrentBsonType = _bsonStream.ReadBsonType();
+            }
+            catch (FormatException ex)
+            {
+                if (ex.Message.StartsWith("Detected unknown BSON type"))
+                {
+                    // insert the element name into the error message
+                    var periodIndex = ex.Message.IndexOf('.');
+                    var dottedElementName = GenerateDottedElementName();
+                    var message = ex.Message.Substring(0, periodIndex) + $" for fieldname \"{dottedElementName}\"" + ex.Message.Substring(periodIndex);
+                    throw new FormatException(message);
+                }
+                throw;
+            }
 
             if (CurrentBsonType == BsonType.EndOfDocument)
             {
@@ -455,6 +477,11 @@ namespace MongoDB.Bson.IO
             CurrentName = nameDecoder.Decode(_bsonStream, _settings.Encoding);
             State = BsonReaderState.Value;
 
+            if (_context.ContextType == ContextType.Document)
+            {
+                _context.CurrentElementName = CurrentName;
+            }
+
             return CurrentName;
         }
 
@@ -647,7 +674,13 @@ namespace MongoDB.Bson.IO
             }
 
             _bsonStream.SkipCString();
+            CurrentName = "?";
             State = BsonReaderState.Value;
+
+            if (_context.ContextType == ContextType.Document)
+            {
+                _context.CurrentElementName = CurrentName;
+            }
         }
 
         /// <summary>
@@ -710,6 +743,53 @@ namespace MongoDB.Bson.IO
         }
 
         // private methods
+        private string GenerateDottedElementName()
+        {
+            string elementName;
+            if (_context.ContextType == ContextType.Document)
+            {
+                try
+                {
+                    elementName = _bsonStream.ReadCString(Utf8Encodings.Lenient);
+                }
+                catch
+                {
+                    elementName = "?"; // ignore exception
+                }
+            }
+            else if (_context.ContextType == ContextType.Array)
+            {
+                elementName = _context.CurrentArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
+            }
+            else
+            {
+                elementName = "?";
+            }
+
+            return GenerateDottedElementName(_context.ParentContext, elementName);
+        }
+
+        private string GenerateDottedElementName(BsonBinaryReaderContext context, string elementName)
+        {
+            if (context.ContextType == ContextType.Document)
+            {
+                return GenerateDottedElementName(context.ParentContext, context.CurrentElementName + "." + elementName);
+            }
+            else if (context.ContextType == ContextType.Array)
+            {
+                var indexElementName = context.CurrentArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
+                return GenerateDottedElementName(context.ParentContext, indexElementName + "." + elementName);
+            }
+            else if (context.ParentContext != null)
+            {
+                return GenerateDottedElementName(context.ParentContext, "?." + elementName);
+            }
+            else
+            {
+                return elementName;
+            }
+        }
+
         private BsonReaderState GetNextState()
         {
             switch (_context.ContextType)
