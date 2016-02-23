@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -238,7 +238,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 Action action = () => stream.ReadBsonType();
 
-                action.ShouldThrow<FormatException>();
+                var hexBsonType = string.Format("{0:x2}", n);
+                var expectedMessage = $"Detected unknown BSON type \"\\x{hexBsonType}\". Are you using the latest driver version?";
+                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
             }
         }
 
