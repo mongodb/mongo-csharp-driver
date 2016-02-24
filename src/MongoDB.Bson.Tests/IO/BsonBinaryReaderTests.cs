@@ -57,146 +57,25 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a()
+        [TestCase("00000000 f0 6100", "a")]
+        [TestCase("00000000 08 6100 00 f0 6200", "b")]
+        [TestCase("00000000 03 6100 00000000 f0 6200", "a.b")]
+        [TestCase("00000000 03 6100 00000000 08 6200 00 f0 6300", "a.c")]
+        [TestCase("00000000 04 6100 00000000 f0", "a.0")]
+        [TestCase("00000000 04 6100 00000000 08 3000 00 f0", "a.1")]
+        [TestCase("00000000 04 6100 00000000 03 3000 00000000 f0 6200", "a.0.b")]
+        [TestCase("00000000 04 6100 00000000 03 3000 00000000 08 6200 00 f0 6300", "a.0.c")]
+        [TestCase("00000000 04 6100 00000000 08 3000 00 03 3100 00000000 f0 6200", "a.1.b")]
+        [TestCase("00000000 04 6100 00000000 08 3000 00 03 3200 00000000 08 6200 00 f0 6300", "a.1.c")]
+        public void ReadBsonType_should_throw_when_bson_type_is_invalid(string hexBytes, string expectedElementName)
         {
-            var bytes = new byte[] { 0, 0, 0, 0, 0xf0, 97, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a\". Are you using the latest driver version?";
+            var bytes = BsonUtils.ParseHexString(hexBytes.Replace(" ", ""));
+            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"{expectedElementName}\". Are you using the latest driver version?";
 
             using (var memoryStream = new MemoryStream(bytes))
             using (var subject = new BsonBinaryReader(memoryStream))
             {
-                subject.ReadStartDocument();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a_0()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 4, 97, 0, 0, 0, 0, 0, 0xf0, 48, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a.0\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadStartArray();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a_0_b()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 4, 97, 0, 0, 0, 0, 0, 3, 48, 0, 0, 0, 0, 0, 0xf0, 98, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a.0.b\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadStartArray();
-                subject.ReadBsonType();
-                subject.ReadStartDocument();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a_1()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 4, 97, 0, 0, 0, 0, 0, 0x10, 48, 0, 0, 0, 0, 0, 0xf0, 49, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a.1\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadStartArray();
-                subject.ReadBsonType();
-                subject.ReadInt32();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a_1_b()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 4, 97, 0, 0, 0, 0, 0, 0x10, 48, 0, 0, 0, 0, 0, 3, 49, 0, 0, 0, 0, 0, 0xf0, 98, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a.1.b\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadStartArray();
-                subject.ReadBsonType();
-                subject.ReadInt32();
-                subject.ReadBsonType();
-                subject.ReadStartDocument();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_a_b()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 3, 97, 0, 0, 0, 0, 0, 0xf0, 98, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"a.b\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadStartDocument();
-
-                Action action = () => subject.ReadBsonType();
-
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
-            }
-        }
-
-        [Test]
-        public void ReadBsonType_should_throw_when_bson_type_is_invalid_for_b()
-        {
-            var bytes = new byte[] { 0, 0, 0, 0, 0x10, 97, 0, 0, 0, 0, 0, 0xf0, 98, 0 };
-            var expectedMessage = $"Detected unknown BSON type \"\\xf0\" for fieldname \"b\". Are you using the latest driver version?";
-
-            using (var memoryStream = new MemoryStream(bytes))
-            using (var subject = new BsonBinaryReader(memoryStream))
-            {
-                subject.ReadStartDocument();
-                subject.ReadBsonType();
-                subject.ReadName();
-                subject.ReadInt32();
-
-                Action action = () => subject.ReadBsonType();
+                Action action = () => BsonSerializer.Deserialize<BsonDocument>(subject);
 
                 action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
             }
