@@ -674,7 +674,7 @@ namespace MongoDB.Bson.IO
             }
 
             _bsonStream.SkipCString();
-            CurrentName = "?";
+            CurrentName = null;
             State = BsonReaderState.Value;
 
             if (_context.ContextType == ContextType.Document)
@@ -773,7 +773,7 @@ namespace MongoDB.Bson.IO
         {
             if (context.ContextType == ContextType.Document)
             {
-                return GenerateDottedElementName(context.ParentContext, context.CurrentElementName + "." + elementName);
+                return GenerateDottedElementName(context.ParentContext, (context.CurrentElementName ?? "?") + "." + elementName);
             }
             else if (context.ContextType == ContextType.Array)
             {
