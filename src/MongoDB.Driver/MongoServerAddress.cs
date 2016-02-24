@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _host.ToLower().GetHashCode();
+            hash = 37 * hash + _host.ToLowerInvariant().GetHashCode();
             hash = 37 * hash + _port.GetHashCode();
             return hash;
         }

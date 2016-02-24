@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
@@ -34,12 +35,16 @@ namespace MongoDB.Driver.Linq.Translators
             var translator = new QueryableTranslator(serializerRegistry);
             translator.Translate(node);
 
-            var model = (QueryableExecutionModel)Activator.CreateInstance(
-                typeof(AggregateQueryableExecutionModel<>).MakeGenericType(translator._outputSerializer.ValueType),
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                null,
-                new object[] { translator._stages, translator._outputSerializer },
-                null);
+            var outputType = translator._outputSerializer.ValueType;
+            var modelType = typeof(AggregateQueryableExecutionModel<>).MakeGenericType(outputType);
+            var modelTypeInfo = modelType.GetTypeInfo();
+            var outputSerializerInterfaceType = typeof(IBsonSerializer<>).MakeGenericType(new[] { outputType });
+            var constructorParameterTypes = new Type[] { typeof(IEnumerable<BsonDocument>), outputSerializerInterfaceType };
+            var constructorInfo = modelTypeInfo.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Where(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(constructorParameterTypes))
+                .Single();
+            var constructorParameters = new object[] { translator._stages, translator._outputSerializer };
+            var model = (QueryableExecutionModel)constructorInfo.Invoke(constructorParameters);
 
             return new QueryableTranslation(model, translator._resultTransformer);
         }

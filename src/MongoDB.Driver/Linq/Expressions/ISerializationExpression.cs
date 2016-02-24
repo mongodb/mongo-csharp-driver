@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         private static object ConvertIfNecessary(Type targetType, object value)
         {
-            if (targetType.IsEnum || targetType.IsNullableEnum())
+            if (targetType.GetTypeInfo().IsEnum || targetType.IsNullableEnum())
             {
                 if (value != null)
                 {

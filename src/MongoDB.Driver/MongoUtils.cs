@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         {
             var md5 = MD5.Create();
             var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
             return hash;
         }
 

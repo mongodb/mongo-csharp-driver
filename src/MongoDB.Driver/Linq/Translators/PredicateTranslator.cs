@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -466,7 +467,7 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var dictionaryType = methodCallExpression.Object.Type;
             var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
-            if (dictionaryType.IsInterface)
+            if (dictionaryType.GetTypeInfo().IsInterface)
             {
                 implementedInterfaces.Add(dictionaryType);
             }
@@ -475,7 +476,7 @@ namespace MongoDB.Driver.Linq.Translators
             Type dictionaryInterface = null;
             foreach (var implementedInterface in implementedInterfaces)
             {
-                if (implementedInterface.IsGenericType)
+                if (implementedInterface.GetTypeInfo().IsGenericType)
                 {
                     if (implementedInterface.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                     {
@@ -626,6 +627,7 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateIn(MethodCallExpression methodCallExpression)
         {
             var methodDeclaringType = methodCallExpression.Method.DeclaringType;
+            var methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
             var arguments = methodCallExpression.Arguments.ToArray();
             IFieldExpression fieldExpression = null;
             ConstantExpression valuesExpression = null;
@@ -639,12 +641,13 @@ namespace MongoDB.Driver.Linq.Translators
             }
             else
             {
-                if (methodDeclaringType.IsGenericType)
+                if (methodDeclaringTypeInfo.IsGenericType)
                 {
                     methodDeclaringType = methodDeclaringType.GetGenericTypeDefinition();
+                    methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
                 }
 
-                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringType.GetInterface("ICollection`1") != null;
+                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringTypeInfo.GetInterface("ICollection`1") != null;
                 if (contains && arguments.Length == 1)
                 {
                     fieldExpression = GetFieldExpression(arguments[0]);
@@ -1284,10 +1287,10 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 var stringValue = serializedValue.AsString;
                 var stringValueCaseMatches =
-                    methodName == "ToLower" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpper" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture);
+                    methodName == "ToLower" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToUpper" && stringValue == stringValue.ToUpperInvariant() ||
+                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpperInvariant();
 
                 if (stringValueCaseMatches)
                 {

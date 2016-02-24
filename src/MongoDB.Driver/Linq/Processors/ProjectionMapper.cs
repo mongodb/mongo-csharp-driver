@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Linq.Processors
                 }
                 else
                 {
-                    var members = type.GetMember(
+                    var members = type.GetTypeInfo().GetMember(
                         parameter.Name,
                         MemberTypes.Field | MemberTypes.Property,
                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);

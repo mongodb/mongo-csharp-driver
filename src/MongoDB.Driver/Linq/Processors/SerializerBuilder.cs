@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Linq.Processors
                 return null;
             }
 
-            var baseClassMap = BuildClassMap(type.BaseType, mapping);
+            var baseClassMap = BuildClassMap(type.GetTypeInfo().BaseType, mapping);
             if (baseClassMap != null)
             {
                 baseClassMap.Freeze();
@@ -177,17 +177,21 @@ namespace MongoDB.Driver.Linq.Processors
             return classMap;
         }
 
-        private static Type GetMemberType(MemberInfo member)
+        private static Type GetMemberType(MemberInfo memberInfo)
         {
-            switch (member.MemberType)
+            FieldInfo fieldInfo;
+            if ((fieldInfo = memberInfo as FieldInfo) != null)
             {
-                case MemberTypes.Field:
-                    return ((FieldInfo)member).FieldType;
-                case MemberTypes.Property:
-                    return ((PropertyInfo)member).PropertyType;
-                default:
-                    throw new MongoInternalException("Can't get member type.");
+                return fieldInfo.FieldType;
             }
+
+            PropertyInfo propertyInfo;
+            if ((propertyInfo = memberInfo as PropertyInfo) != null)
+            {
+                return propertyInfo.PropertyType;
+            }
+
+            throw new MongoInternalException("Can't get member type.");
         }
     }
 }

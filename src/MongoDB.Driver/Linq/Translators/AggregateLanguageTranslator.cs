@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Expressions;
@@ -306,9 +307,10 @@ namespace MongoDB.Driver.Linq.Translators
                 return result;
             }
 
+            var expressionTypeInfo = node.Expression.Type.GetTypeInfo();
             if (node.Expression != null
-                && (node.Expression.Type.ImplementsInterface(typeof(ICollection<>))
-                    || node.Expression.Type.ImplementsInterface(typeof(ICollection)))
+                && (expressionTypeInfo.ImplementsInterface(typeof(ICollection<>))
+                    || expressionTypeInfo.ImplementsInterface(typeof(ICollection)))
                 && node.Member.Name == "Count")
             {
                 return new BsonDocument("$size", TranslateValue(node.Expression));
@@ -347,7 +349,7 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object.Type.IsGenericType
+                if (node.Object.Type.GetTypeInfo().IsGenericType
                     && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                     && TryTranslateHashSetMethodCall(node, out result))
                 {

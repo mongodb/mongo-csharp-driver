@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Linq.Processors
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Type.IsGenericType &&
+            if (node.Type.GetTypeInfo().IsGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
             {
                 var queryable = (IMongoQueryable)node.Value;

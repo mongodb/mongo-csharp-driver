@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -99,9 +100,8 @@ namespace MongoDB.Driver
             {
                 var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
-                md5.TransformBlock(prefixBytes, 0, prefixBytes.Length, null, 0);
-                TransformFinalBlock(md5, _securePassword);
-                return BsonUtils.ToHexString(md5.Hash);
+                var hash = ComputeHash(md5, prefixBytes, _securePassword);
+                return BsonUtils.ToHexString(hash);
             }
         }
 
@@ -129,12 +129,12 @@ namespace MongoDB.Driver
         {
             using (var sha256 = new SHA256CryptoServiceProvider())
             {
-                TransformFinalBlock(sha256, secureString);
-                return BsonUtils.ToHexString(sha256.Hash);
+                var hash = ComputeHash(sha256, new byte[0], secureString);
+                return BsonUtils.ToHexString(hash);
             }
         }
 
-        private static void TransformFinalBlock(HashAlgorithm hash, SecureString secureString)
+        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, SecureString secureString)
         {
             var bstr = Marshal.SecureStringToBSTR(secureString);
             try
@@ -151,7 +151,12 @@ namespace MongoDB.Driver
                     {
                         var encoding = Utf8Encodings.Strict;
                         var length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-                        hash.TransformFinalBlock(passwordBytes, 0, length);
+                        var buffer = new byte[prefixBytes.Length + passwordBytes.Length];
+                        Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
+                        Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordBytes.Length);
+                        var hash = algorithm.ComputeHash(buffer);
+                        Array.Clear(buffer, 0, buffer.Length);
+                        return hash;
                     }
                     finally
                     {

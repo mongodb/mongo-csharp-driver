@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Processors.Transformers
 {
@@ -33,7 +34,9 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
 
         public Expression Transform(NewExpression node)
         {
-            if (node.Type.IsGenericType &&
+            var isGenericType = node.Type.GetTypeInfo().IsGenericType;
+
+            if (isGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(HashSet<>) &&
                 node.Arguments.Count == 1)
             {
@@ -44,7 +47,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
                     node.Arguments.ToArray());
             }
 
-            if (node.Type.IsGenericType &&
+            if (isGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(List<>) &&
                 node.Arguments.Count == 1)
             {

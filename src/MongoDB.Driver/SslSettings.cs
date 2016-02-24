@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Shared;
@@ -239,12 +240,12 @@ namespace MongoDB.Driver
             }
             if (_clientCertificateSelectionCallback != null)
             {
-                parts.Add(string.Format("ClientCertificateSelectionCallback={0}", _clientCertificateSelectionCallback.Method.Name));
+                parts.Add(string.Format("ClientCertificateSelectionCallback={0}", _clientCertificateSelectionCallback.GetMethodInfo().Name));
             }
             parts.Add(string.Format("EnabledProtocols={0}", _enabledSslProtocols));
             if (_serverCertificateValidationCallback != null)
             {
-                parts.Add(string.Format("ServerCertificateValidationCallback={0}", _serverCertificateValidationCallback.Method.Name));
+                parts.Add(string.Format("ServerCertificateValidationCallback={0}", _serverCertificateValidationCallback.GetMethodInfo().Name));
             }
             
             return string.Format("{{{0}}}", string.Join(",", parts.ToArray()));

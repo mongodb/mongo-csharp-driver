@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace MongoDB.Driver.Support
 {
@@ -25,7 +24,7 @@ namespace MongoDB.Driver.Support
     {
         public static object GetDefaultValue(this Type type)
         {
-            if (type.IsValueType)
+            if (type.GetTypeInfo().IsValueType)
             {
                 return Activator.CreateInstance(type);
             }
@@ -40,17 +39,18 @@ namespace MongoDB.Driver.Support
                 return true;
             }
 
-            if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(iface))
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && type.GetGenericTypeDefinition().Equals(iface))
             {
                 return true;
             }
 
-            return type.GetInterfaces().Any(i => i.ImplementsInterface(iface));
+            return typeInfo.GetInterfaces().Any(i => i.ImplementsInterface(iface));
         }
 
         public static bool IsNullable(this Type type)
         {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static bool IsNullableEnum(this Type type)
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Support
                 return false;
             }
 
-            return GetNullableUnderlyingType(type).IsEnum;
+            return GetNullableUnderlyingType(type).GetTypeInfo().IsEnum;
         }
 
         public static Type GetNullableUnderlyingType(this Type type)
@@ -87,12 +87,13 @@ namespace MongoDB.Driver.Support
                 return null;
             }
 
-            if (seqType.IsArray)
+            var seqTypeInfo = seqType.GetTypeInfo();
+            if (seqTypeInfo.IsArray)
             {
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
             }
 
-            if (seqType.IsGenericType)
+            if (seqTypeInfo.IsGenericType)
             {
                 foreach (Type arg in seqType.GetGenericArguments())
                 {
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Support
                 }
             }
 
-            Type[] ifaces = seqType.GetInterfaces();
+            Type[] ifaces = seqTypeInfo.GetInterfaces();
             if (ifaces != null && ifaces.Length > 0)
             {
                 foreach (Type iface in ifaces)
@@ -114,13 +115,12 @@ namespace MongoDB.Driver.Support
                 }
             }
 
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            if (seqTypeInfo.BaseType != null && seqTypeInfo.BaseType != typeof(object))
             {
-                return FindIEnumerable(seqType.BaseType);
+                return FindIEnumerable(seqTypeInfo.BaseType);
             }
 
             return null;
         }
-
     }
 }

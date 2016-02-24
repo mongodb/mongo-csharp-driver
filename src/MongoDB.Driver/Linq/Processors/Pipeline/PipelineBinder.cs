@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders;
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline
         protected override Expression BindNonMethodCall(Expression node)
         {
             if (node.NodeType == ExpressionType.Constant &&
-                node.Type.IsGenericType &&
+                node.Type.GetTypeInfo().IsGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
             {
                 var queryable = (IMongoQueryable)((ConstantExpression)node).Value;
