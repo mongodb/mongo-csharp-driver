@@ -138,8 +138,8 @@ Target "Test" (fun _ ->
                 // Framework = !framework
                 // IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 // ExcludeCategory = getBuildParamOrDefault "testExclude" ""
+                ProcessModel = SingleProcessModel
                 TimeOut = TimeSpan.FromMinutes 10.0
-                Workers = Some 1
             })
 )
 
