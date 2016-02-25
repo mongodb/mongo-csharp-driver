@@ -123,11 +123,11 @@ Target "Test" (fun _ ->
     if not <| directoryExists binDir45 then new Exception(sprintf "Directory %s does not exist." binDir45) |> raise
     ensureDirectory testResultsDir
 
-    let framework = ref "net-4.5"
+    let framework = ref Net45
     let mutable testsDir = !! (binDir45 @@ "*Tests*.dll")
     if isMono then
         testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
-        framework := "mono-4.0"
+        framework := Mono40
 
     testsDir
         |> NUnit3 (fun p -> 
@@ -135,9 +135,8 @@ Target "Test" (fun _ ->
                 OutputDir = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
                 ShadowCopy = false
                 // ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
-                // Framework = !framework
-                // IncludeCategory = getBuildParamOrDefault "testInclude" ""
-                // ExcludeCategory = getBuildParamOrDefault "testExclude" ""
+                Framework = !framework
+                Where = getBuildParamOrDefault "testWhere" ""
                 ProcessModel = SingleProcessModel
                 TimeOut = TimeSpan.FromMinutes 10.0
             })
