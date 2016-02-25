@@ -2,6 +2,7 @@
 open System
 open Fake
 open Fake.AssemblyInfoFile
+open Fake.Testing.NUnit3
 
 let config = getBuildParamOrDefault "config" "Release"
 let baseVersion = getBuildParamOrDefault "baseVersion" "2.3.0"
@@ -129,15 +130,16 @@ Target "Test" (fun _ ->
         framework := "mono-4.0"
 
     testsDir
-        |> NUnit (fun p -> 
-            { p with 
-                OutputFile = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
-                DisableShadowCopy = true
-                ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
-                Framework = !framework
-                IncludeCategory = getBuildParamOrDefault "testInclude" ""
-                ExcludeCategory = getBuildParamOrDefault "testExclude" ""
+        |> NUnit3 (fun p -> 
+            { p with
+                OutputDir = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
+                ShadowCopy = false
+                // ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
+                // Framework = !framework
+                // IncludeCategory = getBuildParamOrDefault "testInclude" ""
+                // ExcludeCategory = getBuildParamOrDefault "testExclude" ""
                 TimeOut = TimeSpan.FromMinutes 10.0
+                Workers = Some 1
             })
 )
 
