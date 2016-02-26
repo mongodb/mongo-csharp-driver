@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -167,14 +167,15 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            if (seqType.IsArray)
+            var seqTypeInfo = seqType.GetTypeInfo();
+            if (seqTypeInfo.IsArray)
             {
-                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+                return typeof(IEnumerable<>).MakeGenericType(seqTypeInfo.GetElementType());
             }
 
-            if (seqType.IsGenericType)
+            if (seqTypeInfo.IsGenericType)
             {
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (Type arg in seqTypeInfo.GetGenericArguments())
                 {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
                     if (ienum.IsAssignableFrom(seqType))
@@ -184,7 +185,7 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            Type[] ifaces = seqType.GetInterfaces();
+            Type[] ifaces = seqTypeInfo.GetInterfaces();
             if (ifaces != null && ifaces.Length > 0)
             {
                 foreach (Type iface in ifaces)
@@ -194,9 +195,9 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            if (seqTypeInfo.BaseType != null && seqTypeInfo.BaseType != typeof(object))
             {
-                return FindIEnumerable(seqType.BaseType);
+                return FindIEnumerable(seqTypeInfo.BaseType);
             }
 
             return null;

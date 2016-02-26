@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MongoDB.Driver.Linq
 {
@@ -98,10 +99,11 @@ namespace MongoDB.Driver.Linq
             // VB creates coalescing operations when dealing with nullable value comparisons, so we try and make this look like C#
             if (node.NodeType == ExpressionType.Coalesce)
             {
+                var nodeLeftTypeInfo = node.Left.Type.GetTypeInfo();
                 var right = node.Right as ConstantExpression;
                 if (node.Left.NodeType == ExpressionType.Equal &&
-                    node.Left.Type.IsGenericType &&
-                    node.Left.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    nodeLeftTypeInfo.IsGenericType &&
+                    nodeLeftTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                     right != null &&
                     right.Type == typeof(bool) &&
                     (bool)right.Value == false)

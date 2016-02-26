@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -131,7 +132,8 @@ namespace MongoDB.Driver.Linq
         protected override Expression VisitConstant(ConstantExpression node)
         {
             // need to check node.Type instead of value.GetType() because boxed Nullable<T> values are boxed as <T>
-            if (node.Type.IsGenericType && node.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            var nodeTypeInfo = node.Type.GetTypeInfo();
+            if (nodeTypeInfo.IsGenericType && nodeTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 _sb.AppendFormat("({0})", FriendlyTypeName(node.Type));
             }
@@ -406,11 +408,12 @@ namespace MongoDB.Driver.Linq
         {
             var typeName = IsAnonymousType(type) ? "__AnonymousType" : type.Name;
 
-            if (type.IsGenericType)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType)
             {
                 var sb = new StringBuilder();
                 sb.AppendFormat("{0}<", Regex.Replace(typeName, @"\`\d+$", ""));
-                foreach (var typeParameter in type.GetGenericArguments())
+                foreach (var typeParameter in typeInfo.GetGenericArguments())
                 {
                     sb.AppendFormat("{0}, ", FriendlyTypeName(typeParameter));
                 }
@@ -427,10 +430,11 @@ namespace MongoDB.Driver.Linq
         private bool IsAnonymousType(Type type)
         {
             // don't test for too many things in case implementation details change in the future
+            var typeInfo = type.GetTypeInfo();
             return
                 Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
-                type.IsGenericType &&
-                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
+                typeInfo.IsGenericType &&
+                typeInfo.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
         private void VisitValue(object value)

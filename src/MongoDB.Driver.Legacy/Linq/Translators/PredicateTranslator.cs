@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -329,7 +330,9 @@ namespace MongoDB.Driver.Linq
             var unaryExpression = variableExpression as UnaryExpression;
             if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                if (unaryExpression.Operand.Type.IsEnum)
+                var unaryExpressionTypeInfo = unaryExpression.Type.GetTypeInfo();
+                var unaryExpressionOperandTypeInfo = unaryExpression.Operand.Type.GetTypeInfo();
+                if (unaryExpressionOperandTypeInfo.IsEnum)
                 {
                     var enumType = unaryExpression.Operand.Type;
                     if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
@@ -339,14 +342,14 @@ namespace MongoDB.Driver.Linq
                     }
                 }
                 else if (
-                    unaryExpression.Type.IsGenericType &&
-                    unaryExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.IsGenericType &&
-                    unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.GetGenericArguments()[0].IsEnum)
+                    unaryExpressionTypeInfo.IsGenericType &&
+                    unaryExpressionTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    unaryExpressionOperandTypeInfo.IsGenericType &&
+                    unaryExpressionOperandTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    unaryExpressionOperandTypeInfo.GetGenericArguments()[0].GetTypeInfo().IsEnum)
                 {
-                    var enumType = unaryExpression.Operand.Type.GetGenericArguments()[0];
-                    if (unaryExpression.Type.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
+                    var enumType = unaryExpressionOperandTypeInfo.GetGenericArguments()[0];
+                    if (unaryExpressionTypeInfo.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
                     {
                         serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
                         if (value != null)
@@ -449,8 +452,9 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildContainsKeyQuery(MethodCallExpression methodCallExpression)
         {
             var dictionaryType = methodCallExpression.Object.Type;
-            var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
-            if (dictionaryType.IsInterface)
+            var dictionaryTypeInfo = dictionaryType.GetTypeInfo();
+            var implementedInterfaces = new List<Type>(dictionaryTypeInfo.GetInterfaces());
+            if (dictionaryTypeInfo.IsInterface)
             {
                 implementedInterfaces.Add(dictionaryType);
             }
@@ -459,9 +463,10 @@ namespace MongoDB.Driver.Linq
             Type dictionaryInterface = null;
             foreach (var implementedInterface in implementedInterfaces)
             {
-                if (implementedInterface.IsGenericType)
+                var implementedInterfaceTypeInfo = implementedInterface.GetTypeInfo();
+                if (implementedInterfaceTypeInfo.IsGenericType)
                 {
-                    if (implementedInterface.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                    if (implementedInterfaceTypeInfo.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                     {
                         dictionaryGenericInterface = implementedInterface;
                     }
@@ -633,6 +638,7 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
         {
             var methodDeclaringType = methodCallExpression.Method.DeclaringType;
+            var methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
             var arguments = methodCallExpression.Arguments.ToArray();
             BsonSerializationInfo serializationInfo = null;
             ConstantExpression valuesExpression = null;
@@ -654,12 +660,13 @@ namespace MongoDB.Driver.Linq
             }
             else
             {
-                if (methodDeclaringType.IsGenericType)
+                if (methodDeclaringTypeInfo.IsGenericType)
                 {
-                    methodDeclaringType = methodDeclaringType.GetGenericTypeDefinition();
+                    methodDeclaringType = methodDeclaringTypeInfo.GetGenericTypeDefinition();
+                    methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
                 }
 
-                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringType.GetInterface("ICollection`1") != null;
+                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringTypeInfo.GetInterface("ICollection`1") != null;
                 if (contains && arguments.Length == 1)
                 {
                     serializationInfo = _serializationInfoHelper.GetSerializationInfo(arguments[0]);
@@ -1148,10 +1155,10 @@ namespace MongoDB.Driver.Linq
             {
                 var stringValue = serializedValue.AsString;
                 var stringValueCaseMatches =
-                    methodName == "ToLower" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpper" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture);
+                    methodName == "ToLower" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToUpper" && stringValue == stringValue.ToUpperInvariant() ||
+                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpperInvariant();
 
                 if (stringValueCaseMatches)
                 {

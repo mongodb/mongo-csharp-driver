@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
@@ -744,11 +745,12 @@ namespace MongoDB.Driver.Linq
                 throw new NotSupportedException("Expected OfType method to have a single argument.");
             }
             var sourceExpression = args[0];
-            if (!sourceExpression.Type.IsGenericType)
+            var sourceExpressionTypeInfo = sourceExpression.Type.GetTypeInfo();
+            if (!sourceExpressionTypeInfo.IsGenericType)
             {
                 throw new NotSupportedException("Expected source argument to OfType to be a generic type.");
             }
-            var nominalType = sourceExpression.Type.GetGenericArguments()[0];
+            var nominalType = sourceExpressionTypeInfo.GetGenericArguments()[0];
 
             if (_projection != null)
             {

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -361,14 +362,15 @@ namespace MongoDB.Driver.Linq
         // private methods
         private string FriendlyClassName(Type type)
         {
-            if (!type.IsGenericType)
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType)
             {
-                return type.Name;
+                return typeInfo.Name;
             }
 
             var sb = new StringBuilder();
-            sb.AppendFormat("{0}<", Regex.Replace(type.Name, @"\`\d+$", ""));
-            foreach (var typeParameter in type.GetGenericArguments())
+            sb.AppendFormat("{0}<", Regex.Replace(typeInfo.Name, @"\`\d+$", ""));
+            foreach (var typeParameter in typeInfo.GetGenericArguments())
             {
                 sb.AppendFormat("{0}, ", FriendlyClassName(typeParameter));
             }
@@ -379,9 +381,10 @@ namespace MongoDB.Driver.Linq
 
         private string PublicClassName(Type type)
         {
-            while (!type.IsPublic)
+            var typeInfo = type.GetTypeInfo();
+            while (!typeInfo.IsPublic)
             {
-                type = type.BaseType;
+                type = typeInfo.BaseType;
             }
             return FriendlyClassName(type);
         }
