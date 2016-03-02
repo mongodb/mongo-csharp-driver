@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Tests.Linq;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Tests.Linq
+namespace Tests.MongoDB.Driver.Linq
 {
     [TestFixture]
     public class MongoQueryableTests : IntegrationTestBase
