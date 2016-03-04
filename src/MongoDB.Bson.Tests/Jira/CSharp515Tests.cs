@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
@@ -42,9 +43,11 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-        private static readonly string STypeAssemblyName = typeof(S<>).Assembly.GetName().GetPublicKey().Length > 0 ? typeof(S<>).Assembly.FullName : typeof(S<>).Assembly.GetName().Name;
+        private static readonly AssemblyName __assemblyName = Assembly.GetExecutingAssembly().GetName();
+        private static readonly bool __assemblyIsSigned = __assemblyName.GetPublicKey().Length > 0;
+        private static readonly string __discriminatorAssemblyName = __assemblyIsSigned ? __assemblyName.FullName : __assemblyName.Name;
 
-        private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + STypeAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
+        private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + __discriminatorAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
         
         [Test]
         public void TestNull()
