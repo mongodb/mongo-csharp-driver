@@ -117,5 +117,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Testo                     test1@doramail.com   
 * Bar Arnon                 https://github.com/I3arnon
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
+* James Hadwen              james.hadwen@sociustec.com
+* Jacob Jewell              jacobjewell@eflexsystems.com
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
