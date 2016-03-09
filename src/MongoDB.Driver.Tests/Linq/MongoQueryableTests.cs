@@ -500,6 +500,23 @@ namespace Tests.MongoDB.Driver.Linq
 
         [Test]
         [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        public void JoinForeignField_method()
+        {
+            var query = CreateQuery()
+                .Join(
+                    CreateOtherQuery(),
+                    p => p.Id,
+                    o => o.CEF,
+                    (p, o) => new { p, o });
+
+            Assert(query,
+                0,
+                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }",
+                "{ $unwind: '$o' }");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
         public void Join_syntax()
         {
             var query = from p in CreateQuery()
