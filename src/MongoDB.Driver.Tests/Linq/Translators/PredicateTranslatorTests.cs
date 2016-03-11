@@ -144,6 +144,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Any_with_a_type_is()
+        {
+            Assert(
+                x => x.C.X.Any(y => y is V),
+                1,
+                "{\"C.X\": {\"$elemMatch\": {\"_t\": \"V\" } } }");
+        }
+
+        [Test]
         public void Any_with_local_contains_on_an_embedded_document()
         {
             var local = new List<string> { "Delilah", "Dolphin" };
@@ -394,7 +403,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C == new C { D = "Dexter" },
                 0,
-                "{C: {D: 'Dexter', E: null, S: null}}");
+                "{C: {D: 'Dexter', E: null, S: null, X: null}}");
         }
 
         [Test]
@@ -403,7 +412,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C.Equals(new C { D = "Dexter" }),
                 0,
-                "{C: {D: 'Dexter', E: null, S: null}}");
+                "{C: {D: 'Dexter', E: null, S: null, X: null}}");
         }
 
         [Test]
@@ -412,7 +421,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C != new C { D = "Dexter" },
                 2,
-                "{C: {$ne: {D: 'Dexter', E: null, S: null}}}");
+                "{C: {$ne: {D: 'Dexter', E: null, S: null, X: null}}}");
         }
 
         [Test]

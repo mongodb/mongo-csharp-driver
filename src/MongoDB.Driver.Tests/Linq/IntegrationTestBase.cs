@@ -55,7 +55,8 @@ namespace MongoDB.Driver.Tests.Linq
                         H = 22,
                         I = new[] { "it", "icky" },
                         W = 1111
-                    }
+                    },
+                    X = new List<E> { new E { F = 10 }, new V { W = 12 } }
                 },
                 G = new[] {
                         new C
@@ -224,6 +225,8 @@ namespace MongoDB.Driver.Tests.Linq
             public E E { get; set; }
 
             public IEnumerable<C> S { get; set; }
+
+            public IEnumerable<E> X { get; set; }
         }
 
         public class E
