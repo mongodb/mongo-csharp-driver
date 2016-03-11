@@ -222,6 +222,7 @@
     <Compile Include="Linq\Processors\Transformers\FirstLastNormalizingTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\IExpressionTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\CollectionConstructorTransformer.cs" />
+    <Compile Include="Linq\Processors\Transformers\EqualsAnyBooleanTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\SelectSelectCombiningTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\VBCoalesceTransformer.cs" />

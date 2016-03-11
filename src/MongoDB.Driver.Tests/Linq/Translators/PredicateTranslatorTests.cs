@@ -63,6 +63,51 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Any_without_a_predicate_equals_true()
+        {
+            Assert(
+                x => x.G.Any() == true,
+                2,
+                "{G: {$ne: null, $not: {$size: 0}}}");
+        }
+
+        [Test]
+        public void Any_without_a_predicate_not_equals_true()
+        {
+            Assert(
+                x => x.G.Any() != true,
+                0,
+                "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
+        }
+
+        [Test]
+        public void Any_without_a_predicate_equals_false()
+        {
+            Assert(
+                x => x.G.Any() == false,
+                0,
+                "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
+        }
+
+        [Test]
+        public void Any_not_without_a_predicate()
+        {
+            Assert(
+                x => !x.G.Any(),
+                0,
+                "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
+        }
+
+        [Test]
+        public void Any_without_a_predicate_not_equals_false()
+        {
+            Assert(
+                x => x.G.Any() != false,
+                2,
+                "{G: {$ne: null, $not: {$size: 0}}}");
+        }
+
+        [Test]
         public void Any_with_a_predicate_on_documents()
         {
             Assert(
