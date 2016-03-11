@@ -58,6 +58,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _update = Ensure.IsNotNull(update, nameof(update));
+            if (_update.ElementCount == 0)
+            {
+                throw new ArgumentException("Updates must have at least 1 update operator.", nameof(update));
+            }
             _returnDocument = ReturnDocument.Before;
         }
 

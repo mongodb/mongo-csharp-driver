@@ -62,6 +62,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void Constructor_should_throw_when_update_is_empty()
+        {
+            Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, new BsonDocument(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, null, _messageEncoderSettings);
