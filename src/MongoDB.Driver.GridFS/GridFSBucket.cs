@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -814,7 +814,11 @@ namespace MongoDB.Driver.GridFS
             using (var destination = new MemoryStream((int)fileInfo.Length))
             {
                 DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
+#if NET45
                 return destination.GetBuffer();
+#else
+                return destination.ToArray();
+#endif
             }
         }
 
@@ -837,7 +841,11 @@ namespace MongoDB.Driver.GridFS
             using (var destination = new MemoryStream((int)fileInfo.Length))
             {
                 await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
+#if NET45
                 return destination.GetBuffer();
+#else
+                return destination.ToArray();
+#endif
             }
         }
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,17 @@ namespace MongoDB.Driver.GridFS
         public abstract GridFSFileInfo FileInfo { get; }
 
         // public methods
+#if NETCORE
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        public virtual void Close()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+#endif
+
         /// <summary>
         /// Closes the GridFS stream.
         /// </summary>

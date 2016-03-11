@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,6 +53,17 @@ namespace MongoDB.Driver.GridFS
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+#if NETCORE
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        public virtual void Close()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+#endif
 
         /// <summary>
         /// Closes the Stream and completes the upload operation.
