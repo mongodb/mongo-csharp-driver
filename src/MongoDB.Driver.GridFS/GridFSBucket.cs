@@ -811,14 +811,11 @@ namespace MongoDB.Driver.GridFS
                 throw new NotSupportedException("GridFS stored file is too large to be returned as a byte array.");
             }
 
-            using (var destination = new MemoryStream((int)fileInfo.Length))
+            var bytes = new byte[(int)fileInfo.Length];
+            using (var destination = new MemoryStream(bytes))
             {
                 DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
-#if NET45
-                return destination.GetBuffer();
-#else
-                return destination.ToArray();
-#endif
+                return bytes;
             }
         }
 
@@ -838,14 +835,11 @@ namespace MongoDB.Driver.GridFS
                 throw new NotSupportedException("GridFS stored file is too large to be returned as a byte array.");
             }
 
-            using (var destination = new MemoryStream((int)fileInfo.Length))
+            var bytes = new byte[(int)fileInfo.Length];
+            using (var destination = new MemoryStream(bytes))
             {
                 await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
-#if NET45
-                return destination.GetBuffer();
-#else
-                return destination.ToArray();
-#endif
+                return bytes;
             }
         }
 
