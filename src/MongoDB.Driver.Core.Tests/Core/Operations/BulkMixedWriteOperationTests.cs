@@ -431,18 +431,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void Execute_with_an_empty_update_document_should_throw(
-            [Values(false, true)]
-            bool async)
-        {
-            var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), new BsonDocument()) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-            Action act = () => ExecuteOperation(subject, async);
-            act.ShouldThrow<BsonSerializationException>();
-        }
-
-        [Test]
         [RequiresServer("EnsureTestData")]
         public void Execute_with_one_update_against_a_matching_document(
             [Values(false, true)]
