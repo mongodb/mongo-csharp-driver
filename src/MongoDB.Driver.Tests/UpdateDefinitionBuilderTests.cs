@@ -161,6 +161,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Combine_with_no_updates()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var update = subject.Combine();
+
+            Assert(update, "{ }");
+        }
+
+        [Test]
         public void CurrentDate()
         {
             var subject = CreateSubject<BsonDocument>();

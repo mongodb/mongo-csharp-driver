@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -43,6 +44,10 @@ namespace MongoDB.Driver.Core.Operations
             _updateType = updateType;
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _update = Ensure.IsNotNull(update, nameof(update));
+            if (updateType == UpdateType.Update && _update.ElementCount == 0)
+            {
+                throw new ArgumentException("Updates must have at least 1 update operator.", nameof(update));
+            }
         }
 
         // properties
