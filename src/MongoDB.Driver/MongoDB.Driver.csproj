@@ -157,6 +157,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBindingContext.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\OfTypeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\SkipBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\StandardDeviationBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\TakeBinder.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AnyBinder.cs" />
     <Compile Include="Linq\Processors\IBindingContext.cs" />
     <Compile Include="Linq\Processors\MethodInfoMethodCallBinder.cs" />
+    <Compile Include="Linq\Processors\MultipleWhereMerger.cs" />
     <Compile Include="Linq\Processors\NameBasedMethodCallBinder.cs" />
     <Compile Include="Linq\Processors\PartialEvaluator.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\DefaultIfEmptyBinder.cs" />

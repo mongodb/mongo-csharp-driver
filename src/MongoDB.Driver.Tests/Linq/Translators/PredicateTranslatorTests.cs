@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -714,6 +714,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void OfType()
+        {
+            Assert(_otherCollection,
+                x => x.Children.OfType<OtherChild2>().Any(y => y.Z == 10),
+                0,
+                "{Children: {$elemMatch: { _t: 'OtherChild2', Z: 10 }}}");
+        }
+
+        [Test]
         public void String_IsNullOrEmpty()
         {
             Assert(
@@ -769,6 +778,22 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             return collection.FindSync(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefault();
         }
 
+        public void Assert<T>(IMongoCollection<T> collection, Expression<Func<T, bool>> filter, int expectedCount, string expectedFilter)
+        {
+            Assert(collection, filter, expectedCount, BsonDocument.Parse(expectedFilter));
+        }
+
+        public void Assert<T>(IMongoCollection<T> collection, Expression<Func<T, bool>> filter, int expectedCount, BsonDocument expectedFilter)
+        {
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<T>();
+            var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);
+
+            var list = collection.FindSync(filterDocument).ToList();
+
+            filterDocument.Should().Be(expectedFilter);
+            list.Count.Should().Be(expectedCount);
+        }
+
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
         {
             Assert(filter, expectedCount, BsonDocument.Parse(expectedFilter));
@@ -776,13 +801,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, BsonDocument expectedFilter)
         {
-            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);
-
-            var list = _collection.FindSync(filterDocument).ToList();
-
-            filterDocument.Should().Be(expectedFilter);
-            list.Count.Should().Be(expectedCount);
+            Assert(_collection, filter, expectedCount, expectedFilter);
         }
     }
 }

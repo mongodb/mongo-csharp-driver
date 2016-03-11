@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new LastBinder(), LastBinder.GetSupportedMethods());
             infoBinder.Register(new MaxBinder(), MaxBinder.GetSupportedMethods());
             infoBinder.Register(new MinBinder(), MinBinder.GetSupportedMethods());
+            infoBinder.Register(new OfTypeBinder(), OfTypeBinder.GetSupportedMethods());
             infoBinder.Register(new SelectBinder(), SelectBinder.GetSupportedMethods());
             infoBinder.Register(new SkipBinder(), SkipBinder.GetSupportedMethods());
             infoBinder.Register(new StandardDeviationBinder(), StandardDeviationBinder.GetSupportedMethods());
@@ -73,7 +74,8 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
 
             var bound = binder.Bind(node);
             bound = AccumulatorBinder.Bind(bound, bindingContext);
-            return CorrelatedGroupRewriter.Rewrite(bound);
+            bound = CorrelatedGroupRewriter.Rewrite(bound);
+            return MultipleWhereMerger.Merge(bound);
         }
 
         public EmbeddedPipelineBinder(EmbeddedPipelineBindingContext bindingContext)
