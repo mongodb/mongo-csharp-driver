@@ -259,6 +259,18 @@ namespace MongoDB.Driver.Tests.Linq
             public int Id { get; set; }
 
             public int CEF { get; set; }
+
+            public List<OtherChild> Children { get; set; }
+        }
+
+        public class OtherChild
+        {
+            public int Y;
+        }
+
+        public class OtherChild2 : OtherChild
+        {
+            public int Z { get; set; }
         }
     }
 }
