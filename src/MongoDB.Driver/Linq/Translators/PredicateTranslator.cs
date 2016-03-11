@@ -1517,7 +1517,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var elementName = discriminatorConvention.ElementName;
             IFieldExpression fieldExpression;
-            if (TryGetFieldExpression(typeBinaryExpression.Expression, out fieldExpression))
+            if (TryGetFieldExpression(typeBinaryExpression.Expression, out fieldExpression) && !string.IsNullOrEmpty(fieldExpression.FieldName))
             {
                 elementName = string.Format("{0}.{1}", fieldExpression.FieldName, elementName);
             }
