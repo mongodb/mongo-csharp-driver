@@ -132,7 +132,7 @@ Target "Test" (fun _ ->
     testsDir
         |> NUnit3 (fun p -> 
             { p with
-                OutputDir = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
+                ResultSpecs = [testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml;format=nunit2"]
                 ShadowCopy = false
                 // ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
                 Framework = !framework
