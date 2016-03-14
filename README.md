@@ -5,13 +5,6 @@ You can get the latest stable release from the [official Nuget.org feed](http://
 
 If you'd like to work with the bleeding edge, you can use our [custom feed](https://www.myget.org/gallery/mongodb). Some packages on this feed are pre-release and, while they've passed all our tests, are not yet ready for production.
 
-Build Status
-------------
-
-.NET: [![Build status](https://ci.appveyor.com/api/projects/status/09m14g973xjfsndv)](https://ci.appveyor.com/project/craiggwilson/mongo-csharp-driver)
-
-Mono: [![Build Status](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)
-
 
 Getting Started
 ---------------
@@ -25,7 +18,7 @@ using MongoDB.Driver;
 ```C#
 var client = new MongoClient("mongodb://localhost:27017");
 var database = client.GetDatabase("foo");
-var collection = client.GetCollection<BsonDocument>("bar");
+var collection = database.GetCollection<BsonDocument>("bar");
 
 await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
 
