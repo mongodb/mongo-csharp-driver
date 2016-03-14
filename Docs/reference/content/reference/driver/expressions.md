@@ -816,6 +816,24 @@ p => p.FavoriteNumbers.Concat(new [] { 1, 2, 3 })
 { $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
 ```
 
+#### $filter
+
+```csharp
+p => p.FavoriteNumbers.Where(x => x > 10)
+```
+```json
+{ $filter: { input: '$FavoriteNumbers', as: 'x', cond: { $gt: ['$$x', 10] } } }
+```
+
+#### $map
+
+```csharp
+p => p.FavoriteNumbers.Select(x => x + 10)
+```
+```json
+{ $map: { input: '$FavoriteNumbers', as: 'x', in: { $add: ['$$x', 10] } } }
+```
+
 #### $max
 
 ```csharp
