@@ -187,9 +187,43 @@ namespace MongoDB.Driver.Linq.Processors
             var newNode = (UnaryExpression)base.VisitUnary(node);
             if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
             {
+                // handle unnecessary convert expressions
                 if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))
                 {
                     return newNode.Operand;
+                }
+
+                // handle downcast convert expressions
+                if (newNode.Operand.Type.IsAssignableFrom(newNode.Type))
+                {
+                    var serializationExpression = newNode.Operand as SerializationExpression;
+                    if (serializationExpression != null)
+                    {
+                        var serializer = _bindingContext.GetSerializer(newNode.Type, newNode);
+                        switch (serializationExpression.ExtensionType)
+                        {
+                            case ExtensionExpressionType.ArrayIndex:
+                                return new ArrayIndexExpression(
+                                    ((ArrayIndexExpression)serializationExpression).Array,
+                                    ((ArrayIndexExpression)serializationExpression).Index,
+                                    serializer);
+                            case ExtensionExpressionType.Collection:
+                                return new CollectionExpression(
+                                    ((CollectionExpression)serializationExpression).CollectionNamespace,
+                                    serializer);
+                            case ExtensionExpressionType.Document:
+                                return new DocumentExpression(serializer);
+                            case ExtensionExpressionType.Field:
+                                return new FieldExpression(
+                                    ((FieldExpression)serializationExpression).FieldName,
+                                    serializer);
+                            case ExtensionExpressionType.FieldAsDocument:
+                                return new FieldAsDocumentExpression(
+                                    ((FieldAsDocumentExpression)serializationExpression).Expression,
+                                    ((FieldAsDocumentExpression)serializationExpression).FieldName,
+                                    serializer);
+                        }
+                    }
                 }
             }
 
