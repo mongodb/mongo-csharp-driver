@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -510,6 +510,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Set_Typed_with_cast()
+        {
+            var subject = CreateSubject<Message>();
+
+            Assert(subject.Set(x => ((SmsMessage)x).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
+
+            var subject2 = CreateSubject<Person>();
+
+            Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
+        }
+
+        [Test]
         public void SetOnInsert()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -576,12 +588,25 @@ namespace MongoDB.Driver.Tests
             public DateTime LastUpdated { get; set; }
             [BsonElement("pets")]
             public List<Pet> Pets { get; set; }
+
+            [BsonElement("m")]
+            public Message Message { get; set; }
         }
 
         private class Pet
         {
             [BsonElement("name")]
             public string Name { get; set; }
+        }
+
+        private abstract class Message
+        {
+        }
+
+        private class SmsMessage : Message
+        {
+            [BsonElement("pn")]
+            public string PhoneNumber { get; set; }
         }
     }
 }
