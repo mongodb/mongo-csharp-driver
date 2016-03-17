@@ -1373,7 +1373,7 @@ namespace Tests.MongoDB.Driver.Linq
 
             Assert(query,
                 1,
-               "{ $match: { 'SomeAbstract.Y': 'Y Value' } }"); ;
+               "{ $match: { 'SomeAbstract.Y': 'Y Value' } }");
         }
 
         [Test]
@@ -1398,8 +1398,8 @@ namespace Tests.MongoDB.Driver.Linq
 
             Assert(query,
                 1,
-               "{ $match: { 'AbstractList.Y': 'CTA List1' } }"); ;
-        }
+               "{ $match: { 'AbstractList.Y': 'CTA List1' } }");
+       }
 
         [Test]
         public void Where_method_with_predicated_any_on_abstract_type()
@@ -1409,7 +1409,7 @@ namespace Tests.MongoDB.Driver.Linq
 
             Assert(query,
                 1,
-               "{ $match: { 'AbstractList.Z': 'CTB List2' } }"); ;
+               "{ $match: { 'AbstractList.Z': 'CTB List2' } }");
         }
 
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
