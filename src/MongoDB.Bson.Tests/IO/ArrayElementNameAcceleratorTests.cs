@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
+        [Test]
         public void GetElementNameBytes_should_return_expected_result_for_boundary_conditions(
             [Values(0, 9, 10, 99, 100, 999, 1000, 9999, 10000, 99999, 100000, 999999, 1000000, 9999999, 100000000, int.MaxValue)]
             int index,
