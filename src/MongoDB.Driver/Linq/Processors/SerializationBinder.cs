@@ -227,6 +227,21 @@ namespace MongoDB.Driver.Linq.Processors
                 }
             }
 
+            if (newNode.NodeType == ExpressionType.TypeAs && (newNode.Operand is FieldExpression || newNode.Operand is DocumentExpression))
+            {
+                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsSubclassOf(newNode.Operand.Type))
+                {
+                    var ser = _bindingContext.GetSerializer(newNode.Type, newNode);
+                    if (ser != null)
+                    {
+                        return new AsTypeExpression(
+                                        newNode.Operand,
+                                        ser,
+                                        node);
+                    }
+                }
+            }
+
             return newNode;
         }
 
