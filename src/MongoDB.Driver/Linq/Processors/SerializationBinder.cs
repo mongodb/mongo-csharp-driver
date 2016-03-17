@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Linq.Processors
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newNode = (UnaryExpression)base.VisitUnary(node);
-            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
+            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked || newNode.NodeType == ExpressionType.TypeAs)
             {
                 // handle unnecessary convert expressions
                 if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))

@@ -522,6 +522,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Set_Typed_with_type_as()
+        {
+            var subject = CreateSubject<Message>();
+
+            Assert(subject.Set(x => (x as SmsMessage).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
+
+            var subject2 = CreateSubject<Person>();
+
+            Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
+        }
+
+        [Test]
         public void SetOnInsert()
         {
             var subject = CreateSubject<BsonDocument>();
