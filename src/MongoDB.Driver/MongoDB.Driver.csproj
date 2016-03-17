@@ -88,6 +88,7 @@
     <Compile Include="Linq\ExpressionHelper.cs" />
     <Compile Include="Linq\Expressions\AccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\AccumulatorType.cs" />
+    <Compile Include="Linq\Expressions\AsTypeExpression.cs" />
     <Compile Include="Linq\Expressions\CollectionExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedExpression.cs" />
     <Compile Include="Linq\Expressions\ConcatExpression.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Linq\Expressions\FieldExpression.cs" />
     <Compile Include="Linq\Expressions\GroupByWithResultSelectorExpression.cs" />
     <Compile Include="Linq\Expressions\GroupingKeyExpression.cs" />
+    <Compile Include="Linq\Expressions\IAsTypeExpression.cs" />
     <Compile Include="Linq\Expressions\JoinExpression.cs" />
     <Compile Include="Linq\Expressions\GroupJoinExpression.cs" />
     <Compile Include="Linq\Expressions\OrderByExpression.cs" />
