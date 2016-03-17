@@ -95,7 +95,16 @@ namespace MongoDB.Driver.Tests.Linq
                 Q = Q.One,
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
-                U = 1.23456571661743267789m
+                U = 1.23456571661743267789m,
+                SomeAbstract = new ConcreateTypeA
+                {
+                    Y = "Y Value"
+                },
+                AbstractList = new List<AbstractType>
+                {
+                    new ConcreateTypeA { Y = "CTA List1"},
+                    new ConcreateTypeB { Z = "CTB List1"}
+                }
             };
             _collection.InsertOne(root);
         }
@@ -145,12 +154,20 @@ namespace MongoDB.Driver.Tests.Linq
                 M = new[] { 3, 5, 6 },
                 O = new List<long> { 100, 200, 300 },
                 P = 1.1,
-                U = -1.234565723762724332233489m
+                U = -1.234565723762724332233489m,
+                SomeAbstract = new ConcreateTypeB
+                {
+                    Z = "Z Value"
+                },
+                AbstractList = new List<AbstractType>
+                {
+                    new ConcreateTypeA { Y = "CTA List2"},
+                    new ConcreateTypeB { Z = "CTB List2"}
+                }
             };
             _collection.InsertOne(root);
         }
-
-
+        
         private void InsertJoin()
         {
             _otherCollection.InsertOne(new Other
@@ -211,6 +228,10 @@ namespace MongoDB.Driver.Tests.Linq
 
             [BsonRepresentation(Bson.BsonType.Double, AllowTruncation = true)]
             public decimal U { get; set; }
+
+            public AbstractType SomeAbstract { get; set; }
+
+            public List<AbstractType> AbstractList { get; set; }
         }
 
         public class RootDescended : Root
@@ -271,6 +292,21 @@ namespace MongoDB.Driver.Tests.Linq
         public class OtherChild2 : OtherChild
         {
             public int Z { get; set; }
+        }
+
+        public abstract class AbstractType
+        {
+            public string Id { get; set; }
+        }
+
+        public class ConcreateTypeA : AbstractType
+        {
+            public string Y { get; set; }
+        }
+
+        public class ConcreateTypeB : AbstractType
+        {
+            public string Z { get; set; }
         }
     }
 }

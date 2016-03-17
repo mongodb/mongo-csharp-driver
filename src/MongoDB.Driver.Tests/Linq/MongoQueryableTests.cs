@@ -1353,6 +1353,65 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { 'G.D': \"Don't\" } }");
         }
 
+        [Test]
+        public void Where_method_with_predicate_on_abstract_type()
+        {
+            var query = CreateQuery()
+                .Where(x => (x.SomeAbstract as ConcreateTypeA).Y == "Y Value");
+
+            Assert(query,
+                1,
+                "{ $match: { 'SomeAbstract.Y': 'Y Value' } }");
+        }
+
+        [Test]
+        public void Where_syntax_with_predicate_on_abstract_type()
+        {
+            var query = from x in CreateQuery()
+                        where (x.SomeAbstract as ConcreateTypeA).Y == "Y Value"
+                        select x;
+
+            Assert(query,
+                1,
+               "{ $match: { 'SomeAbstract.Y': 'Y Value' } }"); ;
+        }
+
+        [Test]
+        public void Select_method_with_predicate_on_abstract_type()
+        {
+            var query = CreateQuery()
+                .Where(x => x.A == "Awesome")
+                .Select(x => (x.SomeAbstract as ConcreateTypeA).Y);
+
+            Assert(query,
+                1,
+                "{ $match: { A: 'Awesome' } }",
+                "{ $project: { Y : '$SomeAbstract.Y', '_id' : 0 } }");
+        }
+
+        [Test]
+        public void Where_syntax_with_predicated_any_on_abstract_type()
+        {
+            var query = from x in CreateQuery()
+                        where (x.AbstractList.Any(a => (a as ConcreateTypeA).Y == "CTA List1"))
+                        select x;
+
+            Assert(query,
+                1,
+               "{ $match: { 'AbstractList.Y': 'CTA List1' } }"); ;
+        }
+
+        [Test]
+        public void Where_method_with_predicated_any_on_abstract_type()
+        {
+            var query = CreateQuery()
+                .Where(x => x.AbstractList.Any(a => (a as ConcreateTypeB).Z == "CTB List2"));
+
+            Assert(query,
+                1,
+               "{ $match: { 'AbstractList.Z': 'CTB List2' } }"); ;
+        }
+
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
