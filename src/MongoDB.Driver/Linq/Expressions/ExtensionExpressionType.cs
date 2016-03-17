@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Take,
         Union,
         Where,
+        TypeAs,
 
         // Bindings
         Accumulator,
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Linq.Expressions
         FieldAsDocument,
         Field,
         GroupingKey,
-
+        
         // Temporary
         Correlated,
     }
