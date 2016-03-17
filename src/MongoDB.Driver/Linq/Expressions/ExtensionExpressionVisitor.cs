@@ -90,6 +90,13 @@ namespace MongoDB.Driver.Linq.Expressions
                 node.Original);
         }
 
+        protected internal virtual Expression VisitAsType(AsTypeExpression node)
+        {
+            return node.Update(
+                Visit(node.Document),
+                node.Original);
+        }
+        
         protected internal virtual Expression VisitGroupBy(GroupByExpression node)
         {
             return node.Update(

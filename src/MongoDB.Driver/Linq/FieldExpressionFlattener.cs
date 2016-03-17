@@ -86,5 +86,19 @@ namespace MongoDB.Driver.Linq
 
             return node;
         }
+
+        protected internal override Expression VisitAsType(AsTypeExpression node)
+        {
+            var document = Visit(node.Document) as IFieldExpression;
+            if (document != null)
+            {
+                return new FieldExpression(
+                    node.PrependFieldName(document.FieldName),
+                    node.Serializer,
+                    node.Original);
+            }
+
+            return node;
+        }
     }
 }

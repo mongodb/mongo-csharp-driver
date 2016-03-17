@@ -1389,7 +1389,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Y : '$SomeAbstract.Y', '_id' : 0 } }");
         }
 
-        [Test]
+       [Test]
         public void Where_syntax_with_predicated_any_on_abstract_type()
         {
             var query = from x in CreateQuery()

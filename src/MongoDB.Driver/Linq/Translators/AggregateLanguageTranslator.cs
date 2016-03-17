@@ -252,9 +252,10 @@ namespace MongoDB.Driver.Linq.Translators
                 return "$" + expression.FieldName;
             }
 
-            // 2 possibilities. 
+            // 3 possibilities. 
             // 1. This is translatable into a single string:
-            // 2. This has an array index operation in it which we must then use a $let expression for
+            // 2. Type As Expression
+            // 3. This has an array index operation in it which we must then use a $let expression for
             var parent = expression.Document;
             var currentName = expression.FieldName;
             while (parent != null)
@@ -267,6 +268,13 @@ namespace MongoDB.Driver.Linq.Translators
                 }
                 else
                 {
+                    var typeAs = parent as IAsTypeExpression;
+                    if (typeAs != null)
+                    {
+                        parent = typeAs.Document;
+                        continue;
+                    }
+
                     var array = parent as ArrayIndexExpression;
                     if (array != null)
                     {
