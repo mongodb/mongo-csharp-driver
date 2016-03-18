@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -695,7 +695,8 @@ namespace MongoDB.Driver
         public static TDocument FindOneAndUpdate<TDocument>(this IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdate<TDocument>(
                 filter,
@@ -719,7 +720,8 @@ namespace MongoDB.Driver
         public static TDocument FindOneAndUpdate<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdate<TDocument>(
                 new ExpressionFilterDefinition<TDocument>(filter),
@@ -745,6 +747,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdate(new ExpressionFilterDefinition<TDocument>(filter), update, options, cancellationToken);
         }
@@ -764,7 +767,8 @@ namespace MongoDB.Driver
         public static Task<TDocument> FindOneAndUpdateAsync<TDocument>(this IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdateAsync<TDocument>(
                 filter,
@@ -788,7 +792,8 @@ namespace MongoDB.Driver
         public static Task<TDocument> FindOneAndUpdateAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdateAsync<TDocument>(
                 new ExpressionFilterDefinition<TDocument>(filter),
@@ -814,6 +819,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
 
             return collection.FindOneAndUpdateAsync(new ExpressionFilterDefinition<TDocument>(filter), update, options, cancellationToken);
         }
