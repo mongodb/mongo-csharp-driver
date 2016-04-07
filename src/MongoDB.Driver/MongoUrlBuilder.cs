@@ -30,8 +30,7 @@ using MongoDB.Shared;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents URL style connection strings. This is the recommended connection string style, but see also
-    /// MongoConnectionStringBuilder if you wish to use .NET style connection strings.
+    /// Represents URL-style connection strings.
     /// </summary>
 #if NET45
     [Serializable]
