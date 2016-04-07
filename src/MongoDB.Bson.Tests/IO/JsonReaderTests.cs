@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -274,18 +274,52 @@ namespace MongoDB.Bson.Tests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDateTime>(json).ToJson());
         }
 
-        [Test]
-        public void TestDateTimeShell()
+        [TestCase("ISODate(\"1970\")", 0L, "ISODate(\"1970-01-01T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01\")", 0L, "ISODate(\"1970-01-01T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02.003\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00Z\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01Z\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02Z\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02.003Z\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00+00\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01+00\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02+00\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02.003+00\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00+00:00\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01+00:00\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02+00:00\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"1970-01-02T00:01:02.003+00:00\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"19700102\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"19700102T00\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"19700102T0001\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"19700102T000102\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"19700102T000102.003\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"19700102T00Z\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"19700102T0001Z\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"19700102T000102Z\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"19700102T000102.003Z\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"19700102T00+00\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"19700102T0001+00\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"19700102T000102+00\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"19700102T000102.003+00\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        [TestCase("ISODate(\"19700102T00+0000\")", 86400000L, "ISODate(\"1970-01-02T00:00:00Z\")")]
+        [TestCase("ISODate(\"19700102T0001+00:00\")", 86460000L, "ISODate(\"1970-01-02T00:01:00Z\")")]
+        [TestCase("ISODate(\"19700102T000102+00:00\")", 86462000L, "ISODate(\"1970-01-02T00:01:02Z\")")]
+        [TestCase("ISODate(\"19700102T000102.003+00:00\")", 86462003L, "ISODate(\"1970-01-02T00:01:02.003Z\")")]
+        public void TestDateTimeShell(string json, long expectedResult, string canonicalJson)
         {
-            var json = "ISODate(\"1970-01-01T00:00:00Z\")";
             using (_bsonReader = new JsonReader(json))
             {
                 Assert.AreEqual(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.AreEqual(0, _bsonReader.ReadDateTime());
+                Assert.AreEqual(expectedResult, _bsonReader.ReadDateTime());
                 Assert.AreEqual(BsonReaderState.Initial, _bsonReader.State);
             }
             var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Shell };
-            Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
         }
 
         [Test]

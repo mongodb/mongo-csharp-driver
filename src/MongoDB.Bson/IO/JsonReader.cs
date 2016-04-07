@@ -26,6 +26,43 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public class JsonReader : BsonReader
     {
+        #region static
+        private static readonly string[] __variableLengthIso8601Formats = new string[]
+        {
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFzz",
+            "yyyyMMddTHHmmss.FFFFFFFK",
+            "yyyyMMddTHHmmss.FFFFFFFzz"
+        };
+
+        private static readonly string[][] __fixedLengthIso8601Formats = new string[][]
+        {
+            null, // length = 0
+            null, // length = 1
+            null, // length = 2
+            null, // length = 3
+            new [] { "yyyy" }, // length = 4
+            null, // length = 5
+            null, // length = 6
+            new [] { "yyyy-MM" }, // length = 7
+            new [] { "yyyyMMdd" }, // length = 8
+            null, // length = 9
+            new [] { "yyyy-MM-dd" }, // length = 10
+            new [] { "yyyyMMddTHH" }, // length = 11
+            new [] { "yyyyMMddTHHZ" }, // length = 12
+            new [] { "yyyy-MM-ddTHH" , "yyyyMMddTHHmm" }, // length = 13
+            new [] { "yyyy-MM-ddTHHZ", "yyyyMMddTHHmmZ", "yyyyMMddTHHzz" }, // length = 14
+            null, // length = 15
+            new [] { "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHHzz", "yyyyMMddTHHmmssZ", "yyyyMMddTHHzzz", "yyyyMMddTHHmmzz" }, // length = 16
+            new [] { "yyyy-MM-ddTHH:mmZ" }, // length = 17
+            new [] { "yyyyMMddTHHmmsszz" }, // length = 18
+            new [] { "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHHzzz", "yyyy-MM-ddTHH:mmzz", "yyyyMMddTHHmmzzz" }, // length = 19
+            null, // length = 20
+            null, // length = 21
+            new [] { "yyyy-MM-ddTHH:mmzzz", "yyyy-MM-ddTHH:mm:sszz" } // length = 22
+        };
+        #endregion
+
         // private fields
         private readonly JsonBuffer _buffer;
         private readonly JsonReaderSettings _jsonReaderSettings; // same value as in base class just declared as derived class
@@ -1013,8 +1050,17 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken(")");
-            var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
-            var utcDateTime = DateTime.ParseExact(valueToken.StringValue, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+            var value = valueToken.StringValue;
+            string[] formats = null;
+            if (!value.Contains(".") && value.Length < __fixedLengthIso8601Formats.Length)
+            {
+                formats = __fixedLengthIso8601Formats[value.Length];
+            }
+            if (formats == null)
+            {
+                formats = __variableLengthIso8601Formats;
+            }
+            var utcDateTime = DateTime.ParseExact(value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
             return new BsonDateTime(utcDateTime);
         }
 
