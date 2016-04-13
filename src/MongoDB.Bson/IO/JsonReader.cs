@@ -53,8 +53,8 @@ namespace MongoDB.Bson.IO
             new [] { "yyyy-MM-ddTHH" , "yyyyMMddTHHmm" }, // length = 13
             new [] { "yyyy-MM-ddTHHZ", "yyyyMMddTHHmmZ", "yyyyMMddTHHzz" }, // length = 14
             null, // length = 15
-            new [] { "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHHzz", "yyyyMMddTHHmmssZ", "yyyyMMddTHHzzz", "yyyyMMddTHHmmzz" }, // length = 16
-            new [] { "yyyy-MM-ddTHH:mmZ" }, // length = 17
+            new [] { "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHHzz", "yyyyMMddTHHmmssZ", "yyyyMMddTHHmmzz" }, // length = 16
+            new [] { "yyyy-MM-ddTHH:mmZ", "yyyyMMddTHHzzz" }, // length = 17
             new [] { "yyyyMMddTHHmmsszz" }, // length = 18
             new [] { "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHHzzz", "yyyy-MM-ddTHH:mmzz", "yyyyMMddTHHmmzzz" }, // length = 19
             null, // length = 20
