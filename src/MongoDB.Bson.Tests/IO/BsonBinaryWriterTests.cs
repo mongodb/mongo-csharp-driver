@@ -53,6 +53,29 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        public void BsonBinaryWriter_should_support_writing_more_than_2GB()
+        {
+            using (var stream = new NullBsonStream())
+            using (var binaryWriter = new BsonBinaryWriter(stream))
+            {
+                var bigBinaryData = new BsonBinaryData(new byte[int.MaxValue / 2 - 1000]);
+                for (var i = 0; i < 3; i++)
+                {
+                    binaryWriter.WriteStartDocument();
+                    binaryWriter.WriteName("x");
+                    binaryWriter.WriteBinaryData(bigBinaryData);
+                    binaryWriter.WriteEndDocument();
+                }
+
+                var smallBinaryData = new BsonBinaryData(new byte[2000]);
+                binaryWriter.WriteStartDocument();
+                binaryWriter.WriteName("x");
+                binaryWriter.WriteBinaryData(smallBinaryData);
+                binaryWriter.WriteEndDocument();
+            }
+        }
+
+        [Test]
         [Requires64BitProcess]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
