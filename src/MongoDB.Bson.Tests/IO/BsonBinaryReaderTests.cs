@@ -28,6 +28,65 @@ namespace MongoDB.Bson.Tests.IO
     public class BsonBinaryReaderTests
     {
         [Test]
+        [Explicit] // because it creates a huge temp file and takes a long time to execute
+        public void BsonBinaryReader_should_support_reading_more_than_2GB()
+        {
+            var binaryData = new BsonBinaryData(new byte[1024 * 1024]);
+
+            var tempFileName = Path.GetTempFileName();
+            try
+            {
+                using (var stream = new FileStream(tempFileName, FileMode.Open))
+                {
+                    using (var binaryWriter = new BsonBinaryWriter(stream))
+                    {
+                        while (stream.Position < (long)int.MaxValue * 4)
+                        {
+                            binaryWriter.WriteStartDocument();
+                            binaryWriter.WriteName("x");
+                            binaryWriter.WriteBinaryData(binaryData);
+                            binaryWriter.WriteEndDocument();
+                        }
+                    }
+
+                    var endOfFilePosition = stream.Position;
+                    stream.Position = 0;
+
+                    using (var binaryReader = new BsonBinaryReader(stream))
+                    {
+                        while (!binaryReader.IsAtEndOfFile())
+                        {
+                            binaryReader.ReadStartDocument();
+                            var bookmark = binaryReader.GetBookmark();
+
+                            binaryReader.ReadName("x");
+                            binaryReader.ReturnToBookmark(bookmark);
+
+                            binaryReader.ReadName("x");
+                            var readBinaryData = binaryReader.ReadBinaryData();
+                            Assert.That(readBinaryData.Bytes.Length, Is.EqualTo(binaryData.Bytes.Length));
+
+                            binaryReader.ReadEndDocument();
+                        }
+                    }
+
+                    Assert.That(stream.Position, Is.EqualTo(endOfFilePosition));
+                }
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(tempFileName);
+                }
+                catch
+                {
+                    // ignore exceptions
+                }
+            }
+        }
+
+        [Test]
         public void BsonBinaryReader_should_support_reading_multiple_documents(
             [Range(0, 3)]
             int numberOfDocuments)
