@@ -53,6 +53,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        [Requires64BitProcess]
         public void BsonBinaryWriter_should_support_writing_more_than_2GB()
         {
             using (var stream = new NullBsonStream())
