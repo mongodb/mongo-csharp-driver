@@ -103,7 +103,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A bookmark.</returns>
         public override BsonReaderBookmark GetBookmark()
         {
-            return new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, (int)_bsonStream.Position);
+            return new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _bsonStream.Position);
         }
 
         /// <summary>
