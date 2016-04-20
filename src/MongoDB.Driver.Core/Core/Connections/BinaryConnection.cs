@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Core.Connections
         private readonly Dropbox _dropbox = new Dropbox();
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
-        private Exception _openException;
         private readonly object _openLock = new object();
         private Task _openTask;
         private readonly SemaphoreSlim _receiveLock;
@@ -219,6 +218,7 @@ namespace MongoDB.Driver.Core.Connections
                     _openedAtUtc = DateTime.UtcNow;
                     taskCompletionSource = new TaskCompletionSource<bool>();
                     _openTask = taskCompletionSource.Task;
+                    _openTask.IgnoreExceptions();
                     connecting = true;
                 }
             }
@@ -233,12 +233,6 @@ namespace MongoDB.Driver.Core.Connections
                 catch (Exception ex)
                 {
                     taskCompletionSource.TrySetException(ex);
-
-                    // this line is here to ensure we treat this exception
-                    // as observed and prevent the TaskScheduler.UnobservedException
-                    // event from getting raised.
-                    _openException = taskCompletionSource.Task.Exception;
-
                     throw;
                 }
             }
