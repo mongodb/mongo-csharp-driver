@@ -70,6 +70,10 @@
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerable.cs" />
     <Compile Include="Core\Misc\TaskExtensions.cs" />
+    <Compile Include="Core\Servers\IServerMonitor.cs" />
+    <Compile Include="Core\Servers\IServerMonitorFactory.cs" />
+    <Compile Include="Core\Servers\ServerMonitorFactory.cs" />
+    <Compile Include="Core\Servers\ServerMonitor.cs" />
     <Compile Include="Core\WireProtocol\CommandResponseHandling.cs" />
     <Compile Include="Core\Bindings\ReadWriteBindingHandle.cs" />
     <Compile Include="Core\Bindings\ReadBindingHandle.cs" />
@@ -364,7 +368,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Servers\IServer.cs" />
     <Compile Include="Core\Servers\IClusterableServerFactory.cs" />
-    <Compile Include="Core\Servers\ClusterableServer.cs" />
+    <Compile Include="Core\Servers\Server.cs" />
     <Compile Include="Core\Servers\ServerDescription.cs" />
     <Compile Include="Core\Servers\ServerFactory.cs" />
     <Compile Include="Core\Configuration\ServerSettings.cs" />

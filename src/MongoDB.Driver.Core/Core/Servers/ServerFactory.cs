@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ using System.Net;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,17 +27,17 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
-        private readonly IConnectionFactory _heartbeatConnectionFactory;
+        private readonly IServerMonitorFactory _serverMonitorFactory;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ServerSettings _settings;
 
         // constructors
-        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IEventSubscriber eventSubscriber)
+        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerMonitorFactory serverMonitoryFactory, IEventSubscriber eventSubscriber)
         {
             _clusterConnectionMode = clusterConnectionMode;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
-            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, nameof(heartbeatConnectionFactory));
+            _serverMonitorFactory = Ensure.IsNotNull(serverMonitoryFactory, nameof(serverMonitoryFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <inheritdoc/>
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _eventSubscriber);
+            return new Server(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
         }
     }
 }

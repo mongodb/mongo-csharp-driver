@@ -80,11 +80,16 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionFactory,
                 _eventAggregator);
 
+            var serverMonitorFactory = new ServerMonitorFactory(
+                _serverSettings,
+                connectionFactory,
+                _eventAggregator);
+
             var serverFactory = new ServerFactory(
                 _clusterSettings.ConnectionMode,
                 _serverSettings,
                 connectionPoolFactory,
-                connectionFactory,
+                serverMonitorFactory,
                 _eventAggregator);
 
             var clusterFactory = new ClusterFactory(

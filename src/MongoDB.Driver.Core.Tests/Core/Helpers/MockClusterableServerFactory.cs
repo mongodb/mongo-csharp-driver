@@ -20,6 +20,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -29,32 +31,69 @@ namespace MongoDB.Driver.Core.Helpers
 {
     public class MockClusterableServerFactory : IClusterableServerFactory
     {
-        private Dictionary<EndPoint, IClusterableServer> _servers = new Dictionary<EndPoint, IClusterableServer>();
+        private readonly Dictionary<EndPoint, ServerTuple> _servers;
+        private readonly IEventSubscriber _eventSubscriber;
+
+        public MockClusterableServerFactory(IEventSubscriber eventSubscriber = null)
+        {
+            _servers = new Dictionary<EndPoint, ServerTuple>();
+            _eventSubscriber = eventSubscriber;
+        }
 
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            IClusterableServer result;
-            if(!_servers.TryGetValue(endPoint, out result))
+            ServerTuple result;
+            if (!_servers.TryGetValue(endPoint, out result))
             {
                 var description = new ServerDescription(new ServerId(clusterId, endPoint), endPoint);
-                _servers[endPoint] = result = Substitute.For<IClusterableServer>();
-                result.Description.Returns(description);
-                result.EndPoint.Returns(endPoint);
-                result.ServerId.Returns(new ServerId(clusterId, endPoint));
+
+                if (_eventSubscriber == null)
+                {
+                    var server = Substitute.For<IClusterableServer>();
+                    server.Description.Returns(description);
+                    server.EndPoint.Returns(endPoint);
+                    server.ServerId.Returns(new ServerId(clusterId, endPoint));
+                    result = new ServerTuple
+                    {
+                        Server = server
+                    };
+                }
+                else
+                {
+                    var monitorFactory = Substitute.For<IServerMonitorFactory>();
+                    var monitor = Substitute.For<IServerMonitor>();
+                    monitorFactory.Create(null, null).ReturnsForAnyArgs(monitor);
+                    monitor.Description.Returns(description);
+
+                    result = new ServerTuple
+                    {
+                        Server = new Server(
+                            clusterId,
+                            ClusterConnectionMode.Automatic,
+                            new ServerSettings(),
+                            endPoint,
+                            Substitute.For<IConnectionPoolFactory>(),
+                            monitorFactory,
+                            _eventSubscriber),
+                        Monitor = monitor
+                    };
+                }
+
+                _servers[endPoint] = result;
             }
 
-            return result;
+            return result.Server;
         }
 
         public IClusterableServer GetServer(EndPoint endPoint)
         {
-            IClusterableServer result;
+            ServerTuple result;
             if (!_servers.TryGetValue(endPoint, out result))
             {
                 throw new InvalidOperationException("Server does not exist.");
             }
 
-            return result;
+            return result.Server;
         }
 
         public ServerDescription GetServerDescription(EndPoint endPoint)
@@ -65,12 +104,31 @@ namespace MongoDB.Driver.Core.Helpers
 
         public void PublishDescription(ServerDescription description)
         {
-            var server = GetServer(description.EndPoint);
+            ServerTuple result;
+            if (!_servers.TryGetValue(description.EndPoint, out result))
+            {
+                throw new InvalidOperationException("Server does not exist.");
+            }
 
-            var oldDescription = server.Description;
-            server.Description.Returns(description);
+            var oldDescription = result.Server.Description;
 
-            server.DescriptionChanged += Raise.EventWith(new ServerDescriptionChangedEventArgs(oldDescription, description));
+            if (result.Monitor == null)
+            {
+                result.Server.Description.Returns(description);
+                result.Server.DescriptionChanged += Raise.EventWith(new ServerDescriptionChangedEventArgs(oldDescription, description));
+
+            }
+            else
+            {
+                result.Monitor.Description.Returns(description);
+                result.Monitor.DescriptionChanged += Raise.EventWith(new ServerDescriptionChangedEventArgs(oldDescription, description));
+            }
+        }
+
+        private class ServerTuple
+        {
+            public IClusterableServer Server;
+            public IServerMonitor Monitor;
         }
     }
 }

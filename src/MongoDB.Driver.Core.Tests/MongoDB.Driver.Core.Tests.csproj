@@ -128,6 +128,7 @@
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
+    <Compile Include="Core\Servers\ServerMonitorTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
     <Compile Include="Core\WireProtocol\CommandWriteProtocolTests.cs" />
     <Compile Include="IAsyncCursorExtensionsTests.cs" />
@@ -191,6 +192,7 @@
     <Compile Include="Specifications\connection-string\TestRunner.cs" />
     <Compile Include="Specifications\read-write-concern\DocumentTestRunner.cs" />
     <Compile Include="Specifications\read-write-concern\ConnectionStringTestRunner.cs" />
+    <Compile Include="Specifications\sdam-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\server-discovery-and-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\server-selection\ServerSelectionTestRunner.cs" />
     <Compile Include="Specifications\server-selection\RttTestRunner.cs" />
@@ -230,7 +232,7 @@
     <Compile Include="Core\Servers\ServerDescriptionTests.cs" />
     <Compile Include="Core\Servers\ServerFactoryTests.cs" />
     <Compile Include="Core\Servers\ServerIdTests.cs" />
-    <Compile Include="Core\Servers\ClusterableServerTests.cs" />
+    <Compile Include="Core\Servers\ServerTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\DeleteMessageTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\BinaryMessageEncoderFactoryTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\DeleteMessageBinaryEncoderTests.cs" />
@@ -302,6 +304,8 @@
     <EmbeddedResource Include="Specifications\read-write-concern\tests\document\write-concern.yml" />
     <None Include="Specifications\read-write-concern\tests\Makefile" />
     <None Include="Specifications\read-write-concern\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\sdam-monitoring\tests\replica_set_with_removal.json" />
+    <EmbeddedResource Include="Specifications\sdam-monitoring\tests\standalone.json" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\Makefile" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\README.rst" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary_new_setversion.json" />

@@ -32,54 +32,35 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Servers
 {
     [TestFixture]
-    public class ClusterableServerTests
+    public class ServerMonitorTests
     {
-        private ClusterId _clusterId;
-        private ClusterConnectionMode _clusterConnectionMode;
-        private IConnectionPool _connectionPool;
-        private IConnectionPoolFactory _connectionPoolFactory;
         private EndPoint _endPoint;
-        private MockConnection _heartbeatConnection;
-        private IConnectionFactory _heartbeatConnectionFactory;
+        private MockConnection _connection;
+        private IConnectionFactory _connectionFactory;
         private EventCapturer _capturedEvents;
-        private ServerSettings _settings;
-        private ClusterableServer _subject;
+        private ServerId _serverId;
+        private ServerMonitor _subject;
 
 
         [SetUp]
         public void Setup()
         {
-            _clusterId = new ClusterId();
-            _clusterConnectionMode = ClusterConnectionMode.Standalone;
-            _connectionPool = Substitute.For<IConnectionPool>();
-            _connectionPoolFactory = Substitute.For<IConnectionPoolFactory>();
-            _connectionPoolFactory.CreateConnectionPool(null, null)
-                .ReturnsForAnyArgs(_connectionPool);
-
             _endPoint = new DnsEndPoint("localhost", 27017);
-            _heartbeatConnection = new MockConnection();
-            _heartbeatConnectionFactory = Substitute.For<IConnectionFactory>();
-            _heartbeatConnectionFactory.CreateConnection(null, null)
-                .ReturnsForAnyArgs(_heartbeatConnection);
+            _connection = new MockConnection();
+            _connectionFactory = Substitute.For<IConnectionFactory>();
+            _connectionFactory.CreateConnection(null, null)
+                .ReturnsForAnyArgs(_connection);
 
             _capturedEvents = new EventCapturer();
-            _settings = new ServerSettings(heartbeatInterval: Timeout.InfiniteTimeSpan);
 
-            _subject = new ClusterableServer(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _capturedEvents);
+            _serverId = new ServerId(new ClusterId(), _endPoint);
+            _subject = new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
         }
 
         [Test]
-        public void Constructor_should_throw_when_settings_is_null()
+        public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ClusterableServer(_clusterId, _clusterConnectionMode, null, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _capturedEvents);
-
-            act.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_should_throw_when_clusterId_is_null()
-        {
-            Action act = () => new ClusterableServer(null, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _capturedEvents);
+            Action act = () => new ServerMonitor(null, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -87,23 +68,15 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ClusterableServer(_clusterId, _clusterConnectionMode, _settings, null, _connectionPoolFactory, _heartbeatConnectionFactory, _capturedEvents);
+            Action act = () => new ServerMonitor(_serverId, null, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_throw_when_connectionPoolFactory_is_null()
+        public void Constructor_should_throw_when_connectionFactory_is_null()
         {
-            Action act = () => new ClusterableServer(_clusterId, _clusterConnectionMode, _settings, _endPoint, null, _heartbeatConnectionFactory, _capturedEvents);
-
-            act.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_should_throw_when_heartbeatConnectionFactory_is_null()
-        {
-            Action act = () => new ClusterableServer(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, null, _capturedEvents);
+            Action act = () => new ServerMonitor(_serverId, _endPoint, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -111,7 +84,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new ClusterableServer(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, null);
+            Action act = () => new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -136,10 +109,6 @@ namespace MongoDB.Driver.Core.Servers
             description.EndPoint.Should().Be(_endPoint);
             description.Type.Should().Be(ServerType.Unknown);
             description.State.Should().Be(ServerState.Disconnected);
-
-            _capturedEvents.Next().Should().BeOfType<ServerClosingEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerClosedEvent>();
-            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Test]
@@ -156,11 +125,8 @@ namespace MongoDB.Driver.Core.Servers
             changes[0].OldServerDescription.State.Should().Be(ServerState.Disconnected);
             changes[0].NewServerDescription.State.Should().Be(ServerState.Connected);
 
-            _capturedEvents.Next().Should().BeOfType<ServerOpeningEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerOpenedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -174,70 +140,9 @@ namespace MongoDB.Driver.Core.Servers
             _subject.Description.State.Should().Be(ServerState.Connected);
             _subject.Description.Type.Should().Be(ServerType.Standalone);
 
-            _capturedEvents.Next().Should().BeOfType<ServerOpeningEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerOpenedEvent>();
             _capturedEvents.Any().Should().BeFalse();
-        }
-
-        [Test]
-        public void GetChannel_should_throw_when_not_initialized(
-            [Values(false, true)]
-            bool async)
-        {
-            Action act;
-            if (async)
-            {
-                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.GetChannel(CancellationToken.None);
-            }
-
-            act.ShouldThrow<InvalidOperationException>();
-        }
-
-        [Test]
-        public void GetChannel_should_throw_when_disposed(
-            [Values(false, true)]
-            bool async)
-        {
-            _subject.Dispose();
-
-            Action act;
-            if (async)
-            {
-                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.GetChannel(CancellationToken.None);
-            }
-
-            act.ShouldThrow<ObjectDisposedException>();
-        }
-
-        [Test]
-        public void GetChannel_should_get_a_connection(
-            [Values(false, true)]
-            bool async)
-        {
-            _subject.Initialize();
-
-            IChannelHandle channel;
-            if (async)
-            {
-                channel = _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                channel = _subject.GetChannel(CancellationToken.None);
-            }
-
-            channel.Should().NotBeNull();
         }
 
         [Test]
@@ -259,7 +164,6 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -273,7 +177,6 @@ namespace MongoDB.Driver.Core.Servers
 
             _subject.Invalidate();
 
-            _connectionPool.Received().Clear();
             _subject.Description.Type.Should().Be(ServerType.Unknown);
 
             // the next requests down heartbeat connection will fail, so the state should
@@ -281,37 +184,10 @@ namespace MongoDB.Driver.Core.Servers
             SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
-            _capturedEvents.Any().Should().BeFalse();
-        }
-
-        [Test]
-        public void A_failed_heartbeat_should_clear_the_connection_pool()
-        {
-            SetupHeartbeatConnection();
-            _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
-            _capturedEvents.Clear();
-
-            _subject.RequestHeartbeat();
-
-            // the next requests down heartbeat connection will fail, so the state should
-            // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
-
-            _connectionPool.ReceivedWithAnyArgs().Clear();
-
-            // when heart fails, we immediately attempt a second, hence the multiple events...
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -322,8 +198,8 @@ namespace MongoDB.Driver.Core.Servers
             var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
 
-            _heartbeatConnection.EnqueueReplyMessage(isMasterReply);
-            _heartbeatConnection.EnqueueReplyMessage(buildInfoReply);
+            _connection.EnqueueReplyMessage(isMasterReply);
+            _connection.EnqueueReplyMessage(buildInfoReply);
         }
     }
 }
