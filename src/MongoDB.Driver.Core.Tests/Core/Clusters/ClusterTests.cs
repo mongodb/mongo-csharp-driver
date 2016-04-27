@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             description.Servers.Should().BeEmpty();
             description.State.Should().Be(ClusterState.Disconnected);
-            description.Type.Should().Be(clusterType);
+            description.Type.Should().Be(ClusterType.Unknown);
         }
 
         [Test]

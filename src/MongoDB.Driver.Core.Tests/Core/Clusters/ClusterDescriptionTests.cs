@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Servers.Should().BeEmpty();
             subject.State.Should().Be(ClusterState.Disconnected);
             subject.ConnectionMode.Should().Be(ClusterConnectionMode.Standalone);
-            subject.Type.Should().Be(ClusterType.Standalone);
+            subject.Type.Should().Be(ClusterType.Unknown);
         }
 
         // instance member tests

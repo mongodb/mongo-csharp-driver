@@ -1,5 +1,5 @@
 ﻿{
-    "description": "Monitoring a standalone connection",
+    "description": "Monitoring a topology that is required to be a replica set",
     "phases": [
         {
             "outcome": {
@@ -19,9 +19,16 @@
                                         "hosts": [ ],
                                         "passives": [ ],
                                         "type": "Unknown"
+                                    },
+                                    {
+                                        "address": "b:27017",
+                                        "arbiters": [ ],
+                                        "hosts": [ ],
+                                        "passives": [ ],
+                                        "type": "Unknown"
                                     }
                                 ],
-                                "topologyType": "Single"
+                                "topologyType": "ReplicaSetNoPrimary"
                             },
                             "previousDescription": {
                                 "servers": [ ],
@@ -37,14 +44,25 @@
                         }
                     },
                     {
+                        "server_opening_event": {
+                            "address": "b:27017",
+                            "topologyId": "42"
+                        }
+                    },
+                    {
                         "server_description_changed_event": {
                             "address": "a:27017",
                             "newDescription": {
                                 "address": "a:27017",
                                 "arbiters": [ ],
-                                "hosts": [ ],
+                                "hosts": [
+                                    "a:27017",
+                                    "b:27017"
+                                ],
                                 "passives": [ ],
-                                "type": "Standalone"
+                                "primary": "a:27017",
+                                "setName": "rs",
+                                "type": "RSPrimary"
                             },
                             "previousDescription": {
                                 "address": "a:27017",
@@ -63,12 +81,25 @@
                                     {
                                         "address": "a:27017",
                                         "arbiters": [ ],
+                                        "hosts": [
+                                            "a:27017",
+                                            "b:27017"
+                                        ],
+                                        "passives": [ ],
+                                        "primary": "a:27017",
+                                        "setName": "rs",
+                                        "type": "RSPrimary"
+                                    },
+                                    {
+                                        "address": "b:27017",
+                                        "arbiters": [ ],
                                         "hosts": [ ],
                                         "passives": [ ],
-                                        "type": "Standalone"
+                                        "type": "Unknown"
                                     }
                                 ],
-                                "topologyType": "Single"
+                                "setName": "rs",
+                                "topologyType": "ReplicaSetWithPrimary"
                             },
                             "previousDescription": {
                                 "servers": [
@@ -78,9 +109,16 @@
                                         "hosts": [ ],
                                         "passives": [ ],
                                         "type": "Unknown"
+                                    },
+                                    {
+                                        "address": "b:27017",
+                                        "arbiters": [ ],
+                                        "hosts": [ ],
+                                        "passives": [ ],
+                                        "type": "Unknown"
                                     }
                                 ],
-                                "topologyType": "Single"
+                                "topologyType": "ReplicaSetNoPrimary"
                             },
                             "topologyId": "42"
                         }
@@ -91,14 +129,21 @@
                 [
                     "a:27017",
                     {
+                        "hosts": [
+                            "a:27017",
+                            "b:27017"
+                        ],
                         "ismaster": true,
                         "maxWireVersion": 4,
                         "minWireVersion": 0,
-                        "ok": 1
+                        "ok": 1,
+                        "primary": "a:27017",
+                        "setName": "rs",
+                        "setVersion": 1.0
                     }
                 ]
             ]
         }
     ],
-    "uri": "mongodb://a:27017"
+    "uri": "mongodb://a,b/?replicaSet=rs"
 }

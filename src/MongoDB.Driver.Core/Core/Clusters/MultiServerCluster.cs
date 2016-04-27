@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Clusters
                 // are re-entrant such that this won't cause problems,
                 // but could prevent issues of conflicting reports
                 // from servers that are quick to respond.
-                var clusterDescription = Description;
+                var clusterDescription = Description.WithType(Settings.ConnectionMode.ToClusterType());
                 var newServers = new List<IClusterableServer>();
                 lock (_serversLock)
                 {
