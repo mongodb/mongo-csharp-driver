@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -105,41 +105,6 @@ namespace MongoDB.Driver.Core.Servers
         public ServerId ServerId => _serverId;
 
         // methods
-        public void Initialize()
-        {
-            if (_state.TryChange(State.Initial, State.Open))
-            {
-                if (_openingEventHandler != null)
-                {
-                    _openingEventHandler(new ServerOpeningEvent(_serverId, _settings));
-                }
-
-                var stopwatch = Stopwatch.StartNew();
-                _connectionPool.Initialize();
-                _monitor.DescriptionChanged += OnDescriptionChanged;
-                _monitor.Initialize();
-                stopwatch.Stop();
-
-                if (_openedEventHandler != null)
-                {
-                    _openedEventHandler(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
-                }
-            }
-        }
-
-        public void Invalidate()
-        {
-            ThrowIfNotOpen();
-            _connectionPool.Clear();
-            _monitor.Invalidate();
-        }
-
-        public void RequestHeartbeat()
-        {
-            ThrowIfNotOpen();
-            _monitor.RequestHeartbeat();
-        }
-
         public void Dispose()
         {
             if (_state.TryChange(State.Disposed))
@@ -204,6 +169,41 @@ namespace MongoDB.Driver.Core.Servers
                 connection.Dispose();
                 throw;
             }
+        }
+
+        public void Initialize()
+        {
+            if (_state.TryChange(State.Initial, State.Open))
+            {
+                if (_openingEventHandler != null)
+                {
+                    _openingEventHandler(new ServerOpeningEvent(_serverId, _settings));
+                }
+
+                var stopwatch = Stopwatch.StartNew();
+                _connectionPool.Initialize();
+                _monitor.DescriptionChanged += OnDescriptionChanged;
+                _monitor.Initialize();
+                stopwatch.Stop();
+
+                if (_openedEventHandler != null)
+                {
+                    _openedEventHandler(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
+                }
+            }
+        }
+
+        public void Invalidate()
+        {
+            ThrowIfNotOpen();
+            _connectionPool.Clear();
+            _monitor.Invalidate();
+        }
+
+        public void RequestHeartbeat()
+        {
+            ThrowIfNotOpen();
+            _monitor.RequestHeartbeat();
         }
 
         private void OnDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)

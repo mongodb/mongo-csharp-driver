@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -306,9 +306,9 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
             private static BsonDocument ReadDefinition(string path)
             {
                 using (var definitionStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
+                using (var definitionStreamReader = new StreamReader(definitionStream))
                 {
-                    var definitionString = definitionStringReader.ReadToEnd();
+                    var definitionString = definitionStreamReader.ReadToEnd();
                     return BsonDocument.Parse(definitionString);
                 }
             }

@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Core.Servers
         private readonly Action<ServerHeartbeatSucceededEvent> _heartbeatSucceededEventHandler;
         private readonly Action<ServerHeartbeatFailedEvent> _heartbeatFailedEventHandler;
 
+        public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
+
         public ServerMonitor(ServerId serverId, EndPoint endPoint, IConnectionFactory connectionFactory, TimeSpan interval, TimeSpan timeout, IEventSubscriber eventSubscriber)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
@@ -63,8 +65,6 @@ namespace MongoDB.Driver.Core.Servers
             eventSubscriber.TryGetEventHandler(out _heartbeatSucceededEventHandler);
             eventSubscriber.TryGetEventHandler(out _heartbeatFailedEventHandler);
         }
-
-        public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
 
