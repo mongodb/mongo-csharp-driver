@@ -307,6 +307,8 @@
     <EmbeddedResource Include="Specifications\sdam-monitoring\tests\replica_set_with_removal.json" />
     <EmbeddedResource Include="Specifications\sdam-monitoring\tests\standalone.json" />
     <EmbeddedResource Include="Specifications\sdam-monitoring\tests\required_replica_set.json" />
+    <EmbeddedResource Include="Specifications\sdam-monitoring\tests\replica_set_with_no_primary.json" />
+    <EmbeddedResource Include="Specifications\sdam-monitoring\tests\replica_set_with_primary.json" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\Makefile" />
     <None Include="Specifications\server-discovery-and-monitoring\tests\README.rst" />
     <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary_new_setversion.json" />
