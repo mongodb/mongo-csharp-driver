@@ -89,6 +89,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AggregateFluentTests.cs" />
+    <Compile Include="AsyncCursorHelperTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FindFluentTests.cs" />

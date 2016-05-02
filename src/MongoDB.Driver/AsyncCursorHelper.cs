@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,9 +26,13 @@ namespace MongoDB.Driver
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    return cursor.Current.Any();
+                    var current = cursor.Current;
+                    if (current.Any())
+                    {
+                        return true;
+                    }
                 }
 
                 return false;
@@ -41,14 +43,16 @@ namespace MongoDB.Driver
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    return cursor.Current.First();
+                    var current = cursor.Current;
+                    if (current.Any())
+                    {
+                        return current.First();
+                    }
                 }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
+
+                throw new InvalidOperationException("The source sequence is empty.");
             }
         }
 
@@ -56,14 +60,16 @@ namespace MongoDB.Driver
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    return cursor.Current.FirstOrDefault();
+                    var current = cursor.Current;
+                    if (current.Any())
+                    {
+                        return current.FirstOrDefault();
+                    }
                 }
-                else
-                {
-                    return default(T);
-                }
+
+                return default(T);
             }
         }
 
@@ -71,14 +77,16 @@ namespace MongoDB.Driver
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    return cursor.Current.Single();
+                    var current = cursor.Current;
+                    if (current.Any())
+                    {
+                        return current.Single();
+                    }
                 }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
+
+                throw new InvalidOperationException("The source sequence is empty.");
             }
         }
 
@@ -86,14 +94,16 @@ namespace MongoDB.Driver
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    return cursor.Current.SingleOrDefault();
+                    var current = cursor.Current;
+                    if (current.Any())
+                    {
+                        return current.SingleOrDefault();
+                    }
                 }
-                else
-                {
-                    return default(T);
-                }
+
+                return default(T);
             }
         }
     }
