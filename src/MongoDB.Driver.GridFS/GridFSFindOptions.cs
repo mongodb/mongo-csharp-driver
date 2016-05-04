@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents options for a GridFS Find operation.
     /// </summary>
-    public class GridFSFindOptions
+    public class GridFSFindOptions<TFileId>
     {
         // fields
         private int? _batchSize;
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.GridFS
         private TimeSpan? _maxTime;
         private bool? _noCursorTimeout;
         private int? _skip;
-        private SortDefinition<GridFSFileInfo> _sort;
+        private SortDefinition<GridFSFileInfo<TFileId>> _sort;
 
         // properties
         /// <summary>
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The sort order.
         /// </value>
-        public SortDefinition<GridFSFileInfo> Sort
+        public SortDefinition<GridFSFileInfo<TFileId>> Sort
         {
             get { return _sort; }
             set { _sort = value; }

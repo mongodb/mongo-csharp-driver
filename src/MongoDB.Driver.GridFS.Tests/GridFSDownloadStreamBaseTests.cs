@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -128,9 +128,9 @@ namespace MongoDB.Driver.GridFS.Tests
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
-            var bucket = new GridFSBucket(database);
+            var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            var fileInfo = new GridFSFileInfo(new BsonDocument());
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument());
 
             var result = new FakeGridFSDownloadStream(bucket, binding, fileInfo);
 
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void FileInfo_should_return_expected_result()
         {
-            var fileInfo = new GridFSFileInfo(new BsonDocument());
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument());
             var subject = CreateSubject(fileInfo: fileInfo);
 
             var result = subject.FileInfo;
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.GridFS.Tests
         public void Length_should_return_expected_result()
         {
             var length = 123;
-            var fileInfo = new GridFSFileInfo(new BsonDocument("length", length));
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument("length", length));
             var subject = CreateSubject(fileInfo: fileInfo);
 
             var result = subject.Length;
@@ -298,20 +298,20 @@ namespace MongoDB.Driver.GridFS.Tests
             return bucket.UploadFromBytes("filename", content);
         }
 
-        private GridFSDownloadStreamBase CreateSubject(GridFSFileInfo fileInfo = null)
+        private GridFSDownloadStreamBase<ObjectId> CreateSubject(GridFSFileInfo<ObjectId> fileInfo = null)
         {
             var database = Substitute.For<IMongoDatabase>();
-            var bucket = new GridFSBucket(database);
+            var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            fileInfo = fileInfo ?? new GridFSFileInfo(new BsonDocument());
+            fileInfo = fileInfo ?? new GridFSFileInfo<ObjectId>(new BsonDocument());
 
             return new FakeGridFSDownloadStream(bucket, binding, fileInfo);
         }
 
         // nested types
-        private class FakeGridFSDownloadStream : GridFSDownloadStreamBase
+        private class FakeGridFSDownloadStream : GridFSDownloadStreamBase<ObjectId>
         {
-            public FakeGridFSDownloadStream(GridFSBucket bucket, IReadBinding binding, GridFSFileInfo fileInfo)
+            public FakeGridFSDownloadStream(GridFSBucket<ObjectId> bucket, IReadBinding binding, GridFSFileInfo<ObjectId> fileInfo)
                 : base(bucket, binding, fileInfo)
             {
             }
@@ -351,22 +351,22 @@ namespace MongoDB.Driver.GridFS.Tests
 
     internal static class GridFSDownloadStreamBaseExtensions
     {
-        public static IReadBinding _binding(this GridFSDownloadStreamBase stream)
+        public static IReadBinding _binding(this GridFSDownloadStreamBase<ObjectId> stream)
         {
-            var fieldInfo = typeof(GridFSDownloadStreamBase).GetField("_binding", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(GridFSDownloadStreamBase<ObjectId>).GetField("_binding", BindingFlags.NonPublic | BindingFlags.Instance);
             return (IReadBinding)fieldInfo.GetValue(stream);
         }
 
-        public static GridFSBucket _bucket(this GridFSDownloadStreamBase stream)
+        public static GridFSBucket<ObjectId> _bucket(this GridFSDownloadStreamBase<ObjectId> stream)
         {
-            var fieldInfo = typeof(GridFSDownloadStreamBase).GetField("_bucket", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (GridFSBucket)fieldInfo.GetValue(stream);
+            var fieldInfo = typeof(GridFSDownloadStreamBase<ObjectId>).GetField("_bucket", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (GridFSBucket<ObjectId>)fieldInfo.GetValue(stream);
         }
 
 
-        public static bool _disposed(this GridFSDownloadStreamBase stream)
+        public static bool _disposed(this GridFSDownloadStreamBase<ObjectId> stream)
         {
-            var fieldInfo = typeof(GridFSDownloadStreamBase).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(GridFSDownloadStreamBase<ObjectId>).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
             return (bool)fieldInfo.GetValue(stream);
         }
     }

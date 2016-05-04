@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal abstract class GridFSDownloadStreamBase : GridFSDownloadStream
+    internal abstract class GridFSDownloadStreamBase<TFileId> : GridFSDownloadStream<TFileId>
     {
         // private fields
         private readonly IReadBinding _binding;
-        private readonly GridFSBucket _bucket;
+        private readonly IGridFSBucket<TFileId> _bucket;
         private bool _disposed;
-        private readonly GridFSFileInfo _fileInfo;
+        private readonly GridFSFileInfo<TFileId> _fileInfo;
 
         // constructors
         protected GridFSDownloadStreamBase(
-            GridFSBucket bucket,
+            IGridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo fileInfo)
+            GridFSFileInfo<TFileId> fileInfo)
         {
             _bucket = bucket;
             _binding = binding;
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.GridFS
             get { return false; }
         }
 
-        public override GridFSFileInfo FileInfo
+        public override GridFSFileInfo<TFileId> FileInfo
         {
             get { return _fileInfo; }
         }
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.GridFS
             get { return _binding; }
         }
 
-        protected GridFSBucket Bucket
+        protected IGridFSBucket<TFileId> Bucket
         {
             get { return _bucket; }
         }

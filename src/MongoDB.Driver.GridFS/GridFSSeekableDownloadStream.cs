@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -28,20 +29,23 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal class GridFSSeekableDownloadStream : GridFSDownloadStreamBase
+    internal class GridFSSeekableDownloadStream<TFileId> : GridFSDownloadStreamBase<TFileId>
     {
         // private fields
         private byte[] _chunk;
+        private readonly BsonValue _idAsBsonValue;
         private long _n = -1;
         private long _position;
 
         // constructors
         public GridFSSeekableDownloadStream(
-            GridFSBucket bucket,
+            GridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo fileInfo)
+            GridFSFileInfo<TFileId> fileInfo)
             : base(bucket, binding, fileInfo)
         {
+            var idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
+            _idAsBsonValue = idSerializationInfo.SerializeValue(fileInfo.Id);
         }
 
         // public properties
@@ -139,7 +143,7 @@ namespace MongoDB.Driver.GridFS
 #pragma warning disable 618
             var filter = new BsonDocument
             {
-                { "files_id", FileInfo.IdAsBsonValue },
+                { "files_id", _idAsBsonValue },
                 { "n", n }
             };
 #pragma warning restore
@@ -182,7 +186,7 @@ namespace MongoDB.Driver.GridFS
             if (documents.Count == 0)
             {
 #pragma warning disable 618
-                throw new GridFSChunkException(FileInfo.IdAsBsonValue, n, "missing");
+                throw new GridFSChunkException(_idAsBsonValue, n, "missing");
 #pragma warning restore
             }
 
@@ -195,7 +199,7 @@ namespace MongoDB.Driver.GridFS
             if (data.Length != expectedChunkSize)
             {
 #pragma warning disable 618
-                throw new GridFSChunkException(FileInfo.IdAsBsonValue, n, "the wrong size");
+                throw new GridFSChunkException(_idAsBsonValue, n, "the wrong size");
 #pragma warning restore
             }
 

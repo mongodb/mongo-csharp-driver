@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a serializer for GridFSFileInfo.
     /// </summary>
-    public class GridFSFileInfoSerializer<TFileId> : BsonDocumentBackedClassSerializer<GridFSFileInfo<TFileId>>
+    public class GridFSFileInfoSerializer : BsonDocumentBackedClassSerializer<GridFSFileInfo>
     {
-        private static readonly GridFSFileInfoSerializer<TFileId> __instance = new GridFSFileInfoSerializer<TFileId>();
+        private static readonly GridFSFileInfoSerializer __instance = new GridFSFileInfoSerializer();
 
         /// <summary>
         /// Gets the pre-created instance.
         /// </summary>
-        public static GridFSFileInfoSerializer<TFileId> Instance
+        public static GridFSFileInfoSerializer Instance
         {
             get { return __instance; }
         }
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.GridFS
             RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
             RegisterMember("ContentType", "contentType", new StringSerializer());
             RegisterMember("Filename", "filename", new StringSerializer());
-            RegisterMember("Id", "_id", BsonSerializer.LookupSerializer<TFileId>());
+            RegisterMember("IdAsBsonValue", "_id", BsonValueSerializer.Instance);
             RegisterMember("Length", "length", new Int64Serializer());
             RegisterMember("MD5", "md5", new StringSerializer());
             RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
@@ -51,9 +51,9 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc/>
-        protected override GridFSFileInfo<TFileId> CreateInstance(BsonDocument backingDocument)
+        protected override GridFSFileInfo CreateInstance(BsonDocument backingDocument)
         {
-            return new GridFSFileInfo<TFileId>(backingDocument);
+            return new GridFSFileInfo(backingDocument);
         }
     }
 }

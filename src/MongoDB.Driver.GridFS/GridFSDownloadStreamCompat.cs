@@ -16,17 +16,27 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
     /// Represents a Stream used by the application to read data from a GridFS file.
     /// </summary>
-    public abstract class GridFSDownloadStream<TFileId> : Stream
+    public class GridFSDownloadStream : DelegatingStream
     {
+        // fields
+        private readonly GridFSDownloadStream<BsonValue> _wrappedStream;
+
         // constructors
-        internal GridFSDownloadStream()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GridFSDownloadStream"/> class.
+        /// </summary>
+        /// <param name="wrappedStream">The wrapped stream.</param>
+        public GridFSDownloadStream(GridFSDownloadStream<BsonValue> wrappedStream)
+            : base(wrappedStream)
         {
+            _wrappedStream = wrappedStream;
         }
 
         // public properties
@@ -36,31 +46,13 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The files collection document.
         /// </value>
-        public abstract GridFSFileInfo<TFileId> FileInfo { get; }
-
-        // public methods
-#if NETCORE
-        /// <summary>
-        /// Closes the GridFS stream.
-        /// </summary>
-        public virtual void Close()
+        public GridFSFileInfo FileInfo
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            get
+            {
+                var wrappedFileInfo = _wrappedStream.FileInfo;
+                return new GridFSFileInfo(wrappedFileInfo.BackingDocument);
+            }
         }
-#endif
-
-        /// <summary>
-        /// Closes the GridFS stream.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        public abstract void Close(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Closes the GridFS stream.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
-        public abstract Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

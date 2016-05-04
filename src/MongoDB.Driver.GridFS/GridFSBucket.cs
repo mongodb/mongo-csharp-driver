@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -33,12 +34,13 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFS bucket.
     /// </summary>
-    public class GridFSBucket : IGridFSBucket
+    public class GridFSBucket<TFileId> : IGridFSBucket<TFileId>
     {
         // fields
         private readonly ICluster _cluster;
         private readonly IMongoDatabase _database;
         private int _ensuredIndexes;
+        private BsonSerializationInfo _idSerializationInfo;
         private readonly ImmutableGridFSBucketOptions _options;
 
         // constructors
@@ -54,6 +56,7 @@ namespace MongoDB.Driver.GridFS
 
             _cluster = database.Client.Cluster;
             _ensuredIndexes = 0;
+            _idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
         }
 
         // properties
@@ -70,85 +73,66 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
-        /// <summary>
-        /// Deletes a file from GridFS.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public void Delete(BsonValue id, CancellationToken cancellationToken = default(CancellationToken))
+        /// <inheritdoc />
+        public void Delete(TFileId id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(id, nameof(id));
-            DeleteHelper(id, cancellationToken);
+            Ensure.IsNotNull((object)id, nameof(id));
+            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            {
+                var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
+                var filesCollectionDeleteResult = filesCollectionDeleteOperation.Execute(binding, cancellationToken);
+
+                var chunksDeleteOperation = CreateDeleteChunksOperation(id);
+                chunksDeleteOperation.Execute(binding, cancellationToken);
+
+                if (filesCollectionDeleteResult.DeletedCount == 0)
+                {
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
+                }
+            }
         }
 
         /// <inheritdoc />
-        public void Delete(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeleteAsync(TFileId id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            DeleteHelper(new BsonObjectId(id), cancellationToken);
-        }
+            Ensure.IsNotNull((object)id, nameof(id));
+            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
+                var filesCollectionDeleteResult = await filesCollectionDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
 
-        /// <summary>
-        /// Deletes a file from GridFS.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public Task DeleteAsync(BsonValue id, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            return DeleteHelperAsync(id, cancellationToken);
-        }
+                var chunksDeleteOperation = CreateDeleteChunksOperation(id);
+                await chunksDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
 
-        /// <inheritdoc />
-        public Task DeleteAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return DeleteHelperAsync(new BsonObjectId(id), cancellationToken);
-        }
-
-        /// <summary>
-        /// Downloads a file stored in GridFS and returns it as a byte array.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A byte array containing the contents of the file stored in GridFS.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public byte[] DownloadAsBytes(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            options = options ?? new GridFSDownloadOptions();
-            return DownloadAsBytesHelper(id, options, cancellationToken);
+                if (filesCollectionDeleteResult.DeletedCount == 0)
+                {
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
+                }
+            }
         }
 
         /// <inheritdoc />
-        public byte[] DownloadAsBytes(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public byte[] DownloadAsBytes(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             options = options ?? new GridFSDownloadOptions();
-            return DownloadAsBytesHelper(new BsonObjectId(id), options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Downloads a file stored in GridFS and returns it as a byte array.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a byte array containing the contents of the file stored in GridFS.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public Task<byte[]> DownloadAsBytesAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            options = options ?? new GridFSDownloadOptions();
-            return DownloadAsBytesHelperAsync(id, options, cancellationToken);
+            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            {
+                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                return DownloadAsBytesHelper(binding, fileInfo, options, cancellationToken);
+            }
         }
 
         /// <inheritdoc />
-        public Task<byte[]> DownloadAsBytesAsync(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<byte[]> DownloadAsBytesAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             options = options ?? new GridFSDownloadOptions();
-            return DownloadAsBytesHelperAsync(new BsonObjectId(id), options, cancellationToken);
+            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <inheritdoc />
@@ -177,53 +161,30 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        /// <summary>
-        /// Downloads a file stored in GridFS and writes the contents to a stream.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="destination">The destination.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public void DownloadToStream(BsonValue id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <inheritdoc />
+        public void DownloadToStream(TFileId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(id, nameof(id));
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
             options = options ?? new GridFSDownloadOptions();
-            DownloadToStreamHelper(id, destination, options, cancellationToken);
+            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            {
+                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
+            }
         }
 
         /// <inheritdoc />
-        public void DownloadToStream(ObjectId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DownloadToStreamAsync(TFileId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
             options = options ?? new GridFSDownloadOptions();
-            DownloadToStreamHelper(new BsonObjectId(id), destination, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Downloads a file stored in GridFS and writes the contents to a stream.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="destination">The destination.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public Task DownloadToStreamAsync(BsonValue id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            Ensure.IsNotNull(destination, nameof(destination));
-            options = options ?? new GridFSDownloadOptions();
-            return DownloadToStreamHelperAsync(id, destination, options, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task DownloadToStreamAsync(ObjectId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(destination, nameof(destination));
-            options = options ?? new GridFSDownloadOptions();
-            return DownloadToStreamHelperAsync(new BsonObjectId(id), destination, options, cancellationToken);
+            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <inheritdoc />
@@ -257,9 +218,9 @@ namespace MongoDB.Driver.GridFS
         /// <inheritdoc />
         public void Drop(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
-            var chunksCollectionNamespace = GetChunksCollectionNamespace();
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
+            var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
 
             using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
             {
@@ -274,9 +235,9 @@ namespace MongoDB.Driver.GridFS
         /// <inheritdoc />
         public async Task DropAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
-            var chunksCollectionNamespace = GetChunksCollectionNamespace();
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
+            var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
 
             using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -289,10 +250,10 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
-        public IAsyncCursor<GridFSFileInfo> Find(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<GridFSFileInfo<TFileId>> Find(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new GridFSFindOptions();
+            options = options ?? new GridFSFindOptions<TFileId>();
 
             var operation = CreateFindOperation(filter, options);
             using (var binding = GetSingleServerReadBinding(cancellationToken))
@@ -302,10 +263,10 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
-        public async Task<IAsyncCursor<GridFSFileInfo>> FindAsync(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<GridFSFileInfo<TFileId>>> FindAsync(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new GridFSFindOptions();
+            options = options ?? new GridFSFindOptions<TFileId>();
 
             var operation = CreateFindOperation(filter, options);
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
@@ -314,52 +275,32 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        /// <summary>
-        /// Opens a Stream that can be used by the application to read data from a GridFS file.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Stream.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public GridFSDownloadStream OpenDownloadStream(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <inheritdoc />
+        public GridFSDownloadStream<TFileId> OpenDownloadStream(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(id, nameof(id));
+            Ensure.IsNotNull((object)id, nameof(id));
             options = options ?? new GridFSDownloadOptions();
-            return OpenDownloadStreamHelper(id, options, cancellationToken);
+            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            {
+                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
+            }
         }
 
         /// <inheritdoc />
-        public GridFSDownloadStream OpenDownloadStream(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<GridFSDownloadStream<TFileId>> OpenDownloadStreamAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             options = options ?? new GridFSDownloadOptions();
-            return OpenDownloadStreamHelper(new BsonObjectId(id), options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Opens a Stream that can be used by the application to read data from a GridFS file.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a Stream.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public Task<GridFSDownloadStream> OpenDownloadStreamAsync(BsonValue id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            options = options ?? new GridFSDownloadOptions();
-            return OpenDownloadStreamHelperAsync(id, options, cancellationToken);
+            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
+            }
         }
 
         /// <inheritdoc />
-        public Task<GridFSDownloadStream> OpenDownloadStreamAsync(ObjectId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new GridFSDownloadOptions();
-            return OpenDownloadStreamHelperAsync(new BsonObjectId(id), options, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public GridFSDownloadStream OpenDownloadStreamByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public GridFSDownloadStream<TFileId> OpenDownloadStreamByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
             options = options ?? new GridFSDownloadByNameOptions();
@@ -372,7 +313,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
-        public async Task<GridFSDownloadStream> OpenDownloadStreamByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<GridFSDownloadStream<TFileId>> OpenDownloadStreamByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
             options = options ?? new GridFSDownloadByNameOptions();
@@ -385,108 +326,104 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc />
-        public GridFSUploadStream OpenUploadStream(string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public GridFSUploadStream<TFileId> OpenUploadStream(TFileId id, string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             options = options ?? new GridFSUploadOptions();
 
             using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
             {
                 EnsureIndexes(binding, cancellationToken);
-                return CreateUploadStream(binding, filename, options);
+                return CreateUploadStream(binding, id, filename, options);
             }
         }
 
         /// <inheritdoc />
-        public async Task<GridFSUploadStream> OpenUploadStreamAsync(string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<GridFSUploadStream<TFileId>> OpenUploadStreamAsync(TFileId id, string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             options = options ?? new GridFSUploadOptions();
 
             using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
             {
                 await EnsureIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
-                return CreateUploadStream(binding, filename, options);
+                return CreateUploadStream(binding, id, filename, options);
             }
         }
 
-        /// <summary>
-        /// Renames a GridFS file.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="newFilename">The new filename.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public void Rename(BsonValue id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
+        /// <inheritdoc />
+        public void Rename(TFileId id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(id, nameof(id));
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
-            RenameHelper(id, newFilename, cancellationToken);
+            var renameOperation = CreateRenameOperation(id, newFilename);
+            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            {
+                var result = renameOperation.Execute(binding, cancellationToken);
+
+                if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
+                {
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
+                }
+            }
         }
 
         /// <inheritdoc />
-        public void Rename(ObjectId id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenameAsync(TFileId id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
-            RenameHelper(new BsonObjectId(id), newFilename, cancellationToken);
-        }
+            var renameOperation = CreateRenameOperation(id, newFilename);
+            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var result = await renameOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
 
-        /// <summary>
-        /// Renames a GridFS file.
-        /// </summary>
-        /// <param name="id">The file id.</param>
-        /// <param name="newFilename">The new filename.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public Task RenameAsync(BsonValue id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(id, nameof(id));
-            Ensure.IsNotNull(newFilename, nameof(newFilename));
-            return RenameHelperAsync(id, newFilename, cancellationToken);
+                if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
+                {
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
+                }
+            }
         }
 
         /// <inheritdoc />
-        public Task RenameAsync(ObjectId id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
+        public void UploadFromBytes(TFileId id, string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(newFilename, nameof(newFilename));
-            return RenameHelperAsync(new BsonObjectId(id), newFilename, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public ObjectId UploadFromBytes(string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
             {
-                return UploadFromStream(filename, sourceStream, options, cancellationToken);
+                UploadFromStream(id, filename, sourceStream, options, cancellationToken);
             }
         }
 
         /// <inheritdoc />
-        public async Task<ObjectId> UploadFromBytesAsync(string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task UploadFromBytesAsync(TFileId id, string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
             {
-                return await UploadFromStreamAsync(filename, sourceStream, options, cancellationToken).ConfigureAwait(false);
+                await UploadFromStreamAsync(id, filename, sourceStream, options, cancellationToken).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc />
-        public ObjectId UploadFromStream(string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public void UploadFromStream(TFileId id, string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             options = options ?? new GridFSUploadOptions();
 
-            using (var destination = OpenUploadStream(filename, options, cancellationToken))
+            using (var destination = OpenUploadStream(id, filename, options, cancellationToken))
             {
                 var chunkSizeBytes = options.ChunkSizeBytes ?? _options.ChunkSizeBytes;
                 var buffer = new byte[chunkSizeBytes];
@@ -518,19 +455,18 @@ namespace MongoDB.Driver.GridFS
                 }
 
                 destination.Close(cancellationToken);
-
-                return destination.Id;
             }
         }
 
         /// <inheritdoc />
-        public async Task<ObjectId> UploadFromStreamAsync(string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task UploadFromStreamAsync(TFileId id, string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             options = options ?? new GridFSUploadOptions();
 
-            using (var destination = await OpenUploadStreamAsync(filename, options, cancellationToken).ConfigureAwait(false))
+            using (var destination = await OpenUploadStreamAsync(id, filename, options, cancellationToken).ConfigureAwait(false))
             {
                 var chunkSizeBytes = options.ChunkSizeBytes ?? _options.ChunkSizeBytes;
                 var buffer = new byte[chunkSizeBytes];
@@ -568,8 +504,6 @@ namespace MongoDB.Driver.GridFS
                 }
 
                 await destination.CloseAsync(cancellationToken).ConfigureAwait(false);
-
-                return destination.Id;
             }
         }
 
@@ -588,29 +522,30 @@ namespace MongoDB.Driver.GridFS
 
         private CreateIndexesOperation CreateCreateChunksCollectionIndexesOperation()
         {
-            var collectionNamespace = GetChunksCollectionNamespace();
+            var collectionNamespace = this.GetChunksCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "files_id", 1 }, { "n", 1 } }) { Unique = true } };
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings);
         }
 
         private CreateIndexesOperation CreateCreateFilesCollectionIndexesOperation()
         {
-            var collectionNamespace = GetFilesCollectionNamespace();
+            var collectionNamespace = this.GetFilesCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "filename", 1 }, { "uploadDate", 1 } }) };
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings);
         }
 
-        private BulkMixedWriteOperation CreateDeleteChunksOperation(BsonValue id)
+        private BulkMixedWriteOperation CreateDeleteChunksOperation(TFileId id)
         {
+            var filter = new BsonDocument("files_id", _idSerializationInfo.SerializeValue(id));
             return new BulkMixedWriteOperation(
-                GetChunksCollectionNamespace(),
-                new[] { new DeleteRequest(new BsonDocument("files_id", id)) { Limit = 0 } },
-                GetMessageEncoderSettings());
+                this.GetChunksCollectionNamespace(),
+                new[] { new DeleteRequest(filter) { Limit = 0 } },
+                this.GetMessageEncoderSettings());
         }
 
-        private GridFSDownloadStream CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private GridFSDownloadStream<TFileId> CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
             var seekable = options.Seekable ?? false;
@@ -621,20 +556,21 @@ namespace MongoDB.Driver.GridFS
 
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream(this, binding, fileInfo);
+                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo);
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream(this, binding, fileInfo, checkMD5);
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo, checkMD5);
             }
         }
 
-        private BulkMixedWriteOperation CreateDeleteFileOperation(BsonValue id)
+        private BulkMixedWriteOperation CreateDeleteFileOperation(TFileId id)
         {
+            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
             return new BulkMixedWriteOperation(
-                GetFilesCollectionNamespace(),
-                new[] { new DeleteRequest(new BsonDocument("_id", id)) },
-                GetMessageEncoderSettings());
+                this.GetFilesCollectionNamespace(),
+                new[] { new DeleteRequest(filter) },
+                this.GetMessageEncoderSettings());
         }
 
         private void CreateFilesCollectionIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
@@ -649,16 +585,16 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        private FindOperation<GridFSFileInfo> CreateFindOperation(FilterDefinition<GridFSFileInfo> filter, GridFSFindOptions options)
+        private FindOperation<GridFSFileInfo<TFileId>> CreateFindOperation(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options)
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             var renderedFilter = filter.Render(fileInfoSerializer, serializerRegistry);
             var renderedSort = options.Sort == null ? null : options.Sort.Render(fileInfoSerializer, serializerRegistry);
 
-            return new FindOperation<GridFSFileInfo>(
+            return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
                 fileInfoSerializer,
                 messageEncoderSettings)
@@ -674,18 +610,18 @@ namespace MongoDB.Driver.GridFS
             };
         }
 
-        private FindOperation<GridFSFileInfo> CreateGetFileInfoByNameOperation(string filename, int revision)
+        private FindOperation<GridFSFileInfo<TFileId>> CreateGetFileInfoByNameOperation(string filename, int revision)
         {
-            var collectionNamespace = GetFilesCollectionNamespace();
+            var collectionNamespace = this.GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             var filter = new BsonDocument("filename", filename);
             var skip = revision >= 0 ? revision : -revision - 1;
             var limit = 1;
             var sort = new BsonDocument("uploadDate", revision >= 0 ? 1 : -1);
 
-            return new FindOperation<GridFSFileInfo>(
+            return new FindOperation<GridFSFileInfo<TFileId>>(
                 collectionNamespace,
                 fileInfoSerializer,
                 messageEncoderSettings)
@@ -698,15 +634,15 @@ namespace MongoDB.Driver.GridFS
             };
         }
 
-        private FindOperation<GridFSFileInfo> CreateGetFileInfoOperation(BsonValue id)
+        private FindOperation<GridFSFileInfo<TFileId>> CreateGetFileInfoOperation(TFileId id)
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo>();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var filter = new BsonDocument("_id", id);
+            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
+            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
 
-            return new FindOperation<GridFSFileInfo>(
+            return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
                 fileInfoSerializer,
                 messageEncoderSettings)
@@ -720,8 +656,8 @@ namespace MongoDB.Driver.GridFS
 
         private FindOperation<BsonDocument> CreateIsFilesCollectionEmptyOperation()
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
             {
                 Limit = 1,
@@ -731,24 +667,23 @@ namespace MongoDB.Driver.GridFS
             };
         }
 
-        private BulkMixedWriteOperation CreateRenameOperation(BsonValue id, string newFilename)
+        private BulkMixedWriteOperation CreateRenameOperation(TFileId id, string newFilename)
         {
-            var filesCollectionNamespace = GetFilesCollectionNamespace();
-            var filter = new BsonDocument("_id", id);
+            var filesCollectionNamespace = this.GetFilesCollectionNamespace();
+            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
             var update = new BsonDocument("$set", new BsonDocument("filename", newFilename));
             var requests = new[] { new UpdateRequest(UpdateType.Update, filter, update) };
-            var messageEncoderSettings = GetMessageEncoderSettings();
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings);
         }
 
-        private GridFSUploadStream CreateUploadStream(IReadWriteBindingHandle binding, string filename, GridFSUploadOptions options)
+        private GridFSUploadStream<TFileId> CreateUploadStream(IReadWriteBindingHandle binding, TFileId id, string filename, GridFSUploadOptions options)
         {
 #pragma warning disable 618
-            var id = ObjectId.GenerateNewId();
             var chunkSizeBytes = options.ChunkSizeBytes ?? _options.ChunkSizeBytes;
             var batchSize = options.BatchSize ?? (16 * 1024 * 1024 / chunkSizeBytes);
 
-            return new GridFSForwardOnlyUploadStream(
+            return new GridFSForwardOnlyUploadStream<TFileId>(
                 this,
                 binding.Fork(),
                 id,
@@ -761,50 +696,7 @@ namespace MongoDB.Driver.GridFS
 #pragma warning restore
         }
 
-        private void DeleteHelper(BsonValue id, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
-            {
-                var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
-                var filesCollectionDeleteResult = filesCollectionDeleteOperation.Execute(binding, cancellationToken);
-
-                var chunksDeleteOperation = CreateDeleteChunksOperation(id);
-                chunksDeleteOperation.Execute(binding, cancellationToken);
-
-                if (filesCollectionDeleteResult.DeletedCount == 0)
-                {
-                    throw new GridFSFileNotFoundException(id);
-                }
-            }
-        }
-
-        private async Task DeleteHelperAsync(BsonValue id, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
-                var filesCollectionDeleteResult = await filesCollectionDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-
-                var chunksDeleteOperation = CreateDeleteChunksOperation(id);
-                await chunksDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-
-                if (filesCollectionDeleteResult.DeletedCount == 0)
-                {
-                    throw new GridFSFileNotFoundException(id);
-                }
-            }
-        }
-
-        private byte[] DownloadAsBytesHelper(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
-            {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
-                return DownloadAsBytesHelper(binding, fileInfo, options, cancellationToken);
-            }
-        }
-
-        private byte[] DownloadAsBytesHelper(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private byte[] DownloadAsBytesHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (fileInfo.Length > int.MaxValue)
             {
@@ -819,16 +711,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task<byte[]> DownloadAsBytesHelperAsync(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private async Task<byte[]> DownloadAsBytesHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<byte[]> DownloadAsBytesHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (fileInfo.Length > int.MaxValue)
             {
@@ -843,20 +726,11 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private void DownloadToStreamHelper(BsonValue id, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
-            {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
-                DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
-            }
-        }
-
-        private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
 
-            using (var source = new GridFSForwardOnlyDownloadStream(this, binding.Fork(), fileInfo, checkMD5))
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5))
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -872,20 +746,11 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task DownloadToStreamHelperAsync(BsonValue id, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var checkMD5 = options.CheckMD5 ?? false;
 
-            using (var source = new GridFSForwardOnlyDownloadStream(this, binding.Fork(), fileInfo, checkMD5))
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5))
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -934,12 +799,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        internal CollectionNamespace GetChunksCollectionNamespace()
-        {
-            return new CollectionNamespace(_database.DatabaseNamespace, _options.BucketName + ".chunks");
-        }
-
-        private GridFSFileInfo GetFileInfo(IReadBindingHandle binding, BsonValue id, CancellationToken cancellationToken)
+        private GridFSFileInfo<TFileId> GetFileInfo(IReadBindingHandle binding, TFileId id, CancellationToken cancellationToken)
         {
             var operation = CreateGetFileInfoOperation(id);
             using (var cursor = operation.Execute(binding, cancellationToken))
@@ -947,13 +807,13 @@ namespace MongoDB.Driver.GridFS
                 var fileInfo = cursor.FirstOrDefault(cancellationToken);
                 if (fileInfo == null)
                 {
-                    throw new GridFSFileNotFoundException(id);
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
                 }
                 return fileInfo;
             }
         }
 
-        private async Task<GridFSFileInfo> GetFileInfoAsync(IReadBindingHandle binding, BsonValue id, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo<TFileId>> GetFileInfoAsync(IReadBindingHandle binding, TFileId id, CancellationToken cancellationToken)
         {
             var operation = CreateGetFileInfoOperation(id);
             using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
@@ -961,13 +821,13 @@ namespace MongoDB.Driver.GridFS
                 var fileInfo = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
                 if (fileInfo == null)
                 {
-                    throw new GridFSFileNotFoundException(id);
+                    throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
                 }
                 return fileInfo;
             }
         }
 
-        private GridFSFileInfo GetFileInfoByName(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
+        private GridFSFileInfo<TFileId> GetFileInfoByName(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
         {
             var operation = CreateGetFileInfoByNameOperation(filename, revision);
             using (var cursor = operation.Execute(binding, cancellationToken))
@@ -981,7 +841,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task<GridFSFileInfo> GetFileInfoByNameAsync(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo<TFileId>> GetFileInfoByNameAsync(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
         {
             var operation = CreateGetFileInfoByNameOperation(filename, revision);
             using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
@@ -993,21 +853,6 @@ namespace MongoDB.Driver.GridFS
                 }
                 return fileInfo;
             }
-        }
-
-        internal CollectionNamespace GetFilesCollectionNamespace()
-        {
-            return new CollectionNamespace(_database.DatabaseNamespace, _options.BucketName + ".files");
-        }
-
-        internal MessageEncoderSettings GetMessageEncoderSettings()
-        {
-            return new MessageEncoderSettings
-            {
-                { MessageEncoderSettingsName.GuidRepresentation, _database.Settings.GuidRepresentation },
-                { MessageEncoderSettingsName.ReadEncoding,  _database.Settings.ReadEncoding ?? Utf8Encodings.Strict },
-                { MessageEncoderSettingsName.WriteEncoding,  _database.Settings.WriteEncoding ?? Utf8Encodings.Strict }
-            };
         }
 
         private ReadConcern GetReadConcern()
@@ -1066,52 +911,6 @@ namespace MongoDB.Driver.GridFS
             {
                 var firstOrDefault = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
                 return firstOrDefault == null;
-            }
-        }
-
-        private GridFSDownloadStream OpenDownloadStreamHelper(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
-            {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
-                return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
-            }
-        }
-
-        private async Task<GridFSDownloadStream> OpenDownloadStreamHelperAsync(BsonValue id, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
-                return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
-            }
-        }
-
-        private void RenameHelper(BsonValue id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var renameOperation = CreateRenameOperation(id, newFilename);
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
-            {
-                var result = renameOperation.Execute(binding, cancellationToken);
-
-                if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
-                {
-                    throw new GridFSFileNotFoundException(id);
-                }
-            }
-        }
-
-        private async Task RenameHelperAsync(BsonValue id, string newFilename, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var renameOperation = CreateRenameOperation(id, newFilename);
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var result = await renameOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-
-                if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
-                {
-                    throw new GridFSFileNotFoundException(id);
-                }
             }
         }
     }

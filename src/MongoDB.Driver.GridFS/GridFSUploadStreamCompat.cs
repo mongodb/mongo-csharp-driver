@@ -23,11 +23,20 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a Stream used by the application to write data to a GridFS file.
     /// </summary>
-    public abstract class GridFSUploadStream<TFileId> : Stream
+    public class GridFSUploadStream : DelegatingStream
     {
+        // fields
+        private readonly GridFSUploadStream<BsonValue> _wrappedStream;
+
         // constructors
-        internal GridFSUploadStream()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GridFSUploadStream"/> class.
+        /// </summary>
+        /// <param name="wrappedStream">The wrapped stream.</param>
+        internal GridFSUploadStream(GridFSUploadStream<BsonValue> wrappedStream)
+            : base(wrappedStream)
         {
+            _wrappedStream = wrappedStream;
         }
 
         // public properties
@@ -37,7 +46,10 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The id of the file being added to GridFS.
         /// </value>
-        public abstract TFileId Id { get; }
+        public ObjectId Id
+        {
+            get { return _wrappedStream.Id.AsObjectId; }
+        }
 
         // public methods
         /// <summary>
@@ -47,7 +59,10 @@ namespace MongoDB.Driver.GridFS
         /// Any partial results already written to the server are deleted when Abort is called.
         /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public abstract void Abort(CancellationToken cancellationToken = default(CancellationToken));
+        public void Abort(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            _wrappedStream.Abort(cancellationToken);
+        }
 
         /// <summary>
         /// Aborts an upload operation.
@@ -57,7 +72,10 @@ namespace MongoDB.Driver.GridFS
         /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
-        public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedStream.AbortAsync(cancellationToken);
+        }
 
 #if NETCORE
         /// <summary>
@@ -65,8 +83,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public virtual void Close()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            _wrappedStream.Close();
         }
 #endif
 
@@ -77,7 +94,10 @@ namespace MongoDB.Driver.GridFS
         /// Any data remaining in the Stream is flushed to the server and the GridFS files collection document is written.
         /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public abstract void Close(CancellationToken cancellationToken);
+        public void Close(CancellationToken cancellationToken)
+        {
+            _wrappedStream.Close(cancellationToken);
+        }
 
         /// <summary>
         /// Closes the Stream and completes the upload operation.
@@ -87,6 +107,9 @@ namespace MongoDB.Driver.GridFS
         /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
-        public abstract Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedStream.CloseAsync(cancellationToken);
+        }
     }
 }

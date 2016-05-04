@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -28,7 +29,7 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal class GridFSForwardOnlyDownloadStream : GridFSDownloadStreamBase
+    internal class GridFSForwardOnlyDownloadStream<TFileId> : GridFSDownloadStreamBase<TFileId>
     {
         // private fields
         private List<BsonDocument> _batch;
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.GridFS
         private bool _closed;
         private IAsyncCursor<BsonDocument> _cursor;
         private bool _disposed;
+        private readonly BsonValue _idAsBsonValue;
         private readonly int _lastChunkNumber;
         private readonly int _lastChunkSize;
         private readonly MD5 _md5;
@@ -45,9 +47,9 @@ namespace MongoDB.Driver.GridFS
 
         // constructors
         public GridFSForwardOnlyDownloadStream(
-            GridFSBucket bucket,
+            GridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo fileInfo,
+            GridFSFileInfo<TFileId> fileInfo,
             bool checkMD5)
             : base(bucket, binding, fileInfo)
         {
@@ -64,6 +66,9 @@ namespace MongoDB.Driver.GridFS
             {
                 _lastChunkSize = fileInfo.ChunkSizeBytes;
             }
+
+            var idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
+            _idAsBsonValue = idSerializationInfo.SerializeValue(fileInfo.Id);
         }
 
         // public properties
@@ -196,7 +201,7 @@ namespace MongoDB.Driver.GridFS
                     if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                     {
 #pragma warning disable 618
-                        throw new GridFSMD5Exception(FileInfo.IdAsBsonValue);
+                        throw new GridFSMD5Exception(_idAsBsonValue);
 #pragma warning restore
                     }
                 }
@@ -208,7 +213,7 @@ namespace MongoDB.Driver.GridFS
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
 #pragma warning disable 618
-            var filter = new BsonDocument("files_id", FileInfo.IdAsBsonValue);
+            var filter = new BsonDocument("files_id", _idAsBsonValue);
 #pragma warning restore
             var sort = new BsonDocument("n", 1);
 
@@ -253,7 +258,7 @@ namespace MongoDB.Driver.GridFS
             if (!hasMore)
             {
 #pragma warning disable 618
-                throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "missing");
+                throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "missing");
 #pragma warning restore
             }
 
@@ -279,7 +284,7 @@ namespace MongoDB.Driver.GridFS
                 if (n != _nextChunkNumber)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "missing");
+                    throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "missing");
 #pragma warning restore
                 }
                 _nextChunkNumber++;
@@ -288,7 +293,7 @@ namespace MongoDB.Driver.GridFS
                 if (bytes.Length != expectedChunkSize)
                 {
 #pragma warning disable 618
-                    throw new GridFSChunkException(FileInfo.IdAsBsonValue, _nextChunkNumber, "the wrong size");
+                    throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "the wrong size");
 #pragma warning restore
                 }
 

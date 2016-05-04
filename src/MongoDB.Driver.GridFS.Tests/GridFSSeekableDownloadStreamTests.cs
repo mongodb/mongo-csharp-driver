@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,11 +45,11 @@ namespace MongoDB.Driver.GridFS.Tests
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
-            var bucket = new GridFSBucket(database);
+            var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            var fileInfo = new GridFSFileInfo(new BsonDocument());
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument { { "_id", ObjectId.GenerateNewId() } });
 
-            var result = new GridFSSeekableDownloadStream(bucket, binding, fileInfo);
+            var result = new GridFSSeekableDownloadStream<ObjectId>(bucket, binding, fileInfo);
 
             result.Position.Should().Be(0);
             result._chunk().Should().BeNull();
@@ -230,32 +230,33 @@ namespace MongoDB.Driver.GridFS.Tests
             return bucket.UploadFromBytes("filename", content);
         }
 
-        private GridFSSeekableDownloadStream CreateSubject(long? length = null)
+        private GridFSSeekableDownloadStream<ObjectId> CreateSubject(long? length = null)
         {
             var database = Substitute.For<IMongoDatabase>();
-            var bucket = new GridFSBucket(database);
+            var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
             var fileInfoDocument = new BsonDocument
             {
+                { "_id", ObjectId.Parse("0102030405060708090a0b0c") },
                 { "length", () => length.Value, length.HasValue }
             };
-            var fileInfo = new GridFSFileInfo(fileInfoDocument);
+            var fileInfo = new GridFSFileInfo<ObjectId>(fileInfoDocument);
 
-            return new GridFSSeekableDownloadStream(bucket, binding, fileInfo);
+            return new GridFSSeekableDownloadStream<ObjectId>(bucket, binding, fileInfo);
         }
     }
 
     internal static class GridFSSeekableDownloadStreamExtensions
     {
-        public static byte[] _chunk(this GridFSSeekableDownloadStream stream)
+        public static byte[] _chunk<ObjectId>(this GridFSSeekableDownloadStream<ObjectId> stream)
         {
-            var fieldInfo = typeof(GridFSSeekableDownloadStream).GetField("_chunk", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(GridFSSeekableDownloadStream<ObjectId>).GetField("_chunk", BindingFlags.NonPublic | BindingFlags.Instance);
             return (byte[])fieldInfo.GetValue(stream);
         }
 
-        public static long _n(this GridFSSeekableDownloadStream stream)
+        public static long _n<ObjectId>(this GridFSSeekableDownloadStream<ObjectId> stream)
         {
-            var fieldInfo = typeof(GridFSSeekableDownloadStream).GetField("_n", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(GridFSSeekableDownloadStream<ObjectId>).GetField("_n", BindingFlags.NonPublic | BindingFlags.Instance);
             return (long)fieldInfo.GetValue(stream);
         }
     }

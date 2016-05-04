@@ -20,12 +20,13 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal class GridFSForwardOnlyUploadStream : GridFSUploadStream
+    internal class GridFSForwardOnlyUploadStream<TFileId> : GridFSUploadStream<TFileId>
     {
         #region static
         // private static fields
@@ -39,22 +40,23 @@ namespace MongoDB.Driver.GridFS
         private long _batchPosition;
         private int _batchSize;
         private readonly IWriteBinding _binding;
-        private readonly GridFSBucket _bucket;
+        private readonly GridFSBucket<TFileId> _bucket;
         private readonly int _chunkSizeBytes;
         private bool _closed;
         private readonly string _contentType;
         private bool _disposed;
         private readonly string _filename;
-        private readonly ObjectId _id;
+        private readonly TFileId _id;
+        private readonly BsonValue _idAsBsonValue;
         private long _length;
         private readonly MD5 _md5;
         private readonly BsonDocument _metadata;
 
         // constructors
         public GridFSForwardOnlyUploadStream(
-            GridFSBucket bucket,
+            GridFSBucket<TFileId> bucket,
             IWriteBinding binding,
-            ObjectId id,
+            TFileId id,
             string filename,
             BsonDocument metadata,
             IEnumerable<string> aliases,
@@ -74,6 +76,9 @@ namespace MongoDB.Driver.GridFS
 
             _batch = new List<byte[]>();
             _md5 = MD5.Create();
+
+            var idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
+            _idAsBsonValue = idSerializationInfo.SerializeValue(id);
         }
 
         // properties
@@ -92,7 +97,7 @@ namespace MongoDB.Driver.GridFS
             get { return true; }
         }
 
-        public override ObjectId Id
+        public override TFileId Id
         {
             get { return _id; }
         }
@@ -245,7 +250,7 @@ namespace MongoDB.Driver.GridFS
         private BulkMixedWriteOperation CreateAbortOperation()
         {
             var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
-            var filter = new BsonDocument("files_id", _id);
+            var filter = new BsonDocument("files_id", _idAsBsonValue);
             var deleteRequest = new DeleteRequest(filter) { Limit = 0 };
             var requests = new WriteRequest[] { deleteRequest };
             var messageEncoderSettings = _bucket.GetMessageEncoderSettings();
@@ -261,7 +266,7 @@ namespace MongoDB.Driver.GridFS
 
             return new BsonDocument
             {
-                { "_id", _id },
+                { "_id", _idAsBsonValue },
                 { "length", _length },
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
@@ -283,7 +288,7 @@ namespace MongoDB.Driver.GridFS
                 var chunkDocument = new BsonDocument
                 {
                     { "_id", ObjectId.GenerateNewId() },
-                    { "files_id", _id },
+                    { "files_id", _idAsBsonValue },
                     { "n", n++ },
                     { "data", new BsonBinaryData(chunk, BsonBinarySubType.Binary) }
                 };

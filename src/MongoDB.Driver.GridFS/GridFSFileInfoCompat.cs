@@ -27,8 +27,8 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents information about a stored GridFS file (backed by a files collection document).
     /// </summary>
-    [BsonSerializer(typeof(GridFSFileInfoSerializer<>))]
-    public sealed class GridFSFileInfo<TFileId> : BsonDocumentBackedClass
+    [BsonSerializer(typeof(GridFSFileInfoSerializer))]
+    public sealed class GridFSFileInfo : BsonDocumentBackedClass
     {
         // constructors
         /// <summary>
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
         public GridFSFileInfo(BsonDocument backingDocument)
-            : base(backingDocument, GridFSFileInfoSerializer<TFileId>.Instance)
+            : base(backingDocument, GridFSFileInfoSerializer.Instance)
         {
         }
 
@@ -104,12 +104,23 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The identifier.
         /// </value>
-        public TFileId Id
+        public ObjectId Id
         {
-            get { return GetValue<TFileId>("Id"); }
+            get { return GetValue<BsonValue>("IdAsBsonValue").AsObjectId; }
         }
 
-        // public properties
+        /// <summary>
+        /// Gets the identifier as a BsonValue.
+        /// </summary>
+        /// <value>
+        /// The identifier as a BsonValue.
+        /// </value>
+        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
+        public BsonValue IdAsBsonValue
+        {
+            get { return GetValue<BsonValue>("IdAsBsonValue"); }
+        }
+
         /// <summary>
         /// Gets the length.
         /// </summary>
