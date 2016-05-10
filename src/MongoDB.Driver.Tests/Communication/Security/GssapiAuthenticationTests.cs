@@ -44,13 +44,12 @@ namespace MongoDB.Driver.Tests.Communication.Security
             _settings.Credentials = Enumerable.Empty<MongoCredential>();
             var client = new MongoClient(_settings);
 
-            Assert.Throws<MongoQueryException>(() =>
+            Assert.Throws<MongoCommandException>(() =>
             {
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .FindSync(new BsonDocument())
-                    .ToList();
+                    .Count(new BsonDocument());
             });
         }
 
