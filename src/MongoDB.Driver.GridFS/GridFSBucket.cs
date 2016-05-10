@@ -40,7 +40,8 @@ namespace MongoDB.Driver.GridFS
         private readonly ICluster _cluster;
         private readonly IMongoDatabase _database;
         private int _ensuredIndexes;
-        private BsonSerializationInfo _idSerializationInfo;
+        private readonly IBsonSerializer<GridFSFileInfo<TFileId>> _fileInfoSerializer;
+        private readonly BsonSerializationInfo _idSerializationInfo;
         private readonly ImmutableGridFSBucketOptions _options;
 
         // constructors
@@ -56,7 +57,10 @@ namespace MongoDB.Driver.GridFS
 
             _cluster = database.Client.Cluster;
             _ensuredIndexes = 0;
-            _idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
+
+            var idSerializer = _options.SerializerRegistry.GetSerializer<TFileId>();
+            _idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
+            _fileInfoSerializer = new GridFSFileInfoSerializer<TFileId>(idSerializer);
         }
 
         // properties
@@ -588,15 +592,13 @@ namespace MongoDB.Driver.GridFS
         private FindOperation<GridFSFileInfo<TFileId>> CreateFindOperation(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options)
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
-            var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var renderedFilter = filter.Render(fileInfoSerializer, serializerRegistry);
-            var renderedSort = options.Sort == null ? null : options.Sort.Render(fileInfoSerializer, serializerRegistry);
+            var renderedFilter = filter.Render(_fileInfoSerializer, _options.SerializerRegistry);
+            var renderedSort = options.Sort == null ? null : options.Sort.Render(_fileInfoSerializer, _options.SerializerRegistry);
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
-                fileInfoSerializer,
+                _fileInfoSerializer,
                 messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
@@ -613,8 +615,6 @@ namespace MongoDB.Driver.GridFS
         private FindOperation<GridFSFileInfo<TFileId>> CreateGetFileInfoByNameOperation(string filename, int revision)
         {
             var collectionNamespace = this.GetFilesCollectionNamespace();
-            var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             var filter = new BsonDocument("filename", filename);
             var skip = revision >= 0 ? revision : -revision - 1;
@@ -623,7 +623,7 @@ namespace MongoDB.Driver.GridFS
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 collectionNamespace,
-                fileInfoSerializer,
+                _fileInfoSerializer,
                 messageEncoderSettings)
             {
                 Filter = filter,
@@ -637,14 +637,12 @@ namespace MongoDB.Driver.GridFS
         private FindOperation<GridFSFileInfo<TFileId>> CreateGetFileInfoOperation(TFileId id)
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
-            var serializerRegistry = _database.Settings.SerializerRegistry;
-            var fileInfoSerializer = serializerRegistry.GetSerializer<GridFSFileInfo<TFileId>>();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
-                fileInfoSerializer,
+                _fileInfoSerializer,
                 messageEncoderSettings)
             {
                 Filter = filter,

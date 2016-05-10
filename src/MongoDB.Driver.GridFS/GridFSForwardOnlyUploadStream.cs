@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -77,7 +77,8 @@ namespace MongoDB.Driver.GridFS
             _batch = new List<byte[]>();
             _md5 = MD5.Create();
 
-            var idSerializationInfo = new BsonSerializationInfo("_id", BsonSerializer.LookupSerializer<TFileId>(), typeof(TFileId));
+            var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
+            var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
             _idAsBsonValue = idSerializationInfo.SerializeValue(id);
         }
 

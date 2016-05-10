@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
@@ -232,6 +233,17 @@ namespace MongoDB.Driver.GridFS
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
+        }
+
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        /// <value>
+        /// The serializer registry.
+        /// </value>
+        public IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return BsonSerializer.SerializerRegistry; }
         }
 
         /// <summary>
