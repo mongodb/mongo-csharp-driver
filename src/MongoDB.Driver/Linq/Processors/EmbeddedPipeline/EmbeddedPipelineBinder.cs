@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new ToListBinder(), ToListBinder.GetSupportedMethods());
             infoBinder.Register(new UnionBinder(), UnionBinder.GetSupportedMethods());
             infoBinder.Register(new WhereBinder(), WhereBinder.GetSupportedMethods());
+            infoBinder.Register(new AsQuerableBinder(), AsQuerableBinder.GetSupportedMethods());
 
             var nameBinder = new NameBasedMethodCallBinder<EmbeddedPipelineBindingContext>();
             nameBinder.Register(new ContainsBinder(), ContainsBinder.IsSupported, ContainsBinder.SupportedMethodNames);
