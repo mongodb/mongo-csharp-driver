@@ -22,6 +22,11 @@ namespace MongoDB.Driver.Linq
     {
         public static LambdaExpression GetLambda(Expression node)
         {
+            if (node.NodeType == ExpressionType.Constant && ((ConstantExpression)node).Value is LambdaExpression)
+            {
+                return (LambdaExpression)((ConstantExpression)node).Value;
+            }
+
             return (LambdaExpression)StripQuotes(node);
         }
 

@@ -1446,6 +1446,18 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { 'G.D': \"Don't\" } }");
         }
 
+
+        [Test]
+        public void AsQuerable_method_inside_where()
+        {
+            var query = CreateQuery()
+                .Where(x => x.G.AsQueryable().Any(g => g.D == "Don't"));
+
+            Assert(query,
+                1,
+                "{ $match: { 'G.D': \"Don't\" } }");
+        }
+
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
