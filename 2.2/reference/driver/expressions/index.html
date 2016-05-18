@@ -2937,6 +2937,22 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 <pre><code class="language-json">{ $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
 </code></pre>
 
+<h4 id="filter">$filter</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Where(x =&gt; x &gt; 10)
+</code></pre>
+
+<pre><code class="language-json">{ $filter: { input: '$FavoriteNumbers', as: 'x', cond: { $gt: ['$$x', 10] } } }
+</code></pre>
+
+<h4 id="map">$map</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Select(x =&gt; x + 10)
+</code></pre>
+
+<pre><code class="language-json">{ $map: { input: '$FavoriteNumbers', as: 'x', in: { $add: ['$$x', 10] } } }
+</code></pre>
+
 <h4 id="max">$max</h4>
 
 <pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Max()
@@ -3012,7 +3028,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 <p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#variable-expressions
 ">MongoDB documentation</a> for more information on each operator.</p>
 
-<h4 id="map">$map</h4>
+<h4 id="map-1">$map</h4>
 
 <pre><code class="language-csharp">p =&gt; p.Pets.Select(x =&gt; x.Name + &quot; is awesome&quot;);
 </code></pre>
@@ -3408,6 +3424,8 @@ These are only supported in a grouping expression.
 <li><a href="#arrayelemat">$arrayElemAt</a></li>
 <li><a href="#avg">$avg</a></li>
 <li><a href="#concatarrays">$concatArrays</a></li>
+<li><a href="#filter">$filter</a></li>
+<li><a href="#map">$map</a></li>
 <li><a href="#max">$max</a></li>
 <li><a href="#min">$min</a></li>
 <li><a href="#size-1">$size</a></li>
@@ -3418,7 +3436,7 @@ These are only supported in a grouping expression.
 </ul></li>
 <li><a href="#variable-expressions">Variable Expressions</a>
 <ul>
-<li><a href="#map">$map</a></li>
+<li><a href="#map-1">$map</a></li>
 <li><a href="#let">$let</a></li>
 </ul></li>
 <li><a href="#literal-expressions">Literal Expressions</a>
