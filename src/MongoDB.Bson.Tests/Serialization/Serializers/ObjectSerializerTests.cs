@@ -239,4 +239,34 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson(configurator: b => b.IsDynamicType = t => t == typeof(ExpandoObject))));
         }
     }
+
+    [TestFixture]
+    public class ObjectSerializerDateTimeTest
+    {
+        public class ObjectClass
+        {
+            public object Value { get; set; }
+        }
+
+        [SetUp]
+        public void Register()
+        {
+            var serializer = new Bson.Serialization.Serializers.DateTimeSerializer(DateTimeKind.Local);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), serializer);
+        }
+
+        [Test]
+        public void RegisterTest()
+        {
+
+            var dt = new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            var o = new ObjectClass { Value = dt };
+
+            var serilized = o.ToJson();
+            var restored = BsonSerializer.Deserialize<ObjectClass>(serilized);
+
+            Assert.AreEqual(dt, restored.Value);
+            Assert.AreEqual(dt.Kind, ((DateTime)restored.Value).Kind);
+        }
+    }
 }

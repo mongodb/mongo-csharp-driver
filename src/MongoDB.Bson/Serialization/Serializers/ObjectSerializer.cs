@@ -100,6 +100,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonReader.ReadBoolean();
 
                 case BsonType.DateTime:
+                    var registeredSerializer = BsonSerializer.SerializerRegistry.GetSerializer(typeof(DateTime));
+                    if (registeredSerializer != null)
+                    {
+                        return registeredSerializer.Deserialize(context);
+                    }
                     var millisecondsSinceEpoch = bsonReader.ReadDateTime();
                     var bsonDateTime = new BsonDateTime(millisecondsSinceEpoch);
                     return bsonDateTime.ToUniversalTime();
