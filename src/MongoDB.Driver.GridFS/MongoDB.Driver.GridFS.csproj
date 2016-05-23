@@ -75,6 +75,7 @@
     <Compile Include="IGridFSBucketCompat.cs" />
     <Compile Include="IGridFSBucket.cs" />
     <Compile Include="IGridFSBucketExtensions.cs" />
+    <Compile Include="IGridFSFileInfoSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamExtensions.cs" />
   </ItemGroup>

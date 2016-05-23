@@ -130,7 +130,7 @@ namespace MongoDB.Driver.GridFS.Tests
             var database = Substitute.For<IMongoDatabase>();
             var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument());
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
 
             var result = new FakeGridFSDownloadStream(bucket, binding, fileInfo);
 
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Test]
         public void FileInfo_should_return_expected_result()
         {
-            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument());
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
             var subject = CreateSubject(fileInfo: fileInfo);
 
             var result = subject.FileInfo;
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.GridFS.Tests
         public void Length_should_return_expected_result()
         {
             var length = 123;
-            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument("length", length));
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument("length", length), new GridFSFileInfoSerializer<ObjectId>());
             var subject = CreateSubject(fileInfo: fileInfo);
 
             var result = subject.Length;
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.GridFS.Tests
             var database = Substitute.For<IMongoDatabase>();
             var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            fileInfo = fileInfo ?? new GridFSFileInfo<ObjectId>(new BsonDocument());
+            fileInfo = fileInfo ?? new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
 
             return new FakeGridFSDownloadStream(bucket, binding, fileInfo);
         }

@@ -35,18 +35,9 @@ namespace MongoDB.Driver.GridFS
         /// Initializes a new instance of the <see cref="GridFSFileInfo" /> class.
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
-        public GridFSFileInfo(BsonDocument backingDocument)
-            : this(backingDocument, BsonSerializer.LookupSerializer<GridFSFileInfo<TFileId>>())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSFileInfo" /> class.
-        /// </summary>
-        /// <param name="backingDocument">The backing document.</param>
         /// <param name="fileInfoSerializer">The fileInfo serializer.</param>
-        public GridFSFileInfo(BsonDocument backingDocument, IBsonSerializer<GridFSFileInfo<TFileId>> fileInfoSerializer)
-            : base(backingDocument, (IBsonDocumentSerializer)fileInfoSerializer)
+        public GridFSFileInfo(BsonDocument backingDocument, IGridFSFileInfoSerializer<TFileId> fileInfoSerializer)
+            : base(backingDocument, fileInfoSerializer)
         {
         }
 

@@ -47,7 +47,7 @@ namespace MongoDB.Driver.GridFS.Tests
             var database = Substitute.For<IMongoDatabase>();
             var bucket = new GridFSBucket<ObjectId>(database);
             var binding = Substitute.For<IReadBinding>();
-            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument { { "_id", ObjectId.GenerateNewId() } });
+            var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument { { "_id", ObjectId.GenerateNewId() } }, new GridFSFileInfoSerializer<ObjectId>());
 
             var result = new GridFSSeekableDownloadStream<ObjectId>(bucket, binding, fileInfo);
 
@@ -240,7 +240,7 @@ namespace MongoDB.Driver.GridFS.Tests
                 { "_id", ObjectId.Parse("0102030405060708090a0b0c") },
                 { "length", () => length.Value, length.HasValue }
             };
-            var fileInfo = new GridFSFileInfo<ObjectId>(fileInfoDocument);
+            var fileInfo = new GridFSFileInfo<ObjectId>(fileInfoDocument, new GridFSFileInfoSerializer<ObjectId>());
 
             return new GridFSSeekableDownloadStream<ObjectId>(bucket, binding, fileInfo);
         }
