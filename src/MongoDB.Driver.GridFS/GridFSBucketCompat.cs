@@ -122,8 +122,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filter, nameof(filter));
             var wrappedFilter = WrapFilter(filter);
             var wrappedOptions = WrapFindOptions(options);
-            var cursor = _bsonValueBucket.Find(wrappedFilter, wrappedOptions, cancellationToken);
-            return new BatchTransformingAsyncCursor<GridFSFileInfo<BsonValue>, GridFSFileInfo>(cursor, TransformFileInfos);
+            var cursor = base.Find(wrappedFilter, wrappedOptions, cancellationToken);
+            return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
         }
 
         /// <inheritdoc />
@@ -132,8 +132,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filter, nameof(filter));
             var wrappedFilter = WrapFilter(filter);
             var wrappedOptions = WrapFindOptions(options);
-            var cursor = await _bsonValueBucket.FindAsync(wrappedFilter, wrappedOptions, cancellationToken).ConfigureAwait(false);
-            return new BatchTransformingAsyncCursor<GridFSFileInfo<BsonValue>, GridFSFileInfo>(cursor, TransformFileInfos);
+            var cursor = await base.FindAsync(wrappedFilter, wrappedOptions, cancellationToken).ConfigureAwait(false);
+            return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.GridFS
         public GridFSUploadStream OpenUploadStream(string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var id = ObjectId.GenerateNewId();
-            var wrappedStream = _bsonValueBucket.OpenUploadStream(id, filename, options, cancellationToken);
+            var wrappedStream = base.OpenUploadStream(id, filename, options, cancellationToken);
             return new GridFSUploadStream(wrappedStream);
         }
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.GridFS
         public async Task<GridFSUploadStream> OpenUploadStreamAsync(string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var id = ObjectId.GenerateNewId();
-            var wrappedStream = await _bsonValueBucket.OpenUploadStreamAsync(id, filename, options, cancellationToken).ConfigureAwait(false);
+            var wrappedStream = await base.OpenUploadStreamAsync(id, filename, options, cancellationToken).ConfigureAwait(false);
             return new GridFSUploadStream(wrappedStream);
         }
 
@@ -234,24 +234,24 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
-        private IEnumerable<GridFSFileInfo> TransformFileInfos(IEnumerable<GridFSFileInfo<BsonValue>> fileInfos)
+        private IEnumerable<GridFSFileInfo> TransformFileInfos(IEnumerable<GridFSFileInfo<ObjectId>> fileInfos)
         {
             return fileInfos.Select(fi => new GridFSFileInfo(fi.BackingDocument));
         }
 
-        private FilterDefinition<GridFSFileInfo<BsonValue>> WrapFilter(FilterDefinition<GridFSFileInfo> filter)
+        private FilterDefinition<GridFSFileInfo<ObjectId>> WrapFilter(FilterDefinition<GridFSFileInfo> filter)
         {
             var renderedFilter = filter.Render(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry);
-            return new BsonDocumentFilterDefinition<GridFSFileInfo<BsonValue>>(renderedFilter);
+            return new BsonDocumentFilterDefinition<GridFSFileInfo<ObjectId>>(renderedFilter);
         }
 
-        private GridFSFindOptions<BsonValue> WrapFindOptions(GridFSFindOptions options)
+        private GridFSFindOptions<ObjectId> WrapFindOptions(GridFSFindOptions options)
         {
             if (options != null)
             {
                 var renderedSort = options.Sort == null ? null : options.Sort.Render(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry);
-                var wrappedSort = renderedSort == null ? null : new BsonDocumentSortDefinition<GridFSFileInfo<BsonValue>>(renderedSort);
-                return new GridFSFindOptions<BsonValue>
+                var wrappedSort = renderedSort == null ? null : new BsonDocumentSortDefinition<GridFSFileInfo<ObjectId>>(renderedSort);
+                return new GridFSFindOptions<ObjectId>
                 {
                     BatchSize = options.BatchSize,
                     Limit = options.Limit,

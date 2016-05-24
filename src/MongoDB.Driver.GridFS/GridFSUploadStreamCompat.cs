@@ -26,14 +26,14 @@ namespace MongoDB.Driver.GridFS
     public class GridFSUploadStream : DelegatingStream
     {
         // fields
-        private readonly GridFSUploadStream<BsonValue> _wrappedStream;
+        private readonly GridFSUploadStream<ObjectId> _wrappedStream;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSUploadStream"/> class.
         /// </summary>
         /// <param name="wrappedStream">The wrapped stream.</param>
-        internal GridFSUploadStream(GridFSUploadStream<BsonValue> wrappedStream)
+        internal GridFSUploadStream(GridFSUploadStream<ObjectId> wrappedStream)
             : base(wrappedStream)
         {
             _wrappedStream = wrappedStream;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.GridFS
         /// </value>
         public ObjectId Id
         {
-            get { return _wrappedStream.Id.AsObjectId; }
+            get { return _wrappedStream.Id; }
         }
 
         // public methods
