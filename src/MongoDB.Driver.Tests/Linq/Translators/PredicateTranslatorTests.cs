@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.Any(g => !g.S.Any(s => s.D == "Delilah")),
                 1,
-                "{\"G.S.D\": {$ne: \"Delilah\"}}}");
+                "{\"G.S.D\": {$ne: \"Delilah\"}}");
         }
 
         [Test]

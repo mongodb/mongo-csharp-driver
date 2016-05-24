@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -372,10 +372,15 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocument.</returns>
         public static BsonDocument Parse(string json)
         {
-            using (var bsonReader = new JsonReader(json))
+            using (var jsonReader = new JsonReader(json))
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-                return BsonDocumentSerializer.Instance.Deserialize(context);
+                var context = BsonDeserializationContext.CreateRoot(jsonReader);
+                var document = BsonDocumentSerializer.Instance.Deserialize(context);
+                if (!jsonReader.IsAtEndOfFile())
+                {
+                    throw new FormatException("String contains extra non-whitespace characters beyond the end of the document.");
+                }
+                return document;
             }
         }
 

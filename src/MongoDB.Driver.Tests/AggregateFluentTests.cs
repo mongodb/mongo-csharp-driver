@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Tests
                 var renderedPipeline = RenderPipeline(pipeline);
                 return
                     renderedPipeline.Documents.Count == 2 &&
-                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } } }") &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
                     renderedPipeline.Documents[1] == BsonDocument.Parse("{ $out : \"test\" }") &&
                     renderedPipeline.OutputSerializer.ValueType == typeof(C);
             };
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests
                 var renderedPipeline = RenderPipeline(pipeline);
                 return
                     renderedPipeline.Documents.Count == 1 &&
-                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } } }") &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
                     renderedPipeline.OutputSerializer.ValueType == typeof(C);
             };
 
