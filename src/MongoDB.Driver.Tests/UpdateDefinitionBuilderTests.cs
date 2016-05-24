@@ -208,8 +208,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
+            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}");
         }
 
         [Test]
@@ -217,8 +217,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
+            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}");
         }
 
         [Test]
@@ -399,8 +399,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.PullFilter(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
-            Assert(subject.PullFilter<Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}");
+            Assert(subject.PullFilter<Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}");
         }
 
         [Test]

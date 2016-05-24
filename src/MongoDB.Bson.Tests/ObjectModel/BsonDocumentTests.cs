@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -795,7 +796,28 @@ namespace MongoDB.Bson.Tests
         public void TestParse()
         {
             var json = "{ a : 1, b : 'abc' }";
-            BsonDocument.Parse(json);
+            var document = BsonDocument.Parse(json);
+            Assert.AreEqual(2, document.ElementCount);
+            Assert.AreEqual(1, document["a"].AsInt32);
+            Assert.AreEqual("abc", document["b"].AsString);
+        }
+
+        [Test]
+        public void TestParseWithExtraCharacters()
+        {
+            var json = "{ a : 1, b : 'abc' } x";
+            Action action = () => BsonDocument.Parse(json);
+            action.ShouldThrow<FormatException>();
+        }
+
+        [Test]
+        public void TestParseWithExtraWhitespace()
+        {
+            var json = "{ a : 1, b : 'abc' }   ";
+            var document = BsonDocument.Parse(json);
+            Assert.AreEqual(2, document.ElementCount);
+            Assert.AreEqual(1, document["a"].AsInt32);
+            Assert.AreEqual("abc", document["b"].AsString);
         }
 
         [Test]
