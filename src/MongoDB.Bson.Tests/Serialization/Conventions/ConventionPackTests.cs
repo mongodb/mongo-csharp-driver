@@ -15,55 +15,53 @@
 
 using System.Linq;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class ConventionPackTests
     {
         private ConventionPack _pack;
 
-        [SetUp]
-        public void SetUp()
+        public ConventionPackTests()
         {
             _pack = new ConventionPack();
         }
 
-        [Test]
+        [Fact]
         public void TestAdd()
         {
             _pack.Add(new TestConvention { Name = "One" });
             _pack.Add(new TestConvention { Name = "Two" });
 
-            Assert.AreEqual(2, _pack.Conventions.Count());
+            Assert.Equal(2, _pack.Conventions.Count());
         }
 
-        [Test]
+        [Fact]
         public void TestAddClassMapConvention()
         {
             _pack.AddClassMapConvention("test", cm => { });
 
-            Assert.IsInstanceOf<DelegateClassMapConvention>(_pack.Conventions.Single());
+            Assert.IsType<DelegateClassMapConvention>(_pack.Conventions.Single());
         }
 
-        [Test]
+        [Fact]
         public void TestAddPostProcessingConvention()
         {
             _pack.AddPostProcessingConvention("test", cm => { });
 
-            Assert.IsInstanceOf<DelegatePostProcessingConvention>(_pack.Conventions.Single());
+            Assert.IsType<DelegatePostProcessingConvention>(_pack.Conventions.Single());
         }
 
-        [Test]
+        [Fact]
         public void TestAddMemberMapConvention()
         {
             _pack.AddMemberMapConvention("test", mm => { });
 
-            Assert.IsInstanceOf<DelegateMemberMapConvention>(_pack.Conventions.Single());
+            Assert.IsType<DelegateMemberMapConvention>(_pack.Conventions.Single());
         }
 
-        [Test]
+        [Fact]
         public void TestAddRange()
         {
             _pack.AddRange(new IConvention[] 
@@ -72,10 +70,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 new TestConvention { Name = "Two" }
             });
 
-            Assert.AreEqual(2, _pack.Conventions.Count());
+            Assert.Equal(2, _pack.Conventions.Count());
         }
 
-        [Test]
+        [Fact]
         public void TestAppend()
         {
             _pack.AddRange(new IConvention[] 
@@ -93,14 +91,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             _pack.Append(newPack);
 
-            Assert.AreEqual(4, _pack.Conventions.Count());
-            Assert.AreEqual("One", _pack.Conventions.ElementAt(0).Name);
-            Assert.AreEqual("Two", _pack.Conventions.ElementAt(1).Name);
-            Assert.AreEqual("Three", _pack.Conventions.ElementAt(2).Name);
-            Assert.AreEqual("Four", _pack.Conventions.ElementAt(3).Name);
+            Assert.Equal(4, _pack.Conventions.Count());
+            Assert.Equal("One", _pack.Conventions.ElementAt(0).Name);
+            Assert.Equal("Two", _pack.Conventions.ElementAt(1).Name);
+            Assert.Equal("Three", _pack.Conventions.ElementAt(2).Name);
+            Assert.Equal("Four", _pack.Conventions.ElementAt(3).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertAfter()
         {
             _pack.AddRange(new IConvention[] 
@@ -111,11 +109,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             _pack.InsertAfter("One", new TestConvention { Name = "Three" });
 
-            Assert.AreEqual(3, _pack.Conventions.Count());
-            Assert.AreEqual("Three", _pack.Conventions.ElementAt(1).Name);
+            Assert.Equal(3, _pack.Conventions.Count());
+            Assert.Equal("Three", _pack.Conventions.ElementAt(1).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertBefore()
         {
             _pack.AddRange(new IConvention[] 
@@ -125,11 +123,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             });
 
             _pack.InsertBefore("Two", new TestConvention { Name = "Three" });
-            Assert.AreEqual(3, _pack.Conventions.Count());
-            Assert.AreEqual("Three", _pack.Conventions.ElementAt(1).Name);
+            Assert.Equal(3, _pack.Conventions.Count());
+            Assert.Equal("Three", _pack.Conventions.ElementAt(1).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestRemove()
         {
             _pack.AddRange(new IConvention[] 
@@ -139,8 +137,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             });
 
             _pack.Remove("Two");
-            Assert.AreEqual(1, _pack.Conventions.Count());
-            Assert.AreEqual("One", _pack.Conventions.Single().Name);
+            Assert.Equal(1, _pack.Conventions.Count());
+            Assert.Equal("One", _pack.Conventions.Single().Name);
         }
 
         private class TestConvention : IConvention

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonValueTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_bool_should_return_precreated_instance(
             [Values(false, true)]
             bool value)
@@ -36,7 +37,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_double_should_return_new_instance(
             [Values(-101.0, 101.0)]
             double value)
@@ -47,7 +49,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().NotBeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_double_should_return_precreated_instance(
             [Range(-100.0, 100.0, 1.0)]
             double value)
@@ -58,7 +61,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_int_should_return_new_instance(
             [Values(-101, 101)]
             int value)
@@ -69,7 +73,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().NotBeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_int_should_return_precreated_instance(
             [Range(-100, 100)]
             int value)
@@ -80,7 +85,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_long_should_return_new_instance(
             [Values(-101L, 101L)]
             long value)
@@ -91,7 +97,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().NotBeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_long_should_return_precreated_instance(
             [Range(-100L, 100L, 1L)]
             long value)
@@ -102,7 +109,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_string_should_return_new_instance(
             [Values("x")]
             string value)
@@ -113,7 +121,8 @@ namespace MongoDB.Bson.Tests
             result2.Should().NotBeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_string_should_return_precreated_instance(
             [Values("")]
             string value)
@@ -124,152 +133,152 @@ namespace MongoDB.Bson.Tests
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Fact]
         public void TestAsBoolean()
         {
             BsonValue v = true;
             BsonValue s = "";
             var b = v.AsBoolean;
-            Assert.AreEqual(true, b);
+            Assert.Equal(true, b);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBoolean; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonArray()
         {
             BsonValue v = new BsonArray { 1, 2 };
             BsonValue s = "";
             var a = v.AsBsonArray;
-            Assert.AreEqual(2, a.Count);
-            Assert.AreEqual(1, a[0].AsInt32);
-            Assert.AreEqual(2, a[1].AsInt32);
+            Assert.Equal(2, a.Count);
+            Assert.Equal(1, a[0].AsInt32);
+            Assert.Equal(2, a[1].AsInt32);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonArray; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBinaryData()
         {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
             var b = v.AsBsonBinaryData;
-            Assert.AreEqual(2, b.AsByteArray.Length);
-            Assert.AreEqual(1, b.AsByteArray[0]);
-            Assert.AreEqual(2, b.AsByteArray[1]);
-            Assert.AreEqual(BsonBinarySubType.Binary, b.SubType);
+            Assert.Equal(2, b.AsByteArray.Length);
+            Assert.Equal(1, b.AsByteArray[0]);
+            Assert.Equal(2, b.AsByteArray[1]);
+            Assert.Equal(BsonBinarySubType.Binary, b.SubType);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonBinaryData; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonDocument()
         {
             BsonValue v = new BsonDocument("x", 1);
             BsonValue s = "";
             var d = v.AsBsonDocument;
-            Assert.AreEqual(1, d.ElementCount);
-            Assert.AreEqual("x", d.GetElement(0).Name);
-            Assert.AreEqual(1, d[0].AsInt32);
+            Assert.Equal(1, d.ElementCount);
+            Assert.Equal("x", d.GetElement(0).Name);
+            Assert.Equal(1, d[0].AsInt32);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonDocument; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonJavaScript()
         {
             BsonValue v = new BsonJavaScript("code");
             BsonValue s = "";
             var js = v.AsBsonJavaScript;
-            Assert.AreEqual("code", js.Code);
+            Assert.Equal("code", js.Code);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonJavaScript; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonJavaScriptWithScode()
         {
             var scope = new BsonDocument("x", 1);
             BsonValue s = "";
             BsonValue v = new BsonJavaScriptWithScope("code", scope);
             var js = v.AsBsonJavaScriptWithScope;
-            Assert.AreEqual("code", js.Code);
-            Assert.AreEqual(1, js.Scope.ElementCount);
-            Assert.AreEqual("x", js.Scope.GetElement(0).Name);
-            Assert.AreEqual(1, js.Scope["x"].AsInt32);
-            Assert.AreSame(v.AsBsonJavaScript, v.AsBsonJavaScriptWithScope);
+            Assert.Equal("code", js.Code);
+            Assert.Equal(1, js.Scope.ElementCount);
+            Assert.Equal("x", js.Scope.GetElement(0).Name);
+            Assert.Equal(1, js.Scope["x"].AsInt32);
+            Assert.Same(v.AsBsonJavaScript, v.AsBsonJavaScriptWithScope);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonJavaScriptWithScope; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonMaxKey()
         {
             BsonValue v = BsonMaxKey.Value;
             BsonValue s = "";
             var m = v.AsBsonMaxKey;
-            Assert.AreSame(BsonMaxKey.Value, m);
+            Assert.Same(BsonMaxKey.Value, m);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonMaxKey; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonMinKey()
         {
             BsonValue v = BsonMinKey.Value;
             BsonValue s = "";
             var m = v.AsBsonMinKey;
-            Assert.AreSame(BsonMinKey.Value, m);
+            Assert.Same(BsonMinKey.Value, m);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonMinKey; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonNull()
         {
             BsonValue v = BsonNull.Value;
             BsonValue s = "";
             var n = v.AsBsonNull;
-            Assert.AreSame(BsonNull.Value, n);
+            Assert.Same(BsonNull.Value, n);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonNull; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonRegularExpression()
         {
             BsonValue v = new BsonRegularExpression("pattern", "options");
             BsonValue s = "";
             var r = v.AsBsonRegularExpression;
-            Assert.AreEqual("pattern", r.Pattern);
-            Assert.AreEqual("options", r.Options);
+            Assert.Equal("pattern", r.Pattern);
+            Assert.Equal("options", r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonRegularExpression; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonSymbol()
         {
             BsonValue v = BsonSymbolTable.Lookup("name");
             BsonValue s = "";
             var sym = v.AsBsonSymbol;
-            Assert.AreEqual("name", sym.Name);
+            Assert.Equal("name", sym.Name);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonSymbol; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsBsonTimestamp()
         {
             BsonValue v = new BsonTimestamp(1234);
             BsonValue s = "";
             var ts = v.AsBsonTimestamp;
-            Assert.AreEqual(1234, ts.Value);
+            Assert.Equal(1234, ts.Value);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonTimestamp; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsByteArray()
         {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
             var a = v.AsByteArray;
-            Assert.AreEqual(2, a.Length);
-            Assert.AreEqual(1, a[0]);
-            Assert.AreEqual(2, a[1]);
+            Assert.Equal(2, a.Length);
+            Assert.Equal(1, a[0]);
+            Assert.Equal(2, a[1]);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsByteArray; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsDateTime()
         {
             var utcNow = DateTime.UtcNow;
@@ -277,66 +286,66 @@ namespace MongoDB.Bson.Tests
             BsonValue v = utcNow;
             BsonValue s = "";
             var dt = v.ToUniversalTime();
-            Assert.AreEqual(utcNowTruncated, dt);
+            Assert.Equal(utcNowTruncated, dt);
 #pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDateTime; });
 #pragma warning restore
             Assert.Throws<NotSupportedException>(() => s.ToUniversalTime());
         }
 
-        [Test]
+        [Fact]
         public void TestAsDouble()
         {
             BsonValue v = 1.5;
             BsonValue s = "";
             var d = v.AsDouble;
-            Assert.AreEqual(1.5, d);
+            Assert.Equal(1.5, d);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDouble; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsGuid()
         {
             var guid = Guid.NewGuid();
             BsonValue v = guid;
             BsonValue s = "";
             var g = v.AsGuid;
-            Assert.AreEqual(guid, g);
+            Assert.Equal(guid, g);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsGuid; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsInt32()
         {
             BsonValue v = 1;
             BsonValue s = "";
             var i = v.AsInt32;
-            Assert.AreEqual(1, i);
+            Assert.Equal(1, i);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsInt32; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsInt64()
         {
             BsonValue v = 1L;
             BsonValue s = "";
             var i = v.AsInt64;
-            Assert.AreEqual(1L, i);
+            Assert.Equal(1L, i);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsInt64; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableBoolean()
         {
             BsonValue v = true;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(true, v.AsNullableBoolean);
-            Assert.AreEqual(null, n.AsNullableBoolean);
+            Assert.Equal(true, v.AsNullableBoolean);
+            Assert.Equal(null, n.AsNullableBoolean);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableBoolean; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
@@ -344,534 +353,534 @@ namespace MongoDB.Bson.Tests
             BsonValue v = utcNow;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(utcNowTruncated, v.ToNullableUniversalTime());
-            Assert.AreEqual(null, n.ToNullableUniversalTime());
+            Assert.Equal(utcNowTruncated, v.ToNullableUniversalTime());
+            Assert.Equal(null, n.ToNullableUniversalTime());
 #pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDateTime; });
 #pragma warning restore
             Assert.Throws<NotSupportedException>(() => s.ToNullableUniversalTime());
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableDouble()
         {
             BsonValue v = 1.5;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(1.5, v.AsNullableDouble);
-            Assert.AreEqual(null, n.AsNullableDouble);
+            Assert.Equal(1.5, v.AsNullableDouble);
+            Assert.Equal(null, n.AsNullableDouble);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDouble; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableGuid()
         {
             Guid guid = Guid.NewGuid();
             BsonValue v = guid;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(guid, v.AsNullableGuid);
-            Assert.AreEqual(null, n.AsNullableGuid);
+            Assert.Equal(guid, v.AsNullableGuid);
+            Assert.Equal(null, n.AsNullableGuid);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableGuid; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableInt32()
         {
             BsonValue v = 1;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(1, v.AsNullableInt32);
-            Assert.AreEqual(null, n.AsNullableInt32);
+            Assert.Equal(1, v.AsNullableInt32);
+            Assert.Equal(null, n.AsNullableInt32);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableInt32; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableInt64()
         {
             BsonValue v = 1L;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(1L, v.AsNullableInt64);
-            Assert.AreEqual(null, n.AsNullableInt64);
+            Assert.Equal(1L, v.AsNullableInt64);
+            Assert.Equal(null, n.AsNullableInt64);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableInt64; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsNullableObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(objectId, v.AsNullableObjectId);
-            Assert.AreEqual(null, n.AsNullableObjectId);
+            Assert.Equal(objectId, v.AsNullableObjectId);
+            Assert.Equal(null, n.AsNullableObjectId);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableObjectId; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             BsonValue s = "";
             var o = v.AsObjectId;
-            Assert.AreEqual(objectId, o);
+            Assert.Equal(objectId, o);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsObjectId; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionNone()
         {
             BsonValue v = new BsonRegularExpression("xyz");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.None, r.Options);
+            Assert.Equal(RegexOptions.None, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionAll()
         {
             BsonValue v = new BsonRegularExpression("xyz", "imxs");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline, r.Options);
+            Assert.Equal(RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionI()
         {
             BsonValue v = new BsonRegularExpression("xyz", "i");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.IgnoreCase, r.Options);
+            Assert.Equal(RegexOptions.IgnoreCase, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionM()
         {
             BsonValue v = new BsonRegularExpression("xyz", "m");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.Multiline, r.Options);
+            Assert.Equal(RegexOptions.Multiline, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionX()
         {
             BsonValue v = new BsonRegularExpression("xyz", "x");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.IgnorePatternWhitespace, r.Options);
+            Assert.Equal(RegexOptions.IgnorePatternWhitespace, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsRegexOptionS()
         {
             BsonValue v = new BsonRegularExpression("xyz", "s");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(RegexOptions.Singleline, r.Options);
+            Assert.Equal(RegexOptions.Singleline, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
-        [Test]
+        [Fact]
         public void TestAsString()
         {
             BsonValue v = "Hello";
             BsonValue i = 1;
             var s = v.AsString;
-            Assert.AreEqual("Hello", s);
+            Assert.Equal("Hello", s);
             Assert.Throws<InvalidCastException>(() => { var x = i.AsString; });
         }
 
-        [Test]
+        [Fact]
         public void TestBsonRegularExpressionConstructors()
         {
             var regex = new BsonRegularExpression("pattern");
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("", regex.Options);
 
             regex = new BsonRegularExpression("/pattern/i");
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("i", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("i", regex.Options);
 
             regex = new BsonRegularExpression(@"/pattern\/withslash/i");
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern/withslash", regex.Pattern);
-            Assert.AreEqual("i", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern/withslash", regex.Pattern);
+            Assert.Equal("i", regex.Options);
 
             regex = new BsonRegularExpression("pattern", "i");
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("i", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("i", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern"));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("imxs", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("imxs", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("i", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("i", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.Multiline));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("m", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("m", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnorePatternWhitespace));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("x", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("x", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.Singleline));
-            Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual("pattern", regex.Pattern);
-            Assert.AreEqual("s", regex.Options);
+            Assert.IsType<BsonRegularExpression>(regex);
+            Assert.Equal("pattern", regex.Pattern);
+            Assert.Equal("s", regex.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEqualsFalse()
         {
             BsonValue a = false;
-            Assert.IsTrue(a == false);
-            Assert.IsFalse(a != false);
-            Assert.IsFalse(a == true);
-            Assert.IsTrue(a != true);
+            Assert.True(a == false);
+            Assert.False(a != false);
+            Assert.False(a == true);
+            Assert.True(a != true);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEqualsTrue()
         {
             BsonValue a = true;
-            Assert.IsTrue(a == true);
-            Assert.IsFalse(a != true);
-            Assert.IsFalse(a == false);
-            Assert.IsTrue(a != false);
+            Assert.True(a == true);
+            Assert.False(a != true);
+            Assert.False(a == false);
+            Assert.True(a != false);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEqualsDouble()
         {
             BsonValue a = 1;
-            Assert.IsTrue(a == 1.0);
-            Assert.IsFalse(a != 1.0);
-            Assert.IsFalse(a == 2.0);
-            Assert.IsTrue(a != 2.0);
+            Assert.True(a == 1.0);
+            Assert.False(a != 1.0);
+            Assert.False(a == 2.0);
+            Assert.True(a != 2.0);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEqualsInt32()
         {
             BsonValue a = 1;
-            Assert.IsTrue(a == 1);
-            Assert.IsFalse(a != 1);
-            Assert.IsFalse(a == 2);
-            Assert.IsTrue(a != 2);
+            Assert.True(a == 1);
+            Assert.False(a != 1);
+            Assert.False(a == 2);
+            Assert.True(a != 2);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEqualsInt64()
         {
             BsonValue a = 1;
-            Assert.IsTrue(a == 1);
-            Assert.IsFalse(a != 1);
-            Assert.IsFalse(a == 2);
-            Assert.IsTrue(a != 2);
+            Assert.True(a == 1);
+            Assert.False(a != 1);
+            Assert.False(a == 2);
+            Assert.True(a != 2);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateNull()
         {
             object obj = null;
-            Assert.AreSame(BsonNull.Value, BsonValue.Create(obj));
+            Assert.Same(BsonNull.Value, BsonValue.Create(obj));
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromBoolean()
         {
             BsonValue v = true;
-            Assert.IsInstanceOf<BsonBoolean>(v);
+            Assert.IsType<BsonBoolean>(v);
             var b = (BsonBoolean)v;
-            Assert.AreEqual(true, b.Value);
+            Assert.Equal(true, b.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromByteArray()
         {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue n = (byte[])null;
-            Assert.IsInstanceOf<BsonBinaryData>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonBinaryData>(v);
+            Assert.Null(n);
             var b = (BsonBinaryData)v;
-            Assert.AreEqual(BsonBinarySubType.Binary, b.SubType);
-            Assert.AreEqual(1, b.AsByteArray[0]);
-            Assert.AreEqual(2, b.AsByteArray[1]);
+            Assert.Equal(BsonBinarySubType.Binary, b.SubType);
+            Assert.Equal(1, b.AsByteArray[0]);
+            Assert.Equal(2, b.AsByteArray[1]);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = utcNow;
-            Assert.IsInstanceOf<BsonDateTime>(v);
+            Assert.IsType<BsonDateTime>(v);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNowTruncated, dt.ToUniversalTime());
+            Assert.Equal(utcNowTruncated, dt.ToUniversalTime());
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromDouble()
         {
             BsonValue v = 1.5;
-            Assert.IsInstanceOf<BsonDouble>(v);
+            Assert.IsType<BsonDouble>(v);
             var d = (BsonDouble)v;
-            Assert.AreEqual(1.5, d.Value);
+            Assert.Equal(1.5, d.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromGuid()
         {
             var guid = Guid.NewGuid();
             BsonValue v = guid;
-            Assert.IsInstanceOf<BsonBinaryData>(v);
+            Assert.IsType<BsonBinaryData>(v);
             var b = (BsonBinaryData)v;
-            Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
-            Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
+            Assert.True(guid.ToByteArray().SequenceEqual(b.AsByteArray));
+            Assert.Equal(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromInt16Enum()
         {
             BsonValue v = Int16Enum.A;
-            Assert.IsInstanceOf<BsonInt32>(v);
+            Assert.IsType<BsonInt32>(v);
             var n = (BsonInt32)v;
-            Assert.AreEqual((int)Int16Enum.A, n.Value);
+            Assert.Equal((int)Int16Enum.A, n.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromInt32()
         {
             BsonValue v = 1;
-            Assert.IsInstanceOf<BsonInt32>(v);
+            Assert.IsType<BsonInt32>(v);
             var i = (BsonInt32)v;
-            Assert.AreEqual(1, i.Value);
+            Assert.Equal(1, i.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromInt32Enum()
         {
             BsonValue v = Int32Enum.A;
-            Assert.IsInstanceOf<BsonInt32>(v);
+            Assert.IsType<BsonInt32>(v);
             var n = (BsonInt32)v;
-            Assert.AreEqual((int)Int32Enum.A, n.Value);
+            Assert.Equal((int)Int32Enum.A, n.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromInt64()
         {
             BsonValue v = 1L;
-            Assert.IsInstanceOf<BsonInt64>(v);
+            Assert.IsType<BsonInt64>(v);
             var i = (BsonInt64)v;
-            Assert.AreEqual(1L, i.Value);
+            Assert.Equal(1L, i.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromInt64Enum()
         {
             BsonValue v = Int64Enum.A;
-            Assert.IsInstanceOf<BsonInt64>(v);
+            Assert.IsType<BsonInt64>(v);
             var n = (BsonInt64)v;
-            Assert.AreEqual((int)Int64Enum.A, n.Value);
+            Assert.Equal((int)Int64Enum.A, n.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableBoolean()
         {
             BsonValue v = (bool?)true;
             BsonValue n = (bool?)null;
-            Assert.IsInstanceOf<BsonBoolean>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonBoolean>(v);
+            Assert.IsType<BsonNull>(n);
             var b = (BsonBoolean)v;
-            Assert.AreEqual(true, b.Value);
+            Assert.Equal(true, b.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = (DateTime?)utcNow;
             BsonValue n = (DateTime?)null;
-            Assert.IsInstanceOf<BsonDateTime>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonDateTime>(v);
+            Assert.IsType<BsonNull>(n);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNowTruncated, dt.ToUniversalTime());
+            Assert.Equal(utcNowTruncated, dt.ToUniversalTime());
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableDouble()
         {
             BsonValue v = (double?)1.5;
             BsonValue n = (double?)null;
-            Assert.IsInstanceOf<BsonDouble>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonDouble>(v);
+            Assert.IsType<BsonNull>(n);
             var d = (BsonDouble)v;
-            Assert.AreEqual(1.5, d.Value);
+            Assert.Equal(1.5, d.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableGuid()
         {
             var guid = Guid.NewGuid();
             BsonValue v = (Guid?)guid;
             BsonValue n = (Guid?)null;
-            Assert.IsInstanceOf<BsonBinaryData>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonBinaryData>(v);
+            Assert.IsType<BsonNull>(n);
             var b = (BsonBinaryData)v;
-            Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
-            Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
+            Assert.True(guid.ToByteArray().SequenceEqual(b.AsByteArray));
+            Assert.Equal(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableInt32()
         {
             BsonValue v = (int?)1;
             BsonValue n = (int?)null;
-            Assert.IsInstanceOf<BsonInt32>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonInt32>(v);
+            Assert.IsType<BsonNull>(n);
             var i = (BsonInt32)v;
-            Assert.AreEqual(1, i.Value);
+            Assert.Equal(1, i.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableInt64()
         {
             BsonValue v = (long?)1L;
             BsonValue n = (long?)null;
-            Assert.IsInstanceOf<BsonInt64>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonInt64>(v);
+            Assert.IsType<BsonNull>(n);
             var i = (BsonInt64)v;
-            Assert.AreEqual(1, i.Value);
+            Assert.Equal(1, i.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromNullableObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             BsonValue n = (Guid?)null;
-            Assert.IsInstanceOf<BsonObjectId>(v);
-            Assert.IsInstanceOf<BsonNull>(n);
+            Assert.IsType<BsonObjectId>(v);
+            Assert.IsType<BsonNull>(n);
             var o = (BsonObjectId)v;
-            Assert.AreEqual(objectId, o.Value);
+            Assert.Equal(objectId, o.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
-            Assert.IsInstanceOf<BsonObjectId>(v);
+            Assert.IsType<BsonObjectId>(v);
             var o = (BsonObjectId)v;
-            Assert.AreEqual(objectId, o.Value);
+            Assert.Equal(objectId, o.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionNone()
         {
             BsonValue v = new Regex("xyz");
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionAll()
         {
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("imxs", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("imxs", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionI()
         {
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase);
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("i", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("i", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionM()
         {
             BsonValue v = new Regex("xyz", RegexOptions.Multiline);
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("m", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("m", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionX()
         {
             BsonValue v = new Regex("xyz", RegexOptions.IgnorePatternWhitespace);
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("x", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("x", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromRegexOptionS()
         {
             BsonValue v = new Regex("xyz", RegexOptions.Singleline);
             BsonValue n = (Regex)null;
-            Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonRegularExpression>(v);
+            Assert.Null(n);
             var r = (BsonRegularExpression)v;
-            Assert.AreEqual("xyz", r.Pattern);
-            Assert.AreEqual("s", r.Options);
+            Assert.Equal("xyz", r.Pattern);
+            Assert.Equal("s", r.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestImplicitConversionFromString()
         {
             BsonValue v = "xyz";
             BsonValue n = (string)null;
-            Assert.IsInstanceOf<BsonString>(v);
-            Assert.IsNull(n);
+            Assert.IsType<BsonString>(v);
+            Assert.Null(n);
             var s = (BsonString)v;
-            Assert.AreEqual("xyz", s.Value);
+            Assert.Equal("xyz", s.Value);
         }
 
         // nested types

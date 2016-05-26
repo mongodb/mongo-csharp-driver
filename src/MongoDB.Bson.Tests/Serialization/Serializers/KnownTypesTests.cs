@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class KnownTypesTests
     {
         [BsonKnownTypes(typeof(B), typeof(C))]
@@ -54,7 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization
             BsonClassMap.RegisterClassMap<A>();
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDAsA()
         {
             var document = new BsonDocument
@@ -65,15 +64,15 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = document.ToBson();
             var rehydrated = (D)BsonSerializer.Deserialize<A>(bson);
-            Assert.IsInstanceOf<D>(rehydrated);
+            Assert.IsType<D>(rehydrated);
 
             var json = rehydrated.ToJson<A>();
             var expected = "{ '_t' : 'D', 'P' : 'x' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<A>()));
+            Assert.Equal(expected, json);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<A>()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeEAsA()
         {
             var document = new BsonDocument
@@ -84,12 +83,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = document.ToBson();
             var rehydrated = (E)BsonSerializer.Deserialize<A>(bson);
-            Assert.IsInstanceOf<E>(rehydrated);
+            Assert.IsType<E>(rehydrated);
 
             var json = rehydrated.ToJson<A>();
             var expected = "{ '_t' : ['C', 'E'], 'P' : 'x' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<A>()));
+            Assert.Equal(expected, json);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<A>()));
         }
     }
 }

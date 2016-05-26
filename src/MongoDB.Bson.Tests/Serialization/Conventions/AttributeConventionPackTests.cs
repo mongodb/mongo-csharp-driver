@@ -19,25 +19,24 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class AttributeConventionPackTests
     {
-        [Test]
+        [Fact]
         public void TestOptsInMembers()
         {
             var convention = AttributeConventionPack.Instance;
             var classMap = new BsonClassMap<TestClass>();
             new ConventionRunner(convention).Apply(classMap);
 
-            Assert.AreEqual(1, classMap.DeclaredMemberMaps.Count());
-            Assert.AreEqual("fn", classMap.GetMemberMap("_firstName").ElementName);
+            Assert.Equal(1, classMap.DeclaredMemberMaps.Count());
+            Assert.Equal("fn", classMap.GetMemberMap("_firstName").ElementName);
         }
 
-        [Test]
+        [Fact]
         public void TestThrowsWithDuplicateIds()
         {
             var convention = AttributeConventionPack.Instance;
@@ -47,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 new ConventionRunner(convention).Apply(classMap));
         }
 
-        [Test]
+        [Fact]
         public void TestThrowsWithDuplicateExtraElements()
         {
             var convention = AttributeConventionPack.Instance;

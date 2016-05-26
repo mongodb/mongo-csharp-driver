@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,15 +21,14 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using NSubstitute;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonChunkPoolTests
     {
-        [Test]
+        [Fact]
         public void ChunkSize_get_should_return_expected_result()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -39,7 +38,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().Be(16);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var maxChunkCount = 1;
@@ -53,7 +52,8 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_chunkSize_is_less_than_zero(
             [Values(-1, 0)]
             int chunkSize)
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("chunkSize");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_MaxChunkCount_is_less_than_zero()
         {
             Action action = () => new BsonChunkPool(-1, 16);
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkCount");
         }
 
-        [Test]
+        [Fact]
         public void Default_get_should_return_expected_result()
         {
             var result = BsonChunkPool.Default;
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.IO
             result.MaxChunkCount.Should().Be(8192);
         }
 
-        [Test]
+        [Fact]
         public void Default_set_should_have_expected_effect()
         {
             var originalDefaultPool = BsonChunkPool.Default;
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void Default_set_should_throw_when_value_is_null()
         {
             Action action = () => BsonChunkPool.Default = null;
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -126,7 +126,8 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChunk_should_return_expected_result(
             [Values(1, 15, 16, 17, 32)]
             int requestedSize)
@@ -138,7 +139,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Bytes.Count.Should().Be(16);
         }
 
-        [Test]
+        [Fact]
         public void GetChunk_should_return_pooled_chunk_when_one_is_availabe()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -154,7 +155,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Bytes.Count.Should().Be(16);
         }
 
-        [Test]
+        [Fact]
         public void GetChunk_should_throw_when_subject_is_disposed()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -165,7 +166,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonChunkPool");
         }
 
-        [Test]
+        [Fact]
         public void MaxChunkCount_get_should_return_expected_result()
         {
             var subject = new BsonChunkPool(1, 16);
@@ -196,10 +197,9 @@ namespace MongoDB.Bson.Tests.IO
         }
     }
 
-    [TestFixture]
     public class BsonChunkPool_DisposableChunkTests
     {
-        [Test]
+        [Fact]
         public void Bytes_get_should_return_expected_result()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Count.Should().Be(16);
         }
 
-        [Test]
+        [Fact]
         public void Bytes_get_should_throw_when_subject_is_disposed()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -224,7 +224,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -234,7 +234,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -246,7 +246,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_return_chunk_to_the_pool()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -257,7 +257,8 @@ namespace MongoDB.Bson.Tests.IO
             pool.ChunkCount.Should().Be(1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Dispose_should_return_chunk_to_the_pool_after_all_handles_have_been_disposed(
             [Values(0, 1, 2, 3, 4, 16)]
             int numberOfHandles,
@@ -291,7 +292,7 @@ namespace MongoDB.Bson.Tests.IO
             pool.ChunkCount.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Fork_should_return_expected_result()
         {
             var pool = new BsonChunkPool(1, 16);
@@ -304,7 +305,7 @@ namespace MongoDB.Bson.Tests.IO
             handle.Bytes.Count.Should().Be(subject.Bytes.Count);
         }
 
-        [Test]
+        [Fact]
         public void Fork_should_throw_when_subject_is_disposed()
         {
             var pool = new BsonChunkPool(1, 16);

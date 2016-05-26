@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp564
 {
-    [TestFixture]
     public class CSharp564Tests
     {
         interface IWhatever { }
@@ -30,28 +29,28 @@ namespace MongoDB.Bson.Tests.Jira.CSharp564
             public IWhatever Whatever { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestPersonWhateverNull()
         {
             var p = new Person();
             var json = p.ToJson();
             var expected = "{ 'Whatever' : null }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<Person>(json);
-            Assert.AreEqual(null, r.Whatever);
+            Assert.Equal(null, r.Whatever);
         }
 
-        [Test]
+        [Fact]
         public void TestPersonWhateverNotNull()
         {
             var p = new Person() { Whatever = new Whatever() };
             var json = p.ToJson();
             var expected = "{ 'Whatever' : { '_t' : 'Whatever' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<Person>(json);
-            Assert.IsInstanceOf<Whatever>(r.Whatever);
+            Assert.IsType<Whatever>(r.Whatever);
         }
     }
 }

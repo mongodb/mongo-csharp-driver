@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class MemberDefaultValueConventionTests
     {
         private class A
@@ -35,7 +34,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public int Match { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMappingUsesMemberDefaultValueConvention()
         {
             var pack = new ConventionPack();
@@ -45,11 +44,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("Match").DefaultValue;
-            Assert.IsInstanceOf<int>(defaultValue);
-            Assert.AreEqual(1, defaultValue);
+            Assert.IsType<int>(defaultValue);
+            Assert.Equal(1, defaultValue);
         }
 
-        [Test]
+        [Fact]
         public void TestMappingUsesMemberDefaultValueConventionDoesNotMatchWrongProperty()
         {
             var pack = new ConventionPack();
@@ -59,10 +58,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("NoMatch").DefaultValue;
-            Assert.AreEqual(0, defaultValue);
+            Assert.Equal(0L, defaultValue);
         }
 
-        [Test]
+        [Fact]
         public void TestMappingUsesMemberDefaultValueConventionDoesNotOverrideAttribute()
         {
             var pack = new ConventionPack();
@@ -72,8 +71,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<B>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("Match").DefaultValue;
-            Assert.IsInstanceOf<int>(defaultValue);
-            Assert.AreEqual(2, defaultValue);
+            Assert.IsType<int>(defaultValue);
+            Assert.Equal(2, defaultValue);
         }
     }
 }

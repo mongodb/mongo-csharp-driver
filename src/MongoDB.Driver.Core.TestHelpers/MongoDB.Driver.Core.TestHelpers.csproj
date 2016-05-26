@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}</ProjectGuid>
+    <ProjectGuid>{F7B7D81A-CA16-4CD7-8B6C-444280EA37C1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MongoDB.Driver.Core.TestHelpers</RootNamespace>

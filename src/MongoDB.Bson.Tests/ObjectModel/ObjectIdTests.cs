@@ -16,324 +16,325 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class ObjectIdTests
     {
-        [Test]
+        [Fact]
         public void TestByteArrayConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new ObjectId(bytes);
-            Assert.AreEqual(0x01020304, objectId.Timestamp);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
-            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
-            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+            Assert.Equal(0x01020304, objectId.Timestamp);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
+            Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
         }
 
-        [Test]
+        [Fact]
         public void TestIntIntShortIntConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new ObjectId(0x01020304, 0x050607, 0x0809, 0x0a0b0c);
-            Assert.AreEqual(0x01020304, objectId.Timestamp);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
-            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
-            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+            Assert.Equal(0x01020304, objectId.Timestamp);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
+            Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
         }
 
-        [Test]
+        [Fact]
         public void TestIntIntShortIntConstructorWithInvalidIncrement()
         {
             var objectId = new ObjectId(0, 0, 0, 0x00ffffff);
-            Assert.AreEqual(0x00ffffff, objectId.Increment);
+            Assert.Equal(0x00ffffff, objectId.Increment);
             Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(0, 0, 0, 0x01000000));
         }
 
-        [Test]
+        [Fact]
         public void TestIntIntShortIntConstructorWithInvalidMachine()
         {
             var objectId = new ObjectId(0, 0x00ffffff, 0, 0);
-            Assert.AreEqual(0x00ffffff, objectId.Machine);
+            Assert.Equal(0x00ffffff, objectId.Machine);
             Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(0, 0x01000000, 0, 0));
         }
 
-        [Test]
+        [Fact]
         public void TestPackWithInvalidIncrement()
         {
             var objectId = new ObjectId(ObjectId.Pack(0, 0, 0, 0x00ffffff));
-            Assert.AreEqual(0x00ffffff, objectId.Increment);
+            Assert.Equal(0x00ffffff, objectId.Increment);
             Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(ObjectId.Pack(0, 0, 0, 0x01000000)));
         }
 
-        [Test]
+        [Fact]
         public void TestPackWithInvalidMachine()
         {
             var objectId = new ObjectId(ObjectId.Pack(0, 0x00ffffff, 0, 0));
-            Assert.AreEqual(0x00ffffff, objectId.Machine);
+            Assert.Equal(0x00ffffff, objectId.Machine);
             Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(ObjectId.Pack(0, 0x01000000, 0, 0)));
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var timestamp = BsonConstants.UnixEpoch.AddSeconds(0x01020304);
             var objectId = new ObjectId(timestamp, 0x050607, 0x0809, 0x0a0b0c);
-            Assert.AreEqual(0x01020304, objectId.Timestamp);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
-            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
-            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+            Assert.Equal(0x01020304, objectId.Timestamp);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
+            Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
         }
 
-        [TestCase(int.MinValue)]
-        [TestCase(int.MaxValue)]
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(int.MaxValue)]
         public void TestDateTimeConstructorAtEdgeOfRange(int secondsSinceEpoch)
         {
             var timestamp = BsonConstants.UnixEpoch.AddSeconds(secondsSinceEpoch);
             var objectId = new ObjectId(timestamp, 0, 0, 0);
-            Assert.AreEqual(timestamp, objectId.CreationTime);
+            Assert.Equal(timestamp, objectId.CreationTime);
         }
 
-        [TestCase((long)int.MinValue - 1)]
-        [TestCase((long)int.MaxValue + 1)]
+        [Theory]
+        [InlineData((long)int.MinValue - 1)]
+        [InlineData((long)int.MaxValue + 1)]
         public void TestDateTimeConstructorArgumentOutOfRangeException(long secondsSinceEpoch)
         {
             var timestamp = BsonConstants.UnixEpoch.AddSeconds(secondsSinceEpoch);
             Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(timestamp, 0, 0, 0));
         }
 
-        [Test]
+        [Fact]
         public void TestStringConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new ObjectId("0102030405060708090a0b0c");
-            Assert.AreEqual(0x01020304, objectId.Timestamp);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x050607, objectId.Machine);
-            Assert.AreEqual(0x0809, objectId.Pid);
-            Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
-            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
-            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+            Assert.Equal(0x01020304, objectId.Timestamp);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(0x050607, objectId.Machine);
+            Assert.Equal(0x0809, objectId.Pid);
+            Assert.Equal(0x0a0b0c, objectId.Increment);
+            Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
+            Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
         }
 
-        [Test]
+        [Fact]
         public void TestGenerateNewId()
         {
             // compare against two timestamps in case seconds since epoch changes in middle of test
             var timestamp1 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
             var objectId = ObjectId.GenerateNewId();
             var timestamp2 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
-            Assert.IsTrue(objectId.Timestamp == timestamp1 || objectId.Timestamp == timestamp2);
-            Assert.IsTrue(objectId.Machine != 0);
-            Assert.IsTrue(objectId.Pid != 0);
+            Assert.True(objectId.Timestamp == timestamp1 || objectId.Timestamp == timestamp2);
+            Assert.True(objectId.Machine != 0);
+            Assert.True(objectId.Pid != 0);
         }
 
-        [Test]
+        [Fact]
         public void TestGenerateNewIdWithDateTime()
         {
             var timestamp = new DateTime(2011, 1, 2, 3, 4, 5, DateTimeKind.Utc);
             var objectId = ObjectId.GenerateNewId(timestamp);
-            Assert.IsTrue(objectId.CreationTime == timestamp);
-            Assert.IsTrue(objectId.Machine != 0);
-            Assert.IsTrue(objectId.Pid != 0);
+            Assert.True(objectId.CreationTime == timestamp);
+            Assert.True(objectId.Machine != 0);
+            Assert.True(objectId.Pid != 0);
         }
 
-        [Test]
+        [Fact]
         public void TestGenerateNewIdWithTimestamp()
         {
             var timestamp = 0x01020304;
             var objectId = ObjectId.GenerateNewId(timestamp);
-            Assert.IsTrue(objectId.Timestamp == timestamp);
-            Assert.IsTrue(objectId.Machine != 0);
-            Assert.IsTrue(objectId.Pid != 0);
+            Assert.True(objectId.Timestamp == timestamp);
+            Assert.True(objectId.Machine != 0);
+            Assert.True(objectId.Pid != 0);
         }
 
-        [Test]
+        [Fact]
         public void TestIComparable()
         {
             var objectId1 = ObjectId.GenerateNewId();
             var objectId2 = ObjectId.GenerateNewId();
-            Assert.AreEqual(0, objectId1.CompareTo(objectId1));
-            Assert.AreEqual(-1, objectId1.CompareTo(objectId2));
-            Assert.AreEqual(1, objectId2.CompareTo(objectId1));
-            Assert.AreEqual(0, objectId2.CompareTo(objectId2));
+            Assert.Equal(0, objectId1.CompareTo(objectId1));
+            Assert.Equal(-1, objectId1.CompareTo(objectId2));
+            Assert.Equal(1, objectId2.CompareTo(objectId1));
+            Assert.Equal(0, objectId2.CompareTo(objectId2));
         }
 
-        [Test]
+        [Fact]
         public void TestCompareEqualGeneratedIds()
         {
             var objectId1 = ObjectId.GenerateNewId();
             var objectId2 = objectId1;
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsFalse(objectId1 != objectId2);
-            Assert.IsTrue(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.False(objectId1 != objectId2);
+            Assert.True(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareSmallerTimestamp()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0c");
             var objectId2 = new ObjectId("0102030505060708090a0b0c");
-            Assert.IsTrue(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsFalse(objectId1 >= objectId2);
+            Assert.True(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.False(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareSmallerMachine()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0c");
             var objectId2 = new ObjectId("0102030405060808090a0b0c");
-            Assert.IsTrue(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsFalse(objectId1 >= objectId2);
+            Assert.True(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.False(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareSmallerPid()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0c");
             var objectId2 = new ObjectId("01020304050607080a0a0b0c");
-            Assert.IsTrue(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsFalse(objectId1 >= objectId2);
+            Assert.True(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.False(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareSmallerIncrement()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0c");
             var objectId2 = new ObjectId("0102030405060708090a0b0d");
-            Assert.IsTrue(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsFalse(objectId1 >= objectId2);
+            Assert.True(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.False(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareSmallerGeneratedId()
         {
             var objectId1 = ObjectId.GenerateNewId();
             var objectId2 = ObjectId.GenerateNewId();
-            Assert.IsTrue(objectId1 < objectId2);
-            Assert.IsTrue(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsFalse(objectId1 > objectId2);
-            Assert.IsFalse(objectId1 >= objectId2);
+            Assert.True(objectId1 < objectId2);
+            Assert.True(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.False(objectId1 > objectId2);
+            Assert.False(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareLargerTimestamp()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0c");
             var objectId2 = new ObjectId("0102030305060708090a0b0c");
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsFalse(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsTrue(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.False(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.True(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareLargerMachine()
         {
             var objectId1 = new ObjectId("0102030405060808090a0b0c");
             var objectId2 = new ObjectId("0102030405060708090a0b0c");
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsFalse(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsTrue(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.False(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.True(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareLargerPid()
         {
             var objectId1 = new ObjectId("01020304050607080a0a0b0c");
             var objectId2 = new ObjectId("0102030405060708090a0b0c");
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsFalse(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsTrue(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.False(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.True(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareLargerIncrement()
         {
             var objectId1 = new ObjectId("0102030405060708090a0b0d");
             var objectId2 = new ObjectId("0102030405060708090a0b0c");
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsFalse(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsTrue(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.False(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.True(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareLargerGeneratedId()
         {
             var objectId2 = ObjectId.GenerateNewId(); // generate before objectId2
             var objectId1 = ObjectId.GenerateNewId();
-            Assert.IsFalse(objectId1 < objectId2);
-            Assert.IsFalse(objectId1 <= objectId2);
-            Assert.IsTrue(objectId1 != objectId2);
-            Assert.IsFalse(objectId1 == objectId2);
-            Assert.IsTrue(objectId1 > objectId2);
-            Assert.IsTrue(objectId1 >= objectId2);
+            Assert.False(objectId1 < objectId2);
+            Assert.False(objectId1 <= objectId2);
+            Assert.True(objectId1 != objectId2);
+            Assert.False(objectId1 == objectId2);
+            Assert.True(objectId1 > objectId2);
+            Assert.True(objectId1 >= objectId2);
         }
 
-        [Test]
+        [Fact]
         public void TestIConvertibleMethods()
         {
             var value = ObjectId.Empty;
-            Assert.AreEqual(TypeCode.Object, ((IConvertible)value).GetTypeCode());
-            Assert.AreEqual(value, ((IConvertible)value).ToType(typeof(object), null)); // not AreSame because of boxing
-            Assert.AreEqual(value, ((IConvertible)value).ToType(typeof(ObjectId), null)); // not AreSame because of boxing
+            Assert.Equal(TypeCode.Object, ((IConvertible)value).GetTypeCode());
+            Assert.Equal(value, ((IConvertible)value).ToType(typeof(object), null)); // not AreSame because of boxing
+            Assert.Equal(value, ((IConvertible)value).ToType(typeof(ObjectId), null)); // not AreSame because of boxing
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));
@@ -345,53 +346,53 @@ namespace MongoDB.Bson.Tests
             Assert.Throws<InvalidCastException>(() => Convert.ToInt64(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToSByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToSingle(value));
-            Assert.AreEqual("000000000000000000000000", Convert.ToString(value));
+            Assert.Equal("000000000000000000000000", Convert.ToString(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt16(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt32(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt64(value));
 
-            Assert.AreEqual(new BsonObjectId(value), ((IConvertible)value).ToType(typeof(BsonObjectId), null));
-            Assert.AreEqual(new BsonString("000000000000000000000000"), ((IConvertible)value).ToType(typeof(BsonString), null));
-            Assert.AreEqual("000000000000000000000000", ((IConvertible)value).ToType(typeof(string), null));
+            Assert.Equal(new BsonObjectId(value), ((IConvertible)value).ToType(typeof(BsonObjectId), null));
+            Assert.Equal(new BsonString("000000000000000000000000"), ((IConvertible)value).ToType(typeof(BsonString), null));
+            Assert.Equal("000000000000000000000000", ((IConvertible)value).ToType(typeof(string), null));
             Assert.Throws<InvalidCastException>(() => ((IConvertible)value).ToType(typeof(UInt64), null));
         }
 
-        [Test]
+        [Fact]
         public void TestParse()
         {
             var objectId1 = ObjectId.Parse("0102030405060708090a0b0c"); // lower case
             var objectId2 = ObjectId.Parse("0102030405060708090A0B0C"); // upper case
-            Assert.IsTrue(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
-            Assert.IsTrue(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
-            Assert.IsTrue(objectId1.ToString() == objectId2.ToString());
+            Assert.True(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
+            Assert.True(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
+            Assert.True(objectId1.ToString() == objectId2.ToString());
             Assert.Throws<FormatException>(() => ObjectId.Parse("102030405060708090a0b0c")); // too short
             Assert.Throws<FormatException>(() => ObjectId.Parse("x102030405060708090a0b0c")); // invalid character
             Assert.Throws<FormatException>(() => ObjectId.Parse("00102030405060708090a0b0c")); // too long
         }
 
-        [Test]
+        [Fact]
         public void TestTryParse()
         {
             ObjectId objectId1, objectId2;
-            Assert.IsTrue(ObjectId.TryParse("0102030405060708090a0b0c", out objectId1)); // lower case
-            Assert.IsTrue(ObjectId.TryParse("0102030405060708090A0B0C", out objectId2)); // upper case
-            Assert.IsTrue(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
-            Assert.IsTrue(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
-            Assert.IsTrue(objectId1.ToString() == objectId2.ToString());
-            Assert.IsFalse(ObjectId.TryParse("102030405060708090a0b0c", out objectId1)); // too short
-            Assert.IsFalse(ObjectId.TryParse("x102030405060708090a0b0c", out objectId1)); // invalid character
-            Assert.IsFalse(ObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
-            Assert.IsFalse(ObjectId.TryParse(null, out objectId1)); // should return false not throw ArgumentNullException
+            Assert.True(ObjectId.TryParse("0102030405060708090a0b0c", out objectId1)); // lower case
+            Assert.True(ObjectId.TryParse("0102030405060708090A0B0C", out objectId2)); // upper case
+            Assert.True(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
+            Assert.True(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
+            Assert.True(objectId1.ToString() == objectId2.ToString());
+            Assert.False(ObjectId.TryParse("102030405060708090a0b0c", out objectId1)); // too short
+            Assert.False(ObjectId.TryParse("x102030405060708090a0b0c", out objectId1)); // invalid character
+            Assert.False(ObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
+            Assert.False(ObjectId.TryParse(null, out objectId1)); // should return false not throw ArgumentNullException
         }
 
-        [Test]
+        [Fact]
         public void TestConvertObjectIdToObjectId()
         {
             var oid = ObjectId.GenerateNewId();
 
             var oidConverted = Convert.ChangeType(oid, typeof(ObjectId));
 
-            Assert.AreEqual(oid, oidConverted);
+            Assert.Equal(oid, oidConverted);
         }
     }
 }

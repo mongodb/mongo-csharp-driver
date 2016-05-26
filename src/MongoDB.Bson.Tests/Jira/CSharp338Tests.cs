@@ -14,31 +14,30 @@
 */
 
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp338Tests
     {
-        [Test]
+        [Fact]
         public void TestBsonDoubleEquals()
         {
             var left = new BsonDouble(double.NaN);
             var right = new BsonDouble(double.NaN);
-            Assert.IsFalse(left == right);
-            Assert.IsTrue(left != right);
-            Assert.IsTrue(left.Equals(right));
+            Assert.False(left == right);
+            Assert.True(left != right);
+            Assert.True(left.Equals(right));
         }
 
-        [Test]
+        [Fact]
         public void TestBsonValueEquals()
         {
             var left = (BsonValue)new BsonDouble(double.NaN);
             var right = (BsonValue)new BsonDouble(double.NaN);
-            Assert.IsFalse(left == right);
-            Assert.IsTrue(left != right);
-            Assert.IsTrue(left.Equals(right));
+            Assert.False(left == right);
+            Assert.True(left != right);
+            Assert.True(left.Equals(right));
         }
     }
 }

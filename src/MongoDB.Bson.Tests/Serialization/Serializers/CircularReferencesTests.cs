@@ -17,11 +17,10 @@ using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class CircularReferencesTests
     {
         public class C
@@ -31,7 +30,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public BsonArray BsonArray { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestCircularBsonArray()
         {
             // note: setting a breakpoint in this method will crash the debugger if the locals window is open
@@ -44,7 +43,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Throws<BsonSerializationException>(() => c1.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestCircularDocument()
         {
             var c1 = new C { X = 1 };
@@ -54,7 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Throws<BsonSerializationException>(() => c1.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNoCircularReference()
         {
             var c2 = new C { X = 2 };
@@ -62,27 +61,27 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var json = c1.ToJson();
             var expected = "{ 'X' : 1, 'NestedDocument' : { 'X' : 2, 'NestedDocument' : null, 'BsonArray' : { '_csharpnull' : true } }, 'BsonArray' : { '_csharpnull' : true } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var memoryStream = new MemoryStream();
             using (var writer = new BsonBinaryWriter(memoryStream))
             {
                 BsonSerializer.Serialize(writer, c1);
-                Assert.AreEqual(0, writer.SerializationDepth);
+                Assert.Equal(0, writer.SerializationDepth);
             }
 
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
                 BsonSerializer.Serialize(writer, c1);
-                Assert.AreEqual(0, writer.SerializationDepth);
+                Assert.Equal(0, writer.SerializationDepth);
             }
 
             var stringWriter = new StringWriter();
             using (var writer = new JsonWriter(stringWriter))
             {
                 BsonSerializer.Serialize(writer, c1);
-                Assert.AreEqual(0, writer.SerializationDepth);
+                Assert.Equal(0, writer.SerializationDepth);
             }
         }
     }

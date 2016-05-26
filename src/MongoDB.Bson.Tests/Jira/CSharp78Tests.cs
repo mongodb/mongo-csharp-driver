@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp78Tests
     {
         private class C
@@ -28,21 +27,21 @@ namespace MongoDB.Bson.Tests.Jira
             public object O { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestShortSerialization()
         {
             var c = new C { S = 1, O = (short)2 };
             var json = c.ToJson();
             var expected = "{ 'S' : 1, 'O' : 2 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsInstanceOf<C>(rehydrated);
-            Assert.IsInstanceOf<short>(rehydrated.S);
-            Assert.IsInstanceOf<int>(rehydrated.O); // the short became an int after deserialization
-            Assert.AreEqual(1, rehydrated.S);
-            Assert.AreEqual(2, rehydrated.O);
+            Assert.IsType<C>(rehydrated);
+            Assert.IsType<short>(rehydrated.S);
+            Assert.IsType<int>(rehydrated.O); // the short became an int after deserialization
+            Assert.Equal(1, rehydrated.S);
+            Assert.Equal(2, rehydrated.O);
         }
     }
 }

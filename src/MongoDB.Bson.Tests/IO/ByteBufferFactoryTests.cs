@@ -20,15 +20,16 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class ByteBufferFactoryTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Create_should_return_expected_result(
             [Values(1, 63, 64, 65, 128)]
             int minimumCapacity)
@@ -40,7 +41,8 @@ namespace MongoDB.Bson.Tests.IO
             result.Capacity.Should().BeGreaterOrEqualTo(minimumCapacity);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Create_should_return_SingleChunkBuffer_when_a_single_chunk_is_sufficient(
             [Values(1, 63, 64)]
             int minimumCapacity)
@@ -52,7 +54,8 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().BeOfType<SingleChunkBuffer>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Create_should_return_MultiChunkBuffer_when_multiple_chunks_are_required(
             [Values(65, 128)]
             int minimumCapacity)
@@ -64,7 +67,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().BeOfType<MultiChunkBuffer>();
         }
 
-        [Test]
+        [Fact]
         public void Create_should_throw_when_chunkSource_is_null()
         {
             Action action = () => ByteBufferFactory.Create(null, 0);
@@ -72,7 +75,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("chunkSource");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Create_should_throw_when_minimumCapacity_is_invalid(
             [Values(-1, 0)]
             int minimumCapacity)

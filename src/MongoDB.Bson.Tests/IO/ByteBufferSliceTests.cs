@@ -21,15 +21,15 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class ByteBufferSliceTests
     {
-        [Test]
+        [Fact]
         public void AccessBackingBytes_should_adjust_count()
         {
             var bytes = new byte[4];
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Count.Should().Be(2); // not 3
         }
 
-        [Test]
+        [Fact]
         public void AccessBackingBytes_should_adjust_count_when_multiple_chunks_are_present()
         {
             var arrays = new[] { new byte[] { 1, 2 }, new byte[] { 3, 4 } };
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Count.Should().Be(1); // not 2 or 3
         }
 
-        [Test]
+        [Fact]
         public void AccessBackingBytes_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -67,7 +67,8 @@ namespace MongoDB.Bson.Tests.IO
             subject.Buffer.Received(1).AccessBackingBytes(1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AccessBackingBytes_should_throw_when_position_is_out_of_range(
             [Values(-1, 3)]
             int position)
@@ -79,7 +80,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
         }
 
-        [Test]
+        [Fact]
         public void AccessBackingBytes_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -90,7 +91,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void Capacity_get_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -100,7 +101,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Capacity_get_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -111,7 +112,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void Clear_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -122,9 +123,10 @@ namespace MongoDB.Bson.Tests.IO
             buffer.Received(1).Clear(1, 2);
         }
 
-        [TestCase(0, 3)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, 3)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void Clear_should_throw_when_count_is_out_of_range(int position, int count)
         {
             var subject = CreateSubject();
@@ -134,7 +136,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Clear_should_throw_when_position_is_out_of_range(
             [Values(-1, 3)]
             int position)
@@ -146,7 +149,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
         }
 
-        [Test]
+        [Fact]
         public void Clear_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -157,7 +160,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var buffer = new ByteArrayBuffer(new byte[3], isReadOnly: true);
@@ -171,7 +174,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._length.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_buffer_is_null()
         {
             Action action = () => new ByteBufferSlice(null, 0, 0);
@@ -179,7 +182,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_buffer_is_not_readonly()
         {
             var buffer = new ByteArrayBuffer(new byte[1], isReadOnly: false);
@@ -189,12 +192,13 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, 0, 1)]
-        [TestCase(1, 0, 2)]
-        [TestCase(1, 1, 1)]
-        [TestCase(2, 0, 3)]
-        [TestCase(2, 1, 2)]
-        [TestCase(2, 2, 1)]
+        [Theory]
+        [InlineData(0, 0, 1)]
+        [InlineData(1, 0, 2)]
+        [InlineData(1, 1, 1)]
+        [InlineData(2, 0, 3)]
+        [InlineData(2, 1, 2)]
+        [InlineData(2, 2, 1)]
         public void constructor_should_throw_when_length_is_out_of_range(int size, int offset, int length)
         {
             var buffer = new ByteArrayBuffer(new byte[size], isReadOnly: true);
@@ -204,7 +208,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_offset_is_out_of_range(
             [Values(-1, 2)]
             int offset)
@@ -216,7 +221,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var subject = CreateSubject();
@@ -225,7 +230,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_buffer()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -236,7 +241,7 @@ namespace MongoDB.Bson.Tests.IO
             buffer.Received(1).Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var subject = CreateSubject();
@@ -247,7 +252,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void EnsureCapacity_should_throw()
         {
             var subject = CreateSubject();
@@ -257,7 +262,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Fact]
         public void GetByte_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -268,7 +273,8 @@ namespace MongoDB.Bson.Tests.IO
             buffer.Received(1).GetByte(1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetByte_should_throw_when_position_is_out_of_range(
             [Values(-1, 3)]
             int position)
@@ -280,7 +286,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
         }
 
-        [Test]
+        [Fact]
         public void GetByte_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -291,7 +297,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void GetBytes_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -303,9 +309,10 @@ namespace MongoDB.Bson.Tests.IO
             buffer.Received(1).GetBytes(2, destination, 0, 1);
         }
 
-        [TestCase(0, 3)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, 3)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void GetBytes_should_throw_when_count_is_out_of_range(int position, int count)
         {
             var subject = CreateSubject();
@@ -316,7 +323,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetBytes_should_throw_when_position_is_out_of_range(
             [Values(-1, 3)]
             int position)
@@ -329,7 +337,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
         }
 
-        [Test]
+        [Fact]
         public void GetBytes_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -341,7 +349,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void GetSlice_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
@@ -352,9 +360,10 @@ namespace MongoDB.Bson.Tests.IO
             buffer.Received(1).GetSlice(2, 1);
         }
 
-        [TestCase(0, 3)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, 3)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void GetSlice_should_throw_when_length_is_out_of_range(int position, int length)
         {
             var subject = CreateSubject();
@@ -364,7 +373,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetSlice_should_throw_when_position_is_out_of_range(
             [Values(-1, 3)]
             int position)
@@ -376,7 +386,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
         }
 
-        [Test]
+        [Fact]
         public void GetSlice_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -387,7 +397,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void IsReadOnly_get_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -397,7 +407,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void IsReadOnly_get_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -408,7 +418,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void Length_get_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -418,7 +428,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Length_get_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -429,7 +439,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void MakeReadOnly_should_throw_when_subject_is_disposed()
         {
             var subject = CreateSubject();
@@ -440,7 +450,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferSlice");
         }
 
-        [Test]
+        [Fact]
         public void SetByte_should_throw()
         {
             var subject = CreateSubject();
@@ -450,7 +460,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Fact]
         public void SetBytes_should_throw()
         {
             var subject = CreateSubject();

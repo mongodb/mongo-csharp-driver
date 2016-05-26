@@ -18,14 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class RawBsonDocumentTests
     {
-        [Test]
+        [Fact]
         public void TestClone()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -33,35 +32,35 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             using (var clone = (IDisposable)rawBsonDocument.Clone())
             {
-                Assert.AreEqual(rawBsonDocument, clone);
+                Assert.Equal(rawBsonDocument, clone);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestContains()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var bson = bsonDocument.ToBson();
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
-                Assert.AreEqual(true, rawBsonDocument.Contains("x"));
-                Assert.AreEqual(false, rawBsonDocument.Contains("z"));
+                Assert.Equal(true, rawBsonDocument.Contains("x"));
+                Assert.Equal(false, rawBsonDocument.Contains("z"));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestContainsValue()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var bson = bsonDocument.ToBson();
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
-                Assert.AreEqual(true, rawBsonDocument.ContainsValue(1));
-                Assert.AreEqual(false, rawBsonDocument.ContainsValue(3));
+                Assert.Equal(true, rawBsonDocument.ContainsValue(1));
+                Assert.Equal(false, rawBsonDocument.ContainsValue(3));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDeepClone()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -69,11 +68,11 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             using (var clone = (IDisposable)rawBsonDocument.DeepClone())
             {
-                Assert.AreEqual(rawBsonDocument, clone);
+                Assert.Equal(rawBsonDocument, clone);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestElementCount()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -81,11 +80,11 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var count = rawBsonDocument.ElementCount;
-                Assert.AreEqual(2, count);
+                Assert.Equal(2, count);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestElements()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -93,15 +92,15 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var elements = rawBsonDocument.Elements.ToArray();
-                Assert.AreEqual(2, elements.Length);
-                Assert.AreEqual("x", elements[0].Name);
-                Assert.AreEqual(1, elements[0].Value.AsInt32);
-                Assert.AreEqual("y", elements[1].Name);
-                Assert.AreEqual(2, elements[1].Value.AsInt32);
+                Assert.Equal(2, elements.Length);
+                Assert.Equal("x", elements[0].Name);
+                Assert.Equal(1, elements[0].Value.AsInt32);
+                Assert.Equal("y", elements[1].Name);
+                Assert.Equal(2, elements[1].Value.AsInt32);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetElementByIndex()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -109,16 +108,16 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var elements = new[] { rawBsonDocument.GetElement(0), rawBsonDocument.GetElement(1) };
-                Assert.AreEqual("x", elements[0].Name);
-                Assert.AreEqual(1, elements[0].Value.AsInt32);
-                Assert.AreEqual("y", elements[1].Name);
-                Assert.AreEqual(2, elements[1].Value.AsInt32);
+                Assert.Equal("x", elements[0].Name);
+                Assert.Equal(1, elements[0].Value.AsInt32);
+                Assert.Equal("y", elements[1].Name);
+                Assert.Equal(2, elements[1].Value.AsInt32);
 
                 Assert.Throws<ArgumentOutOfRangeException>(() => { rawBsonDocument.GetElement(2); });
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetElementByName()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -126,27 +125,27 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var elements = new[] { rawBsonDocument.GetElement("x"), rawBsonDocument.GetElement("y") };
-                Assert.AreEqual("x", elements[0].Name);
-                Assert.AreEqual(1, elements[0].Value.AsInt32);
-                Assert.AreEqual("y", elements[1].Name);
-                Assert.AreEqual(2, elements[1].Value.AsInt32);
+                Assert.Equal("x", elements[0].Name);
+                Assert.Equal(1, elements[0].Value.AsInt32);
+                Assert.Equal("y", elements[1].Name);
+                Assert.Equal(2, elements[1].Value.AsInt32);
 
                 Assert.Throws<KeyNotFoundException>(() => { rawBsonDocument.GetElement("z"); });
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetHashcode()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var bson = bsonDocument.ToBson();
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
-                Assert.AreEqual(bsonDocument.GetHashCode(), rawBsonDocument.GetHashCode());
+                Assert.Equal(bsonDocument.GetHashCode(), rawBsonDocument.GetHashCode());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByIndex()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -154,14 +153,14 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var values = new[] { rawBsonDocument.GetValue(0), rawBsonDocument.GetValue(1) };
-                Assert.AreEqual(1, values[0].AsInt32);
-                Assert.AreEqual(2, values[1].AsInt32);
+                Assert.Equal(1, values[0].AsInt32);
+                Assert.Equal(2, values[1].AsInt32);
 
                 Assert.Throws<ArgumentOutOfRangeException>(() => { rawBsonDocument.GetValue(2); });
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByName()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -169,26 +168,26 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var values = new[] { rawBsonDocument.GetValue("x"), rawBsonDocument.GetValue("y") };
-                Assert.AreEqual(1, values[0].AsInt32);
-                Assert.AreEqual(2, values[1].AsInt32);
+                Assert.Equal(1, values[0].AsInt32);
+                Assert.Equal(2, values[1].AsInt32);
 
                 Assert.Throws<KeyNotFoundException>(() => { rawBsonDocument.GetValue("z"); });
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByNameWithDefaultValue()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var bson = bsonDocument.ToBson();
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
-                Assert.AreEqual(1, rawBsonDocument.GetValue("x", 3).AsInt32);
-                Assert.AreEqual(3, rawBsonDocument.GetValue("z", 3).AsInt32);
+                Assert.Equal(1, rawBsonDocument.GetValue("x", 3).AsInt32);
+                Assert.Equal(3, rawBsonDocument.GetValue("z", 3).AsInt32);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNames()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -196,13 +195,13 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var names = rawBsonDocument.Names.ToArray();
-                Assert.AreEqual(2, names.Length);
-                Assert.AreEqual("x", names[0]);
-                Assert.AreEqual("y", names[1]);
+                Assert.Equal(2, names.Length);
+                Assert.Equal("x", names[0]);
+                Assert.Equal("y", names[1]);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNestedRawBsonArray()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "a", new BsonArray { 1, 2 } } };
@@ -211,14 +210,14 @@ namespace MongoDB.Bson.Tests
             {
                 var nestedRawBsonArray = rawBsonDocument["a"].AsBsonArray;
                 var nestedValues = nestedRawBsonArray.Values.ToArray();
-                Assert.AreEqual(1, rawBsonDocument["x"].AsInt32);
-                Assert.AreEqual(2, nestedValues.Length);
-                Assert.AreEqual(1, nestedValues[0].AsInt32);
-                Assert.AreEqual(2, nestedValues[1].AsInt32);
+                Assert.Equal(1, rawBsonDocument["x"].AsInt32);
+                Assert.Equal(2, nestedValues.Length);
+                Assert.Equal(1, nestedValues[0].AsInt32);
+                Assert.Equal(2, nestedValues[1].AsInt32);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNestedRawBsonDocument()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "d", new BsonDocument { { "x", 1 }, { "y", 2 } } } };
@@ -227,16 +226,16 @@ namespace MongoDB.Bson.Tests
             {
                 var nestedRawBsonDocument = rawBsonDocument["d"].AsBsonDocument;
                 var nestedElements = nestedRawBsonDocument.Elements.ToArray();
-                Assert.AreEqual(1, rawBsonDocument["x"].AsInt32);
-                Assert.AreEqual(2, nestedElements.Length);
-                Assert.AreEqual("x", nestedElements[0].Name);
-                Assert.AreEqual(1, nestedElements[0].Value.AsInt32);
-                Assert.AreEqual("y", nestedElements[1].Name);
-                Assert.AreEqual(2, nestedElements[1].Value.AsInt32);
+                Assert.Equal(1, rawBsonDocument["x"].AsInt32);
+                Assert.Equal(2, nestedElements.Length);
+                Assert.Equal("x", nestedElements[0].Name);
+                Assert.Equal(1, nestedElements[0].Value.AsInt32);
+                Assert.Equal("y", nestedElements[1].Name);
+                Assert.Equal(2, nestedElements[1].Value.AsInt32);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRawValues()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -246,13 +245,13 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
                 var rawValues = rawBsonDocument.RawValues.ToArray();
 #pragma warning restore
-                Assert.AreEqual(2, rawValues.Length);
-                Assert.AreEqual(1, rawValues[0]);
-                Assert.AreEqual(2, rawValues[1]);
+                Assert.Equal(2, rawValues.Length);
+                Assert.Equal(1, rawValues[0]);
+                Assert.Equal(2, rawValues[1]);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestValues()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -260,9 +259,9 @@ namespace MongoDB.Bson.Tests
             using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
             {
                 var rawValues = rawBsonDocument.Values.ToArray();
-                Assert.AreEqual(2, rawValues.Length);
-                Assert.AreEqual(1, rawValues[0].AsInt32);
-                Assert.AreEqual(2, rawValues[1].AsInt32);
+                Assert.Equal(2, rawValues.Length);
+                Assert.Equal(1, rawValues[0].AsInt32);
+                Assert.Equal(2, rawValues[1].AsInt32);
             }
         }
     }

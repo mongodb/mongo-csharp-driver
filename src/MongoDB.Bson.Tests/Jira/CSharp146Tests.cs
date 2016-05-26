@@ -16,7 +16,7 @@
 using System.Collections;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp146
 {
@@ -37,25 +37,24 @@ namespace MongoDB.Bson.Tests.Jira.CSharp146
         public object O;
     }
 
-    [TestFixture]
     public class CSharp146Tests
     {
-        [Test]
+        [Fact]
         public void TestClass()
         {
             var c = new C { E = E.B, O = E.B };
             var json = c.ToJson();
             var expected = "{ 'E' : 1, 'O' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<C>(json);
-            Assert.IsInstanceOf<E>(rehydrated.E);
-            Assert.IsInstanceOf<int>(rehydrated.O); // this might be considered a bug that it's not an instance of E
-            Assert.AreEqual(E.B, rehydrated.E);
-            Assert.AreEqual(1, rehydrated.O);
+            Assert.IsType<E>(rehydrated.E);
+            Assert.IsType<int>(rehydrated.O); // this might be considered a bug that it's not an instance of E
+            Assert.Equal(E.B, rehydrated.E);
+            Assert.Equal(1, rehydrated.O);
         }
 
-        [Test]
+        [Fact]
         public void TestDoc()
         {
             var table = new Hashtable();
@@ -65,12 +64,12 @@ namespace MongoDB.Bson.Tests.Jira.CSharp146
 
             var json = doc.ToJson();
             // var expected = "{ 'Values' : { 'Text' : 'hello', 'Enum' : 1 } }".Replace("'", "\"");
-            // Assert.AreEqual(expected, json);
+            // Assert.Equal(expected, json);
             var rehydrated = BsonSerializer.Deserialize<Doc>(json);
-            Assert.IsNotNull(rehydrated.Values);
-            Assert.AreEqual(doc.Values.Count, rehydrated.Values.Count);
-            Assert.AreEqual(doc.Values["Text"], rehydrated.Values["Text"]);
-            Assert.AreEqual((int)doc.Values["Enum"], rehydrated.Values["Enum"]);
+            Assert.NotNull(rehydrated.Values);
+            Assert.Equal(doc.Values.Count, rehydrated.Values.Count);
+            Assert.Equal(doc.Values["Text"], rehydrated.Values["Text"]);
+            Assert.Equal((int)doc.Values["Enum"], rehydrated.Values["Enum"]);
         }
     }
 }

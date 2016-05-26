@@ -18,11 +18,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Attributes
 {
-    [TestFixture]
     public class BsonAttributeTests
     {
         [BsonDiscriminator("discriminator", Required = true)]
@@ -66,122 +65,122 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             public string NoElement { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestDiscriminator()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
-            Assert.AreEqual("discriminator", classMap.Discriminator);
-            Assert.AreEqual(true, classMap.DiscriminatorIsRequired);
+            Assert.Equal("discriminator", classMap.Discriminator);
+            Assert.Equal(true, classMap.DiscriminatorIsRequired);
         }
 
-        [Test]
+        [Fact]
         public void TestIgnoreExtraElements()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
-            Assert.AreEqual(false, classMap.IgnoreExtraElements);
+            Assert.Equal(false, classMap.IgnoreExtraElements);
         }
 
-        [Test]
+        [Fact]
         public void TestDefaultValue()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
-            Assert.AreEqual(false, serializedDefaultValue1.IgnoreIfDefault);
-            Assert.AreEqual("default1", serializedDefaultValue1.DefaultValue);
+            Assert.Equal(false, serializedDefaultValue1.IgnoreIfDefault);
+            Assert.Equal("default1", serializedDefaultValue1.DefaultValue);
 
             var serializedDefaultValue2 = classMap.GetMemberMap("SerializedDefaultValue2");
-            Assert.AreEqual(false, serializedDefaultValue2.IgnoreIfDefault);
-            Assert.AreEqual("default2", serializedDefaultValue2.DefaultValue);
+            Assert.Equal(false, serializedDefaultValue2.IgnoreIfDefault);
+            Assert.Equal("default2", serializedDefaultValue2.DefaultValue);
 
             var notSerializedDefaultValue = classMap.GetMemberMap("NotSerializedDefaultValue");
-            Assert.AreEqual(true, notSerializedDefaultValue.IgnoreIfDefault);
-            Assert.AreEqual("default3", notSerializedDefaultValue.DefaultValue);
+            Assert.Equal(true, notSerializedDefaultValue.IgnoreIfDefault);
+            Assert.Equal("default3", notSerializedDefaultValue.DefaultValue);
 
             var noDefaultValue = classMap.GetMemberMap("NoDefaultValue");
-            Assert.AreEqual(false, noDefaultValue.IgnoreIfDefault);
-            Assert.IsNull(noDefaultValue.DefaultValue);
+            Assert.Equal(false, noDefaultValue.IgnoreIfDefault);
+            Assert.Null(noDefaultValue.DefaultValue);
         }
 
-        [Test]
+        [Fact]
         public void TestId()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var isId = classMap.GetMemberMap("IsId");
-            Assert.AreEqual("_id", isId.ElementName);
-            Assert.AreSame(classMap.IdMemberMap, isId);
+            Assert.Equal("_id", isId.ElementName);
+            Assert.Same(classMap.IdMemberMap, isId);
 
             var isNotId = classMap.GetMemberMap("IsNotId");
-            Assert.AreEqual("IsNotId", isNotId.ElementName);
-            Assert.AreNotSame(classMap.IdMemberMap, isNotId);
+            Assert.Equal("IsNotId", isNotId.ElementName);
+            Assert.NotSame(classMap.IdMemberMap, isNotId);
         }
 
-        [Test]
+        [Fact]
         public void TestIgnored()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignored = classMap.GetMemberMap("Ignored");
-            Assert.IsNull(ignored);
+            Assert.Null(ignored);
 
             var notIgnored = classMap.GetMemberMap("NotIgnored");
-            Assert.IsNotNull(notIgnored);
+            Assert.NotNull(notIgnored);
         }
 
-        [Test]
+        [Fact]
         public void TestIgnoredIfNull()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
-            Assert.AreEqual(true, ignoredIfNull.IgnoreIfNull);
+            Assert.Equal(true, ignoredIfNull.IgnoreIfNull);
 
             var notIgnoredIfNull = classMap.GetMemberMap("NotIgnoredIfNull");
-            Assert.AreEqual(false, notIgnoredIfNull.IgnoreIfNull);
+            Assert.Equal(false, notIgnoredIfNull.IgnoreIfNull);
         }
 
-        [Test]
+        [Fact]
         public void TestIgnoredIfDefault()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignoredIfDefault = classMap.GetMemberMap("IgnoredIfDefault");
-            Assert.AreEqual(true, ignoredIfDefault.IgnoreIfDefault);
+            Assert.Equal(true, ignoredIfDefault.IgnoreIfDefault);
 
             var notIgnoredIfDefault = classMap.GetMemberMap("NotIgnoredIfDefault");
-            Assert.AreEqual(false, notIgnoredIfDefault.IgnoreIfDefault);
+            Assert.Equal(false, notIgnoredIfDefault.IgnoreIfDefault);
         }
 
-        [Test]
+        [Fact]
         public void TestRequired()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var required = classMap.GetMemberMap("Required");
-            Assert.AreEqual(true, required.IsRequired);
+            Assert.Equal(true, required.IsRequired);
 
             var notRequired = classMap.GetMemberMap("NotRequired");
-            Assert.AreEqual(false, notRequired.IsRequired);
+            Assert.Equal(false, notRequired.IsRequired);
         }
 
-        [Test]
+        [Fact]
         public void TestElement()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var notOrdered = classMap.GetMemberMap("NotOrdered");
-            Assert.AreEqual("notordered", notOrdered.ElementName);
-            Assert.AreEqual(int.MaxValue, notOrdered.Order);
+            Assert.Equal("notordered", notOrdered.ElementName);
+            Assert.Equal(int.MaxValue, notOrdered.Order);
 
             var ordered = classMap.GetMemberMap("Ordered");
-            Assert.AreEqual("ordered", ordered.ElementName);
-            Assert.AreEqual(1, ordered.Order);
-            Assert.AreSame(classMap.AllMemberMaps.First(), ordered);
+            Assert.Equal("ordered", ordered.ElementName);
+            Assert.Equal(1, ordered.Order);
+            Assert.Same(classMap.AllMemberMaps.First(), ordered);
 
             var noElement = classMap.GetMemberMap("NoElement");
-            Assert.AreEqual("NoElement", noElement.ElementName);
-            Assert.AreEqual(int.MaxValue, noElement.Order);
+            Assert.Equal("NoElement", noElement.ElementName);
+            Assert.Equal(int.MaxValue, noElement.Order);
         }
     }
 }

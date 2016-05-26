@@ -18,11 +18,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp452Tests
     {
         public class A
@@ -58,7 +57,7 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestReadonlyMembers()
         {
             var document = new A
@@ -68,7 +67,7 @@ namespace MongoDB.Bson.Tests.Jira
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<A>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

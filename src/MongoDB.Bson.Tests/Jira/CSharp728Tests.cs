@@ -15,11 +15,10 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp728
 {
-    [TestFixture]
     public class CSharp728Tests
     {
         private class A
@@ -27,7 +26,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp728
             public string S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestConventionProfileStillUsesDefaults()
         {
             var classMap = new BsonClassMap<A>();
@@ -35,7 +34,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp728
 
             var memberMap = classMap.GetMemberMap(x => x.S);
 
-            Assert.IsNotNull(memberMap);
+            Assert.NotNull(memberMap);
         }
     }
 }

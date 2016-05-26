@@ -16,12 +16,11 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 using System;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp476Tests
     {
         // make sure class maps are registered before tests run
@@ -69,26 +68,26 @@ namespace MongoDB.Bson.Tests.Jira
             public int Y { get { return _y; } }
         }
 
-        [Test]
+        [Fact]
         public void TestTBsonConstructor()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TBsonConstructor>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TBsonConstructor>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to constructor
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to constructor
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TBsonConstructor>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TBsonFactoryMethod
@@ -133,26 +132,26 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTBsonFactoryMethod()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TBsonFactoryMethod>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TBsonFactoryMethod>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to factory method
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to factory method
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TBsonFactoryMethod>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TDelegate
@@ -199,26 +198,26 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTDelegate()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TDelegate>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TDelegate>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to delegate
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to delegate
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TDelegate>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TExpressionCallingConstructor
@@ -265,26 +264,26 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTExpressionCallingConstructor()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TExpressionCallingConstructor>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TExpressionCallingConstructor>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to delegate
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to delegate
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TExpressionCallingConstructor>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TExpressionCallingFactoryMethod
@@ -337,26 +336,26 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTExpressionCallingFactoryMethod()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TExpressionCallingFactoryMethod>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TExpressionCallingFactoryMethod>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to factory method
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to factory method
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TExpressionCallingFactoryMethod>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TExpressionCallingArbitraryCode
@@ -419,32 +418,32 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTExpressionCallingArbitraryCode()
         {
             var json = "{ X : 1 }";
             var r = BsonSerializer.Deserialize<TExpressionCallingArbitraryCode>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to factory method
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(2, r.Chosen); // passed default value to factory method
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TExpressionCallingArbitraryCode>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
 
             json = "{ X : -1 }";
             r = BsonSerializer.Deserialize<TExpressionCallingArbitraryCode>(json);
-            Assert.AreEqual(-2, r.Chosen); // passed default value to factory method
-            Assert.AreEqual(-1, r.X);
-            Assert.AreEqual(2, r.Y);
+            Assert.Equal(-2, r.Chosen); // passed default value to factory method
+            Assert.Equal(-1, r.X);
+            Assert.Equal(2, r.Y);
 
             json = "{ X : -1, Y : 3 }";
             r = BsonSerializer.Deserialize<TExpressionCallingArbitraryCode>(json);
-            Assert.AreEqual(-2, r.Chosen);
-            Assert.AreEqual(-1, r.X);
-            Assert.AreEqual(3, r.Y);
+            Assert.Equal(-2, r.Chosen);
+            Assert.Equal(-1, r.X);
+            Assert.Equal(3, r.Y);
         }
 
         public class TBaseClass
@@ -500,36 +499,36 @@ namespace MongoDB.Bson.Tests.Jira
             public int Z { get { return _z; } set { _z = value; } }
         }
 
-        [Test]
+        [Fact]
         public void TestTDerivedClass()
         {
             var json = "{ }";
             var r = BsonSerializer.Deserialize<TDerivedClass>(json);
-            Assert.AreEqual(0, r.Chosen);
-            Assert.AreEqual(0, r.X);
-            Assert.AreEqual(0, r.Y); // note: unable to apply default value
-            Assert.AreEqual(3, r.Z);
+            Assert.Equal(0, r.Chosen);
+            Assert.Equal(0, r.X);
+            Assert.Equal(0, r.Y); // note: unable to apply default value
+            Assert.Equal(3, r.Z);
 
             json = "{ X : 1 }";
             r = BsonSerializer.Deserialize<TDerivedClass>(json);
-            Assert.AreEqual(2, r.Chosen); // passed default value to constructor
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(2, r.Y);
-            Assert.AreEqual(3, r.Z);
+            Assert.Equal(2, r.Chosen); // passed default value to constructor
+            Assert.Equal(1, r.X);
+            Assert.Equal(2, r.Y);
+            Assert.Equal(3, r.Z);
 
             json = "{ X : 1, Y : 3 }";
             r = BsonSerializer.Deserialize<TDerivedClass>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
-            Assert.AreEqual(3, r.Z);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
+            Assert.Equal(3, r.Z);
 
             json = "{ X : 1, Y : 3, Z : 4 }";
             r = BsonSerializer.Deserialize<TDerivedClass>(json);
-            Assert.AreEqual(2, r.Chosen);
-            Assert.AreEqual(1, r.X);
-            Assert.AreEqual(3, r.Y);
-            Assert.AreEqual(4, r.Z);
+            Assert.Equal(2, r.Chosen);
+            Assert.Equal(1, r.X);
+            Assert.Equal(3, r.Y);
+            Assert.Equal(4, r.Z);
         }
     }
 }

@@ -18,11 +18,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp310Tests
     {
         private class C
@@ -55,7 +54,7 @@ namespace MongoDB.Bson.Tests.Jira
             ConventionRegistry.Register("CSharp310", conventions, type => type.FullName.StartsWith("MongoDB.Bson.Tests.Jira.CSharp310Tests", StringComparison.Ordinal));
         }
 
-        [Test]
+        [Fact]
         public void TestNeverSerializeDefaultValueConvention()
         {
             InitializeSerialization();
@@ -63,11 +62,11 @@ namespace MongoDB.Bson.Tests.Jira
             var c = new C { Id = 1 };
             var json = c.ToJson<C>();
             var expected = "{ '_id' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson<C>();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<C>()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<C>()));
         }
     }
 }

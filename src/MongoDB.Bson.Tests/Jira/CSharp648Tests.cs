@@ -15,13 +15,12 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp648
 {
-    [TestFixture]
     public class CSharp648Tests
     {
         public class C
@@ -63,13 +62,13 @@ namespace MongoDB.Bson.Tests.Jira.CSharp648
             ConventionRegistry.Register("U3noid", pack, t => t == typeof(U3));
         }
 
-        [Test]
+        [Fact]
         public void TestNoId()
         {
             var c = new C { Id = 1, U1 = new U1 { Id = 1 }, U2 = new U2 { Id = 2 }, U3 = new U3 { Id = 3 } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'U1' : { 'Id' : 1 }, 'U2' : { 'Id' : 2 }, 'U3' : { 'Id' : 3 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

@@ -24,11 +24,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    [TestFixture]
     public class TupleT1SerializersTests
     {
         public class C
@@ -49,17 +48,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
 
             var subject = new TupleSerializer<bool>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -67,10 +66,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new TupleSerializer<bool>(
                 item1Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -78,10 +77,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false] }";
@@ -89,10 +88,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -100,10 +99,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -111,7 +110,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -123,7 +122,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT2SerializersTests
     {
         public class C
@@ -144,7 +142,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -152,11 +150,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -166,11 +164,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item1Serializer,
                 item2Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -178,10 +176,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1] }";
@@ -189,10 +187,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -200,10 +198,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -211,7 +209,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -223,7 +221,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT3SerializersTests
     {
         public class C
@@ -244,7 +241,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -252,12 +249,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -269,12 +266,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item2Serializer,
                 item3Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -282,10 +279,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true] }";
@@ -293,10 +290,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -304,10 +301,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -315,7 +312,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -327,7 +324,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT4SerializersTests
     {
         public class C
@@ -348,7 +344,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -356,13 +352,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
+            Assert.Same(intSerializer, subject.Item4Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -376,13 +372,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item3Serializer,
                 item4Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(item4Serializer, subject.Item4Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -390,10 +386,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2] }";
@@ -401,10 +397,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -412,10 +408,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -423,7 +419,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -435,7 +431,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT5SerializersTests
     {
         public class C
@@ -456,7 +451,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -464,14 +459,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
+            Assert.Same(intSerializer, subject.Item4Serializer);
+            Assert.Same(boolSerializer, subject.Item5Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -487,14 +482,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item4Serializer,
                 item5Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(item4Serializer, subject.Item4Serializer);
+            Assert.Same(item5Serializer, subject.Item5Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -502,10 +497,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false] }";
@@ -513,10 +508,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -524,10 +519,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -535,7 +530,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -547,7 +542,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT6SerializersTests
     {
         public class C
@@ -568,7 +562,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -576,15 +570,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
+            Assert.Same(intSerializer, subject.Item4Serializer);
+            Assert.Same(boolSerializer, subject.Item5Serializer);
+            Assert.Same(intSerializer, subject.Item6Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -602,15 +596,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item5Serializer,
                 item6Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(item4Serializer, subject.Item4Serializer);
+            Assert.Same(item5Serializer, subject.Item5Serializer);
+            Assert.Same(item6Serializer, subject.Item6Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -618,10 +612,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3] }";
@@ -629,10 +623,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -640,10 +634,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -651,7 +645,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -663,7 +657,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT7SerializersTests
     {
         public class C
@@ -684,7 +677,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -692,16 +685,16 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item7Serializer, Is.SameAs(boolSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
+            Assert.Same(intSerializer, subject.Item4Serializer);
+            Assert.Same(boolSerializer, subject.Item5Serializer);
+            Assert.Same(intSerializer, subject.Item6Serializer);
+            Assert.Same(boolSerializer, subject.Item7Serializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -721,16 +714,16 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item6Serializer,
                 item7Serializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
-            Assert.That(subject.Item7Serializer, Is.SameAs(item7Serializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(item4Serializer, subject.Item4Serializer);
+            Assert.Same(item5Serializer, subject.Item5Serializer);
+            Assert.Same(item6Serializer, subject.Item6Serializer);
+            Assert.Same(item7Serializer, subject.Item7Serializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -738,10 +731,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3, true] }";
@@ -749,10 +742,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -760,10 +753,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -771,7 +764,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods
@@ -783,7 +776,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
     }
 
-    [TestFixture]
     public class TupleT8SerializersTests
     {
         public class C
@@ -804,7 +796,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_no_arguments_should_initialize_instance()
         {
             var boolSerializer = BsonSerializer.LookupSerializer<bool>();
@@ -813,17 +805,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool, Tuple<int>>();
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
-            Assert.That(subject.Item7Serializer, Is.SameAs(boolSerializer));
-            Assert.That(subject.RestSerializer, Is.SameAs(restSerializer));
+            Assert.Same(boolSerializer, subject.Item1Serializer);
+            Assert.Same(intSerializer, subject.Item2Serializer);
+            Assert.Same(boolSerializer, subject.Item3Serializer);
+            Assert.Same(intSerializer, subject.Item4Serializer);
+            Assert.Same(boolSerializer, subject.Item5Serializer);
+            Assert.Same(intSerializer, subject.Item6Serializer);
+            Assert.Same(boolSerializer, subject.Item7Serializer);
+            Assert.Same(restSerializer, subject.RestSerializer);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
             var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
@@ -845,17 +837,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 item7Serializer,
                 restSerializer);
 
-            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
-            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
-            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
-            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
-            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
-            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
-            Assert.That(subject.Item7Serializer, Is.SameAs(item7Serializer));
-            Assert.That(subject.RestSerializer, Is.SameAs(restSerializer));
+            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(item4Serializer, subject.Item4Serializer);
+            Assert.Same(item5Serializer, subject.Item5Serializer);
+            Assert.Same(item6Serializer, subject.Item6Serializer);
+            Assert.Same(item7Serializer, subject.Item7Serializer);
+            Assert.Same(restSerializer, subject.RestSerializer);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_null()
         {
             var json = "{ \"_id\" : 1, \"T\" : null }";
@@ -863,10 +855,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_deserialize_value()
         {
             var json = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3, true, [4]] }";
@@ -874,10 +866,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(expectedValue));
+            Assert.Equal(expectedValue, value);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_null()
         {
             var value = new C { Id = 1, T = null };
@@ -885,10 +877,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_serialize_value()
         {
             var value = CreateValue();
@@ -896,7 +888,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = value.ToJson();
 
-            Assert.That(json, Is.EqualTo(expectedJson));
+            Assert.Equal(expectedJson, json);
         }
 
         // helper methods

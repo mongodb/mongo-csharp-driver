@@ -18,7 +18,7 @@ using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp270
 {
@@ -33,19 +33,18 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
         public int Property { get; set; }
     }
 
-    [TestFixture]
     public class CSharp270Tests
     {
-        [Test]
+        [Fact]
         public void TestBogusElement()
         {
             var document = new BsonDocument("bogus", 0);
             var message = "Element 'bogus' does not match any field or property of class MongoDB.Bson.Tests.Jira.CSharp270.C.";
             var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
-            Assert.AreEqual(message, ex.Message);
+            Assert.Equal(message, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestMissingElementForField()
         {
             var document = new BsonDocument
@@ -55,10 +54,10 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
             };
             var message = "Required element 'field' for field 'Field' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
             var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
-            Assert.AreEqual(message, ex.Message);
+            Assert.Equal(message, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestMissingElementForProperty()
         {
             var document = new BsonDocument
@@ -68,7 +67,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
             };
             var message = "Required element 'property' for property 'Property' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
             var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
-            Assert.AreEqual(message, ex.Message);
+            Assert.Equal(message, ex.Message);
         }
     }
 }

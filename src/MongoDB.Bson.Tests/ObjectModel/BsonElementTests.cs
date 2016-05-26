@@ -15,27 +15,26 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonElementTests
     {
-        [Test]
+        [Fact]
         public void TestNewBsonArray()
         {
             new BsonArray(new List<int>() { 1, 2, 3 });
             new BsonArray(new int[] { 4, 5, 6 });
         }
 
-        [Test]
+        [Fact]
         public void TestStringElement()
         {
             BsonElement element = new BsonElement("abc", "def");
             string value = element.Value.AsString;
-            Assert.AreEqual("abc", element.Name);
-            Assert.AreEqual("def", value);
+            Assert.Equal("abc", element.Name);
+            Assert.Equal("def", value);
         }
     }
 }

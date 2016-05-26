@@ -16,11 +16,10 @@
 using System.Collections.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp170
 {
-    [TestFixture]
     public class CSharp170Tests
     {
         public class C
@@ -29,8 +28,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp170
             public ObservableCollection<int> Observable;
         }
 
-        [Test]
-        [Platform(Exclude = "Mono", Reason = "ObservableCollection in Mono 2.10.8 throws a NotImplementedException in the constructor.")]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var obj = new C
@@ -40,18 +38,18 @@ namespace MongoDB.Bson.Tests.Jira.CSharp170
             };
             var json = obj.ToJson();
             var expected = "{ 'Collection' : [1, 2, 3], 'Observable' : [1, 2, 3] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(3, rehydrated.Collection.Count);
-            Assert.AreEqual(1, rehydrated.Collection[0]);
-            Assert.AreEqual(2, rehydrated.Collection[1]);
-            Assert.AreEqual(3, rehydrated.Collection[2]);
-            Assert.AreEqual(3, rehydrated.Observable.Count);
-            Assert.AreEqual(1, rehydrated.Observable[0]);
-            Assert.AreEqual(2, rehydrated.Observable[1]);
-            Assert.AreEqual(3, rehydrated.Observable[2]);
+            Assert.Equal(3, rehydrated.Collection.Count);
+            Assert.Equal(1, rehydrated.Collection[0]);
+            Assert.Equal(2, rehydrated.Collection[1]);
+            Assert.Equal(3, rehydrated.Collection[2]);
+            Assert.Equal(3, rehydrated.Observable.Count);
+            Assert.Equal(1, rehydrated.Observable[0]);
+            Assert.Equal(2, rehydrated.Observable[1]);
+            Assert.Equal(3, rehydrated.Observable[2]);
         }
     }
 }

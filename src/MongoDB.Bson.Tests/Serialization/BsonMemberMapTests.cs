@@ -19,11 +19,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class BsonMemberMapTests
     {
         private class TestClass
@@ -48,7 +47,7 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGettingAField()
         {
             var instance = new TestClass { Field = 42 };
@@ -57,19 +56,19 @@ namespace MongoDB.Bson.Tests.Serialization
 
             int value = (int)memberMap.Getter(instance);
 
-            Assert.AreEqual(42, value);
+            Assert.Equal(42, value);
         }
 
-        [Test]
+        [Fact]
         public void TestIsReadOnlyPropertyOfAField()
         {
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Field");
 
-            Assert.IsFalse(memberMap.IsReadOnly);
+            Assert.False(memberMap.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestSetElementNameThrowsWhenElementNameContainsNulls()
         {
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
@@ -77,7 +76,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Throws<ArgumentException>(() => { memberMap.SetElementName("a\0b"); });
         }
 
-        [Test]
+        [Fact]
         public void TestSetElementNameThrowsWhenElementNameIsNull()
         {
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
@@ -85,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Throws<ArgumentNullException>(() => { memberMap.SetElementName(null); });
         }
 
-        [Test]
+        [Fact]
         public void TestSettingAField()
         {
             var instance = new TestClass();
@@ -94,10 +93,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             memberMap.Setter(instance, 42);
 
-            Assert.AreEqual(42, instance.Field);
+            Assert.Equal(42, instance.Field);
         }
 
-        [Test]
+        [Fact]
         public void TestGettingAReadOnlyField()
         {
             var instance = new TestClass();
@@ -110,10 +109,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             int value = (int)memberMap.Getter(instance);
 
-            Assert.AreEqual(13, value);
+            Assert.Equal(13, value);
         }
 
-        [Test]
+        [Fact]
         public void TestIsReadOnlyPropertyOfAReadOnlyField()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -123,10 +122,10 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyField");
 
-            Assert.IsTrue(memberMap.IsReadOnly);
+            Assert.True(memberMap.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestSettingAReadOnlyField()
         {
             var instance = new TestClass();
@@ -137,13 +136,14 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyField");
 
-            TestDelegate action = () => memberMap.Setter(instance, 12);
+            var ex = Record.Exception(() => memberMap.Setter(instance, 12));
 
             var expectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
-            Assert.That(action, Throws.Exception.TypeOf<BsonSerializationException>().With.Message.EqualTo(expectedMessage));
+            Assert.IsType<BsonSerializationException>(ex);
+            Assert.Equal(expectedMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestGettingAProperty()
         {
             var instance = new TestClass { Property = 42 };
@@ -152,19 +152,19 @@ namespace MongoDB.Bson.Tests.Serialization
 
             int value = (int)memberMap.Getter(instance);
 
-            Assert.AreEqual(42, value);
+            Assert.Equal(42, value);
         }
 
-        [Test]
+        [Fact]
         public void TestIsReadOnlyPropertyOfAProperty()
         {
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Property");
 
-            Assert.IsFalse(memberMap.IsReadOnly);
+            Assert.False(memberMap.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestSettingAProperty()
         {
             var instance = new TestClass();
@@ -173,10 +173,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             memberMap.Setter(instance, 42);
 
-            Assert.AreEqual(42, instance.Property);
+            Assert.Equal(42, instance.Property);
         }
 
-        [Test]
+        [Fact]
         public void TestGettingAPrivateSettableProperty()
         {
             var instance = new TestClass();
@@ -185,19 +185,19 @@ namespace MongoDB.Bson.Tests.Serialization
 
             int value = (int)memberMap.Getter(instance);
 
-            Assert.AreEqual(10, value);
+            Assert.Equal(10, value);
         }
 
-        [Test]
+        [Fact]
         public void TestIsReadOnlyPropertyOfAPrivateSettableProperty()
         {
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("PrivateSettableProperty");
 
-            Assert.IsFalse(memberMap.IsReadOnly);
+            Assert.False(memberMap.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestSettingAPrivateSettableProperty()
         {
             var instance = new TestClass();
@@ -206,10 +206,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             memberMap.Setter(instance, 42);
 
-            Assert.AreEqual(42, instance.PrivateSettableProperty);
+            Assert.Equal(42, instance.PrivateSettableProperty);
         }
 
-        [Test]
+        [Fact]
         public void TestGettingAReadOnlyProperty()
         {
             var instance = new TestClass { Property = 10 };
@@ -223,10 +223,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             int value = (int)memberMap.Getter(instance);
 
-            Assert.AreEqual(11, value);
+            Assert.Equal(11, value);
         }
 
-        [Test]
+        [Fact]
         public void TestIsReadOnlyPropertyOfAReadOnlyProperty()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -236,10 +236,10 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
 
-            Assert.IsTrue(memberMap.IsReadOnly);
+            Assert.True(memberMap.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestSettingAReadOnlyProperty()
         {
             var instance = new TestClass { Property = 10 };
@@ -250,13 +250,14 @@ namespace MongoDB.Bson.Tests.Serialization
             });
             var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
 
-            TestDelegate action = () => memberMap.Setter(instance, 12);
+            var ex = Record.Exception(() => memberMap.Setter(instance, 12));
 
             var expectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
-            Assert.That(action, Throws.Exception.TypeOf<BsonSerializationException>().With.Message.EqualTo(expectedMessage));
+            Assert.IsType<BsonSerializationException>(ex);
+            Assert.Equal(expectedMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestReset()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -278,15 +279,15 @@ namespace MongoDB.Bson.Tests.Serialization
 
             memberMap.Reset();
 
-            Assert.AreEqual(0, (int)memberMap.DefaultValue);
-            Assert.AreEqual("Property", memberMap.ElementName);
-            Assert.IsNull(memberMap.IdGenerator);
-            Assert.IsFalse(memberMap.IgnoreIfDefault);
-            Assert.IsFalse(memberMap.IgnoreIfNull);
-            Assert.IsFalse(memberMap.IsRequired);
-            Assert.AreEqual(int.MaxValue, memberMap.Order);
-            Assert.AreNotSame(originalSerializer, memberMap.GetSerializer());
-            Assert.IsNull(memberMap.ShouldSerializeMethod);
+            Assert.Equal(0, (int)memberMap.DefaultValue);
+            Assert.Equal("Property", memberMap.ElementName);
+            Assert.Null(memberMap.IdGenerator);
+            Assert.False(memberMap.IgnoreIfDefault);
+            Assert.False(memberMap.IgnoreIfNull);
+            Assert.False(memberMap.IsRequired);
+            Assert.Equal(int.MaxValue, memberMap.Order);
+            Assert.NotSame(originalSerializer, memberMap.GetSerializer());
+            Assert.Null(memberMap.ShouldSerializeMethod);
         }
     }
 }

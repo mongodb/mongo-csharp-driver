@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ using System;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class ByteArrayChunkTests
     {
-        [Test]
+        [Fact]
         public void Bytes_get_should_return_expected_result()
         {
             var size = 1;
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Count.Should().Be(size);
         }
 
-        [Test]
+        [Fact]
         public void Bytes_get_should_throw_when_subject_is_disposed()
         {
             var subject = new ByteArrayChunk(1);
@@ -49,7 +49,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayChunk");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_with_bytes_should_initialize_subject(
             [Values(1, 2, 16)]
             int size)
@@ -64,7 +65,7 @@ namespace MongoDB.Bson.Tests.IO
             segment.Count.Should().Be(size);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_bytes_should_throw_when_bytes_is_null()
         {
             Action action = () => new ByteArrayChunk(null);
@@ -72,7 +73,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_with_size_should_initialize_subject(
             [Values(1, 2, 16)]
             int size)
@@ -85,7 +87,7 @@ namespace MongoDB.Bson.Tests.IO
             segment.Count.Should().Be(size);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_size_should_throw_when_size_is_less_than_zero()
         {
             Action action = () => new ByteArrayChunk(-1);
@@ -93,7 +95,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("size");
         }
 
-        [Test]
+        [Fact]
         public void Disposed_can_be_called_more_than_once()
         {
             var subject = new ByteArrayChunk(1);
@@ -102,7 +104,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_forked_handle_should_not_dispose_subject()
         {
             var subject = new ByteArrayChunk(1);
@@ -114,7 +116,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var subject = new ByteArrayChunk(1);
@@ -125,7 +127,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_not_dispose_forked_handle()
         {
             var subject = new ByteArrayChunk(1);
@@ -137,7 +139,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Fork_should_return_a_new_handle()
         {
             var subject = new ByteArrayChunk(1);
@@ -152,7 +154,7 @@ namespace MongoDB.Bson.Tests.IO
             resultSegment.Count.Should().Be(subjectSegment.Count);
         }
 
-        [Test]
+        [Fact]
         public void Fork_should_throw_when_subject_is_disposed()
         {
             var subject = new ByteArrayChunk(1);

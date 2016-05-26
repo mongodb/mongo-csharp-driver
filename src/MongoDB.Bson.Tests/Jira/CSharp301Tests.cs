@@ -17,11 +17,10 @@ using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp301Tests
     {
         public class C
@@ -30,56 +29,56 @@ namespace MongoDB.Bson.Tests.Jira
             public object Obj;
         }
 
-        [Test]
+        [Fact]
         public void TestDictionaryEmpty()
         {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestDictionaryOneElement()
         {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { 'x' : 1 } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestHashtableEmpty()
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestHashtableOneElement()
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { 'x' : 1 } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
     }
 }

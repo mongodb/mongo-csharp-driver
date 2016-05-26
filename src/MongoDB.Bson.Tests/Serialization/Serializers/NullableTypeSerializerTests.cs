@@ -18,11 +18,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class NullableTypeSerializerTests
     {
         private class C
@@ -59,146 +58,146 @@ namespace MongoDB.Bson.Tests.Serialization
             // "'Struct' : null" +
             " }";
 
-        [Test]
+        [Fact]
         public void TestAllNulls()
         {
             C c = new C();
             var json = c.ToJson();
             var expected = _template.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestBoolean()
         {
             C c = new C { Boolean = true };
             var json = c.ToJson();
             var expected = _template.Replace("'Boolean' : null", "'Boolean' : true").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDateTime()
         {
             C c = new C { DateTime = BsonConstants.UnixEpoch };
             var json = c.ToJson();
             var expected = _template.Replace("'DateTime' : null", "'DateTime' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDateOnly()
         {
             C c = new C { DateOnly = BsonConstants.UnixEpoch };
             var json = c.ToJson();
             var expected = _template.Replace("'DateOnly' : null", "'DateOnly' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDouble()
         {
             C c = new C { Double = 1.5 };
             var json = c.ToJson();
             var expected = _template.Replace("'Double' : null", "'Double' : 1.5").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestEnum()
         {
             var c = new C { Enum = ConsoleColor.Red };
             var json = c.ToJson();
             var expected = _template.Replace("'Enum' : null", "'Enum' : 'Red'").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestGuid()
         {
             C c = new C { Guid = Guid.Empty };
             var json = c.ToJson();
             var expected = _template.Replace("'Guid' : null", "'Guid' : CSUUID('00000000-0000-0000-0000-000000000000')").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestInt32()
         {
             C c = new C { Int32 = 1 };
             var json = c.ToJson();
             var expected = _template.Replace("'Int32' : null", "'Int32' : 1").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestInt64()
         {
             C c = new C { Int64 = 2 };
             var json = c.ToJson();
             var expected = _template.Replace("'Int64' : null", "'Int64' : NumberLong(2)").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestObjectId()
         {
             C c = new C { ObjectId = ObjectId.Empty };
             var json = c.ToJson();
             var expected = _template.Replace("'ObjectId' : null", "'ObjectId' : ObjectId('000000000000000000000000')").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        //[Test]
+        //[Fact]
         //public void TestStruct() {
         //    C c = new C { Struct = new Struct { StructP = "x" } };
         //    var json = c.ToJson();
         //    var expected = template.Replace("'Struct' : null", "'Struct' : { 'StructP' : 'x' }").Replace("'", "\"");
-        //    Assert.AreEqual(expected, json);
+        //    Assert.Equal(expected, json);
 
         //    var bson = c.ToBson();
         //    var rehydrated = BsonSerializer.Deserialize<C>(bson);
-        //    Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        //    Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         //}
     }
 }

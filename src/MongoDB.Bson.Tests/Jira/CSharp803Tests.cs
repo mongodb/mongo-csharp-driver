@@ -14,11 +14,10 @@
 */
 
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp803Tests
     {
         private abstract class BaseClassWithProperty
@@ -31,13 +30,13 @@ namespace MongoDB.Bson.Tests.Jira
             public override int Id { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerialization()
         {
             var impl = new PropertyImpl { Id = 1 };
             var doc = impl.ToBsonDocument();
             var expected = new BsonDocument("_id", 1);
-            Assert.AreEqual(expected, doc);
+            Assert.Equal(expected, doc);
         }
     }
 }

@@ -17,11 +17,10 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class LazyBsonDocumentSerializerTests
     {
         public class C : IDisposable
@@ -38,7 +37,7 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRoundTrip()
         {
             var bsonDocument = new BsonDocument { { "D", new BsonDocument { { "x", 1 }, { "y", 2 } } } };
@@ -46,7 +45,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             using (var c = BsonSerializer.Deserialize<C>(bson))
             {
-                Assert.IsTrue(bson.SequenceEqual(c.ToBson()));
+                Assert.True(bson.SequenceEqual(c.ToBson()));
             }
         }
     }

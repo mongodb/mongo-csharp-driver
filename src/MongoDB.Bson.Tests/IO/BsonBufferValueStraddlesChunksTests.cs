@@ -16,18 +16,17 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonBufferValueStraddlesChunksTests
     {
         private static int __chunkSize = 16 * 1024; // 16KiB
         private static int __used = 16;
         private static int __filler = __chunkSize - __used;
 
-        [Test]
+        [Fact]
         public void TestNameStraddles()
         {
             var document = new BsonDocument
@@ -38,10 +37,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestArrayLengthStraddles()
         {
             var document = new BsonDocument
@@ -52,10 +51,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestBinaryLengthStraddles()
         {
             var document = new BsonDocument
@@ -66,10 +65,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestBinaryDataStraddles()
         {
             var document = new BsonDocument
@@ -80,10 +79,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeStraddles()
         {
             var document = new BsonDocument
@@ -94,10 +93,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestDocumentLengthStraddles()
         {
             var document = new BsonDocument
@@ -108,10 +107,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestDoubleStraddles()
         {
             var document = new BsonDocument
@@ -122,10 +121,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestInt32Straddles()
         {
             var document = new BsonDocument
@@ -136,10 +135,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestInt64Straddles()
         {
             var document = new BsonDocument
@@ -150,10 +149,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptCodeLengthStraddles()
         {
             var document = new BsonDocument
@@ -164,10 +163,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptCodeValueStraddles()
         {
             var document = new BsonDocument
@@ -178,10 +177,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptWithScopeLengthStraddles()
         {
             var document = new BsonDocument
@@ -192,10 +191,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptWithScopeCodeLengthStraddles()
         {
             var document = new BsonDocument
@@ -206,10 +205,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptWithScopeCodeValueStraddles()
         {
             var document = new BsonDocument
@@ -220,10 +219,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdStraddles()
         {
             var document = new BsonDocument
@@ -234,10 +233,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestStringLengthStraddles()
         {
             var document = new BsonDocument
@@ -248,10 +247,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestStringValueStraddles()
         {
             var document = new BsonDocument
@@ -262,10 +261,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestSymbolLengthStraddles()
         {
             var document = new BsonDocument
@@ -276,10 +275,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestSymbolValueStraddles()
         {
             var document = new BsonDocument
@@ -290,10 +289,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestTimestampStraddles()
         {
             var document = new BsonDocument
@@ -304,7 +303,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(bson, rehydrated.ToBson());
+            Assert.Equal(bson, rehydrated.ToBson());
         }
     }
 }

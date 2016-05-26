@@ -17,14 +17,13 @@ using System.IO;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp71Tests
     {
-        [Test]
+        [Fact]
         public void TestWithArrayOfDocument()
         {
             // this is the C# version of the json-with-docarray.txt file attached to the bug report
@@ -348,10 +347,10 @@ namespace MongoDB.Bson.Tests.Jira
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void Test20KDocument()
         {
             // manufacture an approximately 20K document using 200 strings each 100 characters long
@@ -367,7 +366,7 @@ namespace MongoDB.Bson.Tests.Jira
             // round trip tests
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             // test failure mode when 20 bytes are truncated from the buffer
             using (var byteBuffer = new MultiChunkBuffer(BsonChunkPool.Default))
@@ -387,7 +386,7 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNameStraddlesBoundary()
         {
             // manufacture an approximately 20K document using 200 elements with long names of 100+ characters
@@ -403,7 +402,7 @@ namespace MongoDB.Bson.Tests.Jira
             // round trip tests
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

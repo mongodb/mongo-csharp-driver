@@ -21,11 +21,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp460Tests
     {
         public interface IFooBarList<T> : IList<T>
@@ -143,7 +142,7 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestUserCollection()
         {
             const int Count = 10;
@@ -164,35 +163,35 @@ namespace MongoDB.Bson.Tests.Jira
 
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<A>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
-            Assert.AreEqual(10, rehydrated.Values1.Count);
-            Assert.AreEqual(10, rehydrated.Values2.Count);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Equal(10, rehydrated.Values1.Count);
+            Assert.Equal(10, rehydrated.Values2.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestKeyValuePair1()
         {
             var p = new KeyValuePair<string, int>("a", 42);
             var json = p.ToJson();
             var expected = ("{ \"k\" : \"a\", \"v\" : 42 }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = p.ToBson();
             var rehydrated = BsonSerializer.Deserialize<KeyValuePair<string, int>>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestKeyValuePair2()
         {
             var p = new KeyValuePair<string, int>("a", 42);
             var json = p.ToJson(serializer: new KeyValuePairSerializer<string, int>(BsonType.Array));
             var expected = ("[\"a\", 42]").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = p.ToBson();
             var rehydrated = BsonSerializer.Deserialize<KeyValuePair<string, int>>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

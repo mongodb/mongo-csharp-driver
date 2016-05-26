@@ -203,9 +203,9 @@
     <Compile Include="Specifications\crud\TestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
-      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
-      <Name>MongoDB.Bson.TestHelpers</Name>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers.NUnit\MongoDB.Bson.TestHelpers.NUnit.csproj">
+      <Project>{b2ed9e44-0e42-41ae-a018-122691f39ccc}</Project>
+      <Name>MongoDB.Bson.TestHelpers.NUnit</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>

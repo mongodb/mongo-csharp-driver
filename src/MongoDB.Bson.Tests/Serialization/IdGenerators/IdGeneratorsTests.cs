@@ -17,11 +17,10 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class TestIdGenerators
     {
         private struct S : IEquatable<S>
@@ -33,46 +32,46 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         };
 
-        [Test]
+        [Fact]
         public void TestGuidIdChecker()
         {
             var idChecker = BsonSerializer.LookupIdGenerator(typeof(Guid));
-            Assert.IsTrue(idChecker.IsEmpty(Guid.Empty));
-            Assert.IsFalse(idChecker.IsEmpty(Guid.NewGuid()));
+            Assert.True(idChecker.IsEmpty(Guid.Empty));
+            Assert.False(idChecker.IsEmpty(Guid.NewGuid()));
         }
 
-        [Test]
+        [Fact]
         public void TestIntZeroIdChecker()
         {
             var idChecker = new ZeroIdChecker<int>();
-            Assert.IsTrue(idChecker.IsEmpty(0));
-            Assert.IsFalse(idChecker.IsEmpty(1));
+            Assert.True(idChecker.IsEmpty(0));
+            Assert.False(idChecker.IsEmpty(1));
         }
 
-        [Test]
+        [Fact]
         public void TestNullIdChecker()
         {
             var idChecker = new NullIdChecker();
-            Assert.IsTrue(idChecker.IsEmpty(null));
-            Assert.IsFalse(idChecker.IsEmpty(new object()));
+            Assert.True(idChecker.IsEmpty(null));
+            Assert.False(idChecker.IsEmpty(new object()));
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdChecker()
         {
             var idChecker = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
-            Assert.IsTrue(idChecker.IsEmpty(ObjectId.Empty));
-            Assert.IsFalse(idChecker.IsEmpty(ObjectId.GenerateNewId()));
+            Assert.True(idChecker.IsEmpty(ObjectId.Empty));
+            Assert.False(idChecker.IsEmpty(ObjectId.GenerateNewId()));
         }
 
-        [Test]
+        [Fact]
         public void TestStructZeroIdChecker()
         {
             var idChecker = new ZeroIdChecker<S>();
-            Assert.IsTrue(idChecker.IsEmpty(default(S)));
-            Assert.IsTrue(idChecker.IsEmpty(new S()));
-            Assert.IsTrue(idChecker.IsEmpty(new S { I = 0 }));
-            Assert.IsFalse(idChecker.IsEmpty(new S { I = 1 }));
+            Assert.True(idChecker.IsEmpty(default(S)));
+            Assert.True(idChecker.IsEmpty(new S()));
+            Assert.True(idChecker.IsEmpty(new S { I = 0 }));
+            Assert.False(idChecker.IsEmpty(new S { I = 1 }));
         }
     }
 }

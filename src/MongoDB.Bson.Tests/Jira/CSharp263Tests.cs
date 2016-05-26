@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp263Tests
     {
         public class C
@@ -28,121 +27,121 @@ namespace MongoDB.Bson.Tests.Jira
             public object Obj;
         }
 
-        [Test]
+        [Fact]
         public void TestArrayEmpty()
         {
             var c = new C { Id = 1, Obj = new int[] { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayOneElement()
         {
             var c = new C { Id = 1, Obj = new int[] { 1 } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [1] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayTwoElements()
         {
             var c = new C { Id = 1, Obj = new int[] { 1, 2 } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [1, 2] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoDimensionalArrayEmpty()
         {
             var c = new C { Id = 1, Obj = new int[0, 0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoDimensionalArrayOneElement()
         {
             var c = new C { Id = 1, Obj = new int[,] { { 1, 2 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [[1, 2]] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoDimensionalArrayTwoElements()
         {
             var c = new C { Id = 1, Obj = new int[,] { { 1, 2 }, { 3, 4 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [[1, 2], [3, 4]] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestThreeDimensionalArrayEmpty()
         {
             var c = new C { Id = 1, Obj = new int[0, 0, 0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestThreeDimensionalArrayOneElement()
         {
             var c = new C { Id = 1, Obj = new int[,,] { { { 1 }, { 2 } } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [[[1], [2]]] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
 
-        [Test]
+        [Fact]
         public void TestThreeDimensionalArrayTwoElements()
         {
             var c = new C { Id = 1, Obj = new int[,,] { { { 1 }, { 2 } }, { { 3 }, { 4 } } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [[[1], [2]], [[3], [4]]] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(c.Id, r.Id);
-            Assert.AreEqual(c.Obj, r.Obj);
+            Assert.Equal(c.Id, r.Id);
+            Assert.Equal(c.Obj, r.Obj);
         }
     }
 }

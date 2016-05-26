@@ -17,11 +17,10 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp83Tests
     {
         private class Student
@@ -30,18 +29,18 @@ namespace MongoDB.Bson.Tests.Jira
             public List<int> Scores { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerialization()
         {
             var student = new Student { Id = ObjectId.Empty, Scores = new List<int> { 1, 2 } };
             var json = student.ToJson();
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'Scores' : [1, 2] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = student.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Student>(bson);
-            Assert.IsInstanceOf<List<int>>(rehydrated.Scores);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<List<int>>(rehydrated.Scores);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

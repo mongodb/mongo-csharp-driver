@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp238
 {
-    [TestFixture]
     public class CSharp238Tests
     {
         public class Point
@@ -38,7 +37,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp238
             public Dictionary<Point, Point> Points;
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDictionary()
         {
             var obj = new C { Points = new Dictionary<Point, Point>() };
@@ -49,11 +48,11 @@ namespace MongoDB.Bson.Tests.Jira.CSharp238
             expected = expected.Replace("#1", "[{ 'X' : 1, 'Y' : 1 }, { 'X' : 2, 'Y' : 2 }]");
             expected = expected.Replace("#2", "[{ 'X' : 2, 'Y' : 2 }, { 'X' : 3, 'Y' : 3 }]");
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

@@ -17,11 +17,10 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class ExtraElementsMemberConventionsTests
     {
         private class TestClassA
@@ -35,23 +34,23 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public Guid Id { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestNamedExtraElementsMemberConventionWithTestClassA()
         {
             var convention = new NamedExtraElementsMemberConvention("ExtraElements");
             var classMap = new BsonClassMap<TestClassA>();
             convention.Apply(classMap);
-            Assert.IsNotNull(classMap.ExtraElementsMemberMap);
-            Assert.AreEqual("ExtraElements", classMap.ExtraElementsMemberMap.MemberName);
+            Assert.NotNull(classMap.ExtraElementsMemberMap);
+            Assert.Equal("ExtraElements", classMap.ExtraElementsMemberMap.MemberName);
         }
 
-        [Test]
+        [Fact]
         public void TestNamedExtraElementsMemberConventionWithTestClassB()
         {
             var convention = new NamedExtraElementsMemberConvention("ExtraElements");
             var classMap = new BsonClassMap<TestClassB>();
             convention.Apply(classMap);
-            Assert.IsNull(classMap.ExtraElementsMemberMap);
+            Assert.Null(classMap.ExtraElementsMemberMap);
         }
     }
 }

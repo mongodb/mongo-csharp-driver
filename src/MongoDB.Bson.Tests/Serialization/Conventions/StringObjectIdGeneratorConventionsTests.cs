@@ -18,31 +18,29 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class StringObjectIdIdGeneratorConventionsTests
     {
         private StringObjectIdIdGeneratorConvention _subject;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public StringObjectIdIdGeneratorConventionsTests()
         {
             _subject = new StringObjectIdIdGeneratorConvention();
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotSetWhenNoIdExists()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
             { });
 
-            Assert.DoesNotThrow(() => _subject.PostProcess(classMap));
+            _subject.PostProcess(classMap);
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotSetWhenTypeIsntString()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -51,10 +49,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             });
 
             _subject.PostProcess(classMap);
-            Assert.IsNull(classMap.IdMemberMap.IdGenerator);
+            Assert.Null(classMap.IdMemberMap.IdGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotSetWhenStringIsNotRepresentedAsObjectId()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -63,10 +61,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             });
 
             _subject.PostProcess(classMap);
-            Assert.IsNull(classMap.IdMemberMap.IdGenerator);
+            Assert.Null(classMap.IdMemberMap.IdGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestSetsWhenIdIsStringAndRepresentedAsAnObjectId()
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
@@ -75,8 +73,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             });
 
             _subject.PostProcess(classMap);
-            Assert.IsNotNull(classMap.IdMemberMap.IdGenerator);
-            Assert.IsInstanceOf<StringObjectIdGenerator>(classMap.IdMemberMap.IdGenerator);
+            Assert.NotNull(classMap.IdMemberMap.IdGenerator);
+            Assert.IsType<StringObjectIdGenerator>(classMap.IdMemberMap.IdGenerator);
         }
 
         private class TestClass

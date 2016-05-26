@@ -16,11 +16,10 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class SerializeInterfaceTests
     {
         private interface IX
@@ -38,58 +37,58 @@ namespace MongoDB.Bson.Tests.Serialization
             public string FX { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeAasA()
         {
             A a = new A { FX = "a" };
             var json = a.ToJson();
             var expected = ("{ 'FX' : 'a' }").Replace("'", "\""); // no discriminator
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = a.ToBson();
             var rehydrated = BsonSerializer.Deserialize<A>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeAasIX()
         {
             IX a = new A { FX = "a" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'A', 'FX' : 'a' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = a.ToBson();
             var rehydrated = BsonSerializer.Deserialize<IX>(bson);
-            Assert.IsInstanceOf<A>(rehydrated);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<A>(rehydrated);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeBasB()
         {
             B b = new B { FX = "b" };
             var json = b.ToJson();
             var expected = ("{ 'FX' : 'b' }").Replace("'", "\""); // no discriminator
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = b.ToBson();
             var rehydrated = BsonSerializer.Deserialize<B>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeBasIX()
         {
             IX b = new B { FX = "b" };
             var json = b.ToJson();
             var expected = ("{ '_t' : 'B', 'FX' : 'b' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = b.ToBson();
             var rehydrated = BsonSerializer.Deserialize<IX>(bson);
-            Assert.IsInstanceOf<B>(rehydrated);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<B>(rehydrated);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

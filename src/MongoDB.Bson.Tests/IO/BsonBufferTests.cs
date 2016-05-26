@@ -18,114 +18,113 @@ using System.IO;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonBufferTests
     {
-        [Test]
+        [Fact]
         public void TestReadCStringEmpty()
         {
             var bytes = new byte[] { 8, 0, 0, 0, (byte)BsonType.Boolean, 0, 0, 0 };
-            Assert.AreEqual(8, bytes.Length);
+            Assert.Equal(8, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("", document.GetElement(0).Name);
+            Assert.Equal("", document.GetElement(0).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestReadCStringOneCharacter()
         {
             var bytes = new byte[] { 9, 0, 0, 0, (byte)BsonType.Boolean, (byte)'b', 0, 0, 0 };
-            Assert.AreEqual(9, bytes.Length);
+            Assert.Equal(9, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("b", document.GetElement(0).Name);
+            Assert.Equal("b", document.GetElement(0).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestReadCStringOneCharacterDecoderException()
         {
             var bytes = new byte[] { 9, 0, 0, 0, (byte)BsonType.Boolean, 0x80, 0, 0, 0 };
-            Assert.AreEqual(9, bytes.Length);
+            Assert.Equal(9, bytes.Length);
             Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
-        [Test]
+        [Fact]
         public void TestReadCStringTwoCharacters()
         {
             var bytes = new byte[] { 10, 0, 0, 0, (byte)BsonType.Boolean, (byte)'b', (byte)'b', 0, 0, 0 };
-            Assert.AreEqual(10, bytes.Length);
+            Assert.Equal(10, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("bb", document.GetElement(0).Name);
+            Assert.Equal("bb", document.GetElement(0).Name);
         }
 
-        [Test]
+        [Fact]
         public void TestReadCStringTwoCharactersDecoderException()
         {
             var bytes = new byte[] { 10, 0, 0, 0, (byte)BsonType.Boolean, (byte)'b', 0x80, 0, 0, 0 };
-            Assert.AreEqual(10, bytes.Length);
+            Assert.Equal(10, bytes.Length);
             Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringEmpty()
         {
             var bytes = new byte[] { 13, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 1, 0, 0, 0, 0, 0 };
-            Assert.AreEqual(13, bytes.Length);
+            Assert.Equal(13, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("", document["s"].AsString);
+            Assert.Equal("", document["s"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringInvalidLength()
         {
             var bytes = new byte[] { 13, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 0, 0, 0, 0, 0, 0 };
-            Assert.AreEqual(13, bytes.Length);
+            Assert.Equal(13, bytes.Length);
             var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
-            Assert.AreEqual("Invalid string length: 0.", ex.Message);
+            Assert.Equal("Invalid string length: 0.", ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringMissingNullTerminator()
         {
             var bytes = new byte[] { 13, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 1, 0, 0, 0, 123, 0 };
-            Assert.AreEqual(13, bytes.Length);
+            Assert.Equal(13, bytes.Length);
             var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
-            Assert.AreEqual("String is missing terminating null byte.", ex.Message);
+            Assert.Equal("String is missing terminating null byte.", ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringOneCharacter()
         {
             var bytes = new byte[] { 14, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 2, 0, 0, 0, (byte)'x', 0, 0 };
-            Assert.AreEqual(14, bytes.Length);
+            Assert.Equal(14, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("x", document["s"].AsString);
+            Assert.Equal("x", document["s"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringOneCharacterDecoderException()
         {
             var bytes = new byte[] { 14, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 2, 0, 0, 0, 0x80, 0, 0 };
-            Assert.AreEqual(14, bytes.Length);
+            Assert.Equal(14, bytes.Length);
             Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringTwoCharacters()
         {
             var bytes = new byte[] { 15, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 3, 0, 0, 0, (byte)'x', (byte)'y', 0, 0 };
-            Assert.AreEqual(15, bytes.Length);
+            Assert.Equal(15, bytes.Length);
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            Assert.AreEqual("xy", document["s"].AsString);
+            Assert.Equal("xy", document["s"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestReadStringTwoCharactersDecoderException()
         {
             var bytes = new byte[] { 15, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 3, 0, 0, 0, (byte)'x', 0x80, 0, 0 };
-            Assert.AreEqual(15, bytes.Length);
+            Assert.Equal(15, bytes.Length);
             Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
     }

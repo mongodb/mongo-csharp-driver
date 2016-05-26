@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp275Tests
     {
         private class Test
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.Jira
             new Test("Mon, 10 Oct 2011 11:22:33 -0100", "2011-10-10T11:22:33-01:00")
         };
 
-        [Test]
+        [Fact]
         public void TestParseDates()
         {
             foreach (var test in _tests)
@@ -128,16 +128,16 @@ namespace MongoDB.Bson.Tests.Jira
                 catch (Exception ex)
                 {
                     var message = string.Format("Error parsing: new Date(\"{0}\"). Message: {1}.", test.Json, ex.Message);
-                    Assert.Fail(message); // note: the test data for 2-digit years needs to be adjusted at the beginning of each year
+                    throw new AssertionException(message); // note: the test data for 2-digit years needs to be adjusted at the beginning of each year
                 }
                 var dateTime = document["date"].ToUniversalTime();
                 var expected = DateTime.Parse(test.Iso).ToUniversalTime();
-                Assert.AreEqual(DateTimeKind.Utc, dateTime.Kind);
-                Assert.AreEqual(DateTimeKind.Utc, expected.Kind);
+                Assert.Equal(DateTimeKind.Utc, dateTime.Kind);
+                Assert.Equal(DateTimeKind.Utc, expected.Kind);
                 if (dateTime != expected)
                 {
                     var message = string.Format("Parsing new Date(\"{0}\") did not yield expected result {1}.", test.Json, expected.ToString("o"));
-                    Assert.Fail(message);
+                    throw new AssertionException(message);
                 }
             }
         }

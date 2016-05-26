@@ -15,20 +15,19 @@
 
 using System;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class StandardDiscriminatorConventionTests
     {
-        [Test]
+        [Fact]
         public void TestConstructorThrowsWhenElementNameContainsNulls()
         {
             Assert.Throws<ArgumentException>(() => new ScalarDiscriminatorConvention("a\0b"));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorThrowsWhenElementNameIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => new ScalarDiscriminatorConvention(null));

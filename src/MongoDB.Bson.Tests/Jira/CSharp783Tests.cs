@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp783
 {
-    [TestFixture]
     public class CSharp783DiscriminatedInterfaceTests
     {
         // nested types
@@ -33,63 +33,64 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         }
 
         // public methods
-        [Test]
+        [Fact]
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var c = new C { S = null };
             var json = c.ToJson();
             var expected = "{ 'S' : null }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(null, r.S);
+            Assert.Equal(null, r.S);
         }
 
-        [Test]
+        [Fact]
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [1] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
@@ -99,48 +100,48 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
                 "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [1, 2] } }",
                 "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [2, 1] } }"
             };
-            Assert.That(expected.Select(e => e.Replace("'", "\"")).Contains(json));
+            Assert.True(expected.Select(e => e.Replace("'", "\"")).Contains(json));
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            Assert.Equal(c.S, r.S);
         }
 
-        [Test]
+        [Fact]
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [1] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
             var json = c.ToJson();
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [1, 2] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            Assert.Equal(c.S, r.S);
         }
     }
 
-    [TestFixture]
     public class CSharp783ImpliedHashSetImplementationTests
     {
         // nested types
@@ -150,63 +151,64 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         }
 
         // public methods
-        [Test]
+        [Fact]
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var c = new C { S = null };
             var json = c.ToJson();
             var expected = "{ 'S' : null }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(null, r.S);
+            Assert.Equal(null, r.S);
         }
 
-        [Test]
+        [Fact]
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
@@ -216,48 +218,48 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
                 "{ 'S' : [1, 2] }",
                 "{ 'S' : [2, 1] }"
             };
-            Assert.That(expected.Select(e => e.Replace("'", "\"")).Contains(json));
+            Assert.True(expected.Select(e => e.Replace("'", "\"")).Contains(json));
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            Assert.Equal(c.S, r.S);
         }
 
-        [Test]
+        [Fact]
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
             var json = c.ToJson();
             var expected = string.Format("{{ 'S' : [1, 2] }}", x, y).Replace("'", "\""); // always sorted
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<HashSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<HashSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            r.S.Should().BeEquivalentTo(c.S);
         }
     }
 
-    [TestFixture]
     public class CSharp783ImpliedSortedSetImplementationTests
     {
         // nested types
@@ -268,63 +270,64 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         }
 
         // public methods
-        [Test]
+        [Fact]
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
             var json = c.ToJson();
             var expected = "{ 'S' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(0, r.S.Count);
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(0, r.S.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var c = new C { S = null };
             var json = c.ToJson();
             var expected = "{ 'S' : null }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(null, r.S);
+            Assert.Equal(null, r.S);
         }
 
-        [Test]
+        [Fact]
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
@@ -334,44 +337,45 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
                 "{ 'S' : [1, 2] }",
                 "{ 'S' : [2, 1] }"
             };
-            Assert.That(expected.Select(e => e.Replace("'", "\"")).Contains(json));
+            Assert.True(expected.Select(e => e.Replace("'", "\"")).Contains(json));
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            r.S.Should().BeEquivalentTo(c.S);
         }
 
-        [Test]
+        [Fact]
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
             var json = c.ToJson();
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(1, r.S.Count);
-            Assert.AreEqual(1, r.S.ElementAt(0));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(1, r.S.Count);
+            Assert.Equal(1, r.S.ElementAt(0));
         }
 
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
             var json = c.ToJson();
             var expected = string.Format("{{ 'S' : [1, 2] }}", x, y).Replace("'", "\""); // always sorted
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(r.S);
-            Assert.IsInstanceOf<SortedSet<int>>(r.S);
-            Assert.AreEqual(2, r.S.Count);
-            Assert.That(r.S, Is.EquivalentTo(c.S));
+            Assert.NotNull(r.S);
+            Assert.IsType<SortedSet<int>>(r.S);
+            Assert.Equal(2, r.S.Count);
+            Assert.Equal(c.S, r.S);
         }
     }
 }

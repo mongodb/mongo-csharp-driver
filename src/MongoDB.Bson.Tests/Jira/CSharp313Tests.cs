@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp313Tests
     {
         private static object[] __scalarValues = new object[]
@@ -50,7 +49,7 @@ namespace MongoDB.Bson.Tests.Jira
             public object ScalarValue { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestStringToBson()
         {
             // these scalar values used to fail to be serialized
@@ -59,27 +58,27 @@ namespace MongoDB.Bson.Tests.Jira
             {
                 var json = scalarValue.ToJson();
                 var rehydrated = BsonSerializer.Deserialize<object>(json);
-                Assert.AreEqual(scalarValue, rehydrated);
+                Assert.Equal(scalarValue, rehydrated);
 
                 var bson = scalarValue.ToBson();
                 rehydrated = BsonSerializer.Deserialize<object>(bson);
-                Assert.AreEqual(scalarValue, rehydrated);
+                Assert.Equal(scalarValue, rehydrated);
 
                 var document = scalarValue.ToBsonDocument();
                 rehydrated = BsonSerializer.Deserialize<object>(document);
-                Assert.AreEqual(scalarValue, rehydrated);
+                Assert.Equal(scalarValue, rehydrated);
 
                 json = new C { ScalarValue = scalarValue }.ToJson();
                 var c = BsonSerializer.Deserialize<C>(json);
-                Assert.AreEqual(scalarValue, c.ScalarValue);
+                Assert.Equal(scalarValue, c.ScalarValue);
 
                 bson = new C { ScalarValue = scalarValue }.ToBson();
                 c = BsonSerializer.Deserialize<C>(bson);
-                Assert.AreEqual(scalarValue, c.ScalarValue);
+                Assert.Equal(scalarValue, c.ScalarValue);
 
                 document = new C { ScalarValue = scalarValue }.ToBsonDocument();
                 c = BsonSerializer.Deserialize<C>(document);
-                Assert.AreEqual(scalarValue, c.ScalarValue);
+                Assert.Equal(scalarValue, c.ScalarValue);
             }
         }
     }

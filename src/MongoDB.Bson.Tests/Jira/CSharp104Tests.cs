@@ -16,14 +16,13 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 #if NET45
 // this test doesn't pass against .NET Core because the Test class doesn't have a default constructor
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp104Tests
     {
         private static bool __firstTime = true;
@@ -51,7 +50,7 @@ namespace MongoDB.Bson.Tests.Jira
         }
 #pragma warning restore
 
-        [Test]
+        [Fact]
         public void TestClassMap()
         {
             // this test passes normally when the Test class is automapped
@@ -77,7 +76,7 @@ namespace MongoDB.Bson.Tests.Jira
             var test = new Test("x") { SetOnly = "y" };
             var bson = test.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Test>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

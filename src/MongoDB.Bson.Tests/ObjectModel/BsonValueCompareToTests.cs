@@ -15,14 +15,13 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonValueCompareToTests
     {
-        [Test]
+        [Fact]
         public void TestCompareTypeTo()
         {
             BsonValue[] values =
@@ -41,112 +40,112 @@ namespace MongoDB.Bson.Tests
             };
             for (int i = 0; i < values.Length - 2; i++)
             {
-                Assert.AreEqual(-1, values[i].CompareTypeTo(values[i + 1]));
-                Assert.AreEqual(1, values[i + 1].CompareTypeTo(values[i]));
-                Assert.IsTrue(values[i] < values[i + 1]);
-                Assert.IsTrue(values[i] <= values[i + 1]);
-                Assert.IsTrue(values[i] != values[i + 1]);
-                Assert.IsFalse(values[i] == values[i + 1]);
-                Assert.IsFalse(values[i] > values[i + 1]);
-                Assert.IsFalse(values[i] >= values[i + 1]);
-                Assert.AreEqual(1, values[i].CompareTypeTo(null));
+                Assert.Equal(-1, values[i].CompareTypeTo(values[i + 1]));
+                Assert.Equal(1, values[i + 1].CompareTypeTo(values[i]));
+                Assert.True(values[i] < values[i + 1]);
+                Assert.True(values[i] <= values[i + 1]);
+                Assert.True(values[i] != values[i + 1]);
+                Assert.False(values[i] == values[i + 1]);
+                Assert.False(values[i] > values[i + 1]);
+                Assert.False(values[i] >= values[i + 1]);
+                Assert.Equal(1, values[i].CompareTypeTo(null));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestCompareTwoCsharpNulls()
         {
             BsonValue null1 = null;
             BsonValue null2 = null;
-            Assert.IsFalse(null1 < null2);
-            Assert.IsTrue(null1 <= null2);
-            Assert.IsFalse(null1 != null2);
-            Assert.IsTrue(null1 == null2);
-            Assert.IsFalse(null1 > null2);
-            Assert.IsTrue(null1 >= null2);
+            Assert.False(null1 < null2);
+            Assert.True(null1 <= null2);
+            Assert.False(null1 != null2);
+            Assert.True(null1 == null2);
+            Assert.False(null1 > null2);
+            Assert.True(null1 >= null2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareTwoMaxKeys()
         {
-            Assert.IsFalse(BsonMaxKey.Value < BsonMaxKey.Value);
-            Assert.IsTrue(BsonMaxKey.Value <= BsonMaxKey.Value);
-            Assert.IsFalse(BsonMaxKey.Value != BsonMaxKey.Value);
-            Assert.IsTrue(BsonMaxKey.Value == BsonMaxKey.Value);
-            Assert.IsFalse(BsonMaxKey.Value > BsonMaxKey.Value);
-            Assert.IsTrue(BsonMaxKey.Value >= BsonMaxKey.Value);
+            Assert.False(BsonMaxKey.Value < BsonMaxKey.Value);
+            Assert.True(BsonMaxKey.Value <= BsonMaxKey.Value);
+            Assert.False(BsonMaxKey.Value != BsonMaxKey.Value);
+            Assert.True(BsonMaxKey.Value == BsonMaxKey.Value);
+            Assert.False(BsonMaxKey.Value > BsonMaxKey.Value);
+            Assert.True(BsonMaxKey.Value >= BsonMaxKey.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareTwoMinKeys()
         {
-            Assert.IsFalse(BsonMinKey.Value < BsonMinKey.Value);
-            Assert.IsTrue(BsonMinKey.Value <= BsonMinKey.Value);
-            Assert.IsFalse(BsonMinKey.Value != BsonMinKey.Value);
-            Assert.IsTrue(BsonMinKey.Value == BsonMinKey.Value);
-            Assert.IsFalse(BsonMinKey.Value > BsonMinKey.Value);
-            Assert.IsTrue(BsonMinKey.Value >= BsonMinKey.Value);
+            Assert.False(BsonMinKey.Value < BsonMinKey.Value);
+            Assert.True(BsonMinKey.Value <= BsonMinKey.Value);
+            Assert.False(BsonMinKey.Value != BsonMinKey.Value);
+            Assert.True(BsonMinKey.Value == BsonMinKey.Value);
+            Assert.False(BsonMinKey.Value > BsonMinKey.Value);
+            Assert.True(BsonMinKey.Value >= BsonMinKey.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareTwoBsonNulls()
         {
-            Assert.IsFalse(BsonNull.Value < BsonNull.Value);
-            Assert.IsTrue(BsonNull.Value <= BsonNull.Value);
-            Assert.IsFalse(BsonNull.Value != BsonNull.Value);
-            Assert.IsTrue(BsonNull.Value == BsonNull.Value);
-            Assert.IsFalse(BsonNull.Value > BsonNull.Value);
-            Assert.IsTrue(BsonNull.Value >= BsonNull.Value);
+            Assert.False(BsonNull.Value < BsonNull.Value);
+            Assert.True(BsonNull.Value <= BsonNull.Value);
+            Assert.False(BsonNull.Value != BsonNull.Value);
+            Assert.True(BsonNull.Value == BsonNull.Value);
+            Assert.False(BsonNull.Value > BsonNull.Value);
+            Assert.True(BsonNull.Value >= BsonNull.Value);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareTwoOnes()
         {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt32(1);
-            Assert.IsFalse(n1 < n2);
-            Assert.IsTrue(n1 <= n2);
-            Assert.IsFalse(n1 != n2);
-            Assert.IsTrue(n1 == n2);
-            Assert.IsFalse(n1 > n2);
-            Assert.IsTrue(n1 >= n2);
+            Assert.False(n1 < n2);
+            Assert.True(n1 <= n2);
+            Assert.False(n1 != n2);
+            Assert.True(n1 == n2);
+            Assert.False(n1 > n2);
+            Assert.True(n1 >= n2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareOneAndTwo()
         {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt32(2);
-            Assert.IsTrue(n1 < n2);
-            Assert.IsTrue(n1 <= n2);
-            Assert.IsTrue(n1 != n2);
-            Assert.IsFalse(n1 == n2);
-            Assert.IsFalse(n1 > n2);
-            Assert.IsFalse(n1 >= n2);
+            Assert.True(n1 < n2);
+            Assert.True(n1 <= n2);
+            Assert.True(n1 != n2);
+            Assert.False(n1 == n2);
+            Assert.False(n1 > n2);
+            Assert.False(n1 >= n2);
         }
 
-        [Test]
+        [Fact]
         public void TestCompareDifferentTypeOnes()
         {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt64(1);
             var n3 = new BsonDouble(1.0);
-            Assert.IsTrue(n1 == n2);
-            Assert.IsTrue(n1 == n3);
-            Assert.IsTrue(n2 == n1);
-            Assert.IsTrue(n2 == n3);
-            Assert.IsTrue(n3 == n1);
-            Assert.IsTrue(n3 == n2);
+            Assert.True(n1 == n2);
+            Assert.True(n1 == n3);
+            Assert.True(n2 == n1);
+            Assert.True(n2 == n3);
+            Assert.True(n3 == n1);
+            Assert.True(n3 == n2);
 
             var v1 = (BsonValue)new BsonInt32(1);
             var v2 = (BsonValue)new BsonInt64(1);
             var v3 = (BsonValue)new BsonDouble(1.0);
-            Assert.IsTrue(v1 == v2);
-            Assert.IsTrue(v1 == v3);
-            Assert.IsTrue(v2 == v1);
-            Assert.IsTrue(v2 == v3);
-            Assert.IsTrue(v3 == v1);
-            Assert.IsTrue(v3 == v2);
+            Assert.True(v1 == v2);
+            Assert.True(v1 == v3);
+            Assert.True(v2 == v1);
+            Assert.True(v2 == v3);
+            Assert.True(v3 == v1);
+            Assert.True(v3 == v2);
         }
     }
 }

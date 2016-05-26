@@ -17,37 +17,36 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
 {
-    [TestFixture]
     public class KeyValuePairSerializerTests
     {
-        [Test]
+        [Fact]
         public void TestNullKey()
         {
             var kvp = new KeyValuePair<string, object>(null, "value");
             var json = kvp.ToJson();
             var expected = "{ 'k' : null, 'v' : 'value' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = kvp.ToBson();
             var rehydrated = BsonSerializer.Deserialize<KeyValuePair<string, object>>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestNullValue()
         {
             var kvp = new KeyValuePair<string, object>("key", null);
             var json = kvp.ToJson();
             var expected = "{ 'k' : 'key', 'v' : null }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = kvp.ToBson();
             var rehydrated = BsonSerializer.Deserialize<KeyValuePair<string, object>>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

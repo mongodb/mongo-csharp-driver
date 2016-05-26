@@ -15,37 +15,28 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp595
 {
-    [TestFixture]
     public class CSharp595Tests
     {
-        [Test]
+        [Fact]
         public void TestDoesNotThrowStackOverflowExceptionWhenConvertingToSelfType()
         {
-            BsonObjectId id1 = new BsonObjectId(ObjectId.GenerateNewId());
-            BsonObjectId id2 = null;
-            Assert.DoesNotThrow(() =>
-            {
-                id2 = (BsonObjectId)((IConvertible)id1).ToType(typeof(BsonObjectId), null);
-            });
+            var id1 = new BsonObjectId(ObjectId.GenerateNewId());
+            var id2 = (BsonObjectId)((IConvertible)id1).ToType(typeof(BsonObjectId), null);
 
-            Assert.AreEqual(id1, id2);
+            Assert.Equal(id1, id2);
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotThrowStackOverflowExceptionWhenConvertingToBsonString()
         {
-            BsonObjectId id1 = new BsonObjectId(ObjectId.GenerateNewId());
-            BsonString id2 = null;
-            Assert.DoesNotThrow(() =>
-            {
-                id2 = (BsonString)((IConvertible)id1).ToType(typeof(BsonString), null);
-            });
+            var id1 = new BsonObjectId(ObjectId.GenerateNewId());
+            var id2 = (BsonString)((IConvertible)id1).ToType(typeof(BsonString), null);
 
-            Assert.AreEqual(id1.ToString(), id2.AsString);
+            Assert.Equal(id1.ToString(), id2.AsString);
         }
     }
 }

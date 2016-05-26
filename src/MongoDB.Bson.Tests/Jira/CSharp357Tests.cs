@@ -15,90 +15,89 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp357Tests
     {
-        [Test]
+        [Fact]
         public void TestAsLocalTime()
         {
             var now = DateTime.Now;
             var nowTruncated = now.AddTicks(-(now.Ticks % 10000));
             var bsonDateTime = new BsonDateTime(now);
             var localDateTime = bsonDateTime.ToLocalTime();
-            Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
-            Assert.AreEqual(nowTruncated, localDateTime);
+            Assert.Equal(DateTimeKind.Local, localDateTime.Kind);
+            Assert.Equal(nowTruncated, localDateTime);
         }
 
-        [Test]
+        [Fact]
         public void TestAsUniversalTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var bsonDateTime = new BsonDateTime(utcNow);
             var utcDateTime = bsonDateTime.ToUniversalTime();
-            Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
-            Assert.AreEqual(utcNowTruncated, utcDateTime);
+            Assert.Equal(DateTimeKind.Utc, utcDateTime.Kind);
+            Assert.Equal(utcNowTruncated, utcDateTime);
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeMaxValue()
         {
             foreach (var kind in new[] { DateTimeKind.Local, DateTimeKind.Unspecified, DateTimeKind.Utc })
             {
                 var bsonDateTime = new BsonDateTime(DateTime.SpecifyKind(DateTime.MaxValue, kind));
-                Assert.AreEqual(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
+                Assert.Equal(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
 
                 var utcDateTime = bsonDateTime.ToUniversalTime();
-                Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
-                Assert.AreEqual(DateTime.MaxValue, utcDateTime);
+                Assert.Equal(DateTimeKind.Utc, utcDateTime.Kind);
+                Assert.Equal(DateTime.MaxValue, utcDateTime);
 
                 var localDateTime = bsonDateTime.ToLocalTime();
-                Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
-                Assert.AreEqual(DateTime.MaxValue, localDateTime);
+                Assert.Equal(DateTimeKind.Local, localDateTime.Kind);
+                Assert.Equal(DateTime.MaxValue, localDateTime);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeMinValue()
         {
             foreach (var kind in new[] { DateTimeKind.Local, DateTimeKind.Unspecified, DateTimeKind.Utc })
             {
                 var bsonDateTime = new BsonDateTime(DateTime.SpecifyKind(DateTime.MinValue, kind));
-                Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
+                Assert.Equal(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
 
                 var utcDateTime = bsonDateTime.ToUniversalTime();
-                Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
-                Assert.AreEqual(DateTime.MinValue, utcDateTime);
+                Assert.Equal(DateTimeKind.Utc, utcDateTime.Kind);
+                Assert.Equal(DateTime.MinValue, utcDateTime);
 
                 var localDateTime = bsonDateTime.ToLocalTime();
-                Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
-                Assert.AreEqual(DateTime.MinValue, localDateTime);
+                Assert.Equal(DateTimeKind.Local, localDateTime.Kind);
+                Assert.Equal(DateTime.MinValue, localDateTime);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestIsValidDateTime()
         {
-            Assert.IsFalse(new BsonDateTime(long.MinValue).IsValidDateTime);
-            Assert.IsFalse(new BsonDateTime(long.MinValue + 1).IsValidDateTime);
-            Assert.IsFalse(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch + 1).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(-1).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(0).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(1).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch - 1).IsValidDateTime);
-            Assert.IsTrue(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch).IsValidDateTime);
-            Assert.IsFalse(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1).IsValidDateTime);
-            Assert.IsFalse(new BsonDateTime(long.MaxValue - 1).IsValidDateTime);
-            Assert.IsFalse(new BsonDateTime(long.MaxValue).IsValidDateTime);
+            Assert.False(new BsonDateTime(long.MinValue).IsValidDateTime);
+            Assert.False(new BsonDateTime(long.MinValue + 1).IsValidDateTime);
+            Assert.False(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1).IsValidDateTime);
+            Assert.True(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch).IsValidDateTime);
+            Assert.True(new BsonDateTime(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch + 1).IsValidDateTime);
+            Assert.True(new BsonDateTime(-1).IsValidDateTime);
+            Assert.True(new BsonDateTime(0).IsValidDateTime);
+            Assert.True(new BsonDateTime(1).IsValidDateTime);
+            Assert.True(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch - 1).IsValidDateTime);
+            Assert.True(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch).IsValidDateTime);
+            Assert.False(new BsonDateTime(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1).IsValidDateTime);
+            Assert.False(new BsonDateTime(long.MaxValue - 1).IsValidDateTime);
+            Assert.False(new BsonDateTime(long.MaxValue).IsValidDateTime);
         }
 
-        [Test]
+        [Fact]
         public void TestMillisecondsSinceEpochValues()
         {
             var values = new long[] 
@@ -115,14 +114,14 @@ namespace MongoDB.Bson.Tests.Jira
             foreach (var value in values)
             {
                 var bsonDateTime = new BsonDateTime(value);
-                Assert.AreEqual(value, bsonDateTime.MillisecondsSinceEpoch);
+                Assert.Equal(value, bsonDateTime.MillisecondsSinceEpoch);
 #pragma warning disable 618
-                Assert.AreEqual(value, bsonDateTime.RawValue);
+                Assert.Equal(value, bsonDateTime.RawValue);
 #pragma warning restore
             }
         }
 
-        [Test]
+        [Fact]
         public void TestValues()
         {
             var maxValueTruncated = new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Utc);
@@ -153,14 +152,14 @@ namespace MongoDB.Bson.Tests.Jira
                 var bsonDateTime = new BsonDateTime(millisecondsSinceEpoch);
                 if (expectedIsValidDateTime)
                 {
-                    Assert.IsTrue(bsonDateTime.IsValidDateTime);
+                    Assert.True(bsonDateTime.IsValidDateTime);
                     var value = bsonDateTime.ToUniversalTime();
-                    Assert.AreEqual(DateTimeKind.Utc, value.Kind);
-                    Assert.AreEqual(expectedDateTime, value);
+                    Assert.Equal(DateTimeKind.Utc, value.Kind);
+                    Assert.Equal(expectedDateTime, value);
                 }
                 else
                 {
-                    Assert.IsFalse(bsonDateTime.IsValidDateTime);
+                    Assert.False(bsonDateTime.IsValidDateTime);
                     Assert.Throws<ArgumentOutOfRangeException>(() => bsonDateTime.ToUniversalTime());
                 }
             }

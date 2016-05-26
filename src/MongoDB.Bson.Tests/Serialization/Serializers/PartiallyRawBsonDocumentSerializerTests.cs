@@ -19,14 +19,13 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    [TestFixture]
     public class PartiallyRawBsonDocumentSerializerTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_name_is_null()
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer(null, BsonDocumentSerializer.Instance);
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("name");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_rawSerializer_is_null()
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer("name", null);
@@ -42,7 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("rawSerializer");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_rawSerializer_is_not_a_BsonValue_serializer()
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer("name", new Int32Serializer());
@@ -50,7 +49,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("rawSerializer");
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_return_partially_raw_BsonDocument()
         {
             var document = new BsonDocument
@@ -69,7 +68,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result["c"].Should().BeOfType<BsonDocument>();
         }
 
-        [Test]
+        [Fact]
         public void Deserialize_should_return_nested_partially_raw_BsonDocument()
         {
             var document = new BsonDocument

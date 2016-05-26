@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class EnumSerializerByteTests
     {
         private enum E : byte
@@ -41,65 +40,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -111,14 +110,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerInt16Tests
     {
         private enum E : short
@@ -138,65 +136,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -208,14 +206,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerInt32Tests
     {
         private enum E : int
@@ -235,65 +232,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -305,14 +302,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerInt64Tests
     {
         private enum E : long
@@ -332,65 +328,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int64, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int64, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -402,14 +398,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerSByteTests
     {
         private enum E : sbyte
@@ -429,65 +424,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -499,14 +494,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerUInt16Tests
     {
         private enum E : ushort
@@ -526,65 +520,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -596,14 +590,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerUInt32Tests
     {
         private enum E : uint
@@ -623,65 +616,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int32, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int32, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -693,14 +686,13 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 
-    [TestFixture]
     public class EnumSerializerUInt64Tests
     {
         private enum E : ulong
@@ -720,65 +712,65 @@ namespace MongoDB.Bson.Tests.Serialization
             public E S { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bson);
-            Assert.AreEqual(BsonType.Int64, document["D"].BsonType);
-            Assert.AreEqual(BsonType.Int32, document["I"].BsonType);
-            Assert.AreEqual(BsonType.Int64, document["L"].BsonType);
-            Assert.AreEqual(BsonType.String, document["S"].BsonType);
+            Assert.Equal(BsonType.Int64, document["D"].BsonType);
+            Assert.Equal(BsonType.Int32, document["I"].BsonType);
+            Assert.Equal(BsonType.Int64, document["L"].BsonType);
+            Assert.Equal(BsonType.String, document["S"].BsonType);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             var document = new BsonDocument
@@ -790,10 +782,10 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(E.A, rehydrated.D);
-            Assert.AreEqual(E.A, rehydrated.I);
-            Assert.AreEqual(E.A, rehydrated.L);
-            Assert.AreEqual(E.A, rehydrated.S);
+            Assert.Equal(E.A, rehydrated.D);
+            Assert.Equal(E.A, rehydrated.I);
+            Assert.Equal(E.A, rehydrated.L);
+            Assert.Equal(E.A, rehydrated.S);
         }
     }
 }

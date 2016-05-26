@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp81Tests
     {
         private class BaseModel
@@ -34,20 +33,20 @@ namespace MongoDB.Bson.Tests.Jira
             public ObjectId FriendId { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestIdMember()
         {
             var u = new User { Id = ObjectId.Empty, FriendId = ObjectId.Empty };
 
             var classMap = BsonClassMap.LookupClassMap(typeof(User));
             var idMemberMap = classMap.IdMemberMap;
-            Assert.AreEqual("Id", idMemberMap.MemberName);
+            Assert.Equal("Id", idMemberMap.MemberName);
 
             var idProvider = BsonSerializer.LookupSerializer(typeof(User)) as IBsonIdProvider;
             var idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
             idProvider.SetDocumentId(u, idGenerator.GenerateId(null, u));
-            Assert.IsFalse(idGenerator.IsEmpty(u.Id));
-            Assert.IsTrue(idGenerator.IsEmpty(u.FriendId));
+            Assert.False(idGenerator.IsEmpty(u.Id));
+            Assert.True(idGenerator.IsEmpty(u.FriendId));
         }
     }
 }

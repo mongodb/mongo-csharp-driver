@@ -21,15 +21,15 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class OutputBufferChunkSourceTests
     {
-        [Test]
+        [Fact]
         public void BaseSource_get_should_return_expected_result()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().BeSameAs(baseSource);
         }
 
-        [Test]
+        [Fact]
         public void BaseSource_get_should_throw_when_subject_is_disposed()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("OutputBufferChunkSource");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_baseSource_is_null()
         {
             Action action = () => new OutputBufferChunkSource(null);
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("baseSource");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_initialUnpooledChunkSize_is_less_than_zero()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -88,7 +88,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("initialUnpooledChunkSize");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_maxChunkSize_is_less_than_or_equal_to_zero(
             [Values(-1, 0)]
             int maxChunkSize)
@@ -100,7 +101,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkSize");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_maxChunkSize_is_less_than_minChunkSize()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -110,7 +111,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxChunkSize");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_maxChunkSize_is_not_a_power_of_2(
             [Values(3, 5, 7, 9, 15, 17)]
             int maxChunkSize)
@@ -122,7 +124,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxChunkSize");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_minChunkSize_is_less_than_or_equal_to_zero(
             [Values(-1, 0)]
             int minChunkSize)
@@ -134,7 +137,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minChunkSize");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_minChunkSize_is_not_a_power_of_2(
             [Values(3, 5, 7, 9, 15, 17)]
             int minChunkSize)
@@ -146,7 +150,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minChunkSize");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -157,7 +161,7 @@ namespace MongoDB.Bson.Tests.IO
 
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -170,13 +174,14 @@ namespace MongoDB.Bson.Tests.IO
 
         }
 
-        [TestCase(1, new int[] { })]
-        [TestCase(2, new int[] { 4 })]
-        [TestCase(3, new int[] { 4, 8 })]
-        [TestCase(4, new int[] { 4, 8, 16 })]
-        [TestCase(5, new int[] { 4, 8, 16, 32 })]
-        [TestCase(6, new int[] { 4, 8, 16, 32, 32 })]
-        [TestCase(7, new int[] { 4, 8, 16, 32, 32, 32 })]
+        [Theory]
+        [InlineData(1, new int[] { })]
+        [InlineData(2, new int[] { 4 })]
+        [InlineData(3, new int[] { 4, 8 })]
+        [InlineData(4, new int[] { 4, 8, 16 })]
+        [InlineData(5, new int[] { 4, 8, 16, 32 })]
+        [InlineData(6, new int[] { 4, 8, 16, 32, 32 })]
+        [InlineData(7, new int[] { 4, 8, 16, 32, 32, 32 })]
         public void GetChunk_should_return_expected_result_when_initialUnpooledChunkSize_is_not_zero(int numberOfCalls, int[] expectedRequestSizes)
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -204,12 +209,13 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(1, new int[] { 4 })]
-        [TestCase(2, new int[] { 4, 8 })]
-        [TestCase(3, new int[] { 4, 8, 16 })]
-        [TestCase(4, new int[] { 4, 8, 16, 32 })]
-        [TestCase(5, new int[] { 4, 8, 16, 32, 32 })]
-        [TestCase(6, new int[] { 4, 8, 16, 32, 32, 32 })]
+        [Theory]
+        [InlineData(1, new int[] { 4 })]
+        [InlineData(2, new int[] { 4, 8 })]
+        [InlineData(3, new int[] { 4, 8, 16 })]
+        [InlineData(4, new int[] { 4, 8, 16, 32 })]
+        [InlineData(5, new int[] { 4, 8, 16, 32, 32 })]
+        [InlineData(6, new int[] { 4, 8, 16, 32, 32, 32 })]
         public void GetChunk_should_return_expected_result_when_initialUnpooledChunkSize_is_zero(int numberOfCalls, int[] expectedRequestSizes)
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -234,7 +240,8 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChunk_should_throw_when_requestedSize_is_less_than_or_equal_to_zero(
             [Values(-1, 0)]
             int requestedSize)
@@ -247,7 +254,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("requestedSize");
         }
 
-        [Test]
+        [Fact]
         public void GetChunk_should_throw_when_subject_is_disposed()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -259,7 +266,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("OutputBufferChunkSource");
        }
 
-        [Test]
+        [Fact]
         public void InitialUnpooledChunkSize_get_should_return_expected_result()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -271,7 +278,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().Be(initialUnpooledChunkSize);
         }
 
-        [Test]
+        [Fact]
         public void MaxChunkSize_get_should_return_expected_result()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();
@@ -283,7 +290,7 @@ namespace MongoDB.Bson.Tests.IO
             result.Should().Be(maxChunkSize);
         }
 
-        [Test]
+        [Fact]
         public void MinChunkSize_get_should_return_expected_result()
         {
             var baseSource = Substitute.For<IBsonChunkSource>();

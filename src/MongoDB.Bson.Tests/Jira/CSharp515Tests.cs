@@ -18,11 +18,10 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp515
 {
-    [TestFixture]
     public class CSharp515Tests
     {
         public class C
@@ -49,24 +48,24 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
 
         private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + __discriminatorAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
         
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var c = new C { Id = 1, R = null, S = null, RS = null, OR = null, OS = null };
 
             var json = "{ '_id' : 1, 'R' : null, 'S' : null, 'RS' : null, 'OR' : null, 'OS' : null }".Replace("'", "\"");
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
-            Assert.AreEqual(c.Id, rehydrated.Id);
-            Assert.AreEqual(null, rehydrated.R);
-            Assert.AreEqual(null, rehydrated.S);
-            Assert.AreEqual(null, rehydrated.RS);
-            Assert.AreEqual(null, rehydrated.OR);
-            Assert.AreEqual(null, rehydrated.OS);
+            Assert.Equal(c.Id, rehydrated.Id);
+            Assert.Equal(null, rehydrated.R);
+            Assert.Equal(null, rehydrated.S);
+            Assert.Equal(null, rehydrated.RS);
+            Assert.Equal(null, rehydrated.OR);
+            Assert.Equal(null, rehydrated.OS);
         }
 
-        [Test]
+        [Fact]
         public void TestLength0()
         {
             var list = new List<int>();
@@ -75,23 +74,23 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[]");
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
-            Assert.AreEqual(c.Id, rehydrated.Id);
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.R);
-            Assert.IsInstanceOf<S<int>>(rehydrated.S);
-            Assert.IsInstanceOf<S<int>>(rehydrated.RS);
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.OR);
-            Assert.IsInstanceOf<S<int>>(rehydrated.OS);
-            Assert.AreEqual(0, rehydrated.R.Count);
-            Assert.AreEqual(0, rehydrated.S.Count);
-            Assert.AreEqual(0, rehydrated.RS.Count);
-            Assert.AreEqual(0, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
-            Assert.AreEqual(0, ((S<int>)rehydrated.OS).Count);
+            Assert.Equal(c.Id, rehydrated.Id);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.R);
+            Assert.IsType<S<int>>(rehydrated.S);
+            Assert.IsType<S<int>>(rehydrated.RS);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.OR);
+            Assert.IsType<S<int>>(rehydrated.OS);
+            Assert.Equal(0, rehydrated.R.Count);
+            Assert.Equal(0, rehydrated.S.Count);
+            Assert.Equal(0, rehydrated.RS.Count);
+            Assert.Equal(0, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
+            Assert.Equal(0, ((S<int>)rehydrated.OS).Count);
         }
 
-        [Test]
+        [Fact]
         public void TestLength1()
         {
             var list = new List<int>() { 1 };
@@ -100,28 +99,28 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[1]");
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.R);
-            Assert.IsInstanceOf<S<int>>(rehydrated.S);
-            Assert.IsInstanceOf<S<int>>(rehydrated.RS);
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.OR);
-            Assert.IsInstanceOf<S<int>>(rehydrated.OS);
-            Assert.AreEqual(c.Id, rehydrated.Id);
-            Assert.AreEqual(1, rehydrated.R.Count);
-            Assert.AreEqual(1, rehydrated.S.Count);
-            Assert.AreEqual(1, rehydrated.RS.Count);
-            Assert.AreEqual(1, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
-            Assert.AreEqual(1, ((S<int>)rehydrated.OS).Count);
-            Assert.AreEqual(1, rehydrated.R[0]);
-            Assert.AreEqual(1, rehydrated.S[0]);
-            Assert.AreEqual(1, rehydrated.RS[0]);
-            Assert.AreEqual(1, ((ReadOnlyCollection<int>)rehydrated.OR)[0]);
-            Assert.AreEqual(1, ((S<int>)rehydrated.OS)[0]);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.R);
+            Assert.IsType<S<int>>(rehydrated.S);
+            Assert.IsType<S<int>>(rehydrated.RS);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.OR);
+            Assert.IsType<S<int>>(rehydrated.OS);
+            Assert.Equal(c.Id, rehydrated.Id);
+            Assert.Equal(1, rehydrated.R.Count);
+            Assert.Equal(1, rehydrated.S.Count);
+            Assert.Equal(1, rehydrated.RS.Count);
+            Assert.Equal(1, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
+            Assert.Equal(1, ((S<int>)rehydrated.OS).Count);
+            Assert.Equal(1, rehydrated.R[0]);
+            Assert.Equal(1, rehydrated.S[0]);
+            Assert.Equal(1, rehydrated.RS[0]);
+            Assert.Equal(1, ((ReadOnlyCollection<int>)rehydrated.OR)[0]);
+            Assert.Equal(1, ((S<int>)rehydrated.OS)[0]);
         }
 
-        [Test]
+        [Fact]
         public void TestLength2()
         {
             var list = new List<int>() { 1, 2 };
@@ -130,30 +129,30 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[1, 2]");
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
-            Assert.AreEqual(c.Id, rehydrated.Id);
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.R);
-            Assert.IsInstanceOf<S<int>>(rehydrated.S);
-            Assert.IsInstanceOf<S<int>>(rehydrated.RS);
-            Assert.IsInstanceOf<ReadOnlyCollection<int>>(rehydrated.OR);
-            Assert.IsInstanceOf<S<int>>(rehydrated.OS);
-            Assert.AreEqual(2, rehydrated.R.Count);
-            Assert.AreEqual(2, rehydrated.S.Count);
-            Assert.AreEqual(2, rehydrated.RS.Count);
-            Assert.AreEqual(2, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
-            Assert.AreEqual(2, ((S<int>)rehydrated.OS).Count);
-            Assert.AreEqual(1, rehydrated.R[0]);
-            Assert.AreEqual(1, rehydrated.S[0]);
-            Assert.AreEqual(1, rehydrated.RS[0]);
-            Assert.AreEqual(1, ((ReadOnlyCollection<int>)rehydrated.OR)[0]);
-            Assert.AreEqual(1, ((S<int>)rehydrated.OS)[0]);
-            Assert.AreEqual(2, rehydrated.R[1]);
-            Assert.AreEqual(2, rehydrated.S[1]);
-            Assert.AreEqual(2, rehydrated.RS[1]);
-            Assert.AreEqual(2, ((ReadOnlyCollection<int>)rehydrated.OR)[1]);
-            Assert.AreEqual(2, ((S<int>)rehydrated.OS)[1]);
+            Assert.Equal(c.Id, rehydrated.Id);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.R);
+            Assert.IsType<S<int>>(rehydrated.S);
+            Assert.IsType<S<int>>(rehydrated.RS);
+            Assert.IsType<ReadOnlyCollection<int>>(rehydrated.OR);
+            Assert.IsType<S<int>>(rehydrated.OS);
+            Assert.Equal(2, rehydrated.R.Count);
+            Assert.Equal(2, rehydrated.S.Count);
+            Assert.Equal(2, rehydrated.RS.Count);
+            Assert.Equal(2, ((ReadOnlyCollection<int>)rehydrated.OR).Count);
+            Assert.Equal(2, ((S<int>)rehydrated.OS).Count);
+            Assert.Equal(1, rehydrated.R[0]);
+            Assert.Equal(1, rehydrated.S[0]);
+            Assert.Equal(1, rehydrated.RS[0]);
+            Assert.Equal(1, ((ReadOnlyCollection<int>)rehydrated.OR)[0]);
+            Assert.Equal(1, ((S<int>)rehydrated.OS)[0]);
+            Assert.Equal(2, rehydrated.R[1]);
+            Assert.Equal(2, rehydrated.S[1]);
+            Assert.Equal(2, rehydrated.RS[1]);
+            Assert.Equal(2, ((ReadOnlyCollection<int>)rehydrated.OR)[1]);
+            Assert.Equal(2, ((S<int>)rehydrated.OS)[1]);
         }
     }
 }

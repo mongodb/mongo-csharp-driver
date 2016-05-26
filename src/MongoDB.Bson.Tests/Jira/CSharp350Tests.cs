@@ -15,14 +15,13 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp350Tests
     {
-        [Test]
+        [Fact]
         public void TestNamesWithUnderscoreAndDollar()
         {
             var names = new string[]
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Jira
             {
                 var json = string.Format("{{ {0} : 1 }}", name); ;
                 var document = BsonSerializer.Deserialize<BsonDocument>(json);
-                Assert.AreEqual(1, document[name].AsInt32);
+                Assert.Equal(1, document[name].AsInt32);
             }
         }
     }

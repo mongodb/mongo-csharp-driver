@@ -16,36 +16,34 @@
 using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class ReadWriteMemberFinderConventionsTests
     {
         private ReadWriteMemberFinderConvention _subject;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public ReadWriteMemberFinderConventionsTests()
         {
             _subject = new ReadWriteMemberFinderConvention();
         }
 
-        [Test]
+        [Fact]
         public void TestMapsAllTheReadAndWriteFieldsAndProperties()
         {
             var classMap = new BsonClassMap<TestClass>();
 
             _subject.Apply(classMap);
 
-            Assert.AreEqual(3, classMap.DeclaredMemberMaps.Count());
+            Assert.Equal(3, classMap.DeclaredMemberMaps.Count());
 
-            Assert.IsNotNull(classMap.GetMemberMap(x => x.Mapped1));
-            Assert.IsNotNull(classMap.GetMemberMap(x => x.Mapped2));
-            Assert.IsNotNull(classMap.GetMemberMap(x => x.Mapped3));
+            Assert.NotNull(classMap.GetMemberMap(x => x.Mapped1));
+            Assert.NotNull(classMap.GetMemberMap(x => x.Mapped2));
+            Assert.NotNull(classMap.GetMemberMap(x => x.Mapped3));
 
-            Assert.IsNull(classMap.GetMemberMap(x => x.NotMapped1));
-            Assert.IsNull(classMap.GetMemberMap(x => x.NotMapped2));
+            Assert.Null(classMap.GetMemberMap(x => x.NotMapped1));
+            Assert.Null(classMap.GetMemberMap(x => x.NotMapped2));
         }
 
         private class TestClass

@@ -18,11 +18,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class IdGeneratorConventionsTests
     {
         private class TestClassA
@@ -35,26 +34,26 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public Guid GuidId { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestLookupIdGeneratorConventionWithTestClassA()
         {
             var convention = new LookupIdGeneratorConvention();
             var classMap = new BsonClassMap<TestClassA>();
             classMap.MapIdMember(x => x.ObjectId);
             convention.PostProcess(classMap);
-            Assert.IsNotNull(classMap.IdMemberMap.IdGenerator);
-            Assert.IsInstanceOf<ObjectIdGenerator>(classMap.IdMemberMap.IdGenerator);
+            Assert.NotNull(classMap.IdMemberMap.IdGenerator);
+            Assert.IsType<ObjectIdGenerator>(classMap.IdMemberMap.IdGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestLookupIdGeneratorConventionWithTestClassB()
         {
             var convention = new LookupIdGeneratorConvention();
             var classMap = new BsonClassMap<TestClassB>();
             classMap.MapIdMember(x => x.GuidId);
             convention.PostProcess(classMap);
-            Assert.IsNotNull(classMap.IdMemberMap.IdGenerator);
-            Assert.IsInstanceOf<GuidGenerator>(classMap.IdMemberMap.IdGenerator);
+            Assert.NotNull(classMap.IdMemberMap.IdGenerator);
+            Assert.IsType<GuidGenerator>(classMap.IdMemberMap.IdGenerator);
         }
     }
 }

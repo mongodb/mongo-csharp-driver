@@ -20,11 +20,10 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    [TestFixture]
     public class EnumerableInterfaceImplementerSerializerTests
     {
         public class C : IEnumerable<C>
@@ -43,7 +42,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        [Test]
+        [Fact]
         public void LookupSerializer_should_not_throw_StackOverflowException()
         {
             var serializer = BsonSerializer.LookupSerializer<C>();
@@ -53,7 +52,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             itemSerializer.Should().BeSameAs(serializer);
         }
 
-        [Test]
+        [Fact]
         public void Serialize_should_return_expected_result()
         {
             var subject = CreateSubject();

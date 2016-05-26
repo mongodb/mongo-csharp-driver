@@ -15,35 +15,34 @@
 
 using System.Collections;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp276Tests
     {
-        [Test]
+        [Fact]
         public void TestConstructorWithNonGenericIEnumerable()
         {
             IEnumerable values = new object[] { 1, "a" };
             var array = new BsonArray(values);
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(BsonType.Int32, array[0].BsonType);
-            Assert.AreEqual(BsonType.String, array[1].BsonType);
-            Assert.AreEqual(1, array[0].AsInt32);
-            Assert.AreEqual("a", array[1].AsString);
+            Assert.Equal(2, array.Count);
+            Assert.Equal(BsonType.Int32, array[0].BsonType);
+            Assert.Equal(BsonType.String, array[1].BsonType);
+            Assert.Equal(1, array[0].AsInt32);
+            Assert.Equal("a", array[1].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateWithNonGenericIEnumerable()
         {
             IEnumerable values = new object[] { 1, "a" };
             var array = new BsonArray(values);
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(BsonType.Int32, array[0].BsonType);
-            Assert.AreEqual(BsonType.String, array[1].BsonType);
-            Assert.AreEqual(1, array[0].AsInt32);
-            Assert.AreEqual("a", array[1].AsString);
+            Assert.Equal(2, array.Count);
+            Assert.Equal(BsonType.Int32, array[0].BsonType);
+            Assert.Equal(BsonType.String, array[1].BsonType);
+            Assert.Equal(1, array[0].AsInt32);
+            Assert.Equal("a", array[1].AsString);
         }
     }
 }

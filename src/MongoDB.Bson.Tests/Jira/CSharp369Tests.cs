@@ -17,11 +17,10 @@ using System;
 using System.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp369Tests
     {
         [BsonIgnoreExtraElements]
@@ -48,42 +47,42 @@ namespace MongoDB.Bson.Tests.Jira
             public int Y { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestCWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.IsInstanceOf<C>(c);
-            Assert.AreEqual(1, c.Id);
-            Assert.AreEqual(2, c.X);
+            Assert.IsType<C>(c);
+            Assert.Equal(1, c.Id);
+            Assert.Equal(2, c.X);
         }
 
-        [Test]
+        [Fact]
         public void TestDWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
             Assert.Throws<FormatException>(() => BsonSerializer.Deserialize<D>(json));
         }
 
-        [Test]
+        [Fact]
         public void TestEWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
             var e = BsonSerializer.Deserialize<E>(json);
-            Assert.IsInstanceOf<E>(e);
-            Assert.AreEqual(1, e.Id);
-            Assert.AreEqual(2, e.X);
+            Assert.IsType<E>(e);
+            Assert.Equal(1, e.Id);
+            Assert.Equal(2, e.X);
         }
 
-        [Test]
+        [Fact]
         public void TestFWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
             var f = BsonSerializer.Deserialize<F>(json);
-            Assert.IsInstanceOf<F>(f);
-            Assert.AreEqual(1, f.Id);
-            Assert.AreEqual(2, f.X);
-            Assert.AreEqual(3, f.Y);
+            Assert.IsType<F>(f);
+            Assert.Equal(1, f.Id);
+            Assert.Equal(2, f.X);
+            Assert.Equal(3, f.Y);
         }
     }
 }

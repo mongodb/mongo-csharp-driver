@@ -15,14 +15,13 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.ObjectModel
 {
-    [TestFixture]
     public class BsonTimestampTests
     {
-        [Test]
+        [Fact]
         public void BsonType_get_should_return_expected_result()
         {
             var subject = new BsonTimestamp(0);
@@ -32,12 +31,13 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(BsonType.Timestamp);
         }
 
-        [TestCase(0L, null, 1)]
-        [TestCase(0L, 0L, 0)]
-        [TestCase(0L, -1L, 1)]
-        [TestCase(0L, 1L, -1)]
-        [TestCase(-1L, 0L, -1)]
-        [TestCase(1L, 0L, 1)]
+        [Theory]
+        [InlineData(0L, null, 1)]
+        [InlineData(0L, 0L, 0)]
+        [InlineData(0L, -1L, 1)]
+        [InlineData(0L, 1L, -1)]
+        [InlineData(-1L, 0L, -1)]
+        [InlineData(1L, 0L, 1)]
         public void CompareTo_should_return_expected_result(long value1, long? value2, int expectedResult)
         {
             var subject = new BsonTimestamp(value1);
@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_should_return_minus_one_when_other_type_compares_higher()
         {
             var subject = new BsonTimestamp(0);
@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(-1);
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_should_return_plus_one_when_other_type_compares_lower()
         {
             var subject = new BsonTimestamp(0);
@@ -70,13 +70,14 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(1);
         }
 
-        [TestCase(0, 0, 0UL)]
-        [TestCase(1, 2, 0x100000002UL)]
-        [TestCase(-1, -2, 0xfffffffffffffffeUL)]
-        [TestCase(int.MinValue, int.MinValue, 0x8000000080000000UL)]
-        [TestCase(int.MaxValue, int.MaxValue, 0x7fffffff7fffffffUL)]
-        [TestCase(int.MinValue, int.MaxValue, 0x800000007fffffffUL)]
-        [TestCase(int.MaxValue, int.MinValue, 0x7fffffff80000000UL)]
+        [Theory]
+        [InlineData(0, 0, 0UL)]
+        [InlineData(1, 2, 0x100000002UL)]
+        [InlineData(-1, -2, 0xfffffffffffffffeUL)]
+        [InlineData(int.MinValue, int.MinValue, 0x8000000080000000UL)]
+        [InlineData(int.MaxValue, int.MaxValue, 0x7fffffff7fffffffUL)]
+        [InlineData(int.MinValue, int.MaxValue, 0x800000007fffffffUL)]
+        [InlineData(int.MaxValue, int.MinValue, 0x7fffffff80000000UL)]
         public void constructor_with_timestamp_increment_should_initialize_instance(int timestamp, int increment, ulong expectedValue)
         {
             var result = new BsonTimestamp(timestamp, increment);
@@ -84,9 +85,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Value.Should().Be((long)expectedValue);
         }
 
-        [TestCase(0)]
-        [TestCase(long.MinValue)]
-        [TestCase(long.MaxValue)]
+        [Theory]
+        [InlineData(0)]
+        [InlineData(long.MinValue)]
+        [InlineData(long.MaxValue)]
         public void constructor_with_value_should_initialize_instance(long value)
         {
             var result = new BsonTimestamp(value);
@@ -94,12 +96,13 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Value.Should().Be(value);
         }
 
-        [TestCase(0L, 0L)]
-        [TestCase(long.MinValue, long.MinValue)]
-        [TestCase(long.MaxValue, long.MaxValue)]
-        [TestCase(0UL, 0L)]
-        [TestCase(ulong.MinValue, 0L)]
-        [TestCase(ulong.MaxValue, -1L)]
+        [Theory]
+        [InlineData(0L, 0L)]
+        [InlineData(long.MinValue, long.MinValue)]
+        [InlineData(long.MaxValue, long.MaxValue)]
+        [InlineData(0UL, 0L)]
+        [InlineData(ulong.MinValue, 0L)]
+        [InlineData(ulong.MaxValue, -1L)]
         public void Create_should_return_expected_result(object value, long expectedValue)
         {
             var result = BsonTimestamp.Create(value);
@@ -107,7 +110,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Value.Should().Be(expectedValue);
         }
 
-        [Test]
+        [Fact]
         public void Create_should_throw_when_value_is_null()
         {
             Action action = () => { BsonTimestamp.Create(null); };
@@ -115,7 +118,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_when_other_is_null()
         {
             var subject = new BsonTimestamp(0);
@@ -128,7 +131,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_when_other_is_wrong_type()
         {
             var subject = new BsonTimestamp(0);
@@ -141,7 +144,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().BeFalse();
         }
 
-        [TestCase(0L, 1L)]
+        [Theory]
+        [InlineData(0L, 1L)]
         public void Equals_should_return_false_when_values_are_not_equal(long value1, long value2)
         {
             var subject = new BsonTimestamp(value1);
@@ -157,9 +161,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             otherHashCode.Should().NotBe(subjectHashCode);
         }
 
-        [TestCase(0L)]
-        [TestCase(long.MinValue)]
-        [TestCase(long.MaxValue)]
+        [Theory]
+        [InlineData(0L)]
+        [InlineData(long.MinValue)]
+        [InlineData(long.MaxValue)]
         public void Equals_should_return_true_when_values_are_equal(long value)
         {
             var subject = new BsonTimestamp(value);
@@ -176,12 +181,13 @@ namespace MongoDB.Bson.Tests.ObjectModel
             otherHashCode.Should().Be(subjectHashCode);
         }
 
-        [TestCase(0UL, 0)]
-        [TestCase(0x100000002UL, 2)]
-        [TestCase(0x7fffffff7fffffffUL, int.MaxValue)]
-        [TestCase(0x7fffffff80000000UL, int.MinValue)]
-        [TestCase(0x800000007fffffffUL, int.MaxValue)]
-        [TestCase(0x8000000080000000UL, int.MinValue)]
+        [Theory]
+        [InlineData(0UL, 0)]
+        [InlineData(0x100000002UL, 2)]
+        [InlineData(0x7fffffff7fffffffUL, int.MaxValue)]
+        [InlineData(0x7fffffff80000000UL, int.MinValue)]
+        [InlineData(0x800000007fffffffUL, int.MaxValue)]
+        [InlineData(0x8000000080000000UL, int.MinValue)]
         public void Increment_get_should_return_expected_result(ulong value, int expectedResult)
         {
             var subject = new BsonTimestamp((long)value);
@@ -191,9 +197,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(expectedResult);
         }
 
-        [TestCase(0L, 1L)]
-        [TestCase(null, 1L)]
-        [TestCase(0L, null)]
+        [Theory]
+        [InlineData(0L, 1L)]
+        [InlineData(null, 1L)]
+        [InlineData(0L, null)]
         public void operator_equals_should_return_false_when_values_are_not_equal(long? value1, long? value2)
         {
             var lhs = value1 == null ? null : new BsonTimestamp(value1.Value);
@@ -206,10 +213,11 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().BeTrue();
         }
 
-        [TestCase(null)]
-        [TestCase(0L)]
-        [TestCase(long.MinValue)]
-        [TestCase(long.MaxValue)]
+        [Theory]
+        [InlineData(null)]
+        [InlineData(0L)]
+        [InlineData(long.MinValue)]
+        [InlineData(long.MaxValue)]
         public void operator_equals_should_return_true_when_values_are_equal(long? value)
         {
             var lhs = value == null ? null : new BsonTimestamp(value.Value);
@@ -226,12 +234,13 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().BeFalse();
         }
 
-        [TestCase(0UL, 0)]
-        [TestCase(0x100000002UL, 1)]
-        [TestCase(0x7fffffff7fffffffUL, int.MaxValue)]
-        [TestCase(0x800000007fffffffUL, int.MinValue)]
-        [TestCase(0x7fffffff80000000UL, int.MaxValue)]
-        [TestCase(0x8000000080000000UL, int.MinValue)]
+        [Theory]
+        [InlineData(0UL, 0)]
+        [InlineData(0x100000002UL, 1)]
+        [InlineData(0x7fffffff7fffffffUL, int.MaxValue)]
+        [InlineData(0x800000007fffffffUL, int.MinValue)]
+        [InlineData(0x7fffffff80000000UL, int.MaxValue)]
+        [InlineData(0x8000000080000000UL, int.MinValue)]
         public void Timestamp_get_should_return_expected_result(ulong value, int expectedResult)
         {
             var subject = new BsonTimestamp((long)value);
@@ -241,9 +250,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(expectedResult);
         }
 
-        [TestCase(0L, "0")]
-        [TestCase(1L, "1")]
-        [TestCase(-1L, "-1")]
+        [Theory]
+        [InlineData(0L, "0")]
+        [InlineData(1L, "1")]
+        [InlineData(-1L, "-1")]
         public void ToString_should_return_expected_result(long value, string expectedResult)
         {
             var subject = new BsonTimestamp(value);
@@ -253,9 +263,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result.Should().Be(expectedResult);
         }
 
-        [TestCase(0L)]
-        [TestCase(long.MinValue)]
-        [TestCase(long.MaxValue)]
+        [Theory]
+        [InlineData(0L)]
+        [InlineData(long.MinValue)]
+        [InlineData(long.MaxValue)]
         public void Value_get_should_return_expected_result(long value)
         {
             var subject = new BsonTimestamp(value);

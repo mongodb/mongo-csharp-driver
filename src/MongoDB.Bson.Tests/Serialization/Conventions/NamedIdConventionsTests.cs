@@ -15,60 +15,58 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class NamedIdConventionsTests
     {
         private NamedIdMemberConvention _subject;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public NamedIdConventionsTests()
         {
             _subject = new NamedIdMemberConvention(new[] { "One", "Two" });
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotMapIdWhenOneIsNotFound()
         {
             var classMap = new BsonClassMap<TestClass1>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNull(classMap.IdMemberMap);
+            Assert.Null(classMap.IdMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsIdWhenFirstNameExists()
         {
             var classMap = new BsonClassMap<TestClass2>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.IdMemberMap);
+            Assert.NotNull(classMap.IdMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsIdWhenSecondNameExists()
         {
             var classMap = new BsonClassMap<TestClass3>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.IdMemberMap);
+            Assert.NotNull(classMap.IdMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsIdWhenBothExist()
         {
             var classMap = new BsonClassMap<TestClass4>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.IdMemberMap);
-            Assert.AreEqual("One", classMap.IdMemberMap.MemberName);
+            Assert.NotNull(classMap.IdMemberMap);
+            Assert.Equal("One", classMap.IdMemberMap.MemberName);
         }
 
         private class TestClass1

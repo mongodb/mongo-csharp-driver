@@ -22,11 +22,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class BsonSerializerTests
     {
         public class Employee
@@ -76,14 +75,14 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeEmployee()
         {
             var employee = new Employee { FirstName = "John", LastName = "Smith", DateOfBirth = new DateTime(2001, 2, 3) };
 
             var bson = employee.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Employee>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         public class Account
@@ -92,14 +91,14 @@ namespace MongoDB.Bson.Tests.Serialization
             public decimal Balance { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeAccount()
         {
             var account = new Account { Opened = DateTimeOffset.Now, Balance = 12345.67M };
 
             var bson = account.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Account>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         public class Order
@@ -114,7 +113,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public int Quantity { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeOrder()
         {
             var order = new Order
@@ -130,11 +129,11 @@ namespace MongoDB.Bson.Tests.Serialization
             var expected = "{ 'Customer' : 'John', 'OrderDetails' : # }";
             expected = expected.Replace("#", "[{ 'Product' : 'Pen', 'Quantity' : 1 }, { 'Product' : 'Ruler', 'Quantity' : 2 }]");
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = order.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Order>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         public class InventoryItem
@@ -162,7 +161,7 @@ namespace MongoDB.Bson.Tests.Serialization
 #endif
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeInventoryItem()
         {
             var item = new InventoryItem { Price = 42 };
@@ -170,10 +169,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = item.ToBson();
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
 
-            Assert.That(rehydrated.Price, Is.EqualTo(42));
+            Assert.Equal(42, rehydrated.Price);
 #if NET45
-            Assert.IsTrue(rehydrated.WasBeginInitCalled);
-            Assert.IsTrue(rehydrated.WasEndInitCalled);
+            Assert.True(rehydrated.WasBeginInitCalled);
+            Assert.True(rehydrated.WasEndInitCalled);
 #endif
         }
 
@@ -187,12 +186,12 @@ namespace MongoDB.Bson.Tests.Serialization
         private class C : A
         { }
 
-        [Test]
+        [Fact]
         public void TestLookupActualType()
         {
             var actualType = BsonSerializer.LookupActualType(typeof(A), BsonValue.Create("C"));
 
-            Assert.AreEqual(typeof(C), actualType);
+            Assert.Equal(typeof(C), actualType);
         }
     }
 }

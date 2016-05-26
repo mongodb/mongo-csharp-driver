@@ -17,44 +17,43 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp446Tests
     {
-        [Test]
+        [Fact]
         public void TestGetDocumentId()
         {
             var document = new BsonDocument { { "_id", 1 }, { "x", "abc" } };
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<BsonInt32>(id);
-            Assert.AreEqual(new BsonInt32(1), id);
-            Assert.AreEqual(typeof(BsonValue), nominalType);
-            Assert.IsNull(idGenerator);
+            Assert.True(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
+            Assert.IsType<BsonInt32>(id);
+            Assert.Equal(new BsonInt32(1), id);
+            Assert.Equal(typeof(BsonValue), nominalType);
+            Assert.Null(idGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestSetDocumentIdBsonValue()
         {
             var document = new BsonDocument { { "x", "abc" } };
             var id = new BsonInt32(1);
             ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, id);
-            Assert.IsTrue(document["_id"].IsInt32);
-            Assert.AreEqual(1, document["_id"].AsInt32);
+            Assert.True(document["_id"].IsInt32);
+            Assert.Equal(1, document["_id"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetDocumentIdInt32()
         {
             var document = new BsonDocument { { "x", "abc" } };
             ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, 1); // 1 will be converted to a BsonInt32
-            Assert.IsTrue(document["_id"].IsInt32);
-            Assert.AreEqual(1, document["_id"].AsInt32);
+            Assert.True(document["_id"].IsInt32);
+            Assert.Equal(1, document["_id"].AsInt32);
         }
     }
 }

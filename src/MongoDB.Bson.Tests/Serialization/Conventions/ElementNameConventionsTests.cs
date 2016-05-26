@@ -15,11 +15,10 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class ElementNameConventionsTests
     {
         private class TestClass
@@ -30,7 +29,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public string lowerCase { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMemberNameElementNameConvention()
         {
             var convention = new MemberNameElementNameConvention();
@@ -39,13 +38,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             convention.Apply(classMap.MapMember(x => x.Age));
             convention.Apply(classMap.MapMember(x => x._DumbName));
             convention.Apply(classMap.MapMember(x => x.lowerCase));
-            Assert.AreEqual("FirstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
-            Assert.AreEqual("Age", classMap.GetMemberMap(x => x.Age).ElementName);
-            Assert.AreEqual("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
-            Assert.AreEqual("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
+            Assert.Equal("FirstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
+            Assert.Equal("Age", classMap.GetMemberMap(x => x.Age).ElementName);
+            Assert.Equal("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
+            Assert.Equal("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
         }
 
-        [Test]
+        [Fact]
         public void TestCamelCaseElementNameConvention()
         {
             var convention = new CamelCaseElementNameConvention();
@@ -54,10 +53,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             convention.Apply(classMap.MapMember(x => x.Age));
             convention.Apply(classMap.MapMember(x => x._DumbName));
             convention.Apply(classMap.MapMember(x => x.lowerCase));
-            Assert.AreEqual("firstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
-            Assert.AreEqual("age", classMap.GetMemberMap(x => x.Age).ElementName);
-            Assert.AreEqual("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
-            Assert.AreEqual("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
+            Assert.Equal("firstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
+            Assert.Equal("age", classMap.GetMemberMap(x => x.Age).ElementName);
+            Assert.Equal("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
+            Assert.Equal("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
         }
     }
 }

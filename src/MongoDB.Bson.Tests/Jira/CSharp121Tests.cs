@@ -18,7 +18,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp121
 {
@@ -28,10 +28,9 @@ namespace MongoDB.Bson.Tests.Jira.CSharp121
         public Guid PhotoId { get; set; }
     }
 
-    [TestFixture]
     public class CSharp121Tests
     {
-        [Test]
+        [Fact]
         public void TestGuidStringRepresentation()
         {
             var c = new C { PhotoId = Guid.Empty };
@@ -39,13 +38,13 @@ namespace MongoDB.Bson.Tests.Jira.CSharp121
             var expected = "{ 'PhotoId' : #S }";
             expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsInstanceOf<C>(rehydrated);
-            Assert.AreEqual(c.PhotoId, rehydrated.PhotoId);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<C>(rehydrated);
+            Assert.Equal(c.PhotoId, rehydrated.PhotoId);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

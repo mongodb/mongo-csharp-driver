@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class EnumRepresentationConventionTests
     {
         private enum WorkDays {
@@ -39,11 +38,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public WorkDays ChangedRepresentationEnum { get; set; }
         }
 
-        [Test]
-        [TestCase(0)]
-        [TestCase(BsonType.Int32)]
-        [TestCase(BsonType.Int64)]
-        [TestCase(BsonType.String)]
+        [Theory]
+        [InlineData(0)]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
         public void TestConvention(BsonType value)
         {
             var convention = new EnumRepresentationConvention(value);
@@ -53,10 +52,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var changedEnumMemberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
             convention.Apply(nonEnumMemberMap);
             convention.Apply(changedEnumMemberMap);
-            Assert.AreEqual(value, ((IRepresentationConfigurable)(changedEnumMemberMap.GetSerializer())).Representation);
+            Assert.Equal(value, ((IRepresentationConfigurable)(changedEnumMemberMap.GetSerializer())).Representation);
         }
 
-        [Test]
+        [Fact]
         public void TestConventionOverride()
         {
             var int64Convention = new EnumRepresentationConvention(BsonType.Int64);
@@ -65,10 +64,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var memberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
             int64Convention.Apply(memberMap);
             strConvention.Apply(memberMap);
-            Assert.AreEqual(BsonType.String, ((IRepresentationConfigurable)(memberMap.GetSerializer())).Representation);
+            Assert.Equal(BsonType.String, ((IRepresentationConfigurable)(memberMap.GetSerializer())).Representation);
         }
 
-        [Test]
+        [Fact]
         public void TestConventionConstruction()
         {
             foreach (BsonType val in Enum.GetValues(typeof(BsonType)))

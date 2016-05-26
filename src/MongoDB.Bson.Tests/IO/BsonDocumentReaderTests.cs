@@ -18,36 +18,35 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonDocumentReaderTests
     {
-        [Test]
+        [Fact]
         public void TestEmptyDocument()
         {
             BsonDocument document = new BsonDocument();
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSingleString()
         {
             BsonDocument document = new BsonDocument() { { "abc", "xyz" } };
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestEmbeddedDocument()
         {
             BsonDocument document = new BsonDocument
@@ -57,11 +56,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestArray()
         {
             BsonDocument document = new BsonDocument
@@ -71,11 +70,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDateTime()
         {
             DateTime jan_1_2010 = DateTime.SpecifyKind(new DateTime(2010, 1, 1), DateTimeKind.Utc);
@@ -86,11 +85,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestBinary()
         {
             var document = new BsonDocument
@@ -100,11 +99,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScript()
         {
             var document = new BsonDocument
@@ -114,11 +113,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptWithScope()
         {
             var document = new BsonDocument
@@ -128,11 +127,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestGuid()
         {
             var document = new BsonDocument
@@ -142,11 +141,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestIsAtEndOfFile()
         {
             var expected = new BsonDocument("x", 1);
@@ -157,14 +156,14 @@ namespace MongoDB.Bson.Tests.IO
                 while (!reader.IsAtEndOfFile())
                 {
                     var document = BsonSerializer.Deserialize<BsonDocument>(reader);
-                    Assert.AreEqual(expected, document);
+                    Assert.Equal(expected, document);
                     count++;
                 }
-                Assert.AreEqual(1, count);
+                Assert.Equal(1, count);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxKey()
         {
             var document = new BsonDocument
@@ -174,11 +173,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMinKey()
         {
             var document = new BsonDocument
@@ -188,11 +187,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var document = new BsonDocument
@@ -202,11 +201,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSymbol()
         {
             var document = new BsonDocument
@@ -216,11 +215,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTimestamp()
         {
             var document = new BsonDocument
@@ -230,7 +229,7 @@ namespace MongoDB.Bson.Tests.IO
             using (var bsonReader = new BsonDocumentReader(document))
             {
                 var rehydrated = DeserializeBsonDocument(bsonReader);
-                Assert.IsTrue(document.Equals(rehydrated));
+                Assert.True(document.Equals(rehydrated));
             }
         }
 

@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp239
 {
-    [TestFixture]
     public class CSharp239Tests
     {
         public class Tree
@@ -33,7 +32,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp239
             public Tree Right;
         }
 
-        [Test]
+        [Fact]
         public void TestSerialization()
         {
             var obj = new Tree
@@ -44,11 +43,11 @@ namespace MongoDB.Bson.Tests.Jira.CSharp239
             };
             var json = obj.ToJson();
             var expected = "{ 'Node' : 'top', 'Left' : { 'Node' : 'left' }, 'Right' : { 'Node' : 'right' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Tree>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

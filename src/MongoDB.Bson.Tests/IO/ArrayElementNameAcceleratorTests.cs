@@ -15,14 +15,15 @@
 
 using System;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class ArrayElementNameAcceleratorTests
     {
-        [TestCase(10)]
+        [Theory]
+        [InlineData(10)]
         public void GetElementNameBytes_should_return_expected_result(int numberOfCachedElementNames)
         {
             var subject = new ArrayElementNameAccelerator(numberOfCachedElementNames);
@@ -32,11 +33,12 @@ namespace MongoDB.Bson.Tests.IO
                 var result = subject.GetElementNameBytes(index);
 
                 var expectedResult = Utf8Encodings.Strict.GetBytes(index.ToString());
-                Assert.That(result, Is.EqualTo(expectedResult));
+                Assert.Equal(expectedResult, result);
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetElementNameBytes_should_return_expected_result_for_boundary_conditions(
             [Values(0, 9, 10, 99, 100, 999, 1000, 9999, 10000, 99999, 100000, 999999, 1000000, 9999999, 100000000, int.MaxValue)]
             int index,
@@ -48,10 +50,11 @@ namespace MongoDB.Bson.Tests.IO
             var result = subject.GetElementNameBytes(index);
 
             var expectedResult = Utf8Encodings.Strict.GetBytes(index.ToString());
-            Assert.That(result, Is.EqualTo(expectedResult));
+            Assert.Equal(expectedResult, result);
         }
 
-        [TestCase(10)]
+        [Theory]
+        [InlineData(10)]
         public void GetElementNameBytes_should_return_new_byte_array_when_not_cached(int numberOfCachedElementNames)
         {
             var subject = new ArrayElementNameAccelerator(numberOfCachedElementNames);
@@ -60,10 +63,11 @@ namespace MongoDB.Bson.Tests.IO
             var result1 = subject.GetElementNameBytes(index);
             var result2 = subject.GetElementNameBytes(index);
 
-            Assert.That(result2, Is.Not.SameAs(result1));
+            Assert.NotSame(result1, result2);
         }
 
-        [TestCase(10)]
+        [Theory]
+        [InlineData(10)]
         public void GetElementNameBytes_should_return_same_byte_array_when_cached(int numberOfCachedElementNames)
         {
             var subject = new ArrayElementNameAccelerator(numberOfCachedElementNames);
@@ -73,11 +77,11 @@ namespace MongoDB.Bson.Tests.IO
                 var result1 = subject.GetElementNameBytes(index);
                 var result2 = subject.GetElementNameBytes(index);
 
-                Assert.That(result2, Is.SameAs(result1));
+                Assert.Same(result1, result2);
             }
         }
 
-        [Test]
+        [Fact]
         public void GetElementNameBytes_should_throw_when_index_is_negative()
         {
             var subject = new ArrayElementNameAccelerator(0);

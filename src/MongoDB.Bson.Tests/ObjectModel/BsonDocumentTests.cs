@@ -25,55 +25,54 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonDocumentTests
     {
-        [Test]
+        [Fact]
         public void TestAddArrayListWithOneEntry()
         {
             var arrayList = new ArrayList { 1 };
             var array = new BsonArray(arrayList);
             var json = array.ToJson();
             var expected = "[1]".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestAddArrayListWithTwoEntries()
         {
             var arrayList = new ArrayList { 1, 2 };
             var array = new BsonArray(arrayList);
             var json = array.ToJson();
             var expected = "[1, 2]".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestAddHashtableWithOneEntry()
         {
             var hashtable = new Hashtable { { "A", 1 } };
             var document = new BsonDocument(hashtable);
             var json = document.ToJson();
             var expected = "{ 'A' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestAddHashtableWithTwoEntries()
         {
             var hashtable = new Hashtable { { "A", 1 }, { "B", 2 } };
             var document = new BsonDocument(hashtable);
             // note: can't test json against expected because the order of the keys in the hash table is not defined
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["A"].AsInt32);
-            Assert.AreEqual(2, document["B"].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["A"].AsInt32);
+            Assert.Equal(2, document["B"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestAddHashtableWithNestedHashtable()
         {
             var hashtable = new Hashtable
@@ -83,24 +82,24 @@ namespace MongoDB.Bson.Tests
             };
             var document = new BsonDocument(hashtable);
             // note: can't test json against expected because the order of the keys in the hash table is not defined
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["A"].AsInt32);
-            Assert.AreEqual(2, document["B"]["C"].AsInt32);
-            Assert.AreEqual(3, document["B"]["D"].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["A"].AsInt32);
+            Assert.Equal(2, document["B"]["C"].AsInt32);
+            Assert.Equal(3, document["B"]["D"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestAddNameValueWithCondition()
         {
             var document = new BsonDocument();
             document.Add("x", 1, false);
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
             document.Add("x", 1, true);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestAutoIndexing()
         {
             var document = new BsonDocument
@@ -113,7 +112,7 @@ namespace MongoDB.Bson.Tests
                 }
             };
             var streetAddress = document["Addresses"][0][0];
-            Assert.AreSame(streetAddress, document["Addresses"][0][0]);
+            Assert.Same(streetAddress, document["Addresses"][0][0]);
 
             Assert.Throws<NotSupportedException>(() => { var x = document["Addresses"][0][0][0]; });
             Assert.Throws<NotSupportedException>(() => { var x = document["Addresses"][0][0]["x"]; });
@@ -121,46 +120,46 @@ namespace MongoDB.Bson.Tests
             Assert.Throws<NotSupportedException>(() => { document["Addresses"][0][0]["x"] = 1; });
         }
 
-        [Test]
+        [Fact]
         public void TestClear()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.ElementCount);
+            Assert.Equal(1, document.ElementCount);
             document.Clear();
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
         }
 
-        [Test]
+        [Fact]
         public void TestClone()
         {
             var document = new BsonDocument("d", new BsonDocument("x", 1));
             var clone = (BsonDocument)document.Clone();
-            Assert.AreEqual(clone, document);
-            Assert.AreSame(clone["d"], document["d"]);
+            Assert.Equal(clone, document);
+            Assert.Same(clone["d"], document["d"]);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorAllowDuplicateNames()
         {
             var document = new BsonDocument(true);
-            Assert.AreEqual(true, document.AllowDuplicateNames);
+            Assert.Equal(true, document.AllowDuplicateNames);
             document.AllowDuplicateNames = false;
-            Assert.AreEqual(false, document.AllowDuplicateNames);
+            Assert.Equal(false, document.AllowDuplicateNames);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorElement()
         {
             var element = new BsonElement("x", 1);
             var document = new BsonDocument(element);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreSame(element.Value, document.GetElement("x").Value);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
+            Assert.Same(element.Value, document.GetElement("x").Value);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorElements()
         {
             var elements = new BsonElement[] {
@@ -168,34 +167,34 @@ namespace MongoDB.Bson.Tests
                 new BsonElement("y", 2)
             };
             var document = new BsonDocument((IEnumerable<BsonElement>)elements);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(2, document["y"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.Contains("y"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(elements[0].Value, document.GetElement("x").Value);
-            Assert.AreSame(elements[1].Value, document.GetElement("y").Value);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(2, document["y"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.Contains("y"));
+            Assert.Equal(true, document.ContainsValue(1));
+            Assert.Equal(true, document.ContainsValue(2));
+            Assert.Same(elements[0].Value, document.GetElement("x").Value);
+            Assert.Same(elements[1].Value, document.GetElement("y").Value);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorElementsDocument()
         {
             var originalDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var document = new BsonDocument(originalDocument);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(2, document["y"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.Contains("y"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(originalDocument.GetElement("x").Value, document.GetElement("x").Value);
-            Assert.AreSame(originalDocument.GetElement("y").Value, document.GetElement("y").Value);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(2, document["y"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.Contains("y"));
+            Assert.Equal(true, document.ContainsValue(1));
+            Assert.Equal(true, document.ContainsValue(2));
+            Assert.Same(originalDocument.GetElement("x").Value, document.GetElement("x").Value);
+            Assert.Same(originalDocument.GetElement("y").Value, document.GetElement("y").Value);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorElementsParams()
         {
             var element1 = new BsonElement("x", 1);
@@ -203,29 +202,29 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(element1, element2);
 #pragma warning restore
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(2, document["y"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.Contains("y"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(element1.Value, document.GetElement("x").Value);
-            Assert.AreSame(element2.Value, document.GetElement("y").Value);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(2, document["y"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.Contains("y"));
+            Assert.Equal(true, document.ContainsValue(1));
+            Assert.Equal(true, document.ContainsValue(2));
+            Assert.Same(element1.Value, document.GetElement("x").Value);
+            Assert.Same(element2.Value, document.GetElement("y").Value);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorDictionaryGeneric()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorDictionaryGenericWithKeys()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
@@ -233,35 +232,35 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
 #pragma warning restore
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorIDictionary()
         {
             var hashtable = (IDictionary)new Hashtable { { "x", 1 } };
             var document = new BsonDocument(hashtable);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorIDictionaryGeneric()
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorIDictionaryGenericWithKeys()
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
@@ -269,13 +268,13 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
 #pragma warning restore
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorIDictionaryWithKeys()
         {
             var hashtable = (IDictionary)new Hashtable { { "x", 1 }, { "y", 2 } };
@@ -283,100 +282,100 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(hashtable, keys);
 #pragma warning restore
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorNameValue()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorNoArgs()
         {
             var document = new BsonDocument();
-            Assert.AreEqual(false, document.AllowDuplicateNames);
-            Assert.IsInstanceOf<BsonDocument>(document.AsBsonDocument);
-            Assert.AreEqual(BsonType.Document, document.BsonType);
-            Assert.AreEqual(false, document.Contains("name"));
-            Assert.AreEqual(false, document.ContainsValue(0));
-            Assert.AreEqual(0, document.ElementCount);
-            Assert.AreEqual(0, document.Elements.Count());
-            Assert.AreEqual(false, document.IsBsonArray);
-            Assert.AreEqual(true, document.IsBsonDocument);
-            Assert.AreEqual(0, document.Names.Count());
+            Assert.Equal(false, document.AllowDuplicateNames);
+            Assert.IsType<BsonDocument>(document.AsBsonDocument);
+            Assert.Equal(BsonType.Document, document.BsonType);
+            Assert.Equal(false, document.Contains("name"));
+            Assert.Equal(false, document.ContainsValue(0));
+            Assert.Equal(0, document.ElementCount);
+            Assert.Equal(0, document.Elements.Count());
+            Assert.Equal(false, document.IsBsonArray);
+            Assert.Equal(true, document.IsBsonDocument);
+            Assert.Equal(0, document.Names.Count());
 #pragma warning disable 618
-            Assert.AreEqual(null, document.RawValue);
-            Assert.AreEqual(0, document.RawValues.Count());
+            Assert.Equal(null, document.RawValue);
+            Assert.Equal(0, document.RawValues.Count());
 #pragma warning restore
-            Assert.AreEqual(true, document.ToBoolean());
-            Assert.AreSame(document, document.ToBsonDocument());
-            Assert.AreEqual("{ }", document.ToJson());
-            Assert.AreEqual(0, document.Values.Count());
+            Assert.Equal(true, document.ToBoolean());
+            Assert.Same(document, document.ToBsonDocument());
+            Assert.Equal("{ }", document.ToJson());
+            Assert.Equal(0, document.Values.Count());
         }
 
-        [Test]
+        [Fact]
         public void TestContains()
         {
             var document = new BsonDocument();
-            Assert.IsFalse(document.Contains("x"));
+            Assert.False(document.Contains("x"));
             document["x"] = 1;
-            Assert.IsTrue(document.Contains("x"));
+            Assert.True(document.Contains("x"));
         }
 
-        [Test]
+        [Fact]
         public void TestContainsValue()
         {
             var document = new BsonDocument();
-            Assert.IsFalse(document.ContainsValue(1));
+            Assert.False(document.ContainsValue(1));
             document["x"] = 1;
-            Assert.IsTrue(document.ContainsValue(1));
+            Assert.True(document.ContainsValue(1));
         }
 
-        [Test]
+        [Fact]
         public void TestCreateFromDictionary()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 }, { "n", null }, { "a", new object[] { 1, null } } }; // null will be mapped to BsonNull.Value
             var document = new BsonDocument(dictionary);
-            Assert.AreEqual(3, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreSame(BsonNull.Value, document["n"]);
-            Assert.IsTrue(document["a"].IsBsonArray);
-            Assert.AreEqual(2, document["a"].AsBsonArray.Count);
-            Assert.AreEqual(1, document["a"][0].AsInt32);
-            Assert.AreSame(BsonNull.Value, document["a"][1]);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.Contains("n"));
-            Assert.AreEqual(true, document.Contains("a"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreEqual(true, document.ContainsValue(BsonNull.Value));
+            Assert.Equal(3, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Same(BsonNull.Value, document["n"]);
+            Assert.True(document["a"].IsBsonArray);
+            Assert.Equal(2, document["a"].AsBsonArray.Count);
+            Assert.Equal(1, document["a"][0].AsInt32);
+            Assert.Same(BsonNull.Value, document["a"][1]);
+            Assert.Equal(true, document.Contains("x"));
+            Assert.Equal(true, document.Contains("n"));
+            Assert.Equal(true, document.Contains("a"));
+            Assert.Equal(true, document.ContainsValue(1));
+            Assert.Equal(true, document.ContainsValue(BsonNull.Value));
         }
 
-        [Test]
+        [Fact]
         public void TestCreateNull()
         {
             object obj = null;
             Assert.Throws<ArgumentNullException>(() => { BsonDocument.Create(obj); });
         }
 
-        [Test]
+        [Fact]
         public void TestDeepClone()
         {
             var document = new BsonDocument("d", new BsonDocument("x", 1));
             var clone = (BsonDocument)document.DeepClone();
-            Assert.AreEqual(clone, document);
-            Assert.AreNotSame(clone["d"], document["d"]);
+            Assert.Equal(clone, document);
+            Assert.NotSame(clone["d"], document["d"]);
         }
 
-        [Test]
+        [Fact]
         public void TestElementAccess()
         {
             var book = new BsonDocument
@@ -387,136 +386,137 @@ namespace MongoDB.Bson.Tests
                 { "price", 9.95 },
                 { "ok", BsonNull.Value }
             };
-            Assert.AreEqual("Ernest Hemingway", book["author"].AsString);
-            Assert.AreEqual(123, book["pages"].AsInt32);
-            Assert.AreEqual(9.95, book["price"].AsDouble, 0.0);
-            Assert.AreEqual(false, book["ok"].ToBoolean());
+            Assert.Equal("Ernest Hemingway", book["author"].AsString);
+            Assert.Equal(123, book["pages"].AsInt32);
+            Assert.Equal(0.0, 9.95 - book["price"].AsDouble);
+            Assert.Equal(false, book["ok"].ToBoolean());
 
             book["err"] = "";
-            Assert.AreEqual(false, book["err"].ToBoolean());
+            Assert.Equal(false, book["err"].ToBoolean());
             book["err"] = "Error message.";
-            Assert.AreEqual(true, book["err"].ToBoolean());
+            Assert.Equal(true, book["err"].ToBoolean());
 
             book["price"] = (double)book["price"] * 1.1;
             double price = book["price"].AsDouble;
         }
 
-        [Test]
+        [Fact]
         public void TestElementNameZeroLength()
         {
             var document = new BsonDocument("", "zero length");
-            Assert.AreEqual(0, document.GetElement(0).Name.Length);
+            Assert.Equal(0, document.GetElement(0).Name.Length);
         }
 
-        [Test]
+        [Fact]
         public void TestGetDocumentId()
         {
             var document = new BsonDocument("_id", 1);
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<BsonInt32>(id);
-            Assert.AreEqual(new BsonInt32(1), id);
-            Assert.AreEqual(typeof(BsonValue), nominalType);
-            Assert.IsNull(idGenerator);
+            Assert.True(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
+            Assert.IsType<BsonInt32>(id);
+            Assert.Equal(new BsonInt32(1), id);
+            Assert.Equal(typeof(BsonValue), nominalType);
+            Assert.Null(idGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestGetDocumentIdWhenIdIsGuid()
         {
             var document = new BsonDocument("_id", Guid.Empty);
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<BsonBinaryData>(id);
-            Assert.AreEqual(new BsonBinaryData(Guid.Empty), id);
-            Assert.AreEqual(typeof(BsonValue), nominalType);
-            Assert.IsInstanceOf<BsonBinaryDataGuidGenerator>(idGenerator);
+            Assert.True(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
+            Assert.IsType<BsonBinaryData>(id);
+            Assert.Equal(new BsonBinaryData(Guid.Empty), id);
+            Assert.Equal(typeof(BsonValue), nominalType);
+            Assert.IsType<BsonBinaryDataGuidGenerator>(idGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestGetDocumentIdWhenIdIsMissing()
         {
             var document = new BsonDocument();
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
-            Assert.IsNull(id);
-            Assert.AreEqual(typeof(BsonValue), nominalType);
-            Assert.IsInstanceOf<BsonObjectIdGenerator>(idGenerator);
+            Assert.True(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
+            Assert.Null(id);
+            Assert.Equal(typeof(BsonValue), nominalType);
+            Assert.IsType<BsonObjectIdGenerator>(idGenerator);
         }
 
-        [Test]
+        [Fact]
         public void TestGetHashCode()
         {
             var document = new BsonDocument("x", 1);
             var hashCode = document.GetHashCode();
-            Assert.AreEqual(hashCode, document.GetHashCode()); // returns same value when called again
+            Assert.Equal(hashCode, document.GetHashCode()); // returns same value when called again
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByIndex()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.GetValue(0).AsInt32);
+            Assert.Equal(1, document.GetValue(0).AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByName()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.GetValue("x").AsInt32);
+            Assert.Equal(1, document.GetValue("x").AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestGetValueByNameWithDefaultValue()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.GetValue("x", 2).AsInt32);
-            Assert.AreEqual(2, document.GetValue("y", 2).AsInt32);
+            Assert.Equal(1, document.GetValue("x", 2).AsInt32);
+            Assert.Equal(2, document.GetValue("y", 2).AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestIndexer()
         {
             var document = new BsonDocument();
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
             document["x"] = 1;
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(1, document[0].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal(1, document[0].AsInt32);
             document["y"] = 2;
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(2, document["y"].AsInt32);
-            Assert.AreEqual(2, document[1].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(2, document["y"].AsInt32);
+            Assert.Equal(2, document[1].AsInt32);
             document["y"] = 3;
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(3, document["y"].AsInt32);
-            Assert.AreEqual(3, document[1].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(3, document["y"].AsInt32);
+            Assert.Equal(3, document[1].AsInt32);
             document[1] = 4;
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(4, document["y"].AsInt32);
-            Assert.AreEqual(4, document[1].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(4, document["y"].AsInt32);
+            Assert.Equal(4, document[1].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestIndexerWithDefaultValue()
         {
 #pragma warning disable 618
             var document = new BsonDocument();
-            Assert.AreEqual(0, document["x", 0].AsInt32);
+            Assert.Equal(0, document["x", 0].AsInt32);
             document["x"] = 1;
-            Assert.AreEqual(1, document["x", 1].AsInt32);
+            Assert.Equal(1, document["x", 1].AsInt32);
 #pragma warning restore
         }
 
-        [TestCase("_id", 0)]
-        [TestCase("x", 1)]
-        [TestCase("y", 2)]
-        [TestCase("z", -1)]
+        [Theory]
+        [InlineData("_id", 0)]
+        [InlineData("x", 1)]
+        [InlineData("y", 2)]
+        [InlineData("z", -1)]
         public void TestIndexOfName(string name, int expectedResult)
         {
             var subject = new BsonDocument
@@ -528,58 +528,58 @@ namespace MongoDB.Bson.Tests
 
             var result = subject.IndexOfName(name);
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            Assert.Equal(expectedResult, result);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertAt()
         {
             var document = new BsonDocument();
             document.InsertAt(0, new BsonElement("x", 1));
-            Assert.AreEqual("x", document.GetElement(0).Name);
-            Assert.AreEqual(1, document[0].AsInt32);
+            Assert.Equal("x", document.GetElement(0).Name);
+            Assert.Equal(1, document[0].AsInt32);
             document.InsertAt(0, new BsonElement("y", 2));
-            Assert.AreEqual("y", document.GetElement(0).Name);
-            Assert.AreEqual(2, document[0].AsInt32);
-            Assert.AreEqual("x", document.GetElement(1).Name);
-            Assert.AreEqual(1, document[1].AsInt32);
+            Assert.Equal("y", document.GetElement(0).Name);
+            Assert.Equal(2, document[0].AsInt32);
+            Assert.Equal("x", document.GetElement(1).Name);
+            Assert.Equal(1, document[1].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestMerge()
         {
             var document = new BsonDocument();
             document.Merge(new BsonDocument("x", 1));
-            Assert.AreEqual(1, document["x"].AsInt32);
+            Assert.Equal(1, document["x"].AsInt32);
             document.Merge(new BsonDocument("x", 2)); // don't overwriteExistingElements
-            Assert.AreEqual(1, document["x"].AsInt32); // has old value
+            Assert.Equal(1, document["x"].AsInt32); // has old value
             document.Merge(new BsonDocument("x", 2), true); // overwriteExistingElements
-            Assert.AreEqual(2, document["x"].AsInt32); // has new value
+            Assert.Equal(2, document["x"].AsInt32); // has new value
         }
 
-        [Test]
+        [Fact]
         public void TestMergeNull()
         {
             var document = new BsonDocument();
             Assert.Throws<ArgumentNullException>(() => { document.Merge(null); });
         }
 
-        [Test]
+        [Fact]
         public void TestNullableBoolean()
         {
             var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(true, (bool?)document["v"]);
-            Assert.AreEqual(null, (bool?)document["n"]);
+            Assert.Equal(true, (bool?)document["v"]);
+            Assert.Equal(null, (bool?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (bool?)document["x", null]);
-            Assert.AreEqual(null, (bool?)document["x", (bool?)null]);
-            Assert.AreEqual(null, (bool?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (bool?)document["x", null]);
+            Assert.Equal(null, (bool?)document["x", (bool?)null]);
+            Assert.Equal(null, (bool?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(true, document["v"].AsNullableBoolean);
-            Assert.AreEqual(null, document["n"].AsNullableBoolean);
+            Assert.Equal(true, document["v"].AsNullableBoolean);
+            Assert.Equal(null, document["n"].AsNullableBoolean);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (bool?)null].AsNullableBoolean);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableBoolean);
+            Assert.Equal(null, document["x", (bool?)null].AsNullableBoolean);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableBoolean);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (bool?)document["s"]; });
@@ -587,24 +587,24 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var document = new BsonDocument { { "v", utcNow }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(utcNowTruncated, (DateTime?)document["v"]);
-            Assert.AreEqual(null, (DateTime?)document["n"]);
+            Assert.Equal(utcNowTruncated, (DateTime?)document["v"]);
+            Assert.Equal(null, (DateTime?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (DateTime?)document["x", null]);
-            Assert.AreEqual(null, (DateTime?)document["x", (DateTime?)null]);
-            Assert.AreEqual(null, (DateTime?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (DateTime?)document["x", null]);
+            Assert.Equal(null, (DateTime?)document["x", (DateTime?)null]);
+            Assert.Equal(null, (DateTime?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(utcNowTruncated, document["v"].ToNullableUniversalTime());
-            Assert.AreEqual(null, document["n"].ToNullableUniversalTime());
+            Assert.Equal(utcNowTruncated, document["v"].ToNullableUniversalTime());
+            Assert.Equal(null, document["n"].ToNullableUniversalTime());
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (DateTime?)null].ToNullableUniversalTime());
-            Assert.AreEqual(null, document["x", BsonNull.Value].ToNullableUniversalTime());
+            Assert.Equal(null, document["x", (DateTime?)null].ToNullableUniversalTime());
+            Assert.Equal(null, document["x", BsonNull.Value].ToNullableUniversalTime());
 #pragma warning restore
 #pragma warning disable 618, 219
             Assert.Throws<InvalidCastException>(() => { var v = (DateTime?)document["s"]; });
@@ -613,22 +613,22 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableDouble()
         {
             var document = new BsonDocument { { "v", 1.5 }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1.5, (double?)document["v"]);
-            Assert.AreEqual(null, (double?)document["n"]);
+            Assert.Equal(1.5, (double?)document["v"]);
+            Assert.Equal(null, (double?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (double?)document["x", null]);
-            Assert.AreEqual(null, (double?)document["x", (double?)null]);
-            Assert.AreEqual(null, (double?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (double?)document["x", null]);
+            Assert.Equal(null, (double?)document["x", (double?)null]);
+            Assert.Equal(null, (double?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(1.5, document["v"].AsNullableDouble);
-            Assert.AreEqual(null, document["n"].AsNullableDouble);
+            Assert.Equal(1.5, document["v"].AsNullableDouble);
+            Assert.Equal(null, document["n"].AsNullableDouble);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (double?)null].AsNullableDouble);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDouble);
+            Assert.Equal(null, document["x", (double?)null].AsNullableDouble);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableDouble);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (double?)document["s"]; });
@@ -636,23 +636,23 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableGuid()
         {
             var guid = Guid.NewGuid();
             var document = new BsonDocument { { "v", guid }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(guid, (Guid?)document["v"]);
-            Assert.AreEqual(null, (Guid?)document["n"]);
+            Assert.Equal(guid, (Guid?)document["v"]);
+            Assert.Equal(null, (Guid?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (Guid?)document["x", null]);
-            Assert.AreEqual(null, (Guid?)document["x", (Guid?)null]);
-            Assert.AreEqual(null, (Guid?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (Guid?)document["x", null]);
+            Assert.Equal(null, (Guid?)document["x", (Guid?)null]);
+            Assert.Equal(null, (Guid?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(guid, document["v"].AsNullableGuid);
-            Assert.AreEqual(null, document["n"].AsNullableGuid);
+            Assert.Equal(guid, document["v"].AsNullableGuid);
+            Assert.Equal(null, document["n"].AsNullableGuid);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (Guid?)null].AsNullableGuid);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableGuid);
+            Assert.Equal(null, document["x", (Guid?)null].AsNullableGuid);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableGuid);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (Guid?)document["s"]; });
@@ -660,22 +660,22 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableInt32()
         {
             var document = new BsonDocument { { "v", 1 }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1, (int?)document["v"]);
-            Assert.AreEqual(null, (int?)document["n"]);
+            Assert.Equal(1, (int?)document["v"]);
+            Assert.Equal(null, (int?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (int?)document["x", null]);
-            Assert.AreEqual(null, (int?)document["x", (int?)null]);
-            Assert.AreEqual(null, (int?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (int?)document["x", null]);
+            Assert.Equal(null, (int?)document["x", (int?)null]);
+            Assert.Equal(null, (int?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(1, document["v"].AsNullableInt32);
-            Assert.AreEqual(null, document["n"].AsNullableInt32);
+            Assert.Equal(1, document["v"].AsNullableInt32);
+            Assert.Equal(null, document["n"].AsNullableInt32);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (int?)null].AsNullableInt32);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt32);
+            Assert.Equal(null, document["x", (int?)null].AsNullableInt32);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt32);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (int?)document["s"]; });
@@ -683,22 +683,22 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableInt64()
         {
             var document = new BsonDocument { { "v", 1L }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1L, (long?)document["v"]);
-            Assert.AreEqual(null, (long?)document["n"]);
+            Assert.Equal(1L, (long?)document["v"]);
+            Assert.Equal(null, (long?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (long?)document["x", null]);
-            Assert.AreEqual(null, (long?)document["x", (long?)null]);
-            Assert.AreEqual(null, (long?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (long?)document["x", null]);
+            Assert.Equal(null, (long?)document["x", (long?)null]);
+            Assert.Equal(null, (long?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(1L, document["v"].AsNullableInt64);
-            Assert.AreEqual(null, document["n"].AsNullableInt64);
+            Assert.Equal(1L, document["v"].AsNullableInt64);
+            Assert.Equal(null, document["n"].AsNullableInt64);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (long?)null].AsNullableInt64);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt64);
+            Assert.Equal(null, document["x", (long?)null].AsNullableInt64);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt64);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (long?)document["s"]; });
@@ -706,23 +706,23 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestNullableObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             var document = new BsonDocument { { "v", objectId }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(objectId, (ObjectId?)document["v"]);
-            Assert.AreEqual(null, (ObjectId?)document["n"]);
+            Assert.Equal(objectId, (ObjectId?)document["v"]);
+            Assert.Equal(null, (ObjectId?)document["n"]);
 #pragma warning disable 618
-            Assert.AreEqual(null, (ObjectId?)document["x", null]);
-            Assert.AreEqual(null, (ObjectId?)document["x", (ObjectId?)null]);
-            Assert.AreEqual(null, (ObjectId?)document["x", BsonNull.Value]);
+            Assert.Equal(null, (ObjectId?)document["x", null]);
+            Assert.Equal(null, (ObjectId?)document["x", (ObjectId?)null]);
+            Assert.Equal(null, (ObjectId?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(objectId, document["v"].AsNullableObjectId);
-            Assert.AreEqual(null, document["n"].AsNullableObjectId);
+            Assert.Equal(objectId, document["v"].AsNullableObjectId);
+            Assert.Equal(null, document["n"].AsNullableObjectId);
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (ObjectId?)null].AsNullableObjectId);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableObjectId);
+            Assert.Equal(null, document["x", (ObjectId?)null].AsNullableObjectId);
+            Assert.Equal(null, document["x", BsonNull.Value].AsNullableObjectId);
 #pragma warning restore
 #pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?)document["s"]; });
@@ -730,79 +730,79 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorEqual()
         {
             var document1 = new BsonDocument("x", 1);
             var document2 = new BsonDocument("x", 1);
-            Assert.AreNotSame(document1, document2);
-            Assert.IsTrue(document1 == document2);
+            Assert.NotSame(document1, document2);
+            Assert.True(document1 == document2);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorEqualBothNull()
         {
             BsonDocument document1 = null;
             BsonDocument document2 = null;
-            Assert.IsTrue(document1 == document2);
+            Assert.True(document1 == document2);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorEqualLhsNull()
         {
             var document = new BsonDocument();
-            Assert.IsFalse(null == document);
+            Assert.False(null == document);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorEqualRhsNull()
         {
             var document = new BsonDocument();
-            Assert.IsFalse(document == null);
+            Assert.False(document == null);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorNotEqual()
         {
             var document1 = new BsonDocument("x", 1);
             var document2 = new BsonDocument("x", 1);
-            Assert.AreNotSame(document1, document2);
-            Assert.IsFalse(document1 != document2);
+            Assert.NotSame(document1, document2);
+            Assert.False(document1 != document2);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorNotEqualBothNull()
         {
             BsonDocument document1 = null;
             BsonDocument document2 = null;
-            Assert.IsFalse(document1 != document2);
+            Assert.False(document1 != document2);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorNotEqualLhsNull()
         {
             var document = new BsonDocument();
-            Assert.IsTrue(null != document);
+            Assert.True(null != document);
         }
 
-        [Test]
+        [Fact]
         public void TestOperatorNotEqualRhsNull()
         {
             var document = new BsonDocument();
-            Assert.IsTrue(document != null);
+            Assert.True(document != null);
         }
 
-        [Test]
+        [Fact]
         public void TestParse()
         {
             var json = "{ a : 1, b : 'abc' }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["a"].AsInt32);
-            Assert.AreEqual("abc", document["b"].AsString);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["a"].AsInt32);
+            Assert.Equal("abc", document["b"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestParseWithExtraCharacters()
         {
             var json = "{ a : 1, b : 'abc' } x";
@@ -810,123 +810,123 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<FormatException>();
         }
 
-        [Test]
+        [Fact]
         public void TestParseWithExtraWhitespace()
         {
             var json = "{ a : 1, b : 'abc' }   ";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["a"].AsInt32);
-            Assert.AreEqual("abc", document["b"].AsString);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["a"].AsInt32);
+            Assert.Equal("abc", document["b"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestRemove()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.ElementCount);
+            Assert.Equal(1, document.ElementCount);
             document.Remove("x");
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveAt()
         {
             var document = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            Assert.AreEqual(2, document.ElementCount);
+            Assert.Equal(2, document.ElementCount);
             document.RemoveAt(0);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(2, document["y"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(2, document["y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveElement()
         {
             var document = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            Assert.AreEqual(2, document.ElementCount);
+            Assert.Equal(2, document.ElementCount);
             document.RemoveElement(document.GetElement(0));
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(2, document["y"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(2, document["y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetByIndex()
         {
             var document = new BsonDocument("x", 1);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
             document.Set(0, 2);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(2, document["x"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetByName()
         {
             var document = new BsonDocument();
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
             document.Set("x", 1);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(1, document["x"].AsInt32);
             document.Set("x", 2);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal(2, document["x"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetDocumentId()
         {
             var document = new BsonDocument("_id", 1);
             ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, BsonValue.Create(2));
-            Assert.AreEqual(2, document["_id"].AsInt32);
+            Assert.Equal(2, document["_id"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetDocumentIdNewElement()
         {
             var document = new BsonDocument("x", 1);
             ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, BsonValue.Create(2));
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("_id", document.GetElement(0).Name);
-            Assert.AreEqual(2, document["_id"].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal("_id", document.GetElement(0).Name);
+            Assert.Equal(2, document["_id"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetElementByIndex()
         {
             var document = new BsonDocument("x", 1);
             var element = new BsonElement("y", 2);
             document.SetElement(0, element);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual("y", document.GetElement(0).Name);
-            Assert.AreEqual(2, document["y"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal("y", document.GetElement(0).Name);
+            Assert.Equal(2, document["y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetElementNewElement()
         {
             var document = new BsonDocument("x", 1);
             var element = new BsonElement("y", 2);
             document.SetElement(element);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("x", document.GetElement(0).Name);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual("y", document.GetElement(1).Name);
-            Assert.AreEqual(2, document["y"].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal("x", document.GetElement(0).Name);
+            Assert.Equal(1, document["x"].AsInt32);
+            Assert.Equal("y", document.GetElement(1).Name);
+            Assert.Equal(2, document["y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSetElementReplaceElement()
         {
             var document = new BsonDocument("x", 1);
             var element = new BsonElement("x", 2);
             document.SetElement(element);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual("x", document.GetElement(0).Name);
-            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.Equal(1, document.ElementCount);
+            Assert.Equal("x", document.GetElement(0).Name);
+            Assert.Equal(2, document["x"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSpecBsonAwesomeWithBsonDocument()
         {
             // this test is from http://bsonspec.org/#/specification
@@ -935,7 +935,7 @@ namespace MongoDB.Bson.Tests
             AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bson);
         }
 
-        [Test]
+        [Fact]
         public void TestSpecBsonAwesomeWithBsonWriter()
         {
             // this test is from http://bsonspec.org/#/specification
@@ -954,7 +954,7 @@ namespace MongoDB.Bson.Tests
             AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bytes);
         }
 
-        [Test]
+        [Fact]
         public void TestSpecHelloWorldWithBsonDocument()
         {
             // this test is from http://bsonspec.org/#/specification
@@ -963,7 +963,7 @@ namespace MongoDB.Bson.Tests
             AssertAreEqual(@"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00", bson);
         }
 
-        [Test]
+        [Fact]
         public void TestSpecHelloWorldWithBsonWriter()
         {
             // this test is from http://bsonspec.org/#/specification
@@ -978,23 +978,23 @@ namespace MongoDB.Bson.Tests
             AssertAreEqual(@"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00", bytes);
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonDocument()
         {
             var document = new BsonDocument();
-            Assert.AreSame(document, document.ToBsonDocument());
-            Assert.AreSame(document, ((IConvertibleToBsonDocument)document).ToBsonDocument());
+            Assert.Same(document, document.ToBsonDocument());
+            Assert.Same(document, ((IConvertibleToBsonDocument)document).ToBsonDocument());
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryEmpty()
         {
             var document = new BsonDocument();
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(0, dictionary.Count);
+            Assert.Equal(0, dictionary.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryNestedArray()
         {
             var document = new BsonDocument
@@ -1003,18 +1003,18 @@ namespace MongoDB.Bson.Tests
                 { "array", new BsonArray { 1, "abc" } }
             };
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(2, dictionary.Count);
-            Assert.IsInstanceOf<int>(dictionary["x"]);
-            Assert.AreEqual(1, dictionary["x"]);
-            Assert.IsInstanceOf<object[]>(dictionary["array"]);
+            Assert.Equal(2, dictionary.Count);
+            Assert.IsType<int>(dictionary["x"]);
+            Assert.Equal(1, dictionary["x"]);
+            Assert.IsType<object[]>(dictionary["array"]);
             var nested = (object[])dictionary["array"];
-            Assert.IsInstanceOf<int>(nested[0]);
-            Assert.IsInstanceOf<string>(nested[1]);
-            Assert.AreEqual(1, nested[0]);
-            Assert.AreEqual("abc", nested[1]);
+            Assert.IsType<int>(nested[0]);
+            Assert.IsType<string>(nested[1]);
+            Assert.Equal(1, nested[0]);
+            Assert.Equal("abc", nested[1]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryNestedDocument()
         {
             var document = new BsonDocument
@@ -1023,124 +1023,124 @@ namespace MongoDB.Bson.Tests
                 { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(2, dictionary.Count);
-            Assert.IsInstanceOf<int>(dictionary["x"]);
-            Assert.AreEqual(1, dictionary["x"]);
-            Assert.IsInstanceOf<Dictionary<string, object>>(dictionary["nested"]);
+            Assert.Equal(2, dictionary.Count);
+            Assert.IsType<int>(dictionary["x"]);
+            Assert.Equal(1, dictionary["x"]);
+            Assert.IsType<Dictionary<string, object>>(dictionary["nested"]);
             var nested = (Dictionary<string, object>)dictionary["nested"];
-            Assert.IsInstanceOf<int>(nested["a"]);
-            Assert.IsInstanceOf<int>(nested["b"]);
-            Assert.AreEqual(1, nested["a"]);
-            Assert.AreEqual(2, nested["b"]);
+            Assert.IsType<int>(nested["a"]);
+            Assert.IsType<int>(nested["b"]);
+            Assert.Equal(1, nested["a"]);
+            Assert.Equal(2, nested["b"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneBinary()
         {
             var document = new BsonDocument("x", new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary));
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<byte[]>(dictionary["x"]);
-            Assert.IsTrue(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])dictionary["x"]));
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<byte[]>(dictionary["x"]);
+            Assert.True(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])dictionary["x"]));
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneBoolean()
         {
             var document = new BsonDocument("x", true);
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<bool>(dictionary["x"]);
-            Assert.AreEqual(true, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<bool>(dictionary["x"]);
+            Assert.Equal(true, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var document = new BsonDocument("x", utcNow);
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<DateTime>(dictionary["x"]);
-            Assert.AreEqual(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
-            Assert.AreEqual(utcNowTruncated, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<DateTime>(dictionary["x"]);
+            Assert.Equal(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
+            Assert.Equal(utcNowTruncated, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneDouble()
         {
             var document = new BsonDocument("x", 1.0);
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<double>(dictionary["x"]);
-            Assert.AreEqual(1.0, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<double>(dictionary["x"]);
+            Assert.Equal(1.0, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneGuidLegacy()
         {
             var guid = Guid.NewGuid();
             var document = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<Guid>(dictionary["x"]);
-            Assert.AreEqual(guid, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<Guid>(dictionary["x"]);
+            Assert.Equal(guid, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneGuidStandard()
         {
             var guid = Guid.NewGuid();
             var document = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.Standard));
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<Guid>(dictionary["x"]);
-            Assert.AreEqual(guid, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<Guid>(dictionary["x"]);
+            Assert.Equal(guid, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneInt32()
         {
             var document = new BsonDocument("x", 1);
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<int>(dictionary["x"]);
-            Assert.AreEqual(1, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<int>(dictionary["x"]);
+            Assert.Equal(1, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneInt64()
         {
             var document = new BsonDocument("x", 1L);
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<long>(dictionary["x"]);
-            Assert.AreEqual(1L, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<long>(dictionary["x"]);
+            Assert.Equal(1L, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             var hashtable = new BsonDocument("x", objectId);
             var dictionary = hashtable.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<ObjectId>(dictionary["x"]);
-            Assert.AreEqual(objectId, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<ObjectId>(dictionary["x"]);
+            Assert.Equal(objectId, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOneString()
         {
             var document = new BsonDocument("x", "abc");
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<string>(dictionary["x"]);
-            Assert.AreEqual("abc", dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<string>(dictionary["x"]);
+            Assert.Equal("abc", dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToDictionaryOtherTypes()
         {
             var document = new BsonDocument
@@ -1156,27 +1156,27 @@ namespace MongoDB.Bson.Tests
                 { "Undefined", BsonUndefined.Value },
             };
             var dictionary = document.ToDictionary();
-            Assert.AreEqual(9, dictionary.Count);
-            Assert.IsInstanceOf<BsonJavaScript>(dictionary["JavaScript"]);
-            Assert.IsInstanceOf<BsonJavaScriptWithScope>(dictionary["JavaScriptWithScope"]);
-            Assert.AreSame(BsonMaxKey.Value, dictionary["MaxKey"]);
-            Assert.AreSame(BsonMinKey.Value, dictionary["MinKey"]);
-            Assert.IsNull(dictionary["Null"]);
-            Assert.IsInstanceOf<BsonRegularExpression>(dictionary["RegularExpression"]);
-            Assert.IsInstanceOf<BsonSymbol>(dictionary["Symbol"]);
-            Assert.IsInstanceOf<BsonTimestamp>(dictionary["Timestamp"]);
-            Assert.AreSame(BsonUndefined.Value, dictionary["Undefined"]);
+            Assert.Equal(9, dictionary.Count);
+            Assert.IsType<BsonJavaScript>(dictionary["JavaScript"]);
+            Assert.IsType<BsonJavaScriptWithScope>(dictionary["JavaScriptWithScope"]);
+            Assert.Same(BsonMaxKey.Value, dictionary["MaxKey"]);
+            Assert.Same(BsonMinKey.Value, dictionary["MinKey"]);
+            Assert.Null(dictionary["Null"]);
+            Assert.IsType<BsonRegularExpression>(dictionary["RegularExpression"]);
+            Assert.IsType<BsonSymbol>(dictionary["Symbol"]);
+            Assert.IsType<BsonTimestamp>(dictionary["Timestamp"]);
+            Assert.Same(BsonUndefined.Value, dictionary["Undefined"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableEmpty()
         {
             var document = new BsonDocument();
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(0, hashtable.Count);
+            Assert.Equal(0, hashtable.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableNestedArray()
         {
             var document = new BsonDocument
@@ -1185,18 +1185,18 @@ namespace MongoDB.Bson.Tests
                 { "array", new BsonArray { 1, "abc" } }
             };
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(2, hashtable.Count);
-            Assert.IsInstanceOf<int>(hashtable["x"]);
-            Assert.AreEqual(1, hashtable["x"]);
-            Assert.IsInstanceOf<object[]>(hashtable["array"]);
+            Assert.Equal(2, hashtable.Count);
+            Assert.IsType<int>(hashtable["x"]);
+            Assert.Equal(1, hashtable["x"]);
+            Assert.IsType<object[]>(hashtable["array"]);
             var nested = (object[])hashtable["array"];
-            Assert.IsInstanceOf<int>(nested[0]);
-            Assert.IsInstanceOf<string>(nested[1]);
-            Assert.AreEqual(1, nested[0]);
-            Assert.AreEqual("abc", nested[1]);
+            Assert.IsType<int>(nested[0]);
+            Assert.IsType<string>(nested[1]);
+            Assert.Equal(1, nested[0]);
+            Assert.Equal("abc", nested[1]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableNestedDocument()
         {
             var document = new BsonDocument
@@ -1205,124 +1205,124 @@ namespace MongoDB.Bson.Tests
                 { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(2, hashtable.Count);
-            Assert.IsInstanceOf<int>(hashtable["x"]);
-            Assert.AreEqual(1, hashtable["x"]);
-            Assert.IsInstanceOf<Hashtable>(hashtable["nested"]);
+            Assert.Equal(2, hashtable.Count);
+            Assert.IsType<int>(hashtable["x"]);
+            Assert.Equal(1, hashtable["x"]);
+            Assert.IsType<Hashtable>(hashtable["nested"]);
             var nested = (Hashtable)hashtable["nested"];
-            Assert.IsInstanceOf<int>(nested["a"]);
-            Assert.IsInstanceOf<int>(nested["b"]);
-            Assert.AreEqual(1, nested["a"]);
-            Assert.AreEqual(2, nested["b"]);
+            Assert.IsType<int>(nested["a"]);
+            Assert.IsType<int>(nested["b"]);
+            Assert.Equal(1, nested["a"]);
+            Assert.Equal(2, nested["b"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneBinary()
         {
             var document = new BsonDocument("x", new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary));
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(1, hashtable.Count);
-            Assert.IsInstanceOf<byte[]>(hashtable["x"]);
-            Assert.IsTrue(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])hashtable["x"]));
+            Assert.Equal(1, hashtable.Count);
+            Assert.IsType<byte[]>(hashtable["x"]);
+            Assert.True(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])hashtable["x"]));
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneBoolean()
         {
             var document = new BsonDocument("x", true);
             var dictionary = document.ToHashtable();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<bool>(dictionary["x"]);
-            Assert.AreEqual(true, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<bool>(dictionary["x"]);
+            Assert.Equal(true, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var hashtable = new BsonDocument("x", utcNow);
             var dictionary = hashtable.ToHashtable();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<DateTime>(dictionary["x"]);
-            Assert.AreEqual(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
-            Assert.AreEqual(utcNowTruncated, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<DateTime>(dictionary["x"]);
+            Assert.Equal(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
+            Assert.Equal(utcNowTruncated, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneDouble()
         {
             var document = new BsonDocument("x", 1.0);
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(1, hashtable.Count);
-            Assert.IsInstanceOf<double>(hashtable["x"]);
-            Assert.AreEqual(1.0, hashtable["x"]);
+            Assert.Equal(1, hashtable.Count);
+            Assert.IsType<double>(hashtable["x"]);
+            Assert.Equal(1.0, hashtable["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneGuidLegacy()
         {
             var guid = Guid.NewGuid();
             var hashtable = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
             var dictionary = hashtable.ToHashtable();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<Guid>(dictionary["x"]);
-            Assert.AreEqual(guid, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<Guid>(dictionary["x"]);
+            Assert.Equal(guid, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneGuidStandard()
         {
             var guid = Guid.NewGuid();
             var hashtable = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.Standard));
             var dictionary = hashtable.ToHashtable();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<Guid>(dictionary["x"]);
-            Assert.AreEqual(guid, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<Guid>(dictionary["x"]);
+            Assert.Equal(guid, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneInt32()
         {
             var document = new BsonDocument("x", 1);
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(1, hashtable.Count);
-            Assert.IsInstanceOf<int>(hashtable["x"]);
-            Assert.AreEqual(1, hashtable["x"]);
+            Assert.Equal(1, hashtable.Count);
+            Assert.IsType<int>(hashtable["x"]);
+            Assert.Equal(1, hashtable["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneInt64()
         {
             var document = new BsonDocument("x", 1L);
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(1, hashtable.Count);
-            Assert.IsInstanceOf<long>(hashtable["x"]);
-            Assert.AreEqual(1L, hashtable["x"]);
+            Assert.Equal(1, hashtable.Count);
+            Assert.IsType<long>(hashtable["x"]);
+            Assert.Equal(1L, hashtable["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             var hashtable = new BsonDocument("x", objectId);
             var dictionary = hashtable.ToHashtable();
-            Assert.AreEqual(1, dictionary.Count);
-            Assert.IsInstanceOf<ObjectId>(dictionary["x"]);
-            Assert.AreEqual(objectId, dictionary["x"]);
+            Assert.Equal(1, dictionary.Count);
+            Assert.IsType<ObjectId>(dictionary["x"]);
+            Assert.Equal(objectId, dictionary["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOneString()
         {
             var document = new BsonDocument("x", "abc");
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(1, hashtable.Count);
-            Assert.IsInstanceOf<string>(hashtable["x"]);
-            Assert.AreEqual("abc", hashtable["x"]);
+            Assert.Equal(1, hashtable.Count);
+            Assert.IsType<string>(hashtable["x"]);
+            Assert.Equal("abc", hashtable["x"]);
         }
 
-        [Test]
+        [Fact]
         public void TestToHashtableOtherTypes()
         {
             var document = new BsonDocument
@@ -1338,39 +1338,39 @@ namespace MongoDB.Bson.Tests
                 { "Undefined", BsonUndefined.Value },
             };
             var hashtable = document.ToHashtable();
-            Assert.AreEqual(9, hashtable.Count);
-            Assert.IsInstanceOf<BsonJavaScript>(hashtable["JavaScript"]);
-            Assert.IsInstanceOf<BsonJavaScriptWithScope>(hashtable["JavaScriptWithScope"]);
-            Assert.AreSame(BsonMaxKey.Value, hashtable["MaxKey"]);
-            Assert.AreSame(BsonMinKey.Value, hashtable["MinKey"]);
-            Assert.IsNull(hashtable["Null"]);
-            Assert.IsInstanceOf<BsonRegularExpression>(hashtable["RegularExpression"]);
-            Assert.IsInstanceOf<BsonSymbol>(hashtable["Symbol"]);
-            Assert.IsInstanceOf<BsonTimestamp>(hashtable["Timestamp"]);
-            Assert.AreSame(BsonUndefined.Value, hashtable["Undefined"]);
+            Assert.Equal(9, hashtable.Count);
+            Assert.IsType<BsonJavaScript>(hashtable["JavaScript"]);
+            Assert.IsType<BsonJavaScriptWithScope>(hashtable["JavaScriptWithScope"]);
+            Assert.Same(BsonMaxKey.Value, hashtable["MaxKey"]);
+            Assert.Same(BsonMinKey.Value, hashtable["MinKey"]);
+            Assert.Null(hashtable["Null"]);
+            Assert.IsType<BsonRegularExpression>(hashtable["RegularExpression"]);
+            Assert.IsType<BsonSymbol>(hashtable["Symbol"]);
+            Assert.IsType<BsonTimestamp>(hashtable["Timestamp"]);
+            Assert.Same(BsonUndefined.Value, hashtable["Undefined"]);
         }
 
-        [Test]
+        [Fact]
         public void TestTryGetElement()
         {
             var document = new BsonDocument();
             BsonElement element;
-            Assert.IsFalse(document.TryGetElement("x", out element));
+            Assert.False(document.TryGetElement("x", out element));
             document["x"] = 1;
-            Assert.IsTrue(document.TryGetElement("x", out element));
-            Assert.AreEqual("x", element.Name);
-            Assert.AreEqual(1, element.Value.AsInt32);
+            Assert.True(document.TryGetElement("x", out element));
+            Assert.Equal("x", element.Name);
+            Assert.Equal(1, element.Value.AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestTryGetValue()
         {
             var document = new BsonDocument();
             BsonValue value;
-            Assert.IsFalse(document.TryGetValue("x", out value));
+            Assert.False(document.TryGetValue("x", out value));
             document["x"] = 1;
-            Assert.IsTrue(document.TryGetValue("x", out value));
-            Assert.AreEqual(1, value.AsInt32);
+            Assert.True(document.TryGetValue("x", out value));
+            Assert.Equal(1, value.AsInt32);
         }
 
         private void AssertAreEqual(string expected, byte[] actual)
@@ -1390,7 +1390,7 @@ namespace MongoDB.Bson.Tests
                     sb.AppendFormat(@"\x{0}{1}", hex[x], hex[y]);
                 }
             }
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
     }
 }

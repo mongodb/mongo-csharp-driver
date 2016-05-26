@@ -15,14 +15,13 @@
 
 using System.IO;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp116
 {
-    [TestFixture]
     public class CSharp116Tests
     {
-        [Test]
+        [Fact]
         public void TestFlushAndClose()
         {
             var stream = new MemoryStream();
@@ -35,7 +34,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
             }
         }
 
-        [Test]
+        [Fact]
         public void Test1Chunk()
         {
             var stream = new MemoryStream();
@@ -48,7 +47,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
             }
         }
 
-        [Test]
+        [Fact]
         public void Test1ChunkMinus1()
         {
             var stream = new MemoryStream();
@@ -61,7 +60,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
             }
         }
 
-        [Test]
+        [Fact]
         public void Test1ChunkPlus1()
         {
             var stream = new MemoryStream();

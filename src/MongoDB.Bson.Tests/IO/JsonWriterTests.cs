@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class JsonWriterTests
     {
         private class TestData<T>
@@ -39,7 +39,8 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void JsonWriter_should_support_writing_multiple_documents(
             [Range(0, 3)]
             int numberOfDocuments,
@@ -67,55 +68,55 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyDocument()
         {
             BsonDocument document = new BsonDocument();
             string json = document.ToJson();
             string expected = "{ }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSingleString()
         {
             BsonDocument document = new BsonDocument() { { "abc", "xyz" } };
             string json = document.ToJson();
             string expected = "{ \"abc\" : \"xyz\" }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestIndentedEmptyDocument()
         {
             BsonDocument document = new BsonDocument();
             var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{ }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestIndentedOneElement()
         {
             BsonDocument document = new BsonDocument() { { "name", "value" } };
             var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"name\" : \"value\"\r\n}";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestIndentedTwoElements()
         {
             BsonDocument document = new BsonDocument() { { "a", "x" }, { "b", "y" } };
             var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"a\" : \"x\",\r\n  \"b\" : \"y\"\r\n}";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestDouble()
         {
             var tests = new TestData<double>[]
@@ -148,12 +149,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<double>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<double>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestInt64Shell()
         {
             var tests = new TestData<long>[]
@@ -169,12 +170,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<long>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<long>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestInt64Strict()
         {
             var tests = new TestData<long>[]
@@ -191,12 +192,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(jsonSettings);
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<long>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<long>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestEmbeddedDocument()
         {
             BsonDocument document = new BsonDocument
@@ -205,10 +206,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string json = document.ToJson();
             string expected = "{ \"doc\" : { \"a\" : 1, \"b\" : 2 } }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestIndentedEmbeddedDocument()
         {
             BsonDocument document = new BsonDocument
@@ -218,10 +219,10 @@ namespace MongoDB.Bson.Tests.IO
             var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"doc\" : {\r\n    \"a\" : 1,\r\n    \"b\" : 2\r\n  }\r\n}";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArray()
         {
             BsonDocument document = new BsonDocument
@@ -230,10 +231,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string json = document.ToJson();
             string expected = "{ \"array\" : [1, 2, 3] }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestBinaryShell()
         {
             var tests = new TestData<BsonBinaryData>[]
@@ -247,12 +248,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestBinaryStrict()
         {
             var tests = new TestData<BsonBinaryData>[]
@@ -267,12 +268,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(jsonSettings);
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeShell()
         {
             var utcNow = DateTime.UtcNow;
@@ -291,12 +292,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeStrict()
         {
             var utcNow = DateTime.UtcNow;
@@ -317,12 +318,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(jsonSettings);
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScript()
         {
             var document = new BsonDocument
@@ -331,10 +332,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"f\" : { \"$code\" : \"function f() { return 1; }\" } }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestJavaScriptWithScope()
         {
             var document = new BsonDocument
@@ -343,10 +344,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"f\" : { \"$code\" : \"function f() { return n; }\", \"$scope\" : { \"n\" : 1 } } }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestGuid()
         {
             var document = new BsonDocument
@@ -355,10 +356,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"guid\" : CSUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\") }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestMaxKey()
         {
             var document = new BsonDocument
@@ -367,10 +368,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"maxkey\" : MaxKey }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestMinKey()
         {
             var document = new BsonDocument
@@ -379,10 +380,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"minkey\" : MinKey }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var document = new BsonDocument
@@ -391,31 +392,31 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"null\" : null }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdShell()
         {
             var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
             var json = objectId.ToJson();
             var expected = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
-            Assert.AreEqual(expected, json);
-            Assert.AreEqual(objectId, BsonSerializer.Deserialize<ObjectId>(json));
+            Assert.Equal(expected, json);
+            Assert.Equal(objectId, BsonSerializer.Deserialize<ObjectId>(json));
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdStrict()
         {
             var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
             var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
             var json = objectId.ToJson(jsonSettings);
             var expected = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
-            Assert.AreEqual(expected, json);
-            Assert.AreEqual(objectId, BsonSerializer.Deserialize<ObjectId>(json));
+            Assert.Equal(expected, json);
+            Assert.Equal(objectId, BsonSerializer.Deserialize<ObjectId>(json));
         }
 
-        [Test]
+        [Fact]
         public void TestRegularExpressionShell()
         {
             var tests = new TestData<BsonRegularExpression>[]
@@ -433,12 +434,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRegularExpressionStrict()
         {
             var tests = new TestData<BsonRegularExpression>[]
@@ -457,12 +458,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(jsonSettings);
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestString()
         {
             var tests = new TestData<string>[]
@@ -491,12 +492,12 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson();
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<string>(json));
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<string>(json));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSymbol()
         {
             var document = new BsonDocument
@@ -505,10 +506,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"symbol\" : { \"$symbol\" : \"name\" } }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTimestamp()
         {
             var document = new BsonDocument
@@ -517,10 +518,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"timestamp\" : Timestamp(1, 2) }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestUndefined()
         {
             var document = new BsonDocument
@@ -529,10 +530,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             string expected = "{ \"undefined\" : undefined }";
             string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestUtf16BigEndian()
         {
             var encoding = new UnicodeEncoding(true, true, true);
@@ -550,11 +551,11 @@ namespace MongoDB.Bson.Tests.IO
                 var bom = new byte[] { 0xfe, 0xff };
                 var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
 
-                CollectionAssert.AreEqual(expected, bytes);
+                Assert.Equal(expected, bytes);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestUtf16LittleEndian()
         {
             var encoding = new UnicodeEncoding(false, true, true);
@@ -572,11 +573,11 @@ namespace MongoDB.Bson.Tests.IO
                 var bom = new byte[] { 0xff, 0xfe };
                 var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
 
-                CollectionAssert.AreEqual(expected, bytes);
+                Assert.Equal(expected, bytes);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestUtf8()
         {
             var encoding = new UTF8Encoding(true, true); // emit UTF8 identifier
@@ -594,7 +595,7 @@ namespace MongoDB.Bson.Tests.IO
                 var bom = new byte[] { 0xef, 0xbb, 0xbf };
                 var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
 
-                CollectionAssert.AreEqual(expected, bytes);
+                Assert.Equal(expected, bytes);
             }
         }
     }

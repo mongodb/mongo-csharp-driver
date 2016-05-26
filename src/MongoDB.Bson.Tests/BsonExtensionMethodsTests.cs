@@ -16,11 +16,10 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonExtensionMethodsTests
     {
         private class C
@@ -29,94 +28,94 @@ namespace MongoDB.Bson.Tests
             public ObjectId Id; // deliberately not the first element
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonEmptyDocument()
         {
             var document = new BsonDocument();
             var bson = document.ToBson();
             var expected = new byte[] { 5, 0, 0, 0, 0 };
-            Assert.IsTrue(expected.SequenceEqual(bson));
+            Assert.True(expected.SequenceEqual(bson));
         }
 
-        [Test]
+        [Fact]
         public void TestToBson()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var bson = c.ToBson();
             var expected = new byte[] { 29, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            Assert.IsTrue(expected.SequenceEqual(bson));
+            Assert.True(expected.SequenceEqual(bson));
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var bson = c.ToBson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = new byte[] { 29, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 0 };
-            Assert.IsTrue(expected.SequenceEqual(bson));
+            Assert.True(expected.SequenceEqual(bson));
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonDocumentEmptyDocument()
         {
             var empty = new BsonDocument();
             var document = empty.ToBsonDocument();
-            Assert.AreEqual(0, document.ElementCount);
+            Assert.Equal(0, document.ElementCount);
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonDocument()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var document = c.ToBsonDocument();
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("N", document.GetElement(0).Name);
-            Assert.AreEqual("_id", document.GetElement(1).Name);
-            Assert.IsInstanceOf<BsonInt32>(document[0]);
-            Assert.IsInstanceOf<BsonObjectId>(document[1]);
-            Assert.AreEqual(1, document[0].AsInt32);
-            Assert.AreEqual(ObjectId.Empty, document[1].AsObjectId);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal("N", document.GetElement(0).Name);
+            Assert.Equal("_id", document.GetElement(1).Name);
+            Assert.IsType<BsonInt32>(document[0]);
+            Assert.IsType<BsonObjectId>(document[1]);
+            Assert.Equal(1, document[0].AsInt32);
+            Assert.Equal(ObjectId.Empty, document[1].AsObjectId);
         }
 
-        [Test]
+        [Fact]
         public void TestToBsonDocumentIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var document = c.ToBsonDocument(args: new BsonSerializationArgs { SerializeIdFirst = true });
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("_id", document.GetElement(0).Name);
-            Assert.AreEqual("N", document.GetElement(1).Name);
-            Assert.IsInstanceOf<BsonObjectId>(document[0]);
-            Assert.IsInstanceOf<BsonInt32>(document[1]);
-            Assert.AreEqual(ObjectId.Empty, document[0].AsObjectId);
-            Assert.AreEqual(1, document[1].AsInt32);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal("_id", document.GetElement(0).Name);
+            Assert.Equal("N", document.GetElement(1).Name);
+            Assert.IsType<BsonObjectId>(document[0]);
+            Assert.IsType<BsonInt32>(document[1]);
+            Assert.Equal(ObjectId.Empty, document[0].AsObjectId);
+            Assert.Equal(1, document[1].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestToJsonEmptyDocument()
         {
             var document = new BsonDocument();
             var json = document.ToJson();
             var expected = "{ }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestToJson()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson();
             var expected = "{ 'N' : 1, '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestToJsonIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'N' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

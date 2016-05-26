@@ -24,7 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
 {
@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public string P { get; set; }
     }
 
-    [TestFixture]
     public class DictionaryGenericSerializerTests
     {
         public class T
@@ -58,25 +57,25 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var obj = new T { D = null, ID = null, SD = null, SL = null };
             var json = obj.ToJson();
             var rep = "null";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsNull(rehydrated.D);
-            Assert.IsNull(rehydrated.ID);
-            Assert.IsNull(rehydrated.SD);
-            Assert.IsNull(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Null(rehydrated.D);
+            Assert.Null(rehydrated.ID);
+            Assert.Null(rehydrated.SD);
+            Assert.Null(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestEmpty()
         {
             var d = new Dictionary<object, object>();
@@ -86,18 +85,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var json = obj.ToJson();
             var rep = "{ }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestOneC()
         {
             var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
@@ -107,18 +106,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var json = obj.ToJson();
             var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestOneInt()
         {
             var d = new Dictionary<object, object> { { "A", 1 } };
@@ -128,18 +127,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var json = obj.ToJson();
             var rep = "{ 'A' : 1 }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestOneIntWithIntKey()
         {
             var d = new Dictionary<object, object> { { 1, 2 } };
@@ -149,7 +148,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneString()
         {
             var d = new Dictionary<object, object> { { "A", "x" } };
@@ -159,18 +158,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var json = obj.ToJson();
             var rep = "{ 'A' : 'x' }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestOneStringWithIntKey()
         {
             var d = new Dictionary<object, object> { { 1, "x" } };
@@ -180,7 +179,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestTwoCs()
         {
             var d = new Dictionary<object, object> { { "A", new C { P = "x" } }, { "B", new C { P = "y" } } };
@@ -201,18 +200,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             expected = expected.Replace("#SD", sdRep);
             expected = expected.Replace("#SL", slRep);
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestTwoCsWithIntKeys()
         {
             var d = new Dictionary<object, object> { { 1, new C { P = "x" } }, { 2, new C { P = "y" } } };
@@ -222,7 +221,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestTwoInts()
         {
             var d = new Dictionary<object, object> { { "A", 1 }, { "B", 2 } };
@@ -243,18 +242,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             expected = expected.Replace("#SD", sdRep);
             expected = expected.Replace("#SL", slRep);
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestTwoIntsWithIntKeys()
         {
             var d = new Dictionary<object, object> { { 1, 2 }, { 3, 4 } };
@@ -264,7 +263,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestTwoStrings()
         {
             var d = new Dictionary<object, object> { { "A", "x" }, { "B", "y" } };
@@ -285,18 +284,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             expected = expected.Replace("#SD", sdRep);
             expected = expected.Replace("#SL", slRep);
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestTwoStringsWithIntKeys()
         {
             var d = new Dictionary<object, object> { { 1, "x" }, { 2, "y" } };
@@ -306,7 +305,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestMixedPrimitiveTypes()
         {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
@@ -347,18 +346,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             expected = expected.Replace("#SD", sdRep);
             expected = expected.Replace("#SL", slRep);
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMixedPrimitiveTypesWithIntKeys()
         {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
@@ -381,7 +380,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestMixedPrimitiveTypesWithMixedKeys()
         {
             // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
@@ -403,7 +402,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
-        [Test]
+        [Fact]
         public void TestImmutablePrivateConstructorDictionaryImplementation()
         {
             var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
@@ -414,15 +413,15 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var json = obj.ToJson();
             var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         private SortedDictionary<object, object> CreateSortedDictionary(Dictionary<object, object> d)
@@ -474,7 +473,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         }
     }
 
-    [TestFixture]
     public class EnumDictionaryTests
     {
         private enum E
@@ -497,60 +495,59 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             public SortedList<string, E> Dictionary;
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeNull()
         {
             C c = new C { Dictionary = null };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeEmpty()
         {
             C c = new C { Dictionary = new Dictionary<string, E>() };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerialize1()
         {
             C c = new C { Dictionary = new Dictionary<string, E> { { "a", E.A } } };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : { \"a\" : \"A\" } }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerialize2()
         {
             D d = new D { Dictionary = new SortedList<string, E> { { "a", E.A }, { "b", E.B } } };
             var json = d.ToJson();
             var expected = ("{ 'Dictionary' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = d.ToBson();
             var rehydrated = BsonSerializer.Deserialize<D>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
-    [TestFixture]
     public class StringToObjectIdDictionaryTests
     {
         private class C
@@ -562,46 +559,46 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         private static string id1 = "123456789012345678901234";
         private static string id2 = "432109876543210987654321";
 
-        [Test]
+        [Fact]
         public void TestSerializeNull()
         {
             C c = new C { Dictionary = null };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeEmpty()
         {
             C c = new C { Dictionary = new Dictionary<string, string>() };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerialize1()
         {
             C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestSerialize2()
         {
             C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
@@ -610,12 +607,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var expected2 = ("{ 'Dictionary' : { \"b\" : ObjectId(\"432109876543210987654321\"), \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
             if (json != expected1 && json != expected2)
             {
-                Assert.AreEqual(expected1, json);
+                Assert.Equal(expected1, json);
             }
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

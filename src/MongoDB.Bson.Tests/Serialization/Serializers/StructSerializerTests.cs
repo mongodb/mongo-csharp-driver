@@ -15,35 +15,35 @@
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    //[TestFixture]
+    ////[TestFixture]
     //public class StructSerializerTests {
     //    private struct S {
     //        public int I { get; set; }
     //        public string P { get; set; }
     //    }
 
-    //    [Test]
+    //    [Fact]
     //    public void TestSAsObject() {
     //        object s = new S { I = 1, P = "x" };
     //        var json = s.ToJson<object>();
     //        var expected = "{ '_t' : 'S', 'I' : 1, 'P' : 'x' }".Replace("'", "\"");
-    //        Assert.AreEqual(expected, json);
+    //        Assert.Equal(expected, json);
 
     //        var bson = s.ToBson<object>();
     //        var rehydrated = BsonSerializer.Deserialize<object>(bson);
-    //        Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<object>()));
+    //        Assert.True(bson.SequenceEqual(rehydrated.ToBson<object>()));
     //    }
 
-    //    [Test]
+    //    [Fact]
     //    public void TestSAsS() {
     //        S s = new S { I = 1, P = "x" };
     //        var json = s.ToJson<S>();
     //        var expected = "{ 'I' : 1, 'P' : 'x' }".Replace("'", "\"");
-    //        Assert.AreEqual(expected, json);
+    //        Assert.Equal(expected, json);
 
     //        var bson = s.ToBson<S>();
     //        var rehydrated = BsonSerializer.Deserialize<S>(bson);
-    //        Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<S>()));
+    //        Assert.True(bson.SequenceEqual(rehydrated.ToBson<S>()));
     //    }
     //}
 }

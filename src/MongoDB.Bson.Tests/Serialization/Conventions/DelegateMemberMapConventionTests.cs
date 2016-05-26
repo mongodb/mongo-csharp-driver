@@ -15,11 +15,10 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class DelegateMemberMapConventionTests
     {
         private class TestClass
@@ -27,19 +26,19 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public string FirstName { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             var convention = new DelegateMemberMapConvention("test", m => m.SetElementName("blah"));
 
-            Assert.AreEqual("test", convention.Name);
+            Assert.Equal("test", convention.Name);
 
             var classMap = new BsonClassMap<TestClass>();
             var member = classMap.MapMember(x => x.FirstName);
 
             convention.Apply(member);
 
-            Assert.AreEqual("blah", member.ElementName);
+            Assert.Equal("blah", member.ElementName);
         }
     }
 }

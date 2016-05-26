@@ -14,11 +14,10 @@
 */
 
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp708
 {
-    [TestFixture]
     public class CSharp708Tests
     {
         interface IIdentity
@@ -37,7 +36,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp708
             return cm.GetMemberMap(x => x.Id);
         }
 
-        [Test]
+        [Fact]
         public void TestGetMemberFindsCorrectMember()
         {
             var classMap = new BsonClassMap<Entity>();
@@ -45,8 +44,8 @@ namespace MongoDB.Bson.Tests.Jira.CSharp708
 
             var memberMap = GetIdMemberMap<Entity>(classMap);
 
-            Assert.IsNotNull(memberMap);
-            Assert.AreEqual("Id", memberMap.MemberName);
+            Assert.NotNull(memberMap);
+            Assert.Equal("Id", memberMap.MemberName);
         }
     }
 }

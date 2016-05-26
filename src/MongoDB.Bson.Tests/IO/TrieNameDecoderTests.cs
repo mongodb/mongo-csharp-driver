@@ -16,13 +16,13 @@
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
     public class TrieNameDecoderTests
     {
-        [Test]
+        [Fact]
         public void Should_read_name_when_trie_does_not_know_about_the_name()
         {
             var trie = new BsonTrie<int>();
@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.IO
             Assert(trie, "different");
         }
 
-        [Test]
+        [Fact]
         public void Should_read_name_when_trie_holds_a_longer_version_of_the_name()
         {
             var trie = new BsonTrie<int>();
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.IO
             Assert(trie, "long");
         }
 
-        [Test]
+        [Fact]
         public void Should_read_name_when_trie_knows_about_the_name()
         {
             var trie = new BsonTrie<int>();

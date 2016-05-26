@@ -16,7 +16,7 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp120
 {
@@ -31,21 +31,20 @@ namespace MongoDB.Bson.Tests.Jira.CSharp120
         public override int Y { get; set; }
     }
 
-    [TestFixture]
     public class CSharp120Tests
     {
-        [Test]
+        [Fact]
         public void TestGuidStringRepresentation()
         {
             var c = new C { X = 1, Y = 2 };
             var json = c.ToJson();
             var expected = "{ 'X' : 1, 'Y' : 2 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsInstanceOf<C>(rehydrated);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<C>(rehydrated);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

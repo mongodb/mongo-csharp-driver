@@ -16,25 +16,24 @@
 using System;
 using System.Linq;
 using MongoDB.Bson.Serialization.IdGenerators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class AscendingGuidGeneratorTests
     {
         private AscendingGuidGenerator _generator = new AscendingGuidGenerator();
 
-        [Test]
+        [Fact]
         public void TestIsEmpty()
         {
-            Assert.IsTrue(_generator.IsEmpty(null));
-            Assert.IsTrue(_generator.IsEmpty(Guid.Empty));
+            Assert.True(_generator.IsEmpty(null));
+            Assert.True(_generator.IsEmpty(Guid.Empty));
             var guid = _generator.GenerateId(null, null);
-            Assert.IsFalse(_generator.IsEmpty(guid));
+            Assert.False(_generator.IsEmpty(guid));
         }
 
-        [Test]
+        [Fact]
         public void TestGuid()
         {
             var expectedTicks = DateTime.Now.Ticks;
@@ -45,12 +44,12 @@ namespace MongoDB.Bson.Tests.Serialization
             var actualTicks = GetTicks(bytes);
             var actualMachineProcessId = GetMachineProcessId(bytes);
             var actualIncrement = GetIncrement(bytes);
-            Assert.AreEqual(expectedTicks, actualTicks);
-            Assert.IsTrue(expectedMachineProcessId.SequenceEqual(actualMachineProcessId));
-            Assert.AreEqual(expectedIncrement, actualIncrement);
+            Assert.Equal(expectedTicks, actualTicks);
+            Assert.True(expectedMachineProcessId.SequenceEqual(actualMachineProcessId));
+            Assert.Equal(expectedIncrement, actualIncrement);
         }
 
-        [Test]
+        [Fact]
         public void TestGuidWithSpecifiedTicks()
         {
             var expectedTicks = 0x8000L;
@@ -61,9 +60,9 @@ namespace MongoDB.Bson.Tests.Serialization
             var actualTicks = GetTicks(bytes);
             var actualMachineProcessId = GetMachineProcessId(bytes);
             var actualIncrement = GetIncrement(bytes);
-            Assert.AreEqual(expectedTicks, actualTicks);
-            Assert.IsTrue(expectedMachineProcessId.SequenceEqual(actualMachineProcessId));
-            Assert.AreEqual(expectedIncrement, actualIncrement);
+            Assert.Equal(expectedTicks, actualTicks);
+            Assert.True(expectedMachineProcessId.SequenceEqual(actualMachineProcessId));
+            Assert.Equal(expectedIncrement, actualIncrement);
         }
 
         private long GetTicks(byte[] bytes)

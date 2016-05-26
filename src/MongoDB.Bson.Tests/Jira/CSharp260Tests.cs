@@ -14,99 +14,98 @@
 */
 
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp260
 {
-    [TestFixture]
     public class CSharp260Tests
     {
-        [Test]
+        [Fact]
         public void TestConstantPattern()
         {
             var json = "{ rx : /abc/ }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestConstantPatternWithOptions()
         {
             var json = "{ rx : /abc/imxs }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("imxs", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("imxs", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestNewRegExpPattern()
         {
             var json = "{ rx : new RegExp('abc') }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestNewRegExpPatternWithOptions()
         {
             var json = "{ rx : new RegExp('abc', 'imxs') }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("imxs", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("imxs", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestRegExpPattern()
         {
             var json = "{ rx : RegExp('abc') }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestRegExpPatternWithOptions()
         {
             var json = "{ rx : RegExp('abc', 'imxs') }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("imxs", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("imxs", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestStrictPattern()
         {
             var json = "{ rx : { $regex : 'abc' } }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("", rx.Options);
         }
 
-        [Test]
+        [Fact]
         public void TestStrictPatternWithOptions()
         {
             var json = "{ rx : { $regex : 'abc', $options : 'imxs' } }";
             var document = BsonDocument.Parse(json);
-            Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
+            Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
-            Assert.AreEqual("abc", rx.Pattern);
-            Assert.AreEqual("imxs", rx.Options);
+            Assert.Equal("abc", rx.Pattern);
+            Assert.Equal("imxs", rx.Options);
         }
     }
 }

@@ -14,11 +14,10 @@
 */
 
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp70Tests
     {
         private class TestClass
@@ -27,7 +26,7 @@ namespace MongoDB.Bson.Tests.Jira
             public string PrivateGetter { private get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestThatPrivateSettersAreValid()
         {
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());
@@ -35,7 +34,7 @@ namespace MongoDB.Bson.Tests.Jira
             var setter = classMap.GetMemberMap(x => x.PrivateSetter).Setter;
         }
 
-        [Test]
+        [Fact]
         public void TestThatPrivateGettersAreValid()
         {
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());

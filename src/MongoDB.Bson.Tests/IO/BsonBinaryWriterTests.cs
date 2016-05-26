@@ -20,14 +20,15 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.IO;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonBinaryWriterTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BsonBinaryWriter_should_support_writing_multiple_documents(
             [Range(0, 3)]
             int numberOfDocuments)
@@ -52,10 +53,11 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
-        [Requires64BitProcess]
+        [SkippableFact]
         public void BsonBinaryWriter_should_support_writing_more_than_2GB()
         {
+            RequireProcess.Is64Bit();
+
             using (var stream = new NullBsonStream())
             using (var binaryWriter = new BsonBinaryWriter(stream))
             {
@@ -76,10 +78,11 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
-        [Requires64BitProcess]
+        [SkippableFact]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
+            RequireProcess.Is64Bit();
+
             using (var stream = new NullBsonStream())
             using (var binaryWriter = new BsonBinaryWriter(stream))
             {

@@ -22,14 +22,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class ExpandoSerializerTests
     {
-        [Test]
+        [Fact]
         public void TestRoundTrip()
         {
             dynamic person = new ExpandoObject();
@@ -45,14 +44,14 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var json = ((ExpandoObject)person).ToJson();
             var expected = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : [{ 'Name' : 'hiking' }, 10], 'Spouse' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = ((ExpandoObject)person).ToBson();
             var rehydrated = BsonSerializer.Deserialize<ExpandoObject>(bson);
-            Assert.IsTrue(bson.SequenceEqual((rehydrated).ToBson()));
+            Assert.True(bson.SequenceEqual((rehydrated).ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializingDiscriminatedVersion()
         {
             var oldJson = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : [{ '_t' : 'System.Dynamic.ExpandoObject', '_v' : { 'Name' : 'hiking' } }, 10] }, 'Spouse' : { '_t' : 'System.Dynamic.ExpandoObject', '_v' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } } }".Replace("'", "\"");
@@ -60,7 +59,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var json = ((ExpandoObject)rehydrated).ToJson();
             var expected = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : [{ 'Name' : 'hiking' }, 10], 'Spouse' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

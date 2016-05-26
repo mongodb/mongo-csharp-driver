@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp400Tests
     {
         private static bool __testAlreadyRan = false;
@@ -35,7 +34,7 @@ namespace MongoDB.Bson.Tests.Jira
             public int c;
         }
 
-        [Test]
+        [Fact]
         public void TestSetIdMemberErrorMessage()
         {
             // test can only be run once
@@ -60,7 +59,7 @@ namespace MongoDB.Bson.Tests.Jira
                 });
             });
             var expectedMessage = "The memberMap argument must be for class C, but was for class B.";
-            Assert.IsTrue(ex.Message.StartsWith(expectedMessage));
+            Assert.True(ex.Message.StartsWith(expectedMessage));
         }
     }
 }

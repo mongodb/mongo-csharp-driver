@@ -15,11 +15,10 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class BsonMemberMapDefaultValueCreatorTests
     {
         private class C
@@ -37,47 +36,47 @@ namespace MongoDB.Bson.Tests.Serialization
             });
         }
 
-        [Test]
+        [Fact]
         public void TestEachDefaultValueIsNewInstance()
         {
             var json = "{ _id : 1 }";
             var c = BsonSerializer.Deserialize<C>(json);
             var d = BsonSerializer.Deserialize<C>(json);
-            Assert.IsNotNull(c.L);
-            Assert.IsNotNull(d.L);
-            Assert.AreNotSame(c.L, d.L);
+            Assert.NotNull(c.L);
+            Assert.NotNull(d.L);
+            Assert.NotSame(c.L, d.L);
         }
 
-        [Test]
+        [Fact]
         public void TestModifyingEmptyListDoesNotCorruptDefaultValue()
         {
             var json = "{ _id : 1 }";
             var c1 = BsonSerializer.Deserialize<C>(json);
             c1.L.Add(1);
             var c2 = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(1, c1.L.Count);
-            Assert.AreEqual(0, c2.L.Count);
+            Assert.Equal(1, c1.L.Count);
+            Assert.Equal(0, c2.L.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestValueMissing()
         {
             var json = "{ _id : 1 }";
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(1, c.Id);
-            Assert.IsNotNull(c.L);
-            Assert.AreEqual(0, c.L.Count);
+            Assert.Equal(1, c.Id);
+            Assert.NotNull(c.L);
+            Assert.Equal(0, c.L.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestValuePresent()
         {
             var json = "{ _id : 1, L : [1] }";
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(1, c.Id);
-            Assert.IsNotNull(c.L);
-            Assert.AreEqual(1, c.L.Count);
-            Assert.AreEqual(1, c.L[0]);
+            Assert.Equal(1, c.Id);
+            Assert.NotNull(c.L);
+            Assert.Equal(1, c.L.Count);
+            Assert.Equal(1, c.L[0]);
         }
     }
 }

@@ -22,16 +22,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
-namespace MongoDB.Mini.Bson.Tests
+namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonStreamAdapterTests
     {
         // test methods
-        [Test]
+        [Fact]
         public void BaseStream_should_return_expected_resut()
         {
             var stream = Substitute.For<Stream>();
@@ -42,7 +42,7 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(stream);
         }
 
-        [Test]
+        [Fact]
         public void BaseStream_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -55,7 +55,7 @@ namespace MongoDB.Mini.Bson.Tests
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void BeginRead_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -76,7 +76,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void BeginRead_should_throw_when_subject_is_diposed()
         {
             var stream = Substitute.For<Stream>();
@@ -95,7 +95,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void BeginWrite_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -116,7 +116,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void BeginWrite_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -134,7 +134,8 @@ namespace MongoDB.Mini.Bson.Tests
         }
 #endif
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CanRead_should_call_wrapped_stream(
             [Values(false, true)]
             bool canRead)
@@ -149,7 +150,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).CanRead;
         }
 
-        [Test]
+        [Fact]
         public void CanRead_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -161,7 +162,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CanSeek_should_call_wrapped_stream(
             [Values(false, true)]
             bool canSeek)
@@ -176,7 +178,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).CanSeek;
         }
 
-        [Test]
+        [Fact]
         public void CanSeek_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -188,7 +190,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CanTimeout_should_call_wrapped_stream(
             [Values(false, true)]
             bool canTimeout)
@@ -203,7 +206,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).CanTimeout;
         }
 
-        [Test]
+        [Fact]
         public void CanTimeout_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -215,7 +218,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CanWrite_should_call_wrapped_stream(
             [Values(false, true)]
             bool canWrite)
@@ -230,7 +234,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).CanWrite;
         }
 
-        [Test]
+        [Fact]
         public void CanWrite_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -242,7 +246,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void Close_can_be_called_multiple_times()
         {
             var stream = Substitute.For<Stream>();
@@ -255,7 +259,7 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Close_should_dispose_subject()
         {
             var stream = Substitute.For<Stream>();
@@ -267,7 +271,7 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_use_false_as_the_default_value_for_ownsStream()
         {
             var stream = Substitute.For<Stream>();
@@ -278,7 +282,8 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._ownsStream.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_initialize_instance(
             [Values(false, true)]
             bool ownsStream)
@@ -295,7 +300,7 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._tempUtf8.Should().NotBeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_stream_is_null()
         {
             Action action = () => new BsonStreamAdapter(null);
@@ -303,7 +308,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [Test]
+        [Fact]
         public void CopyToAsync_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -320,7 +325,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
-        [Test]
+        [Fact]
         public void CopyToAsync_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -335,7 +340,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_multiple_times()
         {
             var stream = Substitute.For<Stream>();
@@ -348,7 +353,7 @@ namespace MongoDB.Mini.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
             var stream = Substitute.For<Stream>();
@@ -360,7 +365,8 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Dispose();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Dispose_should_dispose_stream_only_when_it_owns_it(
             [Values(false, true)]
             bool ownsStream)
@@ -373,7 +379,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(ownsStream ? 1 : 0).Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_subject()
         {
             var stream = Substitute.For<Stream>();
@@ -386,7 +392,7 @@ namespace MongoDB.Mini.Bson.Tests
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void EndRead_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -403,7 +409,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void EndRead_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -418,7 +424,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void EndWrite_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -432,7 +438,7 @@ namespace MongoDB.Mini.Bson.Tests
 #endif
 
 #if NET45
-        [Test]
+        [Fact]
         public void EndWrite_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -446,7 +452,7 @@ namespace MongoDB.Mini.Bson.Tests
         }
 #endif
 
-        [Test]
+        [Fact]
         public void Flush_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -457,7 +463,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Flush();
         }
 
-        [Test]
+        [Fact]
         public void Flush_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -469,7 +475,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void FlushAsync_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -484,7 +490,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).FlushAsync(cancellationToken);
         }
 
-        [Test]
+        [Fact]
         public void FlushAsync_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -497,7 +503,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Length_get_should_call_wrapped_stream(
             [Values(0L, 1L, 2L)]
             long length)
@@ -512,7 +519,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).Length;
         }
 
-        [Test]
+        [Fact]
         public void Length_get_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -524,7 +531,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Position_get_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             long position)
@@ -539,7 +547,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).Position;
         }
 
-        [Test]
+        [Fact]
         public void Position_get_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -551,7 +559,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Position_set_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             long position)
@@ -564,7 +573,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Position = position;
         }
 
-        [Test]
+        [Fact]
         public void Position_set_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -576,7 +585,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void Read_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -593,7 +602,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Read(buffer, offset, count);
         }
 
-        [Test]
+        [Fact]
         public void Read_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -608,7 +617,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadAsync_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -626,7 +635,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).ReadAsync(buffer, offset, count, cancellationToken);
         }
 
-        [Test]
+        [Fact]
         public void ReadAsync_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -642,7 +651,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadByte_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -655,7 +664,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).ReadByte();
         }
 
-        [Test]
+        [Fact]
         public void ReadByte_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -667,10 +676,11 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [TestCase(new byte[] { 0 }, "")]
-        [TestCase(new byte[] { 97, 0 }, "a")]
-        [TestCase(new byte[] { 97, 98, 0 }, "ab")]
-        [TestCase(new byte[] { 97, 98, 99, 0 }, "abc")]
+        [Theory]
+        [InlineData(new byte[] { 0 }, "")]
+        [InlineData(new byte[] { 97, 0 }, "a")]
+        [InlineData(new byte[] { 97, 98, 0 }, "ab")]
+        [InlineData(new byte[] { 97, 98, 99, 0 }, "abc")]
         public void ReadCString_should_return_expected_result(byte[] bytes, string expectedResult)
         {
             var stream = new MemoryStream(bytes);
@@ -682,7 +692,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(bytes.Length);
         }
 
-        [Test]
+        [Fact]
         public void ReadCString_should_throw_when_encoding_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -693,7 +703,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("encoding");
         }
 
-        [Test]
+        [Fact]
         public void ReadCString_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -705,10 +715,11 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [TestCase(new byte[] { 0 }, "")]
-        [TestCase(new byte[] { 97, 0 }, "a")]
-        [TestCase(new byte[] { 97, 98, 0 }, "ab")]
-        [TestCase(new byte[] { 97, 98, 99, 0 }, "abc")]
+        [Theory]
+        [InlineData(new byte[] { 0 }, "")]
+        [InlineData(new byte[] { 97, 0 }, "a")]
+        [InlineData(new byte[] { 97, 98, 0 }, "ab")]
+        [InlineData(new byte[] { 97, 98, 99, 0 }, "abc")]
         public void ReadCStringBytes_should_return_expected_result(byte[] bytes, string expectedResult)
         {
             var stream = new MemoryStream(bytes);
@@ -720,7 +731,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(bytes.Length);
         }
 
-        [Test]
+        [Fact]
         public void ReadCStringBytes_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -732,7 +743,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadCStringBytes_should_throw_when_terminating_null_byte_is_missing()
         {
             var bytes = new byte[] { 0, 97, 98 };
@@ -746,7 +757,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<EndOfStreamException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadDouble_should_return_expected_result(
             [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
             double value
@@ -762,7 +774,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(8);
         }
 
-        [Test]
+        [Fact]
         public void ReadDouble_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -774,7 +786,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadInt32_should_be_little_endian()
         {
             var bytes = new byte[] { 1, 2, 3, 4 };
@@ -786,7 +798,8 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(0x04030201);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadInt32_should_return_expected_result(
             [Values(-1, 0, 1, int.MaxValue, int.MinValue)]
             int value)
@@ -801,7 +814,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(4);
         }
 
-        [Test]
+        [Fact]
         public void ReadInt32_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -813,7 +826,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadInt64_should_be_little_endian()
         {
             var bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -825,7 +838,8 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(0x0807060504030201);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadInt64_should_return_expected_result(
             [Values(-1, 0, 1, long.MaxValue, long.MinValue)]
             long value)
@@ -840,7 +854,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(8);
         }
 
-        [Test]
+        [Fact]
         public void ReadInt64_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -852,7 +866,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadObjectId_should_be_big_endian()
         {
             var bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -865,7 +879,7 @@ namespace MongoDB.Mini.Bson.Tests
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void ReadObjectId_should_return_expected_result()
         {
             var objectId = ObjectId.GenerateNewId();
@@ -879,7 +893,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(12);
         }
 
-        [Test]
+        [Fact]
         public void ReadObjectId_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -891,7 +905,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadSlice_should_return_expected_result()
         {
             var bytes = new byte[] { 7, 0, 0, 0, 1, 2, 3 };
@@ -906,7 +920,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(7);
         }
 
-        [Test]
+        [Fact]
         public void ReadSlice_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -919,10 +933,11 @@ namespace MongoDB.Mini.Bson.Tests
         }
 
 
-        [TestCase(new byte[] { 1, 0, 0, 0, 0 }, "")]
-        [TestCase(new byte[] { 2, 0, 0, 0, 97, 0 }, "a")]
-        [TestCase(new byte[] { 3, 0, 0, 0, 97, 98, 0 }, "ab")]
-        [TestCase(new byte[] { 4, 0, 0, 0, 97, 98, 99, 0 }, "abc")]
+        [Theory]
+        [InlineData(new byte[] { 1, 0, 0, 0, 0 }, "")]
+        [InlineData(new byte[] { 2, 0, 0, 0, 97, 0 }, "a")]
+        [InlineData(new byte[] { 3, 0, 0, 0, 97, 98, 0 }, "ab")]
+        [InlineData(new byte[] { 4, 0, 0, 0, 97, 98, 99, 0 }, "abc")]
         public void ReadString_should_return_expected_result(byte[] bytes, string expectedResult)
         {
             var stream = new MemoryStream(bytes);
@@ -934,7 +949,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(bytes.Length);
         }
 
-        [Test]
+        [Fact]
         public void ReadString_should_throw_when_encoding_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -945,7 +960,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("encoding");
         }
 
-        [Test]
+        [Fact]
         public void ReadString_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -957,7 +972,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void ReadString_should_throw_when_terminating_null_byte_is_missing()
         {
             var bytes = new byte[] { 2, 0, 0, 0, 97, 1 };
@@ -969,7 +984,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<FormatException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadTimeout_get_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             int readTimeout)
@@ -984,7 +1000,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).ReadTimeout;
         }
 
-        [Test]
+        [Fact]
         public void ReadTimeout_get_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -996,7 +1012,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadTimeout_set_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             int readTimeout)
@@ -1009,7 +1026,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).ReadTimeout = readTimeout;
         }
 
-        [Test]
+        [Fact]
         public void ReadTimeout_set_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1021,7 +1038,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void Seek_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -1037,7 +1054,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Seek(offset, origin);
         }
 
-        [Test]
+        [Fact]
         public void Seek_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1051,7 +1068,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void SetLength_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -1063,7 +1080,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).SetLength(length);
         }
 
-        [Test]
+        [Fact]
         public void SetLength_should_throw_when_subject_is_diposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1076,10 +1093,11 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [TestCase(new byte[] { 0 })]
-        [TestCase(new byte[] { 97, 0 })]
-        [TestCase(new byte[] { 97, 98, 0 })]
-        [TestCase(new byte[] { 97, 98, 99, 0 })]
+        [Theory]
+        [InlineData(new byte[] { 0 })]
+        [InlineData(new byte[] { 97, 0 })]
+        [InlineData(new byte[] { 97, 98, 0 })]
+        [InlineData(new byte[] { 97, 98, 99, 0 })]
         public void SkipCString_should_skip_cstring(byte[] bytes)
         {
             var stream = new MemoryStream(bytes);
@@ -1090,7 +1108,7 @@ namespace MongoDB.Mini.Bson.Tests
             subject.Position.Should().Be(bytes.Length);
         }
 
-        [Test]
+        [Fact]
         public void SkipCString_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1102,7 +1120,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void SkipCString_should_throw_when_terminating_null_byte_is_missing()
         {
             var bytes = new byte[] { 97 };
@@ -1114,7 +1132,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<EndOfStreamException>();
         }
 
-        [Test]
+        [Fact]
         public void Write_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -1128,7 +1146,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).Write(buffer, offset, count);
         }
 
-        [Test]
+        [Fact]
         public void Write_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1143,7 +1161,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteAsync_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -1161,7 +1179,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).WriteAsync(buffer, offset, count, cancellationToken);
         }
 
-        [Test]
+        [Fact]
         public void WriteAsync_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1178,7 +1196,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteByte_should_call_wrapped_stream()
         {
             var stream = Substitute.For<Stream>();
@@ -1190,7 +1208,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).WriteByte(value);
         }
 
-        [Test]
+        [Fact]
         public void WriteByte_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1203,7 +1221,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteCString_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1216,7 +1234,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteCString_should_throw_when_value_contains_nulls()
         {
             var stream = new MemoryStream();
@@ -1228,7 +1246,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteCString_should_throw_when_value_with_maxByteCount_near_tempUtf8_contains_nulls(
             [Values(-1, 0, 1)] int delta)
         {
@@ -1245,7 +1264,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void WriteCString_should_throw_when_value_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -1256,10 +1275,11 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [TestCase("", new byte[] { 0 })]
-        [TestCase("a", new byte[] { 97, 0 })]
-        [TestCase("ab", new byte[] { 97, 98, 0 })]
-        [TestCase("abc", new byte[] { 97, 98, 99, 0 })]
+        [Theory]
+        [InlineData("", new byte[] { 0 })]
+        [InlineData("a", new byte[] { 97, 0 })]
+        [InlineData("ab", new byte[] { 97, 98, 0 })]
+        [InlineData("abc", new byte[] { 97, 98, 99, 0 })]
         public void WriteCString_should_write_expected_bytes(string value, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
@@ -1270,7 +1290,8 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteCString_should_write_expected_bytes_when_maxByteCount_is_near_tempUtf8_length(
             [Values(-1, 0, 1)]
             int delta)
@@ -1287,7 +1308,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteCStringBytes_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1300,7 +1321,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteCStringBytes_should_throw_when_value_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -1311,10 +1332,11 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [TestCase(new byte[] { })]
-        [TestCase(new byte[] { 97 })]
-        [TestCase(new byte[] { 97, 98 })]
-        [TestCase(new byte[] { 97, 98, 99 })]
+        [Theory]
+        [InlineData(new byte[] { })]
+        [InlineData(new byte[] { 97 })]
+        [InlineData(new byte[] { 97, 98 })]
+        [InlineData(new byte[] { 97, 98, 99 })]
         public void WriteCStringBytes_should_write_expected_bytes(byte[] value)
         {
             var stream = new MemoryStream();
@@ -1325,7 +1347,8 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(value.Concat(new byte[] { 0 }));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteDouble_should_write_expected_bytes(
             [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
             double value)
@@ -1339,7 +1362,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteDouble_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1351,7 +1374,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteInt32_should_be_little_endian()
         {
             var stream = new MemoryStream();
@@ -1364,7 +1387,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteInt32_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1376,7 +1399,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteInt32_should_write_expected_bytes(
             [Values(-1, 0, 1, int.MaxValue, int.MinValue)]
             int value)
@@ -1390,7 +1414,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteInt64_should_be_little_endian()
         {
             var stream = new MemoryStream();
@@ -1403,7 +1427,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteInt64_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1415,7 +1439,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteInt64_should_write_expected_bytes(
             [Values(-1L, 0L, 1L, long.MaxValue, long.MinValue)]
             long value)
@@ -1429,7 +1454,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteObjectId_should_be_big_endian()
         {
             var stream = new MemoryStream();
@@ -1442,7 +1467,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteObjectId_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1454,7 +1479,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteObjectId_should_write_expected_bytes()
         {
             var stream = new MemoryStream();
@@ -1467,7 +1492,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteString_should_throw_when_encoding_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -1479,7 +1504,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("encoding");
         }
 
-        [Test]
+        [Fact]
         public void WriteString_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1492,7 +1517,7 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Fact]
         public void WriteString_should_throw_when_value_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -1503,11 +1528,12 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [TestCase("", new byte[] { 1, 0, 0, 0, 0 })]
-        [TestCase("a", new byte[] { 2, 0, 0, 0, 97, 0 })]
-        [TestCase("ab", new byte[] { 3, 0, 0, 0, 97, 98, 0 })]
-        [TestCase("abc", new byte[] { 4, 0, 0, 0, 97, 98, 99, 0 })]
-        [TestCase("a\0c", new byte[] { 4, 0, 0, 0, 97, 0, 99, 0 })]
+        [Theory]
+        [InlineData("", new byte[] { 1, 0, 0, 0, 0 })]
+        [InlineData("a", new byte[] { 2, 0, 0, 0, 97, 0 })]
+        [InlineData("ab", new byte[] { 3, 0, 0, 0, 97, 98, 0 })]
+        [InlineData("abc", new byte[] { 4, 0, 0, 0, 97, 98, 99, 0 })]
+        [InlineData("a\0c", new byte[] { 4, 0, 0, 0, 97, 0, 99, 0 })]
         public void WriteString_should_write_expected_bytes(string value, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
@@ -1518,7 +1544,8 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteString_should_write_expected_bytes_when_size_is_near_tempUtf8_length(
             [Values(-1, 0, 1)]
             int delta)
@@ -1538,7 +1565,8 @@ namespace MongoDB.Mini.Bson.Tests
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteTimeout_get_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             int writeTimeout)
@@ -1553,7 +1581,7 @@ namespace MongoDB.Mini.Bson.Tests
             var temp = stream.Received(1).WriteTimeout;
         }
 
-        [Test]
+        [Fact]
         public void WriteTimeout_get_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();
@@ -1565,7 +1593,8 @@ namespace MongoDB.Mini.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteTimeout_set_should_call_wrapped_stream(
             [Values(0, 1, 2)]
             int writeTimeout)
@@ -1578,7 +1607,7 @@ namespace MongoDB.Mini.Bson.Tests
             stream.Received(1).WriteTimeout = writeTimeout;
         }
 
-        [Test]
+        [Fact]
         public void WriteTimeout_set_should_throw_when_subject_is_disposed()
         {
             var stream = Substitute.For<Stream>();

@@ -15,11 +15,10 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class DelegatePostProcessingConventionTests
     {
         private class TestClass
@@ -27,18 +26,18 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public string FirstName { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             var convention = new DelegatePostProcessingConvention("test", c => c.SetDiscriminator("blah"));
 
-            Assert.AreEqual("test", convention.Name);
+            Assert.Equal("test", convention.Name);
 
             var classMap = new BsonClassMap<TestClass>();
 
             convention.PostProcess(classMap);
 
-            Assert.AreEqual("blah", classMap.Discriminator);
+            Assert.Equal("blah", classMap.Discriminator);
         }
     }
 }

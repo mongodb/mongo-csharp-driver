@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp293Tests
     {
         public class C
@@ -43,18 +42,24 @@ namespace MongoDB.Bson.Tests.Jira
             public int N2 { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestDuplicateElementInDerivedClass()
         {
-            var message = "The property 'N' of class 'MongoDB.Bson.Tests.Jira.D' cannot use element name 'N' because it already being used by field 'N' of class 'MongoDB.Bson.Tests.Jira.C'.";
-            Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(D)), message);
+            var ex = Record.Exception(() => BsonClassMap.LookupClassMap(typeof(D)));
+
+            var expectedMessage = "The property 'N' of type 'MongoDB.Bson.Tests.Jira.CSharp293Tests+D' cannot use element name 'N' because it is already being used by field 'N' of type 'MongoDB.Bson.Tests.Jira.CSharp293Tests+C'.";
+            Assert.IsType<BsonSerializationException>(ex);
+            Assert.Equal(expectedMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestDuplicateElementInSameClass()
         {
-            var message = "The property 'N2' of class 'MongoDB.Bson.Tests.Jira.E' cannot use element name 'n' because it already being used by field 'N1'.";
-            Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(E)), message);
+            var ex = Record.Exception(() => BsonClassMap.LookupClassMap(typeof(E)));
+
+            var expectedMessage = "The property 'N2' of type 'MongoDB.Bson.Tests.Jira.CSharp293Tests+E' cannot use element name 'n' because it is already being used by field 'N1'.";
+            Assert.IsType<BsonSerializationException>(ex);
+            Assert.Equal(expectedMessage, ex.Message);
         }
     }
 }

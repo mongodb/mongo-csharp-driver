@@ -19,15 +19,16 @@ using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonStreamExtensionsTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BackpatchSize_should_backpatch_the_size(
             [Values(0, 1, 5)]
             int startPosition)
@@ -50,7 +51,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
             using (var stream = Substitute.For<BsonStream>())
@@ -65,7 +66,8 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BackpatchSize_should_throw_when_startPosition_is_out_of_range(
             [Values(-1, 4)]
             int startPosition)
@@ -80,7 +82,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void BackpatchSize_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -90,15 +92,16 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0, BsonBinarySubType.Binary)]
-        [TestCase(1, BsonBinarySubType.Function)]
+        [Theory]
+        [InlineData(0, BsonBinarySubType.Binary)]
+        [InlineData(1, BsonBinarySubType.Function)]
 #pragma warning disable 618
-        [TestCase(2, BsonBinarySubType.OldBinary)]
+        [InlineData(2, BsonBinarySubType.OldBinary)]
 #pragma warning restore
-        [TestCase(3, BsonBinarySubType.UuidLegacy)]
-        [TestCase(4, BsonBinarySubType.UuidStandard)]
-        [TestCase(5, BsonBinarySubType.MD5)]
-        [TestCase(0x80, BsonBinarySubType.UserDefined)]
+        [InlineData(3, BsonBinarySubType.UuidLegacy)]
+        [InlineData(4, BsonBinarySubType.UuidStandard)]
+        [InlineData(5, BsonBinarySubType.MD5)]
+        [InlineData(0x80, BsonBinarySubType.UserDefined)]
         public void ReadBinarySubType_should_return_expected_result(int n, BsonBinarySubType expectedResult)
         {
             var bytes = new byte[] { (byte)n };
@@ -112,7 +115,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBinarySubType_should_throw_when_at_end_of_stream()
         {
             using (var memoryStream = new MemoryStream())
@@ -124,7 +127,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBinarySubType_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -134,8 +137,9 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0, false)]
-        [TestCase(1, true)]
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(1, true)]
         public void ReadBoolean_should_return_expected_result(int n, bool expectedResult)
         {
             var bytes = new byte[] { (byte)n };
@@ -149,7 +153,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBoolean_should_throw_when_at_end_of_stream()
         {
             using (var memoryStream = new MemoryStream())
@@ -161,7 +165,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBoolean_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -171,26 +175,27 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0x00, BsonType.EndOfDocument)]
-        [TestCase(0x01, BsonType.Double)]
-        [TestCase(0x02, BsonType.String)]
-        [TestCase(0x03, BsonType.Document)]
-        [TestCase(0x04, BsonType.Array)]
-        [TestCase(0x05, BsonType.Binary)]
-        [TestCase(0x06, BsonType.Undefined)]
-        [TestCase(0x07, BsonType.ObjectId)]
-        [TestCase(0x08, BsonType.Boolean)]
-        [TestCase(0x09, BsonType.DateTime)]
-        [TestCase(0x0a, BsonType.Null)]
-        [TestCase(0x0b, BsonType.RegularExpression)]
-        [TestCase(0x0d, BsonType.JavaScript)]
-        [TestCase(0x0e, BsonType.Symbol)]
-        [TestCase(0x0f, BsonType.JavaScriptWithScope)]
-        [TestCase(0x10, BsonType.Int32)]
-        [TestCase(0x11, BsonType.Timestamp)]
-        [TestCase(0x12, BsonType.Int64)]
-        [TestCase(0xff, BsonType.MinKey)]
-        [TestCase(0x7f, BsonType.MaxKey)]
+        [Theory]
+        [InlineData(0x00, BsonType.EndOfDocument)]
+        [InlineData(0x01, BsonType.Double)]
+        [InlineData(0x02, BsonType.String)]
+        [InlineData(0x03, BsonType.Document)]
+        [InlineData(0x04, BsonType.Array)]
+        [InlineData(0x05, BsonType.Binary)]
+        [InlineData(0x06, BsonType.Undefined)]
+        [InlineData(0x07, BsonType.ObjectId)]
+        [InlineData(0x08, BsonType.Boolean)]
+        [InlineData(0x09, BsonType.DateTime)]
+        [InlineData(0x0a, BsonType.Null)]
+        [InlineData(0x0b, BsonType.RegularExpression)]
+        [InlineData(0x0d, BsonType.JavaScript)]
+        [InlineData(0x0e, BsonType.Symbol)]
+        [InlineData(0x0f, BsonType.JavaScriptWithScope)]
+        [InlineData(0x10, BsonType.Int32)]
+        [InlineData(0x11, BsonType.Timestamp)]
+        [InlineData(0x12, BsonType.Int64)]
+        [InlineData(0xff, BsonType.MinKey)]
+        [InlineData(0x7f, BsonType.MaxKey)]
         public void ReadBsonType_should_return_expected_result(int n, BsonType expectedResult)
         {
             var bytes = new byte[] { (byte)n };
@@ -204,7 +209,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBsonType_should_throw_when_at_end_of_stream()
         {
             using (var memoryStream = new MemoryStream())
@@ -216,7 +221,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBsonType_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -226,9 +231,10 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0x0c)]
-        [TestCase(0x13)]
-        [TestCase(0xfe)]
+        [Theory]
+        [InlineData(0x0c)]
+        [InlineData(0x13)]
+        [InlineData(0xfe)]
         public void ReadBsonType_should_throw_when_value_is_invalid(int n)
         {
             var bytes = new byte[] { (byte)n };
@@ -244,7 +250,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_buffer_should_handle_partial_reads()
         {
             using (var baseStream = Substitute.For<BsonStream>())
@@ -262,7 +268,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_buffer_should_optimize_count_of_one()
         {
             using (var baseStream = Substitute.For<Stream>())
@@ -278,7 +284,8 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadBytes_with_buffer_should_return_expected_result(
             [Values(0, 1, 2, 16)]
             int length)
@@ -297,7 +304,8 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadBytes_with_buffer_should_throw_when_at_end_of_stream(
             [Values(0, 1, 2, 16)]
             int length)
@@ -315,7 +323,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_buffer_should_throw_when_buffer_is_null()
         {
             var stream = Substitute.For<BsonStream>();
@@ -325,12 +333,13 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, 0, 1)]
-        [TestCase(1, 0, 2)]
-        [TestCase(1, 1, 1)]
-        [TestCase(2, 0, 3)]
-        [TestCase(2, 1, 2)]
-        [TestCase(2, 2, 1)]
+        [Theory]
+        [InlineData(0, 0, 1)]
+        [InlineData(1, 0, 2)]
+        [InlineData(1, 1, 1)]
+        [InlineData(2, 0, 3)]
+        [InlineData(2, 1, 2)]
+        [InlineData(2, 2, 1)]
         public void ReadBytes_with_buffer_should_throw_when_count_extends_beyond_end_of_buffer(
             int length,
             int offset,
@@ -346,12 +355,13 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(0, 0, 1)]
-        [TestCase(1, 0, 2)]
-        [TestCase(1, 1, 1)]
-        [TestCase(2, 0, 3)]
-        [TestCase(2, 1, 2)]
-        [TestCase(2, 2, 1)]
+        [Theory]
+        [InlineData(0, 0, 1)]
+        [InlineData(1, 0, 2)]
+        [InlineData(1, 1, 1)]
+        [InlineData(2, 0, 3)]
+        [InlineData(2, 1, 2)]
+        [InlineData(2, 2, 1)]
         public void ReadBytes_with_buffer_should_throw_when_count_is_out_of_range(int length, int offset, int count)
         {
             using (var stream = Substitute.For<BsonStream>())
@@ -364,12 +374,13 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(0, -1)]
-        [TestCase(0, 1)]
-        [TestCase(1, -1)]
-        [TestCase(1, 2)]
-        [TestCase(2, -1)]
-        [TestCase(2, 3)]
+        [Theory]
+        [InlineData(0, -1)]
+        [InlineData(0, 1)]
+        [InlineData(1, -1)]
+        [InlineData(1, 2)]
+        [InlineData(2, -1)]
+        [InlineData(2, 3)]
         public void ReadBytes_with_buffer_should_throw_when_offset_is_out_of_range(int length, int count)
         {
             using (var stream = Substitute.For<BsonStream>())
@@ -382,7 +393,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_buffer_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -393,7 +404,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadBytes_with_count_should_return_expected_result(
             [Values(0, 1, 2, 16)]
             int length)
@@ -410,7 +422,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_count_should_throw_when_at_end_of_stream()
         {
             using (var memoryStream = new MemoryStream())
@@ -422,7 +434,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_count_should_throw_when_count_is_negative()
         {
             using (var stream = Substitute.For<BsonStream>())
@@ -433,7 +445,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadBytes_with_count_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -443,7 +455,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [Test]
+        [Fact]
         public void static_constructor_should_initialize_validBsonTypes()
         {
             var validBsonTypes = Reflector.__validBsonTypes;
@@ -456,15 +468,16 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(BsonBinarySubType.Binary, 0)]
-        [TestCase(BsonBinarySubType.Function, 1)]
+        [Theory]
+        [InlineData(BsonBinarySubType.Binary, 0)]
+        [InlineData(BsonBinarySubType.Function, 1)]
 #pragma warning disable 618
-        [TestCase(BsonBinarySubType.OldBinary, 2)]
+        [InlineData(BsonBinarySubType.OldBinary, 2)]
 #pragma warning restore
-        [TestCase(BsonBinarySubType.UuidLegacy, 3)]
-        [TestCase(BsonBinarySubType.UuidStandard, 4)]
-        [TestCase(BsonBinarySubType.MD5, 5)]
-        [TestCase(BsonBinarySubType.UserDefined, 0x80)]
+        [InlineData(BsonBinarySubType.UuidLegacy, 3)]
+        [InlineData(BsonBinarySubType.UuidStandard, 4)]
+        [InlineData(BsonBinarySubType.MD5, 5)]
+        [InlineData(BsonBinarySubType.UserDefined, 0x80)]
         public void WriteBinarySubType_should_have_expected_effect(
             BsonBinarySubType value,
             byte expectedByte)
@@ -480,7 +493,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-         [Test]
+         [Fact]
         public void WriteBinarySubType_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -490,8 +503,9 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(false, 0)]
-        [TestCase(true, 1)]
+        [Theory]
+        [InlineData(false, 0)]
+        [InlineData(true, 1)]
         public void WriteBoolean_should_have_expected_effect(
             bool value,
             byte expectedByte)
@@ -507,7 +521,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteBoolean_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -517,26 +531,27 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(BsonType.EndOfDocument, 0x00)]
-        [TestCase(BsonType.Double, 0x01)]
-        [TestCase(BsonType.String, 0x02)]
-        [TestCase(BsonType.Document, 0x03)]
-        [TestCase(BsonType.Array, 0x04)]
-        [TestCase(BsonType.Binary, 0x05)]
-        [TestCase(BsonType.Undefined, 0x06)]
-        [TestCase(BsonType.ObjectId, 0x07)]
-        [TestCase(BsonType.Boolean, 0x08)]
-        [TestCase(BsonType.DateTime, 0x09)]
-        [TestCase(BsonType.Null, 0x0a)]
-        [TestCase(BsonType.RegularExpression, 0x0b)]
-        [TestCase(BsonType.JavaScript, 0x0d)]
-        [TestCase(BsonType.Symbol, 0x0e)]
-        [TestCase(BsonType.JavaScriptWithScope, 0x0f)]
-        [TestCase(BsonType.Int32, 0x10)]
-        [TestCase(BsonType.Timestamp, 0x11)]
-        [TestCase(BsonType.Int64, 0x12)]
-        [TestCase(BsonType.MinKey, 0xff)]
-        [TestCase(BsonType.MaxKey, 0x7f)]
+        [Theory]
+        [InlineData(BsonType.EndOfDocument, 0x00)]
+        [InlineData(BsonType.Double, 0x01)]
+        [InlineData(BsonType.String, 0x02)]
+        [InlineData(BsonType.Document, 0x03)]
+        [InlineData(BsonType.Array, 0x04)]
+        [InlineData(BsonType.Binary, 0x05)]
+        [InlineData(BsonType.Undefined, 0x06)]
+        [InlineData(BsonType.ObjectId, 0x07)]
+        [InlineData(BsonType.Boolean, 0x08)]
+        [InlineData(BsonType.DateTime, 0x09)]
+        [InlineData(BsonType.Null, 0x0a)]
+        [InlineData(BsonType.RegularExpression, 0x0b)]
+        [InlineData(BsonType.JavaScript, 0x0d)]
+        [InlineData(BsonType.Symbol, 0x0e)]
+        [InlineData(BsonType.JavaScriptWithScope, 0x0f)]
+        [InlineData(BsonType.Int32, 0x10)]
+        [InlineData(BsonType.Timestamp, 0x11)]
+        [InlineData(BsonType.Int64, 0x12)]
+        [InlineData(BsonType.MinKey, 0xff)]
+        [InlineData(BsonType.MaxKey, 0x7f)]
         public void WriteBsonType_should_have_expected_effect(
             BsonType value,
             byte expectedByte)
@@ -552,7 +567,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteBsonType_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -562,15 +577,16 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0, 0, 0)]
-        [TestCase(1, 0, 0)]
-        [TestCase(1, 0, 1)]
-        [TestCase(1, 1, 0)]
-        [TestCase(2, 0, 0)]
-        [TestCase(2, 0, 1)]
-        [TestCase(2, 0, 2)]
-        [TestCase(2, 1, 1)]
-        [TestCase(2, 2, 0)]
+        [Theory]
+        [InlineData(0, 0, 0)]
+        [InlineData(1, 0, 0)]
+        [InlineData(1, 0, 1)]
+        [InlineData(1, 1, 0)]
+        [InlineData(2, 0, 0)]
+        [InlineData(2, 0, 1)]
+        [InlineData(2, 0, 2)]
+        [InlineData(2, 1, 1)]
+        [InlineData(2, 2, 0)]
         public void WriteBytes_should_have_expected_effect(
             int length,
             int offset,
@@ -587,7 +603,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteBytes_should_optimize_count_of_one()
         {
             using (var baseStream = Substitute.For<Stream>())
@@ -601,7 +617,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteBytes_should_throw_when_buffer_is_null()
         {
             using (var stream = Substitute.For<BsonStream>())
@@ -616,9 +632,10 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(0, 0, 1)]
-        [TestCase(1, 0, 2)]
-        [TestCase(1, 1, 1)]
+        [Theory]
+        [InlineData(0, 0, 1)]
+        [InlineData(1, 0, 2)]
+        [InlineData(1, 1, 1)]
         public void WriteBytes_should_throw_when_count_is_out_of_range(
             int length,
             int offset,
@@ -634,10 +651,11 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [TestCase(0, -1)]
-        [TestCase(0, 1)]
-        [TestCase(1, -1)]
-        [TestCase(1, 2)]
+        [Theory]
+        [InlineData(0, -1)]
+        [InlineData(0, 1)]
+        [InlineData(1, -1)]
+        [InlineData(1, 2)]
         public void WriteBytes_should_throw_when_offset_is_out_of_range(
             int length,
             int offset)
@@ -653,7 +671,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteBytes_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;
@@ -666,7 +684,8 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteSlice_should_have_expected_effect(
             [Values(0, 1, 2, 16)]
             int length,
@@ -699,7 +718,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteSlice_should_throw_when_slice_is_null()
         {
             var stream = Substitute.For<BsonStream>();
@@ -710,7 +729,7 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("slice");
         }
 
-        [Test]
+        [Fact]
         public void WriteSlice_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;

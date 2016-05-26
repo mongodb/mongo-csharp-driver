@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.ObjectModel
 {
-    [TestFixture]
     public class BsonStringTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_string_should_return_new_instance(
             [Values("x")]
             string value)
@@ -37,7 +38,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().NotBeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void implicit_conversion_from_string_should_return_precreated_instance(
             [Values("")]
             string value)
@@ -48,7 +50,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             result2.Should().BeSameAs(result1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void precreated_instances_should_have_the_expected_value(
             [Values("")]
             string value)

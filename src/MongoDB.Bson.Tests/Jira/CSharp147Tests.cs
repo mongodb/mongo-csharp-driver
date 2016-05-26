@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp147
 {
-    [TestFixture]
     public class CSharp146Tests
     {
         public class Parent
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp147
             public int A { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             var p = new Parent { Child = new Child() };

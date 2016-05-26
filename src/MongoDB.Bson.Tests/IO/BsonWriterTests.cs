@@ -16,14 +16,13 @@
 using System;
 using System.IO;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonWriterTests
     {
-        [Test]
+        [Fact]
         public void TestWriteNameThrowsWhenValueContainsNulls()
         {
             using (var stream = new MemoryStream())
@@ -33,7 +32,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWriteNameThrowsWhenValueIsNull()
         {
             using (var stream = new MemoryStream())

@@ -16,16 +16,15 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class IgnoreIfNullConventionsTests
     {
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void TestApply(bool value)
         {
             var subject = new IgnoreIfNullConvention(value);
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            Assert.AreEqual(value, memberMap.IgnoreIfNull);
+            Assert.Equal(value, memberMap.IgnoreIfNull);
         }
 
         private class TestClass

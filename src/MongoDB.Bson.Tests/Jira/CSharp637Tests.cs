@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp637
 {
-    [TestFixture]
     public class CSharp637Tests
     {
         public interface IMyInterface
@@ -55,24 +54,24 @@ namespace MongoDB.Bson.Tests.Jira.CSharp637
             return classMap.MapMember(t => t.SomeField2);
         }
 
-        [Test]
+        [Fact]
         public void TestMapGenericMember()
         {
             var memberMap = MapMyInterface1<MyClass>();
-            Assert.IsNotNull(memberMap);
-            Assert.AreEqual(typeof(MyClass), memberMap.ClassMap.ClassType);
-            Assert.AreEqual("foo", memberMap.ElementName);
-            Assert.AreEqual("SomeField1", memberMap.MemberName);
+            Assert.NotNull(memberMap);
+            Assert.Equal(typeof(MyClass), memberMap.ClassMap.ClassType);
+            Assert.Equal("foo", memberMap.ElementName);
+            Assert.Equal("SomeField1", memberMap.MemberName);
         }
 
-        [Test]
+        [Fact]
         public void TestMapExplicitGenericMember()
         {
             var memberMap = MapMyInterface2<MyClass>();
-            Assert.IsNotNull(memberMap);
-            Assert.AreEqual(typeof(MyClass), memberMap.ClassMap.ClassType);
-            Assert.AreEqual("bar", memberMap.ElementName);
-            Assert.AreEqual("MongoDB.Bson.Tests.Jira.CSharp637.CSharp637Tests.IMyInterface.SomeField2", memberMap.MemberName);
+            Assert.NotNull(memberMap);
+            Assert.Equal(typeof(MyClass), memberMap.ClassMap.ClassType);
+            Assert.Equal("bar", memberMap.ElementName);
+            Assert.Equal("MongoDB.Bson.Tests.Jira.CSharp637.CSharp637Tests.IMyInterface.SomeField2", memberMap.MemberName);
         }
     }
 }

@@ -16,70 +16,68 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class NamedExtraElementsConventionsTests
     {
         private NamedExtraElementsMemberConvention _subject;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public NamedExtraElementsConventionsTests()
         {
             _subject = new NamedExtraElementsMemberConvention(new[] { "One", "Two" });
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotMapExtraElementsWhenOneIsNotFound()
         {
             var classMap = new BsonClassMap<TestClass1>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNull(classMap.ExtraElementsMemberMap);
+            Assert.Null(classMap.ExtraElementsMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsExtraElementsWhenFirstNameExists()
         {
             var classMap = new BsonClassMap<TestClass2>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.ExtraElementsMemberMap);
+            Assert.NotNull(classMap.ExtraElementsMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsExtraElementsWhenSecondNameExists()
         {
             var classMap = new BsonClassMap<TestClass3>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.ExtraElementsMemberMap);
+            Assert.NotNull(classMap.ExtraElementsMemberMap);
         }
 
-        [Test]
+        [Fact]
         public void TestMapsExtraElementsWhenBothExist()
         {
             var classMap = new BsonClassMap<TestClass4>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNotNull(classMap.ExtraElementsMemberMap);
-            Assert.AreEqual("One", classMap.ExtraElementsMemberMap.MemberName);
+            Assert.NotNull(classMap.ExtraElementsMemberMap);
+            Assert.Equal("One", classMap.ExtraElementsMemberMap.MemberName);
         }
 
-        [Test]
+        [Fact]
         public void TestDoesNotMapExtraElementsWhenIsNotValidType()
         {
             var classMap = new BsonClassMap<TestClass5>();
 
             _subject.Apply(classMap);
 
-            Assert.IsNull(classMap.ExtraElementsMemberMap);
+            Assert.Null(classMap.ExtraElementsMemberMap);
         }
 
         private class TestClass1

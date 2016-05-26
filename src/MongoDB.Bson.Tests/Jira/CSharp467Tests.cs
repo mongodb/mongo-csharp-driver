@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp467Tests
     {
         public class A
@@ -37,7 +36,7 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestOnlySpecifiedValuesAndSpecifiedDefaultValuesAreWrittenUponDeserialization()
         {
             var doc = new BsonDocument
@@ -48,9 +47,9 @@ namespace MongoDB.Bson.Tests.Jira
             var bson = doc.ToBson();
             var rehydrated = BsonSerializer.Deserialize<A>(bson);
 
-            Assert.AreEqual(rehydrated.Value1, "One");
-            Assert.AreEqual(rehydrated.Value2, "Default");
-            Assert.AreEqual(rehydrated.Value3, "Three");
+            Assert.Equal(rehydrated.Value1, "One");
+            Assert.Equal(rehydrated.Value2, "Default");
+            Assert.Equal(rehydrated.Value3, "Three");
         }
     }
 }

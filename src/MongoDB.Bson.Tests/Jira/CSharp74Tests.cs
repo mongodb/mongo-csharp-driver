@@ -18,11 +18,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp74Tests
     {
         [DataContract]
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Jira
             public string Name { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdSerialization()
         {
             var employee = new Employee { EmployeeId = ObjectId.GenerateNewId(), Name = "John Smith" };
@@ -53,8 +52,8 @@ namespace MongoDB.Bson.Tests.Jira
                 rehydrated = (Employee)serializer.ReadObject(xmlReader);
             }
 
-            Assert.AreEqual(employee.EmployeeId, rehydrated.EmployeeId);
-            Assert.AreEqual(employee.Name, rehydrated.Name);
+            Assert.Equal(employee.EmployeeId, rehydrated.EmployeeId);
+            Assert.Equal(employee.Name, rehydrated.Name);
         }
     }
 }

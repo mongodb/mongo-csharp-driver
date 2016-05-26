@@ -14,429 +14,428 @@
 */
 
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class JsonScannerTests
     {
-        [Test]
+        [Fact]
         public void TestEndOfFile()
         {
             var json = "\t ";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.EndOfFile, token.Type);
-            Assert.AreEqual("<eof>", token.Lexeme);
-            Assert.AreEqual(-1, buffer.Read());
+            Assert.Equal(JsonTokenType.EndOfFile, token.Type);
+            Assert.Equal("<eof>", token.Lexeme);
+            Assert.Equal(-1, buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestBeginObject()
         {
             var json = "\t {x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.BeginObject, token.Type);
-            Assert.AreEqual("{", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.BeginObject, token.Type);
+            Assert.Equal("{", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestEndObject()
         {
             var json = "\t }x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.EndObject, token.Type);
-            Assert.AreEqual("}", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.EndObject, token.Type);
+            Assert.Equal("}", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestBeginArray()
         {
             var json = "\t [x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.BeginArray, token.Type);
-            Assert.AreEqual("[", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.BeginArray, token.Type);
+            Assert.Equal("[", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestEndArray()
         {
             var json = "\t ]x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.EndArray, token.Type);
-            Assert.AreEqual("]", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.EndArray, token.Type);
+            Assert.Equal("]", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestNameSeparator()
         {
             var json = "\t :x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Colon, token.Type);
-            Assert.AreEqual(":", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.Colon, token.Type);
+            Assert.Equal(":", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestValueSeparator()
         {
             var json = "\t ,x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Comma, token.Type);
-            Assert.AreEqual(",", token.Lexeme);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.Comma, token.Type);
+            Assert.Equal(",", token.Lexeme);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyString()
         {
             var json = "\t \"\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.String, token.Type);
-            Assert.AreEqual("", token.StringValue);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.String, token.Type);
+            Assert.Equal("", token.StringValue);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void Test1CharacterString()
         {
             var json = "\t \"1\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.String, token.Type);
-            Assert.AreEqual("1", token.StringValue);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.String, token.Type);
+            Assert.Equal("1", token.StringValue);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void Test2CharacterString()
         {
             var json = "\t \"12\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.String, token.Type);
-            Assert.AreEqual("12", token.StringValue);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.String, token.Type);
+            Assert.Equal("12", token.StringValue);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void Test3CharacterString()
         {
             var json = "\t \"123\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.String, token.Type);
-            Assert.AreEqual("123", token.StringValue);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.String, token.Type);
+            Assert.Equal("123", token.StringValue);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestEscapeSequences()
         {
             var json = "\t \"x\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0030y\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.String, token.Type);
-            Assert.AreEqual("x\"\\/\b\f\n\r\t0y", token.StringValue);
-            Assert.AreEqual('x', buffer.Read());
+            Assert.Equal(JsonTokenType.String, token.Type);
+            Assert.Equal("x\"\\/\b\f\n\r\t0y", token.StringValue);
+            Assert.Equal('x', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestTrue()
         {
             var json = "\t true,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
-            Assert.AreEqual("true", token.StringValue);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.UnquotedString, token.Type);
+            Assert.Equal("true", token.StringValue);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestFalse()
         {
             var json = "\t false,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
-            Assert.AreEqual("false", token.StringValue);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.UnquotedString, token.Type);
+            Assert.Equal("false", token.StringValue);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var json = "\t null,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
-            Assert.AreEqual("null", token.StringValue);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.UnquotedString, token.Type);
+            Assert.Equal("null", token.StringValue);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestUndefined()
         {
             var json = "\t undefined,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
-            Assert.AreEqual("undefined", token.StringValue);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.UnquotedString, token.Type);
+            Assert.Equal("undefined", token.StringValue);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestUnquotedString()
         {
             var json = "\t name123:1";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
-            Assert.AreEqual("name123", token.StringValue);
-            Assert.AreEqual(':', buffer.Read());
+            Assert.Equal(JsonTokenType.UnquotedString, token.Type);
+            Assert.Equal("name123", token.StringValue);
+            Assert.Equal(':', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestZero()
         {
             var json = "\t 0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("0", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZero()
         {
             var json = "\t -0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("-0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("-0", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestOne()
         {
             var json = "\t 1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusOne()
         {
             var json = "\t -1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("-1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestTwelve()
         {
             var json = "\t 12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusTwelve()
         {
             var json = "\t -12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Int32, token.Type);
-            Assert.AreEqual("-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Int32, token.Type);
+            Assert.Equal("-12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestZeroPointZero()
         {
             var json = "\t 0.0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("0.0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("0.0", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZeroPointZero()
         {
             var json = "\t -0.0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-0.0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-0.0", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestZeroExponentOne()
         {
             var json = "\t 0e1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("0e1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("0e1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZeroExponentOne()
         {
             var json = "\t -0e1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-0e1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-0e1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestZeroExponentMinusOne()
         {
             var json = "\t 0e-1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("0e-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("0e-1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZeroExponentMinusOne()
         {
             var json = "\t -0e-1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-0e-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-0e-1", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestOnePointTwo()
         {
             var json = "\t 1.2,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("1.2", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("1.2", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusOnePointTwo()
         {
             var json = "\t -1.2,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-1.2", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-1.2", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExponentTwelve()
         {
             var json = "\t 1e12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("1e12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("1e12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZeroExponentTwelve()
         {
             var json = "\t -1e12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-1e12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-1e12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExponentMinuesTwelve()
         {
             var json = "\t 1e-12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("1e-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("1e-12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestMinusZeroExponentMinusTwelve()
         {
             var json = "\t -1e-12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.Double, token.Type);
-            Assert.AreEqual("-1e-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.Double, token.Type);
+            Assert.Equal("-1e-12", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestRegularExpressionEmpty()
         {
             var json = "\t //,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
-            Assert.AreEqual("//", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.RegularExpression, token.Type);
+            Assert.Equal("//", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestRegularExpressionPattern()
         {
             var json = "\t /pattern/,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
-            Assert.AreEqual("/pattern/", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.RegularExpression, token.Type);
+            Assert.Equal("/pattern/", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
 
-        [Test]
+        [Fact]
         public void TestRegularExpressionPatternAndOptions()
         {
             var json = "\t /pattern/imxs,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
-            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
-            Assert.AreEqual("/pattern/imxs", token.Lexeme);
-            Assert.AreEqual(',', buffer.Read());
+            Assert.Equal(JsonTokenType.RegularExpression, token.Type);
+            Assert.Equal("/pattern/imxs", token.Lexeme);
+            Assert.Equal(',', buffer.Read());
         }
     }
 }

@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class AnimalHierarchyWithoutAttributesTests
     {
         public abstract class Animal
@@ -55,7 +54,7 @@ namespace MongoDB.Bson.Tests.Serialization
             BsonClassMap.RegisterClassMap<Lion>();
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeBear()
         {
             var document = new BsonDocument
@@ -68,15 +67,15 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = document.ToBson();
             var rehydrated = (Bear)BsonSerializer.Deserialize<Animal>(bson);
-            Assert.IsInstanceOf<Bear>(rehydrated);
+            Assert.IsType<Bear>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Bear'], 'Age' : 123, 'Name' : 'Panda Bear' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
+            Assert.Equal(expected, json);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeTiger()
         {
             var document = new BsonDocument
@@ -89,15 +88,15 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = document.ToBson();
             var rehydrated = (Tiger)BsonSerializer.Deserialize<Animal>(bson);
-            Assert.IsInstanceOf<Tiger>(rehydrated);
+            Assert.IsType<Tiger>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Cat', 'Tiger'], 'Age' : 234, 'Name' : 'Striped Tiger' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
+            Assert.Equal(expected, json);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeLion()
         {
             var document = new BsonDocument
@@ -110,12 +109,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = document.ToBson();
             var rehydrated = (Lion)BsonSerializer.Deserialize<Animal>(bson);
-            Assert.IsInstanceOf<Lion>(rehydrated);
+            Assert.IsType<Lion>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Cat', 'Lion'], 'Age' : 234, 'Name' : 'King Lion' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
+            Assert.Equal(expected, json);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
         }
     }
 }

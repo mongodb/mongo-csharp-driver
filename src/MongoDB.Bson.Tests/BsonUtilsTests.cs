@@ -15,40 +15,39 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
-    [TestFixture]
     public class BsonUtilsTests
     {
-        [Test]
+        [Fact]
         public void TestMaxToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
                 BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch);
-            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
-            Assert.AreEqual(DateTime.MaxValue, actual);
+            Assert.Equal(DateTimeKind.Utc, actual.Kind);
+            Assert.Equal(DateTime.MaxValue, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestMinToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
                 BsonConstants.DateTimeMinValueMillisecondsSinceEpoch);
-            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
-            Assert.AreEqual(DateTime.MinValue, actual);
+            Assert.Equal(DateTimeKind.Utc, actual.Kind);
+            Assert.Equal(DateTime.MinValue, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestZeroToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(0);
-            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
-            Assert.AreEqual(BsonConstants.UnixEpoch, actual);
+            Assert.Equal(DateTimeKind.Utc, actual.Kind);
+            Assert.Equal(BsonConstants.UnixEpoch, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestGreaterThanMaxToDateTimeConversion()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -56,7 +55,7 @@ namespace MongoDB.Bson.Tests
                     BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1));
         }
 
-        [Test]
+        [Fact]
         public void TestLessThanMinToDateTimeConversion()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -64,160 +63,160 @@ namespace MongoDB.Bson.Tests
                     BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxToMillisConversion()
         {
             var actual = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MaxValue);
-            Assert.AreEqual(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, actual);
+            Assert.Equal(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestMinToMillisConversion()
         {
             var actual = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MinValue);
-            Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, actual);
+            Assert.Equal(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestToUniversalTimeUTCNow()
         {
             var expected = DateTime.UtcNow;
             var actual = BsonUtils.ToUniversalTime(expected.ToLocalTime());
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestToUniversalTimeMax()
         {
             var expected = DateTime.MaxValue;
             var actual = BsonUtils.ToUniversalTime(expected);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestToUniversalTimeMin()
         {
             var expected = DateTime.MinValue;
             var actual = BsonUtils.ToUniversalTime(expected);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestToHexString()
         {
             var value = new byte[] { 0, 1,2, 3, 4, 5 ,6 ,7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
             var expected = "000102030405060708090a0b0c0d0e0f10ff";
             var actual = BsonUtils.ToHexString(value);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestToHexStringNull()
         {
             Assert.Throws<ArgumentNullException>(() => BsonUtils.ToHexString(null));
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexStringNull()
         {
             Assert.Throws<ArgumentNullException>(() => BsonUtils.ParseHexString(null));
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexStringEmpty()
         {
             byte[] expected = new byte[0];
             var actual = BsonUtils.ParseHexString(string.Empty);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexString()
         {
             var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
             var value = "000102030405060708090a0b0c0d0e0f10ff";
             var actual = BsonUtils.ParseHexString(value);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexStringOdd()
         {
             var expected = new byte[] { 0, 15 };
             var value = "00f";
             var actual = BsonUtils.ParseHexString(value);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexStringInvalid()
         {
             Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("1G"));
         }
 
-        [Test]
+        [Fact]
         public void TestParseHexStringInvalid2()
         {
             Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("00 1"));
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexStringNull()
         {
             byte[] actual;
             var result = BsonUtils.TryParseHexString(null, out actual);
-            Assert.IsFalse(result);
-            Assert.IsNull(actual);
+            Assert.False(result);
+            Assert.Null(actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexStringEmpty()
         {
             byte[] expected = new byte[0];
             byte[] actual;
             var result = BsonUtils.TryParseHexString(string.Empty, out actual);
-            Assert.IsTrue(result);
-            Assert.AreEqual(expected, actual);
+            Assert.True(result);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexString()
         {
             var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
             var value = "000102030405060708090a0b0c0d0e0f10ff";
             byte[] actual;
             var result = BsonUtils.TryParseHexString(value, out actual);
-            Assert.IsTrue(result);
-            Assert.AreEqual(expected, actual);
+            Assert.True(result);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexStringOdd()
         {
             var expected = new byte[] { 0, 15 };
             var value = "00f";
             byte[] actual;
             var result = BsonUtils.TryParseHexString(value, out actual);
-            Assert.IsTrue(result);
-            Assert.AreEqual(expected, actual);
+            Assert.True(result);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexStringInvalid()
         {
             byte[] actual;
             var result = BsonUtils.TryParseHexString("1G", out actual);
-            Assert.IsFalse(result);
-            Assert.IsNull(actual);
+            Assert.False(result);
+            Assert.Null(actual);
         }
 
-        [Test]
+        [Fact]
         public void TestTryParseHexStringInvalid2()
         {
             byte[] actual;
             var result = BsonUtils.TryParseHexString("00 1", out actual);
-            Assert.IsFalse(result);
-            Assert.IsNull(actual);
+            Assert.False(result);
+            Assert.Null(actual);
         }
 
     }

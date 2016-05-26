@@ -17,16 +17,15 @@ using System;
 using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class CombGuidGeneratorTests
     {
         private CombGuidGenerator _generator = new CombGuidGenerator();
 
-        [Test]
+        [Fact]
         public void TestNewCombGuid()
         {
             var guid = Guid.NewGuid();
@@ -45,17 +44,17 @@ namespace MongoDB.Bson.Tests.Serialization
             var days = BitConverter.ToInt16(bytes, 10);
             var timeTicks = BitConverter.ToInt32(bytes, 12);
 
-            Assert.IsTrue(guid.ToByteArray().Take(10).SequenceEqual(bytes.Take(10))); // first 10 bytes are from the base Guid
-            Assert.AreEqual(expectedDays, days);
-            Assert.AreEqual(expectedTimeTicks, timeTicks);
+            Assert.True(guid.ToByteArray().Take(10).SequenceEqual(bytes.Take(10))); // first 10 bytes are from the base Guid
+            Assert.Equal(expectedDays, days);
+            Assert.Equal(expectedTimeTicks, timeTicks);
         }
 
-        [Test]
+        [Fact]
         public void TestIsEmpty()
         {
-            Assert.IsTrue(_generator.IsEmpty(null));
-            Assert.IsTrue(_generator.IsEmpty(Guid.Empty));
-            Assert.IsFalse(_generator.IsEmpty(Guid.NewGuid()));
+            Assert.True(_generator.IsEmpty(null));
+            Assert.True(_generator.IsEmpty(Guid.Empty));
+            Assert.False(_generator.IsEmpty(Guid.NewGuid()));
         }
     }
 }

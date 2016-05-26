@@ -19,11 +19,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
-    [TestFixture]
     public class ExtraElementsWithImmutableClassUsingBsonDocumentTests
     {
         private class C
@@ -48,56 +47,55 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNoExtraElements()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraInt32Element()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraInt32ElementNamedX()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'X' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraStringElement()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraDocumentElement()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : { 'D' : 4, 'E' : 'xyz' } }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTwoExtraElements()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4, 'D' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
     }
 
-    [TestFixture]
     public class ExtraElementsWithImmutableClassUsingDictionaryTests
     {
         private class C
@@ -122,55 +120,55 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNoExtraElements()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraInt32Element()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraInt32ElementNamedX()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'X' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraStringElement()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOneExtraDocumentElement()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : { 'D' : 4, 'E' : 'xyz' } }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTwoExtraElements()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4, 'D' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.AreEqual(json, c.ToJson());
+            Assert.Equal(json, c.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestExtraElementsOfAllTypes()
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, #X }";
@@ -207,58 +205,58 @@ namespace MongoDB.Bson.Tests.Serialization
             json = c.ToJson();
             c = BsonSerializer.Deserialize<C>(json);
 
-            Assert.IsInstanceOf<List<object>>(c.X["XArray"]);
-            Assert.IsInstanceOf<BsonBinaryData>(c.X["XBinary"]);
-            Assert.IsInstanceOf<bool>(c.X["XBoolean"]);
-            Assert.IsInstanceOf<byte[]>(c.X["XByteArray"]);
-            Assert.IsInstanceOf<DateTime>(c.X["XDateTime"]);
-            Assert.IsInstanceOf<Dictionary<string, object>>(c.X["XDocument"]);
-            Assert.IsInstanceOf<double>(c.X["XDouble"]);
-            Assert.IsInstanceOf<Guid>(c.X["XGuidLegacy"]);
-            Assert.IsInstanceOf<Guid>(c.X["XGuidStandard"]);
-            Assert.IsInstanceOf<int>(c.X["XInt32"]);
-            Assert.IsInstanceOf<long>(c.X["XInt64"]);
-            Assert.IsInstanceOf<BsonJavaScript>(c.X["XJavaScript"]);
-            Assert.IsInstanceOf<BsonJavaScriptWithScope>(c.X["XJavaScriptWithScope"]);
-            Assert.IsInstanceOf<BsonMaxKey>(c.X["XMaxKey"]);
-            Assert.IsInstanceOf<BsonMinKey>(c.X["XMinKey"]);
-            Assert.IsNull(c.X["XNull"]);
-            Assert.IsInstanceOf<ObjectId>(c.X["XObjectId"]);
-            Assert.IsInstanceOf<BsonRegularExpression>(c.X["XRegularExpression"]);
-            Assert.IsInstanceOf<string>(c.X["XString"]);
-            Assert.IsInstanceOf<BsonSymbol>(c.X["XSymbol"]);
-            Assert.IsInstanceOf<BsonTimestamp>(c.X["XTimestamp"]);
-            Assert.IsInstanceOf<BsonUndefined>(c.X["XUndefined"]);
+            Assert.IsType<List<object>>(c.X["XArray"]);
+            Assert.IsType<BsonBinaryData>(c.X["XBinary"]);
+            Assert.IsType<bool>(c.X["XBoolean"]);
+            Assert.IsType<byte[]>(c.X["XByteArray"]);
+            Assert.IsType<DateTime>(c.X["XDateTime"]);
+            Assert.IsType<Dictionary<string, object>>(c.X["XDocument"]);
+            Assert.IsType<double>(c.X["XDouble"]);
+            Assert.IsType<Guid>(c.X["XGuidLegacy"]);
+            Assert.IsType<Guid>(c.X["XGuidStandard"]);
+            Assert.IsType<int>(c.X["XInt32"]);
+            Assert.IsType<long>(c.X["XInt64"]);
+            Assert.IsType<BsonJavaScript>(c.X["XJavaScript"]);
+            Assert.IsType<BsonJavaScriptWithScope>(c.X["XJavaScriptWithScope"]);
+            Assert.IsType<BsonMaxKey>(c.X["XMaxKey"]);
+            Assert.IsType<BsonMinKey>(c.X["XMinKey"]);
+            Assert.Null(c.X["XNull"]);
+            Assert.IsType<ObjectId>(c.X["XObjectId"]);
+            Assert.IsType<BsonRegularExpression>(c.X["XRegularExpression"]);
+            Assert.IsType<string>(c.X["XString"]);
+            Assert.IsType<BsonSymbol>(c.X["XSymbol"]);
+            Assert.IsType<BsonTimestamp>(c.X["XTimestamp"]);
+            Assert.IsType<BsonUndefined>(c.X["XUndefined"]);
 
-            Assert.AreEqual(22, c.X.Count);
-            Assert.IsTrue(new object[] { 1, 2.0 }.SequenceEqual((List<object>)c.X["XArray"]));
+            Assert.Equal(22, c.X.Count);
+            Assert.True(new object[] { 1, 2.0 }.SequenceEqual((List<object>)c.X["XArray"]));
 #pragma warning disable 618 // OldBinary is obsolete
-            Assert.AreEqual(BsonBinarySubType.OldBinary, ((BsonBinaryData)c.X["XBinary"]).SubType);
+            Assert.Equal(BsonBinarySubType.OldBinary, ((BsonBinaryData)c.X["XBinary"]).SubType);
 #pragma warning restore 618
-            Assert.IsTrue(new byte[] { 0x12, 0x34 }.SequenceEqual(((BsonBinaryData)c.X["XBinary"]).Bytes));
-            Assert.AreEqual(true, c.X["XBoolean"]);
-            Assert.IsTrue(new byte[] { 0x12, 0x34 }.SequenceEqual((byte[])c.X["XByteArray"]));
-            Assert.AreEqual(new DateTime(2012, 3, 16, 11, 19, 0, DateTimeKind.Utc), c.X["XDateTime"]);
-            Assert.AreEqual(1, ((IDictionary<string, object>)c.X["XDocument"]).Count);
-            Assert.AreEqual(1, ((IDictionary<string, object>)c.X["XDocument"])["a"]);
-            Assert.AreEqual(1.0, c.X["XDouble"]);
-            Assert.AreEqual(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidLegacy"]);
-            Assert.AreEqual(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidStandard"]);
-            Assert.AreEqual(1, c.X["XInt32"]);
-            Assert.AreEqual(1L, c.X["XInt64"]);
-            Assert.AreEqual("abc", ((BsonJavaScript)c.X["XJavaScript"]).Code);
-            Assert.AreEqual("abc", ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Code);
-            Assert.AreEqual(1, ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope.ElementCount);
-            Assert.AreEqual(new BsonInt32(1), ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope["x"]);
-            Assert.AreSame(BsonMaxKey.Value, c.X["XMaxKey"]);
-            Assert.AreSame(BsonMinKey.Value, c.X["XMinKey"]);
-            Assert.AreEqual(null, c.X["XNull"]);
-            Assert.AreEqual(ObjectId.Parse("00112233445566778899aabb"), c.X["XObjectId"]);
-            Assert.AreEqual(new BsonRegularExpression("abc"), c.X["XRegularExpression"]);
-            Assert.AreEqual("abc", c.X["XString"]);
-            Assert.AreSame(BsonSymbolTable.Lookup("abc"), c.X["XSymbol"]);
-            Assert.AreEqual(new BsonTimestamp(1234), c.X["XTimestamp"]);
-            Assert.AreSame(BsonUndefined.Value, c.X["XUndefined"]);
+            Assert.True(new byte[] { 0x12, 0x34 }.SequenceEqual(((BsonBinaryData)c.X["XBinary"]).Bytes));
+            Assert.Equal(true, c.X["XBoolean"]);
+            Assert.True(new byte[] { 0x12, 0x34 }.SequenceEqual((byte[])c.X["XByteArray"]));
+            Assert.Equal(new DateTime(2012, 3, 16, 11, 19, 0, DateTimeKind.Utc), c.X["XDateTime"]);
+            Assert.Equal(1, ((IDictionary<string, object>)c.X["XDocument"]).Count);
+            Assert.Equal(1, ((IDictionary<string, object>)c.X["XDocument"])["a"]);
+            Assert.Equal(1.0, c.X["XDouble"]);
+            Assert.Equal(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidLegacy"]);
+            Assert.Equal(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidStandard"]);
+            Assert.Equal(1, c.X["XInt32"]);
+            Assert.Equal(1L, c.X["XInt64"]);
+            Assert.Equal("abc", ((BsonJavaScript)c.X["XJavaScript"]).Code);
+            Assert.Equal("abc", ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Code);
+            Assert.Equal(1, ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope.ElementCount);
+            Assert.Equal(new BsonInt32(1), ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope["x"]);
+            Assert.Same(BsonMaxKey.Value, c.X["XMaxKey"]);
+            Assert.Same(BsonMinKey.Value, c.X["XMinKey"]);
+            Assert.Equal(null, c.X["XNull"]);
+            Assert.Equal(ObjectId.Parse("00112233445566778899aabb"), c.X["XObjectId"]);
+            Assert.Equal(new BsonRegularExpression("abc"), c.X["XRegularExpression"]);
+            Assert.Equal("abc", c.X["XString"]);
+            Assert.Same(BsonSymbolTable.Lookup("abc"), c.X["XSymbol"]);
+            Assert.Equal(new BsonTimestamp(1234), c.X["XTimestamp"]);
+            Assert.Same(BsonUndefined.Value, c.X["XUndefined"]);
         }
     }
 }

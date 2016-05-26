@@ -38,10 +38,6 @@
       <HintPath>..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.2.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.2.1\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,6 +45,22 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonArrayAssertions.cs" />
@@ -72,7 +84,21 @@
     <Compile Include="EqualityComparers\ReferenceEqualsEqualityComparer.cs" />
     <Compile Include="IO\NullBsonStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Requires64BitProcessAttribute.cs" />
+    <Compile Include="XunitExtensions\AssertionException.cs" />
+    <Compile Include="XunitExtensions\RequireEnvironmentVariable.cs" />
+    <Compile Include="XunitExtensions\RequireProcess.cs" />
+    <Compile Include="XunitExtensions\IValueGeneratorAttribute.cs" />
+    <Compile Include="XunitExtensions\ParameterAttributeDataAttribute.cs" />
+    <Compile Include="XunitExtensions\RangeAttribute.cs" />
+    <Compile Include="XunitExtensions\SkippableFactDiscoverer.cs" />
+    <Compile Include="XunitExtensions\SkippableFactMessageBus.cs" />
+    <Compile Include="XunitExtensions\SkippableFactTestCase.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryDiscoverer.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryTestCase.cs" />
+    <Compile Include="XunitExtensions\SkippableFactAttribute.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryAttribute.cs" />
+    <Compile Include="XunitExtensions\SkipTestException.cs" />
+    <Compile Include="XunitExtensions\ValuesAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
@@ -83,6 +109,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOptions
 {
-    [TestFixture]
     public class LocalTests
     {
         public class C
@@ -34,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             public DateTime D { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
@@ -42,14 +41,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
@@ -57,14 +56,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
@@ -72,14 +71,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
@@ -87,14 +86,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
@@ -102,14 +101,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
@@ -117,14 +116,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUnixEpoch()
         {
             var c = new C { DT = BsonConstants.UnixEpoch };
@@ -132,14 +131,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestNow()
         {
             var c = new C { DT = DateTime.Now };
@@ -149,15 +148,15 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUtcNow()
         {
             var c = new C { DT = DateTime.UtcNow };
@@ -167,15 +166,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
-    [TestFixture]
     public class StringRepresentationTests
     {
         public class C
@@ -186,7 +184,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             public DateTime D { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
@@ -194,14 +192,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
@@ -209,14 +207,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
@@ -224,14 +222,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
@@ -239,14 +237,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
@@ -254,14 +252,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
@@ -269,14 +267,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUnixEpoch()
         {
             var c = new C { DT = BsonConstants.UnixEpoch };
@@ -284,14 +282,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : '1970-01-01T00:00:00Z', 'D' : '1970-01-01' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestNow()
         {
             var c = new C { DT = DateTime.Now };
@@ -301,15 +299,15 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUtcNow()
         {
             var c = new C { DT = DateTime.UtcNow };
@@ -319,15 +317,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
-    [TestFixture]
     public class UnspecifiedTests
     {
         public class C
@@ -338,7 +335,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             public DateTime D { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
@@ -346,14 +343,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
@@ -361,14 +358,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
@@ -376,14 +373,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
@@ -391,14 +388,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
@@ -406,14 +403,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
@@ -421,14 +418,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUnixEpoch()
         {
             var c = new C { DT = BsonConstants.UnixEpoch };
@@ -436,14 +433,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestNow()
         {
             var c = new C { DT = DateTime.Now };
@@ -453,14 +450,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUtcNow()
         {
             var c = new C { DT = DateTime.UtcNow };
@@ -470,15 +467,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
-    [TestFixture]
     public class UtcTests
     {
         public class C
@@ -489,7 +485,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             public DateTime D { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
@@ -497,14 +493,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
@@ -512,14 +508,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMaxUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
@@ -527,14 +523,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinLocal()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
@@ -542,14 +538,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUnspecified()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
@@ -557,14 +553,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestMinUtc()
         {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
@@ -572,14 +568,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUnixEpoch()
         {
             var c = new C { DT = BsonConstants.UnixEpoch };
@@ -587,14 +583,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
 
             var json = c.ToJson();
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestNow()
         {
             var c = new C { DT = DateTime.Now };
@@ -604,15 +600,15 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestUtcNow()
         {
             var c = new C { DT = DateTime.UtcNow };
@@ -622,11 +618,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

@@ -15,15 +15,14 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    [TestFixture]
     public class BsonDocumentWriterTests
     {
         // Empty Array tests
-        [Test]
+        [Fact]
         public void TestOneEmptyArray()
         {
             var document = new BsonDocument();
@@ -36,10 +35,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedEmptyArray()
         {
             var document = new BsonDocument();
@@ -54,10 +53,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoEmptyArrays()
         {
             var document = new BsonDocument();
@@ -72,10 +71,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [], 'b' : [] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedEmptyArrays()
         {
             var document = new BsonDocument();
@@ -92,11 +91,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : [], 'b' : [] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Empty Document tests
-        [Test]
+        [Fact]
         public void TestEmptyDocument()
         {
             var document = new BsonDocument();
@@ -107,10 +106,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ }";
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneEmptyDocument()
         {
             var document = new BsonDocument();
@@ -123,10 +122,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedEmptyDocument()
         {
             var document = new BsonDocument();
@@ -141,10 +140,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoEmptyDocuments()
         {
             var document = new BsonDocument();
@@ -159,10 +158,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { }, 'b' : { } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedEmptyDocuments()
         {
             var document = new BsonDocument();
@@ -179,11 +178,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { }, 'b' : { } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Array tests
-        [Test]
+        [Fact]
         public void TestArrayWithOneElement()
         {
             var document = new BsonDocument();
@@ -197,10 +196,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [1] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayWithTwoElements()
         {
             var document = new BsonDocument();
@@ -215,10 +214,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [1, 2] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayWithNestedEmptyArray()
         {
             var document = new BsonDocument();
@@ -233,10 +232,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [[]] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayWithNestedArrayWithOneElement()
         {
             var document = new BsonDocument();
@@ -252,10 +251,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [['a']] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayWithNestedArrayWithTwoElements()
         {
             var document = new BsonDocument();
@@ -272,10 +271,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [['a', 'b']] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestArrayWithTwoNestedArrays()
         {
             var document = new BsonDocument();
@@ -298,11 +297,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : [['a', 'b'], ['c', { 'd' : 9 }]] }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Binary tests
-        [Test]
+        [Fact]
         public void TestOneBinary()
         {
             var document = new BsonDocument();
@@ -314,10 +313,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : new BinData(0, 'AQ==') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedBinary()
         {
             var document = new BsonDocument();
@@ -331,10 +330,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : new BinData(0, 'AQI=') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoBinaries()
         {
             var document = new BsonDocument();
@@ -347,10 +346,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : new BinData(0, 'AQ=='), 'b' : new BinData(0, 'Ag==') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedBinaries()
         {
             var document = new BsonDocument();
@@ -365,11 +364,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : new BinData(0, 'AQ=='), 'b' : new BinData(0, 'Ag==') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Boolean tests
-        [Test]
+        [Fact]
         public void TestOneBoolean()
         {
             var document = new BsonDocument();
@@ -381,10 +380,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : true }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedBoolean()
         {
             var document = new BsonDocument();
@@ -398,10 +397,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : true } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoBooleans()
         {
             var document = new BsonDocument();
@@ -414,10 +413,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : true, 'b' : false }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedBooleans()
         {
             var document = new BsonDocument();
@@ -432,11 +431,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : true, 'b' : false } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // DateTime tests
-        [Test]
+        [Fact]
         public void TestOneDateTime()
         {
             var document = new BsonDocument();
@@ -448,10 +447,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedDateTime()
         {
             var document = new BsonDocument();
@@ -465,10 +464,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : ISODate('1970-01-01T00:00:00Z') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoDateTimes()
         {
             var document = new BsonDocument();
@@ -481,10 +480,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : ISODate('1970-01-01T00:00:00Z'), 'b' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedDateTimes()
         {
             var document = new BsonDocument();
@@ -499,11 +498,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : ISODate('1970-01-01T00:00:00Z'), 'b' : ISODate('1970-01-01T00:00:00Z') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Double tests
-        [Test]
+        [Fact]
         public void TestOneDouble()
         {
             var document = new BsonDocument();
@@ -515,10 +514,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 1.5 }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedDouble()
         {
             var document = new BsonDocument();
@@ -532,10 +531,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 1.5 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoDoubles()
         {
             var document = new BsonDocument();
@@ -548,10 +547,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 1.5, 'b' : 2.5 }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedDoubles()
         {
             var document = new BsonDocument();
@@ -566,11 +565,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 1.5, 'b' : 2.5 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Int32 tests
-        [Test]
+        [Fact]
         public void TestOneInt32()
         {
             var document = new BsonDocument();
@@ -582,10 +581,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 1 }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedInt32()
         {
             var document = new BsonDocument();
@@ -599,10 +598,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 1 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoInt32s()
         {
             var document = new BsonDocument();
@@ -615,10 +614,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 1, 'b' : 2 }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedInt32s()
         {
             var document = new BsonDocument();
@@ -633,11 +632,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 1, 'b' : 2 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Int64 tests
-        [Test]
+        [Fact]
         public void TestOneInt64()
         {
             var document = new BsonDocument();
@@ -649,10 +648,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : NumberLong(1) }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedInt64()
         {
             var document = new BsonDocument();
@@ -666,10 +665,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : NumberLong(1) } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoInt64s()
         {
             var document = new BsonDocument();
@@ -682,10 +681,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : NumberLong(1), 'b' : NumberLong(2) }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedInt64s()
         {
             var document = new BsonDocument();
@@ -700,11 +699,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : NumberLong(1), 'b' : NumberLong(2) } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // JavaScript tests
-        [Test]
+        [Fact]
         public void TestOneJavaScript()
         {
             var document = new BsonDocument();
@@ -716,10 +715,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$code' : 'x' } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedJavaScript()
         {
             var document = new BsonDocument();
@@ -733,10 +732,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$code' : 'x' } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoJavaScripts()
         {
             var document = new BsonDocument();
@@ -749,10 +748,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$code' : 'x' }, 'b' : { '$code' : 'y' } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedJavaScripts()
         {
             var document = new BsonDocument();
@@ -767,11 +766,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$code' : 'x' }, 'b' : { '$code' : 'y' } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // JavaScriptWithScope tests
-        [Test]
+        [Fact]
         public void TestOneJavaScriptWithScope()
         {
             var document = new BsonDocument();
@@ -787,10 +786,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$code' : 'x', '$scope' : { 'x' : 1, 'y' : 2 } } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedJavaScriptWithScope()
         {
             var document = new BsonDocument();
@@ -808,10 +807,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$code' : 'x', '$scope' : { 'x' : 1, 'y' : 2 } } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoJavaScriptWithScopes()
         {
             var document = new BsonDocument();
@@ -830,10 +829,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$code' : 'x', '$scope' : { 'x' : 1 } }, 'b' : { '$code' : 'y', '$scope' : { 'y' : 2 } } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedJavaScriptWithScopes()
         {
             var document = new BsonDocument();
@@ -854,11 +853,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$code' : 'x', '$scope' : { 'x' : 1 } }, 'b' : { '$code' : 'y', '$scope' : { 'y' : 2 } } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // MaxKey tests
-        [Test]
+        [Fact]
         public void TestOneMaxKey()
         {
             var document = new BsonDocument();
@@ -870,10 +869,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : MaxKey }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedMaxKey()
         {
             var document = new BsonDocument();
@@ -887,10 +886,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : MaxKey } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoMaxKeys()
         {
             var document = new BsonDocument();
@@ -903,10 +902,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : MaxKey, 'b' : MaxKey }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedMaxKeys()
         {
             var document = new BsonDocument();
@@ -921,11 +920,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : MaxKey, 'b' : MaxKey } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // MinKey tests
-        [Test]
+        [Fact]
         public void TestOneMinKey()
         {
             var document = new BsonDocument();
@@ -937,10 +936,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : MinKey }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedMinKey()
         {
             var document = new BsonDocument();
@@ -954,10 +953,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : MinKey } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoMinKeys()
         {
             var document = new BsonDocument();
@@ -970,10 +969,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : MinKey, 'b' : MinKey }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedMinKeys()
         {
             var document = new BsonDocument();
@@ -988,11 +987,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : MinKey, 'b' : MinKey } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Null tests
-        [Test]
+        [Fact]
         public void TestOneNull()
         {
             var document = new BsonDocument();
@@ -1004,10 +1003,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : null }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedNull()
         {
             var document = new BsonDocument();
@@ -1021,10 +1020,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : null } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNulls()
         {
             var document = new BsonDocument();
@@ -1037,10 +1036,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : null, 'b' : null }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedNulls()
         {
             var document = new BsonDocument();
@@ -1055,11 +1054,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : null, 'b' : null } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // ObjectId tests
-        [Test]
+        [Fact]
         public void TestOneObjectId()
         {
             var document = new BsonDocument();
@@ -1071,10 +1070,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : ObjectId('000000000000000000000000') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedObjectId()
         {
             var document = new BsonDocument();
@@ -1088,10 +1087,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : ObjectId('000000000000000000000000') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoObjectIds()
         {
             var document = new BsonDocument();
@@ -1104,10 +1103,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : ObjectId('000000000000000000000000'), 'b' : ObjectId('000000000000000000000000') }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedObjectIds()
         {
             var document = new BsonDocument();
@@ -1122,11 +1121,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : ObjectId('000000000000000000000000'), 'b' : ObjectId('000000000000000000000000') } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // RegularExpression tests
-        [Test]
+        [Fact]
         public void TestOneRegularExpression()
         {
             var document = new BsonDocument();
@@ -1138,10 +1137,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : /p/i }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedRegularExpression()
         {
             var document = new BsonDocument();
@@ -1155,10 +1154,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : /p/i } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoRegularExpressions()
         {
             var document = new BsonDocument();
@@ -1171,10 +1170,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : /p/i, 'b' : /q/m }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedRegularExpressions()
         {
             var document = new BsonDocument();
@@ -1189,11 +1188,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : /p/i, 'b' : /q/m } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // String tests
-        [Test]
+        [Fact]
         public void TestOneString()
         {
             var document = new BsonDocument();
@@ -1205,10 +1204,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 'x' }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedString()
         {
             var document = new BsonDocument();
@@ -1222,10 +1221,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 'x' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoStrings()
         {
             var document = new BsonDocument();
@@ -1238,10 +1237,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : 'x', 'b' : 'y' }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedStrings()
         {
             var document = new BsonDocument();
@@ -1256,11 +1255,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Symbol tests
-        [Test]
+        [Fact]
         public void TestOneSymbol()
         {
             var document = new BsonDocument();
@@ -1272,10 +1271,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$symbol' : 'x' } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedSymbol()
         {
             var document = new BsonDocument();
@@ -1289,10 +1288,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$symbol' : 'x' } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoSymbols()
         {
             var document = new BsonDocument();
@@ -1305,10 +1304,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : { '$symbol' : 'x' }, 'b' : { '$symbol' : 'y' } }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedSymbols()
         {
             var document = new BsonDocument();
@@ -1323,11 +1322,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : { '$symbol' : 'x' }, 'b' : { '$symbol' : 'y' } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Timestamp tests
-        [Test]
+        [Fact]
         public void TestOneTimestamp()
         {
             var document = new BsonDocument();
@@ -1339,10 +1338,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : Timestamp(0, 1) }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedTimestamp()
         {
             var document = new BsonDocument();
@@ -1356,10 +1355,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : Timestamp(0, 1) } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoTimestamps()
         {
             var document = new BsonDocument();
@@ -1372,10 +1371,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : Timestamp(0, 1), 'b' : Timestamp(0, 2) }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedTimestamps()
         {
             var document = new BsonDocument();
@@ -1390,11 +1389,11 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : Timestamp(0, 1), 'b' : Timestamp(0, 2) } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
         // Undefined tests
-        [Test]
+        [Fact]
         public void TestOneUndefined()
         {
             var document = new BsonDocument();
@@ -1406,10 +1405,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : undefined }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedUndefined()
         {
             var document = new BsonDocument();
@@ -1423,10 +1422,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : undefined } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoUndefineds()
         {
             var document = new BsonDocument();
@@ -1439,10 +1438,10 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'a' : undefined, 'b' : undefined }".Replace("'", "\""); ;
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoNestedUndefineds()
         {
             var document = new BsonDocument();
@@ -1457,7 +1456,7 @@ namespace MongoDB.Bson.Tests.IO
             }
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : undefined, 'b' : undefined } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

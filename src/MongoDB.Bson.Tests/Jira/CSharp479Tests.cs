@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp479Tests
     {
         public class Test
@@ -29,7 +28,7 @@ namespace MongoDB.Bson.Tests.Jira
             public string[] OtherIds { get; set;}
         }
 
-        [Test]
+        [Fact]
         public void TestRoundTripping()
         {
             var id1 = ObjectId.GenerateNewId().ToString();
@@ -41,8 +40,8 @@ namespace MongoDB.Bson.Tests.Jira
             var bson = test.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Test>(bson);
 
-            Assert.AreEqual(rehydrated.OtherIds[0], test.OtherIds[0]);
-            Assert.AreEqual(rehydrated.OtherIds[1], test.OtherIds[1]);
+            Assert.Equal(rehydrated.OtherIds[0], test.OtherIds[0]);
+            Assert.Equal(rehydrated.OtherIds[1], test.OtherIds[1]);
 
         }
     }

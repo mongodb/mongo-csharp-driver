@@ -17,7 +17,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp122
 {
@@ -37,22 +37,21 @@ namespace MongoDB.Bson.Tests.Jira.CSharp122
         public override int V { get; set; }
     }
 
-    [TestFixture]
     public class CSharp122Tests
     {
-        [Test]
+        [Fact]
         public void TestTwoPropertiesWithSameName()
         {
             var c = new C { N = 4, A = 2, V = 3 };
             ((B)c).N = 1;
             var json = c.ToJson();
             var expected = "{ 'B.N' : 1, 'A' : 2, 'V' : 3, 'C.N' : 4 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsInstanceOf<C>(rehydrated);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsType<C>(rehydrated);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

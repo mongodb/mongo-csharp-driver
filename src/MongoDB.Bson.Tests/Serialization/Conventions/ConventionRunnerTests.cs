@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@ using System.Diagnostics;
 using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class ConventionRunnerTests
     {
         private ConventionPack _pack;
         private ConventionRunner _subject;
 
-        [SetUp]
-        public void SetUp()
+        public ConventionRunnerTests()
         {
             var stopwatch = new Stopwatch();
             _pack = new ConventionPack();
@@ -54,14 +53,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             stopwatch.Stop();
         }
 
-        [Test]
+        [Fact]
         public void TestThatItRunsAllConventions()
         {
             var allRun = _pack.Conventions.OfType<ITrackRun>().All(x => x.IsRun);
-            Assert.IsTrue(allRun);
+            Assert.True(allRun);
         }
 
-        [Test]
+        [Fact]
         public void TestThatItRunsConventionsInTheProperOrder()
         {
             var conventions = _pack.Conventions.OfType<ITrackRun>().OrderBy(x => x.RunTicks).ToList();
@@ -69,36 +68,37 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 if (conventions[i - 1].Name != i.ToString())
                 {
-                    Assert.Fail("Convention ran out of order. Expected {0} but was {1}.", conventions[0].Name, i);
+                    var message = string.Format("Convention ran out of order. Expected {0} but was {1}.", conventions[0].Name, i);
+                    throw new AssertionException(message);
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void TestThatItRunsClassMapConventionsOnceEach()
         {
             var beforeConventions = _pack.Conventions.OfType<IClassMapConvention>().OfType<ITrackRun>();
             var allAreRunOnce = beforeConventions.All(x => x.RunCount == 1);
 
-            Assert.IsTrue(allAreRunOnce);
+            Assert.True(allAreRunOnce);
         }
 
-        [Test]
+        [Fact]
         public void TestThatItRunsPostProcessingConventionsOnceEach()
         {
             var afterConventions = _pack.Conventions.OfType<IPostProcessingConvention>().OfType<ITrackRun>();
             var allAreRunOnce = afterConventions.All(x => x.RunCount == 1);
 
-            Assert.IsTrue(allAreRunOnce);
+            Assert.True(allAreRunOnce);
         }
 
-        [Test]
+        [Fact]
         public void TestThatItRunsMemberConventionsTwiceEach()
         {
             var memberConventions = _pack.Conventions.OfType<IMemberMapConvention>().OfType<ITrackRun>();
             var allAreRunTwice = memberConventions.All(x => x.RunCount == 2);
 
-            Assert.IsTrue(allAreRunTwice);
+            Assert.True(allAreRunTwice);
         }
 
         private class TestClass

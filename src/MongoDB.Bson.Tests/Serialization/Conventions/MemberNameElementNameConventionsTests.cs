@@ -15,11 +15,10 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    [TestFixture]
     public class MemberNameElementNameConventionsTests
     {
         private class TestClass
@@ -30,7 +29,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public string lowerCase { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestMemberNameElementNameConvention()
         {
             var convention = new MemberNameElementNameConvention();
@@ -45,10 +44,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             convention.Apply(_dumbName);
             convention.Apply(lowerCase);
 
-            Assert.AreEqual("FirstName", firstName.ElementName);
-            Assert.AreEqual("Age", age.ElementName);
-            Assert.AreEqual("_DumbName", _dumbName.ElementName);
-            Assert.AreEqual("lowerCase", lowerCase.ElementName);
+            Assert.Equal("FirstName", firstName.ElementName);
+            Assert.Equal("Age", age.ElementName);
+            Assert.Equal("_DumbName", _dumbName.ElementName);
+            Assert.Equal("lowerCase", lowerCase.ElementName);
         }
     }
 }

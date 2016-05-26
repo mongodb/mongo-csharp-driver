@@ -15,17 +15,16 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
     // these tests use the BsonDocument object model to create a BSON document in memory
     // and then serialize it back and forth between byte arrays to make sure nothing is lost in serialization/deserialization
 
-    [TestFixture]
     public class BsonRoundTripTests
     {
-        [Test]
+        [Fact]
         public void TestHelloWorld()
         {
             BsonDocument document = new BsonDocument
@@ -34,10 +33,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             byte[] bytes1 = document.ToBson();
             byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
-            Assert.AreEqual(bytes1, bytes2);
+            Assert.Equal(bytes1, bytes2);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonIsAwesome()
         {
             BsonDocument document = new BsonDocument
@@ -46,10 +45,10 @@ namespace MongoDB.Bson.Tests.IO
             };
             byte[] bytes1 = document.ToBson();
             byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
-            Assert.AreEqual(bytes1, bytes2);
+            Assert.Equal(bytes1, bytes2);
         }
 
-        [Test]
+        [Fact]
         public void TestAllTypes()
         {
             BsonDocument document = new BsonDocument
@@ -65,7 +64,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             byte[] bytes1 = document.ToBson();
             byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
-            Assert.AreEqual(bytes1, bytes2);
+            Assert.Equal(bytes1, bytes2);
         }
     }
 }

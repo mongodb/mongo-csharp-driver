@@ -17,11 +17,10 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp102Tests
     {
         private class Test
@@ -35,23 +34,23 @@ namespace MongoDB.Bson.Tests.Jira
             }
         }
 
-        [Test]
+        [Fact]
         public void TestClassMap()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
-            Assert.AreEqual(2, classMap.AllMemberMaps.Count());
-            Assert.IsTrue(classMap.AllMemberMaps.Any(m => m.MemberName == "Id"));
-            Assert.IsTrue(classMap.AllMemberMaps.Any(m => m.MemberName == "Normal"));
-            Assert.AreEqual("Id", classMap.IdMemberMap.MemberName);
+            Assert.Equal(2, classMap.AllMemberMaps.Count());
+            Assert.True(classMap.AllMemberMaps.Any(m => m.MemberName == "Id"));
+            Assert.True(classMap.AllMemberMaps.Any(m => m.MemberName == "Normal"));
+            Assert.Equal("Id", classMap.IdMemberMap.MemberName);
 
             var test = new Test { Normal = "normal" };
             var json = test.ToJson();
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'Normal' : 'normal' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = test.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Test>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

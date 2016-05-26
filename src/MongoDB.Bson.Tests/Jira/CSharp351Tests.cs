@@ -16,11 +16,10 @@
 using System;
 using System.IO;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    [TestFixture]
     public class CSharp351Tests
     {
         private class C
@@ -34,15 +33,15 @@ namespace MongoDB.Bson.Tests.Jira
             public int X { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMessage()
         {
             var json = "{ _id : 1, N : 'should be a document, not a string' }";
             var ex = Assert.Throws<FormatException>(() => BsonSerializer.Deserialize<C>(json));
             
-            Assert.IsInstanceOf<FormatException>(ex.InnerException);
+            Assert.IsType<FormatException>(ex.InnerException);
             var expected = "An error occurred while deserializing the N property of class MongoDB.Bson.Tests.Jira.CSharp351Tests+C: Expected a nested document representing the serialized form of a MongoDB.Bson.Tests.Jira.CSharp351Tests+N value, but found a value of type String instead.";
-            Assert.AreEqual(expected, ex.Message);
+            Assert.Equal(expected, ex.Message);
         }
     }
 }
