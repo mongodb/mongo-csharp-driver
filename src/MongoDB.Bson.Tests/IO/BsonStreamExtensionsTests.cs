@@ -20,7 +20,7 @@ using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -54,12 +54,13 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
-            using (var stream = Substitute.For<BsonStream>())
-            {
-                var position = (long)int.MaxValue + 1;
-                stream.Position.Returns(position);
-                stream.Length.Returns(position);
+            var mockStream = new Mock<BsonStream>();
+            var position = (long)int.MaxValue + 1;
+            mockStream.SetupGet(s => s.Position).Returns(position);
+            mockStream.SetupGet(s => s.Length).Returns(position);
 
+            using (var stream = mockStream.Object)
+            {
                 Action action = () => stream.BackpatchSize(0);
 
                 action.ShouldThrow<FormatException>();
@@ -72,10 +73,11 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1, 4)]
             int startPosition)
         {
-            using (var stream = Substitute.For<BsonStream>())
-            {
-                stream.Length.Returns(3);
+            var mockStream = new Mock<BsonStream>();
+            mockStream.SetupGet(s => s.Length).Returns(3);
 
+            using (var stream = mockStream.Object)
+            {
                 Action action = () => stream.BackpatchSize(startPosition);
 
                 action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("startPosition");
@@ -253,34 +255,37 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void ReadBytes_with_buffer_should_handle_partial_reads()
         {
-            using (var baseStream = Substitute.For<BsonStream>())
+            var mockBaseStream = new Mock<BsonStream>();
+            var buffer = new byte[3];
+            mockBaseStream.Setup(s => s.Read(It.IsAny<byte[]>(), 0, 3)).Returns((byte[] b, int o, int c) => { b[0] = 1; return 1; });
+            mockBaseStream.Setup(s => s.Read(It.IsAny<byte[]>(), 1, 2)).Returns((byte[] b, int o, int c) => { b[1] = 2; b[2] = 3; return 2; });
+
+            using (var baseStream = mockBaseStream.Object)
             using (var stream = new BsonStreamAdapter(baseStream))
             {
-                var buffer = new byte[3];
-                baseStream.Read(Arg.Any<byte[]>(), 0, 3).Returns(x => { var b = (byte[])x[0]; b[0] = 1; return 1; });
-                baseStream.Read(Arg.Any<byte[]>(), 1, 2).Returns(x => { var b = (byte[])x[0]; b[1] = 2; b[2] = 3; return 2; });
-
                 stream.ReadBytes(buffer, 0, 3);
 
                 buffer.Should().Equal(new byte[] { 1, 2, 3 });
-                baseStream.Received(1).Read(buffer, 0, 3);
-                baseStream.Received(1).Read(buffer, 1, 2);
+                mockBaseStream.Verify(s => s.Read(buffer, 0, 3), Times.Once);
+                mockBaseStream.Verify(s => s.Read(buffer, 1, 2), Times.Once);
             }
         }
 
         [Fact]
         public void ReadBytes_with_buffer_should_optimize_count_of_one()
         {
-            using (var baseStream = Substitute.For<Stream>())
+            var mockBaseStream = new Mock<BsonStream>();
+            mockBaseStream.Setup(s => s.ReadByte()).Returns(1);
+
+            using (var baseStream = mockBaseStream.Object)
             using (var stream = new BsonStreamAdapter(baseStream))
             {
-                baseStream.ReadByte().Returns(1);
                 var buffer = new byte[1];
 
                 stream.ReadBytes(buffer, 0, 1);
 
                 buffer.Should().Equal(new byte[] { 1 });
-                baseStream.Received(1).ReadByte();
+                mockBaseStream.Verify(s => s.ReadByte(), Times.Once);
             }
         }
 
@@ -326,9 +331,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void ReadBytes_with_buffer_should_throw_when_buffer_is_null()
         {
-            var stream = Substitute.For<BsonStream>();
+            var mockStream = new Mock<BsonStream>();
 
-            Action action = () => stream.ReadBytes(null, 0, 0);
+            Action action = () => mockStream.Object.ReadBytes(null, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -345,7 +350,9 @@ namespace MongoDB.Bson.Tests.IO
             int offset,
             int count)
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+
+            using (var stream = mockStream.Object)
             {
                 var buffer = new byte[length];
 
@@ -364,7 +371,9 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(2, 2, 1)]
         public void ReadBytes_with_buffer_should_throw_when_count_is_out_of_range(int length, int offset, int count)
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+
+            using (var stream = mockStream.Object)
             {
                 var buffer = new byte[length];
 
@@ -383,7 +392,9 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(2, 3)]
         public void ReadBytes_with_buffer_should_throw_when_offset_is_out_of_range(int length, int count)
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+
+            using (var stream = mockStream.Object)
             {
                 var buffer = new byte[length];
 
@@ -437,7 +448,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void ReadBytes_with_count_should_throw_when_count_is_negative()
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+
+            using (var stream = mockStream.Object)
             {
                 Action action = () => stream.ReadBytes(-1);
 
@@ -606,21 +619,24 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void WriteBytes_should_optimize_count_of_one()
         {
-            using (var baseStream = Substitute.For<Stream>())
+            var mockBaseStream = new Mock<Stream>();
+
+            using (var baseStream = mockBaseStream.Object)
             using (var stream = new BsonStreamAdapter(baseStream))
             {
                 var buffer = new byte[] { 1 };
 
                 stream.WriteBytes(buffer, 0, 1);
 
-                baseStream.Received(1).WriteByte(1);
+                mockBaseStream.Verify(s => s.WriteByte(1), Times.Once);
             }
         }
 
         [Fact]
         public void WriteBytes_should_throw_when_buffer_is_null()
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+            using (var stream = mockStream.Object)
             {
                 byte[] buffer = null;
                 var offset = 0;
@@ -641,7 +657,8 @@ namespace MongoDB.Bson.Tests.IO
             int offset,
             int count)
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+            using (var stream = mockStream.Object)
             {
                 var buffer = new byte[length];
 
@@ -660,7 +677,8 @@ namespace MongoDB.Bson.Tests.IO
             int length,
             int offset)
         {
-            using (var stream = Substitute.For<BsonStream>())
+            var mockStream = new Mock<BsonStream>();
+            using (var stream = mockStream.Object)
             {
                 var buffer = new byte[length];
                 var count = 0;
@@ -721,10 +739,10 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void WriteSlice_should_throw_when_slice_is_null()
         {
-            var stream = Substitute.For<BsonStream>();
+            var mockStream = new Mock<BsonStream>();
             IByteBuffer slice = null;
 
-            Action action = () => stream.WriteSlice(slice);
+            Action action = () => mockStream.Object.WriteSlice(slice);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("slice");
         }

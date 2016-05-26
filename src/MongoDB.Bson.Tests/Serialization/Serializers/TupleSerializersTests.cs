@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
@@ -61,12 +61,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool>(
-                item1Serializer);
+                mockItem1Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
         }
 
         [Fact]
@@ -157,15 +157,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int>(
-                item1Serializer,
-                item2Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
         }
 
         [Fact]
@@ -257,18 +257,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
         }
 
         [Fact]
@@ -361,21 +361,21 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem4Serializer = new Mock<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int, bool, int>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer,
-                item4Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object,
+                mockItem4Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
-            Assert.Same(item4Serializer, subject.Item4Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
+            Assert.Same(mockItem4Serializer.Object, subject.Item4Serializer);
         }
 
         [Fact]
@@ -469,24 +469,24 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem4Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem5Serializer = new Mock<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer,
-                item4Serializer,
-                item5Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object,
+                mockItem4Serializer.Object,
+                mockItem5Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
-            Assert.Same(item4Serializer, subject.Item4Serializer);
-            Assert.Same(item5Serializer, subject.Item5Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
+            Assert.Same(mockItem4Serializer.Object, subject.Item4Serializer);
+            Assert.Same(mockItem5Serializer.Object, subject.Item5Serializer);
         }
 
         [Fact]
@@ -581,27 +581,27 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem4Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem5Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem6Serializer = new Mock<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer,
-                item4Serializer,
-                item5Serializer,
-                item6Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object,
+                mockItem4Serializer.Object,
+                mockItem5Serializer.Object,
+                mockItem6Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
-            Assert.Same(item4Serializer, subject.Item4Serializer);
-            Assert.Same(item5Serializer, subject.Item5Serializer);
-            Assert.Same(item6Serializer, subject.Item6Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
+            Assert.Same(mockItem4Serializer.Object, subject.Item4Serializer);
+            Assert.Same(mockItem5Serializer.Object, subject.Item5Serializer);
+            Assert.Same(mockItem6Serializer.Object, subject.Item6Serializer);
         }
 
         [Fact]
@@ -697,30 +697,30 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item7Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem4Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem5Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem6Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem7Serializer = new Mock<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer,
-                item4Serializer,
-                item5Serializer,
-                item6Serializer,
-                item7Serializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object,
+                mockItem4Serializer.Object,
+                mockItem5Serializer.Object,
+                mockItem6Serializer.Object,
+                mockItem7Serializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
-            Assert.Same(item4Serializer, subject.Item4Serializer);
-            Assert.Same(item5Serializer, subject.Item5Serializer);
-            Assert.Same(item6Serializer, subject.Item6Serializer);
-            Assert.Same(item7Serializer, subject.Item7Serializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
+            Assert.Same(mockItem4Serializer.Object, subject.Item4Serializer);
+            Assert.Same(mockItem5Serializer.Object, subject.Item5Serializer);
+            Assert.Same(mockItem6Serializer.Object, subject.Item6Serializer);
+            Assert.Same(mockItem7Serializer.Object, subject.Item7Serializer);
         }
 
         [Fact]
@@ -818,33 +818,33 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
-            var item7Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var restSerializer = Substitute.For<IBsonSerializer<Tuple<int>>>();
+            var mockItem1Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem2Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem3Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem4Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem5Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockItem6Serializer = new Mock<IBsonSerializer<int>>();
+            var mockItem7Serializer = new Mock<IBsonSerializer<bool>>();
+            var mockRestSerializer = new Mock<IBsonSerializer<Tuple<int>>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool, Tuple<int>>(
-                item1Serializer,
-                item2Serializer,
-                item3Serializer,
-                item4Serializer,
-                item5Serializer,
-                item6Serializer,
-                item7Serializer,
-                restSerializer);
+                mockItem1Serializer.Object,
+                mockItem2Serializer.Object,
+                mockItem3Serializer.Object,
+                mockItem4Serializer.Object,
+                mockItem5Serializer.Object,
+                mockItem6Serializer.Object,
+                mockItem7Serializer.Object,
+                mockRestSerializer.Object);
 
-            Assert.Same(item1Serializer, subject.Item1Serializer);
-            Assert.Same(item2Serializer, subject.Item2Serializer);
-            Assert.Same(item3Serializer, subject.Item3Serializer);
-            Assert.Same(item4Serializer, subject.Item4Serializer);
-            Assert.Same(item5Serializer, subject.Item5Serializer);
-            Assert.Same(item6Serializer, subject.Item6Serializer);
-            Assert.Same(item7Serializer, subject.Item7Serializer);
-            Assert.Same(restSerializer, subject.RestSerializer);
+            Assert.Same(mockItem1Serializer.Object, subject.Item1Serializer);
+            Assert.Same(mockItem2Serializer.Object, subject.Item2Serializer);
+            Assert.Same(mockItem3Serializer.Object, subject.Item3Serializer);
+            Assert.Same(mockItem4Serializer.Object, subject.Item4Serializer);
+            Assert.Same(mockItem5Serializer.Object, subject.Item5Serializer);
+            Assert.Same(mockItem6Serializer.Object, subject.Item6Serializer);
+            Assert.Same(mockItem7Serializer.Object, subject.Item7Serializer);
+            Assert.Same(mockRestSerializer.Object, subject.RestSerializer);
         }
 
         [Fact]

@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -32,12 +32,12 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void Buffer_get_should_return_expected_result()
         {
-            var buffer = Substitute.For<IByteBuffer>();
-            var subject = new ByteBufferStream(buffer);
+            var mockBuffer = new Mock<IByteBuffer>();
+            var subject = new ByteBufferStream(mockBuffer.Object);
 
             var result = subject.Buffer;
 
-            result.Should().BeSameAs(buffer);
+            result.Should().BeSameAs(mockBuffer.Object);
         }
 
         [Fact]
@@ -107,7 +107,8 @@ namespace MongoDB.Bson.Tests.IO
         public void CanWrite_get_should_return_expected_result(bool bufferIsReadOnly, bool disposed, bool expectedResult)
         {
             var subject = CreateSubject();
-            subject.Buffer.IsReadOnly.Returns(bufferIsReadOnly);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.IsReadOnly).Returns(bufferIsReadOnly);
             if (disposed)
             {
                 subject.Dispose();
@@ -125,13 +126,13 @@ namespace MongoDB.Bson.Tests.IO
             bool ownsBuffer)
         {
             var length = 123;
-            var buffer = Substitute.For<IByteBuffer>();
-            buffer.Length.Returns(length);
+            var mockBuffer = new Mock<IByteBuffer>();
+            mockBuffer.SetupGet(s => s.Length).Returns(length);
 
-            var subject = new ByteBufferStream(buffer, ownsBuffer);
+            var subject = new ByteBufferStream(mockBuffer.Object, ownsBuffer);
 
             var reflector = new Reflector(subject);
-            subject.Buffer.Should().BeSameAs(buffer);
+            subject.Buffer.Should().BeSameAs(mockBuffer.Object);
             subject.Length.Should().Be(length);
             subject.Position.Should().Be(0);
             reflector._disposed.Should().BeFalse();
@@ -172,12 +173,12 @@ namespace MongoDB.Bson.Tests.IO
             [Values(false, true)]
             bool ownsBuffer)
         {
-            var buffer = Substitute.For<IByteBuffer>();
-            var subject = new ByteBufferStream(buffer, ownsBuffer: ownsBuffer);
+            var mockBuffer = new Mock<IByteBuffer>();
+            var subject = new ByteBufferStream(mockBuffer.Object, ownsBuffer: ownsBuffer);
 
             subject.Dispose();
 
-            buffer.Received(ownsBuffer ? 1 : 0).Dispose();
+            mockBuffer.Verify(s => s.Dispose(), Times.Exactly(ownsBuffer ? 1 : 0));
         }
 
         [Fact]
@@ -299,7 +300,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Read_should_return_available_bytes_when_available_bytes_is_less_than_count(long length, long position)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns((int)length);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns((int)length);
             subject.SetLength(length);
             subject.Position = position;
             var available = (int)(length - position);
@@ -309,7 +311,7 @@ namespace MongoDB.Bson.Tests.IO
 
             result.Should().Be(available);
             subject.Position.Should().Be(position + available);
-            subject.Buffer.Received(1).GetBytes((int)position, destination, 0, available);
+            mockBuffer.Verify(b => b.GetBytes((int)position, destination, 0, available), Times.Once);
         }
 
         [Theory]
@@ -322,7 +324,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Read_should_return_count_bytes_when_count_is_less_than_or_equal_to_available_bytes(long length, long position, int count)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns((int)length);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns((int)length);
             subject.SetLength(length);
             subject.Position = position;
             var destination = new byte[count];
@@ -331,7 +334,7 @@ namespace MongoDB.Bson.Tests.IO
 
             result.Should().Be(count);
             subject.Position.Should().Be(position + count);
-            subject.Buffer.Received(1).GetBytes((int)position, destination, 0, count);
+            mockBuffer.Verify(b => b.GetBytes((int)position, destination, 0, count), Times.Once);
         }
 
         [Theory]
@@ -342,7 +345,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Read_should_return_zero_when_position_is_greater_than_or_equal_to_length(long length, long position)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns((int)length);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns((int)length);
             subject.SetLength(length);
             subject.Position = position;
             var destination = new byte[1];
@@ -416,8 +420,9 @@ namespace MongoDB.Bson.Tests.IO
         public void ReadByte_should_return_expected_result(long length, long position, byte expectedResult)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns((int)length);
-            subject.Buffer.GetByte((int)position).Returns(expectedResult);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns((int)length);
+            mockBuffer.Setup(b => b.GetByte((int)position)).Returns(expectedResult);
             subject.SetLength(length);
             subject.Position = position;
 
@@ -437,7 +442,8 @@ namespace MongoDB.Bson.Tests.IO
         public void ReadByte_should_return_minus_one_when_position_is_greater_than_or_equal_to_length(long length, long position)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns((int)length);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns((int)length);
             subject.SetLength(length);
             subject.Position = position;
 
@@ -751,17 +757,17 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(7, new byte[] { 7, 0, 0, 0, 1, 2, 3 })]
         public void ReadSlice_should_return_expected_result(int length, byte[] bytes)
         {
-            var buffer = Substitute.For<IByteBuffer>();
-            buffer.AccessBackingBytes(Arg.Any<int>()).Returns(x => { var p = (int)x[0]; return new ArraySegment<byte>(bytes, p, bytes.Length - p); });
-            buffer.IsReadOnly.Returns(true);
-            buffer.Length.Returns(bytes.Length);
-            var subject = new ByteBufferStream(buffer);
+            var mockBuffer = new Mock<IByteBuffer>();
+            mockBuffer.Setup(s => s.AccessBackingBytes(It.IsAny<int>())).Returns((int p) => { return new ArraySegment<byte>(bytes, p, bytes.Length - p); });
+            mockBuffer.SetupGet(s => s.IsReadOnly).Returns(true);
+            mockBuffer.SetupGet(s => s.Length).Returns(bytes.Length);
+            var subject = new ByteBufferStream(mockBuffer.Object);
             var expectedPosition = length;
 
             subject.ReadSlice();
 
             subject.Position.Should().Be(expectedPosition);
-            subject.Buffer.Received(1).GetSlice(0, bytes.Length);
+            mockBuffer.Verify(b => b.GetSlice(0, bytes.Length), Times.Once);
         }
 
         [Theory]
@@ -883,7 +889,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Seek_should_return_expected_result(SeekOrigin origin, long position, long offset, int expectedPosition)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns(3);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns(3);
             subject.SetLength(3);
             subject.Position = position;
 
@@ -913,7 +920,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Seek_should_throw_when_new_position_is_invalid(SeekOrigin origin, long offset)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns(2);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.Capacity).Returns(2);
             subject.SetLength(2);
             subject.Position = 1;
 
@@ -936,7 +944,8 @@ namespace MongoDB.Bson.Tests.IO
         public void SetLength_should_throw_when_buffer_is_not_writable()
         {
             var subject = CreateSubject();
-            subject.Buffer.IsReadOnly.Returns(true);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.IsReadOnly).Returns(true);
 
             Action action = () => subject.SetLength(0);
 
@@ -950,11 +959,12 @@ namespace MongoDB.Bson.Tests.IO
             long length)
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
 
             subject.SetLength(length);
 
             subject.Length.Should().Be(length);
-            subject.Buffer.Received(1).EnsureCapacity((int)length);
+            mockBuffer.Verify(b => b.EnsureCapacity((int)length), Times.Once);
         }
 
         [Theory]
@@ -1058,25 +1068,28 @@ namespace MongoDB.Bson.Tests.IO
         public void Write_should_clear_bytes_between_length_and_position()
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             subject.Position = 1;
 
             subject.Write(new byte[3], 1, 2);
 
-            subject.Buffer.Received(1).Clear(0, 1);
+            mockBuffer.Verify(b => b.Clear(0, 1), Times.Once);
         }
 
         [Fact]
         public void Write_should_ensure_capacity()
         {
             var subject = CreateSubject();
-            var minimumCapacity = 0;
-            subject.Buffer.Capacity.Returns(x => minimumCapacity);
-            subject.Buffer.When(x => x.EnsureCapacity(Arg.Any<int>())).Do(x => minimumCapacity = (int)x[0]);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            var capacity = 0;
+            mockBuffer.SetupGet(b => b.Capacity).Returns(() => capacity);
+            mockBuffer.Setup(b => b.EnsureCapacity(It.IsAny<int>())).Callback((int minimumCapacity) => capacity = minimumCapacity);
+            mockBuffer.SetupProperty(b => b.Length);
             subject.Position = 1;
 
             subject.Write(new byte[3], 1, 2);
 
-            subject.Buffer.Received(1).EnsureCapacity(3);
+            mockBuffer.Verify(b => b.EnsureCapacity(3), Times.Once);
             subject.Buffer.Length.Should().Be(3);
         }
 
@@ -1086,6 +1099,7 @@ namespace MongoDB.Bson.Tests.IO
         public void Write_should_have_expected_effect(int sourceSize, int offset, int count, long initialPosition, long expectedPosition)
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             subject.Position = initialPosition;
             var source = new byte[sourceSize];
 
@@ -1093,7 +1107,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Position.Should().Be(expectedPosition);
             subject.Length.Should().Be(expectedPosition);
-            subject.Buffer.Received(1).SetBytes((int)initialPosition, source, offset, count);
+            mockBuffer.Verify(b => b.SetBytes((int)initialPosition, source, offset, count), Times.Once);
         }
 
         [Fact]
@@ -1133,7 +1147,8 @@ namespace MongoDB.Bson.Tests.IO
         public void Write_should_throw_when_not_writable()
         {
             var subject = CreateSubject();
-            subject.Buffer.IsReadOnly.Returns(true);
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.SetupGet(b => b.IsReadOnly).Returns(true);
             var source = new byte[1];
 
             Action action = () => subject.Write(source, 0, 0);
@@ -1172,13 +1187,14 @@ namespace MongoDB.Bson.Tests.IO
         public void WriteByte_should_have_expected_effect(long initialPosition, long expectedPosition)
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             subject.Position = initialPosition;
 
             subject.WriteByte(4);
 
             subject.Position.Should().Be(expectedPosition);
             subject.Length.Should().Be(expectedPosition);
-            subject.Buffer.Received(1).SetByte((int)initialPosition, 4);
+            mockBuffer.Verify(b => b.SetByte((int)initialPosition, 4), Times.Once);
         }
 
         [Fact]
@@ -1277,14 +1293,15 @@ namespace MongoDB.Bson.Tests.IO
         public void WriteCStringBytes_should_have_expected_effect()
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             var value = new byte[] { 97, 98, 99 };
 
             subject.WriteCStringBytes(value);
 
             subject.Position.Should().Be(4);
             subject.Length.Should().Be(4);
-            subject.Buffer.Received(1).SetBytes(0, value, 0, 3);
-            subject.Buffer.Received(1).SetByte(3, 0);
+            mockBuffer.Verify(b => b.SetBytes(0, value, 0, 3), Times.Once);
+            mockBuffer.Verify(b => b.SetByte(3, 0), Times.Once);
         }
 
         [Fact]
@@ -1314,13 +1331,14 @@ namespace MongoDB.Bson.Tests.IO
             double value)
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             var bytes = BitConverter.GetBytes(value);
 
             subject.WriteDouble(value);
 
             subject.Position.Should().Be(8);
             subject.Length.Should().Be(8);
-            subject.Buffer.Received(1).SetBytes(0, Arg.Is<byte[]>(x => x.SequenceEqual(bytes)), 0, 8);
+            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(bytes)), 0, 8), Times.Once);
         }
 
         [Fact]
@@ -1369,13 +1387,14 @@ namespace MongoDB.Bson.Tests.IO
             long value)
         {
             var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
             var expectedBytes = BitConverter.GetBytes(value);
 
             subject.WriteInt64(value);
 
             subject.Position.Should().Be(8);
             subject.Length.Should().Be(8);
-            subject.Buffer.Received(1).SetBytes(0, Arg.Is<byte[]>(x => x.SequenceEqual(expectedBytes)), 0, 8);
+            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes)), 0, 8), Times.Once);
         }
 
         [Fact]
@@ -1500,8 +1519,8 @@ namespace MongoDB.Bson.Tests.IO
 
         private ByteBufferStream CreateSubject()
         {
-            var buffer = Substitute.For<IByteBuffer>();
-            return new ByteBufferStream(buffer);
+            var mockBuffer = new Mock<IByteBuffer>();
+            return new ByteBufferStream(mockBuffer.Object);
         }
 
         private ByteBufferStream CreateSubject(byte[] bytes)

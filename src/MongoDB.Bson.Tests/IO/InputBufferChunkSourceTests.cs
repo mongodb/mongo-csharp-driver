@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -28,19 +28,19 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void BaseSource_get_should_return_expected_result()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             var result = subject.BaseSource;
 
-            result.Should().BeSameAs(baseSource);
+            result.Should().BeSameAs(mockBaseSource.Object);
         }
 
         [Fact]
         public void BaseSource_get_should_throw_when_subject_is_disposed()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.BaseSource; };
@@ -51,15 +51,15 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void constructor_should_initialize_subject()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
             var maxUnpooledChunkSize = 2;
             var minChunkSize = 4;
             var maxChunkSize = 8;
 
-            var subject = new InputBufferChunkSource(baseSource, maxUnpooledChunkSize, minChunkSize, maxChunkSize);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object, maxUnpooledChunkSize, minChunkSize, maxChunkSize);
 
             var reflector = new Reflector(subject);
-            subject.BaseSource.Should().BeSameAs(baseSource);
+            subject.BaseSource.Should().BeSameAs(mockBaseSource.Object);
             subject.MaxChunkSize.Should().Be(maxChunkSize);
             subject.MaxUnpooledChunkSize.Should().Be(maxUnpooledChunkSize);
             subject.MinChunkSize.Should().Be(minChunkSize);
@@ -131,9 +131,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void constructor_should_use_default_value_for_maxChunkSize()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
 
-            var subject = new InputBufferChunkSource(baseSource);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             subject.MaxChunkSize.Should().Be(1 * 1024 * 1024);
         }
@@ -141,9 +141,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void constructor_should_use_default_value_for_maxUnpooledChunkSize()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
 
-            var subject = new InputBufferChunkSource(baseSource);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             subject.MaxUnpooledChunkSize.Should().Be(4 * 1024);
         }
@@ -151,9 +151,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void constructor_should_use_default_value_for_minChunkSize()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
 
-            var subject = new InputBufferChunkSource(baseSource);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             subject.MinChunkSize.Should().Be(16 * 1024);
         }
@@ -161,8 +161,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             subject.Dispose();
             subject.Dispose();
@@ -171,8 +171,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void Dispose_should_dispose_subject()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             subject.Dispose();
 
@@ -186,14 +186,14 @@ namespace MongoDB.Bson.Tests.IO
             [Values(1, 2, 4 * 1024 - 1, 4 * 1024)]
             int requestedSize)
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             var result = subject.GetChunk(requestedSize);
 
             result.Should().BeOfType<ByteArrayChunk>();
             result.Bytes.Count.Should().Be(requestedSize);
-            baseSource.DidNotReceive().GetChunk(Arg.Any<int>());
+            mockBaseSource.Verify(s => s.GetChunk(It.IsAny<int>()), Times.Never);
         }
 
         [Theory]
@@ -215,13 +215,13 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(16, 16)]
         public void GetChunk_should_round_requestedSize_to_power_of_2_without_wasting_too_much_space(int requestedSize, int roundedSize)
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource, maxUnpooledChunkSize: 0, minChunkSize: 4, maxChunkSize: 16);
-            baseSource.GetChunk(Arg.Any<int>()).Returns(Substitute.For<IBsonChunk>());
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object, maxUnpooledChunkSize: 0, minChunkSize: 4, maxChunkSize: 16);
+            mockBaseSource.Setup(s => s.GetChunk(It.IsAny<int>())).Returns(() => new Mock<IBsonChunk>().Object);
 
             subject.GetChunk(requestedSize);
 
-            baseSource.Received(1).GetChunk(roundedSize);
+            mockBaseSource.Verify(s => s.GetChunk(roundedSize), Times.Once);
         }
 
         [Theory]
@@ -230,8 +230,8 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1, 0)]
             int requestedSize)
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
             Action action = () => subject.GetChunk(requestedSize);
 
@@ -241,8 +241,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void GetChunk_should_throw_when_subject_is_disposed()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
-            var subject = new InputBufferChunkSource(baseSource);
+            var mockBaseSource = new Mock<IBsonChunkSource>();
+            var subject = new InputBufferChunkSource(mockBaseSource.Object);
             subject.Dispose();
 
             Action action = () => subject.GetChunk(1);
@@ -253,9 +253,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void MaxChunkSize_get_should_return_expected_result()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
             var maxChunkSize = 32 * 1024 * 1024;
-            var subject = new InputBufferChunkSource(baseSource, maxChunkSize: maxChunkSize);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object, maxChunkSize: maxChunkSize);
 
             var result = subject.MaxChunkSize;
 
@@ -265,9 +265,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void MaxChunkUnpooledSize_get_should_return_expected_result()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
             var maxUnpooledChunkSize = 8 * 1024;
-            var subject = new InputBufferChunkSource(baseSource, maxUnpooledChunkSize: maxUnpooledChunkSize);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object, maxUnpooledChunkSize: maxUnpooledChunkSize);
 
             var result = subject.MaxUnpooledChunkSize;
 
@@ -277,9 +277,9 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void MinChunkSize_get_should_return_expected_result()
         {
-            var baseSource = Substitute.For<IBsonChunkSource>();
+            var mockBaseSource = new Mock<IBsonChunkSource>();
             var minChunkSize = 8 * 1024;
-            var subject = new InputBufferChunkSource(baseSource, minChunkSize: minChunkSize);
+            var subject = new InputBufferChunkSource(mockBaseSource.Object, minChunkSize: minChunkSize);
 
             var result = subject.MinChunkSize;
 

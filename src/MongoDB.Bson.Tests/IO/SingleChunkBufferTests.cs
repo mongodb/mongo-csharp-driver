@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -841,9 +841,9 @@ namespace MongoDB.Bson.Tests.IO
         private IBsonChunk CreateFakeChunk(int size, int? length = null)
         {
             var bytes = new byte[size];
-            var chunk = Substitute.For<IBsonChunk>();
-            chunk.Bytes.Returns(new ArraySegment<byte>(bytes, 0, length ?? size));
-            return chunk;
+            var mockChunk = new Mock<IBsonChunk>();
+            mockChunk.SetupGet(s => s.Bytes).Returns(new ArraySegment<byte>(bytes, 0, length ?? size));
+            return mockChunk.Object;
         }
 
         private SingleChunkBuffer CreateSubject(byte[] bytes, int? length = null, bool isReadOnly = false)

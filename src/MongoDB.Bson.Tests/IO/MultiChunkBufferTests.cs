@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -51,8 +51,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void AccessBackingBytes_should_return_expected_result_when_there_are_zero_chunks()
         {
-            var chunkSource = Substitute.For<IBsonChunkSource>();
-            var subject = new MultiChunkBuffer(chunkSource);
+            var mockChunkSource = new Mock<IBsonChunkSource>();
+            var subject = new MultiChunkBuffer(mockChunkSource.Object);
 
             var result = subject.AccessBackingBytes(0);
 
@@ -112,8 +112,8 @@ namespace MongoDB.Bson.Tests.IO
             [Values(false, true)]
             bool disposed)
         {
-            var chunkSource = Substitute.For<IBsonChunkSource>();
-            var subject = new MultiChunkBuffer(chunkSource);
+            var mockChunkSource = new Mock<IBsonChunkSource>();
+            var subject = new MultiChunkBuffer(mockChunkSource.Object);
             if (disposed)
             {
                 subject.Dispose();
@@ -121,7 +121,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.ChunkSource;
 
-            result.Should().BeSameAs(chunkSource);
+            result.Should().BeSameAs(mockChunkSource.Object);
         }
 
         [Theory]
@@ -307,13 +307,13 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void constructor_with_chunkSource_should_initialize_subject()
         {
-            var chunkSource = Substitute.For<IBsonChunkSource>();
+            var mockChunkSource = new Mock<IBsonChunkSource>();
 
-            var subject = new MultiChunkBuffer(chunkSource);
+            var subject = new MultiChunkBuffer(mockChunkSource.Object);
 
             var reflector = new Reflector(subject);
             subject.Capacity.Should().Be(0);
-            subject.ChunkSource.Should().BeSameAs(chunkSource);
+            subject.ChunkSource.Should().BeSameAs(mockChunkSource.Object);
             subject.IsReadOnly.Should().BeFalse();
             subject.Length.Should().Be(0);
             reflector._chunks.Should().HaveCount(0);
@@ -346,14 +346,15 @@ namespace MongoDB.Bson.Tests.IO
             [Values(0, 1, 2, 3)]
             int numberOfChunks)
         {
-            var chunks = Enumerable.Range(1, numberOfChunks).Select(_ => Substitute.For<IBsonChunk>()).ToList();
+            var chunks = Enumerable.Range(1, numberOfChunks).Select(_ => new Mock<IBsonChunk>().Object).ToList();
             var subject = new MultiChunkBuffer(chunks);
 
             subject.Dispose();
 
             foreach (var chunk in chunks)
             {
-                chunk.Received(1).Dispose();
+                var mockChunk = Mock.Get(chunk);
+                mockChunk.Verify(c => c.Dispose(), Times.Once);
             }
         }
 
@@ -379,10 +380,10 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(7, new int[] { 1, 2, 3, 4 })]
         public void EnsureCapacity_should_have_expected_effect(int minimumCapacity, int[] expectedChunkSizes)
         {
-            var chunkSource = Substitute.For<IBsonChunkSource>();
-            var subject = new MultiChunkBuffer(chunkSource);
+            var mockChunkSource = new Mock<IBsonChunkSource>();
+            var subject = new MultiChunkBuffer(mockChunkSource.Object);
             var chunkSize = 1;
-            chunkSource.GetChunk(Arg.Any<int>()).Returns(x => new ByteArrayChunk(chunkSize++));
+            mockChunkSource.Setup(s => s.GetChunk(It.IsAny<int>())).Returns(() => new ByteArrayChunk(chunkSize++));
 
             subject.EnsureCapacity(minimumCapacity);
 

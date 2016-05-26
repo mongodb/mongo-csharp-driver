@@ -23,7 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -34,19 +34,19 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void BaseStream_should_return_expected_resut()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             var result = subject.BaseStream;
 
-            result.Should().Be(stream);
+            result.Should().Be(mockStream.Object);
         }
 
         [Fact]
         public void BaseStream_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.BaseStream; };
@@ -58,20 +58,20 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void BeginRead_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var callback = Substitute.For<AsyncCallback>();
+            var mockCallback = new Mock<AsyncCallback>();
             var state = new object();
-            var asyncResult = Substitute.For<IAsyncResult>();
-            stream.BeginRead(buffer, offset, count, callback, state).Returns(asyncResult);
+            var mockAsyncResult = new Mock<IAsyncResult>();
+            mockStream.Setup(s => s.BeginRead(buffer, offset, count, mockCallback.Object, state)).Returns(mockAsyncResult.Object);
 
-            var result = subject.BeginRead(buffer, offset, count, callback, state);
+            var result = subject.BeginRead(buffer, offset, count, mockCallback.Object, state);
 
-            result.Should().Be(asyncResult);
-            stream.Received(1).BeginRead(buffer, offset, count, callback, state);
+            result.Should().BeSameAs(mockAsyncResult.Object);
+            mockStream.Verify(s => s.BeginRead(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
 #endif
 
@@ -79,16 +79,16 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void BeginRead_should_throw_when_subject_is_diposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var callback = Substitute.For<AsyncCallback>();
+            var mockCallback = new Mock<AsyncCallback>();
             var state = new object();
             subject.Dispose();
 
-            Action action = () => subject.BeginRead(buffer, offset, count, callback, state);
+            Action action = () => subject.BeginRead(buffer, offset, count, mockCallback.Object, state);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -98,20 +98,20 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void BeginWrite_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var callback = Substitute.For<AsyncCallback>();
+            var mockCallback = new Mock<AsyncCallback>();
             var state = new object();
-            var asyncResult = Substitute.For<IAsyncResult>();
-            stream.BeginWrite(buffer, offset, count, callback, state).Returns(asyncResult);
+            var mockAsyncResult = new Mock<IAsyncResult>();
+            mockStream.Setup(s => s.BeginWrite(buffer, offset, count, mockCallback.Object, state)).Returns(mockAsyncResult.Object);
 
-            var result = subject.BeginWrite(buffer, offset, count, callback, state);
+            var result = subject.BeginWrite(buffer, offset, count, mockCallback.Object, state);
 
-            result.Should().Be(asyncResult);
-            stream.Received(1).BeginWrite(buffer, offset, count, callback, state);
+            result.Should().BeSameAs(mockAsyncResult.Object);
+            mockStream.Verify(s => s.BeginWrite(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
 #endif
 
@@ -119,16 +119,16 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void BeginWrite_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var callback = Substitute.For<AsyncCallback>();
+            var mockCallback = new Mock<AsyncCallback>();
             var state = new object();
             subject.Dispose();
 
-            Action action = () => subject.BeginWrite(buffer, offset, count, callback, state);
+            Action action = () => subject.BeginWrite(buffer, offset, count, mockCallback.Object, state);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -140,21 +140,21 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool canRead)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.CanRead.Returns(canRead);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.CanRead).Returns(canRead);
 
             var result = subject.CanRead;
 
             result.Should().Be(canRead);
-            var temp = stream.Received(1).CanRead;
+            mockStream.VerifyGet(s => s.CanRead, Times.Once);
         }
 
         [Fact]
         public void CanRead_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.CanRead; };
@@ -168,21 +168,21 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool canSeek)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.CanSeek.Returns(canSeek);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.CanSeek).Returns(canSeek);
 
             var result = subject.CanSeek;
 
             result.Should().Be(canSeek);
-            var temp = stream.Received(1).CanSeek;
+            mockStream.VerifyGet(s => s.CanSeek, Times.Once);
         }
 
         [Fact]
         public void CanSeek_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.CanSeek; };
@@ -196,21 +196,21 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool canTimeout)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.CanTimeout.Returns(canTimeout);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.CanTimeout).Returns(canTimeout);
 
             var result = subject.CanTimeout;
 
             result.Should().Be(canTimeout);
-            var temp = stream.Received(1).CanTimeout;
+            mockStream.VerifyGet(s => s.CanTimeout, Times.Once);
         }
 
         [Fact]
         public void CanTimeout_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.CanTimeout; };
@@ -224,21 +224,21 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool canWrite)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.CanWrite.Returns(canWrite);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.CanWrite).Returns(canWrite);
 
             var result = subject.CanWrite;
 
             result.Should().Be(canWrite);
-            var temp = stream.Received(1).CanWrite;
+            mockStream.VerifyGet(s => s.CanWrite, Times.Once);
         }
 
         [Fact]
         public void CanWrite_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.CanWrite; };
@@ -249,8 +249,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Close_can_be_called_multiple_times()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Close();
             subject.Close();
@@ -262,8 +262,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Close_should_dispose_subject()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Close();
 
@@ -274,9 +274,9 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void constructor_should_use_false_as_the_default_value_for_ownsStream()
         {
-            var stream = Substitute.For<Stream>();
+            var mockStream = new Mock<Stream>();
 
-            var subject = new BsonStreamAdapter(stream);
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             var subjectReflector = new Reflector(subject);
             subjectReflector._ownsStream.Should().BeFalse();
@@ -288,14 +288,14 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool ownsStream)
         {
-            var stream = Substitute.For<Stream>();
+            var mockStream = new Mock<Stream>();
 
-            var subject = new BsonStreamAdapter(stream, ownsStream: ownsStream);
+            var subject = new BsonStreamAdapter(mockStream.Object, ownsStream: ownsStream);
 
             var subjectReflector = new Reflector(subject);
             subjectReflector._disposed.Should().BeFalse();
             subjectReflector._ownsStream.Should().Be(ownsStream);
-            subjectReflector._stream.Should().Be(stream);
+            subjectReflector._stream.Should().Be(mockStream.Object);
             subjectReflector._temp.Should().NotBeNull();
             subjectReflector._tempUtf8.Should().NotBeNull();
         }
@@ -311,31 +311,31 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void CopyToAsync_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var destination = Substitute.For<Stream>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
             var cancellationToken = new CancellationTokenSource().Token;
             var task = new TaskCompletionSource<object>().Task;
-            stream.CopyToAsync(destination, bufferSize, cancellationToken).Returns(task);
+            mockStream.Setup(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken)).Returns(task);
 
-            var result = subject.CopyToAsync(destination, bufferSize, cancellationToken);
+            var result = subject.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken);
 
             result.Should().Be(task);
-            stream.Received(1).CopyToAsync(destination, bufferSize, cancellationToken);
+            mockStream.Verify(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken), Times.Once);
         }
 
         [Fact]
         public void CopyToAsync_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var destination = Substitute.For<Stream>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
             var cancellationToken = new CancellationTokenSource().Token;
             subject.Dispose();
 
-            Action action = () => subject.CopyToAsync(destination, bufferSize, cancellationToken);
+            Action action = () => subject.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -343,8 +343,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Dispose_can_be_called_multiple_times()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Dispose();
             subject.Dispose();
@@ -356,13 +356,13 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream, ownsStream: true);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object, ownsStream: true);
 
             subject.Dispose();
             subject.Dispose();
 
-            stream.Received(1).Dispose();
+            mockStream.Verify(s => s.Close(), Times.Once); // Dispose is not virtual but calls virtual Close
         }
 
         [Theory]
@@ -371,19 +371,19 @@ namespace MongoDB.Bson.Tests
             [Values(false, true)]
             bool ownsStream)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream, ownsStream: ownsStream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object, ownsStream: ownsStream);
 
             subject.Dispose();
 
-            stream.Received(ownsStream ? 1 : 0).Dispose();
+            mockStream.Verify(s => s.Close(), Times.Exactly(ownsStream ? 1 : 0)); // Dispose is not virtual but calls virtual Close
         }
 
         [Fact]
         public void Dispose_should_dispose_subject()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Dispose();
 
@@ -395,16 +395,16 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void EndRead_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var asyncResult = Substitute.For<IAsyncResult>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockAsyncResult = new Mock<IAsyncResult>();
             var numberOfBytesRead = 1;
-            stream.EndRead(asyncResult).Returns(numberOfBytesRead);
+            mockStream.Setup(s => s.EndRead(mockAsyncResult.Object)).Returns(numberOfBytesRead);
 
-            var result = subject.EndRead(asyncResult);
+            var result = subject.EndRead(mockAsyncResult.Object);
 
             result.Should().Be(numberOfBytesRead);
-            stream.Received(1).EndRead(asyncResult);
+            mockStream.Verify(s => s.EndRead(mockAsyncResult.Object), Times.Once);
         }
 #endif
 
@@ -412,12 +412,12 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void EndRead_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var asyncResult = Substitute.For<IAsyncResult>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockAsyncResult = new Mock<IAsyncResult>();
             subject.Dispose();
 
-            Action action = () => subject.EndRead(asyncResult);
+            Action action = () => subject.EndRead(mockAsyncResult.Object);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -427,13 +427,13 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void EndWrite_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var asyncResult = Substitute.For<IAsyncResult>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockAsyncResult = new Mock<IAsyncResult>();
 
-            subject.EndWrite(asyncResult);
+            subject.EndWrite(mockAsyncResult.Object);
 
-            stream.Received(1).EndWrite(asyncResult);
+            mockStream.Verify(s => s.EndWrite(mockAsyncResult.Object), Times.Once);
         }
 #endif
 
@@ -441,12 +441,12 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void EndWrite_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            var asyncResult = Substitute.For<IAsyncResult>();
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            var mockAsyncResult = new Mock<IAsyncResult>();
             subject.Dispose();
 
-            Action action = () => subject.EndWrite(asyncResult);
+            Action action = () => subject.EndWrite(mockAsyncResult.Object);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -455,19 +455,19 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Flush_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Flush();
 
-            stream.Received(1).Flush();
+            mockStream.Verify(s => s.Flush(), Times.Once);
         }
 
         [Fact]
         public void Flush_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.Flush();
@@ -478,23 +478,23 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void FlushAsync_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var task = new TaskCompletionSource<object>().Task;
             var cancellationToken = new CancellationTokenSource().Token;
-            stream.FlushAsync(cancellationToken).Returns(task);
+            mockStream.Setup(s => s.FlushAsync(cancellationToken)).Returns(task);
 
             var result = subject.FlushAsync(cancellationToken);
 
             result.Should().Be(task);
-            stream.Received(1).FlushAsync(cancellationToken);
+            mockStream.Verify(s => s.FlushAsync(cancellationToken), Times.Once);
         }
 
         [Fact]
         public void FlushAsync_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var cancellationToken = new CancellationTokenSource().Token;
             subject.Dispose();
 
@@ -509,21 +509,21 @@ namespace MongoDB.Bson.Tests
             [Values(0L, 1L, 2L)]
             long length)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.Length.Returns(length);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.Length).Returns(length);
 
             var result = subject.Length;
 
             result.Should().Be(length);
-            var temp = stream.Received(1).Length;
+            mockStream.VerifyGet(s => s.Length, Times.Once);
         }
 
         [Fact]
         public void Length_get_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.Length; };
@@ -537,21 +537,21 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             long position)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.Position.Returns(position);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.Position).Returns(position);
 
             var result = subject.Position;
 
             result.Should().Be(position);
-            var temp = stream.Received(1).Position;
+            mockStream.VerifyGet(s => s.Position, Times.Once);
         }
 
         [Fact]
         public void Position_get_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.Position; };
@@ -565,19 +565,19 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             long position)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.Position = position;
 
-            stream.Received(1).Position = position;
+            mockStream.VerifySet(s => s.Position = position, Times.Once);
         }
 
         [Fact]
         public void Position_set_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { subject.Position = 0; };
@@ -588,25 +588,25 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Read_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
             var numberOfBytesRead = 1;
-            stream.Read(buffer, offset, count).Returns(numberOfBytesRead);
+            mockStream.Setup(s => s.Read(buffer, offset, count)).Returns(numberOfBytesRead);
 
             var result = subject.Read(buffer, offset, count);
 
             result.Should().Be(numberOfBytesRead);
-            stream.Received(1).Read(buffer, offset, count);
+            mockStream.Verify(s => s.Read(buffer, offset, count), Times.Once);
         }
 
         [Fact]
         public void Read_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
@@ -620,26 +620,26 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadAsync_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var task = new TaskCompletionSource<int>().Task;
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
             var cancellationToken = new CancellationTokenSource().Token;
-            stream.ReadAsync(buffer, offset, count, cancellationToken).Returns(task);
+            mockStream.Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken)).Returns(task);
 
             var result = subject.ReadAsync(buffer, offset, count, cancellationToken);
 
             result.Should().Be(task);
-            stream.Received(1).ReadAsync(buffer, offset, count, cancellationToken);
+            mockStream.Verify(s => s.ReadAsync(buffer, offset, count, cancellationToken), Times.Once);
         }
 
         [Fact]
         public void ReadAsync_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
@@ -654,21 +654,21 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadByte_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.ReadByte().Returns(1);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.Setup(s => s.ReadByte()).Returns(1);
 
             var result = subject.ReadByte();
 
             result.Should().Be(1);
-            stream.Received(1).ReadByte();
+            mockStream.Verify(s => s.ReadByte(), Times.Once);
         }
 
         [Fact]
         public void ReadByte_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadByte();
@@ -695,8 +695,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadCString_should_throw_when_encoding_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             Action action = () => subject.ReadCString(null);
 
@@ -706,8 +706,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadCString_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadCString(Utf8Encodings.Strict);
@@ -734,8 +734,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadCStringBytes_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadCStringBytes();
@@ -777,8 +777,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadDouble_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadDouble();
@@ -817,8 +817,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadInt32_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadInt32();
@@ -857,8 +857,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadInt64_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadInt64();
@@ -896,8 +896,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadObjectId_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadObjectId();
@@ -923,8 +923,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadSlice_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadSlice();
@@ -952,8 +952,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadString_should_throw_when_encoding_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             Action action = () => subject.ReadString(null);
 
@@ -963,8 +963,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void ReadString_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.ReadString(Utf8Encodings.Strict);
@@ -990,21 +990,21 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             int readTimeout)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.ReadTimeout.Returns(readTimeout);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.ReadTimeout).Returns(readTimeout);
 
             var result = subject.ReadTimeout;
 
             result.Should().Be(readTimeout);
-            var temp = stream.Received(1).ReadTimeout;
+            mockStream.VerifyGet(s => s.ReadTimeout, Times.Once);
         }
 
         [Fact]
         public void ReadTimeout_get_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.ReadTimeout; };
@@ -1018,19 +1018,19 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             int readTimeout)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.ReadTimeout = readTimeout;
 
-            stream.Received(1).ReadTimeout = readTimeout;
+            mockStream.VerifySet(s => s.ReadTimeout = readTimeout);
         }
 
         [Fact]
         public void ReadTimeout_set_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { subject.ReadTimeout = 0; };
@@ -1041,24 +1041,24 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Seek_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var offset = 1L;
             var origin = SeekOrigin.Current;
             var newPosition = 2L;
-            stream.Seek(offset, origin).Returns(newPosition);
+            mockStream.Setup(s => s.Seek(offset, origin)).Returns(newPosition);
 
             var result = subject.Seek(offset, origin);
 
             result.Should().Be(newPosition);
-            stream.Received(1).Seek(offset, origin);
+            mockStream.Verify(s => s.Seek(offset, origin), Times.Once);
         }
 
         [Fact]
         public void Seek_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var offset = 1L;
             var origin = SeekOrigin.Current;
             subject.Dispose();
@@ -1071,20 +1071,20 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void SetLength_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var length = 1L;
 
             subject.SetLength(length);
 
-            stream.Received(1).SetLength(length);
+            mockStream.Verify(s => s.SetLength(length), Times.Once);
         }
 
         [Fact]
         public void SetLength_should_throw_when_subject_is_diposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var length = 1L;
             subject.Dispose();
 
@@ -1111,8 +1111,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void SkipCString_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.SkipCString();
@@ -1135,22 +1135,22 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void Write_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
 
             subject.Write(buffer, offset, count);
 
-            stream.Received(1).Write(buffer, offset, count);
+            mockStream.Verify(s => s.Write(buffer, offset, count), Times.Once);
         }
 
         [Fact]
         public void Write_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
@@ -1164,26 +1164,26 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteAsync_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var task = new TaskCompletionSource<object>().Task;
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
             var cancellationToken = new CancellationTokenSource().Token;
-            stream.WriteAsync(buffer, offset, count, cancellationToken).Returns(task);
+            mockStream.Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken)).Returns(task);
 
             var result = subject.WriteAsync(buffer, offset, count, cancellationToken);
 
             result.Should().Be(task);
-            stream.Received(1).WriteAsync(buffer, offset, count, cancellationToken);
+            mockStream.Verify(s => s.WriteAsync(buffer, offset, count, cancellationToken), Times.Once);
         }
 
         [Fact]
         public void WriteAsync_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var task = new TaskCompletionSource<object>().Task;
             var buffer = new byte[0];
             var offset = 1;
@@ -1199,20 +1199,20 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteByte_should_call_wrapped_stream()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = (byte)97;
 
             subject.WriteByte(value);
 
-            stream.Received(1).WriteByte(value);
+            mockStream.Verify(s => s.WriteByte(value), Times.Once);
         }
 
         [Fact]
         public void WriteByte_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = (byte)97;
             subject.Dispose();
 
@@ -1224,8 +1224,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteCString_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = "abc";
             subject.Dispose();
 
@@ -1267,8 +1267,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteCString_should_throw_when_value_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             Action action = () => subject.WriteCString(null);
 
@@ -1311,8 +1311,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteCStringBytes_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = new byte[0];
             subject.Dispose();
 
@@ -1324,8 +1324,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteCStringBytes_should_throw_when_value_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             Action action = () => subject.WriteCStringBytes(null);
 
@@ -1365,8 +1365,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteDouble_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.WriteDouble(1.0);
@@ -1390,8 +1390,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteInt32_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.WriteInt32(1);
@@ -1430,8 +1430,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteInt64_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.WriteInt64(1);
@@ -1470,8 +1470,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteObjectId_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => subject.WriteObjectId(ObjectId.Empty);
@@ -1495,8 +1495,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteString_should_throw_when_encoding_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = "abc";
 
             Action action = () => subject.WriteString(value, null);
@@ -1507,8 +1507,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteString_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             var value = "abc";
             subject.Dispose();
 
@@ -1520,8 +1520,8 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void WriteString_should_throw_when_value_is_null()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             Action action = () => subject.WriteString(null, Utf8Encodings.Strict);
 
@@ -1571,21 +1571,21 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             int writeTimeout)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
-            stream.WriteTimeout.Returns(writeTimeout);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            mockStream.SetupGet(s => s.WriteTimeout).Returns(writeTimeout);
 
             var result = subject.WriteTimeout;
 
             result.Should().Be(writeTimeout);
-            var temp = stream.Received(1).WriteTimeout;
+            mockStream.VerifyGet(s => s.WriteTimeout, Times.Once);
         }
 
         [Fact]
         public void WriteTimeout_get_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { var _ = subject.WriteTimeout; };
@@ -1599,19 +1599,19 @@ namespace MongoDB.Bson.Tests
             [Values(0, 1, 2)]
             int writeTimeout)
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
 
             subject.WriteTimeout = writeTimeout;
 
-            stream.Received(1).WriteTimeout = writeTimeout;
+            mockStream.VerifySet(s => s.WriteTimeout = writeTimeout);
         }
 
         [Fact]
         public void WriteTimeout_set_should_throw_when_subject_is_disposed()
         {
-            var stream = Substitute.For<Stream>();
-            var subject = new BsonStreamAdapter(stream);
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
             subject.Dispose();
 
             Action action = () => { subject.WriteTimeout = 0; };

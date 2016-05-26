@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -60,11 +60,12 @@ namespace MongoDB.Bson.Tests.IO
         public void AccessBackingBytes_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            subject.Buffer.AccessBackingBytes(1).Returns(new ArraySegment<byte>(new byte[3], 1, 2));
+            var mockBuffer = Mock.Get(subject.Buffer);
+            mockBuffer.Setup(b => b.AccessBackingBytes(1)).Returns(new ArraySegment<byte>(new byte[3], 1, 2));
 
             subject.AccessBackingBytes(0);
 
-            subject.Buffer.Received(1).AccessBackingBytes(1);
+            mockBuffer.Verify(b => b.AccessBackingBytes(1), Times.Once);
         }
 
         [Theory]
@@ -116,11 +117,11 @@ namespace MongoDB.Bson.Tests.IO
         public void Clear_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var mockBuffer = Mock.Get(subject.Buffer);
 
             subject.Clear(0, 2);
 
-            buffer.Received(1).Clear(1, 2);
+            mockBuffer.Verify(b => b.Clear(1, 2), Times.Once);
         }
 
         [Theory]
@@ -234,11 +235,11 @@ namespace MongoDB.Bson.Tests.IO
         public void Dispose_should_dispose_buffer()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var mockBuffer = Mock.Get(subject.Buffer);
 
             subject.Dispose();
 
-            buffer.Received(1).Dispose();
+            mockBuffer.Verify(b => b.Dispose(), Times.Once);
         }
 
         [Fact]
@@ -266,11 +267,11 @@ namespace MongoDB.Bson.Tests.IO
         public void GetByte_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var mockBuffer = Mock.Get(subject.Buffer);
 
             subject.GetByte(0);
 
-            buffer.Received(1).GetByte(1);
+            mockBuffer.Verify(b => b.GetByte(1), Times.Once);
         }
 
         [Theory]
@@ -301,12 +302,12 @@ namespace MongoDB.Bson.Tests.IO
         public void GetBytes_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var mockBuffer = Mock.Get(subject.Buffer);
             var destination = new byte[1];
 
             subject.GetBytes(1, destination, 0, 1);
 
-            buffer.Received(1).GetBytes(2, destination, 0, 1);
+            mockBuffer.Verify(b => b.GetBytes(2, destination, 0, 1), Times.Once);
         }
 
         [Theory]
@@ -353,11 +354,11 @@ namespace MongoDB.Bson.Tests.IO
         public void GetSlice_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var mockBuffer = Mock.Get(subject.Buffer);
 
             subject.GetSlice(1, 1);
 
-            buffer.Received(1).GetSlice(2, 1);
+            mockBuffer.Verify(b => b.GetSlice(2, 1), Times.Once);
         }
 
         [Theory]
@@ -481,10 +482,10 @@ namespace MongoDB.Bson.Tests.IO
 
         public ByteBufferSlice CreateSubjectWithFakeBuffer(int size = 3, int offset = 1, int length = 2)
         {
-            var buffer = Substitute.For<IByteBuffer>();
-            buffer.Length.Returns(size);
-            buffer.IsReadOnly.Returns(true);
-            return new ByteBufferSlice(buffer, offset, length);
+            var mockBuffer = new Mock<IByteBuffer>();
+            mockBuffer.SetupGet(s => s.Length).Returns(size);
+            mockBuffer.SetupGet(s => s.IsReadOnly).Returns(true);
+            return new ByteBufferSlice(mockBuffer.Object, offset, length);
         }
 
         // nested types

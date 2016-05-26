@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -81,9 +81,9 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1, 0)]
             int minimumCapacity)
         {
-            var chunkSource = Substitute.For<IBsonChunkSource>();
+            var mockChunkSource = new Mock<IBsonChunkSource>();
 
-            Action action = () => ByteBufferFactory.Create(chunkSource, minimumCapacity);
+            Action action = () => ByteBufferFactory.Create(mockChunkSource.Object, minimumCapacity);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
         }
