@@ -97,39 +97,37 @@ namespace MongoDB.Bson.Serialization.Serializers
                     goto default;
 
                 case BsonType.Boolean:
-                    return bsonReader.ReadBoolean();
+                    return DeserializeWithregisterdIfAny(()=> bsonReader.ReadBoolean(), context, args);
 
                 case BsonType.DateTime:
-                    var registeredSerializer = BsonSerializer.SerializerRegistry.GetSerializer(typeof(DateTime));
-                    if (registeredSerializer != null)
+                    return DeserializeWithregisterdIfAny(() =>
                     {
-                        return registeredSerializer.Deserialize(context);
-                    }
-                    var millisecondsSinceEpoch = bsonReader.ReadDateTime();
-                    var bsonDateTime = new BsonDateTime(millisecondsSinceEpoch);
-                    return bsonDateTime.ToUniversalTime();
+                        var millisecondsSinceEpoch = bsonReader.ReadDateTime();
+                        var bsonDateTime = new BsonDateTime(millisecondsSinceEpoch);
+                        return bsonDateTime.ToUniversalTime();
+                    }, context, args);
 
                 case BsonType.Document:
                     return DeserializeDiscriminatedValue(context, args);
 
                 case BsonType.Double:
-                    return bsonReader.ReadDouble();
+                    return DeserializeWithregisterdIfAny( () => bsonReader.ReadDouble(), context, args);
 
                 case BsonType.Int32:
-                    return bsonReader.ReadInt32();
+                    return DeserializeWithregisterdIfAny(() => bsonReader.ReadInt32(), context, args);
 
                 case BsonType.Int64:
-                    return bsonReader.ReadInt64();
+                    return DeserializeWithregisterdIfAny(() => bsonReader.ReadInt64(), context, args);
 
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
 
                 case BsonType.ObjectId:
-                    return bsonReader.ReadObjectId();
+                    return DeserializeWithregisterdIfAny(() => bsonReader.ReadObjectId(), context, args);
 
                 case BsonType.String:
-                    return bsonReader.ReadString();
+                    return DeserializeWithregisterdIfAny(() => bsonReader.ReadString(), context, args);
 
                 default:
                     var message = string.Format("ObjectSerializer does not support BSON type '{0}'.", bsonType);
@@ -220,6 +218,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
             }
         }
+
+        private T DeserializeWithregisterdIfAny<T> (Func<T> defaultSerialization, BsonDeserializationContext context, BsonDeserializationArgs args)
+        {            
+            if (!BsonSerializer.SerializerRegistry.IsSerializerRegistered<T>())
+            {
+                return defaultSerialization();
+            }
+
+            var ser = BsonSerializer.SerializerRegistry.GetSerializer(typeof(T));
+            return (T)ser.Deserialize(context, args);
+        }
+    
 
         // private methods
         private object DeserializeDiscriminatedValue(BsonDeserializationContext context, BsonDeserializationArgs args)

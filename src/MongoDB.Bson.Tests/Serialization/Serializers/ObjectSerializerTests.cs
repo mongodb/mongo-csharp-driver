@@ -16,9 +16,9 @@
 using System;
 using System.Dynamic;
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
@@ -251,8 +251,9 @@ namespace MongoDB.Bson.Tests.Serialization
         [SetUp]
         public void Register()
         {
-            var serializer = new Bson.Serialization.Serializers.DateTimeSerializer(DateTimeKind.Local);
+            var serializer = new DateTimeSerializer(DateTimeKind.Local);
             BsonSerializer.RegisterSerializer(typeof(DateTime), serializer);
+            
         }
 
         [Test]
@@ -267,6 +268,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
             Assert.AreEqual(dt, restored.Value);
             Assert.AreEqual(dt.Kind, ((DateTime)restored.Value).Kind);
+
+            o = new ObjectClass { Value = 100.10 };
+
+            serilized = o.ToJson();
+            restored = BsonSerializer.Deserialize<ObjectClass>(serilized);
+            Assert.AreEqual(100.1, restored.Value);
         }
     }
 }

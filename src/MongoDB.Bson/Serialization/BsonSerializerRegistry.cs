@@ -146,5 +146,15 @@ namespace MongoDB.Bson.Serialization
             var message = string.Format("No serializer found for type {0}.", type.FullName);
             throw new BsonSerializationException(message);
         }
+
+        /// <summary>
+        /// Returns if any serializer is registerd for teh specified <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>true or false</returns>
+        public bool IsSerializerRegistered<T>()
+        {
+            return _cache.ContainsKey(typeof(T));
+        }
     }
 }
