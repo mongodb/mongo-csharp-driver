@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class TagSetTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_create_new_tag_list()
         {
             var tags = new[] { new Tag("name", "value") };
@@ -34,21 +33,21 @@ namespace MongoDB.Driver
             tagSet.Tags.Should().NotBeSameAs(tags);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_tags_is_null()
         {
             Action action = () => new TagSet(null);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_no_arguments_should_create_empty_tag_set()
         {
             var tagSet = new TagSet();
             tagSet.Tags.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_no_tags_should_create_empty_tag_set()
         {
             var tags = new Tag[0];
@@ -56,7 +55,7 @@ namespace MongoDB.Driver
             tagSet.Tags.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_one_tag_should_create_tag_set_with_one_tag()
         {
             var tags = new[] { new Tag("name", "value") };
@@ -64,7 +63,7 @@ namespace MongoDB.Driver
             tagSet.Tags.Should().Equal(tags);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_two_tag_should_create_tag_set_with_two_tags()
         {
             var tags = new[] { new Tag("name1", "value1"), new Tag("name2", "value2") };
@@ -72,7 +71,7 @@ namespace MongoDB.Driver
             tagSet.Tags.Should().Equal(tags);
         }
 
-        [Test]
+        [Fact]
         public void ContainsAll_should_return_false_if_any_required_tag_is_missing()
         {
             var tagSet = new TagSet(new[] { new Tag("name1", "value1"), new Tag("name2", "value2") });
@@ -80,7 +79,7 @@ namespace MongoDB.Driver
             tagSet.ContainsAll(required).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void ContainsAll_should_return_true_if_all_required_tags_are_present()
         {
             var tagSet = new TagSet(new[] { new Tag("name1", "value1"), new Tag("name2", "value2") });
@@ -88,7 +87,7 @@ namespace MongoDB.Driver
             tagSet.ContainsAll(required).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_if_any_field_is_not_the_same()
         {
             var tagSet1 = new TagSet(new[] { new Tag("name1", "value1") });
@@ -97,7 +96,7 @@ namespace MongoDB.Driver
             tagSet1.Equals((object)tagSet2).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_if_rhs_is_null()
         {
             var tagSet1 = new TagSet(new[] { new Tag("name", "value") });
@@ -105,14 +104,14 @@ namespace MongoDB.Driver
             tagSet1.Equals((object)null).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_if_rhs_is_not_a_TagSet()
         {
             var tagSet1 = new TagSet(new[] { new Tag("name", "value") });
             tagSet1.Equals((object)"abc").Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fields_are_the_same()
         {
             var tagSet1 = new TagSet(new[] { new Tag("name", "value") });

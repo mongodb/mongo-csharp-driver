@@ -18,24 +18,23 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class FindOneAndDeleteOperationTests : OperationTestBase
     {
         private BsonDocument _filter;
 
-        public override void OneTimeSetUp()
+        public FindOneAndDeleteOperationTests()
         {
-            base.OneTimeSetUp();
-
             _filter = new BsonDocument("x", 1);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new FindOneAndDeleteOperation<BsonDocument>(null, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_filter_is_null()
         {
             Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
             Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, null, _messageEncoderSettings);
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, null);
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_object()
         {
             var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -78,7 +77,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
             [Values(null, 10)] int? maxTimeMS,
             [Values(null, "{a: 1}")] string projection,
@@ -115,12 +115,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_an_existing_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndDeleteOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{x: 1}"),
@@ -136,11 +138,13 @@ namespace MongoDB.Driver.Core.Operations
             serverList.Should().BeEmpty();
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_there_is_a_write_concern_error(
             [Values(false, true)] bool async)
         {
+            RequireServer.Where(minimumVersion: "3.2.0-rc0", clusterTypes: ClusterTypes.ReplicaSet);
+            EnsureTestData();
             var subject = new FindOneAndDeleteOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{ x : 1 }"),
@@ -160,12 +164,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList.Should().BeEmpty();
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_when_document_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndDeleteOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{x: 2}"),

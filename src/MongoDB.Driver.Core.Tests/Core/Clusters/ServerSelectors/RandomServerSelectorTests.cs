@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,17 +19,15 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    [TestFixture]
     public class RandomServerSelectorTests
     {
         private ClusterDescription _description;
 
-        [SetUp]
-        public void Setup()
+        public RandomServerSelectorTests()
         {
             var clusterId = new ClusterId();
             _description = new ClusterDescription(
@@ -44,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 });
         }
 
-        [Test]
+        [Fact]
         public void Should_select_a_random_server()
         {
             var subject = new RandomServerSelector();
@@ -54,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Count.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Should_select_no_servers_when_none_exist()
         {
             var subject = new RandomServerSelector();

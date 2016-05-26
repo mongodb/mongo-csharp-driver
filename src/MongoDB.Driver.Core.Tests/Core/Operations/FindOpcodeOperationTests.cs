@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,17 +19,19 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class FindOpcodeOperationTests : OperationTestBase
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AllowPartialResults_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -42,7 +44,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -55,7 +58,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -67,7 +71,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CollectionNamespace_get_should_return_expected_result(
             [Values("a", "b")]
             string collectionName)
@@ -81,7 +86,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(collectionNamespace);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Comment_get_and_set_should_work(
             [Values(null, "a", "b")]
             string value)
@@ -94,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -125,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Sort.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => new FindOpcodeOperation<BsonDocument>(null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -133,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action action = () => new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, null);
@@ -141,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_result_serializer_is_null()
         {
             Action action = () => new FindOpcodeOperation<BsonDocument>(_collectionNamespace, null, _messageEncoderSettings);
@@ -149,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
 
-        [Test]
+        [Fact]
         public void CreateWrappedQuery_should_create_the_correct_query_when_not_connected_to_a_shard_router()
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
@@ -177,7 +183,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateWrappedQuery_should_create_the_correct_query_when_connected_to_a_shard_router()
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
@@ -205,7 +211,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CursorType_get_and_set_should_work(
             [Values(CursorType.NonTailable, CursorType.Tailable)]
             CursorType value)
@@ -218,10 +225,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query()
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = await ExecuteOperationAsync(subject);
@@ -230,11 +238,12 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [Test]
-        [RequiresServer(VersionLessThan = "3.2.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_limit_is_used(
             [Values(1, 5, 6, 12)] int limit)
         {
+            RequireServer.Where(versionLessThan: "3.2.0");
             var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod();
             for (var id = 1; id <= limit + 1; id++)
             {
@@ -254,10 +263,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(limit);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 BatchSize = 2
@@ -269,10 +279,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_documents_matching_options()
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
@@ -290,7 +301,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [Test]
+        [Fact]
         public void ExecuteAsync_should_throw_when_binding_is_null()
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -300,7 +311,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Filter_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -314,7 +326,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstBatchSize_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -327,7 +340,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstBatchSize_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -339,7 +353,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Hint_get_and_set_should_work(
             [Values(null, "{ value : \"b_1\" }", "{ value : { b : 1 } }")]
             string json)
@@ -353,7 +368,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Limit_get_and_set_should_work(
             [Values(-2, -1, 0, 1, 2)]
             int? value)
@@ -366,7 +382,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Max_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -380,7 +397,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxScan_get_and_set_should_work(
             [Values(null, 1)]
             int? value)
@@ -393,7 +411,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_get_and_set_should_work(
             [Values(null, 1)]
             int? seconds)
@@ -407,7 +426,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MessageEncoderSettings_get_should_return_expected_result(
             [Values(GuidRepresentation.CSharpLegacy, GuidRepresentation.Standard)]
             GuidRepresentation guidRepresentation)
@@ -420,7 +440,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeEquivalentTo(messageEncoderSettings);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Min_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -434,7 +455,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void NoCursorTimeout_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -447,7 +469,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OplogReplay_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -460,7 +483,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Projection_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 1 }")]
             string json)
@@ -474,7 +498,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void ResultSerializer_get_should_return_expected_result()
         {
             var resultSerializer = new BsonDocumentSerializer();
@@ -485,7 +509,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(resultSerializer);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ShowRecordId_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -498,7 +523,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Skip_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -511,7 +537,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Skip_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -523,7 +550,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Snapshot_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -536,7 +564,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Sort_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : -1 }")]
             string json)

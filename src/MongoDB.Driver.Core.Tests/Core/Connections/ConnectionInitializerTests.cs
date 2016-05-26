@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,23 +32,23 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
         private ConnectionInitializer _subject;
 
-        [SetUp]
-        public void Setup()
+        public ConnectionInitializerTests()
         {
             _subject = new ConnectionInitializer();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnection_should_throw_an_ArgumentNullException_if_the_connection_is_null(
             [Values(false, true)]
             bool async)
@@ -66,7 +66,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
             [Values(false, true)]
             bool async)

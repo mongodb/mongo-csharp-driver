@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class ReplicaSetConfigTests
     {
         private static readonly EndPoint[] _endPoints =
@@ -35,7 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
         private static readonly string _name = "rs1";
         private static readonly int _version = 10;
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_endpoints_is_null()
         {
             Action act = () => new ReplicaSetConfig(null, _name, _endPoints[0], _version);
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_assign_properties_correctly()
         {
             var subject = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Version.Should().Be(_version);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_ignore_revision()
         {
             var subject1 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_not_be_the_same_when_a_field_is_different()
         {
             var subject1 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);

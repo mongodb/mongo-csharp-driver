@@ -22,21 +22,21 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class WriteCommandOperationTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -55,7 +55,8 @@ namespace MongoDB.Driver.Core.Operations
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_unwrapped_command_when_wrapping_is_not_necessary(
             [Values(false, true)] bool async)
         {
@@ -98,7 +99,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_additionalOptions_need_wrapping(
             [Values(false, true)] bool async)
         {
@@ -143,7 +145,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_comment_needs_wrapping(
             [Values(false, true)] bool async)
         {

@@ -24,15 +24,17 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Xunit;
+using Xunit.Sdk;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using System.Collections;
 
 namespace MongoDB.Driver.Specifications.read_write_concern.tests
 {
-    [TestFixture]
     public class DocumentTestRunner
     {
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [Theory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
             BsonValue readConcernValue;
@@ -136,12 +138,12 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
             return writeConcern;
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Specifications.read_write_concern.tests.document.";
-                return Assembly
+                var enumerable = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
@@ -150,24 +152,32 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
                         var definition = ReadDefinition(path);
                         var tests = (BsonArray)definition["tests"];
                         var fullName = path.Remove(0, prefix.Length);
-                        var list = new List<TestCaseData>();
+                        var list = new List<object[]>();
                         foreach (BsonDocument test in tests)
                         {
-                            var data = new TestCaseData(test);
-                            data.SetCategory("Specifications");
-                            if (test.Contains("readConcern"))
-                            {
-                                data.SetCategory("ReadConcern");
-                            }
-                            else
-                            {
-                                data.SetCategory("WriteConcern");
-                            }
-                            var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
-                            list.Add(data.SetName(testName));
+                            //var data = new TestCaseData(test);
+                            //data.SetCategory("Specifications");
+                            //if (test.Contains("readConcern"))
+                            //{
+                            //    data.SetCategory("ReadConcern");
+                            //}
+                            //else
+                            //{
+                            //    data.SetCategory("WriteConcern");
+                            //}
+                            //var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
+                            //data = data.SetName(testName);
+                            var data = new object[] { test };
+                            list.Add(data);
                         }
                         return list;
                     });
+                return enumerable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDefinition(string path)

@@ -32,7 +32,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
@@ -188,10 +188,9 @@ namespace MongoDB.Driver
             return cluster;
         }
 
-        public static CollectionNamespace GetCollectionNamespaceForTestFixture()
+        public static CollectionNamespace GetCollectionNamespaceForTestClass(Type testClassType)
         {
-            var testFixtureType = GetTestFixtureTypeFromCallStack();
-            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testFixtureType.Name);
+            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testClassType.Name);
             return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
@@ -218,10 +217,9 @@ namespace MongoDB.Driver
             return new DatabaseNamespace("Tests" + timestamp);
         }
 
-        public static DatabaseNamespace GetDatabaseNamespaceForTestFixture()
+        public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
         {
-            var testFixtureType = GetTestFixtureTypeFromCallStack();
-            var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.DatabaseName + "-" + testFixtureType.Name);
+            var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.DatabaseName + "-" + testClassType.Name);
             if (databaseName.Length >= 64)
             {
                 databaseName = databaseName.Substring(0, 63);
@@ -282,22 +280,10 @@ namespace MongoDB.Driver
             }
         }
 
-        private static Type GetTestFixtureTypeFromCallStack()
+        private static Type GetTestClassTypeFromCallStack()
         {
-            var stackTrace = new StackTrace();
-            for (var index = 0; index < stackTrace.FrameCount; index++)
-            {
-                var frame = stackTrace.GetFrame(index);
-                var methodInfo = frame.GetMethod();
-                var declaringType = methodInfo.DeclaringType;
-                var testFixtureAttribute = declaringType.GetCustomAttribute<TestFixtureAttribute>(inherit: false);
-                if (testFixtureAttribute != null)
-                {
-                    return declaringType;
-                }
-            }
-
-            throw new Exception("No [TestFixture] found on the call stack.");
+            var methodInfo = GetTestMethodInfoFromCallStack();
+            return methodInfo.DeclaringType;
         }
 
         private static MethodInfo GetTestMethodInfoFromCallStack()
@@ -309,20 +295,15 @@ namespace MongoDB.Driver
                 var methodInfo = frame.GetMethod() as MethodInfo;
                 if (methodInfo != null)
                 {
-                    var testAttribute = methodInfo.GetCustomAttribute<TestAttribute>(inherit: false);
-                    if (testAttribute != null)
-                    {
-                        return methodInfo;
-                    }
-                    var testCaseAttribute = methodInfo.GetCustomAttribute<TestCaseAttribute>(inherit: false);
-                    if (testCaseAttribute != null)
+                    var factAttribute = methodInfo.GetCustomAttribute<FactAttribute>();
+                    if (factAttribute != null)
                     {
                         return methodInfo;
                     }
                 }
             }
 
-            throw new Exception("No [TestFixture] found on the call stack.");
+            throw new Exception("No [FactAttribute] found on the call stack.");
         }
 
         private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)

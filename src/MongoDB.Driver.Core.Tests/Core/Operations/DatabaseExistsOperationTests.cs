@@ -17,23 +17,22 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class DatabaseExistsOperationTests : OperationTestBase
     {
-        public override void OneTimeSetUp()
+        public DatabaseExistsOperationTests()
         {
-            base.OneTimeSetUp();
-
             // override this database and collection using special ones for this...
             _databaseNamespace = new DatabaseNamespace("DatabaseExistsOperationTests");
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, "DatabaseExistsOperationTests");
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_database_namespace_is_null()
         {
             Action action = () => new DatabaseExistsOperation(null, _messageEncoderSettings);
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action action = () => new DatabaseExistsOperation(_databaseNamespace, null);
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_subject()
         {
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
@@ -58,32 +57,49 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
-        [RequiresServer(AfterTestMethodName = "DropDatabase")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_true_when_database_exists(
             [Values(false, true)]
             bool async)
         {
-            Insert(BsonDocument.Parse("{x:1}")); // ensure database exists
+            RequireServer.Any();
+            try
+            {
+                Insert(BsonDocument.Parse("{x:1}")); // ensure database exists
 
-            var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
+                var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+                var result = ExecuteOperation(subject, async);
 
-            result.Should().BeTrue();
+                result.Should().BeTrue();
+            }
+            finally
+            {
+                try { DropDatabase(); } catch { }
+            }
         }
 
-        [Test]
-        [RequiresServer("DropDatabase", "DropDatabase")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_false_when_database_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropDatabase();
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            try
+            {
+                var result = ExecuteOperation(subject, async);
 
-            result.Should().BeFalse();
+                result.Should().BeFalse();
+            }
+            finally
+            {
+                try { DropDatabase(); } catch { }
+            }
         }
     }
 }

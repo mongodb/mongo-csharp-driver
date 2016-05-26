@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class TagTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_all_fields()
         {
             var tag = new Tag("name", "value");
@@ -30,22 +29,23 @@ namespace MongoDB.Driver
             tag.Value.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_name_is_null()
         {
             Action action = () => new Tag(null, "value");
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_value_is_null()
         {
             Action action = () => new Tag("name", null);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [TestCase("name", "?")]
-        [TestCase("?", "value")]
+        [Theory]
+        [InlineData("name", "?")]
+        [InlineData("?", "value")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string name, string value)
         {
             var tag1 = new Tag("name", "value");
@@ -54,7 +54,7 @@ namespace MongoDB.Driver
             tag1.Equals((object)tag2).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fields_are_equal()
         {
             var tag1 = new Tag("name", "value");
@@ -63,7 +63,7 @@ namespace MongoDB.Driver
             tag1.Equals((object)tag2).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void GetHashCode_should_be_equal_if_all_fields_are_equal()
         {
             var tag1 = new Tag("name", "value");
@@ -71,8 +71,9 @@ namespace MongoDB.Driver
             tag1.GetHashCode().Should().Be(tag2.GetHashCode());
         }
 
-        [TestCase("name", "?")]
-        [TestCase("?", "value")]
+        [Theory]
+        [InlineData("name", "?")]
+        [InlineData("?", "value")]
         public void GetHashCode_should_not_be_equal_if_any_field_is_not_equal(string name, string value)
         {
             // note: theoretically hashcodes could collide but it's not likely (and they don't with these values)
@@ -81,14 +82,14 @@ namespace MongoDB.Driver
             tag1.GetHashCode().Should().NotBe(tag2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Name_should_return_the_correct_value()
         {
             var tag = new Tag("name", "value");
             tag.Name.Should().Be("name");
         }
 
-        [Test]
+        [Fact]
         public void Value_should_return_the_correct_value()
         {
             var tag = new Tag("name", "value");

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Async
 {
-    [TestFixture]
     public class AsyncQueueTests
     {
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
         public void DequeueAll_should_dequeue_all_items(int n)
         {
             var subject = new AsyncQueue<int>();
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Async
             count.Should().Be(n);
         }
 
-        [Test]
+        [Fact]
         public void Items_should_be_dequeued_in_the_order_they_were_enqueued()
         {
             var subject = new AsyncQueue<int>();
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Async
             result2.Result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Items_should_be_dequeued_in_the_order_they_were_enqueued_2()
         {
             var subject = new AsyncQueue<int>();
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Async
             result2.Result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Dequeue_should_return_an_uncompleted_task_when_no_items_exist()
         {
             var subject = new AsyncQueue<int>();
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Async
             result.IsCompleted.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Dequeue_should_complete_when_an_item_is_added_to_the_queue()
         {
             var subject = new AsyncQueue<int>();
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Async
             result.Result.Should().Be(10);
         }
 
-        [Test]
+        [Fact]
         public void Dequeue_should_cancel_when_cancellation_is_requested()
         {
             var cancellationTokenSource = new CancellationTokenSource();

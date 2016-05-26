@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    [TestFixture]
     public class JsonMessageEncoderFactoryTests
     {
         #region static
@@ -32,7 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_with_textReader_parameter_should_not_throw_if_textReader_is_not_null()
         {
             using (var textReader = new StringReader(""))
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_textReader_parameter_should_throw_if_textReader_is_null()
         {
             TextReader textReader = null;
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_textWriter_parameter_should_not_throw_if_textWriter_is_not_null()
         {
             using (var textWriter = new StringWriter())
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_textWriter_parameter_should_throw_if_textWriter_is_null()
         {
             TextWriter textWriter = null;
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_two_parameters_should_not_throw_if_only_textReader_is_provided()
         {
             using (var textReader = new StringReader(""))
@@ -78,7 +77,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_two_parameters_should_not_throw_if_only_textWriter_is_provided()
         {
             using (var textWriter = new StringWriter())
@@ -88,14 +87,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_two_parameters_should_throw_if_both_values_are_null()
         {
             Action action = () => new JsonMessageEncoderFactory(null, null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void GetDeleteMessageEncoder_should_return_a_DeleteMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetGetMoreMessageEncoder_should_return_a_GetMoreMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -117,7 +116,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetInsertMessageEncoder_should_return_a_InsertMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -128,7 +127,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetKillCursorsMessageEncoder_should_return_a_KillCursorsMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -139,7 +138,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetQueryMessageEncoder_should_return_a_QueryMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -150,7 +149,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetReplyMessageEncoder_should_return_a_ReplyMessageJsonEncoder()
         {
             using (var textReader = new StringReader(""))
@@ -161,7 +160,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void GetUpdateMessageEncoder_should_return_a_UpdateMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class BuildInfoResultTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_wrapped_is_null()
         {
             Action act = () => new BuildInfoResult(null);
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_be_true_when_both_have_the_same_result()
         {
             var subject1 = new BuildInfoResult(new BsonDocument("x", 1));
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject2).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_be_false_when_both_have_different_results()
         {
             var subject1 = new BuildInfoResult(new BsonDocument("x", 1));
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject2).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void ServerVersion_should_get_the_semantic_version()
         {
             var doc = new BsonDocument
@@ -63,7 +62,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
         }
 
-        [Test]
+        [Fact]
         public void Wrapped_should_return_the_document_passed_in_the_constructor()
         {
             var doc = new BsonDocument();

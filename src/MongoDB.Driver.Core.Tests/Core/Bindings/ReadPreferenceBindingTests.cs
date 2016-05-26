@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,26 +16,25 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    [TestFixture]
     public class ReadPreferenceBindingTests
     {
         private ICluster _cluster;
 
-        [SetUp]
-        public void Setup()
+        public ReadPreferenceBindingTests()
         {
             _cluster = Substitute.For<ICluster>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_cluster_is_null()
         {
             Action act = () => new ReadPreferenceBinding(null, ReadPreference.Primary);
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
             Action act = () => new ReadPreferenceBinding(_cluster, null);
@@ -51,7 +50,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -72,7 +72,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSource_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster(
             [Values(false, true)]
             bool async)
@@ -93,7 +94,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_not_call_dispose_on_the_cluster()
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);

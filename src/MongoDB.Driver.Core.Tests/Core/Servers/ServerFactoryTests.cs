@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     public class ServerFactoryTests
     {
         private ClusterId _clusterId;
@@ -38,8 +37,7 @@ namespace MongoDB.Driver.Core.Servers
         private IServerMonitorFactory _serverMonitorFactory;
         private ServerSettings _settings;
 
-        [SetUp]
-        public void Setup()
+        public ServerFactoryTests()
         {
             _clusterId = new ClusterId();
             _clusterConnectionMode = ClusterConnectionMode.Standalone;
@@ -50,7 +48,7 @@ namespace MongoDB.Driver.Core.Servers
             _settings = new ServerSettings();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
             Action act = () => new ServerFactory(_clusterConnectionMode, null, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
@@ -58,7 +56,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
             Action act = () => new ServerFactory(_clusterConnectionMode, _settings, null, _serverMonitorFactory, _eventSubscriber);
@@ -66,7 +64,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_heartbeatConnectionFactory_is_null()
         {
             Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, null, _eventSubscriber);
@@ -74,7 +72,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, null);
@@ -82,7 +80,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateServer_should_throw_if_clusterId_is_null()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
@@ -92,7 +90,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateServer_should_throw_if_endPoint_is_null()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
@@ -102,7 +100,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateServer_should_return_Server()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);

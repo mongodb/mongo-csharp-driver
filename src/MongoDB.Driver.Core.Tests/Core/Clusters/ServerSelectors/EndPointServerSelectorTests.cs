@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,17 +18,15 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    [TestFixture]
     public class EndPointServerSelectorTests
     {
         private ClusterDescription _description;
 
-        [SetUp]
-        public void Setup()
+        public EndPointServerSelectorTests()
         {
             var clusterId = new ClusterId();
             _description = new ClusterDescription(
@@ -43,7 +41,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 });
         }
 
-        [Test]
+        [Fact]
         public void Should_select_the_server_if_it_exists()
         {
             var subject = new EndPointServerSelector(new DnsEndPoint("localhost", 27017));
@@ -54,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(_description.Servers[0]);
         }
 
-        [Test]
+        [Fact]
         public void Should_return_empty_if_the_server_does_not_exist()
         {
             var subject = new EndPointServerSelector(new DnsEndPoint("blargh", 27017));
@@ -64,7 +62,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void Should_select_no_servers_when_none_exist()
         {
             var subject = new EndPointServerSelector(new DnsEndPoint("blargh", 27017));

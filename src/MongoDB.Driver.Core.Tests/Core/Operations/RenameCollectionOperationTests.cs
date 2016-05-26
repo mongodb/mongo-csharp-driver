@@ -18,28 +18,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class RenameCollectionOperationTests : OperationTestBase
     {
         // fields
         private CollectionNamespace _newCollectionNamespace;
 
-        // setup methods
-        public override void OneTimeSetUp()
+        // constructors
+        public RenameCollectionOperationTests()
         {
-            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(RenameCollectionOperationTests));
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, "old");
             _newCollectionNamespace = new CollectionNamespace(_databaseNamespace, "new");
         }
 
         // test methods
-        [Test]
+        [Fact]
         public void CollectionNamespace_get_should_return_expected_result()
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
@@ -49,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_collectionNamespace);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
@@ -60,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.DropTarget.Should().NotHaveValue();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
             Action action = () => new RenameCollectionOperation(null, _newCollectionNamespace, _messageEncoderSettings);
@@ -68,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_newCollectionNamespace_is_null()
         {
             Action action = () => new RenameCollectionOperation(_collectionNamespace, null, _messageEncoderSettings);
@@ -76,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newCollectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
@@ -91,7 +93,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_dropTarget_is_provided(
             [Values(false, true)]
             bool dropTarget)
@@ -112,7 +115,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DropTarget_should_work(
             [Values(false, true)]
             bool dropTarget)
@@ -125,12 +129,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(dropTarget);
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             EnsureCollectionExists(_collectionNamespace, async);
             EnsureCollectionDoesNotExist(_newCollectionNamespace, async);
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
@@ -140,12 +145,13 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_dropTarget_is_true_and_newCollectionNamespace_exists(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             EnsureCollectionExists(_collectionNamespace, async);
             EnsureCollectionExists(_newCollectionNamespace, async);
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
@@ -158,12 +164,13 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_dropTarget_is_false_and_newCollectionNamespace_exists(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
             {
                 DropTarget = false
@@ -176,7 +183,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<MongoCommandException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execyte_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
@@ -188,7 +196,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
@@ -198,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void NewCollectionNamespace_get_should_return_expected_result()
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);

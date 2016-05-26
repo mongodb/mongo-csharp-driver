@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,19 +19,20 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class IAsyncCursorExtensionsTests
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Any_should_return_expected_result(
             [Values(0, 1, 2)] int count,
             [Values(false, true)] bool async)
@@ -52,7 +53,8 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_return_expected_result(
             [Values(1, 2)] int count,
             [Values(false, true)] bool async)
@@ -73,7 +75,8 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_throw_when_cursor_has_no_documents(
             [Values(false, true)] bool async)
         {
@@ -92,7 +95,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstOrDefault_should_return_expected_result(
             [Values(0, 1, 2)] int count,
             [Values(false, true)] bool async)
@@ -113,7 +117,8 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_return_expected_result(
             [Values(false, true)] bool async)
         {
@@ -133,7 +138,8 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_throw_when_cursor_has_wrong_number_of_documents(
             [Values(0, 2)] int count,
             [Values(false, true)] bool async)
@@ -153,7 +159,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_return_expected_result(
             [Values(0, 1)] int count,
             [Values(false, true)] bool async)
@@ -174,7 +181,8 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_throw_when_cursor_has_wrong_number_of_documents(
             [Values(false, true)] bool async)
         {
@@ -193,7 +201,7 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public void ToEnumerable_result_should_only_be_enumerable_one_time()
         {
             var cursor = CreateCursor(2);
@@ -205,7 +213,7 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public void ToEnumerable_should_return_expected_result()
         {
             var cursor = CreateCursor(2);
@@ -220,7 +228,8 @@ namespace MongoDB.Driver
             result.ToList().Should().Equal(expectedDocuments);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ToList_should_only_be_callable_one_time(
             [Values(false, true)] bool async)
         {
@@ -240,7 +249,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ToList_should_return_expected_result(
             [Values(false, true)] bool async)
         {

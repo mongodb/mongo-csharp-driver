@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,18 +21,17 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     public class ServerIdTests
     {
         private static readonly ClusterId __clusterId = new ClusterId(1);
         private static readonly DnsEndPoint __endPoint = new DnsEndPoint("localhost", 27017);
 
-        [Test]
+        [Fact]
         public void Constructor_should_properly_initializes_instance()
         {
             var subject = new ServerId(__clusterId, __endPoint);
@@ -54,8 +53,9 @@ namespace MongoDB.Driver.Core.Servers
             return new ServerId(clusterId, endPoint);
         }
 
-        [TestCase("ClusterId")]
-        [TestCase("EndPoint")]
+        [Theory]
+        [InlineData("ClusterId")]
+        [InlineData("EndPoint")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
         {
             var subject1 = CreateSubject();
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Servers
             subject1.GetHashCode().Should().NotBe(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fiels_are_equal()
         {
             var subject1 = CreateSubject();
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Servers
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_string_representation()
         {
             var subject = new ServerId(__clusterId, __endPoint);

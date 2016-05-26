@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class CursorBatchDeserializationHelperTests
     {
-        [Test]
+        [Fact]
         public void DeserializeBatch_should_return_expected_result_when_batch_has_one_document()
         {
             var document = BsonDocument.Parse("{ batch : [ { a : 1 } ] }");
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
             result[0].Should().Be("{ a :  1 }");
         }
 
-        [Test]
+        [Fact]
         public void DeserializeBatch_should_return_expected_result_when_batch_has_two_documents()
         {
             var document = BsonDocument.Parse("{ batch : [ { a : 1 }, { b : 2 } ] }");
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
             result[1].Should().Be("{ b :  2 }");
         }
 
-        [Test]
+        [Fact]
         public void DeserializeBatch_should_return_expected_result_when_batch_is_empty()
         {
             var document = BsonDocument.Parse("{ batch : [ ] }");
@@ -76,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeBatch_should_return_expected_result_when_GuidRepresentation_is_Standard()
         {
             var document = BsonDocument.Parse("{ batch : [ { a : HexData(4, \"0102030405060708090a0b0c0d0e0f10\") } ] }");

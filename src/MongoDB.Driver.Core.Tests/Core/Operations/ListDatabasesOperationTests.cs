@@ -18,23 +18,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class ListDatabasesOperationTests : OperationTestBase
     {
-        // setup methods
-        public override void OneTimeSetUp()
+        // constructors
+        public ListDatabasesOperationTests()
         {
-            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(ListDatabasesOperationTests));
         }
 
         // test methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
@@ -56,12 +57,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
             EnsureDatabaseExists(async);
 
@@ -71,7 +73,8 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().Contain(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
@@ -84,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
             var subject = new ListDatabasesOperation(_messageEncoderSettings);

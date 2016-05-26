@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,22 +16,21 @@
 using System;
 using MongoDB.Driver.Core.Clusters;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class ClusterIdTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new ClusterId(1);
             subject.Value.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_if_any_field_is_not_equal()
         {
             var subject1 = new ClusterId(1);
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().NotBe(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fiels_are_equal()
         {
             var subject1 = new ClusterId(1);
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_string_representation()
         {
             var subject = new ClusterId(1);

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class QueryMessageTests
     {
         private readonly int _batchSize = 1;
@@ -35,13 +34,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly int _requestId = 2;
         private readonly int _skip = 3;
 
-        [TestCase(false, false, false, false, false, false)]
-        [TestCase(true, false, false, false, false, false)]
-        [TestCase(false, true, false, false, false, false)]
-        [TestCase(false, false, true, false, false, false)]
-        [TestCase(false, false, false, true, false, false)]
-        [TestCase(false, false, false, false, true, false)]
-        [TestCase(false, false, false, false, false, true)]
+        [Theory]
+        [InlineData(false, false, false, false, false, false)]
+        [InlineData(true, false, false, false, false, false)]
+        [InlineData(false, true, false, false, false, false)]
+        [InlineData(false, false, true, false, false, false)]
+        [InlineData(false, false, false, true, false, false)]
+        [InlineData(false, false, false, false, true, false)]
+        [InlineData(false, false, false, false, false, true)]
         public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool oplogReplay, bool partialOk, bool slaveOk, bool tailableCursor)
         {
             var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
@@ -58,28 +58,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.TailableCursor.Should().Be(tailableCursor);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_negative_skip_should_throw()
         {
             Action action = () => new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, -1, _batchSize, false, false, false, false, false, false);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
             Action action = () => new QueryMessage(_requestId, null, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_query_should_throw()
         {
             Action action = () => new QueryMessage(_requestId, _collectionNamespace, null, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);

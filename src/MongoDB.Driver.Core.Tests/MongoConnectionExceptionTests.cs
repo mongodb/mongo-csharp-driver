@@ -21,18 +21,17 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoConnectionExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
         private Exception _innerException = new Exception("inner");
         private string _message = "message";
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new MongoConnectionException(_connectionId, _message);
@@ -42,7 +41,7 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_innerException_should_initialize_subject()
         {
             var subject = new MongoConnectionException(_connectionId, _message, _innerException);
@@ -53,7 +52,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoConnectionException(_connectionId, _message, _innerException);

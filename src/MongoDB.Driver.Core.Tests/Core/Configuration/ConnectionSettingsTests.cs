@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,17 +15,17 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    [TestFixture]
     public class ConnectionSettingsTests
     {
         private static readonly ConnectionSettings __defaults = new ConnectionSettings();
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new ConnectionSettings();
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMinutes(30));
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_authenticators_is_null()
         {
             Action action = () => new ConnectionSettings(authenticators: null);
@@ -43,7 +43,8 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("authenticators");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_maxIdleTime_is_negative_or_zero(
             [Values(-1, 0)]
             int maxIdleTime)
@@ -53,7 +54,8 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxIdleTime");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_maxLifeTime_is_negative_or_zero(
             [Values(-1, 0)]
             int maxLifeTime)
@@ -63,7 +65,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxLifeTime");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_authenticators_should_initialize_instance()
         {
             var authenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username", "password")) };
@@ -75,7 +77,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_maxIdleTime_should_initialize_instance()
         {
             var maxIdleTime = TimeSpan.FromSeconds(123);
@@ -87,7 +89,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_maxLifeTime_should_initialize_instance()
         {
             var maxLifeTime = TimeSpan.FromSeconds(123);
@@ -99,7 +101,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxLifeTime.Should().Be(maxLifeTime);
         }
 
-        [Test]
+        [Fact]
         public void With_authenticators_should_return_expected_result()
         {
             var oldAuthenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username1", "password1")) };
@@ -113,7 +115,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
 
-        [Test]
+        [Fact]
         public void With_maxIdleTime_should_return_expected_result()
         {
             var oldMaxIdleTime = TimeSpan.FromSeconds(1);
@@ -127,7 +129,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
 
-        [Test]
+        [Fact]
         public void With_maxLifeTime_should_return_expected_result()
         {
             var oldMaxLifeTime = TimeSpan.FromSeconds(1);

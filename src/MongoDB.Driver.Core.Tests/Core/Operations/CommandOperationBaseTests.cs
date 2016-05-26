@@ -20,19 +20,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class CommandOperationBaseTests
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AdditionalOptions_get_and_set_should_work(
             [Values(null, "{ additional : 1 }")] string additionalOptionsString)
         {
@@ -45,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(additionalOptions);
         }
 
-        [Test]
+        [Fact]
         public void Command_get_should_return_expected_result()
         {
             var command = new BsonDocument("command", 1);
@@ -56,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(command);
         }
 
-        [Test]
+        [Fact]
         public void CommandValidator_get_and_set_should_work()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -68,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(commandValidator);
         }
 
-        [Test]
+        [Fact]
         public void CommandValidator_set_should_throw_when_value_is_null()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -78,7 +79,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Comment_get_and_set_should_work(
            [Values(null, "comment")] string comment)
         {
@@ -90,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(comment);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -109,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance_when_messageEncoderSettings_is_null()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -122,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_command_is_null()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -135,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("command");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             DatabaseNamespace databaseNamespace = null;
@@ -148,7 +150,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_resultSerializer_is_null()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -161,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
 
-        [Test]
+        [Fact]
         public void DatabaseNamespace_get_should_return_expected_result()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -172,7 +174,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(databaseNamespace);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MessageEncoderSettings_get_should_return_expected_result(
            [Values(false, true)] bool useNull)
         {
@@ -184,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void ResultSerializer_get_should_return_expected_result()
         {
             var resultSerializer = Substitute.For<IBsonSerializer<BsonDocument>>();

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    [TestFixture]
     public class ServerSettingsTests
     {
         private static readonly ServerSettings __defaults = new ServerSettings();
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new ServerSettings();
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.HeartbeatTimeout.Should().Be(TimeSpan.FromSeconds(10));
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_heartbeatInterval_is_negative()
         {
             Action action = () => new ServerSettings(heartbeatInterval: TimeSpan.FromSeconds(-1));
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("heartbeatInterval");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_heartbeatTimeout_is_negative()
         {
             Action action = () => new ServerSettings(heartbeatTimeout: TimeSpan.FromSeconds(-1));
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("heartbeatTimeout");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_heartbeatInterval_should_initialize_instance()
         {
             var heartbeatInterval = TimeSpan.FromSeconds(123);
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.HeartbeatTimeout.Should().Be(__defaults.HeartbeatTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_heartbeatTimeout_should_initialize_instance()
         {
             var heartbeatTimeout = TimeSpan.FromSeconds(123);
@@ -71,7 +70,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.HeartbeatTimeout.Should().Be(heartbeatTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_heartbeatInterval_should_return_expected_result()
         {
             var oldHeartbeatInterval = TimeSpan.FromSeconds(1);
@@ -84,7 +83,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_heartbeatTimeout_should_return_expected_result()
         {
             var oldHeartbeatTimeout = TimeSpan.FromSeconds(1);

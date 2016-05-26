@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,14 +26,13 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class BinaryConnectionFactoryTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionSettings_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_streamFactory_is_null()
         {
             var eventSubscriber = Substitute.For<IEventSubscriber>();
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnection_should_throw_an_ArgumentNullException_when_serverId_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnection_should_throw_an_ArgumentNullException_when_endPoint_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
@@ -90,7 +89,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnection_should_return_a_BinaryConnection()
         {
             var streamFactory = Substitute.For<IStreamFactory>();

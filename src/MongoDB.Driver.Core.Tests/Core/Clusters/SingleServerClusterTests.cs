@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,11 +22,10 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class SingleServerClusterTests
     {
         private EventCapturer _capturedEvents;
@@ -35,15 +34,14 @@ namespace MongoDB.Driver.Core.Clusters
 
         private EndPoint _endPoint = new DnsEndPoint("localhost", 27017);
 
-        [SetUp]
-        public void Setup()
+        public SingleServerClusterTests()
         {
             _settings = new ClusterSettings();
             _serverFactory = new MockClusterableServerFactory();
             _capturedEvents = new EventCapturer();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_more_than_one_endpoint_is_specified()
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
@@ -52,7 +50,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Initialize_should_throw_if_disposed()
         {
             var subject = CreateSubject();
@@ -63,7 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Fact]
         public void Initialize_should_create_and_initialize_the_server()
         {
             var subject = CreateSubject();
@@ -79,21 +77,21 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
-        [TestCase(ClusterConnectionMode.ReplicaSet, ServerType.ShardRouter)]
-        [TestCase(ClusterConnectionMode.ReplicaSet, ServerType.Standalone)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetArbiter)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetGhost)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetOther)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetPrimary)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetSecondary)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ShardRouter)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetArbiter)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetGhost)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetOther)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
-        [TestCase(ClusterConnectionMode.Sharded, ServerType.Standalone)]
+        [Theory]
+        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.ShardRouter)]
+        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.Standalone)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetArbiter)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetGhost)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetOther)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetPrimary)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetSecondary)]
+        [InlineData(ClusterConnectionMode.Standalone, ServerType.ShardRouter)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetArbiter)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetGhost)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetOther)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
+        [InlineData(ClusterConnectionMode.Sharded, ServerType.Standalone)]
         public void Description_should_not_contain_any_servers_if_the_provided_server_is_not_of_the_required_type(ClusterConnectionMode connectionMode, ServerType serverType)
         {
             _settings = _settings.With(connectionMode: connectionMode);
@@ -109,7 +107,7 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Description_should_regain_a_server_if_the_provided_server_is_rebooted_to_its_expected_type()
         {
             _settings = _settings.With(connectionMode: ClusterConnectionMode.Standalone);
@@ -128,7 +126,7 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_of_the_server()
         {
             var subject = CreateSubject();

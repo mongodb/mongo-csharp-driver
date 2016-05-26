@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,16 +20,16 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
-    [Category("ReadConcern")]
+    //[Category("ReadConcern")]
     public class ReadConcernTests
     {
-        [Test]
+        [Fact]
         public void Default_should_return_expected_result()
         {
             var result = ReadConcern.Default;
@@ -37,7 +37,8 @@ namespace MongoDB.Driver
             result.Level.Should().BeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Constructor_with_level_should_initialize_instance(
             [Values(ReadConcernLevel.Local, ReadConcernLevel.Majority, null)]
             ReadConcernLevel? level)
@@ -47,7 +48,7 @@ namespace MongoDB.Driver
             result.Level.Should().Be(level);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_when_level_is_not_equal()
         {
             ReadConcern.Default.Should().NotBe(ReadConcern.Local);
@@ -55,7 +56,7 @@ namespace MongoDB.Driver
             ReadConcern.Local.Should().NotBe(ReadConcern.Majority);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_when_level_is_equal()
         {
             ReadConcern.Default.Should().Be(ReadConcern.Default);
@@ -66,7 +67,7 @@ namespace MongoDB.Driver
             new ReadConcern(ReadConcernLevel.Majority).Should().Be(ReadConcern.Majority);
         }
 
-        [Test]
+        [Fact]
         public void ThrowIfNotSupported_should_not_throw_when_default()
         {
             var serverVersion = new SemanticVersion(3, 0, 2);
@@ -77,7 +78,7 @@ namespace MongoDB.Driver
             act.ShouldNotThrow<MongoClientException>();
         }
 
-        [Test]
+        [Fact]
         public void ThrowIfNotSupported_should_not_throw_when_the_serverVersion_is_greater_than_317()
         {
             var serverVersion = new SemanticVersion(3, 2, 0);
@@ -88,7 +89,7 @@ namespace MongoDB.Driver
             act.ShouldNotThrow<MongoClientException>();
         }
 
-        [Test]
+        [Fact]
         public void ThrowIfNotSupported_should_throw_when_the_serverVersion_is_less_than_317_and_readConcern_is_majority()
         {
             var serverVersion = new SemanticVersion(3, 0, 2);
@@ -99,10 +100,10 @@ namespace MongoDB.Driver
             act.ShouldThrow<MongoClientException>();
         }
 
-        [Test]
-        [TestCase(ReadConcernLevel.Local, "{ level: 'local' }")]
-        [TestCase(ReadConcernLevel.Majority, "{ level: 'majority' }")]
-        [TestCase(null, "{ }")]
+        [Theory]
+        [InlineData(ReadConcernLevel.Local, "{ level: 'local' }")]
+        [InlineData(ReadConcernLevel.Majority, "{ level: 'majority' }")]
+        [InlineData(null, "{ }")]
         public void ToBsonDocument_should_return_expected_result(ReadConcernLevel? level, string json)
         {
             var subject = new ReadConcern(level);
@@ -111,7 +112,7 @@ namespace MongoDB.Driver
             result.Should().Be(json);
         }
 
-        [Test]
+        [Fact]
         public void With_should_return_new_instance_when_level_is_not_the_same()
         {
             var subject = new ReadConcern(null);
@@ -122,7 +123,7 @@ namespace MongoDB.Driver
             result.Level.Should().Be(ReadConcernLevel.Majority);
         }
 
-        [Test]
+        [Fact]
         public void With_should_return_same_instance_when_all_values_are_equal()
         {
             var subject = new ReadConcern(ReadConcernLevel.Local);
@@ -132,7 +133,7 @@ namespace MongoDB.Driver
             result.Should().BeSameAs(subject);
         }
 
-        [Test]
+        [Fact]
         public void With_should_return_same_instance_when_no_values_are_provided()
         {
             var subject = new ReadConcern();

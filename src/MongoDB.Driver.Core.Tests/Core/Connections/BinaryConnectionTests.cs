@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -31,11 +32,10 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class BinaryConnectionTests
     {
         private IConnectionInitializer _connectionInitializer;
@@ -45,8 +45,7 @@ namespace MongoDB.Driver.Core.Connections
         private IStreamFactory _streamFactory;
         private BinaryConnection _subject;
 
-        [SetUp]
-        public void Setup()
+        public BinaryConnectionTests()
         {
             _capturedEvents = new EventCapturer();
             _streamFactory = Substitute.For<IStreamFactory>();
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber: _capturedEvents);
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_raise_the_correct_events()
         {
             _subject.Dispose();
@@ -85,7 +84,8 @@ namespace MongoDB.Driver.Core.Connections
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Open_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
             [Values(false, true)]
             bool async)
@@ -105,7 +105,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Open_should_raise_the_correct_events_upon_failure(
             [Values(false, true)]
             bool async)
@@ -137,7 +138,8 @@ namespace MongoDB.Driver.Core.Connections
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Open_should_setup_the_description(
             [Values(false, true)]
             bool async)
@@ -158,7 +160,8 @@ namespace MongoDB.Driver.Core.Connections
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Open_should_not_complete_the_second_call_until_the_first_is_completed(
             [Values(false, true)]
             bool async1,
@@ -208,7 +211,8 @@ namespace MongoDB.Driver.Core.Connections
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_an_ArgumentNullException_when_the_encoderSelector_is_null(
             [Values(false, true)]
             bool async)
@@ -228,7 +232,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
             [Values(false, true)]
             bool async)
@@ -249,7 +254,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_an_InvalidOperationException_if_the_connection_is_not_open(
             [Values(false, true)]
             bool async)
@@ -269,7 +275,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_complete_when_reply_is_already_on_the_stream(
             [Values(false, true)]
             bool async)
@@ -312,7 +319,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_complete_when_reply_is_not_already_on_the_stream(
             [Values(false, true)]
             bool async)
@@ -359,7 +367,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_handle_out_of_order_replies(
             [Values(false, true)]
             bool async1,
@@ -419,7 +428,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_network_exception_to_all_awaiters(
             [Values(false, true)]
             bool async1,
@@ -485,7 +495,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_MongoConnectionClosedException_when_connection_has_failed(
             [Values(false, true)]
             bool async1,
@@ -541,7 +552,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SendMessages_should_throw_an_ArgumentNullException_if_messages_is_null(
             [Values(false, true)]
             bool async)
@@ -559,7 +571,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SendMessages_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
             [Values(false, true)]
             bool async)
@@ -580,7 +593,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SendMessages_should_throw_an_InvalidOperationException_if_the_connection_is_not_open(
             [Values(false, true)]
             bool async)
@@ -600,7 +614,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SendMessages_should_put_the_messages_on_the_stream_and_raise_the_correct_events(
             [Values(false, true)]
             bool async)
@@ -641,7 +656,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SendMessageshould_throw_MongoConnectionClosedException_for_waiting_tasks(
             [Values(false, true)]
             bool async1,

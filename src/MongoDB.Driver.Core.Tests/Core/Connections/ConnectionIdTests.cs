@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class ConnectionIdTests
     {
         private static readonly ClusterId __clusterId = new ClusterId();
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_serverId_is_null()
         {
             Action act = () => new ConnectionId(null);
@@ -37,10 +36,11 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [TestCase(1, 2, 3, 1, 2, 3, true, true)]
-        [TestCase(1, 2, 3, 4, 2, 3, false, false)]
-        [TestCase(1, 2, 3, 1, 4, 3, false, false)]
-        [TestCase(1, 2, 3, 1, 2, 4, true, false)]
+        [Theory]
+        [InlineData(1, 2, 3, 1, 2, 3, true, true)]
+        [InlineData(1, 2, 3, 4, 2, 3, false, false)]
+        [InlineData(1, 2, 3, 1, 4, 3, false, false)]
+        [InlineData(1, 2, 3, 1, 2, 4, true, false)]
         public void Equals_should_return_expected_result(
             int port1,
             int localValue1,
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Connections
             (hashCode1 == hashCode2).Should().Be(expectedEqualsResult);
         }
 
-        [Test]
+        [Fact]
         public void LocalValues_of_2_ids_should_not_be_the_same_when_automically_constructed()
         {
             var subject = new ConnectionId(__serverId);
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.LocalValue.Should().NotBe(subject2.LocalValue);
         }
 
-        [Test]
+        [Fact]
         public void LocalValue_should_be_what_was_specified_in_the_constructor()
         {
             var subject = new ConnectionId(__serverId, 10);
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.LocalValue.Should().Be(10);
         }
 
-        [Test]
+        [Fact]
         public void WithServerValue_should_set_the_server_value_and_leave_the_LocalValue_alone()
         {
             var subject = new ConnectionId(__serverId, 10)

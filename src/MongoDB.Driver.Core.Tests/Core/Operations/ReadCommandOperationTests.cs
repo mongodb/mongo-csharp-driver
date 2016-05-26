@@ -22,21 +22,21 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class ReadCommandOperationTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
@@ -55,16 +55,17 @@ namespace MongoDB.Driver.Core.Operations
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
         }
 
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.Primary, false, false)]
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.Primary, false, true)]
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.Secondary, true, false)]
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.Secondary, true, true)]
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, false)]
-        [TestCase(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, true)]
-        [TestCase(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, false)]
-        [TestCase(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, true)]
-        [TestCase(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, false)]
-        [TestCase(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, true)]
+        [Theory]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, false, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, false, true)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, true, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, true, true)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, true)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, false)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, true)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, false)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, true)]
         public void Execute_should_call_channel_Command_with_unwrapped_command_when_wrapping_is_not_necessary(
             ServerType serverType,
             ReadPreferenceMode readPreferenceMode,
@@ -110,7 +111,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_additionalOptions_need_wrapping(
             [Values(false, true)] bool async)
         {
@@ -156,7 +158,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_comment_needs_wrapping(
             [Values(false, true)] bool async)
         {
@@ -202,7 +205,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_readPreference_needs_wrapping(
             [Values(false, true)] bool async)
         {

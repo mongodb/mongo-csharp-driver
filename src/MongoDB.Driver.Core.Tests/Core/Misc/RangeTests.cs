@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
     public class RangeTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_min_is_greater_than_max()
         {
             Action act = () => new Range<int>(2, 1);
@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Core.Misc
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Test]
-        [TestCase(0, 0, 0, 0, true)]
-        [TestCase(0, 1, 0, 1, true)]
-        [TestCase(0, 0, 0, 0, true)]
-        [TestCase(0, 1, 0, 0, false)]
-        [TestCase(0, 0, 0, 1, false)]
+        [Theory]
+        [InlineData(0, 0, 0, 0, true)]
+        [InlineData(0, 1, 0, 1, true)]
+        [InlineData(0, 0, 0, 0, true)]
+        [InlineData(0, 1, 0, 0, false)]
+        [InlineData(0, 0, 0, 1, false)]
         public void Equals_should_return_correct_value(int a1, int a2, int b1, int b2, bool expected)
         {
             var subject = new Range<int>(a1, a2);
@@ -48,19 +48,19 @@ namespace MongoDB.Driver.Core.Misc
             subject.Equals(comparand).Should().Be(expected);
         }
 
-        [Test]
-        [TestCase(0, 0, 0, 0, true)]
-        [TestCase(0, 1, 0, 0, true)]
-        [TestCase(0, 1, 0, 0, true)]
-        [TestCase(0, 1, 1, 1, true)]
-        [TestCase(0, 0, 0, 1, true)]
-        [TestCase(1, 1, 0, 1, true)]
-        [TestCase(0, 2, 1, 1, true)]
-        [TestCase(0, 2, 2, 3, true)]
-        [TestCase(0, 2, 3, 3, false)]
-        [TestCase(0, 2, 3, 4, false)]
-        [TestCase(3, 3, 0, 2, false)]
-        [TestCase(3, 4, 0, 2, false)]
+        [Theory]
+        [InlineData(0, 0, 0, 0, true)]
+        [InlineData(0, 1, 0, 0, true)]
+        [InlineData(0, 1, 0, 0, true)]
+        [InlineData(0, 1, 1, 1, true)]
+        [InlineData(0, 0, 0, 1, true)]
+        [InlineData(1, 1, 0, 1, true)]
+        [InlineData(0, 2, 1, 1, true)]
+        [InlineData(0, 2, 2, 3, true)]
+        [InlineData(0, 2, 3, 3, false)]
+        [InlineData(0, 2, 3, 4, false)]
+        [InlineData(3, 3, 0, 2, false)]
+        [InlineData(3, 4, 0, 2, false)]
         public void Overlaps_should_return_correct_value(int a1, int a2, int b1, int b2, bool expected)
         {
             var subject = new Range<int>(a1, a2);

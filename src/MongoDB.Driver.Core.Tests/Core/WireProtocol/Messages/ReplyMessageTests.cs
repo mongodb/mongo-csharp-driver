@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,11 +22,10 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class ReplyMessageTests
     {
         private readonly long _cursorId = 2;
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly IBsonSerializer<BsonDocument> _serializer = BsonDocumentSerializer.Instance;
         private readonly int _startingFrom = 5;
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.StartingFrom.Should().Be(_startingFrom);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_cursor_not_found_should_initialize_instance()
         {
             var subject = new ReplyMessage<BsonDocument>(true, _cursorId, true, null, 0, false, null, _requestId, _responseTo, _serializer, 0);
@@ -72,28 +71,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.StartingFrom.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_both_documents_nor_queryFailureDocument_should_throw()
         {
             Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, _queryFailureDocument, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_neither_documents_nor_queryFailureDocument_should_throw()
         {
             Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, null, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_serializer_should_throw()
         {
             Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_queryFailure_should_initialize_instance()
         {
             var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, null, 0, true, _queryFailureDocument, _requestId, _responseTo, _serializer, 0);
@@ -110,7 +109,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.StartingFrom.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);

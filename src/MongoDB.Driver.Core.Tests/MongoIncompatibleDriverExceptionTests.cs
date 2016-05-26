@@ -19,17 +19,15 @@ using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoIncompatibleDriverExceptionTests
     {
         private ClusterDescription _clusterDescription;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoIncompatibleDriverExceptionTests()
         {
             var clusterId = new ClusterId(1);
             var connectionMode = ClusterConnectionMode.Standalone;
@@ -41,7 +39,7 @@ namespace MongoDB.Driver
             _clusterDescription = new ClusterDescription(clusterId, connectionMode, clusterType, servers);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initalize_subject()
         {
             var subject = new MongoIncompatibleDriverException(_clusterDescription);
@@ -52,7 +50,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoIncompatibleDriverException(_clusterDescription);

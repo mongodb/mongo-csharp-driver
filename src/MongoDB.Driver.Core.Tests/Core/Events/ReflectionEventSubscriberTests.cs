@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Events
 {
     public class ReflectionEventSubscriberTests
     {
-        [Test]
+        [Fact]
         public void Should_match_all_methods_matching_the_required_signature()
         {
             var subject = new ReflectionEventSubscriber(new EventTest());

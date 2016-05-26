@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
 * limitations under the License.
 */
 
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [SetUpFixture]
-    public class SetUpFixture
-    {
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            CoreTestConfiguration.TearDown();
-        }
-    }
+    //[SetUpFixture]
+    //public class SetUpFixture
+    //{
+    //    [OneTimeTearDown]
+    //    public void OneTimeTearDown()
+    //    {
+    //        CoreTestConfiguration.TearDown();
+    //    }
+    //}
 }

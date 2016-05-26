@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,15 +21,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class BulkMixedWriteOperationTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void BypassDocumentValidation_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BypassDocumentValidation.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => new BulkMixedWriteOperation(null, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_requests_is_null()
         {
             Action action = () => new BulkMixedWriteOperation(_collectionNamespace, null, _messageEncoderSettings);
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action action = () => new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), null);
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_subject()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void IsOrdered_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -88,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.IsOrdered.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void MaxBatchCount_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -100,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxBatchCount.Should().Be(20);
         }
 
-        [Test]
+        [Fact]
         public void MaxBatchLength_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -112,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxBatchLength.Should().Be(20);
         }
 
-        [Test]
+        [Fact]
         public void MaxDocumentSize_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -124,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxDocumentSize.Should().Be(20);
         }
 
-        [Test]
+        [Fact]
         public void MaxWireDocumentSize_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -136,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxWireDocumentSize.Should().Be(20);
         }
 
-        [Test]
+        [Fact]
         public void WriteConcern_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -148,7 +149,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.WriteConcern.Should().Be(WriteConcern.W2);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_with_zero_requests_should_throw_an_exception(
             [Values(false, true)]
             bool async)
@@ -160,12 +162,14 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_delete_against_a_matching_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -186,12 +190,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(5);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_delete_against_a_matching_document_with_multi(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) { Limit = 0 } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -212,12 +218,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_delete_without_matching_a_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{_id: 20}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -238,12 +246,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_multiple_deletes(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
@@ -268,12 +278,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_fewer_deletes_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
@@ -302,12 +314,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_more_deletes_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new DeleteRequest(BsonDocument.Parse("{_id: 1}")),
@@ -336,12 +350,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_insert(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[] { new InsertRequest(BsonDocument.Parse("{_id: 1, x: 3}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -362,12 +378,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(1);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_fewer_inserts_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(BsonDocument.Parse("{_id: 1}")),
@@ -395,12 +413,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(2);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_more_inserts_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(BsonDocument.Parse("{_id: 1}")),
@@ -430,12 +450,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_update_against_a_matching_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -459,12 +481,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_update_against_a_matching_document_with_multi(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -485,12 +509,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_update_without_matching_a_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{_id: 20}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -511,12 +537,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_fewer_updates_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")),
@@ -544,12 +572,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_more_updates_than_maxBatchCount(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")),
@@ -579,12 +609,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_a_very_large_upsert(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            EnsureTestData();
             var smallDocument = new BsonDocument { { "_id", 7 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
             var stringSize = 16 * 1024 * 1024 - smallDocumentSize;
@@ -611,12 +643,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(7);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_multiple_documents(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
@@ -640,12 +674,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_no_documents(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 5}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
@@ -669,12 +705,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(7);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_one_document(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsMulti = true, IsUpsert = true }
@@ -698,12 +736,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_mixed_requests_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new WriteRequest[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")),
@@ -733,12 +773,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_mixed_requests_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new WriteRequest[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 3}"), BsonDocument.Parse("{$set: {y: 1}}")),
@@ -768,12 +810,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_mixed_upserts_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new WriteRequest[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 12}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsUpsert = true },
@@ -803,12 +847,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(8);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_mixed_upserts_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var requests = new WriteRequest[]
             {
                 new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 12}"), BsonDocument.Parse("{$set: {y: 1}}")) { IsUpsert = true },
@@ -838,12 +884,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(8);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_error_in_the_first_batch_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),
@@ -877,12 +925,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_error_in_the_first_batch_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var keys = new BsonDocument("x", 1);
             var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
             var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
@@ -922,12 +972,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(1);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_error_in_the_second_batch_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),
@@ -962,12 +1014,14 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_an_error_in_the_second_batch_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),
@@ -1004,12 +1058,14 @@ namespace MongoDB.Driver.Core.Operations
 
         //
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),
@@ -1040,12 +1096,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var keys = new BsonDocument("x", 1);
             var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
             var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
@@ -1081,12 +1139,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_false(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),
@@ -1117,12 +1177,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new InsertRequest(new BsonDocument { { "_id", 1 }}),

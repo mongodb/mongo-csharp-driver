@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,31 +15,30 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class CollectionNamespaceTests
     {
-        [Test]
-        [TestCase("", false)]
-        [TestCase(" ", false)]
-        [TestCase(".", true)]
-        [TestCase(".ab", true)]
-        [TestCase("ab.", true)]
-        [TestCase("a.b", true)]
-        [TestCase("\0sdf", false)]
-        [TestCase("lkjsf\0", false)]
-        [TestCase("lkjsf\0d32", false)]
-        [TestCase("test", true)]
-        [TestCase("foobar", true)]
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(" ", false)]
+        [InlineData(".", true)]
+        [InlineData(".ab", true)]
+        [InlineData("ab.", true)]
+        [InlineData("a.b", true)]
+        [InlineData("\0sdf", false)]
+        [InlineData("lkjsf\0", false)]
+        [InlineData("lkjsf\0d32", false)]
+        [InlineData("test", true)]
+        [InlineData("foobar", true)]
         public void IsValid_should_return_the_correct_result(string name, bool valid)
         {
             CollectionNamespace.IsValid(name).Should().Be(valid);
         }
 
-        [Test]
+        [Fact]
         public void FromFullName_should_throw_an_argument_null_exception_if_full_name_is_null()
         {
             Action act = () => CollectionNamespace.FromFullName(null);
@@ -47,7 +46,7 @@ namespace MongoDB.Driver
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_argument_null_exception_if_database_name_is_null()
         {
             Action act = () => new CollectionNamespace((string)null, "bar\0baz");
@@ -55,7 +54,7 @@ namespace MongoDB.Driver
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_argument_null_exception_if_database_namespace_is_null()
         {
             Action act = () => new CollectionNamespace((DatabaseNamespace)null, "bar\0baz");
@@ -63,7 +62,7 @@ namespace MongoDB.Driver
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_argument_exception_on_an_invalid_database_name()
         {
             Action act = () => new CollectionNamespace("foo", "bar\0baz");
@@ -71,7 +70,7 @@ namespace MongoDB.Driver
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void FromFullName_should_handle_multiple_periods()
         {
             var subject = CollectionNamespace.FromFullName("test.foo.bar");
@@ -81,7 +80,7 @@ namespace MongoDB.Driver
             subject.FullName.Should().Be("test.foo.bar");
         }
 
-        [Test]
+        [Fact]
         public void CollectionName_should_report_the_provided_name()
         {
             var subject = new CollectionNamespace("test", "foo");
@@ -89,7 +88,7 @@ namespace MongoDB.Driver
             subject.CollectionName.Should().Be("foo");
         }
 
-        [Test]
+        [Fact]
         public void DatabaseName_should_report_the_provided_name()
         {
             var subject = new CollectionNamespace("test", "foo");
@@ -97,7 +96,7 @@ namespace MongoDB.Driver
             subject.DatabaseNamespace.DatabaseName.Should().Be("test");
         }
 
-        [Test]
+        [Fact]
         public void FullName_should_report_the_provided_name()
         {
             var subject = new CollectionNamespace("test", "foo");
@@ -105,9 +104,9 @@ namespace MongoDB.Driver
             subject.FullName.Should().Be("test.foo");
         }
 
-        [Test]
-        [TestCase("foo.bar", "foo.bar", true)]
-        [TestCase("foo.bar", "foo.baz", false)]
+        [Theory]
+        [InlineData("foo.bar", "foo.bar", true)]
+        [InlineData("foo.bar", "foo.baz", false)]
         public void Equals_should_be_correct(string a, string b, bool equals)
         {
             var subject = CollectionNamespace.FromFullName(a);
@@ -116,7 +115,7 @@ namespace MongoDB.Driver
             subject.Equals(compared).Should().Be(equals);
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_the_name()
         {
             var subject = CollectionNamespace.FromFullName("test.foo");

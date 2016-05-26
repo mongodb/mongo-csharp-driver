@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class GroupOperationTests
     {
-        [Test]
+        [Fact]
         public void constructor_with_key_should_initialize_subject()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -45,12 +44,12 @@ namespace MongoDB.Driver.Core.Operations
             subject.Key.Should().Be(key);
             subject.KeyFunction.Should().BeNull();
             subject.MaxTime.Should().Be(default(TimeSpan?));
-            Assert.That(subject.MessageEncoderSettings, Is.EqualTo(messageEncoderSettings));
+            Assert.Equal(messageEncoderSettings, subject.MessageEncoderSettings);
             subject.ReduceFunction.Should().Be(reduceFunction);
             subject.ResultSerializer.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_key_should_throw_when_collectionNamespace_is_null()
         {
             var key = new BsonDocument("key", 1);
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_key_should_throw_when_initial_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -78,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_key_should_throw_when_key_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -92,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_key_should_throw_when_reduceFunction_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_keyFunction_should_initialize_subject()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -125,12 +124,12 @@ namespace MongoDB.Driver.Core.Operations
             subject.Key.Should().BeNull();
             subject.KeyFunction.Should().Be(keyFunction);
             subject.MaxTime.Should().Be(default(TimeSpan?));
-            Assert.That(subject.MessageEncoderSettings, Is.EqualTo(messageEncoderSettings));
+            Assert.Equal(messageEncoderSettings, subject.MessageEncoderSettings);
             subject.ReduceFunction.Should().Be(reduceFunction);
             subject.ResultSerializer.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_keyFunction_should_throw_when_collectionNamespace_is_null()
         {
             var keyFunction = new BsonJavaScript("keyFunction");
@@ -144,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_keyFunction_should_throw_when_keyFunction_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -158,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_keyFunction_should_throw_when_initial_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -172,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_keyFunction_should_throw_when_reduceFunction_is_null()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -186,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -212,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_filter_was_provided()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -240,7 +239,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_finalizeFunction_was_provided()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -269,7 +268,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_keyFunction_was_provided()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -295,7 +294,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_maxTime_was_provided()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -323,7 +322,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void FinalizeFunction_should_work()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -340,7 +339,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.FinalizeFunction.Should().Be(finalizeFunction);
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_should_work()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
@@ -357,7 +356,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().Be(maxTime);
         }
 
-        [Test]
+        [Fact]
         public void ResultSerializer_should_work()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class ElectionIdTests
     {
-        [Test]
-        [TestCase("555925bfb69aa7d5be29126b", "555925bfb69aa7d5be29126b", 0)]
-        [TestCase("555925bfb69aa7d5be29126b", "555925bfb69aa7d5be29126c", -1)]
-        [TestCase("000000000000000000000000", "555925bfb69aa7d5be29126b", -1)]
-        [TestCase("555925bfb69aa7d5be29126c", "555925bfb69aa7d5be29126b", 1)]
-        [TestCase("555925bfb69aa7d5be29126b", "000000000000000000000000", 1)]
-        [TestCase("555925bfb69aa7d5be29126b", null, 1)]
+        [Theory]
+        [InlineData("555925bfb69aa7d5be29126b", "555925bfb69aa7d5be29126b", 0)]
+        [InlineData("555925bfb69aa7d5be29126b", "555925bfb69aa7d5be29126c", -1)]
+        [InlineData("000000000000000000000000", "555925bfb69aa7d5be29126b", -1)]
+        [InlineData("555925bfb69aa7d5be29126c", "555925bfb69aa7d5be29126b", 1)]
+        [InlineData("555925bfb69aa7d5be29126b", "000000000000000000000000", 1)]
+        [InlineData("555925bfb69aa7d5be29126b", null, 1)]
         public void CompareTo_should_return_the_correct_value(string oidA, string oidB, int result)
         {
             var subject1 = new ElectionId(ObjectId.Parse(oidA));
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.CompareTo(subject2).Should().Be(result);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_false_if_any_field_is_not_equal()
         {
             var subject1 = new ElectionId(ObjectId.Empty);
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().NotBe(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fiels_are_equal()
         {
             var subject1 = new ElectionId(ObjectId.Empty);
@@ -58,7 +57,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_string_representation()
         {
             var subject = new ElectionId(ObjectId.Empty);

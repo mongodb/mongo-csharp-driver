@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,17 +25,16 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Xunit;
 
 namespace MongoDB.Driver.Specifications.server_selection
 {
-    [TestFixture]
     public class ServerSelectionTestRunner
     {
         private ClusterId _clusterId = new ClusterId();
 
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [Theory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
             var clusterDescription = BuildClusterDescription((BsonDocument)definition["topology_description"]);
@@ -184,24 +184,32 @@ namespace MongoDB.Driver.Specifications.server_selection
             return new TagSet(tagSet.Elements.Select(x => new Tag(x.Name, x.Value.ToString())));
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.server_selection.";
-                return Assembly
+                var enumerable = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path =>
                     {
                         var definition = ReadDefinition(path);
-                        var fullName = path.Remove(0, prefix.Length);
-                        var data = new TestCaseData(definition);
-                        data.SetCategory("Specifications");
-                        data.SetCategory("server-selection");
-                        return data.SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"));
+                        //var data = new TestCaseData(definition);
+                        //data.SetCategory("Specifications");
+                        //data.SetCategory("server-selection");
+                        //var fullName = path.Remove(0, prefix.Length);
+                        //data = data.SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"));
+                        var data = new object[] { definition };
+                        return data;
                     });
+                return enumerable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDefinition(string path)

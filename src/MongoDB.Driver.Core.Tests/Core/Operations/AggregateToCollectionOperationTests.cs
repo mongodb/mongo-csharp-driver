@@ -18,20 +18,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AggregateToCollectionOperationTests : OperationTestBase
     {
         private BsonDocument[] _pipeline;
 
-        public override void OneTimeSetUp()
+        public AggregateToCollectionOperationTests()
         {
-            base.OneTimeSetUp();
-
             _pipeline = new[] 
             { 
                 BsonDocument.Parse("{$match: {_id: { $gt: 3}}}"),
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_create_a_valid_instance()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new AggregateToCollectionOperation(null, _pipeline, _messageEncoderSettings);
@@ -57,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_pipeline_is_null()
         {
             Action act = () => new AggregateToCollectionOperation(_collectionNamespace, null, _messageEncoderSettings);
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_pipeline_does_not_end_with_out()
         {
             Action act = () => new AggregateToCollectionOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new AggregateToCollectionOperation(_collectionNamespace, _pipeline, null);
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void BypassDocumentValidation_should_have_the_correct_value()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BypassDocumentValidation.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void AllowDiskUse_should_have_the_correct_value()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
@@ -105,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AllowDiskUse.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_should_have_the_correct_value()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
@@ -117,7 +116,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().Be(TimeSpan.FromSeconds(2));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
             [Values(null, false, true)] bool? allowDiskUse,
             [Values(null, false, true)] bool? bypassDocumentValidation,
@@ -146,12 +146,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_matching_documents_using_all_options(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            EnsureTestData();
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = true,

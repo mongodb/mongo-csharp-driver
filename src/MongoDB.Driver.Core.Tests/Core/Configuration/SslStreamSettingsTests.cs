@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,16 +18,15 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    [TestFixture]
     public class SslStreamSettingsTests
     {
         private static readonly SslStreamSettings __defaults = new SslStreamSettings();
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new SslStreamSettings();
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_clientCertificates_is_null()
         {
             Action action = () => new SslStreamSettings(clientCertificates: null);
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("clientCertificates");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_checkCertificateRevocation_should_initialize_instance()
         {
             var checkCertificateRevocation = !__defaults.CheckCertificateRevocation;
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_clientCertificates_should_initialize_instance()
         {
             var clientCertificates = new[] { new X509Certificate() };
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_clientCertificateSelectionCallback_should_initialize_instance()
         {
             LocalCertificateSelectionCallback clientCertificateSelectionCallback = (s, t, l, r, a) => null;
@@ -89,7 +88,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_enabledProtocols_should_initialize_instance()
         {
             var enabledProtocols = SslProtocols.Tls12;
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_serverCertificateValidationCallback_should_initialize_instance()
         {
             RemoteCertificateValidationCallback serverCertificateValidationCallback = (s, ce, ch, e) => false;
@@ -117,7 +116,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerCertificateValidationCallback.Should().Be(serverCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void With_checkCertificateRevocation_should_return_expected_result()
         {
             var oldCheckCertificateRevocation = false;
@@ -133,7 +132,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void With_clientCertificates_should_return_expected_result()
         {
             var oldClientCertificates = new[] { new X509Certificate() };
@@ -149,7 +148,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void With_clientCertificateSelectionCallback_should_return_expected_result()
         {
             LocalCertificateSelectionCallback oldClientCertificateSelectionCallback = (s, t, l, r, a) => null;
@@ -165,7 +164,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void With_enabledProtocols_should_return_expected_result()
         {
             var oldEnabledProtocols = SslProtocols.Default;
@@ -181,7 +180,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void With_serverCertificateValidationCallback_should_return_expected_result()
         {
             RemoteCertificateValidationCallback oldServerCertificateValidationCallback = (s, ce, ch, e) => false;

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,14 +30,13 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    [TestFixture]
     public class CommandWriteProtocolTests
     {
-        [Test]
+        [Fact]
         public void Execute_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
@@ -58,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             result.Should().Be("{ok: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Execute_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
@@ -78,7 +77,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.ReceivedWithAnyArgs().ReceiveMessageAsync(0, null, null, CancellationToken.None);
         }
 
-        [Test]
+        [Fact]
         public void ExecuteAsync_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
             var subject = new CommandWireProtocol<BsonDocument>(
@@ -99,7 +98,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             result.Should().Be("{ok: 1}");
         }
 
-        [Test]
+        [Fact]
         public void ExecuteAsync_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
             var subject = new CommandWireProtocol<BsonDocument>(

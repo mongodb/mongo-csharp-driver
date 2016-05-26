@@ -23,11 +23,10 @@ using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class MongoBulkWriteOperationExceptionTests
     {
         private ConnectionId _connectionId;
@@ -38,8 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         private List<BulkWriteOperationError> _writeErrors;
         private BulkWriteConcernError _writeConcernError;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoBulkWriteOperationExceptionTests()
         {
             _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
             _processedRequests = new List<WriteRequest>();
@@ -50,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             _unprocessedRequests = new List<WriteRequest>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new MongoBulkWriteOperationException(_connectionId, _result, _writeErrors, _writeConcernError, _unprocessedRequests);
@@ -63,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoBulkWriteOperationException(_connectionId, _result, _writeErrors, _writeConcernError, _unprocessedRequests);

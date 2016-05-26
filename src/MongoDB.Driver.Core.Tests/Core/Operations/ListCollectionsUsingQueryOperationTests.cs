@@ -18,22 +18,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class ListCollectionsUsingQueryOperationTests : OperationTestBase
     {
-        // setup method
-        public override void OneTimeSetUp()
+        // constructors
+        public ListCollectionsUsingQueryOperationTests()
         {
-            base.OneTimeSetUp();
-            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(ListCollectionsUsingQueryOperationTests));
         }
 
         // test methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Filter.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             Action action = () => new ListCollectionsUsingQueryOperation(null, _messageEncoderSettings);
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_messageEncoderSettings_is_null()
         {
             Action action = () => new ListCollectionsUsingQueryOperation(_databaseNamespace, null);
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [Test]
+        [Fact]
         public void Filter_get_and_set_should_work()
         {
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
@@ -71,12 +71,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(filter);
         }
 
-        [Test]
-        [RequiresServer("EnsureCollectionsExist", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_the_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            EnsureCollectionsExist();
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
 
@@ -87,13 +89,15 @@ namespace MongoDB.Driver.Core.Operations
             list.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
         }
 
-        [TestCase("{ name : \"regular\" }", "regular", false)]
-        [TestCase("{ name : \"regular\" }", "regular", true)]
-        [TestCase("{ \"options.capped\" : true }", "capped", false)]
-        [TestCase("{ \"options.capped\" : true }", "capped", true)]
-        [RequiresServer("EnsureCollectionsExist", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
+        [SkippableTheory]
+        [InlineData("{ name : \"regular\" }", "regular", false)]
+        [InlineData("{ name : \"regular\" }", "regular", true)]
+        [InlineData("{ \"options.capped\" : true }", "capped", false)]
+        [InlineData("{ \"options.capped\" : true }", "capped", true)]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
+            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            EnsureCollectionsExist();
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
             {
@@ -107,12 +111,13 @@ namespace MongoDB.Driver.Core.Operations
             list[0]["name"].AsString.Should().Be(expectedName);
         }
 
-        [Test]
-        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_the_database_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
             var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-not");
             var subject = new ListCollectionsUsingQueryOperation(databaseNamespace, _messageEncoderSettings);
 
@@ -122,12 +127,13 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(0);
         }
 
-        [Test]
-        [RequiresServer(VersionLessThan = "2.7.0", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(versionLessThan: "2.7.0", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
             var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
             {

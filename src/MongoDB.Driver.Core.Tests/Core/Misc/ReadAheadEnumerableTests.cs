@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
     public class ReadAheadEnumerableTests
     {
-        [Test]
+        [Fact]
         public void Should_return_all_items()
         {
             var items = new[] { 1, 2, 3 };
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Misc
             list.Should().ContainInOrder(1, 2, 3);
         }
 
-        [Test]
+        [Fact]
         public void Should_behave_correctly()
         {
             var items = new[] { 1, 2, 3 };

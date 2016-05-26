@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    [TestFixture]
     public class ReplyMessageBinaryEncoderTests
     {
         #region static
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_stream_provided()
         {
             using (var stream = new MemoryStream())
@@ -95,14 +94,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new ReplyMessageBinaryEncoder<BsonDocument>(null, __messageEncoderSettings, __serializer);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_serializer_is_null()
         {
             using (var stream = new MemoryStream())
@@ -112,10 +111,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false, false, false)]
-        [TestCase(1, true, false, false)]
-        [TestCase(2, false, true, false)]
-        [TestCase(8, false, false, true)]
+        [Theory]
+        [InlineData(0, false, false, false)]
+        [InlineData(1, true, false, false)]
+        [InlineData(2, false, true, false)]
+        [InlineData(8, false, false, true)]
         public void ReadMessage_should_decode_flags_correctly(int flags, bool cursorNotFound, bool queryFailure, bool awaitCapable)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_query_failure_message()
         {
             using (var stream = new MemoryStream(__queryFailureMessageBytes))
@@ -173,10 +173,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false, false, false)]
-        [TestCase(1, true, false, false)]
-        [TestCase(2, false, true, false)]
-        [TestCase(8, false, false, true)]
+        [Theory]
+        [InlineData(0, false, false, false)]
+        [InlineData(1, true, false, false)]
+        [InlineData(2, false, true, false)]
+        [InlineData(8, false, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool cursorNotFound, bool queryFailure, bool awaitCapable)
         {
             var documents = queryFailure ? null : __documents;
@@ -192,7 +193,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
@@ -203,7 +204,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())
@@ -215,7 +216,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_query_failure_message()
         {
             using (var stream = new MemoryStream())

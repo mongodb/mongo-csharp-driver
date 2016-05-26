@@ -21,19 +21,21 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class FindCommandOperationTests : OperationTestBase
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AllowPartialResults_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -46,7 +48,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -59,7 +62,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -71,7 +75,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CollectionNamespace_get_should_return_expected_result(
             [Values("a", "b")]
             string collectionName)
@@ -85,7 +90,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(collectionNamespace);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Comment_get_and_set_should_work(
             [Values(null, "a", "b")]
             string value)
@@ -99,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -133,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Sort.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => new FindCommandOperation<BsonDocument>(null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -141,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action action = () => new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, null);
@@ -149,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_result_serializer_is_null()
         {
             Action action = () => new FindCommandOperation<BsonDocument>(_collectionNamespace, null, _messageEncoderSettings);
@@ -157,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -169,7 +175,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}' }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_allowPartialResults_is_provided(
             [Values(false, true)]
             bool value)
@@ -184,7 +191,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', allowPartialResults : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_comment_is_provided(
             [Values("a", "b")]
             string value)
@@ -199,8 +207,9 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', comment : '{value}' }}");
         }
 
-        [TestCase(CursorType.Tailable, "")]
-        [TestCase(CursorType.TailableAwait, ", awaitData : true")]
+        [Theory]
+        [InlineData(CursorType.Tailable, "")]
+        [InlineData(CursorType.TailableAwait, ", awaitData : true")]
         public void CreateCommand_should_return_expected_result_when_cursor_is_tailableAwait(CursorType value, string awaitJson)
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -213,7 +222,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', tailable : true{awaitJson} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_filter_is_provided(
             [Values("{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -228,7 +238,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', filter : {json} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_firstBatchSize_is_provided(
             [Values(0, 1)]
             int value)
@@ -243,7 +254,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', batchSize : {value} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_hint_is_provided(
             [Values("{ value : 'b_1' }", "{ value : { b : 1 } }")]
             string json)
@@ -258,10 +270,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', hint : {subject.Hint.ToJson()} }}");
         }
 
-        [TestCase(-1, ", limit : 1, singleBatch : true")]
-        [TestCase(0, "")]
-        [TestCase(1, ", limit : 1")]
-        [TestCase(2, ", limit : 2")]
+        [Theory]
+        [InlineData(-1, ", limit : 1, singleBatch : true")]
+        [InlineData(0, "")]
+        [InlineData(1, ", limit : 1")]
+        [InlineData(2, ", limit : 2")]
         public void CreateCommand_should_return_expected_result_when_limit_is_provided(int value, string json)
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -274,7 +287,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}'{json} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_max_is_provided(
             [Values("{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -289,7 +303,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', max : {json} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_maxScan_is_provided(
             [Values(1, 2)]
             int value)
@@ -304,7 +319,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxScan : {value} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_maxTime_is_provided(
             [Values(1, 2)]
             int value)
@@ -319,7 +335,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', maxTimeMS : {value * 1000} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_min_is_provided(
             [Values("{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -334,7 +351,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', min : {json} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_noCursorTimeout_is_provided(
             [Values(false, true)]
             bool value)
@@ -349,7 +367,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', noCursorTimeout : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_oplogReplay_is_provided(
             [Values(false, true)]
             bool value)
@@ -364,7 +383,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', oplogReplay : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_projection_is_provided(
             [Values("{ a : 1 }", "{ b : 1 }")]
             string json)
@@ -379,8 +399,9 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', projection : {json} }}");
         }
 
-        [Test]
-        [Category("ReadConcern")]
+        [Theory]
+        [ParameterAttributeData]
+        //[Category("ReadConcern")]
         public void CreateCommand_should_return_expected_result_when_readConcern_is_provided(
             [Values("{level: 'local'}", "{level: 'majority'}")]
             string readConcernJson)
@@ -395,7 +416,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', readConcern : {readConcernJson} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_returnKey_is_provided(
             [Values(false, true)]
             bool value)
@@ -410,7 +432,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', returnKey : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_showRecordId_is_provided(
             [Values(false, true)]
             bool value)
@@ -425,7 +448,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', showRecordId : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_singleBatch_is_provided(
             [Values(false, true)]
             bool value)
@@ -440,7 +464,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', singleBatch : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_skip_is_provided(
             [Values(0, 1)]
             int value)
@@ -455,7 +480,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', skip : {value} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_snapshot_is_provided(
             [Values(false, true)]
             bool value)
@@ -470,7 +496,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', snapshot : {(value ? "true" : "false")} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_sort_is_provided(
             [Values("{ a : 1 }", "{ b : -1 }")]
             string json)
@@ -485,7 +512,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be($"{{ find : '{_collectionNamespace.CollectionName}', sort : {json} }}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CursorType_get_and_set_should_work(
             [Values(CursorType.NonTailable, CursorType.Tailable)]
             CursorType value)
@@ -498,10 +526,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "3.1.5")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query()
         {
+            RequireServer.Where(minimumVersion: "3.1.5");
+            EnsureTestData();
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = await ExecuteOperationAsync(subject);
@@ -510,10 +539,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "3.1.5")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {
+            RequireServer.Where(minimumVersion: "3.1.5");
+            EnsureTestData();
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 BatchSize = 2
@@ -525,10 +555,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "3.1.5")]
+        [SkippableFact]
         public async Task ExecuteAsync_should_find_documents_matching_options()
         {
+            RequireServer.Where(minimumVersion: "3.1.5");
+            EnsureTestData();
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
@@ -546,7 +577,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [Test]
+        [Fact]
         public void ExecuteAsync_should_throw_when_binding_is_null()
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -556,7 +587,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Filter_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -570,7 +602,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstBatchSize_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -583,7 +616,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstBatchSize_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -595,7 +629,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Hint_get_and_set_should_work(
             [Values(null, "{ value : 'b_1' }", "{ value : { b : 1 } }")]
             string json)
@@ -609,7 +644,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Limit_get_and_set_should_work(
             [Values(-2, -1, 0, 1, 2)]
             int? value)
@@ -622,7 +658,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Max_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -636,7 +673,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxScan_get_and_set_should_work(
             [Values(null, 1)]
             int? value)
@@ -649,7 +687,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxAwaitTime_get_and_set_should_work(
             [Values(null, 1)]
             int? seconds)
@@ -663,7 +702,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_get_and_set_should_work(
             [Values(null, 1)]
             int? seconds)
@@ -677,7 +717,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MessageEncoderSettings_get_should_return_expected_result(
             [Values(GuidRepresentation.CSharpLegacy, GuidRepresentation.Standard)]
             GuidRepresentation guidRepresentation)
@@ -690,7 +731,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeEquivalentTo(messageEncoderSettings);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Min_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 2 }")]
             string json)
@@ -704,7 +746,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void NoCursorTimeout_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -717,7 +760,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OplogReplay_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -730,7 +774,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Projection_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : 1 }")]
             string json)
@@ -744,7 +789,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void ReadConcern_get_and_set_should_work()
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -755,7 +800,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(ReadConcern.Majority);
         }
 
-        [Test]
+        [Fact]
         public void ResultSerializer_get_should_return_expected_result()
         {
             var resultSerializer = new BsonDocumentSerializer();
@@ -766,7 +811,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(resultSerializer);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReturnKey_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -779,7 +825,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ShowRecordId_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -792,7 +839,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleBatch_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -805,7 +853,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Skip_get_and_set_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -818,7 +867,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Skip_set_should_throw_when_value_is_invalid(
             [Values(-1)]
             int value)
@@ -830,7 +880,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Snapshot_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -843,7 +894,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Sort_get_and_set_should_work(
             [Values(null, "{ a : 1 }", "{ b : -1 }")]
             string json)

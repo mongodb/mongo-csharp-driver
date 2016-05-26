@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@ using System;
 using System.Net.Sockets;
 using System.Threading;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    [TestFixture]
     public class TcpStreamSettingsTests
     {
         private static readonly TcpStreamSettings __defaults = new TcpStreamSettings();
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new TcpStreamSettings();
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(null);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_connectTimeout_is_negative()
         {
             Action action = () => new TcpStreamSettings(connectTimeout: TimeSpan.FromSeconds(-1));
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("connectTimeout");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_readTimeout_is_negative()
         {
             Action action = () => new TcpStreamSettings(readTimeout: TimeSpan.FromSeconds(-1));
@@ -56,7 +56,8 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("readTimeout");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_receiveBufferSize_is_negative_or_zero(
             [Values(-1, 0)]
             int receiveBufferSize)
@@ -66,7 +67,8 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("receiveBufferSize");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_sendBufferSize_is_negative_or_zero(
             [Values(-1, 0)]
             int sendBufferSize)
@@ -76,7 +78,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("sendBufferSize");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_writeTimeout_is_negative()
         {
             Action action = () => new TcpStreamSettings(writeTimeout: TimeSpan.FromSeconds(-1));
@@ -84,7 +86,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("writeTimeout");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_addressFamily_should_initialize_instance()
         {
             var addressFamily = AddressFamily.InterNetworkV6;
@@ -100,7 +102,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_connectTimeout_should_initialize_instance()
         {
             var connectTimeout = TimeSpan.FromSeconds(123);
@@ -116,7 +118,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_readTimeout_should_initialize_instance()
         {
             var readTimeout = TimeSpan.FromSeconds(123);
@@ -132,7 +134,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_receiveBufferSize_should_initialize_instance()
         {
             var receiveBufferSize = 123;
@@ -148,7 +150,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_sendBufferSize_should_initialize_instance()
         {
             var sendBufferSize = 123;
@@ -164,7 +166,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_socketConfigurator_should_initialize_instance()
         {
             Action<Socket> socketConfigurator = s => { };
@@ -180,7 +182,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_writeTimeout_should_initialize_instance()
         {
             var writeTimeout = TimeSpan.FromSeconds(123);
@@ -196,7 +198,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WriteTimeout.Should().Be(writeTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_addressFamily_should_return_expected_result()
         {
             var oldAddressFamily = AddressFamily.InterNetwork;
@@ -214,7 +216,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_connectTimeout_should_return_expected_result()
         {
             var oldConnectTimeout = TimeSpan.FromSeconds(1);
@@ -232,7 +234,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_readTimeout_should_return_expected_result()
         {
             var oldReadTimeout = TimeSpan.FromSeconds(1);
@@ -250,7 +252,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_receiveBufferSize_should_return_expected_result()
         {
             var oldReceiveBufferSize = 1;
@@ -268,7 +270,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_sendBufferSize_should_return_expected_result()
         {
             var oldSendBufferSize = 1;
@@ -286,7 +288,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_socketConfigurator_should_return_expected_result()
         {
             Action<Socket> oldSocketConfigurator = null;
@@ -304,7 +306,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_writeTimeout_should_return_expected_result()
         {
             var oldWriteTimeout = TimeSpan.FromSeconds(1);

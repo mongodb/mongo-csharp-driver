@@ -29,6 +29,18 @@ namespace MongoDB.Driver.Core.Async
         private readonly Queue<T> _queue = new Queue<T>();
         private readonly Queue<TaskCompletionSource<T>> _awaiters = new Queue<TaskCompletionSource<T>>();
 
+        // properties
+        public int Count
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _queue.Count;
+                }
+            }
+        }
+
         // methods
         public IEnumerable<T> DequeueAll()
         {

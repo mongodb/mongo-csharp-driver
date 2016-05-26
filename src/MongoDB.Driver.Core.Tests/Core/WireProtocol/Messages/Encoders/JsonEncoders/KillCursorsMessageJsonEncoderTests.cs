@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    [TestFixture]
     public class KillCursorsMessageJsonEncoderTests
     {
         #region static
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_textReader_and_textWriter_are_both_provided()
         {
             using (var textReader = new StringReader(""))
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_only_textReader_is_provided()
         {
             using (var textReader = new StringReader(""))
@@ -69,7 +68,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_only_textWriter_is_provided()
         {
             using (var textWriter = new StringWriter())
@@ -79,14 +78,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_textReader_and_textWriter_are_both_null()
         {
             Action action = () => new KillCursorsMessageJsonEncoder(null, null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var textReader = new StringReader(__testMessageJson))
@@ -98,7 +97,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_throw_if_textReader_was_not_provided()
         {
             using (var textWriter = new StringWriter())
@@ -109,7 +108,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_textWriter_was_not_provided()
         {
             using (var textReader = new StringReader(""))
@@ -120,7 +119,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var textWriter = new StringWriter())
@@ -131,7 +130,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var textWriter = new StringWriter())

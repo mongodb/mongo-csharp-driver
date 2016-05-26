@@ -27,11 +27,10 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     public class ServerMonitorTests
     {
         private EndPoint _endPoint;
@@ -42,8 +41,7 @@ namespace MongoDB.Driver.Core.Servers
         private ServerMonitor _subject;
 
 
-        [SetUp]
-        public void Setup()
+        public ServerMonitorTests()
         {
             _endPoint = new DnsEndPoint("localhost", 27017);
             _connection = new MockConnection();
@@ -57,7 +55,7 @@ namespace MongoDB.Driver.Core.Servers
             _subject = new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
             Action act = () => new ServerMonitor(null, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
@@ -65,7 +63,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
             Action act = () => new ServerMonitor(_serverId, null, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
@@ -73,7 +71,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
             Action act = () => new ServerMonitor(_serverId, _endPoint, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
@@ -81,7 +79,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, null);
@@ -89,7 +87,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Description_should_return_default_when_uninitialized()
         {
             var description = _subject.Description;
@@ -99,7 +97,7 @@ namespace MongoDB.Driver.Core.Servers
             description.State.Should().Be(ServerState.Disconnected);
         }
 
-        [Test]
+        [Fact]
         public void Description_should_return_default_when_disposed()
         {
             _subject.Dispose();
@@ -111,7 +109,7 @@ namespace MongoDB.Driver.Core.Servers
             description.State.Should().Be(ServerState.Disconnected);
         }
 
-        [Test]
+        [Fact]
         public void DescriptionChanged_should_be_raised_when_moving_from_disconnected_to_connected()
         {
             var changes = new List<ServerDescriptionChangedEventArgs>();
@@ -130,7 +128,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Description_should_be_connected_after_successful_heartbeat()
         {
             SetupHeartbeatConnection();
@@ -145,7 +143,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void RequestHeartbeat_should_force_another_heartbeat()
         {
             SetupHeartbeatConnection();
@@ -167,7 +165,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Invalidate_should_do_everything_invalidate_is_supposed_to_do()
         {
             SetupHeartbeatConnection();
@@ -182,6 +180,7 @@ namespace MongoDB.Driver.Core.Servers
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
             SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(4));
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();

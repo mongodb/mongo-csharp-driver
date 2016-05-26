@@ -45,6 +45,17 @@ namespace MongoDB.Driver.Core
             return this;
         }
 
+        public int Count
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _capturedEvents.Count;
+                }
+            }
+        }
+
         public void Clear()
         {
             lock (_lock)

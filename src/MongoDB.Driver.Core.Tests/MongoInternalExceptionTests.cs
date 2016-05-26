@@ -17,17 +17,16 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoInternalExceptionTests
     {
         private Exception _innerException = new Exception("inner");
         private string _message = "message";
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new MongoInternalException(_message);
@@ -36,7 +35,7 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_innerException_should_initialize_subject()
         {
             var subject = new MongoInternalException(_message, _innerException);
@@ -46,7 +45,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoInternalException(_message, _innerException);

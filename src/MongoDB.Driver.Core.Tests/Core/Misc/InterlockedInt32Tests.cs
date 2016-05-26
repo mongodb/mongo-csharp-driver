@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class InterlockedInt32Tests
     {
-        [Test]
+        [Fact]
         public void Value_should_return_initial_value_after_construction()
         {
             var subject = new InterlockedInt32(3);
@@ -31,11 +30,11 @@ namespace MongoDB.Driver.Core.Misc
             subject.Value.Should().Be(3);
         }
 
-        [Test]
-        [TestCase(0, 0, 0, false)]
-        [TestCase(0, 1, 1, true)]
-        [TestCase(1, 0, 0, true)]
-        [TestCase(1, 1, 1, false)]
+        [Theory]
+        [InlineData(0, 0, 0, false)]
+        [InlineData(0, 1, 1, true)]
+        [InlineData(1, 0, 0, true)]
+        [InlineData(1, 1, 1, false)]
         public void TryChange_with_one_parameter(int initialValue, int toValue, int expectedValue, bool expectedResult)
         {
             var subject = new InterlockedInt32(initialValue);
@@ -44,10 +43,11 @@ namespace MongoDB.Driver.Core.Misc
             result.Should().Be(expectedResult);
         }
 
-        [TestCase(0, 0, 1, 1, true)]
-        [TestCase(0, 1, 2, 0, false)]
-        [TestCase(1, 0, 1, 1, false)]
-        [TestCase(1, 1, 2, 2, true)]
+        [Theory]
+        [InlineData(0, 0, 1, 1, true)]
+        [InlineData(0, 1, 2, 0, false)]
+        [InlineData(1, 0, 1, 1, false)]
+        [InlineData(1, 1, 2, 2, true)]
         public void TryChange_with_two_parameters(int startingValue, int fromValue, int toValue, int expectedValue, bool expectedResult)
         {
             var subject = new InterlockedInt32(startingValue);
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Misc
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void TryChange_with_two_parameters_should_throw_if_values_are_equal()
         {
             var subject = new InterlockedInt32(0);

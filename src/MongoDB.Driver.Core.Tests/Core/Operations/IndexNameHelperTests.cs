@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class IndexNameHelperTests
     {
-        [Test]
+        [Fact]
         public void GetIndexName_with_BsonDocument_should_return_expected_result()
         {
             var keys = new BsonDocument
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void GetIndexName_with_names_should_return_expected_result()
         {
             var keys = new[] { "a", "b", "c c" };

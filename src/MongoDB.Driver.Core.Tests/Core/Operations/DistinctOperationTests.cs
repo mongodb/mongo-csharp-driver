@@ -19,26 +19,25 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class DistinctOperationTests : OperationTestBase
     {
         private string _fieldName;
         private IBsonSerializer<int> _valueSerializer;
 
-        public override void OneTimeSetUp()
+        public DistinctOperationTests()
         {
-            base.OneTimeSetUp();
-
             _fieldName = "y";
             _valueSerializer = new Int32Serializer();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new DistinctOperation<int>(null, _valueSerializer, _fieldName, _messageEncoderSettings);
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_value_serializer_is_null()
         {
             Action act = () => new DistinctOperation<int>(_collectionNamespace, null, _fieldName, _messageEncoderSettings);
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_field_name_is_null()
         {
             Action act = () => new DistinctOperation<int>(_collectionNamespace, _valueSerializer, null, _messageEncoderSettings);
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, null);
@@ -70,8 +69,9 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        [Category("ReadConcern")]
+        [Theory]
+        [ParameterAttributeData]
+        //[Category("ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
@@ -109,12 +109,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_the_correct_results(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
                 Filter = BsonDocument.Parse("{ _id : { $gt : 2 } }"),

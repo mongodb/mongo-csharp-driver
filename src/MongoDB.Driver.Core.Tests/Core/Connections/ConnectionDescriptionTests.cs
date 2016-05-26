@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class ConnectionDescriptionTests
     {
         private static readonly BuildInfoResult __buildInfoResult = new BuildInfoResult(BsonDocument.Parse(
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Connections
             "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30 }"
         ));
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionId_is_null()
         {
             Action act = () => new ConnectionDescription(null, __isMasterResult, __buildInfoResult);
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_isMasterResult_is_null()
         {
             Action act = () => new ConnectionDescription(__connectionId, null, __buildInfoResult);
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_buildInfoResult_is_null()
         {
             Action act = () => new ConnectionDescription(__connectionId, __isMasterResult, null);
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_correct_results()
         {
             var connectionId1 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10);
@@ -84,7 +83,7 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject5).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void ConnectionId_should_return_ConnectionId()
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
@@ -92,7 +91,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.ConnectionId.Should().Be(__connectionId);
         }
 
-        [Test]
+        [Fact]
         public void MaxBatchCount_should_return_isMasterResult_MaxBatchCount()
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
@@ -100,7 +99,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxBatchCount.Should().Be(__isMasterResult.MaxBatchCount);
         }
 
-        [Test]
+        [Fact]
         public void MaxDocumentSize_should_return_isMasterResult_MaxDocumentSize()
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
@@ -108,7 +107,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxDocumentSize.Should().Be(__isMasterResult.MaxDocumentSize);
         }
 
-        [Test]
+        [Fact]
         public void MaxMessageSize_should_return_isMasterResult_MaxMessageSize()
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
@@ -116,7 +115,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxMessageSize.Should().Be(__isMasterResult.MaxMessageSize);
         }
 
-        [Test]
+        [Fact]
         public void ServerVersion_should_return_buildInfoResult_ServerVersion()
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
@@ -124,7 +123,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.ServerVersion.Should().Be(__buildInfoResult.ServerVersion);
         }
 
-        [Test]
+        [Fact]
         public void WithConnectionId_should_return_new_instance_even_when_only_the_serverValue_differs()
         {
             var clusterId = new ClusterId();

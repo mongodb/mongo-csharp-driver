@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,17 +22,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class StreamExtensionMethodsTests
     {
-        [TestCase(0, new byte[] { 0, 0 })]
-        [TestCase(1, new byte[] { 1, 0 })]
-        [TestCase(2, new byte[] { 1, 2 })]
+        [Theory]
+        [InlineData(0, new byte[] { 0, 0 })]
+        [InlineData(1, new byte[] { 1, 0 })]
+        [InlineData(2, new byte[] { 1, 2 })]
         public async Task ReadBytesAsync_with_byte_array_should_have_expected_effect_for_count(int count, byte[] expectedBytes)
         {
             var bytes = new byte[] { 1, 2 };
@@ -44,8 +45,9 @@ namespace MongoDB.Driver.Core.Misc
             destination.Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new byte[] { 0, 1, 0 })]
-        [TestCase(2, new byte[] { 0, 0, 1 })]
+        [Theory]
+        [InlineData(1, new byte[] { 0, 1, 0 })]
+        [InlineData(2, new byte[] { 0, 0, 1 })]
         public async Task ReadBytesAsync_with_byte_array_should_have_expected_effect_for_offset(int offset, byte[] expectedBytes)
         {
             var bytes = new byte[] { 1 };
@@ -57,10 +59,11 @@ namespace MongoDB.Driver.Core.Misc
             destination.Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new[] { 3 })]
-        [TestCase(2, new[] { 1, 2 })]
-        [TestCase(3, new[] { 2, 1 })]
-        [TestCase(4, new[] { 1, 1, 1 })]
+        [Theory]
+        [InlineData(1, new[] { 3 })]
+        [InlineData(2, new[] { 1, 2 })]
+        [InlineData(3, new[] { 2, 1 })]
+        [InlineData(4, new[] { 1, 1, 1 })]
         public async Task ReadBytesAsync_with_byte_array_should_have_expected_effect_for_partial_reads(int testCase, int[] partition)
         {
             var stream = Substitute.For<Stream>();
@@ -83,7 +86,7 @@ namespace MongoDB.Driver.Core.Misc
             destination.Should().Equal(bytes);
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_array_should_throw_when_end_of_stream_is_reached()
         {
             var stream = Substitute.For<Stream>();
@@ -95,7 +98,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<EndOfStreamException>();
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_array_should_throw_when_buffer_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -106,9 +109,10 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, -1)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, -1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void ReadBytesAsync_with_byte_array_should_throw_when_count_is_invalid(int offset, int count)
         {
             var stream = Substitute.For<Stream>();
@@ -119,7 +123,8 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadBytesAsync_with_byte_array_should_throw_when_offset_is_invalid(
             [Values(-1, 3)]
             int offset)
@@ -132,7 +137,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_array_should_throw_when_stream_is_null()
         {
             Stream stream = null;
@@ -143,9 +148,10 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0, new byte[] { 0, 0 })]
-        [TestCase(1, new byte[] { 1, 0 })]
-        [TestCase(2, new byte[] { 1, 2 })]
+        [Theory]
+        [InlineData(0, new byte[] { 0, 0 })]
+        [InlineData(1, new byte[] { 1, 0 })]
+        [InlineData(2, new byte[] { 1, 2 })]
         public async Task ReadBytesAsync_with_byte_buffer_should_have_expected_effect_for_count(int count, byte[] expectedBytes)
         {
             var bytes = new byte[] { 1, 2 };
@@ -157,8 +163,9 @@ namespace MongoDB.Driver.Core.Misc
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new byte[] { 0, 1, 0 })]
-        [TestCase(2, new byte[] { 0, 0, 1 })]
+        [Theory]
+        [InlineData(1, new byte[] { 0, 1, 0 })]
+        [InlineData(2, new byte[] { 0, 0, 1 })]
         public async Task ReadBytesAsync_with_byte_buffer_should_have_expected_effect_for_offset(int offset, byte[] expectedBytes)
         {
             var bytes = new byte[] { 1 };
@@ -170,10 +177,11 @@ namespace MongoDB.Driver.Core.Misc
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new[] { 3 })]
-        [TestCase(2, new[] { 1, 2 })]
-        [TestCase(3, new[] { 2, 1 })]
-        [TestCase(4, new[] { 1, 1, 1 })]
+        [Theory]
+        [InlineData(1, new[] { 3 })]
+        [InlineData(2, new[] { 1, 2 })]
+        [InlineData(3, new[] { 2, 1 })]
+        [InlineData(4, new[] { 1, 1, 1 })]
         public async Task ReadBytesAsync_with_byte_buffer_should_have_expected_effect_for_partial_reads(int testCase, int[] partition)
         {
             var bytes = new byte[] { 1, 2, 3 };
@@ -196,7 +204,7 @@ namespace MongoDB.Driver.Core.Misc
             destination.AccessBackingBytes(0).Array.Should().Equal(bytes);
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_buffer_should_throw_when_end_of_stream_is_reached()
         {
             var stream = Substitute.For<Stream>();
@@ -208,7 +216,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<EndOfStreamException>();
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_buffer_should_throw_when_buffer_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -219,9 +227,10 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, -1)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, -1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void ReadBytesAsync_with_byte_buffer_should_throw_when_count_is_invalid(int offset, int count)
         {
             var stream = Substitute.For<Stream>();
@@ -232,7 +241,8 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReadBytesAsync_with_byte_buffer_should_throw_when_offset_is_invalid(
             [Values(-1, 3)]
             int offset)
@@ -245,7 +255,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
 
-        [Test]
+        [Fact]
         public void ReadBytesAsync_with_byte_buffer_should_throw_when_stream_is_null()
         {
             Stream stream = null;
@@ -256,9 +266,10 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
 
-        [TestCase(0, new byte[] { })]
-        [TestCase(1, new byte[] { 1 })]
-        [TestCase(2, new byte[] { 1, 2 })]
+        [Theory]
+        [InlineData(0, new byte[] { })]
+        [InlineData(1, new byte[] { 1 })]
+        [InlineData(2, new byte[] { 1, 2 })]
         public async Task WriteBytesAsync_should_have_expected_effect_for_count(int count, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
@@ -269,8 +280,9 @@ namespace MongoDB.Driver.Core.Misc
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new byte[] { 2 })]
-        [TestCase(2, new byte[] { 3 })]
+        [Theory]
+        [InlineData(1, new byte[] { 2 })]
+        [InlineData(2, new byte[] { 3 })]
         public async Task WriteBytesAsync_should_have_expected_effect_for_offset(int offset, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
@@ -281,10 +293,11 @@ namespace MongoDB.Driver.Core.Misc
             stream.ToArray().Should().Equal(expectedBytes);
         }
 
-        [TestCase(1, new[] { 3 })]
-        [TestCase(2, new[] { 1, 2 })]
-        [TestCase(3, new[] { 2, 1 })]
-        [TestCase(4, new[] { 1, 1, 1 })]
+        [Theory]
+        [InlineData(1, new[] { 3 })]
+        [InlineData(2, new[] { 1, 2 })]
+        [InlineData(3, new[] { 2, 1 })]
+        [InlineData(4, new[] { 1, 1, 1 })]
         public async Task WriteBytesAsync_should_have_expected_effect_for_partial_writes(int testCase, int[] partition)
         {
             var stream = new MemoryStream();
@@ -304,7 +317,7 @@ namespace MongoDB.Driver.Core.Misc
             stream.ToArray().Should().Equal(bytes);
         }
 
-        [Test]
+        [Fact]
         public void WriteBytesAsync_should_throw_when_buffer_is_null()
         {
             var stream = Substitute.For<Stream>();
@@ -314,9 +327,10 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, -1)]
-        [TestCase(1, 2)]
-        [TestCase(2, 1)]
+        [Theory]
+        [InlineData(0, -1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
         public void WriteBytesAsync_should_throw_when_count_is_invalid(int offset, int count)
         {
             var stream = Substitute.For<Stream>();
@@ -327,7 +341,8 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void WriteBytesAsync_should_throw_when_offset_is_invalid(
             [Values(-1, 3)]
             int offset)
@@ -340,7 +355,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
 
-        [Test]
+        [Fact]
         public void WriteBytesAsync_should_throw_when_stream_is_null()
         {
             Stream stream = null;

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MongoDB.Driver.Core.Async
 {
-    [TestFixture]
     public class MetronomeTests
     {
         private FrozenClock _clock;
@@ -34,28 +33,27 @@ namespace MongoDB.Driver.Core.Async
         private Metronome _subject;
         private readonly TimeSpan _threeQuarterPeriod = TimeSpan.FromMilliseconds(750);
 
-        [SetUp]
-        public void Setup()
+        public MetronomeTests()
         {
             _clock = FrozenClock.FreezeUtcNow();
             _subject = new Metronome(_period, _clock);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             _subject.NextTick.Should().Be(_clock.UtcNow);
             _subject.Period.Should().Be(_period);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_clock_is_null()
         {
             Action act = () => new Metronome(_period, null);
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_period_is_negative()
         {
             var period = TimeSpan.FromMilliseconds(-2);
@@ -63,7 +61,7 @@ namespace MongoDB.Driver.Core.Async
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_be_infinite_if_period_is_infinite()
         {
             var period = Timeout.InfiniteTimeSpan;
@@ -71,7 +69,7 @@ namespace MongoDB.Driver.Core.Async
             subject.GetNextTickDelay().Should().Be(Timeout.InfiniteTimeSpan);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_be_threeQuarterPeriod_when_oneQuarterPeriod_past_the_last_tick()
         {
             var now = _clock.UtcNow;
@@ -80,14 +78,14 @@ namespace MongoDB.Driver.Core.Async
             _subject.NextTick.Should().Be(now + _period);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_be_zero_when_first_instantiated()
         {
             _subject.GetNextTickDelay().Should().Be(TimeSpan.Zero);
             _subject.NextTick.Should().Be(_clock.UtcNow);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_be_zero_when_time_equals_nextTick()
         {
             var now = _clock.UtcNow;
@@ -96,7 +94,7 @@ namespace MongoDB.Driver.Core.Async
             _subject.NextTick.Should().Be(now + _period);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_not_advance_nextTick_when_called_more_than_once_during_the_same_period()
         {
             var now = _clock.UtcNow;
@@ -109,7 +107,7 @@ namespace MongoDB.Driver.Core.Async
             _subject.NextTick.Should().Be(now + _period);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_skip_one_missed_tick()
         {
             var now = _clock.UtcNow;
@@ -118,7 +116,7 @@ namespace MongoDB.Driver.Core.Async
             _subject.NextTick.Should().Be(now + _period + _period);
         }
 
-        [Test]
+        [Fact]
         public void GetNextTickDelay_should_skip_two_missed_ticks()
         {
             var now = _clock.UtcNow;

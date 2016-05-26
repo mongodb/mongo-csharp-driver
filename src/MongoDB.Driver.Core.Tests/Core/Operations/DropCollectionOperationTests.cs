@@ -18,29 +18,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class DropCollectionOperationTests
     {
         // fields
         private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
-        // setup methods
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        // constructor
+        public DropCollectionOperationTests()
         {
-            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestFixture();
+            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestClass(typeof(DropCollectionOperationTests));
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         // test methods
-        [Test]
+        [Fact]
         public void CollectionNamespace_get_should_return_expected_result()
         {
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_collectionNamespace);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
             Action action = () => { new DropCollectionOperation(null, _messageEncoderSettings); };
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -81,12 +82,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_not_throw_when_collection_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -96,12 +99,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -115,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);

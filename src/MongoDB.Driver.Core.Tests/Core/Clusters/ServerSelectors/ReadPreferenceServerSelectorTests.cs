@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    [TestFixture]
     public class ReadPreferenceServerSelectorTests
     {
         private ClusterDescription _description;
@@ -30,8 +29,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private ServerDescription _secondary1;
         private ServerDescription _secondary2;
 
-        [SetUp]
-        public void Setup()
+        public ReadPreferenceServerSelectorTests()
         {
             var clusterId = new ClusterId();
             _primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, new TagSet(new[] { new Tag("a", "1") }));
@@ -45,7 +43,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 new[] { _primary, _secondary1, _secondary2 });
         }
 
-        [Test]
+        [Fact]
         public void Primary_should_select_the_primary()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Primary);
@@ -55,7 +53,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_select_the_primary_regardless_of_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
@@ -65,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void Primary_should_select_none_when_no_primary_exists()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Primary);
@@ -75,7 +73,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void Secondary_should_select_a_secondary()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Secondary);
@@ -85,7 +83,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
         }
 
-        [Test]
+        [Fact]
         public void Secondary_should_select_only_secondaries_when_they_match_the_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
@@ -95,7 +93,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary1 });
         }
 
-        [Test]
+        [Fact]
         public void Secondary_should_select_none_when_no_secondaries_exist()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Secondary);
@@ -105,7 +103,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void SecondaryPreferred_should_select_all_the_secondaries()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.SecondaryPreferred);
@@ -115,7 +113,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
         }
 
-        [Test]
+        [Fact]
         public void SecondaryPreferred_should_select_the_primary_when_no_secondaries_exist()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.SecondaryPreferred);
@@ -125,7 +123,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void SecondaryPreferred_should_select_secondaries_that_match_the_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.SecondaryPreferred, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
@@ -135,7 +133,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary1 });
         }
 
-        [Test]
+        [Fact]
         public void SecondaryPreferred_should_select_the_primary_when_no_secondaries_exist_regardless_of_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.SecondaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
@@ -145,7 +143,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_select_the_primary_when_it_exists()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
@@ -155,7 +153,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_select_the_primary_when_it_exists_regardless_of_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
@@ -165,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary });
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_select_the_secondaries_when_no_primary_exists()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
@@ -175,7 +173,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_select_the_secondaries_when_no_primary_exists_when_tags_exist()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
@@ -185,7 +183,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _secondary2 });
         }
 
-        [Test]
+        [Fact]
         public void Nearest_should_select_all_the_servers()
         {
             var subject = new ReadPreferenceServerSelector(ReadPreference.Nearest);
@@ -195,7 +193,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(_description.Servers);
         }
 
-        [Test]
+        [Fact]
         public void Nearest_should_select_all_the_servers_respecting_tags()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Nearest, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
@@ -205,7 +203,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEquivalentTo(new[] { _primary, _secondary1 });
         }
 
-        [Test]
+        [Fact]
         public void Should_select_nothing_when_attempting_to_match_tags_and_servers_do_not_have_tags()
         {
             var clusterId = new ClusterId();
@@ -225,7 +223,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             result.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void ReadPreference_should_be_ignored_when_directly_connected_with_a_server()
         {
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Primary));

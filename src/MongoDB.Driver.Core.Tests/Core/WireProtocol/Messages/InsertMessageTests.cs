@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class InsertMessageTests
     {
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly int _requestId = 3;
         private readonly IBsonSerializer<BsonDocument> _serializer = BsonDocumentSerializer.Instance;
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new InsertMessage<BsonDocument>(_requestId,  _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
@@ -51,42 +50,42 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.Serializer.Should().BeSameAs(_serializer);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_negative_maxBatchCount_should_throw()
         {
             Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, -1, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_negative_maxMessageSize_should_throw()
         {
             Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, _maxBatchCount, -1, _continueOnError);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
             Action action = () => new InsertMessage<BsonDocument>(_requestId, null, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_documents_should_throw()
         {
             Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, null, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_serializer_should_throw()
         {
             Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, null, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);

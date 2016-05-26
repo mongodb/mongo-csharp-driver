@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class GetMoreMessageTests
     {
         private readonly int _batchSize = 1;
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly long _cursorId = 2;
         private readonly int _requestId = 3;
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, _batchSize);
@@ -41,21 +40,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.RequestId.Should().Be(_requestId);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_negative_batchSize_should_throw()
         {
             Action action = () => new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, -1);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
             Action action = () => new GetMoreMessage(_requestId, null, _cursorId, _batchSize);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, _batchSize);

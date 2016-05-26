@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,15 +22,14 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AsyncCursorEnumeratorTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_cursor_is_null()
         {
             Action action = () => new AsyncCursorEnumerator<BsonDocument>(null, CancellationToken.None);
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("cursor");
         }
 
-        [Test]
+        [Fact]
         public void Current_should_return_expected_result()
         {
             var subject = CreateSubject(2);
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Current.Should().Be(new BsonDocument("_id", 1));
         }
 
-        [Test]
+        [Fact]
         public void Current_should_return_expected_result_when_there_are_two_batches()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Current.Should().Be(new BsonDocument("_id", 2));
         }
 
-        [Test]
+        [Fact]
         public void Current_should_throw_when_MoveNext_has_not_been_called_first()
         {
             var subject = CreateSubject(1);
@@ -84,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public void Current_should_throw_when_MoveNext_returns_false()
         {
             var subject = CreateSubject(0);
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public void Current_should_throw_when_subject_has_been_disposed()
         {
             var subject = CreateSubject(0);
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_cursor()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -117,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             cursor.Received(1).Dispose();
         }
 
-        [Test]
+        [Fact]
         public void MoveNext_should_return_expected_result()
         {
             var subject = CreateSubject(2);
@@ -127,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MoveNext().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void MoveNext_should_return_expected_result_when_there_are_two_batches()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -150,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MoveNext().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void MoveNext_should_throw_when_subject_has_been_disposed()
         {
             var subject = CreateSubject(0);
@@ -161,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Fact]
         public void Reset_should_throw()
         {
             var subject = CreateSubject(1);

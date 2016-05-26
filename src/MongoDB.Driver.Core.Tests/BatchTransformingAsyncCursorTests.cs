@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,13 +20,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver
 {
     public class BatchTransformingAsyncCursorTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Should_provide_back_all_results(
             [Values(false, true)]
             bool async)
@@ -55,7 +57,8 @@ namespace MongoDB.Driver
             result.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Should_provide_back_a_filtered_list(
             [Values(false, true)]
             bool async)
@@ -84,7 +87,8 @@ namespace MongoDB.Driver
             result.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Should_skip_empty_batches(
             [Values(false, true)]
             bool async)
@@ -109,7 +113,8 @@ namespace MongoDB.Driver
             result.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Should_return_false_when_all_remaining_batches_are_empty(
             [Values(false, true)]
             bool async)

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@ using System;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AsyncCursorSourceEnumerableAdapterTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_source_is_null()
         {
             Action action = () => new AsyncCursorSourceEnumerableAdapter<BsonDocument>(null, CancellationToken.None);
@@ -33,7 +33,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetEnumerator_should_call_ToCursor_each_time(
             [Values(1, 2)] int times)
         {

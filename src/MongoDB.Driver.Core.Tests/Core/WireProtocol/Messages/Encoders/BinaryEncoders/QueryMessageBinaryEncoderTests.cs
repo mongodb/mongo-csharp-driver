@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    [TestFixture]
     public class QueryMessageBinaryEncoderTests
     {
         #region static
@@ -70,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_stream_is_provided()
         {
             using (var stream = new MemoryStream())
@@ -80,20 +79,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new QueryMessageBinaryEncoder(null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [TestCase(0, false, false, false, false, false, false)]
-        [TestCase(2, true, false, false, false, false, false)]
-        [TestCase(4, false, true, false, false, false, false)]
-        [TestCase(16, false, false, true, false, false, false)]
-        [TestCase(8, false, false, false, true, false, false)]
-        [TestCase(32, false, false, false, false, true, false)]
-        [TestCase(128, false, false, false, false, false, true)]
+        [Theory]
+        [InlineData(0, false, false, false, false, false, false)]
+        [InlineData(2, true, false, false, false, false, false)]
+        [InlineData(4, false, true, false, false, false, false)]
+        [InlineData(16, false, false, true, false, false, false)]
+        [InlineData(8, false, false, false, true, false, false)]
+        [InlineData(32, false, false, false, false, true, false)]
+        [InlineData(128, false, false, false, false, false, true)]
         public void ReadMessage_should_decode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
@@ -134,13 +134,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false, false, false, false, false, false)]
-        [TestCase(2, true, false, false, false, false, false)]
-        [TestCase(4, false, true, false, false, false, false)]
-        [TestCase(16, false, false, true, false, false, false)]
-        [TestCase(8, false, false, false, true, false, false)]
-        [TestCase(32, false, false, false, false, true, false)]
-        [TestCase(128, false, false, false, false, false, true)]
+        [Theory]
+        [InlineData(0, false, false, false, false, false, false)]
+        [InlineData(2, true, false, false, false, false, false)]
+        [InlineData(4, false, true, false, false, false, false)]
+        [InlineData(16, false, false, true, false, false, false)]
+        [InlineData(8, false, false, false, true, false, false)]
+        [InlineData(32, false, false, false, false, true, false)]
+        [InlineData(128, false, false, false, false, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
             var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
@@ -165,7 +166,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())

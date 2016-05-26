@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    [TestFixture]
     public class AuthenticationHelperTests
     {
-        [Test]
-        [TestCase("user", "pencil", "1c33006ec1ffd90f9cadcbcc0e118200")]
+        [Theory]
+        [InlineData("user", "pencil", "1c33006ec1ffd90f9cadcbcc0e118200")]
         public void MongoPasswordDigest_should_create_the_correct_hash(string username, string password, string expected)
         {
             var securePassword = new SecureString();
@@ -47,7 +47,8 @@ namespace MongoDB.Driver.Core.Authentication
             passwordDigest.Should().BeEquivalentTo(expected);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Authenticate_should_invoke_authenticators_when_they_exist(
             [Values(false, true)]
             bool async)
@@ -78,7 +79,8 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Authenticate_should_not_invoke_authenticators_when_connected_to_an_arbiter(
             [Values(false, true)]
             bool async)

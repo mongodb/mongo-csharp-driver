@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 using System.Net;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    [TestFixture]
     public class CompositeServerSelectorTests
     {
         private ClusterDescription _description;
 
-        [SetUp]
-        public void Setup()
+        public CompositeServerSelectorTests()
         {
             var clusterId = new ClusterId();
             _description = new ClusterDescription(
@@ -41,7 +39,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 });
         }
 
-        [Test]
+        [Fact]
         public void Should_run_all_the_selectors()
         {
             var selector1 = Substitute.For<IServerSelector>();
@@ -55,7 +53,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             selector2.ReceivedWithAnyArgs().SelectServers(_description, _description.Servers);
         }
 
-        [Test]
+        [Fact]
         public void Should_pass_on_the_filtered_servers_to_subsequent_selectors()
         {
             var selector1Selected = new[] { _description.Servers[1], _description.Servers[2] };

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    [TestFixture]
     public class ExclusiveConnectionPoolFactoryTests
     {
         private IConnectionFactory _connectionFactory;
@@ -36,8 +35,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private ServerId _serverId;
         private ConnectionPoolSettings _settings;
 
-        [SetUp]
-        public void Setup()
+        public ExclusiveConnectionPoolFactoryTests()
         {
             _connectionFactory = Substitute.For<IConnectionFactory>();
             _endPoint = new DnsEndPoint("localhost", 27017);
@@ -50,7 +48,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 waitQueueSize: 1);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
             Action act = () => new ExclusiveConnectionPoolFactory(null, _connectionFactory, _eventSubscriber);
@@ -58,7 +56,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
             Action act = () => new ExclusiveConnectionPoolFactory(_settings, null, _eventSubscriber);
@@ -66,7 +64,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, null);
@@ -74,7 +72,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnectionPool_should_throw_when_serverId_is_null()
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
@@ -83,7 +81,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnectionPool_should_throw_when_endPoint_is_null()
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
@@ -92,7 +90,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateConnectionPool_should_return_a_ConnectionPool()
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);

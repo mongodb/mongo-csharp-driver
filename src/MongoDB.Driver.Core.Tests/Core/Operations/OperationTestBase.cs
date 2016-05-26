@@ -23,27 +23,25 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public abstract class OperationTestBase
+    public abstract class OperationTestBase : IDisposable
     {
         protected DatabaseNamespace _databaseNamespace;
         protected CollectionNamespace _collectionNamespace;
         protected MessageEncoderSettings _messageEncoderSettings;
         private bool _hasOncePerFixtureRun;
 
-        [OneTimeSetUp]
-        public virtual void OneTimeSetUp()
+        public OperationTestBase()
         {
             _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [OneTimeTearDown]
-        public virtual void OneTimeTearDown()
+        public virtual void Dispose()
         {
             try
             {

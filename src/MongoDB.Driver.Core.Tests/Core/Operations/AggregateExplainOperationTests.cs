@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,15 +19,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AggregateExplainOperationTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void Constructor_should_create_a_valid_instance()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
@@ -37,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new AggregateExplainOperation(null, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
@@ -45,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_pipeline_is_null()
         {
             Action act = () => new AggregateExplainOperation(_collectionNamespace, null, _messageEncoderSettings);
@@ -53,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), null);
@@ -61,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void AllowDiskUse_should_have_the_correct_value()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
@@ -73,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AllowDiskUse.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_should_have_the_correct_value()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
@@ -85,7 +87,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().Be(TimeSpan.FromSeconds(2));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
             [Values(null, false, true)] bool? allowDiskUse,
             [Values(null, 2000)] int? maxTime)
@@ -110,12 +113,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.4.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_the_result_without_any_options(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.4.0");
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
@@ -123,12 +127,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_the_result_with_allow_disk_use(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
             {
                 AllowDiskUse = true,

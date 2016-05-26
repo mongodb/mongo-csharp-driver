@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class CreateIndexRequestTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AdditionalOptions_get_and_set_should_work(
             [Values(false, true)]
             bool hasAdditionalOptions)
@@ -37,7 +38,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Background_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -50,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var keys = new BsonDocument("x", 1);
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Unique.Should().NotHaveValue();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_keys_is_null()
         {
             Action action = () => new CreateIndexRequest(null);
@@ -75,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("keys");
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result()
         {
             var keys = new BsonDocument("x", 1);
@@ -91,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_additionalOptions_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -115,7 +117,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateIndexDocument_should_return_expected_result_when_background_has_value(
             [Values(false, true)]
             bool value)
@@ -135,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_bits_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -153,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_bucketSize_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -171,7 +174,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_defaultLanguage_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -189,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_expireAfter_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -207,7 +210,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_languageOverride_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -225,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_max_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -243,7 +246,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_min_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -261,7 +264,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_partialFilterExpression_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -279,7 +282,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_sparse_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -297,7 +300,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_sphereIndexVersion_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -315,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_StorageEngine_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -333,7 +336,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_textIndexVersion_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -351,7 +354,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_unique_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -369,7 +372,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_version_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -387,7 +390,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_weights_has_value()
         {
             var keys = new BsonDocument("x", 1);
@@ -405,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateIndexDocument_should_return_expected_result_when_name_is_in_additionalOptions()
         {
             var keys = new BsonDocument("x", 1);
@@ -422,7 +425,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Name_get_and_set_should_work(
             [Values(null, "name")]
             string value)
@@ -435,7 +439,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Keys_get_should_return_expected_result()
         {
             var keys = new BsonDocument("x", 1);
@@ -446,7 +450,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(keys);
         }
 
-        [Test]
+        [Fact]
         public void PartialFilterExpression_get_and_set_should_work()
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
@@ -458,7 +462,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Sparse_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -471,7 +476,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void TimeToLive_get_and_set_should_work(
             [Values(null, 1)]
             int? seconds)
@@ -485,7 +491,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Unique_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)

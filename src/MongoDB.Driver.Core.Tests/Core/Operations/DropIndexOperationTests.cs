@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,16 +19,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class DropIndexOperationTests : OperationTestBase
     {
         // test methods
-        [Test]
+        [Fact]
         public void CollectionNamespace_get_should_return_expected_result()
         {
             var indexName = "x_1";
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_collectionNamespace);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_indexName_messageEncoderSettings_should_initialize_subject()
         {
             var indexName = "x_1";
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_indexName_messageEncoderSettings_should_throw_when_collectionNamespace_is_null()
         {
             var indexName = "x_1";
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_indexName_messageEncoderSettings_should_throw_when_indexName_is_null()
         {
             Action action = () => { new DropIndexOperation(_collectionNamespace, (string)null, _messageEncoderSettings); };
@@ -69,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("indexName");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_indexName_messageEncoderSettings_should_throw_when_messageEncoderSettings_is_null()
         {
             var indexName = "x_1";
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_keys_messageEncoderSettings_should_initialize_subject()
         {
             var keys = new BsonDocument { { "x", 1 } };
@@ -92,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_keys_messageEncoderSettings_should_throw_when_collectionNamespace_is_null()
         {
             var keys = new BsonDocument { { "x", 1 } };
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_keys_messageEncoderSettings_should_throw_when_indexName_is_null()
         {
             Action action = () => { new DropIndexOperation(_collectionNamespace, (BsonDocument)null, _messageEncoderSettings); };
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("keys");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_collectionNamespace_keys_messageEncoderSettings_should_throw_when_messageEncoderSettings_is_null()
         {
             var keys = new BsonDocument { { "x", 1 } };
@@ -120,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expectedResult()
         {
             var indexName = "x_1";
@@ -136,12 +137,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_not_throw_when_collection_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var indexName = "x_1";
@@ -151,12 +154,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var keys = new BsonDocument("x", 1);
             var requests = new[] { new CreateIndexRequest(keys) };
             var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -169,7 +174,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
@@ -183,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
             ex.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Fact]
         public void IndexName_get_should_return_expected_result()
         {
             var indexName = "x_1";
@@ -194,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(indexName);
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
             var indexName = "x_1";

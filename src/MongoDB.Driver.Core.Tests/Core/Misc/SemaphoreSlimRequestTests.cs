@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,15 +17,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class SemaphoreSlimRequestTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance_with_completed_task_when_semaphore_is_available()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -36,7 +35,7 @@ namespace MongoDB.Driver.Core.Misc
             semaphore.CurrentCount.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance_with_incompleted_task_when_semaphore_is_not_available()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Misc
             semaphore.CurrentCount.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_semaphore_is_null()
         {
             Action action = () => new SemaphoreSlimRequest(null, CancellationToken.None);
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Core.Misc
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("semaphore");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_cancel_pending_request()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -70,7 +69,7 @@ namespace MongoDB.Driver.Core.Misc
             semaphore.CurrentCount.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_release_semaphore()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Core.Misc
             semaphore.CurrentCount.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Sempahore_should_not_be_released_when_cancellation_is_requested_after_semaphore_is_acquired()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.Misc
             semaphore.CurrentCount.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Task_should_be_cancelled_when_cancellationToken_requests_cancellation()
         {
             var semaphore = new SemaphoreSlim(1);
@@ -102,13 +101,14 @@ namespace MongoDB.Driver.Core.Misc
             var subject = new SemaphoreSlimRequest(semaphore, cancellationTokenSource.Token);
 
             cancellationTokenSource.Cancel();
+            SpinWait.SpinUntil(() => subject.Task.IsCompleted, 100);
             semaphore.Release();
 
             subject.Task.Status.Should().Be(TaskStatus.Canceled);
             semaphore.CurrentCount.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Task_should_be_completed_when_semaphore_becomes_available()
         {
             var semaphore = new SemaphoreSlim(1);

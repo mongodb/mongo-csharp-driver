@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class TimeSpanParserTests
     {
-        [Test]
-        [TestCase("2", 2 * 1000)]
-        [TestCase("2ms", 2)]
-        [TestCase("2s", 2 * 1000)]
-        [TestCase("2m", 2 * 1000 * 60)]
-        [TestCase("2h", 2 * 1000 * 60 * 60)]
+        [Theory]
+        [InlineData("2", 2 * 1000)]
+        [InlineData("2ms", 2)]
+        [InlineData("2s", 2 * 1000)]
+        [InlineData("2m", 2 * 1000 * 60)]
+        [InlineData("2h", 2 * 1000 * 60 * 60)]
         public void Parse_should_return_the_correct_TimeSpan(string value, long expectedMilliseconds)
         {
             TimeSpan result;
@@ -38,11 +37,11 @@ namespace MongoDB.Driver.Core.Misc
             result.TotalMilliseconds.Should().Be(expectedMilliseconds);
         }
 
-        [Test]
-        [TestCase(2, "2ms")]
-        [TestCase(2 * 1000, "2s")]
-        [TestCase(2 * 1000 * 60, "2m")]
-        [TestCase(2 * 1000 * 60 * 60, "2h")]
+        [Theory]
+        [InlineData(2, "2ms")]
+        [InlineData(2 * 1000, "2s")]
+        [InlineData(2 * 1000 * 60, "2m")]
+        [InlineData(2 * 1000 * 60 * 60, "2h")]
         public void ToString_should_return_the_correct_string(int milliseconds, string expectedString)
         {
             var result = TimeSpanParser.ToString(TimeSpan.FromMilliseconds(milliseconds));

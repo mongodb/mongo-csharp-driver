@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AsyncCursorEnumerableOneTimeAdapterTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_cursor_is_null()
         {
             Action action = () => new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(null, CancellationToken.None);
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("cursor");
         }
 
-        [Test]
+        [Fact]
         public void GetEnumerator_should_return_expected_result()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MoveNext().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void GetEnumerator_should_throw_when_called_more_than_once()
         {
             var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();

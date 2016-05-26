@@ -18,26 +18,25 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class FindOneAndUpdateOperationTests : OperationTestBase
     {
         private BsonDocument _filter;
         private BsonDocument _update;
 
-        public override void OneTimeSetUp()
+        public FindOneAndUpdateOperationTests()
         {
-            base.OneTimeSetUp();
-
             _filter = new BsonDocument("x", 1);
             _update = BsonDocument.Parse("{$set: {x: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(null, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_filter_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, null, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_update_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_update_is_empty()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, new BsonDocument(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -69,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, null, _messageEncoderSettings);
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, null);
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_object()
         {
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -98,7 +97,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -143,12 +143,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_an_existing_document_returning_the_original(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 _filter,
@@ -169,12 +171,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 2}");
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_an_existing_document_returning_the_updated(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 _filter,
@@ -195,12 +199,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 2}");
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_original(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{alkjasdf: 10}"),
@@ -221,12 +227,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_updated(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{alkjasdf: 10}"),
@@ -247,12 +255,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_original_with_upsert(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{_id: 10}"),
@@ -274,12 +284,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 2}");
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_updated_with_upsert(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocument.Parse("{_id: 10}"),
@@ -301,12 +313,14 @@ namespace MongoDB.Driver.Core.Operations
             serverList[0].Should().Be("{_id: 10, x: 2}");
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "3.2.0-rc0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_there_is_a_write_concern_error(
            [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "3.2.0-rc0", clusterTypes: ClusterTypes.ReplicaSet);
+            EnsureTestData();
             var subject = new FindOneAndUpdateOperation<BsonDocument>(
                 _collectionNamespace,
                 _filter,

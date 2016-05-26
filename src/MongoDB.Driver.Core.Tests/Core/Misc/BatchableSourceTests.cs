@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
     public class BatchableSourceTests
     {
-        [Test]
+        [Fact]
         public void ClearBatch_should_clear_batch()
         {
             var items = new List<int> { 1, 2 };
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Misc
             subject.Batch.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_enumerable_argument_should_initialize_instance()
         {
             var items = new List<int> { 1, 2 };
@@ -50,14 +50,14 @@ namespace MongoDB.Driver.Core.Misc
             subject.HasMore.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_enumerable_argument_should_throw_if_batch_is_null()
         {
             Action action = () => new BatchableSource<int>((IEnumerable<int>)null);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_enumerator_argument_should_initialize_instance()
         {
             var items = new List<int> { 1, 2 };
@@ -66,14 +66,14 @@ namespace MongoDB.Driver.Core.Misc
             subject.HasMore.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_enumerator_argument_should_throw_if_batch_is_null()
         {
             Action action = () => new BatchableSource<int>((IEnumerator<int>)null);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void EndBatch_with_no_overflow_should_set_batch_and_set_HashMore_to_false()
         {
             var subject = new BatchableSource<int>(Enumerable.Empty<int>().GetEnumerator());
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Misc
             subject.HasMore.Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void EndBatch_with_overflow_should_set_batch_and_set_HashMore_to_true()
         {
             var subject = new BatchableSource<int>(Enumerable.Empty<int>().GetEnumerator());
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Misc
             subject.StartBatch().Should().BeSameAs(overflow);
         }
 
-        [Test]
+        [Fact]
         public void MoveNext_and_Current_should_enumerate_the_items()
         {
             var expectedItems = new List<int> { 1, 2 };
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Misc
             items.Should().Equal(expectedItems);
         }
 
-        [Test]
+        [Fact]
         public void StartBatch_should_return_and_clear_any_overflow()
         {
             var subject = new BatchableSource<int>(Enumerable.Empty<int>().GetEnumerator());

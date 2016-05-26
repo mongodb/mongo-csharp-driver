@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     class ServerDescriptionTests
     {
         #region static
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Servers
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_with_serverId_and_endPoint_only_should_return_disconnected_instance()
         {
             var subject = new ServerDescription(__serverId, __endPoint);
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.WireVersionRange.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_multiple_parameters_should_return_properly_initialized_instance()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
@@ -101,17 +100,18 @@ namespace MongoDB.Driver.Core.Servers
             subject.Type.Should().Be(type);
         }
 
-        [TestCase("AverageRoundTripTime")]
-        [TestCase("CanonicalEndPoint")]
-        [TestCase("ElectionId")]
-        [TestCase("EndPoint")]
-        [TestCase("ReplicaSetConfig")]
-        [TestCase("ServerId")]
-        [TestCase("State")]
-        [TestCase("Tags")]
-        [TestCase("Type")]
-        [TestCase("Version")]
-        [TestCase("WireVersionRange")]
+        [Theory]
+        [InlineData("AverageRoundTripTime")]
+        [InlineData("CanonicalEndPoint")]
+        [InlineData("ElectionId")]
+        [InlineData("EndPoint")]
+        [InlineData("ReplicaSetConfig")]
+        [InlineData("ServerId")]
+        [InlineData("State")]
+        [InlineData("Tags")]
+        [InlineData("Type")]
+        [InlineData("Version")]
+        [InlineData("WireVersionRange")]
         public void Equals_should_return_false_when_any_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.GetHashCode().Should().NotBe(serverDescription2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_when_all_fields_are_equal()
         {
             ServerDescription subject = new ServerDescription(__serverId, __endPoint);
@@ -185,14 +185,15 @@ namespace MongoDB.Driver.Core.Servers
             subject.GetHashCode().Should().Be(serverDescription2.GetHashCode());
         }
 
-        [TestCase("AverageRoundTripTime")]
-        [TestCase("CanonicalEndPoint")]
-        [TestCase("ElectionId")]
-        [TestCase("ReplicaSetConfig")]
-        [TestCase("Tags")]
-        [TestCase("Type")]
-        [TestCase("Version")]
-        [TestCase("WireVersionRange")]
+        [Theory]
+        [InlineData("AverageRoundTripTime")]
+        [InlineData("CanonicalEndPoint")]
+        [InlineData("ElectionId")]
+        [InlineData("ReplicaSetConfig")]
+        [InlineData("Tags")]
+        [InlineData("Type")]
+        [InlineData("Version")]
+        [InlineData("WireVersionRange")]
         public void WithHeartbeat_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
@@ -249,7 +250,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.GetHashCode().Should().NotBe(serverDescription2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void WithHeartbeat_should_return_same_instance_when_all_fields_are_equal()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);

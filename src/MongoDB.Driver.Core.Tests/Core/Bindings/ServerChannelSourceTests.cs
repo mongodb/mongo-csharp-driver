@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,22 +25,21 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    [TestFixture]
     public class ServerChannelSourceTests
     {
         private IServer _server;
 
-        [SetUp]
-        public void Setup()
+        public ServerChannelSourceTests()
         {
             _server = Substitute.For<IServer>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_server_is_null()
         {
             Action act = () => new ServerChannelSource(null);
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void ServerDescription_should_return_description_of_server()
         {
             var subject = new ServerChannelSource(_server);
@@ -62,7 +61,8 @@ namespace MongoDB.Driver.Core.Bindings
             result.Should().BeSameAs(desc);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -83,7 +83,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_get_connection_from_server(
             [Values(false, true)]
             bool async)

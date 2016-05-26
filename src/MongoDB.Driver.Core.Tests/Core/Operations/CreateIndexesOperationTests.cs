@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class CreateIndexesOperationTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void CollectionNamespace_get_should_return_expected_value()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_collectionNamespace);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -49,12 +50,14 @@ namespace MongoDB.Driver.Core.Operations
             subject.WriteConcern.Should().Be(WriteConcern.Acknowledged);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_background_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Background = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -67,12 +70,14 @@ namespace MongoDB.Driver.Core.Operations
             index["background"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_creating_one_index(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -84,12 +89,14 @@ namespace MongoDB.Driver.Core.Operations
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_creating_two_indexes(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[]
             {
                 new CreateIndexRequest(new BsonDocument("x", 1)),
@@ -105,12 +112,14 @@ namespace MongoDB.Driver.Core.Operations
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1", "y_1" });
         }
 
-        [Test]
-        [RequiresServer("DropCollection", MinimumVersion = "3.1.1")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_partialFilterExpression_is_has_value(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "3.1.1");
+            DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0)) } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -123,12 +132,14 @@ namespace MongoDB.Driver.Core.Operations
             index["partialFilterExpression"].AsBsonDocument.Should().Be(requests[0].PartialFilterExpression);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_sparse_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Sparse = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -141,12 +152,14 @@ namespace MongoDB.Driver.Core.Operations
             index["sparse"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_expireAfter_has_value(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var expireAfterSeconds = 1.5;
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = TimeSpan.FromSeconds(expireAfterSeconds) } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -160,12 +173,14 @@ namespace MongoDB.Driver.Core.Operations
             index["expireAfterSeconds"].ToDouble().Should().Be(expireAfterSeconds);
         }
 
-        [Test]
-        [RequiresServer("DropCollection")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_unique_is_true(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Unique = true } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
@@ -178,7 +193,7 @@ namespace MongoDB.Driver.Core.Operations
             index["unique"].ToBoolean().Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_value()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -189,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void Requests_get_should_return_expected_value()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -200,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().ContainInOrder(requests);
         }
 
-        [Test]
+        [Fact]
         public void WriteConcern_get_and_set_should_work()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -213,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(value);
         }
 
-        [Test]
+        [Fact]
         public void WriteConcern_set_should_throw_when_value_is_null()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };

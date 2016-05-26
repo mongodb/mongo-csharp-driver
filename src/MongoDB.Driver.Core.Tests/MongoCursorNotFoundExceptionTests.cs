@@ -21,18 +21,17 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoCursorNotFoundExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 1).WithServerValue(2);
         private readonly long _cursorId = 1;
         private readonly BsonDocument _query = new BsonDocument("query", 1);
 
-        [Test]
+        [Fact]
         public void constructor_should_initalize_subject()
         {
             var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
@@ -48,7 +47,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);

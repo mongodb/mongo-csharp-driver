@@ -19,17 +19,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class ListIndexesUsingCommandOperationTests : OperationTestBase
     {
         // test methods
-        [Test]
+        [Fact]
         public void CollectionNamespace_get_should_return_expected_result()
         {
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_collectionNamespace);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
@@ -48,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
             Action action = () => new ListIndexesUsingCommandOperation(null, _messageEncoderSettings);
@@ -56,12 +57,13 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.0.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "3.0.0");
             EnsureCollectionExists(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -71,12 +73,13 @@ namespace MongoDB.Driver.Core.Operations
             list.Select(index => index["name"].AsString).Should().BeEquivalentTo("_id_");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.0.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_collection_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "3.0.0");
             DropCollection(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -86,12 +89,13 @@ namespace MongoDB.Driver.Core.Operations
             list.Count.Should().Be(0);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.0.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_database_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "3.0.0");
             DropDatabase(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -101,7 +105,8 @@ namespace MongoDB.Driver.Core.Operations
             list.Count.Should().Be(0);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
@@ -114,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [Test]
+        [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);

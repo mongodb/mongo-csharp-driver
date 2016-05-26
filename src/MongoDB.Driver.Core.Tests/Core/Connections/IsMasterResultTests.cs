@@ -22,14 +22,13 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class IsMasterResultTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_if_wrapped_is_null()
         {
             Action act = () => new IsMasterResult(null);
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Wrapped_should_return_the_document_passed_in_the_constructor()
         {
             var doc = new BsonDocument();
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.Wrapped.Should().BeSameAs(doc);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_be_true_when_both_have_the_same_result()
         {
             var subject1 = new IsMasterResult(new BsonDocument("x", 1));
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject2).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_be_false_when_both_have_different_results()
         {
             var subject1 = new IsMasterResult(new BsonDocument("x", 1));
@@ -64,9 +63,9 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject2).Should().BeFalse();
         }
 
-        [Test]
-        [TestCase("{ }", null)]
-        [TestCase("{ electionId: ObjectId('555925bfb69aa7d5be29126b') }", "555925bfb69aa7d5be29126b")]
+        [Theory]
+        [InlineData("{ }", null)]
+        [InlineData("{ electionId: ObjectId('555925bfb69aa7d5be29126b') }", "555925bfb69aa7d5be29126b")]
         public void ElectionId_should_parse_document_correctly(string json, string expectedObjectId)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -75,10 +74,10 @@ namespace MongoDB.Driver.Core.Connections
             subject.ElectionId.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ maxWriteBatchSize: 100 }", 100)]
-        [TestCase("{ maxWriteBatchSize: 0 }", 0)]
-        [TestCase("{ }", 1000)]
+        [Theory]
+        [InlineData("{ maxWriteBatchSize: 100 }", 100)]
+        [InlineData("{ maxWriteBatchSize: 0 }", 0)]
+        [InlineData("{ }", 1000)]
         public void MaxBatchCount_should_parse_document_correctly(string json, int expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -86,10 +85,10 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxBatchCount.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ maxBsonObjectSize: 100 }", 100)]
-        [TestCase("{ maxBsonObjectSize: 0 }", 0)]
-        [TestCase("{ }", 4 * 1024 * 1024)]
+        [Theory]
+        [InlineData("{ maxBsonObjectSize: 100 }", 100)]
+        [InlineData("{ maxBsonObjectSize: 0 }", 0)]
+        [InlineData("{ }", 4 * 1024 * 1024)]
         public void MaxDocumentSize_should_parse_document_correctly(string json, int expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -97,11 +96,11 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxDocumentSize.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ maxMessageSizeBytes: 100 }", 100)]
-        [TestCase("{ maxMessageSizeBytes: 0 }", 0)]
-        [TestCase("{ maxBsonObjectSize: 16000000 }", 16001024)]
-        [TestCase("{ }", 16000000)]
+        [Theory]
+        [InlineData("{ maxMessageSizeBytes: 100 }", 100)]
+        [InlineData("{ maxMessageSizeBytes: 0 }", 0)]
+        [InlineData("{ maxBsonObjectSize: 16000000 }", 16001024)]
+        [InlineData("{ }", 16000000)]
         public void MaxMessageSize_should_parse_document_correctly(string json, int expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -109,10 +108,10 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxMessageSize.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ maxWireVersion: 100 }", 100)]
-        [TestCase("{ maxWireVersion: 0 }", 0)]
-        [TestCase("{ }", 0)]
+        [Theory]
+        [InlineData("{ maxWireVersion: 100 }", 100)]
+        [InlineData("{ maxWireVersion: 0 }", 0)]
+        [InlineData("{ }", 0)]
         public void MaxWireVersion_should_parse_document_correctly(string json, int expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -120,10 +119,10 @@ namespace MongoDB.Driver.Core.Connections
             subject.MaxWireVersion.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ minWireVersion: 100 }", 100)]
-        [TestCase("{ minWireVersion: 0 }", 0)]
-        [TestCase("{ }", 0)]
+        [Theory]
+        [InlineData("{ minWireVersion: 100 }", 100)]
+        [InlineData("{ minWireVersion: 0 }", 0)]
+        [InlineData("{ }", 0)]
         public void MinWireVersion_should_parse_document_correctly(string json, int expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -131,9 +130,9 @@ namespace MongoDB.Driver.Core.Connections
             subject.MinWireVersion.Should().Be(expected);
         }
 
-        [Test]
-        [TestCase("{ }", null)]
-        [TestCase("{ me: 'localhost:27018' }", "localhost:27018")]
+        [Theory]
+        [InlineData("{ }", null)]
+        [InlineData("{ me: 'localhost:27018' }", "localhost:27018")]
         public void Me_should_parse_document_correctly(string json, string expectedEndPoint)
         {
             var endPoint = expectedEndPoint == null ? (EndPoint)null : EndPointHelper.Parse(expectedEndPoint);
@@ -143,29 +142,29 @@ namespace MongoDB.Driver.Core.Connections
             subject.Me.Should().Be(endPoint);
         }
 
-        [Test]
-        [TestCase("{ ok: 1, isreplicaset: true, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetGhost)]
-        [TestCase("{ ok: 1, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetPrimary)]
-        [TestCase("{ ok: 1, setName: \"awesome\", ismaster: true, secondary: true }", ServerType.ReplicaSetPrimary)]
-        [TestCase("{ ok: 1, setName: \"awesome\", secondary: true }", ServerType.ReplicaSetSecondary)]
-        [TestCase("{ ok: 1, setName: \"awesome\", secondary: true, passive: true }", ServerType.ReplicaSetSecondary)]
-        [TestCase("{ ok: 1, setName: \"awesome\", arbiterOnly: true }", ServerType.ReplicaSetArbiter)]
-        [TestCase("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false, arbiterOnly: false }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", ismaster: false }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", secondary: false }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", arbiterOnly: false }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", secondary: true, hidden: true }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, setName: \"awesome\", secondary: true, hidden: false }", ServerType.ReplicaSetSecondary)]
-        [TestCase("{ ok: 1, setName: \"awesome\" }", ServerType.ReplicaSetOther)]
-        [TestCase("{ ok: 1, isreplicaset: true }", ServerType.ReplicaSetGhost)]
-        [TestCase("{ ok: 1, isreplicaset: 1 }", ServerType.ReplicaSetGhost)]
-        [TestCase("{ ok: 1, isreplicaset: false }", ServerType.Standalone)]
-        [TestCase("{ ok: 1, isreplicaset: 0 }", ServerType.Standalone)]
-        [TestCase("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
-        [TestCase("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
-        [TestCase("{ ok: 1 }", ServerType.Standalone)]
-        [TestCase("{ ok: 0 }", ServerType.Unknown)]
+        [Theory]
+        [InlineData("{ ok: 1, isreplicaset: true, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetGhost)]
+        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetPrimary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true, secondary: true }", ServerType.ReplicaSetPrimary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", secondary: true }", ServerType.ReplicaSetSecondary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, passive: true }", ServerType.ReplicaSetSecondary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", arbiterOnly: true }", ServerType.ReplicaSetArbiter)]
+        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false, arbiterOnly: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", secondary: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", arbiterOnly: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, hidden: true }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, hidden: false }", ServerType.ReplicaSetSecondary)]
+        [InlineData("{ ok: 1, setName: \"awesome\" }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, isreplicaset: true }", ServerType.ReplicaSetGhost)]
+        [InlineData("{ ok: 1, isreplicaset: 1 }", ServerType.ReplicaSetGhost)]
+        [InlineData("{ ok: 1, isreplicaset: false }", ServerType.Standalone)]
+        [InlineData("{ ok: 1, isreplicaset: 0 }", ServerType.Standalone)]
+        [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
+        [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
+        [InlineData("{ ok: 1 }", ServerType.Standalone)]
+        [InlineData("{ ok: 0 }", ServerType.Unknown)]
         public void ServerType_should_parse_document_correctly(string json, ServerType expected)
         {
             var subject = new IsMasterResult(BsonDocument.Parse(json));
@@ -173,7 +172,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.ServerType.Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void Tags_should_be_null_when_no_tags_exist()
         {
             var subject = new IsMasterResult(new BsonDocument());
@@ -181,7 +180,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.Tags.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void Tags_should_parse_document_correctly()
         {
             var subject = new IsMasterResult(BsonDocument.Parse("{ tags: { a: \"one\", b: \"two\" } }"));
@@ -190,7 +189,7 @@ namespace MongoDB.Driver.Core.Connections
             subject.Tags.Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void GetReplicaSetConfig_should_return_correct_info_when_the_server_is_a_replica_set()
         {
             var doc = new BsonDocument

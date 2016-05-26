@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class BulkWriteOperationErrorTests
     {
-        [Test]
-        [TestCase(0, ServerErrorCategory.Uncategorized)]
-        [TestCase(50, ServerErrorCategory.ExecutionTimeout)]
-        [TestCase(11000, ServerErrorCategory.DuplicateKey)]
-        [TestCase(11001, ServerErrorCategory.DuplicateKey)]
-        [TestCase(12582, ServerErrorCategory.DuplicateKey)]
+        [Theory]
+        [InlineData(0, ServerErrorCategory.Uncategorized)]
+        [InlineData(50, ServerErrorCategory.ExecutionTimeout)]
+        [InlineData(11000, ServerErrorCategory.DuplicateKey)]
+        [InlineData(11001, ServerErrorCategory.DuplicateKey)]
+        [InlineData(12582, ServerErrorCategory.DuplicateKey)]
         public void Should_return_correct_error_category(int code, ServerErrorCategory expectedCategory)
         {
             var subject = new BulkWriteOperationError(0, code, "something", new BsonDocument());

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    [TestFixture]
     public class KillCursorsMessageBinaryEncoderTests
     {
         #region static
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_stream_is_not_null()
         {
             using (var stream = new MemoryStream())
@@ -63,14 +62,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new KillCursorsMessageBinaryEncoder(null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
@@ -82,7 +81,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())

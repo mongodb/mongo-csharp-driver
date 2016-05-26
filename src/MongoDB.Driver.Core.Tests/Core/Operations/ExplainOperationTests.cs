@@ -17,26 +17,25 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class ExplainOperationTests : OperationTestBase
     {
         private BsonDocument _command;
 
-        public override void OneTimeSetUp()
+        public ExplainOperationTests()
         {
-            base.OneTimeSetUp();
-
             _command = new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName }
             };
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => new ExplainOperation(null, _command, _messageEncoderSettings);
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_command_is_null()
         {
             Action action = () => new ExplainOperation(_databaseNamespace, null, _messageEncoderSettings);
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action action = () => new ExplainOperation(_databaseNamespace, _command, null);
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_subject()
         {
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
@@ -71,10 +70,10 @@ namespace MongoDB.Driver.Core.Operations
             subject.Verbosity.Should().Be(ExplainVerbosity.QueryPlanner);
         }
 
-        [Test]
-        [TestCase(ExplainVerbosity.AllPlansExecution, "allPlansExecution")]
-        [TestCase(ExplainVerbosity.ExecutionStats, "executionStats")]
-        [TestCase(ExplainVerbosity.QueryPlanner, "queryPlanner")]
+        [Theory]
+        [InlineData(ExplainVerbosity.AllPlansExecution, "allPlansExecution")]
+        [InlineData(ExplainVerbosity.ExecutionStats, "executionStats")]
+        [InlineData(ExplainVerbosity.QueryPlanner, "queryPlanner")]
         public void CreateCommand_should_return_expected_result(ExplainVerbosity verbosity, string verbosityString)
         {
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings)
@@ -93,12 +92,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer("EnsureCollectionExists", MinimumVersion = "2.7.6")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_not_throw_when_collection_does_not_exist(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.7.6");
+            EnsureCollectionExists();
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 
             var result = ExecuteOperation((IReadOperation<BsonDocument>)subject, async);

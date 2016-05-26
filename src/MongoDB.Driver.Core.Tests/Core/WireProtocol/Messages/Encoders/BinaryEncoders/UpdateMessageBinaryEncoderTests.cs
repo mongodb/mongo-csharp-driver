@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    [TestFixture]
     public class UpdateMessageBinaryEncoderTests
     {
         #region static
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_stream_provided()
         {
             using (var stream = new MemoryStream())
@@ -74,16 +73,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new UpdateMessageBinaryEncoder(null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [TestCase(0, false, false)]
-        [TestCase(1, true, false)]
-        [TestCase(2, false, true)]
+        [Theory]
+        [InlineData(0, false, false)]
+        [InlineData(1, true, false)]
+        [InlineData(2, false, true)]
         public void ReadMessage_should_decode_flags_correctly(int flags, bool isUpsert, bool isMulti)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
@@ -115,9 +115,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false, false)]
-        [TestCase(1, true, false)]
-        [TestCase(2, false, true)]
+        [Theory]
+        [InlineData(0, false, false)]
+        [InlineData(1, true, false)]
+        [InlineData(2, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool isUpsert, bool isMulti)
         {
             var message = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __updateValidator, isMulti, isUpsert);
@@ -131,7 +132,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
@@ -142,7 +143,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_the_update_message_is_empty_when_using_the_UpdateElementNameValidator()
         {
             var message = new UpdateMessage(__requestId, __collectionNamespace, __query, new BsonDocument(), UpdateElementNameValidator.Instance, false, false);

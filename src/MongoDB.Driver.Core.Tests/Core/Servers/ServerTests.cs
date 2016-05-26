@@ -17,17 +17,17 @@ using System;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     public class ServerTests
     {
         private ClusterId _clusterId;
@@ -41,8 +41,7 @@ namespace MongoDB.Driver.Core.Servers
         private ServerSettings _settings;
         private Server _subject;
 
-        [SetUp]
-        public void Setup()
+        public ServerTests()
         {
             _clusterId = new ClusterId();
             _clusterConnectionMode = ClusterConnectionMode.Standalone;
@@ -63,7 +62,7 @@ namespace MongoDB.Driver.Core.Servers
             _subject = new Server(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _serverMonitorFactory, _capturedEvents);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
             Action act = () => new Server(_clusterId, _clusterConnectionMode, null, _endPoint, _connectionPoolFactory, _serverMonitorFactory, _capturedEvents);
@@ -71,7 +70,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_clusterId_is_null()
         {
             Action act = () => new Server(null, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _serverMonitorFactory, _capturedEvents);
@@ -79,7 +78,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
             Action act = () => new Server(_clusterId, _clusterConnectionMode, _settings, null, _connectionPoolFactory, _serverMonitorFactory, _capturedEvents);
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
             Action act = () => new Server(_clusterId, _clusterConnectionMode, _settings, _endPoint, null, _serverMonitorFactory, _capturedEvents);
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_serverMonitorFactory_is_null()
         {
             Action act = () => new Server(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, null, _capturedEvents);
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new Server(_clusterId, _clusterConnectionMode, _settings, _endPoint, _connectionPoolFactory, _serverMonitorFactory, null);
@@ -111,7 +110,7 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_the_server()
         {
             _subject.Initialize();
@@ -126,7 +125,8 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_throw_when_not_initialized(
             [Values(false, true)]
             bool async)
@@ -144,7 +144,8 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_throw_when_disposed(
             [Values(false, true)]
             bool async)
@@ -164,7 +165,8 @@ namespace MongoDB.Driver.Core.Servers
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_get_a_connection(
             [Values(false, true)]
             bool async)
@@ -184,7 +186,7 @@ namespace MongoDB.Driver.Core.Servers
             channel.Should().NotBeNull();
         }
 
-        [Test]
+        [Fact]
         public void Initialize_should_initialize_the_server()
         {
             _subject.Initialize();
@@ -196,7 +198,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Invalidate_should_tell_the_monitor_to_invalidate_and_clear_the_connection_pool()
         {
             _subject.Initialize();
@@ -207,7 +209,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverMonitor.Received().Invalidate();
         }
 
-        [Test]
+        [Fact]
         public void RequestHeartbeat_should_tell_the_monitor_to_request_a_heartbeat()
         {
             _subject.Initialize();
@@ -218,7 +220,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void A_description_changed_event_with_a_heartbeat_exception_should_clear_the_connection_pool()
         {
             _subject.Initialize();

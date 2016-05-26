@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,15 +20,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class GeoNearOperationTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new GeoNearOperation<BsonDocument>(null, 5, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -36,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_near_is_null()
         {
             Action act = () => new GeoNearOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
             Action act = () => new GeoNearOperation<BsonDocument>(_collectionNamespace, 5, null, _messageEncoderSettings);
@@ -52,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new GeoNearOperation<BsonDocument>(_collectionNamespace, 5, BsonDocumentSerializer.Instance, null);
@@ -60,8 +61,9 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        [Category("ReadConcern")]
+        [Theory]
+        [ParameterAttributeData]
+        //[Category("ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
@@ -119,12 +121,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
+            EnsureTestData();
             var subject = new GeoNearOperation<BsonDocument>(
                 _collectionNamespace,
                 new BsonArray { 1, 2 },

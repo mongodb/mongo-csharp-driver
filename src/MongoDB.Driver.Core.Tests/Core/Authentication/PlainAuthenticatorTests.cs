@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
-using NUnit.Framework;
+using Xunit;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    [TestFixture]
     public class PlainAuthenticatorTests
     {
         private static readonly UsernamePasswordCredential __credential = new UsernamePasswordCredential("source", "user", "pencil");
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Authentication
             new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
             new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
         {
             Action act = () => new PlainAuthenticator(null);
@@ -47,7 +47,8 @@ namespace MongoDB.Driver.Core.Authentication
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
             [Values(false, true)]
             bool async)
@@ -71,7 +72,8 @@ namespace MongoDB.Driver.Core.Authentication
             act.ShouldThrow<MongoAuthenticationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Authenticate_should_not_throw_when_authentication_succeeds(
             [Values(false, true)]
             bool async)

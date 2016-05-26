@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,22 +23,20 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class ReferenceCountedTests
     {
         private IDisposable _disposable;
 
-        [SetUp]
-        public void Setup()
+        public ReferenceCountedTests()
         {
             _disposable = Substitute.For<IDisposable>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_instance_is_null()
         {
             Action act = () => new ReferenceCounted<IDisposable>(null);
@@ -46,7 +44,7 @@ namespace MongoDB.Driver.Core.Misc
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Initial_reference_count_should_be_one()
         {
             var subject = new ReferenceCounted<IDisposable>(_disposable);
@@ -54,7 +52,7 @@ namespace MongoDB.Driver.Core.Misc
             subject.ReferenceCount.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Decrement_should_not_call_dispose_when_reference_count_is_greater_than_zero()
         {
             var subject = new ReferenceCounted<IDisposable>(_disposable);
@@ -66,7 +64,7 @@ namespace MongoDB.Driver.Core.Misc
             _disposable.DidNotReceive().Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Decrement_should_call_dispose_when_reference_count_is_zero()
         {
             var subject = new ReferenceCounted<IDisposable>(_disposable);

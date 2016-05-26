@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Events
 {
-    [TestFixture]
     public class EventAggregatorTests
     {
-        [Test]
+        [Fact]
         public void TryGetEventHandler_should_return_false_when_no_subscribers_exist()
         {
             var subject = new EventAggregator();
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Core.Events
             subject.TryGetEventHandler(out handler).Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void TryGetEventHandler_should_return_true_when_one_subscriber_exists()
         {
             var subject = new EventAggregator();
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Core.Events
             subject.TryGetEventHandler(out handler).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Handler_should_invoke_a_single_subscriber()
         {
             var subject = new EventAggregator();
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Events
             called.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Handler_should_invoke_multiple_subscribers()
         {
             var subject = new EventAggregator();

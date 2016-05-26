@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class UpdateMessageTests
     {
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
@@ -33,8 +32,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly BsonDocument _update = new BsonDocument("$set", new BsonDocument("y", 2));
         private readonly IElementNameValidator _updateValidator = NoOpElementNameValidator.Instance;
 
-        [TestCase(true, false)]
-        [TestCase(false, true)]
+        [Theory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
         public void Constructor_should_initialize_instance(bool isMulti, bool isUpsert)
         {
             var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, _updateValidator, isMulti, isUpsert);
@@ -46,28 +46,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.RequestId.Should().Be(_requestId);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
             Action action = () => new UpdateMessage(_requestId, null, _query, _update, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_query_should_throw()
         {
             Action action = () => new UpdateMessage(_requestId, _collectionNamespace, null, _update, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_update_should_throw()
         {
             Action action = () => new UpdateMessage(_requestId, _collectionNamespace, _query, null, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, _updateValidator, false, false);

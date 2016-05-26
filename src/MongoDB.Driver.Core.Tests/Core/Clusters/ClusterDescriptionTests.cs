@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class ClusterDescriptionTests
     {
         #region static
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Clusters
         #endregion
 
         // static member tests
-        [Test]
+        [Fact]
         public void CreateInitial_should_return_initial_description()
         {
             var subject = ClusterDescription.CreateInitial(__clusterId, ClusterConnectionMode.Standalone);
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // instance member tests
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new ClusterDescription(
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Type.Should().Be(ClusterType.ReplicaSet);
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_ignore_revision()
         {
             var subject1 = CreateSubject();
@@ -91,10 +90,11 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [TestCase("ClusterId")]
-        [TestCase("ConnectionMode")]
-        [TestCase("Servers")]
-        [TestCase("Type")]
+        [Theory]
+        [InlineData("ClusterId")]
+        [InlineData("ConnectionMode")]
+        [InlineData("Servers")]
+        [InlineData("Type")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
         {
             var subject1 = CreateSubject();
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().NotBe(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fields_are_equal()
         {
             var subject1 = CreateSubject();
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void State_should_be_connected_if_any_server_is_connected()
         {
             var connected = ServerDescriptionHelper.Connected(new ClusterId(1));
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.State.Should().Be(ClusterState.Connected);
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_string_representation()
         {
             var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, ClusterType.Standalone, new[] { __serverDescription1 });
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.ToString().Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void WithServerDescription_should_add_server_if_server_does_not_exist()
         {
             var subject1 = CreateSubject();
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Servers.Count.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void WithServerDescription_should_return_new_instance_if_value_is_not_equal()
         {
             var subject1 = CreateSubject();
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Should().NotBe(subject1);
         }
 
-        [Test]
+        [Fact]
         public void WithServerDescription_should_return_same_instance_if_value_is_equal()
         {
             var subject1 = CreateSubject();
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Should().BeSameAs(subject1);
         }
 
-        [Test]
+        [Fact]
         public void WithoutServerDescription_should_remove_server_if_it_exists()
         {
             var subject1 = CreateSubject();
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Servers.Count.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void WithType_should_return_new_instance_if_value_is_not_equal()
         {
             var subject1 = CreateSubject();
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Should().NotBe(subject1);
         }
 
-        [Test]
+        [Fact]
         public void WithType_should_return_same_instance_if_value_is_equal()
         {
             var subject1 = CreateSubject();

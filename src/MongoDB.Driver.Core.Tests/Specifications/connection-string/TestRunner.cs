@@ -24,15 +24,17 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit.Sdk;
+using System.Collections;
 
 namespace MongoDB.Driver.Specifications.connection_string
 {
-    [TestFixture]
     public class TestRunner
     {
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [SkippableTheory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
             ConnectionString connectionString = null;
@@ -60,7 +62,7 @@ namespace MongoDB.Driver.Specifications.connection_string
         {
             if (!definition["valid"].ToBoolean())
             {
-                Assert.Fail($"The connection string '{definition["uri"]}' should be invalid.");
+                throw new AssertionException($"The connection string '{definition["uri"]}' should be invalid.");
             }
 
             var hostsValue = definition["hosts"] as BsonArray;
@@ -126,23 +128,23 @@ namespace MongoDB.Driver.Specifications.connection_string
             }
             else if (expectedHost["type"] == "unix")
             {
-                Assert.Ignore();
+                throw new SkipTestException("Test skipped because unix host types are not supported.");
             }
 
             throw new AssertionException($"Unknown host type {expectedHost["type"]}.");
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            private static readonly string[] _ignoredTestNames = new string[]
+            private static readonly string[] __ignoredTestNames = new string[]
             {
                 "invalid-uris: Missing delimiting slash between hosts and options"
             };
 
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Specifications.connection_string.tests.";
-                return Assembly
+                var enumerable = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
@@ -151,21 +153,33 @@ namespace MongoDB.Driver.Specifications.connection_string
                         var definition = ReadDefinition(path);
                         var tests = (BsonArray)definition["tests"];
                         var fullName = path.Remove(0, prefix.Length);
-                        var list = new List<TestCaseData>();
+                        var list = new List<object[]>();
                         foreach (BsonDocument test in tests)
                         {
-                            var data = new TestCaseData(test);
-                            data.SetCategory("Specifications");
-                            data.SetCategory("ConnectionString");
+                            //var data = new TestCaseData(test);
+                            //data.SetCategory("Specifications");
+                            //data.SetCategory("ConnectionString");
+                            //var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
+                            //if (_ignoredTestNames.Contains(testName))
+                            //{
+                            //    data = data.Ignore("Does not apply");
+                            //}
+                            //list.Add(data.SetName(testName));
                             var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
-                            if (_ignoredTestNames.Contains(testName))
+                            if (!__ignoredTestNames.Contains(testName))
                             {
-                                data = data.Ignore("Does not apply");
+                                var data = new object[] { test };
+                                list.Add(data);
                             }
-                            list.Add(data.SetName(testName));
                         }
                         return list;
                     });
+                return enumerable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDefinition(string path)

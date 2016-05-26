@@ -23,11 +23,10 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoCommandExceptionTests
     {
         private readonly BsonDocument _command = new BsonDocument("command", 1);
@@ -35,7 +34,7 @@ namespace MongoDB.Driver
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
         private readonly string _message = "message";
 
-        [Test]
+        [Fact]
         public void Code_get_returns_expected_result()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
@@ -45,7 +44,7 @@ namespace MongoDB.Driver
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_message_command_should_initialize_subject()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command);
@@ -57,7 +56,7 @@ namespace MongoDB.Driver
             subject.Result.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_message_command_result_should_initialize_subject()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
@@ -69,7 +68,7 @@ namespace MongoDB.Driver
             subject.Result.Should().BeSameAs(_commandResult);
         }
 
-        [Test]
+        [Fact]
         public void ErrorMessage_get_returns_expected_result()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
@@ -80,7 +79,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);

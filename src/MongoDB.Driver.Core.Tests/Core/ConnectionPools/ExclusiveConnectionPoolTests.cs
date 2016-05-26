@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -25,11 +26,10 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    [TestFixture]
     public class ExclusiveConnectionPoolTests
     {
         private IConnectionFactory _connectionFactory;
@@ -39,8 +39,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;
 
-        [SetUp]
-        public void Setup()
+        public ExclusiveConnectionPoolTests()
         {
             _connectionFactory = Substitute.For<IConnectionFactory>();
             _endPoint = new DnsEndPoint("localhost", 27017);
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _capturedEvents);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
             Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _connectionFactory, _capturedEvents);
@@ -69,7 +68,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
             Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _connectionFactory, _capturedEvents);
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
             Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _connectionFactory, _capturedEvents);
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
             Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, null, _capturedEvents);
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
             Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _connectionFactory, null);
@@ -101,7 +100,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_throw_an_InvalidOperationException_if_not_initialized(
             [Values(false, true)]
             bool async)
@@ -119,7 +119,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_throw_an_ObjectDisposedException_after_disposing(
             [Values(false, true)]
             bool async)
@@ -139,7 +140,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_return_a_connection(
             [Values(false, true)]
             bool async)
@@ -168,7 +170,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_increase_count_up_to_the_max_number_of_connections(
             [Values(false, true)]
             bool async)
@@ -212,7 +215,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquiredConnection_should_return_connections_to_the_pool_when_disposed(
             [Values(false, true)]
             bool async)
@@ -240,7 +244,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquiredConnection_should_not_return_connections_to_the_pool_when_disposed_and_expired(
             [Values(false, true)]
             bool async)
@@ -281,7 +286,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_throw_a_TimeoutException_when_all_connections_are_checked_out(
             [Values(false, true)]
             bool async)
@@ -320,7 +326,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void AcquiredConnection_should_not_throw_exceptions_when_disposed_after_the_pool_was_disposed(
             [Values(false, true)]
             bool async)
@@ -356,7 +363,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
         {
             Action act = () => _subject.Clear();
@@ -364,7 +371,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public void Clear_should_throw_an_ObjectDisposedException_after_disposing()
         {
             _subject.Dispose();
@@ -374,7 +381,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Clear_should_cause_existing_connections_to_be_expired(
             [Values(false, true)]
             bool async)
@@ -396,7 +404,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             connection.IsExpired.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Initialize_should_throw_an_ObjectDisposedException_after_disposing()
         {
             _subject.Dispose();
@@ -406,7 +414,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Fact]
         public void Initialize_should_scale_up_the_number_of_connections_to_min_size()
         {
             _subject.CreatedCount.Should().Be(0);

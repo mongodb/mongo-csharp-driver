@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class AggregateOperationTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void Constructor_should_create_a_valid_instance()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
             Action act = () => new AggregateOperation<BsonDocument>(null, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_pipeline_is_null()
         {
             Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
             Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), null, _messageEncoderSettings);
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
             Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, null);
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void AllowDiskUse_should_have_the_correct_value()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AllowDiskUse.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void BatchSize_should_have_the_correct_value()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BatchSize.Should().Be(23);
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_should_have_the_correct_value()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -106,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().Be(TimeSpan.FromSeconds(2));
         }
 
-        [Test]
+        [Fact]
         public void UseCursor_should_have_the_correct_value()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -118,8 +119,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.UseCursor.Should().Be(true);
         }
 
-        [Test]
-        [Category("ReadConcern")]
+        [Theory]
+        [ParameterAttributeData]
+        //[Category("ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("2.4.0", "2.6.0", "2.8.0", "3.0.0", "3.2.0")] string serverVersion,
             [Values(null, false, true)] bool? allowDiskUse,
@@ -171,12 +173,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.4.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_matching_documents_using_no_options(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.4.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
@@ -187,12 +191,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(2);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_matching_documents_using_all_options(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -208,12 +214,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(2);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_matching_documents_using_a_cursor(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -227,12 +235,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(2);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.4.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_matching_documents_without_a_cursor(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.4.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -246,12 +256,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(2);
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.4.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_no_matching_documents_without_a_cursor(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.4.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 5}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -265,12 +277,14 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeEmpty();
         }
 
-        [Test]
-        [RequiresServer("EnsureTestData", MinimumVersion = "2.6.0")]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Executing_with_no_matching_documents_using_a_cursor(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            EnsureTestData();
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 5}}}");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

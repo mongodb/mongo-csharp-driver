@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    [TestFixture]
     public class ConnectionPoolSettingsTests
     {
         private static readonly ConnectionPoolSettings __defaults = new ConnectionPoolSettings();
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new ConnectionPoolSettings();
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMinutes(2));
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_maintenanceInterval_is_negative()
         {
             Action action = () => new ConnectionPoolSettings(maintenanceInterval: TimeSpan.FromSeconds(-1));
@@ -44,7 +44,8 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maintenanceInterval");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_maxConnections_is_negative_or_zero(
             [Values(-1, 0)]
             int maxConnections)
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxConnections");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_minConnections_is_negative()
         {
             Action action = () => new ConnectionPoolSettings(minConnections: -1);
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minConnections");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_waitQueueSize_is_negative()
         {
             Action action = () => new ConnectionPoolSettings(waitQueueSize: -1);
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("waitQueueSize");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_waitQueueTimeout_is_negative()
         {
             Action action = () => new ConnectionPoolSettings(waitQueueTimeout: TimeSpan.FromSeconds(-1));
@@ -78,7 +79,7 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("waitQueueTimeout");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_maintenanceInterval_should_initialize_instance()
         {
             var maintenanceInterval = TimeSpan.FromSeconds(123);
@@ -92,7 +93,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_maxConnections_should_initialize_instance()
         {
             var maxConnections = 1;
@@ -107,7 +108,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_maxConnections_and_waitQueueSize_should_initialize_instance()
         {
             var maxConnections = 1;
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_minConnections_should_initialize_instance()
         {
             var minConnections = 123;
@@ -136,7 +137,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_waitQueueSize_should_initialize_instance()
         {
             var waitQueueSize = 123;
@@ -150,7 +151,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_waitQueueTimeout_should_initialize_instance()
         {
             var waitQueueTimeout = TimeSpan.FromSeconds(123);
@@ -164,7 +165,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(waitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_maintenanceInterval_should_return_expected_result()
         {
             var oldMaintenanceInterval = TimeSpan.FromSeconds(1);
@@ -180,7 +181,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_maxConnections_should_return_expected_result()
         {
             var oldMaxConnections = 1;
@@ -196,7 +197,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_minConnections_should_return_expected_result()
         {
             var oldMinConnections = 1;
@@ -212,7 +213,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_waitQueueSizes_should_return_expected_result()
         {
             var oldWaitQueueSize = 1;
@@ -228,7 +229,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
-        [Test]
+        [Fact]
         public void With_waitQueueTimeoutl_should_return_expected_result()
         {
             var oldWaitQueueTimeout = TimeSpan.FromSeconds(1);

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    [TestFixture]
     public class HeartbeatDelayTests
     {
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_multiple_times()
         {
             var subject = new HeartbeatDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Task_should_complete_when_heartbeatInterval_has_expired()
         {
             var subject = new HeartbeatDelay(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1));
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.Task.Wait(TimeSpan.FromSeconds(1)).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Task_should_complete_when_early_heartbeat_is_requested()
         {
             var subject = new HeartbeatDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));

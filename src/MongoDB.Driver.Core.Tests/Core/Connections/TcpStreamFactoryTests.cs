@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,17 +22,19 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
     public class TcpStreamFactoryTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_tcpStreamSettings_is_null()
         {
             Action act = () => new TcpStreamFactory(null);
@@ -40,7 +42,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateStream_should_throw_a_SocketException_when_the_endpoint_could_not_be_resolved(
             [Values(false, true)]
             bool async)
@@ -60,7 +63,8 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<SocketException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateStream_should_throw_when_cancellation_is_requested(
             [Values(false, true)]
             bool async)
@@ -82,7 +86,8 @@ namespace MongoDB.Driver.Core.Connections
             action.ShouldThrow<OperationCanceledException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateStream_should_throw_when_connect_timeout_has_expired(
             [Values(false, true)]
             bool async)
@@ -104,12 +109,13 @@ namespace MongoDB.Driver.Core.Connections
             action.ShouldThrow<TimeoutException>();
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void CreateStream_should_call_the_socketConfigurator(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             var socketConfiguratorWasCalled = false;
             Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
@@ -128,12 +134,13 @@ namespace MongoDB.Driver.Core.Connections
             socketConfiguratorWasCalled.Should().BeTrue();
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void CreateStream_should_connect_to_a_running_server_and_return_a_non_null_stream(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             var subject = new TcpStreamFactory();
             var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
@@ -150,12 +157,13 @@ namespace MongoDB.Driver.Core.Connections
             stream.Should().NotBeNull();
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void SocketConfigurator_can_be_used_to_set_keepAlive(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);

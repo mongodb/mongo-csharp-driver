@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,31 +15,30 @@
 
 using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class DatabaseNamespaceTests
     {
-        [Test]
-        [TestCase("", false)]
-        [TestCase(" ", false)]
-        [TestCase(".", false)]
-        [TestCase(".ab", false)]
-        [TestCase("ab.", false)]
-        [TestCase("a.b", false)]
-        [TestCase("\0sdf", false)]
-        [TestCase("lkjsf\0", false)]
-        [TestCase("lkjsf\0d32", false)]
-        [TestCase("test", true)]
-        [TestCase("foobar", true)]
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(" ", false)]
+        [InlineData(".", false)]
+        [InlineData(".ab", false)]
+        [InlineData("ab.", false)]
+        [InlineData("a.b", false)]
+        [InlineData("\0sdf", false)]
+        [InlineData("lkjsf\0", false)]
+        [InlineData("lkjsf\0d32", false)]
+        [InlineData("test", true)]
+        [InlineData("foobar", true)]
         public void IsValid_should_return_the_correct_result(string name, bool valid)
         {
             DatabaseNamespace.IsValid(name).Should().Be(valid);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_an_argument_exception_on_an_invalid_database_name()
         {
             Action act = () => new DatabaseNamespace("foo.bar");
@@ -47,7 +46,7 @@ namespace MongoDB.Driver
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Admin_should_be_the_admin_database()
         {
             var subject = DatabaseNamespace.Admin;
@@ -55,7 +54,7 @@ namespace MongoDB.Driver
             subject.DatabaseName.Should().Be("admin");
         }
 
-        [Test]
+        [Fact]
         public void CommandCollection_should_return_the_command_collection()
         {
             var subject = new DatabaseNamespace("test");
@@ -64,7 +63,7 @@ namespace MongoDB.Driver
             commandCollection.FullName.Should().Be("test.$cmd");
         }
 
-        [Test]
+        [Fact]
         public void DatabaseName_should_report_the_provided_database_name()
         {
             var subject = new DatabaseNamespace("test");
@@ -72,7 +71,7 @@ namespace MongoDB.Driver
             subject.DatabaseName.Should().Be("test");
         }
 
-        [Test]
+        [Fact]
         public void SystemIndexesCollection_should_return_the_system_indexes_collection()
         {
             var subject = new DatabaseNamespace("test");
@@ -81,7 +80,7 @@ namespace MongoDB.Driver
             commandCollection.FullName.Should().Be("test.system.indexes");
         }
 
-        [Test]
+        [Fact]
         public void SystemNamespacesCollection_should_return_the_system_namespaces_collection()
         {
             var subject = new DatabaseNamespace("test");
@@ -90,9 +89,9 @@ namespace MongoDB.Driver
             commandCollection.FullName.Should().Be("test.system.namespaces");
         }
 
-        [Test]
-        [TestCase("one", "one", true)]
-        [TestCase("one", "two", false)]
+        [Theory]
+        [InlineData("one", "one", true)]
+        [InlineData("one", "two", false)]
         public void Equals_should_be_correct(string a, string b, bool equals)
         {
             var subject = new DatabaseNamespace(a);
@@ -101,7 +100,7 @@ namespace MongoDB.Driver
             subject.Equals(compared).Should().Be(equals);
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_the_name()
         {
             var subject = new DatabaseNamespace("test");

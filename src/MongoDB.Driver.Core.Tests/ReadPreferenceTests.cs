@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class ReadPreferenceTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_mode_is_primary_and_tagSets_is_not_empty()
         {
             var tagSets = new[] { new TagSet(new[] { new Tag("name", "value") }) };
@@ -36,7 +36,7 @@ namespace MongoDB.Driver
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("tagSets");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance_when_tagSets_is_null()
         {
             var result = new ReadPreference(ReadPreferenceMode.Secondary, null);
@@ -45,7 +45,7 @@ namespace MongoDB.Driver
             result.TagSets.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_mode_should_initialize_instance()
         {
             var mode = ReadPreferenceMode.Secondary; // use a value that is not the default
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
             result.TagSets.Should().BeEmpty();
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_tagSets_should_initialize_instance()
         {
             var mode = ReadPreferenceMode.Secondary; // can't use tagSets with mode Primary
@@ -69,7 +69,8 @@ namespace MongoDB.Driver
             result.TagSets.Should().Equal(tagSets);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Equals_should_return_false_when_any_field_is_not_equal(
             [Values("mode", "tagSets")]
             string notEqualFieldName)
@@ -95,7 +96,7 @@ namespace MongoDB.Driver
             hashCode1.Should().NotBe(hashCode2);
 
         }
-        [Test]
+        [Fact]
         public void Equals_should_return_true_when_all_fields_are_equal()
         {
             var mode = ReadPreferenceMode.Secondary;
@@ -114,7 +115,7 @@ namespace MongoDB.Driver
 
         }
 
-        [Test]
+        [Fact]
         public void Nearest_should_return_expected_result()
         {
             var result = ReadPreference.Nearest;
@@ -123,7 +124,7 @@ namespace MongoDB.Driver
             result.TagSets.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Primary_should_return_expected_result()
         {
             var result = ReadPreference.Primary;
@@ -132,7 +133,7 @@ namespace MongoDB.Driver
             result.TagSets.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void PrimaryPreferred_should_return_expected_result()
         {
             var result = ReadPreference.PrimaryPreferred;
@@ -141,7 +142,7 @@ namespace MongoDB.Driver
             result.TagSets.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Secondary_should_return_expected_result()
         {
             var result = ReadPreference.Secondary;
@@ -150,7 +151,7 @@ namespace MongoDB.Driver
             result.TagSets.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void SecondaryPreferred_should_return_expected_result()
         {
             var result = ReadPreference.SecondaryPreferred;
@@ -159,7 +160,7 @@ namespace MongoDB.Driver
             result.TagSets.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void With_mode_should_return_expected_result()
         {
             var mode1 = ReadPreferenceMode.Secondary;
@@ -172,7 +173,7 @@ namespace MongoDB.Driver
             result.TagSets.Should().Equal(subject.TagSets);
         }
 
-        [Test]
+        [Fact]
         public void With_tagSets_should_return_expected_result()
         {
             var tagSets1 = new[] { new TagSet(new[] { new Tag("name", "value1") }) };

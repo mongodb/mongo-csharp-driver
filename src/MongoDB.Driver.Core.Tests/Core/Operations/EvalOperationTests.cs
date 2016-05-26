@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,27 +18,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class EvalOperationTests
     {
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
-        [SetUp]
-        public void Setup()
+        public EvalOperationTests()
         {
             _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [Test]
+        [Fact]
         public void Args_should_work()
         {
             var function = new BsonJavaScript("return 1");
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Args.Should().Equal(args);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var function = new BsonJavaScript("return 1");
@@ -62,11 +62,11 @@ namespace MongoDB.Driver.Core.Operations
             subject.Function.Should().Be(function);
             subject.MaxTime.Should().NotHaveValue();
             // subject.MessageEncoderSettings.Should().Be(_messageEncoderSettings);
-            Assert.That(subject.MessageEncoderSettings, Is.EqualTo(_messageEncoderSettings));
+            Assert.Equal(_messageEncoderSettings, subject.MessageEncoderSettings);
             subject.NoLock.Should().NotHaveValue();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             var function = new BsonJavaScript("return 1");
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_function_is_null()
         {
             Action action = () => new EvalOperation(_databaseNamespace, null, _messageEncoderSettings);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var function = new BsonJavaScript("return 1");
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_args_are_provided()
         {
             var function = new BsonJavaScript("return 1");
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_maxTime_is_provided()
         {
             var function = new BsonJavaScript("return 1");
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_return_expected_result_when_noLock_is_provided()
         {
             var function = new BsonJavaScript("return 1");
@@ -151,12 +151,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
 
@@ -165,12 +166,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(1.0);
         }
 
-        [Test]
-        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_args_are_provided(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "function(x) { return x; }";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
             subject.Args = new BsonValue[] { 1 };
@@ -180,7 +182,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(1.0);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_maxTime_is_provided(
             [Values(false, true)]
             bool async)
@@ -191,12 +194,13 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
-        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_noLock_is_provided(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
             subject.NoLock = true;
@@ -206,7 +210,8 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(1.0);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_isNull(
             [Values(false, true)]
             bool async)
@@ -219,7 +224,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_should_work(
             [Values(null, 0, 1)]
             int? value)
@@ -233,7 +239,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().Be(maxTime);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void NoLock_should_work(
             [Values(null, false, true)]
             bool? value)

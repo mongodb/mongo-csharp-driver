@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     // public methods
-    [TestFixture]
     public class AsyncCursorTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void constructor_should_dispose_channel_source_when_cursor_id_is_zero()
         {
             var channelSource = Substitute.For<IChannelSource>();
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
             channelSource.Received(1).Dispose();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var channelSource = Substitute.For<IChannelSource>();
@@ -84,7 +84,8 @@ namespace MongoDB.Driver.Core.Operations
             reflector.Serializer.Should().Be(serializer);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_batch_size_is_invalid(
             [Values(-1)]
             int value)
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("batchSize");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_collection_namespace_is_null()
         {
             Action action = () => CreateSubject(collectionNamespace: null);
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_first_batch_is_null()
         {
             Action action = () => CreateSubject(firstBatch: null);
@@ -110,7 +111,8 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("firstBatch");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void constructor_should_throw_when_limit_is_invalid(
             [Values(-1)]
             int value)
@@ -120,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("limit");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_query_is_null()
         {
             Action action = () => CreateSubject(query: null);
@@ -128,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("query");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_serializer_is_null()
         {
             Action action = () => CreateSubject(serializer: null);
@@ -136,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("serializer");
         }
 
-        [Test]
+        [Fact]
         public void CreateGetMoreCommand_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -147,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be("{ getMore : 0, collection : \"test\" }");
         }
 
-        [Test]
+        [Fact]
         public void CreateGetMoreCommand_should_return_expected_result_when_batchSize_is_provided()
         {
             var subject = CreateSubject(batchSize: 2);
@@ -158,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
         }
 
-        [Test]
+        [Fact]
         public void CreateGetMoreCommand_should_return_expected_result_when_maxTime_is_provided()
         {
             var subject = CreateSubject(maxTime: TimeSpan.FromSeconds(2));
@@ -169,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be("{ getMore : 0, collection : \"test\", maxTimeMS : 2000 }");
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_dispose_channel_source_when_cursor_id_is_zero()
         {
             var channelSource = Substitute.For<IChannelSource>();

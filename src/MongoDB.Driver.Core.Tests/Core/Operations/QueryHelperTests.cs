@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,20 +15,19 @@
 
 using FluentAssertions;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class QueryHelperTests
     {
-        [Test]
-        [TestCase(null, null, 0)]
-        [TestCase(null, 20, 20)]
-        [TestCase(20, null, 20)]
-        [TestCase(10, 20, 10)]
-        [TestCase(20, 10, 10)]
-        [TestCase(-20, 10, -20)]
+        [Theory]
+        [InlineData(null, null, 0)]
+        [InlineData(null, 20, 20)]
+        [InlineData(20, null, 20)]
+        [InlineData(10, 20, 10)]
+        [InlineData(20, 10, 10)]
+        [InlineData(-20, 10, -20)]
         public void CalculateFirstBatchSize_should_return_the_correct_result(int? limit, int? batchSize, int expectedResult)
         {
             var result = QueryHelper.CalculateFirstBatchSize(limit, batchSize);
@@ -36,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void CreateReadPreferenceDocument_should_return_null_when_the_serverType_is_not_a_shard_router()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ReplicaSetSecondary, ReadPreference.PrimaryPreferred);
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_Primary_with_no_tag_sets()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, ReadPreference.Primary);
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_SecondaryPreferred_with_no_tag_sets()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, ReadPreference.SecondaryPreferred);
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void CreateReadPreferenceDocument_should_return_a_document_when_their_are_tag_sets()
         {
             var rp = ReadPreference.Secondary.With(tagSets: new[] { new TagSet(new[] { new Tag("dc", "tx") }) });
@@ -70,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be("{mode: \"secondary\", tags: [{dc: \"tx\"}]}");
         }
 
-        [Test]
+        [Fact]
         public void CreateReadPreferenceDocument_should_return_a_document_when_the_mode_is_not_Primary_or_SecondaryPreferred()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, ReadPreference.PrimaryPreferred);

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,19 +28,18 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    [TestFixture]
     public class ClusterTests
     {
         private EventCapturer _capturedEvents;
         private IClusterableServerFactory _serverFactory;
         private ClusterSettings _settings;
 
-        [SetUp]
-        public void Setup()
+        public ClusterTests()
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2),
                 postServerSelector: new LatencyLimitingServerSelector(TimeSpan.FromMinutes(2)));
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents = new EventCapturer();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_settings_is_null()
         {
             Action act = () => new StubCluster(null, _serverFactory, _capturedEvents);
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_serverFactory_is_null()
         {
             Action act = () => new StubCluster(_settings, null, _capturedEvents);
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_eventSubscriber_is_null()
         {
             Action act = () => new StubCluster(_settings, _serverFactory, null);
@@ -72,12 +71,12 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        [TestCase(ClusterConnectionMode.Automatic, ClusterType.Unknown)]
-        [TestCase(ClusterConnectionMode.Direct, ClusterType.Unknown)]
-        [TestCase(ClusterConnectionMode.ReplicaSet, ClusterType.ReplicaSet)]
-        [TestCase(ClusterConnectionMode.Sharded, ClusterType.Sharded)]
-        [TestCase(ClusterConnectionMode.Standalone, ClusterType.Standalone)]
+        [Theory]
+        [InlineData(ClusterConnectionMode.Automatic, ClusterType.Unknown)]
+        [InlineData(ClusterConnectionMode.Direct, ClusterType.Unknown)]
+        [InlineData(ClusterConnectionMode.ReplicaSet, ClusterType.ReplicaSet)]
+        [InlineData(ClusterConnectionMode.Sharded, ClusterType.Sharded)]
+        [InlineData(ClusterConnectionMode.Standalone, ClusterType.Standalone)]
         public void Description_should_return_correct_description_when_not_initialized(ClusterConnectionMode connectionMode, ClusterType clusterType)
         {
             var subject = CreateSubject(connectionMode);
@@ -88,7 +87,8 @@ namespace MongoDB.Driver.Core.Clusters
             description.Type.Should().Be(ClusterType.Unknown);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_not_initialized(
             [Values(false, true)]
             bool async)
@@ -109,7 +109,8 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -131,7 +132,8 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_serverSelector_is_null(
             [Values(false, true)]
             bool async)
@@ -152,7 +154,8 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_return_a_server_if_one_matches(
             [Values(false, true)]
             bool async)
@@ -183,7 +186,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_return_second_server_if_first_cannot_be_found(
             [Values(false, true)]
             bool async)
@@ -217,7 +221,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_no_servers_match(
             [Values(false, true)]
             bool async)
@@ -248,7 +253,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_the_matched_server_cannot_be_found_and_no_others_matched(
             [Values(false, true)]
             bool async)
@@ -281,7 +287,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_throw_if_any_servers_are_incompatible(
             [Values(false, true)]
             bool async)
@@ -312,7 +319,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_keep_trying_to_match_by_waiting_on_cluster_description_changes(
             [Values(false, true)]
             bool async)
@@ -359,7 +367,7 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void DescriptionChanged_should_be_raised_when_the_description_changes()
         {
             int count = 0;
@@ -378,7 +386,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SelectServer_should_apply_both_pre_and_post_server_selectors(
             [Values(false, true)]
             bool async)

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    [TestFixture]
     public class DeleteMessageTests
     {
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
 
-        [Test]
+        [Fact]
         public void Constructor_should_initialize_instance()
         {
             var subject = new DeleteMessage(_requestId, _collectionNamespace, _query, _isMulti);
@@ -41,21 +40,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.RequestId.Should().Be(_requestId);
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_collectionName_should_throw()
         {
             Action action = () => new DeleteMessage(_requestId, null, _query, _isMulti);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_with_null_query_should_throw()
         {
             Action action = () => new DeleteMessage(_requestId, _collectionNamespace, null, _isMulti);
             action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetEncoder_should_return_encoder()
         {
             var subject = new DeleteMessage(1, _collectionNamespace, new BsonDocument("x", 1), true);

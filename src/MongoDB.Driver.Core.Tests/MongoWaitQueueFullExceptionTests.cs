@@ -17,14 +17,13 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [TestFixture]
     public class MongoWaitQueueFullExceptionTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_initalize_subject()
         {
             var subject = new MongoWaitQueueFullException("message");
@@ -33,7 +32,7 @@ namespace MongoDB.Driver
             subject.InnerException.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void ForConnectionPool_should_create_expected_message()
         {
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -42,7 +41,7 @@ namespace MongoDB.Driver
             subject.Message.Should().Be("The wait queue for acquiring a connection to server localhost:27017 is full.");
         }
 
-        [Test]
+        [Fact]
         public void ForServerSelection_should_create_expected_message()
         {
             var subject = MongoWaitQueueFullException.ForServerSelection();
@@ -51,7 +50,7 @@ namespace MongoDB.Driver
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoWaitQueueFullException("message");

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,11 +24,10 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    [TestFixture]
     public class InsertMessageBinaryEncoderTests
     {
         #region static
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
         #endregion
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_if_stream_is_not_null()
         {
             using (var stream = new MemoryStream())
@@ -77,14 +76,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new InsertMessageBinaryEncoder<BsonDocument>(null, __messageEncoderSettings, __serializer);
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_serializer_is_null()
         {
             using (var stream = new MemoryStream())
@@ -94,8 +93,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false)]
-        [TestCase(1, true)]
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(1, true)]
         public void ReadMessage_should_decode_flags_correctly(int flags, bool continueOnError)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
@@ -126,8 +126,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(0, false)]
-        [TestCase(1, true)]
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(1, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool continueOnError)
         {
             var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, continueOnError);
@@ -141,15 +142,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(1, 1, 1)]
-        [TestCase(1, 2, 1)]
-        [TestCase(2, 1, 2)]
-        [TestCase(2, 2, 1)]
-        [TestCase(2, 3, 1)]
-        [TestCase(3, 1, 3)]
-        [TestCase(3, 2, 2)]
-        [TestCase(3, 3, 1)]
-        [TestCase(3, 4, 1)]
+        [Theory]
+        [InlineData(1, 1, 1)]
+        [InlineData(1, 2, 1)]
+        [InlineData(2, 1, 2)]
+        [InlineData(2, 2, 1)]
+        [InlineData(2, 3, 1)]
+        [InlineData(3, 1, 3)]
+        [InlineData(3, 2, 2)]
+        [InlineData(3, 3, 1)]
+        [InlineData(3, 4, 1)]
         public void WriteMessage_should_split_batches_when_maxBatchCount_is_reached(int numberOfDocuments, int maxBatchCount, int expectedNumberOfBatches)
         {
             var documents = new List<BsonDocument>(numberOfDocuments);
@@ -185,13 +187,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [TestCase(1, 1, 0, 1)]
-        [TestCase(1, 1, -1, 1)]
-        [TestCase(1, 1, 1, 1)]
-        [TestCase(2, 1, 0, 2)]
-        [TestCase(2, 2, 0, 1)]
-        [TestCase(2, 2, -1, 2)]
-        [TestCase(2, 2, 1, 1)]
+        [Theory]
+        [InlineData(1, 1, 0, 1)]
+        [InlineData(1, 1, -1, 1)]
+        [InlineData(1, 1, 1, 1)]
+        [InlineData(2, 1, 0, 2)]
+        [InlineData(2, 2, 0, 1)]
+        [InlineData(2, 2, -1, 2)]
+        [InlineData(2, 2, 1, 1)]
         public void WriteMessage_should_split_batches_when_maxMessageSize_is_reached(int numberOfDocuments, int maxMessageSizeMultiple, int maxMessageSizeDelta, int expectedNumberOfBatches)
         {
             var documents = new List<BsonDocument>(numberOfDocuments);
@@ -231,7 +234,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
@@ -242,7 +245,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
+        [Fact]
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())

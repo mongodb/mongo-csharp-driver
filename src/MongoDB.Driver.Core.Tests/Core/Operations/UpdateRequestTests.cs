@@ -16,14 +16,13 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class UpdateRequestTests : OperationTestBase
     {
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_filter_is_null()
         {
             Action act = () => new UpdateRequest(UpdateType.Update, null, new BsonDocument());
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_update_is_null()
         {
             Action act = () => new UpdateRequest(UpdateType.Update, new BsonDocument(), null);
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_when_update_is_empty_and_update_type_is_Update()
         {
             Action act = () => new UpdateRequest(UpdateType.Update, new BsonDocument(), new BsonDocument());
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_throw_when_update_is_empty_and_update_type_is_not_Update()
         {
             Action act = () => new UpdateRequest(UpdateType.Replacement, new BsonDocument(), new BsonDocument());

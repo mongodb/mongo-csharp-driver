@@ -22,13 +22,14 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [TestFixture]
     public class MapReduceLegacyOperationTests : OperationTestBase
     {
         // fields
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<BsonDocument> _resultSerializer = BsonDocumentSerializer.Instance;
 
         // test methods
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
         }
 
-        [Test]
+        [Fact]
         public void CreateOutputOptions_should_return_expected_result()
         {
             var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
@@ -61,12 +62,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Test]
-        [RequiresServer]
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_results(
             [Values(false, true)]
             bool async)
         {
+            RequireServer.Any();
             EnsureTestData();
 
             var mapFunction = "function() { emit(this.x, this.v); }";
@@ -83,7 +85,8 @@ namespace MongoDB.Driver.Core.Operations
             result["results"].Should().Be(new BsonArray(expectedResults));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_include_read_concern_when_appropriate(
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
@@ -107,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateCommand_should_throw_when_read_concern_is_not_supported()
         {
             var mapFunction = "function() { emit(this.x, this.v); }";
@@ -121,7 +124,8 @@ namespace MongoDB.Driver.Core.Operations
             act.ShouldThrow<MongoClientException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)

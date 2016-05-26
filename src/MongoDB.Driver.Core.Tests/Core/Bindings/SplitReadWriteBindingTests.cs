@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,27 +16,26 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    [TestFixture]
     public class SplitReadWriteBindingTests
     {
         private IReadBinding _readBinding;
         private IWriteBinding _writeBinding;
 
-        [SetUp]
-        public void Setup()
+        public SplitReadWriteBindingTests()
         {
             _readBinding = Substitute.For<IReadBinding>();
             _writeBinding = Substitute.For<IWriteBinding>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_readBinding_is_null()
         {
             Action act = () => new SplitReadWriteBinding(null, _writeBinding);
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
             Action act = () => new SplitReadWriteBinding(_readBinding, null);
@@ -52,7 +51,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -73,7 +73,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSource_should_get_the_connection_source_from_the_read_binding(
             [Values(false, true)]
             bool async)
@@ -94,7 +95,8 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetWriteChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -115,7 +117,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetWriteChannelSource_should_get_the_connection_source_from_the_write_binding(
             [Values(false, true)]
             bool async)
@@ -136,7 +139,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);

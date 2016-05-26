@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -31,12 +32,11 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    [TestFixture]
-    public class BinaryConnection_CommandEventTests
+    public class BinaryConnection_CommandEventTests : IDisposable
     {
         private IConnectionInitializer _connectionInitializer;
         private DnsEndPoint _endPoint;
@@ -47,8 +47,7 @@ namespace MongoDB.Driver.Core.Connections
         private BinaryConnection _subject;
         private IDisposable _operationIdDisposer;
 
-        [SetUp]
-        public void Setup()
+        public BinaryConnection_CommandEventTests()
         {
             _capturedEvents = new EventCapturer()
                 .Capture<CommandStartedEvent>()
@@ -84,14 +83,13 @@ namespace MongoDB.Driver.Core.Connections
             _operationIdDisposer = EventContext.BeginOperation();
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             _stream.Dispose();
             _operationIdDisposer.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_command()
         {
             var expectedCommand = BsonDocument.Parse("{ ismaster: 1 }");
@@ -126,8 +124,8 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
-        [TestCaseSource("GetRedactedCommands")]
+        [Theory]
+        [MemberData("GetRedactedCommands")]
         public void Should_process_a_redacted_command(string commandName)
         {
             var command = BsonDocument.Parse($"{{ {commandName}: 1, extra: true }}");
@@ -162,7 +160,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_failed_command()
         {
             var expectedCommand = BsonDocument.Parse("{ ismaster: 1 }");
@@ -197,8 +195,8 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.Failure.Should().BeOfType<MongoCommandException>();
         }
 
-        [Test]
-        [TestCaseSource("GetRedactedCommands")]
+        [Theory]
+        [MemberData("GetRedactedCommands")]
         public void Should_process_a_redacted_failed_command(string commandName)
         {
             var command = BsonDocument.Parse($"{{ {commandName}: 1, extra: true }}");
@@ -234,7 +232,7 @@ namespace MongoDB.Driver.Core.Connections
             ((MongoCommandException)commandFailedEvent.Failure).Result.ElementCount.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_delete_without_gle()
         {
             var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
@@ -270,7 +268,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_delete_with_a_gle()
         {
             var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
@@ -314,7 +312,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_get_more()
         {
             var expectedCommand = new BsonDocument
@@ -370,7 +368,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_an_insert_without_gle()
         {
             var documents = new[]
@@ -410,7 +408,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_an_insert_with_a_gle()
         {
             var documents = new[]
@@ -460,7 +458,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_kill_cursors()
         {
             var expectedCommand = BsonDocument.Parse("{ killCursors: 'bar', cursors: [NumberLong(20)] }");
@@ -490,7 +488,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_query_without_modifiers()
         {
             var expectedCommand = new BsonDocument
@@ -545,7 +543,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_query_with_modifiers()
         {
             var expectedCommand = new BsonDocument
@@ -631,7 +629,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_query_with_the_explain_modifier()
         {
             var expectedCommand = new BsonDocument("explain", new BsonDocument
@@ -675,7 +673,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_failed_query()
         {
             var expectedCommand = new BsonDocument
@@ -714,7 +712,7 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_an_update_without_gle()
         {
             var update = BsonDocument.Parse("{ q: { x: 1 }, u: { $set: { x: 2 } }, upsert: false, multi: false }");
@@ -752,7 +750,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_an_update_with_a_gle()
         {
             var update = BsonDocument.Parse("{ q: { x: 1 }, u: { $set: { x: 2 } }, upsert: true, multi: true }");
@@ -799,7 +797,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_an_upsert_with_a_gle_where_the_server_does_not_return_the_upserted_id()
         {
             var update = BsonDocument.Parse("{ q: { _id: 10, x: 1 }, u: { $set: { x: 2 } }, upsert: true, multi: true }");
@@ -846,7 +844,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_write_with_a_write_error()
         {
             var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
@@ -890,7 +888,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Test]
+        [Fact]
         public void Should_process_a_write_with_a_write_concern_error()
         {
             var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
@@ -949,11 +947,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private static IEnumerable<string> GetRedactedCommands()
+        private static IEnumerable<object[]> GetRedactedCommands()
         {
-            return (IEnumerable<string>)typeof(CommandEventHelper)
+            var commands = (IEnumerable<string>)typeof(CommandEventHelper)
                 .GetField("__securitySensitiveCommands", BindingFlags.Static | BindingFlags.NonPublic)
                 .GetValue(null);
+            return commands.Select(c => new object[] { c });
         }
     }
 }

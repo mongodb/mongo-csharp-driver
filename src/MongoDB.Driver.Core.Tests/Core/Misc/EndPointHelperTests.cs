@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,25 +18,24 @@ using System.Net;
 using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    [TestFixture]
     public class EndPointHelperTests
     {
-        [Test]
-        [TestCase("localhost:27017", "localhost:27017", true)]
-        [TestCase("localhost:27017", "localhost:27018", false)]
-        [TestCase("localhost:27018", "localhost:27017", false)]
-        [TestCase("127.0.0.1:27017", "localhost:27017", false)]
-        [TestCase("localhost:27017", "127.0.0.1:27017", false)]
-        [TestCase("127.0.0.1:27017", "127.0.0.1:27017", true)]
-        [TestCase("127.0.0.1:27017", "127.0.0.1:27018", false)]
-        [TestCase("127.0.0.1:27018", "127.0.0.1:27017", false)]
-        [TestCase(null, "localhost:27017", false)]
-        [TestCase("localhost:27017", null, false)]
-        [TestCase(null, null, true)]
+        [Theory]
+        [InlineData("localhost:27017", "localhost:27017", true)]
+        [InlineData("localhost:27017", "localhost:27018", false)]
+        [InlineData("localhost:27018", "localhost:27017", false)]
+        [InlineData("127.0.0.1:27017", "localhost:27017", false)]
+        [InlineData("localhost:27017", "127.0.0.1:27017", false)]
+        [InlineData("127.0.0.1:27017", "127.0.0.1:27017", true)]
+        [InlineData("127.0.0.1:27017", "127.0.0.1:27018", false)]
+        [InlineData("127.0.0.1:27018", "127.0.0.1:27017", false)]
+        [InlineData(null, "localhost:27017", false)]
+        [InlineData("localhost:27017", null, false)]
+        [InlineData(null, null, true)]
         public void Equals_should_return_true_when_endpoints_are_equal(string a, string b, bool expectedResult)
         {
             var endPoint1 = a == null ? null : EndPointHelper.Parse(a);
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Misc
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void Parse_should_throw_an_ArgumentNullException_when_value_is_null()
         {
             Action act = () => EndPointHelper.Parse(null);
@@ -55,11 +54,11 @@ namespace MongoDB.Driver.Core.Misc
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        [TestCase("gob:2::212")]
-        [TestCase("localhost:-1")]
-        [TestCase("localhost:66000")]
-        [TestCase(":21")]
+        [Theory]
+        [InlineData("gob:2::212")]
+        [InlineData("localhost:-1")]
+        [InlineData("localhost:66000")]
+        [InlineData(":21")]
         public void Parse_should_throw_an_ArgumentException_when_value_is_not_a_valid_end_point(string value)
         {
             Action act = () => EndPointHelper.Parse(value);
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Core.Misc
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_expected_result_when_value_is_a_DnsEndPoint()
         {
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Core.Misc
             result.Should().Be("localhost:27017");
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_expected_result_when_value_is_an_IPEndPoint()
         {
             var endPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), 27017);
@@ -87,11 +86,11 @@ namespace MongoDB.Driver.Core.Misc
             result.Should().Be("127.0.0.1:27017");
         }
 
-        [Test]
-        [TestCase("gob:2::212")]
-        [TestCase("localhost:-1")]
-        [TestCase("localhost:66000")]
-        [TestCase(":21")]
+        [Theory]
+        [InlineData("gob:2::212")]
+        [InlineData("localhost:-1")]
+        [InlineData("localhost:66000")]
+        [InlineData(":21")]
         public void TryParse_should_return_false_when_the_end_point_is_invalid(string value)
         {
             EndPoint result;
@@ -100,13 +99,13 @@ namespace MongoDB.Driver.Core.Misc
             success.Should().BeFalse();
         }
 
-        [Test]
-        [TestCase("localhost", "localhost", 27017)]
-        [TestCase("localhost:28017", "localhost", 28017)]
-        [TestCase("act.test.com", "act.test.com", 27017)]
-        [TestCase("act.test.com:28017", "act.test.com", 28017)]
-        [TestCase("123.test.com", "123.test.com", 27017)]
-        [TestCase("123.test.com:28017", "123.test.com", 28017)]
+        [Theory]
+        [InlineData("localhost", "localhost", 27017)]
+        [InlineData("localhost:28017", "localhost", 28017)]
+        [InlineData("act.test.com", "act.test.com", 27017)]
+        [InlineData("act.test.com:28017", "act.test.com", 28017)]
+        [InlineData("123.test.com", "123.test.com", 27017)]
+        [InlineData("123.test.com:28017", "123.test.com", 28017)]
         public void TryParse_should_parse_a_hostname(string value, string expectedHost, int expectedPort)
         {
             EndPoint result;
@@ -117,9 +116,9 @@ namespace MongoDB.Driver.Core.Misc
             result.AddressFamily.Should().Be(AddressFamily.Unspecified);
         }
 
-        [Test]
-        [TestCase("127.0.0.1", "127.0.0.1", 27017)]
-        [TestCase("127.0.0.1:28017", "127.0.0.1", 28017)]
+        [Theory]
+        [InlineData("127.0.0.1", "127.0.0.1", 27017)]
+        [InlineData("127.0.0.1:28017", "127.0.0.1", 28017)]
         public void TryParse_should_parse_an_ipv4_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;
@@ -130,9 +129,9 @@ namespace MongoDB.Driver.Core.Misc
             result.AddressFamily.Should().Be(AddressFamily.InterNetwork);
         }
 
-        [Test]
-        [TestCase("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 27017)]
-        [TestCase("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:28017", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 28017)]
+        [Theory]
+        [InlineData("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 27017)]
+        [InlineData("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:28017", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 28017)]
         public void TryParse_should_parse_an_ipv6_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;

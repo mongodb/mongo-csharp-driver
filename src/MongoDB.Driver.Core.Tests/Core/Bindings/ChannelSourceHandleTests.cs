@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,24 +16,23 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    [TestFixture]
     public class ChannelSourceHandleTests
     {
         private IChannelSource _channelSource;
 
-        [SetUp]
-        public void Setup()
+        public ChannelSourceHandleTests()
         {
             _channelSource = Substitute.For<IChannelSource>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_channelSource_is_null()
         {
             Action act = () => new ChannelSourceHandle(null);
@@ -41,7 +40,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -62,7 +62,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetChannel_should_delegate_to_reference(
             [Values(false, true)]
             bool async)
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        [Test]
+        [Fact]
         public void Fork_should_throw_if_disposed()
         {
             var subject = new ChannelSourceHandle(_channelSource);
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Fact]
         public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
             var subject = new ChannelSourceHandle(_channelSource);
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Core.Bindings
             _channelSource.Received().Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
             var subject = new ChannelSourceHandle(_channelSource);
@@ -126,7 +127,7 @@ namespace MongoDB.Driver.Core.Bindings
             _channelSource.Received().Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Disposing_of_last_handle_should_dispose_of_connectioSource()
         {
             var subject = new ChannelSourceHandle(_channelSource);

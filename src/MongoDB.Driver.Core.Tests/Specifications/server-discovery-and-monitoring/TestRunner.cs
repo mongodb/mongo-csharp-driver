@@ -13,13 +13,16 @@
 * limitations under the License.
 */
 
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -28,19 +31,18 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Xunit;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
-    [TestFixture]
     public class TestRunner
     {
         private ICluster _cluster;
         private IEventSubscriber _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
 
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [Theory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
             _cluster = BuildCluster(definition);
@@ -73,15 +75,17 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             var server = (string)response[0];
             var endPoint = EndPointHelper.Parse(server);
             var isMasterResult = new IsMasterResult((BsonDocument)response[1]);
-            var currentDescription = _serverFactory.GetServerDescription(endPoint);
-            var description = currentDescription.With(
+            var currentServerDescription = _serverFactory.GetServerDescription(endPoint);
+            var newServerDescription = currentServerDescription.With(
                 state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
                 type: isMasterResult.ServerType,
                 canonicalEndPoint: isMasterResult.Me,
                 electionId: isMasterResult.ElectionId,
                 replicaSetConfig: isMasterResult.GetReplicaSetConfig());
 
-            _serverFactory.PublishDescription(description);
+            var currentClusterDescription = _cluster.Description;
+            _serverFactory.PublishDescription(newServerDescription);
+            SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100);
         }
 
         private void VerifyTopology(string topologyType)
@@ -109,8 +113,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     _cluster.Description.Type.Should().Be(ClusterType.Unknown);
                     break;
                 default:
-                    Assert.Fail("Unexpected topology type {0}.", topologyType);
-                    break;
+                    throw new AssertionException($"Unexpected topology type {topologyType}.");
             }
         }
 
@@ -188,26 +191,33 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 .CreateCluster();
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
-                return Assembly
+                var enumerable = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path =>
                     {
                         var definition = ReadDefinition(path);
-                        var fullName = path.Remove(0, prefix.Length);
-                        var data = new TestCaseData(definition);
-                        data.SetCategory("Specifications");
-                        data.SetCategory("server-discovery-and-monitoring");
-                        return data
-                            .SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"))
-                            .SetDescription(definition["description"].ToString());
+                        //var fullName = path.Remove(0, prefix.Length);
+                        //var data = new TestCaseData(definition);
+                        //data.SetCategory("Specifications");
+                        //data.SetCategory("server-discovery-and-monitoring");
+                        //return data
+                        //    .SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"))
+                        //    .SetDescription(definition["description"].ToString());
+                        return new object[] { definition };
                     });
+                return enumerable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDefinition(string path)

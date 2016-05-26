@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,25 +16,24 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    [TestFixture]
     public class ChannelSourceReadWriteBindingTests
     {
         private IChannelSourceHandle _channelSource;
 
-        [SetUp]
-        public void Setup()
+        public ChannelSourceReadWriteBindingTests()
         {
             _channelSource = Substitute.For<IChannelSourceHandle>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_channelSource_is_null()
         {
             Action act = () => new ChannelSourceReadWriteBinding(null, ReadPreference.Primary);
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
             Action act = () => new ChannelSourceReadWriteBinding(_channelSource, null);
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_not_fork_channelSource()
         {
             new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
@@ -58,7 +57,8 @@ namespace MongoDB.Driver.Core.Bindings
             _channelSource.DidNotReceive().Fork();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSourceAsync_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -79,7 +79,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetReadChannelSource_should_fork_the_channelSource(
             [Values(false, true)]
             bool async)
@@ -98,7 +99,8 @@ namespace MongoDB.Driver.Core.Bindings
             _channelSource.Received().Fork();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetWriteChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
@@ -119,7 +121,8 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void GetWriteChannelSource_should_fork_the_channelSource(
             [Values(false, true)]
             bool async)
@@ -138,7 +141,7 @@ namespace MongoDB.Driver.Core.Bindings
             _channelSource.Received().Fork();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_call_dispose_on_connection_source()
         {
             var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
