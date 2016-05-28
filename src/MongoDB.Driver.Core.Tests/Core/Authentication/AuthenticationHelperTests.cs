@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Authentication
@@ -58,24 +58,24 @@ namespace MongoDB.Driver.Core.Authentication
                 new IsMasterResult(new BsonDocument("ok", 1)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
 
-            var authenticator = Substitute.For<IAuthenticator>();
-            var settings = new ConnectionSettings(authenticators: new[] { authenticator });
+            var mockAuthenticator = new Mock<IAuthenticator>();
+            var settings = new ConnectionSettings(authenticators: new[] { mockAuthenticator.Object });
 
-            var connection = Substitute.For<IConnection>();
-            connection.Description.Returns(description);
-            connection.Settings.Returns(settings);
+            var mockConnection = new Mock<IConnection>();
+            mockConnection.SetupGet(c => c.Description).Returns(description);
+            mockConnection.SetupGet(c => c.Settings).Returns(settings);
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None).GetAwaiter().GetResult();
 
-                authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None), Times.Once);
             }
             else
             {
-                AuthenticationHelper.Authenticate(connection, description, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, CancellationToken.None);
 
-                authenticator.ReceivedWithAnyArgs().Authenticate(null, null, CancellationToken.None);
+                mockAuthenticator.Verify(a => a.Authenticate(mockConnection.Object, description, CancellationToken.None), Times.Once);
             }
         }
 
@@ -90,24 +90,24 @@ namespace MongoDB.Driver.Core.Authentication
                 new IsMasterResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
 
-            var authenticator = Substitute.For<IAuthenticator>();
-            var settings = new ConnectionSettings(authenticators: new[] { authenticator });
+            var mockAuthenticator = new Mock<IAuthenticator>();
+            var settings = new ConnectionSettings(authenticators: new[] { mockAuthenticator.Object });
 
-            var connection = Substitute.For<IConnection>();
-            connection.Description.Returns(description);
-            connection.Settings.Returns(settings);
+            var mockConnection = new Mock<IConnection>();
+            mockConnection.SetupGet(c => c.Description).Returns(description);
+            mockConnection.SetupGet(c => c.Settings).Returns(settings);
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None).GetAwaiter().GetResult();
 
-                authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
             }
             else
             {
-                AuthenticationHelper.Authenticate(connection, description, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, CancellationToken.None);
 
-                authenticator.DidNotReceiveWithAnyArgs().Authenticate(null, null, CancellationToken.None);
+                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
             }
         }
     }

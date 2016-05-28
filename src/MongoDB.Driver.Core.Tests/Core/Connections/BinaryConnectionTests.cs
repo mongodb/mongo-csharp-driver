@@ -31,36 +31,36 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class BinaryConnectionTests
     {
-        private IConnectionInitializer _connectionInitializer;
+        private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
-        private IStreamFactory _streamFactory;
+        private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
 
         public BinaryConnectionTests()
         {
             _capturedEvents = new EventCapturer();
-            _streamFactory = Substitute.For<IStreamFactory>();
+            _mockStreamFactory = new Mock<IStreamFactory>();
 
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
-            _connectionInitializer = Substitute.For<IConnectionInitializer>();
-            _connectionInitializer.InitializeConnection(null, CancellationToken.None)
-                .ReturnsForAnyArgs(new ConnectionDescription(
+            _mockConnectionInitializer = new Mock<IConnectionInitializer>();
+            _mockConnectionInitializer.Setup(i => i.InitializeConnection(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(() => new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3"))));
-            _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
-                .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
+            _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
@@ -69,8 +69,8 @@ namespace MongoDB.Driver.Core.Connections
                 serverId: serverId,
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
-                streamFactory: _streamFactory,
-                connectionInitializer: _connectionInitializer,
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents);
         }
 
@@ -116,15 +116,15 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var result = new TaskCompletionSource<ConnectionDescription>();
                 result.SetException(new SocketException());
-                _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(result.Task);
+                _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                    .Returns(result.Task);
 
                 act = () => _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _connectionInitializer.InitializeConnection(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(_ => { throw new SocketException(); });
+                _mockConnectionInitializer.Setup(i => i.InitializeConnection(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                    .Throws<SocketException>();
 
                 act = () => _subject.Open(CancellationToken.None);
             }
@@ -170,10 +170,10 @@ namespace MongoDB.Driver.Core.Connections
         {
             var task1IsBlocked = false;
             var completionSource = new TaskCompletionSource<Stream>();
-            _streamFactory.CreateStream(null, CancellationToken.None)
-               .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return completionSource.Task.GetAwaiter().GetResult(); });
-            _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return completionSource.Task; });
+            _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+               .Returns(() => { task1IsBlocked = true; return completionSource.Task.GetAwaiter().GetResult(); });
+            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+                .Returns(() => { task1IsBlocked = true; return completionSource.Task; });
 
             Task openTask1;
             if (async1)
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 openTask1 = Task.Run(() => _subject.Open(CancellationToken.None));
             }
-            SpinWait.SpinUntil(() => task1IsBlocked);
+            SpinWait.SpinUntil(() => task1IsBlocked, 100).Should().BeTrue();
 
             Task openTask2;
             if (async2)
@@ -201,9 +201,9 @@ namespace MongoDB.Driver.Core.Connections
             openTask2.IsCompleted.Should().BeFalse();
             _subject.Description.Should().BeNull();
 
-            completionSource.SetResult(Substitute.For<Stream>());
-            SpinWait.SpinUntil(() => openTask1.IsCompleted);
-            SpinWait.SpinUntil(() => openTask2.IsCompleted);
+            completionSource.SetResult(new Mock<Stream>().Object);
+            SpinWait.SpinUntil(() => openTask1.IsCompleted, 100).Should().BeTrue();
+            SpinWait.SpinUntil(() => openTask2.IsCompleted, 100).Should().BeTrue();
             _subject.Description.Should().NotBeNull();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionOpeningEvent>();
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            var encoderSelector = Substitute.For<IMessageEncoderSelector>();
+            var encoderSelector = new Mock<IMessageEncoderSelector>().Object;
             _subject.Dispose();
 
             Action act;
@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            var encoderSelector = Substitute.For<IMessageEncoderSelector>();
+            var encoderSelector = new Mock<IMessageEncoderSelector>().Object;
 
             Action act;
             if (async)
@@ -291,8 +291,8 @@ namespace MongoDB.Driver.Core.Connections
                 ResponseMessage received;
                 if (async)
                 {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+                    _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+                        .Returns(Task.FromResult<Stream>(stream));
                     _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
                     _capturedEvents.Clear();
 
@@ -300,8 +300,8 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(stream);
+                    _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                        .Returns(stream);
                     _subject.Open(CancellationToken.None);
                     _capturedEvents.Clear();
 
@@ -332,8 +332,8 @@ namespace MongoDB.Driver.Core.Connections
                 Task<ResponseMessage> receiveMessageTask;
                 if (async)
                 {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                       .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+                    _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+                       .Returns(Task.FromResult<Stream>(stream));
                     _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
                     _capturedEvents.Clear();
 
@@ -341,8 +341,8 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                       .ReturnsForAnyArgs(stream);
+                    _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                       .Returns(stream);
                     _subject.Open(CancellationToken.None);
                     _capturedEvents.Clear();
 
@@ -377,8 +377,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new BlockingMemoryStream())
             {
-                _streamFactory.CreateStream(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(stream);
+                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                    .Returns(stream);
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
@@ -393,7 +393,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var receivedTask10IsRunning = false;
                     receivedTask10 = Task.Run(() => { receivedTask10IsRunning = true; return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => receivedTask10IsRunning);
+                    SpinWait.SpinUntil(() => receivedTask10IsRunning, 100).Should().BeTrue();
                 }
 
                 Task<ResponseMessage> receivedTask11;
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var receivedTask11IsRunning = false;
                     receivedTask11 = Task.Run(() => { receivedTask11IsRunning = true; return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => receivedTask11IsRunning);
+                    SpinWait.SpinUntil(() => receivedTask11IsRunning, 100).Should().BeTrue();
                 }
 
                 var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
@@ -436,30 +436,31 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async2)
         {
-            using (var stream = Substitute.For<Stream>())
+            var mockStream = new Mock<Stream>();
+            using (mockStream.Object)
             {
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
 
-                _streamFactory.CreateStream(null, CancellationToken.None)
-                  .ReturnsForAnyArgs(stream);
+                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                  .Returns(mockStream.Object);
                 var readTcs = new TaskCompletionSource<int>();
-                stream.Read(null, 0, 0)
-                    .ReturnsForAnyArgs(_ => readTcs.Task.GetAwaiter().GetResult());
-                stream.ReadAsync(null, 0, 0, CancellationToken.None)
-                    .ReturnsForAnyArgs(readTcs.Task);
+                mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(() => readTcs.Task.GetAwaiter().GetResult());
+                mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                    .Returns(readTcs.Task);
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
                 Task task1;
                 if (async1)
                 {
-                    task1 = _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None);
+                    task1 = _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, It.IsAny<CancellationToken>());
                 }
                 else
                 {
                     var task1IsRunning = false;
                     task1 = Task.Run(() => { task1IsRunning = true; return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task1IsRunning, 100);
+                    SpinWait.SpinUntil(() => task1IsRunning, 100).Should().BeTrue();
                 }
 
                 Task task2;
@@ -471,7 +472,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var task2IsRunning = false;
                     task2 = Task.Run(() => { task2IsRunning = true; return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task2IsRunning);
+                    SpinWait.SpinUntil(() => task2IsRunning, 100).Should().BeTrue();
                 }
 
                 readTcs.SetException(new SocketException());
@@ -503,16 +504,17 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async2)
         {
-            using (var stream = Substitute.For<Stream>())
+            var mockStream = new Mock<Stream>();
+            using (mockStream.Object)
             {
-                _streamFactory.CreateStream(null, CancellationToken.None)
-                   .ReturnsForAnyArgs(stream);
+                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                   .Returns(mockStream.Object);
                 var readTcs = new TaskCompletionSource<int>();
                 readTcs.SetException(new SocketException());
-                stream.Read(null, 0, 0)
-                    .ReturnsForAnyArgs(_ => readTcs.Task.GetAwaiter().GetResult());
-                stream.ReadAsync(null, 0, 0, CancellationToken.None)
-                    .ReturnsForAnyArgs(readTcs.Task);
+                mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(() => readTcs.Task.GetAwaiter().GetResult());
+                mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                    .Returns(readTcs.Task);
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
@@ -627,8 +629,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (async)
                 {
-                    _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+                    _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+                        .Returns(Task.FromResult<Stream>(stream));
                     _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
                     _capturedEvents.Clear();
 
@@ -636,8 +638,8 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    _streamFactory.CreateStream(null, CancellationToken.None)
-                        .ReturnsForAnyArgs(stream);
+                    _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                        .Returns(stream);
                     _subject.Open(CancellationToken.None);
                     _capturedEvents.Clear();
 
@@ -664,20 +666,20 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async2)
         {
-            using (var stream = Substitute.For<Stream>())
+            var mockStream = new Mock<Stream>();
+            using (mockStream.Object)
             {
                 var message1 = new KillCursorsMessage(1, new[] { 1L });
                 var message2 = new KillCursorsMessage(2, new[] { 2L });
 
-                _streamFactory.CreateStream(null, CancellationToken.None)
-                    .ReturnsForAnyArgs(stream);
+                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                    .Returns(mockStream.Object);
                 var task1IsBlocked = false;
                 var writeTcs = new TaskCompletionSource<int>();
-                stream
-                    .When(s => s.Write(Arg.Any<byte[]>(), Arg.Any<int>(), Arg.Any<int>()))
-                    .Do(_ => { task1IsBlocked = true; writeTcs.Task.GetAwaiter().GetResult(); });
-                stream.WriteAsync(null, 0, 0, CancellationToken.None)
-                    .ReturnsForAnyArgs(_ => { task1IsBlocked = true; return writeTcs.Task; });
+                mockStream.Setup(s => s.Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Callback(() => { task1IsBlocked = true; writeTcs.Task.GetAwaiter().GetResult(); });
+                mockStream.Setup(s => s.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                    .Returns(() => { task1IsBlocked = true; return writeTcs.Task; });
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
@@ -691,7 +693,9 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     task1 = Task.Run(() => { _subject.SendMessage(message1, _messageEncoderSettings, CancellationToken.None); });
                 }
-                SpinWait.SpinUntil(() => task1IsBlocked);
+
+                SpinWait.SpinUntil(() => task1IsBlocked, 100).Should().BeTrue();
+                task1IsBlocked.Should().BeTrue();
 
                 Task task2;
                 if (async2)
@@ -702,7 +706,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var task2IsRunning = false;
                     task2 = Task.Run(() => { task2IsRunning = true; _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task2IsRunning, 100);
+                    SpinWait.SpinUntil(() => task2IsRunning, 100).Should().BeTrue();
                 }
 
                 writeTcs.SetException(new SocketException());

@@ -24,7 +24,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CommandValidator_get_and_set_should_work()
         {
             var subject = CreateSubject<BsonDocument>();
-            var commandValidator = Substitute.For<IElementNameValidator>();
+            var commandValidator = new Mock<IElementNameValidator>().Object;
 
             subject.CommandValidator = commandValidator;
             var result = subject.CommandValidator;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void ResultSerializer_get_should_return_expected_result()
         {
-            var resultSerializer = Substitute.For<IBsonSerializer<BsonDocument>>();
+            var resultSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var subject = CreateSubject<BsonDocument>(resultSerializer: resultSerializer);
 
             var result = subject.ResultSerializer;

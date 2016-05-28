@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Net;
 using MongoDB.Driver.Core.Helpers;
-using NSubstitute;
+using MongoDB.Driver.Core.Servers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
@@ -42,32 +44,32 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         [Fact]
         public void Should_run_all_the_selectors()
         {
-            var selector1 = Substitute.For<IServerSelector>();
-            var selector2 = Substitute.For<IServerSelector>();
+            var mockSelector1 = new Mock<IServerSelector>();
+            var mockSelector2 = new Mock<IServerSelector>();
+            mockSelector1.Setup(s => s.SelectServers(_description, _description.Servers)).Returns(_description.Servers);
 
-            var subject = new CompositeServerSelector(new[] { selector1, selector2 });
+            var subject = new CompositeServerSelector(new[] { mockSelector1.Object, mockSelector2.Object });
 
             subject.SelectServers(_description, _description.Servers);
 
-            selector1.ReceivedWithAnyArgs().SelectServers(_description, _description.Servers);
-            selector2.ReceivedWithAnyArgs().SelectServers(_description, _description.Servers);
+            mockSelector1.Verify(s => s.SelectServers(_description, _description.Servers), Times.Once);
+            mockSelector2.Verify(s => s.SelectServers(_description, _description.Servers), Times.Once);
         }
 
         [Fact]
         public void Should_pass_on_the_filtered_servers_to_subsequent_selectors()
         {
             var selector1Selected = new[] { _description.Servers[1], _description.Servers[2] };
-            var selector1 = Substitute.For<IServerSelector>();
-            selector1.SelectServers(null, null).ReturnsForAnyArgs(selector1Selected);
-            var selector2 = Substitute.For<IServerSelector>();
+            var mockSelector1 = new Mock<IServerSelector>();
+            mockSelector1.Setup(s => s.SelectServers(_description, _description.Servers)).Returns(selector1Selected);
+            var mockSelector2 = new Mock<IServerSelector>();
 
-
-            var subject = new CompositeServerSelector(new[] { selector1, selector2 });
+            var subject = new CompositeServerSelector(new[] { mockSelector1.Object, mockSelector2.Object });
 
             subject.SelectServers(_description, _description.Servers);
 
-            selector1.Received().SelectServers(_description, _description.Servers);
-            selector2.Received().SelectServers(_description, selector1Selected);
+            mockSelector1.Verify(s => s.SelectServers(_description, _description.Servers), Times.Once);
+            mockSelector2.Verify(s => s.SelectServers(_description, selector1Selected), Times.Once);
         }
     }
 }

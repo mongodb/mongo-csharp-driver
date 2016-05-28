@@ -18,7 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.Operations
             var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
-            var resultSerializer = Substitute.For<IBsonSerializer<BsonDocument>>();
+            var resultSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
 
             subject.ResultSerializer = resultSerializer;
 

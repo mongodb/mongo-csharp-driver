@@ -22,18 +22,18 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Misc
 {
     public class ReferenceCountedTests
     {
-        private IDisposable _disposable;
+        private Mock<IDisposable> _mockDisposable;
 
         public ReferenceCountedTests()
         {
-            _disposable = Substitute.For<IDisposable>();
+            _mockDisposable = new Mock<IDisposable>();
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         [Fact]
         public void Initial_reference_count_should_be_one()
         {
-            var subject = new ReferenceCounted<IDisposable>(_disposable);
+            var subject = new ReferenceCounted<IDisposable>(_mockDisposable.Object);
 
             subject.ReferenceCount.Should().Be(1);
         }
@@ -55,24 +55,24 @@ namespace MongoDB.Driver.Core.Misc
         [Fact]
         public void Decrement_should_not_call_dispose_when_reference_count_is_greater_than_zero()
         {
-            var subject = new ReferenceCounted<IDisposable>(_disposable);
+            var subject = new ReferenceCounted<IDisposable>(_mockDisposable.Object);
 
             subject.IncrementReferenceCount();
             subject.DecrementReferenceCount();
 
             subject.ReferenceCount.Should().Be(1);
-            _disposable.DidNotReceive().Dispose();
+            _mockDisposable.Verify(d => d.Dispose(), Times.Never);
         }
 
         [Fact]
         public void Decrement_should_call_dispose_when_reference_count_is_zero()
         {
-            var subject = new ReferenceCounted<IDisposable>(_disposable);
+            var subject = new ReferenceCounted<IDisposable>(_mockDisposable.Object);
 
             subject.DecrementReferenceCount();
 
             subject.ReferenceCount.Should().Be(0);
-            _disposable.Received().Dispose();
+            _mockDisposable.Verify(d => d.Dispose(), Times.Once);
         }
     }
 }

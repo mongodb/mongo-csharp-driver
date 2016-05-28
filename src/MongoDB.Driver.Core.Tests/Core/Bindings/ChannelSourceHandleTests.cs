@@ -18,18 +18,18 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class ChannelSourceHandleTests
     {
-        private IChannelSource _channelSource;
+        private Mock<IChannelSource> _mockChannelSource;
 
         public ChannelSourceHandleTests()
         {
-            _channelSource = Substitute.For<IChannelSource>();
+            _mockChannelSource = new Mock<IChannelSource>();
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
             subject.Dispose();
 
             Action act;
@@ -68,26 +68,26 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
 
             if (async)
             {
                 subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _channelSource.Received().GetChannelAsync(CancellationToken.None);
+                _mockChannelSource.Verify(s => s.GetChannelAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetChannel(CancellationToken.None);
 
-                _channelSource.Received().GetChannel(CancellationToken.None);
+                _mockChannelSource.Verify(s => s.GetChannel(CancellationToken.None), Times.Once);
             }
         }
 
         [Fact]
         public void Fork_should_throw_if_disposed()
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
             subject.Dispose();
 
             Action act = () => subject.Fork();
@@ -98,46 +98,46 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
 
-            _channelSource.DidNotReceive().Dispose();
+            _mockChannelSource.Verify(s => s.Dispose(), Times.Never);
 
             forked.Dispose();
 
-            _channelSource.Received().Dispose();
+            _mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
 
             var forked = subject.Fork();
 
             forked.Dispose();
 
-            _channelSource.DidNotReceive().Dispose();
+            _mockChannelSource.Verify(s => s.Dispose(), Times.Never);
 
             subject.Dispose();
 
-            _channelSource.Received().Dispose();
+            _mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_last_handle_should_dispose_of_connectioSource()
         {
-            var subject = new ChannelSourceHandle(_channelSource);
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
             forked.Dispose();
 
-            _channelSource.Received().Dispose();
+            _mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
     }
 }

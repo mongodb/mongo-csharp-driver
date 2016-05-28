@@ -31,19 +31,19 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class BinaryConnection_CommandEventTests : IDisposable
     {
-        private IConnectionInitializer _connectionInitializer;
+        private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private Stream _stream;
-        private IStreamFactory _streamFactory;
+        private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
         private IDisposable _operationIdDisposer;
 
@@ -54,14 +54,14 @@ namespace MongoDB.Driver.Core.Connections
                 .Capture<CommandSucceededEvent>()
                 .Capture<CommandFailedEvent>();
 
-            _streamFactory = Substitute.For<IStreamFactory>();
+            _mockStreamFactory = new Mock<IStreamFactory>();
 
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
-            _connectionInitializer = Substitute.For<IConnectionInitializer>();
-            _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
-                .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
+            _mockConnectionInitializer = new Mock<IConnectionInitializer>();
+            _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
@@ -70,13 +70,13 @@ namespace MongoDB.Driver.Core.Connections
                 serverId: serverId,
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
-                streamFactory: _streamFactory,
-                connectionInitializer: _connectionInitializer,
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents);
 
             _stream = new BlockingMemoryStream();
-            _streamFactory.CreateStreamAsync(null, CancellationToken.None)
-                .ReturnsForAnyArgs(Task.FromResult<Stream>(_stream));
+            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+                .Returns(Task.FromResult<Stream>(_stream));
             _subject.OpenAsync(CancellationToken.None).Wait();
             _capturedEvents.Clear();
 

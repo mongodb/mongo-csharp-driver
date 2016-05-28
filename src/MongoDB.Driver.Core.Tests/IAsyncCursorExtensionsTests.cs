@@ -23,7 +23,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -282,7 +282,7 @@ namespace MongoDB.Driver
                 .ToArray();
 
             return new AsyncCursor<BsonDocument>(
-                channelSource: Substitute.For<IChannelSource>(),
+                channelSource: new Mock<IChannelSource>().Object,
                 collectionNamespace: new CollectionNamespace("foo", "bar"),
                 query: new BsonDocument(),
                 firstBatch: firstBatch,

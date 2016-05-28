@@ -25,14 +25,14 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
     public class ExclusiveConnectionPoolTests
     {
-        private IConnectionFactory _connectionFactory;
+        private Mock<IConnectionFactory> _mockConnectionFactory;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private ServerId _serverId;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public ExclusiveConnectionPoolTests()
         {
-            _connectionFactory = Substitute.For<IConnectionFactory>();
+            _mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             _endPoint = new DnsEndPoint("localhost", 27017);
             _capturedEvents = new EventCapturer();
             _serverId = new ServerId(new ClusterId(), _endPoint);
@@ -56,14 +56,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _serverId,
                 _endPoint,
                 _settings,
-                _connectionFactory,
+                _mockConnectionFactory.Object,
                 _capturedEvents);
         }
 
         [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _connectionFactory, _capturedEvents);
+            Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _mockConnectionFactory.Object, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _connectionFactory, _capturedEvents);
+            Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _mockConnectionFactory.Object, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _connectionFactory, _capturedEvents);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _mockConnectionFactory.Object, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _connectionFactory, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _mockConnectionFactory.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -251,12 +251,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             bool async)
         {
             var createdConnections = new List<MockConnection>();
-            _connectionFactory.CreateConnection(null, null).ReturnsForAnyArgs(c =>
-            {
-                var conn = new MockConnection(c.Arg<ServerId>());
-                createdConnections.Add(conn);
-                return conn;
-            });
+            _mockConnectionFactory.Setup(f => f.CreateConnection(_serverId, _endPoint))
+                .Returns(() =>
+                {
+                    var conn = new MockConnection(_serverId);
+                    createdConnections.Add(conn);
+                    return conn;
+                });
 
             InitializeAndWait();
 
@@ -439,7 +440,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _subject.AvailableCount == _settings.MaxConnections &&
                     _subject.DormantCount == _settings.MinConnections &&
                     _subject.UsedCount == 0,
-                TimeSpan.FromSeconds(4));
+                TimeSpan.FromSeconds(4))
+                .Should().BeTrue();
 
             _subject.AvailableCount.Should().Be(_settings.MaxConnections);
             _subject.CreatedCount.Should().Be(_settings.MinConnections);

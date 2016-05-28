@@ -15,23 +15,25 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using NSubstitute;
+using MongoDB.Driver.Core.Servers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class WritableServerBindingTests
     {
-        private ICluster _cluster;
+        private Mock<ICluster> _mockCluster;
 
         public WritableServerBindingTests()
         {
-            _cluster = Substitute.For<ICluster>();
+            _mockCluster = new Mock<ICluster>();
         }
 
         [Fact]
@@ -45,7 +47,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void ReadPreference_should_be_primary()
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
 
             subject.ReadPreference.Should().Be(ReadPreference.Primary);
         }
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
             subject.Dispose();
 
             Action act;
@@ -78,19 +80,24 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
+            var selectedServer = new Mock<IServer>().Object;
 
             if (async)
             {
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None), Times.Once);
             }
             else
             {
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _cluster.Received().SelectServer(Arg.Any<WritableServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None), Times.Once);
             }
         }
 
@@ -100,7 +107,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
             subject.Dispose();
 
             Action act;
@@ -122,30 +129,35 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
+            var selectedServer = new Mock<IServer>().Object;
 
             if (async)
             {
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+
                 subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None), Times.Once);
             }
             else
             {
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+
                 subject.GetWriteChannelSource(CancellationToken.None);
 
-                _cluster.Received().SelectServer(Arg.Any<WritableServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None), Times.Once);
             }
         }
 
         [Fact]
         public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
         {
-            var subject = new WritableServerBinding(_cluster);
+            var subject = new WritableServerBinding(_mockCluster.Object);
 
             subject.Dispose();
 
-            _cluster.DidNotReceive().Dispose();
+            _mockCluster.Verify(c => c.Dispose(), Times.Never);
         }
     }
 }

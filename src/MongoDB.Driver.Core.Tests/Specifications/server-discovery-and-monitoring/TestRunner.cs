@@ -30,7 +30,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);
-            SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100);
+            SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
         private void VerifyTopology(string topologyType)
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 replicaSetName: connectionString.ReplicaSet);
 
             _serverFactory = new MockClusterableServerFactory();
-            _eventSubscriber = Substitute.For<IEventSubscriber>();
+            _eventSubscriber = new Mock<IEventSubscriber>().Object;
             return new ClusterFactory(settings, _serverFactory, _eventSubscriber)
                 .CreateCluster();
         }

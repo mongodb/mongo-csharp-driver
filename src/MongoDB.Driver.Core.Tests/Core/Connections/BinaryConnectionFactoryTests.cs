@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionSettings_is_null()
         {
-            var streamFactory = Substitute.For<IStreamFactory>();
-            var eventSubscriber = Substitute.For<IEventSubscriber>();
+            var streamFactory = new Mock<IStreamFactory>().Object;
+            var eventSubscriber = new Mock<IEventSubscriber>().Object;
 
             Action act = () => new BinaryConnectionFactory(
                 null,
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_streamFactory_is_null()
         {
-            var eventSubscriber = Substitute.For<IEventSubscriber>();
+            var eventSubscriber = new Mock<IEventSubscriber>().Object;
 
             Action act = () => new BinaryConnectionFactory(
                 new ConnectionSettings(),
@@ -62,8 +62,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateConnection_should_throw_an_ArgumentNullException_when_serverId_is_null()
         {
-            var streamFactory = Substitute.For<IStreamFactory>();
-            var eventSubscriber = Substitute.For<IEventSubscriber>();
+            var streamFactory = new Mock<IStreamFactory>().Object;
+            var eventSubscriber = new Mock<IEventSubscriber>().Object;
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
@@ -76,8 +76,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateConnection_should_throw_an_ArgumentNullException_when_endPoint_is_null()
         {
-            var streamFactory = Substitute.For<IStreamFactory>();
-            var eventSubscriber = Substitute.For<IEventSubscriber>();
+            var streamFactory = new Mock<IStreamFactory>().Object;
+            var eventSubscriber = new Mock<IEventSubscriber>().Object;
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateConnection_should_return_a_BinaryConnection()
         {
-            var streamFactory = Substitute.For<IStreamFactory>();
-            var eventSubscriber = Substitute.For<IEventSubscriber>();
+            var streamFactory = new Mock<IStreamFactory>().Object;
+            var eventSubscriber = new Mock<IEventSubscriber>().Object;
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,

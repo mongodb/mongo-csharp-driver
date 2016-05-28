@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using FluentAssertions;
-using NSubstitute;
 using Xunit;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;

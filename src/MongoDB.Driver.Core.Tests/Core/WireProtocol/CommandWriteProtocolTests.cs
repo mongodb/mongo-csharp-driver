@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol
@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         [Fact]
         public void Execute_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
+            var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -46,20 +47,23 @@ namespace MongoDB.Driver.Core.WireProtocol
                 () => CommandResponseHandling.Return,
                 true,
                 BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings());
+                messageEncoderSettings);
 
-            var connection = Substitute.For<IConnection>();
+            var mockConnection = new Mock<IConnection>();
 
-            var cmdResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
-            connection.ReceiveMessage(0, null, null, CancellationToken.None).ReturnsForAnyArgs(cmdResponse);
+            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            mockConnection
+                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
+                .Returns(commandResponse);
 
-            var result = subject.Execute(connection, CancellationToken.None);
+            var result = subject.Execute(mockConnection.Object, CancellationToken.None);
             result.Should().Be("{ok: 1}");
         }
 
         [Fact]
         public void Execute_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
+            var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -67,19 +71,22 @@ namespace MongoDB.Driver.Core.WireProtocol
                 () => CommandResponseHandling.Ignore,
                 true,
                 BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings());
+                messageEncoderSettings);
 
-            var connection = Substitute.For<IConnection>();
+            var mockConnection = new Mock<IConnection>();
 
-            var result = subject.Execute(connection, CancellationToken.None);
+            var result = subject.Execute(mockConnection.Object, CancellationToken.None);
             result.Should().BeNull();
 
-            connection.ReceivedWithAnyArgs().ReceiveMessageAsync(0, null, null, CancellationToken.None);
+            mockConnection.Verify(
+                c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None),
+                Times.Once);
         }
 
         [Fact]
         public void ExecuteAsync_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
+            var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -87,20 +94,23 @@ namespace MongoDB.Driver.Core.WireProtocol
                 () => CommandResponseHandling.Return,
                 true,
                 BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings());
+                messageEncoderSettings);
 
-            var connection = Substitute.For<IConnection>();
+            var mockConnection = new Mock<IConnection>();
 
-            var cmdResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
-            connection.ReceiveMessageAsync(0, null, null, CancellationToken.None).ReturnsForAnyArgs(Task.FromResult<ResponseMessage>(cmdResponse));
+            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            mockConnection
+                .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
+                .Returns(Task.FromResult<ResponseMessage>(commandResponse));
 
-            var result = subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
             result.Should().Be("{ok: 1}");
         }
 
         [Fact]
         public void ExecuteAsync_should_not_wait_for_response_when_CommandResponseHandling_is_Ignore()
         {
+            var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -108,14 +118,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 () => CommandResponseHandling.Ignore,
                 true,
                 BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings());
+                messageEncoderSettings);
 
-            var connection = Substitute.For<IConnection>();
+            var mockConnection = new Mock<IConnection>();
 
-            var result = subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
             result.Should().BeNull();
 
-            connection.ReceivedWithAnyArgs().ReceiveMessageAsync(0, null, null, CancellationToken.None);
+            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None), Times.Once);
         }
 
         private RawBsonDocument CreateRawBsonDocument(BsonDocument doc)

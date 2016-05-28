@@ -18,7 +18,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -38,17 +38,17 @@ namespace MongoDB.Driver.Core.Operations
         public void GetEnumerator_should_call_ToCursor_each_time(
             [Values(1, 2)] int times)
         {
-            var source = Substitute.For<IAsyncCursorSource<BsonDocument>>();
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            source.ToCursor().Returns(cursor);
-            var subject = new AsyncCursorSourceEnumerableAdapter<BsonDocument>(source, CancellationToken.None);
+            var mockSource = new Mock<IAsyncCursorSource<BsonDocument>>();
+            var cursor = new Mock<IAsyncCursor<BsonDocument>>().Object;
+            mockSource.Setup(c => c.ToCursor(CancellationToken.None)).Returns(cursor);
+            var subject = new AsyncCursorSourceEnumerableAdapter<BsonDocument>(mockSource.Object, CancellationToken.None);
 
             for (var i = 0; i < times; i++)
             {
                 subject.GetEnumerator();
             }
 
-            source.Received(times).ToCursor();
+            mockSource.Verify(s => s.ToCursor(CancellationToken.None), Times.Exactly(times));
         }
     }
 }

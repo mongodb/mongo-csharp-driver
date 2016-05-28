@@ -31,7 +31,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
-using NSubstitute;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 

@@ -19,18 +19,18 @@ using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class ChannelSourceReadWriteBindingTests
     {
-        private IChannelSourceHandle _channelSource;
+        private Mock<IChannelSourceHandle> _mockChannelSource;
 
         public ChannelSourceReadWriteBindingTests()
         {
-            _channelSource = Substitute.For<IChannelSourceHandle>();
+            _mockChannelSource = new Mock<IChannelSourceHandle>();
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ChannelSourceReadWriteBinding(_channelSource, null);
+            Action act = () => new ChannelSourceReadWriteBinding(_mockChannelSource.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -52,9 +52,9 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_not_fork_channelSource()
         {
-            new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
 
-            _channelSource.DidNotReceive().Fork();
+            _mockChannelSource.Verify(s => s.Fork(), Times.Never);
         }
 
         [Theory]
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
             subject.Dispose();
 
             Action act;
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
 
             if (async)
             {
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Bindings
                 subject.GetReadChannelSource(CancellationToken.None);
             }
 
-            _channelSource.Received().Fork();
+            _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }
 
         [Theory]
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
             subject.Dispose();
 
             Action act;
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
 
             if (async)
             {
@@ -138,17 +138,17 @@ namespace MongoDB.Driver.Core.Bindings
                 subject.GetWriteChannelSource(CancellationToken.None);
             }
 
-            _channelSource.Received().Fork();
+            _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }
 
         [Fact]
         public void Dispose_should_call_dispose_on_connection_source()
         {
-            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+            var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary);
 
             subject.Dispose();
 
-            _channelSource.Received().Dispose();
+            _mockChannelSource.Verify(f => f.Dispose(), Times.Once);
         }
     }
 }

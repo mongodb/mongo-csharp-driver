@@ -15,23 +15,25 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using NSubstitute;
+using MongoDB.Driver.Core.Servers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadPreferenceBindingTests
     {
-        private ICluster _cluster;
+        private Mock<ICluster> _mockCluster;
 
         public ReadPreferenceBindingTests()
         {
-            _cluster = Substitute.For<ICluster>();
+            _mockCluster = new Mock<ICluster>();
         }
 
         [Fact]
@@ -45,7 +47,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ReadPreferenceBinding(_cluster, null);
+            Action act = () => new ReadPreferenceBinding(_mockCluster.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
             subject.Dispose();
 
             Action act;
@@ -78,30 +80,35 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
+            var selectedServer = new Mock<IServer>().Object;
 
             if (async)
             {
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
             }
             else
             {
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _cluster.Received().SelectServer(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
             }
         }
 
         [Fact]
         public void Dispose_should_not_call_dispose_on_the_cluster()
         {
-            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
 
             subject.Dispose();
 
-            _cluster.DidNotReceive().Dispose();
+            _mockCluster.Verify(c => c.Dispose(), Times.Never);
         }
     }
 }

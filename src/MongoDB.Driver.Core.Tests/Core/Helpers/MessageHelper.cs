@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
-using NSubstitute;
+using Moq;
 
 namespace MongoDB.Driver.Core.Helpers
 {
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Core.Helpers
                 queryFailureDocument: null,
                 requestId: requestId,
                 responseTo: responseTo,
-                serializer: serializer ?? Substitute.For<IBsonSerializer<T>>(),
+                serializer: serializer ?? new Mock<IBsonSerializer<T>>().Object,
                 startingFrom: startingFrom);
         }
 
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Core.Helpers
                 queryFailureDocument: null,
                 requestId: requestId,
                 responseTo: responseTo,
-                serializer: Substitute.For<IBsonSerializer<T>>(),
+                serializer: new Mock<IBsonSerializer<T>>().Object,
                 startingFrom: startingFrom);
         }
 

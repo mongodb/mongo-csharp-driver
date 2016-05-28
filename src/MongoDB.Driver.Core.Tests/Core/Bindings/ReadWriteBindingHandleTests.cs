@@ -18,18 +18,18 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadWriteBindingHandleTests
     {
-        private IReadWriteBinding _readWriteBinding;
+        private Mock<IReadWriteBinding> _mockReadWriteBinding;
 
         public ReadWriteBindingHandleTests()
         {
-            _readWriteBinding = Substitute.For<IReadWriteBinding>();
+            _mockReadWriteBinding = new Mock<IReadWriteBinding>();
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
             subject.Dispose();
 
             Action act;
@@ -68,19 +68,19 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
 
             if (async)
             {
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _readWriteBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _readWriteBinding.Received().GetReadChannelSource(CancellationToken.None);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
             }
         }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
             subject.Dispose();
 
             Action act;
@@ -112,26 +112,26 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
 
             if (async)
             {
                 subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _readWriteBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetWriteChannelSource(CancellationToken.None);
 
-                _readWriteBinding.Received().GetWriteChannelSource(CancellationToken.None);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(CancellationToken.None), Times.Once);
             }
         }
 
         [Fact]
         public void Fork_should_throw_if_disposed()
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
             subject.Dispose();
 
             Action act = () => subject.Fork();
@@ -142,46 +142,46 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
 
-            _readWriteBinding.DidNotReceive().Dispose();
+            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
 
             forked.Dispose();
 
-            _readWriteBinding.Received().Dispose();
+            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             forked.Dispose();
 
-            _readWriteBinding.DidNotReceive().Dispose();
+            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
 
             subject.Dispose();
 
-            _readWriteBinding.Received().Dispose();
+            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_last_handle_should_dispose_of_connectioSource()
         {
-            var subject = new ReadWriteBindingHandle(_readWriteBinding);
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
             forked.Dispose();
 
-            _readWriteBinding.Received().Dispose();
+            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
     }
 }

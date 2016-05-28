@@ -32,7 +32,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
 using Xunit;
 
 namespace MongoDB.Driver.Specifications.sdam_monitoring
@@ -94,7 +93,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);
-            SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100);
+            SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
         private void VerifyOutcome(BsonDocument outcome)

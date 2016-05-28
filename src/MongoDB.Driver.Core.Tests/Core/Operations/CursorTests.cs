@@ -17,7 +17,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(1, false)]
         public void Constructor_should_call_Dispose_on_channelSource_if_cursorId_is_zero(int cursorId, bool shouldCallDispose)
         {
-            var channelSource = Substitute.For<IChannelSource>();
+            var mockChannelSource = new Mock<IChannelSource>();
             new AsyncCursor<BsonDocument>(
-                channelSource,
+                mockChannelSource.Object,
                 new CollectionNamespace("databaseName", "collectionName"),
                 new BsonDocument(), // query
                 new BsonDocument[0], // firstBatch
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 null); // messageEncoderSettings
 
-            channelSource.Received(shouldCallDispose ? 1 : 0).Dispose();
+            mockChannelSource.Verify(s => s.Dispose(), Times.Exactly(shouldCallDispose ? 1 : 0));
         }
     }
 }

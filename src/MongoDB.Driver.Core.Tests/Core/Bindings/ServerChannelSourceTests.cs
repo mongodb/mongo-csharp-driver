@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
-using NSubstitute;
+using Moq;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 
@@ -32,11 +32,11 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ServerChannelSourceTests
     {
-        private IServer _server;
+        private Mock<IServer> _mockServer;
 
         public ServerChannelSourceTests()
         {
-            _server = Substitute.For<IServer>();
+            _mockServer = new Mock<IServer>();
         }
 
         [Fact]
@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void ServerDescription_should_return_description_of_server()
         {
-            var subject = new ServerChannelSource(_server);
+            var subject = new ServerChannelSource(_mockServer.Object);
 
             var desc = ServerDescriptionHelper.Disconnected(new ClusterId());
 
-            _server.Description.Returns(desc);
+            _mockServer.SetupGet(s => s.Description).Returns(desc);
 
             var result = subject.ServerDescription;
 
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ServerChannelSource(_server);
+            var subject = new ServerChannelSource(_mockServer.Object);
             subject.Dispose();
 
             Action act;
@@ -89,19 +89,19 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ServerChannelSource(_server);
+            var subject = new ServerChannelSource(_mockServer.Object);
 
             if (async)
             {
                 subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _server.Received().GetChannelAsync(CancellationToken.None);
+                _mockServer.Verify(s => s.GetChannelAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetChannel(CancellationToken.None);
 
-                _server.Received().GetChannel(CancellationToken.None);
+                _mockServer.Verify(s => s.GetChannel(CancellationToken.None), Times.Once);
             }
         }
     }

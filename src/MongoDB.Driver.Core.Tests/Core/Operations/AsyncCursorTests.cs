@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -35,16 +35,16 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_dispose_channel_source_when_cursor_id_is_zero()
         {
-            var channelSource = Substitute.For<IChannelSource>();
-            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(channelSource));
+            var mockChannelSource = new Mock<IChannelSource>();
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
 
-            channelSource.Received(1).Dispose();
+            mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
 
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var channelSource = Substitute.For<IChannelSource>();
+            var channelSource = new Mock<IChannelSource>().Object;
             var databaseNamespace = new DatabaseNamespace("test");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "test");
             var query = new BsonDocument("x", 1);
@@ -174,12 +174,12 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Dispose_should_dispose_channel_source_when_cursor_id_is_zero()
         {
-            var channelSource = Substitute.For<IChannelSource>();
-            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(channelSource));
+            var mockChannelSource = new Mock<IChannelSource>();
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
 
             subject.Dispose();
 
-            channelSource.Received(1).Dispose();
+            mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
 
         // private methods
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>))
         {
             return new AsyncCursor<BsonDocument>(
-                channelSource.WithDefault(Substitute.For<IChannelSource>()),
+                channelSource.WithDefault(new Mock<IChannelSource>().Object),
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
                 query.WithDefault(new BsonDocument()),
                 firstBatch.WithDefault(new List<BsonDocument>()),

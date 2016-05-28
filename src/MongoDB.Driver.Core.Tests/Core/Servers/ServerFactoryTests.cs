@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
@@ -41,10 +41,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             _clusterId = new ClusterId();
             _clusterConnectionMode = ClusterConnectionMode.Standalone;
-            _connectionPoolFactory = Substitute.For<IConnectionPoolFactory>();
+            _connectionPoolFactory = new Mock<IConnectionPoolFactory>().Object;
             _endPoint = new DnsEndPoint("localhost", 27017);
-            _serverMonitorFactory = Substitute.For<IServerMonitorFactory>();
-            _eventSubscriber = Substitute.For<IEventSubscriber>();
+            _serverMonitorFactory = new Mock<IServerMonitorFactory>().Object;
+            _eventSubscriber = new Mock<IEventSubscriber>().Object;
             _settings = new ServerSettings();
         }
 

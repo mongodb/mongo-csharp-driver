@@ -6,7 +6,7 @@
 *
 * http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless required by applicable law or agreed to in writing, software
+* Unless required by applicable law or agreed to in writing,.Setup software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Servers
     {
         private EndPoint _endPoint;
         private MockConnection _connection;
-        private IConnectionFactory _connectionFactory;
+        private Mock<IConnectionFactory> _mockConnectionFactory;
         private EventCapturer _capturedEvents;
         private ServerId _serverId;
         private ServerMonitor _subject;
@@ -44,21 +44,21 @@ namespace MongoDB.Driver.Core.Servers
         public ServerMonitorTests()
         {
             _endPoint = new DnsEndPoint("localhost", 27017);
+            _serverId = new ServerId(new ClusterId(), _endPoint);
             _connection = new MockConnection();
-            _connectionFactory = Substitute.For<IConnectionFactory>();
-            _connectionFactory.CreateConnection(null, null)
-                .ReturnsForAnyArgs(_connection);
-
+            _mockConnectionFactory = new Mock<IConnectionFactory>();
+            _mockConnectionFactory
+                .Setup(f => f.CreateConnection(_serverId, _endPoint))
+                .Returns(_connection);
             _capturedEvents = new EventCapturer();
 
-            _serverId = new ServerId(new ClusterId(), _endPoint);
-            _subject = new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
+            _subject = new ServerMonitor(_serverId, _endPoint, _mockConnectionFactory.Object, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
         }
 
         [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ServerMonitor(null, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
+            Action act = () => new ServerMonitor(null, _endPoint, _mockConnectionFactory.Object, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ServerMonitor(_serverId, null, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
+            Action act = () => new ServerMonitor(_serverId, null, _mockConnectionFactory.Object, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, _capturedEvents);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new ServerMonitor(_serverId, _endPoint, _connectionFactory, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, null);
+            Action act = () => new ServerMonitor(_serverId, _endPoint, _mockConnectionFactory.Object, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Servers
 
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
             changes.Count.Should().Be(1);
             changes[0].OldServerDescription.State.Should().Be(ServerState.Disconnected);
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
             _subject.Description.State.Should().Be(ServerState.Connected);
             _subject.Description.Type.Should().Be(ServerType.Standalone);
@@ -148,14 +148,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
             _capturedEvents.Clear();
 
             _subject.RequestHeartbeat();
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
             _capturedEvents.Clear();
 
             _subject.Invalidate();
@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Core.Servers
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
-            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();

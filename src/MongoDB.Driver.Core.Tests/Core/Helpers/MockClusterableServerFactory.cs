@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 
 namespace MongoDB.Driver.Core.Helpers
 {
@@ -49,21 +49,21 @@ namespace MongoDB.Driver.Core.Helpers
 
                 if (_eventSubscriber == null)
                 {
-                    var server = Substitute.For<IClusterableServer>();
-                    server.Description.Returns(description);
-                    server.EndPoint.Returns(endPoint);
-                    server.ServerId.Returns(new ServerId(clusterId, endPoint));
+                    var mockServer = new Mock<IClusterableServer>() { DefaultValue = DefaultValue.Mock };
+                    mockServer.SetupGet(s => s.Description).Returns(description);
+                    mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
+                    mockServer.SetupGet(s => s.ServerId).Returns(new ServerId(clusterId, endPoint));
                     result = new ServerTuple
                     {
-                        Server = server
+                        Server = mockServer.Object
                     };
                 }
                 else
                 {
-                    var monitorFactory = Substitute.For<IServerMonitorFactory>();
-                    var monitor = Substitute.For<IServerMonitor>();
-                    monitorFactory.Create(null, null).ReturnsForAnyArgs(monitor);
-                    monitor.Description.Returns(description);
+                    var mockMonitorFactory = new Mock<IServerMonitorFactory>();
+                    var mockMonitor = new Mock<IServerMonitor>() { DefaultValue = DefaultValue.Mock };
+                    mockMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), It.IsAny<EndPoint>())).Returns(mockMonitor.Object);
+                    mockMonitor.SetupGet(m => m.Description).Returns(description);
 
                     result = new ServerTuple
                     {
@@ -72,10 +72,10 @@ namespace MongoDB.Driver.Core.Helpers
                             ClusterConnectionMode.Automatic,
                             new ServerSettings(),
                             endPoint,
-                            Substitute.For<IConnectionPoolFactory>(),
-                            monitorFactory,
+                            (new Mock<IConnectionPoolFactory> { DefaultValue = DefaultValue.Mock }).Object,
+                            mockMonitorFactory.Object,
                             _eventSubscriber),
-                        Monitor = monitor
+                        Monitor = mockMonitor.Object
                     };
                 }
 
@@ -114,14 +114,16 @@ namespace MongoDB.Driver.Core.Helpers
 
             if (result.Monitor == null)
             {
-                result.Server.Description.Returns(description);
-                result.Server.DescriptionChanged += Raise.EventWith(new ServerDescriptionChangedEventArgs(oldDescription, description));
+                var mockServer = Mock.Get(result.Server);
+                mockServer.SetupGet(s => s.Description).Returns(description);
+                mockServer.Raise(s => s.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(oldDescription, description));
 
             }
             else
             {
-                result.Monitor.Description.Returns(description);
-                result.Monitor.DescriptionChanged += Raise.EventWith(new ServerDescriptionChangedEventArgs(oldDescription, description));
+                var mockMonitor = Mock.Get(result.Monitor);
+                mockMonitor.SetupGet(m => m.Description).Returns(description);
+                mockMonitor.Raise(m => m.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(oldDescription, description));
             }
         }
 

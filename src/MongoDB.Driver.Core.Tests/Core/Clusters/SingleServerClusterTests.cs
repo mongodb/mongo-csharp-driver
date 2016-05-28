@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Clusters
     public class SingleServerClusterTests
     {
         private EventCapturer _capturedEvents;
-        private MockClusterableServerFactory _serverFactory;
+        private MockClusterableServerFactory _mockServerFactory;
         private ClusterSettings _settings;
 
         private EndPoint _endPoint = new DnsEndPoint("localhost", 27017);
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
         public SingleServerClusterTests()
         {
             _settings = new ClusterSettings();
-            _serverFactory = new MockClusterableServerFactory();
+            _mockServerFactory = new MockClusterableServerFactory();
             _capturedEvents = new EventCapturer();
         }
 
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Constructor_should_throw_if_more_than_one_endpoint_is_specified()
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
-            Action act = () => new SingleServerCluster(_settings, _serverFactory, _capturedEvents);
+            Action act = () => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -67,7 +67,8 @@ namespace MongoDB.Driver.Core.Clusters
             var subject = CreateSubject();
             subject.Initialize();
 
-            _serverFactory.GetServer(_endPoint).Received().Initialize();
+            var mockServer = Mock.Get(_mockServerFactory.GetServer(_endPoint));
+            mockServer.Verify(s => s.Initialize(), Times.Once);
 
             _capturedEvents.Next().Should().BeOfType<ClusterOpeningEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
@@ -136,7 +137,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             subject.Dispose();
 
-            _serverFactory.GetServer(_endPoint).Received().Dispose();
+            var mockServer = Mock.Get(_mockServerFactory.GetServer(_endPoint));
+            mockServer.Verify(s => s.Dispose(), Times.Once);
 
             _capturedEvents.Next().Should().BeOfType<ClusterClosingEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
@@ -148,18 +150,18 @@ namespace MongoDB.Driver.Core.Clusters
 
         private SingleServerCluster CreateSubject()
         {
-            return new SingleServerCluster(_settings, _serverFactory, _capturedEvents);
+            return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents);
         }
 
         private void PublishDescription(EndPoint endPoint, ServerType serverType)
         {
-            var current = _serverFactory.GetServerDescription(endPoint);
+            var current = _mockServerFactory.GetServerDescription(endPoint);
 
             var description = current.With(
                 state: ServerState.Connected,
                 type: serverType);
 
-            _serverFactory.PublishDescription(description);
+            _mockServerFactory.PublishDescription(description);
         }
     }
 }

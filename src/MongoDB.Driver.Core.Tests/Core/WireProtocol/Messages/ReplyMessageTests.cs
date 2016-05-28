@@ -21,7 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
@@ -113,13 +113,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public void GetEncoder_should_return_encoder()
         {
             var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
-            var stubEncoderFactory = Substitute.For<IMessageEncoderFactory>();
-            var stubEncoder = Substitute.For<IMessageEncoder>();
-            stubEncoderFactory.GetReplyMessageEncoder(_serializer).Returns(stubEncoder);
+            var mockEncoderFactory = new Mock<IMessageEncoderFactory>();
+            var encoder = new Mock<IMessageEncoder>().Object;
+            mockEncoderFactory.Setup(f => f.GetReplyMessageEncoder(_serializer)).Returns(encoder);
 
-            var result = subject.GetEncoder(stubEncoderFactory);
+            var result = subject.GetEncoder(mockEncoderFactory.Object);
 
-            result.Should().BeSameAs(stubEncoder);
+            result.Should().BeSameAs(encoder);
         }
     }
 }

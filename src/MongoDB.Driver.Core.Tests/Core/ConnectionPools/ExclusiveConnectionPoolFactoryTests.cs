@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.ConnectionPools
@@ -37,10 +37,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public ExclusiveConnectionPoolFactoryTests()
         {
-            _connectionFactory = Substitute.For<IConnectionFactory>();
+            _connectionFactory = new Mock<IConnectionFactory>().Object;
             _endPoint = new DnsEndPoint("localhost", 27017);
             _serverId = new ServerId(new ClusterId(), _endPoint);
-            _eventSubscriber = Substitute.For<IEventSubscriber>();
+            _eventSubscriber = new Mock<IEventSubscriber>().Object;
             _settings = new ConnectionPoolSettings(
                 maintenanceInterval: Timeout.InfiniteTimeSpan,
                 maxConnections: 4,

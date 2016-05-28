@@ -21,7 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Current_should_return_expected_result_when_there_are_two_batches()
         {
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var firstBatch = new[]
             {
                 new BsonDocument("_id", 0),
@@ -61,9 +61,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 new BsonDocument("_id", 2)
             };
-            cursor.MoveNext().Returns(true, true, false);
-            cursor.Current.Returns(firstBatch, secondBatch);
-            var subject = new AsyncCursorEnumerator<BsonDocument>(cursor, CancellationToken.None);
+            mockCursor.SetupSequence(c => c.MoveNext(CancellationToken.None)).Returns(true).Returns(true).Returns(false);
+            mockCursor.SetupSequence(c => c.Current).Returns(firstBatch).Returns(secondBatch);
+            var subject = new AsyncCursorEnumerator<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
             subject.MoveNext();
             subject.Current.Should().Be(new BsonDocument("_id", 0));
@@ -108,12 +108,12 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Dispose_should_dispose_cursor()
         {
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            var subject = new AsyncCursorEnumerator<BsonDocument>(cursor, CancellationToken.None);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var subject = new AsyncCursorEnumerator<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
             subject.Dispose();
 
-            cursor.Received(1).Dispose();
+            mockCursor.Verify(c => c.Dispose(), Times.Once);
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void MoveNext_should_return_expected_result_when_there_are_two_batches()
         {
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var firstBatch = new[]
             {
                 new BsonDocument("_id", 0),
@@ -139,9 +139,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 new BsonDocument("_id", 2)
             };
-            cursor.MoveNext().Returns(true, true, false);
-            cursor.Current.Returns(firstBatch, secondBatch);
-            var subject = new AsyncCursorEnumerator<BsonDocument>(cursor, CancellationToken.None);
+            mockCursor.SetupSequence(c => c.MoveNext(CancellationToken.None)).Returns(true).Returns(true).Returns(false);
+            mockCursor.SetupSequence(c => c.Current).Returns(firstBatch).Returns(secondBatch);
+            var subject = new AsyncCursorEnumerator<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
             subject.MoveNext().Should().BeTrue();
             subject.MoveNext().Should().BeTrue();
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
                 .ToArray();
 
             var cursor = new AsyncCursor<BsonDocument>(
-                channelSource: Substitute.For<IChannelSource>(),
+                channelSource: new Mock<IChannelSource>().Object,
                 collectionNamespace: new CollectionNamespace("foo", "bar"),
                 query: new BsonDocument(),
                 firstBatch: firstBatch,

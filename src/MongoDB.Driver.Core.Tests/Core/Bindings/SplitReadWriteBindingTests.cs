@@ -19,26 +19,26 @@ using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Bindings
 {
     public class SplitReadWriteBindingTests
     {
-        private IReadBinding _readBinding;
-        private IWriteBinding _writeBinding;
+        private Mock<IReadBinding> _mockReadBinding;
+        private Mock<IWriteBinding> _mockWriteBinding;
 
         public SplitReadWriteBindingTests()
         {
-            _readBinding = Substitute.For<IReadBinding>();
-            _writeBinding = Substitute.For<IWriteBinding>();
+            _mockReadBinding = new Mock<IReadBinding>();
+            _mockWriteBinding = new Mock<IWriteBinding>();
         }
 
         [Fact]
         public void Constructor_should_throw_if_readBinding_is_null()
         {
-            Action act = () => new SplitReadWriteBinding(null, _writeBinding);
+            Action act = () => new SplitReadWriteBinding(null, _mockWriteBinding.Object);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new SplitReadWriteBinding(_readBinding, null);
+            Action act = () => new SplitReadWriteBinding(_mockReadBinding.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_mockReadBinding.Object, _mockWriteBinding.Object);
             subject.Dispose();
 
             Action act;
@@ -79,19 +79,19 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_mockReadBinding.Object, _mockWriteBinding.Object);
 
             if (async)
             {
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _readBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
+                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _readBinding.Received().GetReadChannelSource(CancellationToken.None);
+                _mockReadBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
             }
         }
 
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_mockReadBinding.Object, _mockWriteBinding.Object);
             subject.Dispose();
 
             Action act;
@@ -123,31 +123,31 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_mockReadBinding.Object, _mockWriteBinding.Object);
 
             if (async)
             {
                 subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _writeBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
+                _mockWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(CancellationToken.None), Times.Once);
             }
             else
             {
                 subject.GetWriteChannelSource(CancellationToken.None);
 
-                _writeBinding.Received().GetWriteChannelSource(CancellationToken.None);
+                _mockWriteBinding.Verify(b => b.GetWriteChannelSource(CancellationToken.None), Times.Once);
             }
         }
 
         [Fact]
         public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_mockReadBinding.Object, _mockWriteBinding.Object);
 
             subject.Dispose();
 
-            _readBinding.Received().Dispose();
-            _writeBinding.Received().Dispose();
+            _mockReadBinding.Verify(b => b.Dispose(), Times.Once);
+            _mockWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
     }
 }

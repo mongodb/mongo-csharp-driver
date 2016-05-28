@@ -17,7 +17,7 @@ using System;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void GetEnumerator_should_return_expected_result()
         {
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            cursor.MoveNext().Returns(true, false);
-            cursor.Current.Returns(new[] { new BsonDocument("_id", 0) });
-            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(cursor, CancellationToken.None);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            mockCursor.SetupSequence(c => c.MoveNext(CancellationToken.None)).Returns(true).Returns(false);
+            mockCursor.Setup(c => c.Current).Returns(new[] { new BsonDocument("_id", 0) });
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
             var result = subject.GetEnumerator();
 
@@ -50,8 +50,8 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void GetEnumerator_should_throw_when_called_more_than_once()
         {
-            var cursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(cursor, CancellationToken.None);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(mockCursor.Object, CancellationToken.None);
             subject.GetEnumerator();
 
             Action action = () => subject.GetEnumerator();
