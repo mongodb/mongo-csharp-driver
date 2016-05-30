@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Tests;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -42,10 +42,10 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
-                Substitute.For<IMongoClient>(),
+                new Mock<IMongoClient>().Object,
                 new DatabaseNamespace("foo"),
                 settings,
-                Substitute.For<ICluster>(),
+                new Mock<ICluster>().Object,
                 _operationExecutor);
         }
 
@@ -221,8 +221,8 @@ namespace MongoDB.Driver
         public void ListCollections_should_execute_the_ListCollectionsOperation(
             [Values(false, true)] bool async)
         {
-            var result = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(result);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(mockCursor.Object);
             var filter = new BsonDocument("name", "awesome");
 
             if (async)

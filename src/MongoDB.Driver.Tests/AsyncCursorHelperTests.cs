@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -227,34 +227,34 @@ namespace MongoDB.Driver.Tests
 
         private Task<IAsyncCursor<int>> SetupResultInFirstBatch()
         {
-            var cursor = Substitute.For<IAsyncCursor<int>>();
-            cursor.MoveNextAsync().ReturnsForAnyArgs(Task.FromResult(true), Task.FromResult(false));
-            cursor.Current.Returns(new List<int> { 1 }, null);
-            return Task.FromResult(cursor);
+            var mockCursor = new Mock<IAsyncCursor<int>>();
+            mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int> { 1 }).Returns(null);
+            return Task.FromResult(mockCursor.Object);
         }
 
         private Task<IAsyncCursor<int>> SetupResultInSecondBatch()
         {
-            var cursor = Substitute.For<IAsyncCursor<int>>();
-            cursor.MoveNextAsync().ReturnsForAnyArgs(Task.FromResult(true), Task.FromResult(true), Task.FromResult(false));
-            cursor.Current.Returns(new List<int>(), new List<int> { 1 }, null);
-            return Task.FromResult(cursor);
+            var mockCursor = new Mock<IAsyncCursor<int>>();
+            mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns(new List<int> { 1 }).Returns(null);
+            return Task.FromResult(mockCursor.Object);
         }
 
         private Task<IAsyncCursor<int>> SetupNoResultIn1Batch()
         {
-            var cursor = Substitute.For<IAsyncCursor<int>>();
-            cursor.MoveNextAsync().ReturnsForAnyArgs(Task.FromResult(false));
-            cursor.Current.Returns((IEnumerable<int>)null);
-            return Task.FromResult(cursor);
+            var mockCursor = new Mock<IAsyncCursor<int>>();
+            mockCursor.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(false));
+            mockCursor.SetupGet(c => c.Current).Returns((IEnumerable<int>)null);
+            return Task.FromResult(mockCursor.Object);
         }
 
         private Task<IAsyncCursor<int>> SetupNoResultInTwoBatches()
         {
-            var cursor = Substitute.For<IAsyncCursor<int>>();
-            cursor.MoveNextAsync().ReturnsForAnyArgs(Task.FromResult(true), Task.FromResult(false));
-            cursor.Current.Returns(new List<int>(), null);
-            return Task.FromResult(cursor);
+            var mockCursor = new Mock<IAsyncCursor<int>>();
+            mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns(null);
+            return Task.FromResult(mockCursor.Object);
         }
     }
 }

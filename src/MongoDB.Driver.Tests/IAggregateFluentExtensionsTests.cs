@@ -22,7 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Bindings;
@@ -39,9 +39,9 @@ namespace MongoDB.Driver.Tests
         public void First_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IAggregateFluent<Person>>();
-            var subject2 = Substitute.For<IAggregateFluent<Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IAggregateFluent<Person>>();
+            var mockSubject2 = new Mock<IAggregateFluent<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" },
@@ -49,27 +49,27 @@ namespace MongoDB.Driver.Tests
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(1).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.FirstAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.FirstAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.First(cancellationToken);
+                result = mockSubject1.Object.First(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -97,9 +97,9 @@ namespace MongoDB.Driver.Tests
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IAggregateFluent<Person>>();
-            var subject2 = Substitute.For<IAggregateFluent<Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IAggregateFluent<Person>>();
+            var mockSubject2 = new Mock<IAggregateFluent<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" },
@@ -107,27 +107,27 @@ namespace MongoDB.Driver.Tests
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(1).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.FirstOrDefault(cancellationToken);
+                result = mockSubject1.Object.FirstOrDefault(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -236,36 +236,36 @@ namespace MongoDB.Driver.Tests
         public void Single_should_add_limit_and_call_ToCursor(
            [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IAggregateFluent<Person>>();
-            var subject2 = Substitute.For<IAggregateFluent<Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IAggregateFluent<Person>>();
+            var mockSubject2 = new Mock<IAggregateFluent<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" }
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(2).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.SingleAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.SingleAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.Single(cancellationToken);
+                result = mockSubject1.Object.Single(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -293,36 +293,35 @@ namespace MongoDB.Driver.Tests
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IAggregateFluent<Person>>();
-            var subject2 = Substitute.For<IAggregateFluent<Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IAggregateFluent<Person>>();
+            var mockSubject2 = new Mock<IAggregateFluent<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" }
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(2).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
-
+                result = mockSubject1.Object.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.SingleOrDefault(cancellationToken);
+                result = mockSubject1.Object.SingleOrDefault(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -530,29 +529,20 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(expectedLast, last);
         }
 
-        private IAggregateFluent<Person> CreateSubject(
-            CancellationToken cancellationToken = default(CancellationToken),
-            IAsyncCursor<Person> cursor = null)
+        private IAggregateFluent<Person> CreateSubject(CancellationToken cancellationToken = default(CancellationToken))
         {
             var collection = CreateCollection<Person>();
-            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<IPipelineStageDefinition>(), new AggregateOptions());
-            if (cursor != null)
-            {
-                subject.ToCursor(cancellationToken).Returns(cursor);
-                subject.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-            }
-
-            return subject;
+            return new AggregateFluent<Person, Person>(collection, Enumerable.Empty<IPipelineStageDefinition>(), new AggregateOptions());
         }
 
         private IMongoCollection<T> CreateCollection<T>()
         {
             var settings = new MongoCollectionSettings();
-            var collection = Substitute.For<IMongoCollection<T>>();
-            collection.CollectionNamespace.Returns(new CollectionNamespace(new DatabaseNamespace("test"), typeof(T).Name));
-            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<T>());
-            collection.Settings.Returns(settings);
-            return collection;
+            var mockCollection = new Mock<IMongoCollection<T>>();
+            mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), typeof(T).Name));
+            mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<T>());
+            mockCollection.SetupGet(c => c.Settings).Returns(settings);
+            return mockCollection.Object;
         }
 
         private IAsyncCursor<Person> CreateCursor(params Person[] persons)
@@ -560,7 +550,7 @@ namespace MongoDB.Driver.Tests
             var firstBatch = persons ?? new Person[0];
 
             return new AsyncCursor<Person>(
-                Substitute.For<IChannelSource>(),
+                new Mock<IChannelSource>().Object,
                 new CollectionNamespace(new DatabaseNamespace("foo"), "bar"),
                 new BsonDocument(),
                 firstBatch,

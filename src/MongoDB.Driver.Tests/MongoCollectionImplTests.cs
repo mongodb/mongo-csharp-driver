@@ -30,7 +30,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Tests;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -55,10 +55,10 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(dbSettings);
 
             return new MongoCollectionImpl<TDocument>(
-                Substitute.For<IMongoDatabase>(),
+                new Mock<IMongoDatabase>().Object,
                 new CollectionNamespace("foo", "bar"),
                 settings,
-                Substitute.For<ICluster>(),
+                new Mock<ICluster>().Object,
                 _operationExecutor);
         }
 
@@ -99,8 +99,8 @@ namespace MongoDB.Driver
                 UseCursor = false
             };
 
-            var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
 
             var subject = CreateSubject<BsonDocument>();
 
@@ -167,8 +167,8 @@ namespace MongoDB.Driver
             writeOperation.MaxTime.Should().Be(options.MaxTime);
             writeOperation.Pipeline.Should().HaveCount(2);
 
-            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
 
             if (async)
             {
@@ -567,8 +567,8 @@ namespace MongoDB.Driver
                 Sort = sort
             };
 
-            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
 
             var subject = CreateSubject<BsonDocument>();
 
@@ -628,8 +628,8 @@ namespace MongoDB.Driver
                 Sort = sort
             };
 
-            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
 
             var subject = CreateSubject<BsonDocument>();
 

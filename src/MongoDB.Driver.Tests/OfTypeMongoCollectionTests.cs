@@ -26,7 +26,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -36,6 +36,8 @@ namespace MongoDB.Driver.Tests
         private BsonDocument _ofTypeFilter;
         private BsonDocument _expectedFilter;
         private BsonDocument _providedFilter;
+        private Mock<IMongoCollection<A>> _mockRootCollection;
+        private Mock<IMongoCollection<B>> _mockDerivedCollection;
         private IMongoCollection<A> _rootCollection;
         private IMongoCollection<B> _derivedCollection;
 
@@ -45,12 +47,14 @@ namespace MongoDB.Driver.Tests
             _providedFilter = new BsonDocument("PropB", 4);
             _expectedFilter = new BsonDocument("_t", "B").Add("PropB", 4);
 
-            _rootCollection = Substitute.For<IMongoCollection<A>>();
-            _rootCollection.CollectionNamespace.Returns(CollectionNamespace.FromFullName("foo.bar"));
-            _rootCollection.Settings.Returns(new MongoCollectionSettings());
-            _derivedCollection = Substitute.For<IMongoCollection<B>>();
-            _derivedCollection.CollectionNamespace.Returns(CollectionNamespace.FromFullName("foo.bar"));
-            _derivedCollection.Settings.Returns(new MongoCollectionSettings());
+            _mockRootCollection = new Mock<IMongoCollection<A>>();
+            _mockRootCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            _mockRootCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+            _mockDerivedCollection = new Mock<IMongoCollection<B>>();
+            _mockDerivedCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            _mockDerivedCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+            _rootCollection = _mockRootCollection.Object;
+            _derivedCollection = _mockDerivedCollection.Object;
         }
 
         [Theory]
@@ -65,19 +69,23 @@ namespace MongoDB.Driver.Tests
             {
                 subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
-                _derivedCollection.Received().AggregateAsync(
-                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.AggregateAsync(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.Aggregate<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
-                _derivedCollection.Received().Aggregate(
-                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.Aggregate(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -94,20 +102,24 @@ namespace MongoDB.Driver.Tests
                 subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
                 var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
-                _derivedCollection.Received().AggregateAsync(
-                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.AggregateAsync(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.Aggregate<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
                 var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
-                _derivedCollection.Received().Aggregate(
-                    Arg.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.Aggregate(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -124,21 +136,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWriteAsync(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWriteAsync(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWrite(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWrite(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -155,21 +171,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWriteAsync(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWriteAsync(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWrite(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWrite(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -187,25 +207,29 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWriteAsync(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            m.Replacement == model.Replacement &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWriteAsync(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                m.Replacement == model.Replacement &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWrite(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            m.Replacement == model.Replacement &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWrite(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                m.Replacement == model.Replacement &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -222,25 +246,29 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWriteAsync(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWriteAsync(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWrite(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWrite(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -257,25 +285,29 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWriteAsync(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWriteAsync(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _derivedCollection.Received().BulkWrite(
-                    Arg.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                        .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                            RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                            m.IsUpsert == model.IsUpsert).Count() == 1),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.BulkWrite(
+                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -291,19 +323,23 @@ namespace MongoDB.Driver.Tests
             {
                 subject.CountAsync(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().CountAsync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.CountAsync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.Count(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().Count(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.Count(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -319,21 +355,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().DistinctAsync(
-                    Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.DistinctAsync(
+                        It.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.Distinct(x => x.PropA, _providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().Distinct(
-                    Arg.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.Distinct(
+                        It.Is<FieldDefinition<B, int>>(f => RenderField(f).Equals("PropA")),
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -349,19 +389,23 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindAsync(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindAsync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindAsync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.FindSync(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindSync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindSync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -377,19 +421,23 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndDeleteAsync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndDeleteAsync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndDelete(_providedFilter, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndDelete(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndDelete(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -406,21 +454,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndReplaceAsync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    replacement,
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndReplaceAsync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        replacement,
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndReplace(_providedFilter, replacement, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndReplace(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    replacement,
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndReplace(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        replacement,
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -437,21 +489,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndUpdateAsync(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndUpdateAsync(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        It.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndUpdate(_providedFilter, update, options, CancellationToken.None);
 
-                _derivedCollection.Received().FindOneAndUpdate(
-                    Arg.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                    Arg.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
-                    options,
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.FindOneAndUpdate(
+                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                        It.Is<UpdateDefinition<B>>(u => RenderUpdate(u).Equals(BsonDocument.Parse("{$set: {x: 5}}"))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -466,21 +522,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
 
-                _derivedCollection.Received().MapReduceAsync(
-                    "map",
-                    "reduce",
-                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.MapReduceAsync(
+                        "map",
+                        "reduce",
+                        It.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.MapReduce<B>("map", "reduce", null, CancellationToken.None);
 
-                _derivedCollection.Received().MapReduce(
-                    "map",
-                    "reduce",
-                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.MapReduce(
+                        "map",
+                        "reduce",
+                        It.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -499,21 +559,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
 
-                _derivedCollection.Received().MapReduceAsync(
-                    "map",
-                    "reduce",
-                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.MapReduceAsync(
+                        "map",
+                        "reduce",
+                        It.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 subject.MapReduce("map", "reduce", options, CancellationToken.None);
 
-                _derivedCollection.Received().MapReduce(
-                    "map",
-                    "reduce",
-                    Arg.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
-                    CancellationToken.None);
+                _mockDerivedCollection.Verify(
+                    c => c.MapReduce(
+                        "map",
+                        "reduce",
+                        It.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_expectedFilter)),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -524,8 +588,8 @@ namespace MongoDB.Driver.Tests
 
             subject.OfType<C>();
 
-            _rootCollection.Received().OfType<C>();
-            _derivedCollection.DidNotReceive().OfType<C>();
+            _mockRootCollection.Verify(c => c.OfType<C>(), Times.Once);
+            _mockDerivedCollection.Verify(c => c.OfType<C>(), Times.Never);
         }
 
         private OfTypeMongoCollection<A, B> CreateSubject()

@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Translators;
 using FluentAssertions;
-using NSubstitute;
+using Moq;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 
@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Tests
         public void First_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
-            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IFindFluent<Person, Person>>();
+            var mockSubject2 = new Mock<IFindFluent<Person, Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" },
@@ -46,27 +46,27 @@ namespace MongoDB.Driver.Tests
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(1).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.FirstAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.FirstAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.First(cancellationToken);
+                result = mockSubject1.Object.First(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -94,9 +94,9 @@ namespace MongoDB.Driver.Tests
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
-            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockSubject1 = new Mock<IFindFluent<Person, Person>>();
+            var mockSubject2 = new Mock<IFindFluent<Person, Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" },
@@ -104,27 +104,27 @@ namespace MongoDB.Driver.Tests
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Limit(1).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.FirstOrDefault(cancellationToken);
+                result = mockSubject1.Object.FirstOrDefault(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -185,38 +185,37 @@ namespace MongoDB.Driver.Tests
         public void Single_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
-            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var mockSubject1 = new Mock<IFindFluent<Person, Person>>();
+            var mockSubject2 = new Mock<IFindFluent<Person, Person>>();
             var findOptions = new FindOptions<Person, Person>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" }
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Options.Returns(findOptions);
-            subject1.Limit(2).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.SetupGet(s => s.Options).Returns(findOptions);
+            mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.SingleAsync(cancellationToken).GetAwaiter().GetResult();
-
+                result = mockSubject1.Object.SingleAsync(cancellationToken).GetAwaiter().GetResult();
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.Single(cancellationToken);
+                result = mockSubject1.Object.Single(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -244,38 +243,38 @@ namespace MongoDB.Driver.Tests
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
-            var subject1 = Substitute.For<IFindFluent<Person, Person>>();
-            var subject2 = Substitute.For<IFindFluent<Person, Person>>();
+            var mockSubject1 = new Mock<IFindFluent<Person, Person>>();
+            var mockSubject2 = new Mock<IFindFluent<Person, Person>>();
             var findOptions = new FindOptions<Person, Person>();
-            var cursor = Substitute.For<IAsyncCursor<Person>>();
+            var mockCursor = new Mock<IAsyncCursor<Person>>();
             var firstBatch = new Person[]
             {
                 new Person { FirstName = "John" }
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            subject1.Options.Returns(findOptions);
-            subject1.Limit(2).Returns(subject2);
-            cursor.Current.Returns(firstBatch);
+            mockSubject1.SetupGet(s => s.Options).Returns(findOptions);
+            mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
+            mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
 
             Person result;
             if (async)
             {
-                subject2.ToCursorAsync(cancellationToken).Returns(Task.FromResult(cursor));
-                cursor.MoveNextAsync(cancellationToken).Returns(Task.FromResult(true));
+                mockSubject2.Setup(s => s.ToCursorAsync(cancellationToken)).Returns(Task.FromResult(mockCursor.Object));
+                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-                result = subject1.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
+                result = mockSubject1.Object.SingleOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
 
             }
             else
             {
-                subject2.ToCursor(cancellationToken).Returns(cursor);
-                cursor.MoveNext(cancellationToken).Returns(true);
+                mockSubject2.Setup(s => s.ToCursor(cancellationToken)).Returns(mockCursor.Object);
+                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
 
-                result = subject1.SingleOrDefault(cancellationToken);
+                result = mockSubject1.Object.SingleOrDefault(cancellationToken);
             }
 
-            result.FirstName = "John";
+            result.FirstName.Should().Be("John");
         }
 
         [Theory]
@@ -388,12 +387,10 @@ namespace MongoDB.Driver.Tests
         private IFindFluent<Person, Person> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
-            var collection = Substitute.For<IMongoCollection<Person>>();
-            collection.Settings.Returns(settings);
+            var mockCollection = new Mock<IMongoCollection<Person>>();
+            mockCollection.SetupGet(c => c.Settings).Returns(settings);
             var options = new FindOptions<Person, Person>();
-            var subject = new FindFluent<Person, Person>(collection, new BsonDocument(), options);
-
-            return subject;
+            return new FindFluent<Person, Person>(mockCollection.Object, new BsonDocument(), options);
         }
 
         public class Person

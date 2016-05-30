@@ -20,14 +20,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
     public class FindFluentTests
     {
-        private IMongoCollection<Person> _collection;
+        private Mock<IMongoCollection<Person>> _mockCollection;
 
         [Theory]
         [ParameterAttributeData]
@@ -50,19 +50,23 @@ namespace MongoDB.Driver.Tests
             {
                 result.ToCursorAsync().GetAwaiter().GetResult();
 
-                _collection.Received().FindAsync<BsonDocument>(
-                    subject.Filter,
-                    Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.FindAsync<BsonDocument>(
+                        subject.Filter,
+                        It.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 result.ToCursor();
 
-                _collection.Received().FindSync<BsonDocument>(
-                    subject.Filter,
-                    Arg.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.FindSync<BsonDocument>(
+                        subject.Filter,
+                        It.Is<FindOptions<Person, BsonDocument>>(options => hasExpectedProjection(options)),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -93,19 +97,23 @@ namespace MongoDB.Driver.Tests
             {
                 subject.CountAsync().GetAwaiter().GetResult();
 
-                _collection.Received().CountAsync(
-                    subject.Filter,
-                    Arg.Is<CountOptions>(o => countOptionsPredicate(o)),
-                    Arg.Any<CancellationToken>());
+                _mockCollection.Verify(
+                    c => c.CountAsync(
+                        subject.Filter,
+                        It.Is<CountOptions>(o => countOptionsPredicate(o)),
+                        It.IsAny<CancellationToken>()),
+                    Times.Once);
             }
             else
             {
                 subject.Count();
 
-                _collection.Received().Count(
-                    subject.Filter,
-                    Arg.Is<CountOptions>(o => countOptionsPredicate(o)),
-                    Arg.Any<CancellationToken>());
+                _mockCollection.Verify(
+                    c => c.Count(
+                        subject.Filter,
+                        It.Is<CountOptions>(o => countOptionsPredicate(o)),
+                        It.IsAny<CancellationToken>()),
+                    Times.Once);
             }
         }
 
@@ -145,11 +153,11 @@ namespace MongoDB.Driver.Tests
         private IFindFluent<Person, Person> CreateSubject(FindOptions<Person, Person> options = null)
         {
             var settings = new MongoCollectionSettings();
-            _collection = Substitute.For<IMongoCollection<Person>>();
-            _collection.DocumentSerializer.Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
-            _collection.Settings.Returns(settings);
+            _mockCollection = new Mock<IMongoCollection<Person>>();
+            _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
+            _mockCollection.SetupGet(c => c.Settings).Returns(settings);
             options = options ?? new FindOptions<Person, Person>();
-            var subject = new FindFluent<Person, Person>(_collection, new BsonDocument(), options);
+            var subject = new FindFluent<Person, Person>(_mockCollection.Object, new BsonDocument(), options);
 
             return subject;
         }

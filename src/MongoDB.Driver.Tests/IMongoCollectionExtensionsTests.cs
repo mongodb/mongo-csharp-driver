@@ -16,10 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -31,7 +32,8 @@ namespace MongoDB.Driver.Tests
         public void Aggregate_should_call_collection_AggregateAsync_with_correct_options(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             var expectedPipeline = new BsonDocument[]
             { 
@@ -42,12 +44,12 @@ namespace MongoDB.Driver.Tests
             };
 
             var fluent = subject.Aggregate(new AggregateOptions
-            {
-                AllowDiskUse = true,
-                BatchSize = 10,
-                MaxTime = TimeSpan.FromSeconds(3),
-                UseCursor = false
-            })
+                {
+                    AllowDiskUse = true,
+                    BatchSize = 10,
+                    MaxTime = TimeSpan.FromSeconds(3),
+                    UseCursor = false
+                })
                 .Match("{x: 2}")
                 .Project("{ Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 }")
                 .Group("{ _id : \"$Age\", Name : { \"$first\" : \"$Name\" } }")
@@ -58,19 +60,27 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.AggregateAsync(
-                    Arg.Do<PipelineStagePipelineDefinition<Person, BsonDocument>>(x => actualPipeline = x),
-                    Arg.Do<AggregateOptions>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.AggregateAsync(It.IsAny<PipelineDefinition<Person, BsonDocument>>(), It.IsAny<AggregateOptions>(), It.IsAny<CancellationToken>()))
+                    .Callback((PipelineDefinition<Person, BsonDocument> pipeline, AggregateOptions options, CancellationToken cancellationToken) =>
+                    {
+                        actualPipeline = pipeline;
+                        actualOptions = options;
+                    })
+                    .Returns(Task.FromResult(new Mock<IAsyncCursor<BsonDocument>>().Object));
 
                 fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                subject.Aggregate(
-                    Arg.Do<PipelineStagePipelineDefinition<Person, BsonDocument>>(x => actualPipeline = x),
-                    Arg.Do<AggregateOptions>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.Aggregate(It.IsAny<PipelineDefinition<Person, BsonDocument>>(), It.IsAny<AggregateOptions>(), It.IsAny<CancellationToken>()))
+                    .Callback((PipelineDefinition<Person, BsonDocument> pipeline, AggregateOptions options, CancellationToken cancellationToken) =>
+                    {
+                        actualPipeline = pipeline;
+                        actualOptions = options;
+                    })
+                    .Returns(new Mock<IAsyncCursor<BsonDocument>>().Object);
 
                 fluent.ToCursor(CancellationToken.None);
             }
@@ -89,17 +99,18 @@ namespace MongoDB.Driver.Tests
         public void Count_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             if (async)
             {
                 subject.CountAsync(x => x.FirstName == "Jack");
-                subject.Received().CountAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(s => s.CountAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.Count(x => x.FirstName == "Jack");
-                subject.Received().Count(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(s => s.Count(It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)), Times.Once);
             }
         }
 
@@ -108,17 +119,18 @@ namespace MongoDB.Driver.Tests
         public void DeleteMany_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             if (async)
             {
                 subject.DeleteManyAsync(x => x.FirstName == "Jack");
-                subject.Received().DeleteManyAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+                mockSubject.Verify(s => s.DeleteManyAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.DeleteMany(x => x.FirstName == "Jack");
-                subject.Received().DeleteMany(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+                mockSubject.Verify(s => s.DeleteMany(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
             }
         }
 
@@ -127,17 +139,18 @@ namespace MongoDB.Driver.Tests
         public void DeleteOne_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             if (async)
             {
                 subject.DeleteOneAsync(x => x.FirstName == "Jack");
-                subject.Received().DeleteOneAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+                mockSubject.Verify(s => s.DeleteOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.DeleteOne(x => x.FirstName == "Jack");
-                subject.Received().DeleteOne(Arg.Any<ExpressionFilterDefinition<Person>>(), default(CancellationToken));
+                mockSubject.Verify(s => s.DeleteOne(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
             }
         }
 
@@ -146,17 +159,22 @@ namespace MongoDB.Driver.Tests
         public void Distinct_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             if (async)
             {
                 subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
-                subject.Received().DistinctAsync(Arg.Any<ExpressionFieldDefinition<Person, string>>(), Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.DistinctAsync(It.IsAny<ExpressionFieldDefinition<Person, string>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.Distinct(x => x.LastName, x => x.FirstName == "Jack");
-                subject.Received().Distinct(Arg.Any<ExpressionFieldDefinition<Person, string>>(), Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.Distinct(It.IsAny<ExpressionFieldDefinition<Person, string>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -165,7 +183,8 @@ namespace MongoDB.Driver.Tests
         public void ToCursor_should_call_collection_Find_with_correct_options(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
@@ -193,19 +212,27 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindAsync(
-                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.FindAsync(It.IsAny<FilterDefinition<Person>>(), It.IsAny<FindOptions<Person, BsonDocument>>(), It.IsAny<CancellationToken>()))
+                    .Callback((FilterDefinition<Person> filterArg, FindOptions<Person, BsonDocument> optionsArg, CancellationToken cancellationToken) =>
+                    {
+                        actualFilter = filterArg;
+                        actualOptions = optionsArg;
+                    })
+                    .Returns(Task.FromResult(new Mock<IAsyncCursor<BsonDocument>>().Object));
 
                 fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                subject.FindSync(
-                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.FindSync(It.IsAny<FilterDefinition<Person>>(), It.IsAny<FindOptions<Person, BsonDocument>>(), It.IsAny<CancellationToken>()))
+                    .Callback((FilterDefinition<Person> filterArg, FindOptions<Person, BsonDocument> optionsArg, CancellationToken cancellationToken) =>
+                    {
+                        actualFilter = filterArg;
+                        actualOptions = optionsArg;
+                    })
+                    .Returns(new Mock<IAsyncCursor<BsonDocument>>().Object);
 
                 fluent.ToCursor(CancellationToken.None);
             }
@@ -231,7 +258,8 @@ namespace MongoDB.Driver.Tests
         public void ToCursor_with_an_expression_should_call_collection_FindAsync_with_correct_options(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var filter = BsonDocument.Parse("{Age:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
@@ -259,19 +287,27 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindAsync(
-                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.FindAsync(It.IsAny<FilterDefinition<Person>>(), It.IsAny<FindOptions<Person, BsonDocument>>(), It.IsAny<CancellationToken>()))
+                    .Callback((FilterDefinition<Person> filterArg, FindOptions<Person, BsonDocument> optionsArg, CancellationToken cancellationToken) =>
+                    {
+                        actualFilter = filterArg;
+                        actualOptions = optionsArg;
+                    })
+                    .Returns(Task.FromResult(new Mock<IAsyncCursor<BsonDocument>>().Object));
 
                 fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                subject.FindSync(
-                    Arg.Do<FilterDefinition<Person>>(x => actualFilter = x),
-                    Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
-                    Arg.Any<CancellationToken>());
+                mockSubject
+                    .Setup(s => s.FindSync(It.IsAny<FilterDefinition<Person>>(), It.IsAny<FindOptions<Person, BsonDocument>>(), It.IsAny<CancellationToken>()))
+                    .Callback((FilterDefinition<Person> filterArg, FindOptions<Person, BsonDocument> optionsArg, CancellationToken cancellationToken) =>
+                    {
+                        actualFilter = filterArg;
+                        actualOptions = optionsArg;
+                    })
+                    .Returns(new Mock<IAsyncCursor<BsonDocument>>().Object);
 
                 fluent.ToCursor(CancellationToken.None);
             }
@@ -298,19 +334,20 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndDelete_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
 
             if (async)
             {
                 subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
-                subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(s => s.FindOneAndDeleteAsync<Person>(It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.FindOneAndDelete(x => x.FirstName == "Jack");
 
-                subject.Received().FindOneAndDelete<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken));
+                mockSubject.Verify(s => s.FindOneAndDelete<Person>(It.IsAny<ExpressionFilterDefinition<Person>>(), null, default(CancellationToken)), Times.Once);
             }
         }
 
@@ -319,20 +356,21 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndDelete_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var options = new FindOneAndDeleteOptions<Person, BsonDocument>();
 
             if (async)
             {
                 subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
-                subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken));
+                mockSubject.Verify(s => s.FindOneAndDeleteAsync<BsonDocument>(It.IsAny<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.FindOneAndDelete(x => x.FirstName == "Jack", options);
 
-                subject.Received().FindOneAndDelete<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken));
+                mockSubject.Verify(s => s.FindOneAndDelete<BsonDocument>(It.IsAny<ExpressionFilterDefinition<Person>>(), options, default(CancellationToken)), Times.Once);
             }
         }
 
@@ -341,20 +379,25 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndReplace_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var replacement = new Person();
 
             if (async)
             {
                 subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
-                subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndReplaceAsync<Person>(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndReplace(x => x.FirstName == "Jack", replacement);
 
-                subject.Received().FindOneAndReplace<Person>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndReplace<Person>(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -363,7 +406,8 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndReplaceAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var replacement = new Person();
             var options = new FindOneAndReplaceOptions<Person, BsonDocument>();
 
@@ -371,13 +415,17 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
-                subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndReplaceAsync<BsonDocument>(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndReplace(x => x.FirstName == "Jack", replacement, options);
 
-                subject.Received().FindOneAndReplace<BsonDocument>(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndReplace<BsonDocument>(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -386,28 +434,33 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndUpdateAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var update = new BsonDocument();
 
             if (async)
             {
                 subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-                subject.Received().FindOneAndUpdateAsync<Person>(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndUpdateAsync<Person>(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndUpdate(x => x.FirstName == "Jack", update);
 
-                subject.Received().FindOneAndUpdate<Person>(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndUpdate<Person>(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -416,7 +469,8 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var update = new BsonDocument();
             var options = new FindOneAndUpdateOptions<Person, BsonDocument>();
 
@@ -424,21 +478,25 @@ namespace MongoDB.Driver.Tests
             {
                 subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
-                subject.Received().FindOneAndUpdateAsync<BsonDocument>(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    options,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndUpdateAsync<BsonDocument>(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        options,
+                        default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.FindOneAndUpdate(x => x.FirstName == "Jack", update, options);
 
-                subject.Received().FindOneAndUpdate<BsonDocument>(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    options,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.FindOneAndUpdate<BsonDocument>(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        options,
+                        default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -447,20 +505,21 @@ namespace MongoDB.Driver.Tests
         public void ReplaceOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var replacement = new Person();
 
             if (async)
             {
                 subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
 
-                subject.Received().ReplaceOneAsync(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+                mockSubject.Verify(s => s.ReplaceOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.ReplaceOne(x => x.FirstName == "Jack", replacement);
 
-                subject.Received().ReplaceOne(Arg.Any<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken));
+                mockSubject.Verify(s => s.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, null, default(CancellationToken)), Times.Once);
             }
         }
 
@@ -469,28 +528,33 @@ namespace MongoDB.Driver.Tests
         public void UpdateManyAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var update = new BsonDocument();
 
             if (async)
             {
                 subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
-                subject.Received().UpdateManyAsync(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.UpdateManyAsync(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.UpdateMany(x => x.FirstName == "Jack", update);
 
-                subject.Received().UpdateMany(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.UpdateMany(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -499,28 +563,33 @@ namespace MongoDB.Driver.Tests
         public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
             var update = new BsonDocument();
 
             if (async)
             {
                 subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
-                subject.Received().UpdateOneAsync(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.UpdateOneAsync(
+                    It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
             else
             {
                 subject.UpdateOne(x => x.FirstName == "Jack", update);
 
-                subject.Received().UpdateOne(
-                    Arg.Any<ExpressionFilterDefinition<Person>>(),
-                    Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
-                    null,
-                    default(CancellationToken));
+                mockSubject.Verify(
+                    s => s.UpdateOne(
+                        It.IsAny<ExpressionFilterDefinition<Person>>(),
+                        It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
+                        null,
+                        default(CancellationToken)),
+                    Times.Once);
             }
         }
 
@@ -529,14 +598,13 @@ namespace MongoDB.Driver.Tests
             return o.ToBsonDocument().Equals(doc);
         }
 
-        private IMongoCollection<Person> CreateSubject()
+        private Mock<IMongoCollection<Person>> CreateMockSubject()
         {
             var settings = new MongoCollectionSettings();
-            var subject = Substitute.For<IMongoCollection<Person>>();
-            subject.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
-            subject.Settings.Returns(settings);
-
-            return subject;
+            var mockSubject = new Mock<IMongoCollection<Person>> { DefaultValue = DefaultValue.Mock };
+            mockSubject.SetupGet(s => s.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<Person>());
+            mockSubject.SetupGet(s => s.Settings).Returns(settings);
+            return mockSubject;
         }
 
         public class Person

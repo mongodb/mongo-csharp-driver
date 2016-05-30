@@ -20,14 +20,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
     public class AggregateFluentTests
     {
-        private IMongoCollection<C> _collection;
+        private Mock<IMongoCollection<C>> _mockCollection;
 
         [Theory]
         [ParameterAttributeData]
@@ -53,20 +53,24 @@ namespace MongoDB.Driver.Tests
             {
                 result.ToCursorAsync().GetAwaiter().GetResult();
 
-                _collection.Received().AggregateAsync<BsonDocument>(
-                    Arg.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<BsonDocument>(
+                        It.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 result.ToCursor();
 
-                _collection.Received().Aggregate<BsonDocument>(
-                    Arg.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
-            }
+                _mockCollection.Verify(
+                    c => c.Aggregate<BsonDocument>(
+                        It.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+                }
         }
 
         [Theory]
@@ -96,19 +100,23 @@ namespace MongoDB.Driver.Tests
             {
                 result.ToCursorAsync().GetAwaiter().GetResult();
 
-                _collection.Received().AggregateAsync<D>(
-                    Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<D>(
+                        It.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 result.ToCursor();
 
-                _collection.Received().Aggregate<D>(
-                    Arg.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.Aggregate<D>(
+                        It.Is<PipelineDefinition<C, D>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -137,19 +145,23 @@ namespace MongoDB.Driver.Tests
             {
                 cursor = subject.OutAsync(collectionName, CancellationToken.None).GetAwaiter().GetResult();
 
-                _collection.Received().AggregateAsync<C>(
-                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 cursor = subject.Out(collectionName, CancellationToken.None);
 
-                _collection.Received().Aggregate<C>(
-                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.Aggregate<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -176,19 +188,23 @@ namespace MongoDB.Driver.Tests
             {
                 cursor = subject.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _collection.Received().AggregateAsync<C>(
-                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
             else
             {
                 cursor = subject.ToCursor(CancellationToken.None);
 
-                _collection.Received().Aggregate<C>(
-                    Arg.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                    Arg.Any<AggregateOptions>(),
-                    CancellationToken.None);
+                _mockCollection.Verify(
+                    c => c.Aggregate<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
             }
         }
 
@@ -196,11 +212,11 @@ namespace MongoDB.Driver.Tests
         private IAggregateFluent<C> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
-            _collection = Substitute.For<IMongoCollection<C>>();
-            _collection.DocumentSerializer.Returns(BsonSerializer.SerializerRegistry.GetSerializer<C>());
-            _collection.Settings.Returns(settings);
+            _mockCollection = new Mock<IMongoCollection<C>>();
+            _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<C>());
+            _mockCollection.SetupGet(c => c.Settings).Returns(settings);
             var options = new AggregateOptions();
-            var subject = new AggregateFluent<C, C>(_collection, Enumerable.Empty<IPipelineStageDefinition>(), options);
+            var subject = new AggregateFluent<C, C>(_mockCollection.Object, Enumerable.Empty<IPipelineStageDefinition>(), options);
 
             return subject;
         }
