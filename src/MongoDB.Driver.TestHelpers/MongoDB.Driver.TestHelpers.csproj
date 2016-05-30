@@ -43,17 +43,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MongoDB.Bson.TestHelpers.NUnit\MongoDB.Bson.TestHelpers.NUnit.csproj">
-      <Project>{b2ed9e44-0e42-41ae-a018-122691f39ccc}</Project>
-      <Name>MongoDB.Bson.TestHelpers.NUnit</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers.NUnit\MongoDB.Driver.Core.TestHelpers.NUnit.csproj">
-      <Project>{26c8e1f2-d859-4ed0-a1a7-de0b32f81084}</Project>
-      <Name>MongoDB.Driver.Core.TestHelpers.NUnit</Name>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
