@@ -21,18 +21,19 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    [TestFixture]
     public class AggregateGroupTranslatorTests : IntegrationTestBase
     {
-        [Test]
+        [Fact]
         public void Should_translate_using_non_anonymous_type_with_default_constructor()
         {
             var result = Group(x => x.A, g => new RootView { Property = g.Key, Field = g.First().B });
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Field.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_using_non_anonymous_type_with_parameterized_constructor()
         {
             var result = Group(x => x.A, g => new RootView(g.Key) { Field = g.First().B });
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Field.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_just_id()
         {
             var result = Group(x => x.A, g => new { _id = g.Key });
@@ -64,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value._id.Should().Be("Amazing");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_id_when_not_named_specifically()
         {
             var result = Group(x => x.A, g => new { Test = g.Key });
@@ -74,7 +75,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Test.Should().Be("Amazing");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_addToSet()
         {
             var result = Group(x => x.A, g => new { Result = new HashSet<int>(g.Select(x => x.C.E.F)) });
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_addToSet_using_Distinct()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Distinct() });
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_average_with_embedded_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Average(x => x.C.E.F) });
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_average_with_selected_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Average() });
@@ -114,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_count()
         {
             var result = Group(x => x.A, g => new { Result = g.Count() });
@@ -124,7 +125,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_long_count()
         {
             var result = Group(x => x.A, g => new { Result = g.LongCount() });
@@ -134,7 +135,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_first()
         {
             var result = Group(x => x.A, g => new { B = g.Select(x => x.B).First() });
@@ -144,7 +145,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.B.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_first_with_normalization()
         {
             var result = Group(x => x.A, g => new { g.First().B });
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.B.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_last()
         {
             var result = Group(x => x.A, g => new { B = g.Select(x => x.B).Last() });
@@ -164,7 +165,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.B.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_last_with_normalization()
         {
             var result = Group(x => x.A, g => new { g.Last().B });
@@ -174,7 +175,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.B.Should().Be("Baby");
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_an_exception_when_last_is_used_with_a_predicate()
         {
             Action act = () => Group(x => x.A, g => new { g.Last(x => x.A == "bin").B });
@@ -182,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             act.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_max_with_embedded_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Max(x => x.C.E.F) });
@@ -192,7 +193,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_max_with_selected_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Max() });
@@ -202,7 +203,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_min_with_embedded_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Min(x => x.C.E.F) });
@@ -212,7 +213,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_min_with_selected_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Min() });
@@ -222,7 +223,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_push_with_just_a_select()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F) });
@@ -232,7 +233,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_push_with_ToArray()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).ToArray() });
@@ -242,7 +243,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_push_with_new_list()
         {
             var result = Group(x => x.A, g => new { Result = new List<int>(g.Select(x => x.C.E.F)) });
@@ -252,7 +253,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_push_with_ToList()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).ToList() });
@@ -262,10 +263,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.7")]
+        [SkippableFact]
         public void Should_translate_stdDevPop_with_embedded_projector()
         {
+            RequireServer.Where(minimumVersion: "3.1.7");
+
             var result = Group(x => 1, g => new { Result = g.StandardDeviationPopulation(x => x.C.E.F) });
 
             result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
@@ -273,10 +275,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.7")]
+        [SkippableFact]
         public void Should_translate_stdDevPop_with_selected_projector()
         {
+            RequireServer.Where(minimumVersion: "3.1.7");
+
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationPopulation() });
 
             result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
@@ -284,10 +287,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.7")]
+        [SkippableFact]
         public void Should_translate_stdDevSamp_with_embedded_projector()
         {
+            RequireServer.Where(minimumVersion: "3.1.7");
+
             var result = Group(x => 1, g => new { Result = g.StandardDeviationSample(x => x.C.E.F) });
 
             result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
@@ -295,10 +299,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.7")]
+        [SkippableFact]
         public void Should_translate_stdDevSamp_with_selected_projector()
         {
+            RequireServer.Where(minimumVersion: "3.1.7");
+
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationSample() });
 
             result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
@@ -306,7 +311,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_sum_with_embedded_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Sum(x => x.C.E.F) });
@@ -316,7 +321,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_sum_with_selected_projector()
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Sum() });
@@ -326,7 +331,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_complex_selector()
         {
             var result = Group(x => x.A, g => new
@@ -349,7 +354,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Max.Should().Be(333);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_aggregate_expressions_with_user_provided_serializer_if_possible()
         {
             var result = Group(x => 1, g => new
@@ -369,7 +374,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             var group = new BsonDocument("$group", projectionInfo.Document);
             var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
-            var list = _collection.Aggregate<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)).ToList();
+            var list = __collection.Aggregate<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)).ToList();
 
             return new ProjectedResult<TResult>
             {

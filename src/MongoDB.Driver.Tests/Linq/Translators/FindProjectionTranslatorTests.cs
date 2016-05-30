@@ -22,14 +22,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Translators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    [TestFixture]
     public class FindProjectionTranslatorTests
     {
-        [Test]
+        [Fact]
         public void Should_not_translate_identity()
         {
             var result = Project(p => p, "{ _id: 0, A: \"Jack\", B: \"Awesome\" }");
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.B.Should().Be("Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Should_not_translate_when_identity_is_present()
         {
             var result = Project(p => new { P = p, Combined = p.A + " " + p.B }, "{ _id: 0, A: \"Jack\", B: \"Awesome\" }");
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Combined.Should().Be("Jack Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Should_include_id_if_specified()
         {
             var result = Project(p => new { p.Id, p.A }, "{ _id: 1, A: \"Jack\" }");
@@ -63,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.A.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_single_top_level_field()
         {
             var result = Project(p => p.A, "{ A: \"Jack\" }");
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_single_top_level_computed_field()
         {
             var result = Project(p => p.A + " " + p.B, "{ A: \"Jack\", B: \"Awesome\" }");
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().Be("Jack Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_single_top_level_field_with_an_operation()
         {
             var result = Project(p => p.A.ToLowerInvariant(), "{ A: \"Jack\" }");
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().Be("jack");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_new_expression_with_a_single_top_level_field()
         {
             var result = Project(p => new { p.A }, "{ A: \"Jack\" }");
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.A.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_new_expression_with_a_single_top_level_computed_field()
         {
             var result = Project(p => new { FullName = p.A + " " + p.B }, "{ A: \"Jack\", B: \"Awesome\" }");
@@ -113,7 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.FullName.Should().Be("Jack Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_when_a_top_level_field_is_repeated()
         {
             var result = Project(p => new { FirstName = p.A, FullName = p.A + " " + p.B }, "{ A: \"Jack\", B: \"Awesome\" }");
@@ -124,7 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.FullName.Should().Be("Jack Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_with_a_single_nested_field()
         {
             var result = Project(p => p.C.E.F, "{ C: { E: { F: 2 } } }");
@@ -134,7 +133,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_with_a_single_computed_nested_field()
         {
             var result = Project(p => p.C.E.F + 10, "{ C: { E: { F: 2 } } }");
@@ -144,7 +143,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().Be(12);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_with_a_hierarchical_redundancy()
         {
             var result = Project(p => new { p.C, F = p.C.E.F }, "{ C: { D: \"CEO\", E: { F: 2 } } }");
@@ -156,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.F.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_a_single_top_level_array()
         {
             var result = Project(p => p.G, "{ G: [{ D: \"Uno\", E : { F: 1 } }, { D: \"Dos\", E: { F: 2 } }] }");
@@ -170,7 +169,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.ElementAt(1).E.F.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_through_a_single_top_level_array_using_Select()
         {
             var result = Project(p => p.G.Select(x => x.D), "{ G: [{ D: \"Uno\" }, { D: \"Dos\" }] }");
@@ -182,7 +181,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.ElementAt(1).Should().Be("Dos");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_through_a_single_top_level_array_using_SelectMany()
         {
             var result = Project(p => p.G.SelectMany(x => x.E.I), "{ G: [{ E: { I: [\"a\", \"b\"] } }, { E: { I: [\"c\", \"d\"] } }] }");
@@ -193,7 +192,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Should().BeEquivalentTo("a", "b", "c", "d");
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_through_a_single_top_level_array_to_a_binary_operation()
         {
             var result = Project(p => p.G.Select(x => x.E.F + x.E.H), "{ G: [{ E: { F: 2, H: 3 } }, { E: { F: 6, H: 7 } }] }");
@@ -205,7 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.ElementAt(1).Should().Be(13);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_through_a_single_top_level_array_when_array_identity_is_present()
         {
             var result = Project(p => new { p.G, Sums = p.G.Select(x => x.E.F + x.E.H) }, "{ G: [{ D: \"Uno\", E: { F: 2, H: 3 } }, { D: \"Dos\", E: { F: 6, H: 7 } }] }");
@@ -219,7 +218,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Sums.ElementAt(1).Should().Be(13);
         }
 
-        [Test]
+        [Fact]
         public void Should_translate_with_a_parent_field_in_a_child_selector()
         {
             var result = Project(p => p.G.Select(x => new { A = p.A, D = x.D }), "{ A: \"Yay\", G: [{ D: \"Uno\" }, { D: \"Dos\" }] }");

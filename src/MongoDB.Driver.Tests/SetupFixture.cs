@@ -13,17 +13,18 @@
 * limitations under the License.
 */
 
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
-    [SetUpFixture]
-    public class SetUpFixture
-    {
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            CoreTestConfiguration.TearDown();
-        }
-    }
+    // TODO: is the an xUnit.net replacement for [SetUpFixture]?
+    //[SetUpFixture]
+    //public class SetUpFixture
+    //{
+    //    [OneTimeTearDown]
+    //    public void OneTimeTearDown()
+    //    {
+    //        CoreTestConfiguration.TearDown();
+    //    }
+    //}
 }

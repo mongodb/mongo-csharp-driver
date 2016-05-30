@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonMultiLineStringTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString2D()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString2DGeographic()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString2DProjected()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString2DWithExtraMembers()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString3D()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString3DGeographic()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString3DProjected()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiLineString3DWithExtraMembers()
         {
             var multiLineString = GeoJson.MultiLineString(
@@ -126,10 +126,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonMultiLineString<TCoordinates> multiLineString) where TCoordinates : GeoJsonCoordinates
         {
             var json = multiLineString.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonMultiLineString<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

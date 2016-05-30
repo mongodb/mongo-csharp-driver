@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Xunit;
 using FluentAssertions;
 using MongoDB.Driver.Linq.Translators;
 using MongoDB.Bson;
@@ -28,10 +28,9 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    [TestFixture]
     public class ProjectedObjectDeserializerTests
     {
-        [Test]
+        [Fact]
         public void Should_deserialize_top_level_fields()
         {
             var result = Deserialize("{a: 1, b: 2}",
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.GetValue<int>("b", null).Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_deserialize_unspecified_documents()
         {
             var result = Deserialize("{a: { b: 1, c: 2}}",
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.GetValue<int>("a.c", null).Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_deserialize_unspecified_arrays()
         {
             var result = Deserialize("{a: [{b: 1}, {b: 2}]}",

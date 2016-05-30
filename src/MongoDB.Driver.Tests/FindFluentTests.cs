@@ -19,17 +19,18 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class FindFluentTests
     {
         private IMongoCollection<Person> _collection;
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void As_should_change_the_result_type(
             [Values(false, true)] bool async)
         {
@@ -65,7 +66,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_call_collection_Count(
             [Values(false, true)] bool async)
         {
@@ -107,7 +109,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void ToString_should_return_the_correct_string()
         {
             var subject = CreateSubject();

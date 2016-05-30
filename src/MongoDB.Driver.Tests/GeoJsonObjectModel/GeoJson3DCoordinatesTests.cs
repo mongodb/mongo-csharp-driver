@@ -15,30 +15,30 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJson3DCoordinatesTests
     {
-        [Test]
+        [Fact]
         public void TestDeserializeDoubles()
         {
             var json = "[1.0, 2.0, 3.0]";
             var coordinates = BsonSerializer.Deserialize<GeoJson3DCoordinates>(json);
-            Assert.AreEqual(1.0, coordinates.X);
-            Assert.AreEqual(2.0, coordinates.Y);
-            Assert.AreEqual(3.0, coordinates.Z);
+            Assert.Equal(1.0, coordinates.X);
+            Assert.Equal(2.0, coordinates.Y);
+            Assert.Equal(3.0, coordinates.Z);
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeInts()
         {
             var json = "[1, 2, 3]";
             var coordinates = BsonSerializer.Deserialize<GeoJson3DCoordinates>(json);
-            Assert.AreEqual(1.0, coordinates.X);
-            Assert.AreEqual(2.0, coordinates.Y);
-            Assert.AreEqual(3.0, coordinates.Z);
+            Assert.Equal(1.0, coordinates.X);
+            Assert.Equal(2.0, coordinates.Y);
+            Assert.Equal(3.0, coordinates.Z);
         }
     }
 }

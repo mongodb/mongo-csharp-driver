@@ -17,16 +17,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoClientTests
     {
-        [Test]
+        [Fact]
         public void UsesSameClusterForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Tests
             var client2 = new MongoClient("mongodb://localhost");
             var cluster2 = client2.Cluster;
 
-            Assert.AreSame(cluster1, cluster2);
+            Assert.Same(cluster1, cluster2);
         }
 
-        [Test]
+        [Fact]
         public void UsesSameClusterWhenReadPreferenceTagsAreTheSame()
         {
             var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
@@ -47,10 +47,11 @@ namespace MongoDB.Driver.Tests
             var client2 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
             var cluster2 = client2.Cluster;
 
-            Assert.AreSame(cluster1, cluster2);
+            Assert.Same(cluster1, cluster2);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DropDatabase_should_invoke_the_correct_operation(
             [Values(false, true)] bool async)
         {
@@ -72,7 +73,8 @@ namespace MongoDB.Driver.Tests
             ((DropDatabaseOperation)call.Operation).DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ListDatabases_should_invoke_the_correct_operation(
             [Values(false, true)] bool async)
         {

@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonLinkedCoordinateReferenceSystemTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var crs = new GeoJsonLinkedCoordinateReferenceSystem("http://example.com/crs/42", "proj4");
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, (GeoJsonLinkedCoordinateReferenceSystem)crs);
         }
 
-        [Test]
+        [Fact]
         public void TestExampleFromSpecWithoutHRefType()
         {
             var crs = new GeoJsonLinkedCoordinateReferenceSystem("http://example.com/crs/42");
@@ -45,19 +45,19 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip(string expected, GeoJsonCoordinateReferenceSystem crs)
         {
             var json = crs.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonCoordinateReferenceSystem>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
 
         private void TestRoundTrip(string expected, GeoJsonLinkedCoordinateReferenceSystem crs)
         {
             var json = crs.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonLinkedCoordinateReferenceSystem>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

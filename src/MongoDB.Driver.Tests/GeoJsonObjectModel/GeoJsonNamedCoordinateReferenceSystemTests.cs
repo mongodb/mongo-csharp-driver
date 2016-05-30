@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonNamedCoordinateReferenceSystemTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var crs = new GeoJsonNamedCoordinateReferenceSystem("urn:ogc:def:crs:OGC:1.3:CRS84");
@@ -35,19 +35,19 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip(string expected, GeoJsonCoordinateReferenceSystem crs)
         {
             var json = crs.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonCoordinateReferenceSystem>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
 
         private void TestRoundTrip(string expected, GeoJsonNamedCoordinateReferenceSystem crs)
         {
             var json = crs.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonNamedCoordinateReferenceSystem>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

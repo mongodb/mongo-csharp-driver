@@ -14,30 +14,38 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
     public abstract class IntegrationTestBase
     {
-        protected IMongoCollection<Root> _collection;
-        protected IMongoCollection<Other> _otherCollection;
+        protected static IMongoCollection<Root> __collection;
+        protected static IMongoCollection<Other> __otherCollection;
+        private static ConcurrentDictionary<Type, bool> __oneTimeSetupTracker = new ConcurrentDictionary<Type, bool>();
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        protected IntegrationTestBase()
+        {
+            __oneTimeSetupTracker.GetOrAdd(GetType(), OneTimeSetup); // run OneTimeSetup once per subclass
+        }
+
+        private bool OneTimeSetup(Type type)
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            _otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
-            db.DropCollection(_collection.CollectionNamespace.CollectionName);
-            db.DropCollection(_collection.CollectionNamespace.CollectionName + "_other");
+            __collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            __otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
+            db.DropCollection(__collection.CollectionNamespace.CollectionName);
+            db.DropCollection(__collection.CollectionNamespace.CollectionName + "_other");
 
             InsertFirst();
             InsertSecond();
             InsertJoin();
+
+            return true;
         }
 
         private void InsertFirst()
@@ -97,7 +105,7 @@ namespace MongoDB.Driver.Tests.Linq
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
                 U = 1.23456571661743267789m
             };
-            _collection.InsertOne(root);
+            __collection.InsertOne(root);
         }
 
         private void InsertSecond()
@@ -147,13 +155,13 @@ namespace MongoDB.Driver.Tests.Linq
                 P = 1.1,
                 U = -1.234565723762724332233489m
             };
-            _collection.InsertOne(root);
+            __collection.InsertOne(root);
         }
 
 
         private void InsertJoin()
         {
-            _otherCollection.InsertOne(new Other
+            __otherCollection.InsertOne(new Other
             {
                 Id = 10, // will join with first
                 CEF = 111 // will join with second

@@ -15,14 +15,14 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonFeatureCollectionTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var featureCollection = GeoJson.FeatureCollection(
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, featureCollection);
         }
 
-        [Test]
+        [Fact]
         public void TestFeatureCollectionWithExtraMembers()
         {
             var collection = GeoJson.FeatureCollection(
@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonFeatureCollection<TCoordinates> featureCollection) where TCoordinates : GeoJsonCoordinates
         {
             var json = featureCollection.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonFeatureCollection<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

@@ -18,15 +18,16 @@ using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class IMongoCollectionExtensionsTests
     {
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aggregate_should_call_collection_AggregateAsync_with_correct_options(
             [Values(false, true)] bool async)
         {
@@ -83,7 +84,8 @@ namespace MongoDB.Driver.Tests
             actualOptions.UseCursor.Should().Be(fluent.Options.UseCursor);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -101,7 +103,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteMany_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -119,7 +122,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteOne_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -137,7 +141,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Distinct_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -155,7 +160,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ToCursor_should_call_collection_Find_with_correct_options(
             [Values(false, true)] bool async)
         {
@@ -220,7 +226,8 @@ namespace MongoDB.Driver.Tests
             actualOptions.Sort.Should().Be(fluent.Options.Sort);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ToCursor_with_an_expression_should_call_collection_FindAsync_with_correct_options(
             [Values(false, true)] bool async)
         {
@@ -286,7 +293,8 @@ namespace MongoDB.Driver.Tests
             actualOptions.Sort.Should().Be(fluent.Options.Sort);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndDelete_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -306,7 +314,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndDelete_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -327,7 +336,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndReplace_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -348,7 +358,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndReplaceAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -370,7 +381,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndUpdateAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -399,7 +411,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -429,7 +442,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -450,7 +464,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateManyAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {
@@ -479,7 +494,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter(
             [Values(false, true)] bool async)
         {

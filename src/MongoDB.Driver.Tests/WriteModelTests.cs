@@ -22,14 +22,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class WriteModelTests
     {
-        [Test]
+        [Fact]
         public void Should_convert_from_InsertRequest_to_BsonDocument()
         {
             var document = BsonDocument.Parse("{a:1}");
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Tests
             insertModel.Document.Should().BeSameAs(document);
         }
 
-        [Test]
+        [Fact]
         public void Should_convert_from_InsertRequest_to_Class()
         {
             var document = new TestClass { a = 1 };
@@ -55,9 +54,9 @@ namespace MongoDB.Driver.Tests
             model.Document.Should().BeSameAs(document);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_BsonDocument(bool isUpsert)
         {
             var filter = new BsonDocument("a", 1);
@@ -79,9 +78,9 @@ namespace MongoDB.Driver.Tests
             model.IsUpsert.Should().Be(isUpsert);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_Class(bool isUpsert)
         {
             var filter = new BsonDocument("a", 1);
@@ -103,9 +102,9 @@ namespace MongoDB.Driver.Tests
             model.IsUpsert.Should().Be(isUpsert);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void Should_convert_from_UpdateRequest_to_UpdateMany(bool isUpsert)
         {
             var filter = BsonDocument.Parse("{a:1}");

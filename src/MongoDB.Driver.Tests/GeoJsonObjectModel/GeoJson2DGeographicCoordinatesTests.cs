@@ -15,28 +15,28 @@
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJson2DGeographicCoordinatesTests
     {
-        [Test]
+        [Fact]
         public void TestDeserializeDoubles()
         {
             var json = "[1.0, 2.0]";
             var coordinates = BsonSerializer.Deserialize<GeoJson2DGeographicCoordinates>(json);
-            Assert.AreEqual(1.0, coordinates.Longitude);
-            Assert.AreEqual(2.0, coordinates.Latitude);
+            Assert.Equal(1.0, coordinates.Longitude);
+            Assert.Equal(2.0, coordinates.Latitude);
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeInts()
         {
             var json = "[1, 2]";
             var coordinates = BsonSerializer.Deserialize<GeoJson2DGeographicCoordinates>(json);
-            Assert.AreEqual(1.0, coordinates.Longitude);
-            Assert.AreEqual(2.0, coordinates.Latitude);
+            Assert.Equal(1.0, coordinates.Longitude);
+            Assert.Equal(2.0, coordinates.Latitude);
         }
     }
 }

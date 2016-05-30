@@ -20,14 +20,13 @@ using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class ClusterKeyTests
     {
-        [Test]
+        [Fact]
         public void Equals_should_return_true_if_all_fields_are_equal()
         {
             var subject1 = CreateSubject();
@@ -37,24 +36,25 @@ namespace MongoDB.Driver.Tests
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
-        [TestCase("ConnectionMode", true)]
-        [TestCase("ConnectTimeout", true)]
-        [TestCase("Credentials", false)]
-        [TestCase("IPv6", true)]
-        [TestCase("MaxConnectionIdleTime", true)]
-        [TestCase("MaxConnectionLifeTime", true)]
-        [TestCase("MaxConnectionPoolSize", true)]
-        [TestCase("MinConnectionPoolSize", true)]
-        [TestCase("ReplicaSetName", true)]
-        [TestCase("LocalThreshold", true)]
-        [TestCase("Servers", false)]
-        [TestCase("ServerSelectionTimeout", true)]
-        [TestCase("SocketTimeout", true)]
-        [TestCase("SslSettings", true)]
-        [TestCase("UseSsl", true)]
-        [TestCase("VerifySslCertificate", true)]
-        [TestCase("WaitQueueSize", true)]
-        [TestCase("WaitQueueTimeout", true)]
+        [Theory]
+        [InlineData("ConnectionMode", true)]
+        [InlineData("ConnectTimeout", true)]
+        [InlineData("Credentials", false)]
+        [InlineData("IPv6", true)]
+        [InlineData("MaxConnectionIdleTime", true)]
+        [InlineData("MaxConnectionLifeTime", true)]
+        [InlineData("MaxConnectionPoolSize", true)]
+        [InlineData("MinConnectionPoolSize", true)]
+        [InlineData("ReplicaSetName", true)]
+        [InlineData("LocalThreshold", true)]
+        [InlineData("Servers", false)]
+        [InlineData("ServerSelectionTimeout", true)]
+        [InlineData("SocketTimeout", true)]
+        [InlineData("SslSettings", true)]
+        [InlineData("UseSsl", true)]
+        [InlineData("VerifySslCertificate", true)]
+        [InlineData("WaitQueueSize", true)]
+        [InlineData("WaitQueueTimeout", true)]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualFieldName, bool expectEqualHashCode)
         {
             var subject1 = CreateSubject();

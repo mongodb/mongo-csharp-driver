@@ -22,16 +22,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class BulkWriteResultTests
     {
-        [Test]
-        [TestCase(null)]
-        [TestCase((long)5)]
+        [Theory]
+        [InlineData(null)]
+        [InlineData((long)5)]
         public void Should_convert_from_core_acknowledged_result_when_original_models_exists(long? modifiedCount)
         {
             var core = new BulkWriteOperationResult.Acknowledged(
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Tests
             mapped.Upserts.Count.Should().Be(core.Upserts.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_convert_from_core_unacknowledged_result_when_original_models_exists()
         {
             var core = new BulkWriteOperationResult.Unacknowledged(
@@ -82,9 +81,9 @@ namespace MongoDB.Driver.Tests
             mapped.RequestCount.Should().Be(core.RequestCount);
         }
 
-        [Test]
-        [TestCase(null)]
-        [TestCase((long)5)]
+        [Theory]
+        [InlineData(null)]
+        [InlineData((long)5)]
         public void Should_convert_from_core_acknowledged_result_when_original_models_do_not_exist(long? modifiedCount)
         {
             var core = new BulkWriteOperationResult.Acknowledged(
@@ -113,7 +112,7 @@ namespace MongoDB.Driver.Tests
             mapped.Upserts.Count.Should().Be(core.Upserts.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_convert_from_core_unacknowledged_result_when_original_models_does_not_exist()
         {
             var core = new BulkWriteOperationResult.Unacknowledged(

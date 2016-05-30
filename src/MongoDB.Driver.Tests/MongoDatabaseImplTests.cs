@@ -21,12 +21,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Tests;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
@@ -35,8 +36,7 @@ namespace MongoDB.Driver
         private MockOperationExecutor _operationExecutor;
         private MongoDatabaseImpl _subject;
 
-        [SetUp]
-        public void Setup()
+        public MongoDatabaseImplTests()
         {
             var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
@@ -49,25 +49,26 @@ namespace MongoDB.Driver
                 _operationExecutor);
         }
 
-        [Test]
+        [Fact]
         public void Client_should_be_set()
         {
             _subject.Client.Should().NotBeNull();
         }
 
-        [Test]
+        [Fact]
         public void DatabaseName_should_be_set()
         {
             _subject.DatabaseNamespace.DatabaseName.Should().Be("foo");
         }
 
-        [Test]
+        [Fact]
         public void Settings_should_be_set()
         {
             _subject.Settings.Should().NotBeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool async)
         {
@@ -115,7 +116,8 @@ namespace MongoDB.Driver
             op.Validator.Should().Be(renderedValidator);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_not_generic(
             [Values(false, true)] bool async)
         {
@@ -159,9 +161,10 @@ namespace MongoDB.Driver
             op.Validator.Should().BeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_null(
-           [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var storageEngine = new BsonDocument("awesome", true);
             CreateCollectionOptions options = null;
@@ -192,7 +195,8 @@ namespace MongoDB.Driver
             op.Validator.Should().BeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DropCollection_should_execute_the_DropCollectionOperation(
             [Values(false, true)] bool async)
         {
@@ -212,7 +216,8 @@ namespace MongoDB.Driver
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ListCollections_should_execute_the_ListCollectionsOperation(
             [Values(false, true)] bool async)
         {
@@ -236,7 +241,8 @@ namespace MongoDB.Driver
             op.Filter.Should().Be(filter);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RenameCollection_should_execute_the_RenameCollectionOperation(
             [Values(false, true)] bool async)
         {
@@ -263,7 +269,8 @@ namespace MongoDB.Driver
             op.DropTarget.Should().Be(options.DropTarget);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RunCommand_should_default_to_ReadPreference_primary(
             [Values(false, true)] bool async)
         {
@@ -290,7 +297,8 @@ namespace MongoDB.Driver
             op.Command.Should().Be("{count: \"foo\"}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RunCommand_should_use_the_provided_ReadPreference(
             [Values(false, true)] bool async)
         {
@@ -317,7 +325,8 @@ namespace MongoDB.Driver
             op.Command.Should().Be("{count: \"foo\"}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RunCommand_should_run_a_non_read_command(
             [Values(false, true)] bool async)
         {
@@ -344,7 +353,8 @@ namespace MongoDB.Driver
             op.Command.Should().Be(cmd);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RunCommand_should_run_a_json_command(
             [Values(false, true)] bool async)
         {
@@ -369,7 +379,8 @@ namespace MongoDB.Driver
             op.Command.Should().Be("{count: \"foo\"}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void RunCommand_should_run_a_serialized_command(
             [Values(false, true)] bool async)
         {

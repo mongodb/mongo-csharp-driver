@@ -20,18 +20,18 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
     public class BulkWriteErrorTests
     {
-        [Test]
-        [TestCase(0, ServerErrorCategory.Uncategorized)]
-        [TestCase(50, ServerErrorCategory.ExecutionTimeout)]
-        [TestCase(11000, ServerErrorCategory.DuplicateKey)]
-        [TestCase(11001, ServerErrorCategory.DuplicateKey)]
-        [TestCase(12582, ServerErrorCategory.DuplicateKey)]
+        [Theory]
+        [InlineData(0, ServerErrorCategory.Uncategorized)]
+        [InlineData(50, ServerErrorCategory.ExecutionTimeout)]
+        [InlineData(11000, ServerErrorCategory.DuplicateKey)]
+        [InlineData(11001, ServerErrorCategory.DuplicateKey)]
+        [InlineData(12582, ServerErrorCategory.DuplicateKey)]
         public void Should_translate_category_correctly(int code, ServerErrorCategory expectedCategory)
         {
             var coreError = new Core.Operations.BulkWriteOperationError(0, code, "blah", new BsonDocument());

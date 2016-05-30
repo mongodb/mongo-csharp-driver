@@ -24,14 +24,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class FieldDefinitionTests
     {
-        [Test]
+        [Fact]
         public void Should_resolve_from_a_non_IBsonDocumentSerializer()
         {
             var subject = new StringFieldDefinition<string, string>("test");
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_from_a_BsonDocumentSerializer()
         {
             var subject = new StringFieldDefinition<BsonDocument, BsonValue>("test");
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<BsonValueSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_from_a_BsonDocumentSerializer_with_dots()
         {
             var subject = new StringFieldDefinition<BsonDocument, BsonValue>("test.one.two.three");
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<BsonValueSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_top_level_field()
         {
             var subject = new StringFieldDefinition<Person, Name>("Name");
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<BsonClassMapSerializer<Name>>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_a_nested_field()
         {
             var subject = new StringFieldDefinition<Person, string>("Name.First");
@@ -86,7 +85,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_a_nested_field_that_does_not_exist()
         {
             var subject = new StringFieldDefinition<Person, string>("Name.NoExisty");
@@ -97,7 +96,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.Type");
@@ -108,7 +107,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name_with_multiple_dots()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.Name.First");
@@ -119,7 +118,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name_with_single_digit_indexer()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.3.Type");
@@ -130,7 +129,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name_with_a_multi_digit_indexer()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.42.Type");
@@ -141,7 +140,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name_with_positional_operator()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.$.Type");
@@ -152,7 +151,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_array_name_with_positional_operator_with_multiple_dots()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.$.Name.Last");
@@ -163,7 +162,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_an_enum_with_field_type()
         {
             var subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);
@@ -174,7 +173,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
         }
 
-        [Test]
+        [Fact]
         public void Should_resolve_an_enum_without_field_type()
         {
             Expression<Func<Person, object>> exp = x => x.Gender;
@@ -186,7 +185,7 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
         }
 
-        [Test]
+        [Fact]
         public void Should_assign_a_non_typed_field_definition_from_a_typed_field_definition()
         {
             FieldDefinition<Person, Gender> subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);

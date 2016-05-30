@@ -23,14 +23,13 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class ClusterRegistryTests
     {
-        [Test]
+        [Fact]
         public void Instance_should_return_the_same_instance_every_time()
         {
             var subject1 = ClusterRegistry.Instance;
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Tests
             subject2.Should().BeSameAs(subject1);
         }
 
-        [Test]
+        [Fact]
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
@@ -96,7 +95,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GetOrCreateCluster_should_return_a_different_cluster_if_client_settings_are_not_equal()
         {
             var clientSettings1 = new MongoClientSettings();
@@ -111,7 +110,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GetOrCreateCluster_should_return_the_same_cluster_if_client_settings_are_equal()
         {
             var clientSettings1 = new MongoClientSettings();

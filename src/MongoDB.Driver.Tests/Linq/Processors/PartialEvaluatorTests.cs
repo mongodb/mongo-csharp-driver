@@ -17,14 +17,13 @@ using System;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq.Processors;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Processors
 {
-    [TestFixture]
     public class PartialEvaluatorTests
     {
-        [Test]
+        [Fact]
         public void Indexed_local_capture()
         {
             var captured = new[] { "Jack", "John" };
@@ -35,7 +34,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Named_local_capture()
         {
             var captured = "Jack";
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Instance_method_call_with_no_arguments()
         {
             Expression<Func<Person, bool>> predicate = x => x.Name == InstanceGetName();
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Instance_method_call_with_a_constant_argument()
         {
             Expression<Func<Person, bool>> predicate = x => x.Name == InstanceGetName("ck");
@@ -66,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Instance_method_call_with_a_captured_argument()
         {
             var captured = "ck";
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Static_method_call_with_no_arguments()
         {
             Expression<Func<Person, bool>> predicate = x => x.Name == StaticGetName();
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Static_method_call_with_a_constant_argument()
         {
             Expression<Func<Person, bool>> predicate = x => x.Name == StaticGetName("ck");
@@ -97,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Processors
             ((ConstantExpression)evaluated.Right).Value.Should().Be("Jack");
         }
 
-        [Test]
+        [Fact]
         public void Static_method_call_with_a_captured_argument()
         {
             var captured = "ck";

@@ -21,11 +21,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp624
 {
-    [TestFixture]
     public class CSharp624Tests
     {
         private class C
@@ -35,35 +34,35 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
             public Dictionary<object, int> G;
         }
 
-        [Test]
-        [TestCase("x")]
-        [TestCase("x$")]
+        [Theory]
+        [InlineData("x")]
+        [InlineData("x$")]
         public void TestValidKeys(string key)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'D' : { '#' : 2 }, 'G' : { '#' : 3 } }".Replace("#", key).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(1, rehydrated.Id);
-            Assert.AreEqual(1, rehydrated.D.Count);
-            Assert.AreEqual(key, rehydrated.D.Keys.Cast<object>().First());
-            Assert.AreEqual(2, rehydrated.D[key]);
-            Assert.AreEqual(1, rehydrated.G.Count);
-            Assert.AreEqual(key, rehydrated.G.Keys.First());
-            Assert.AreEqual(3, rehydrated.G[key]);
+            Assert.Equal(1, rehydrated.Id);
+            Assert.Equal(1, rehydrated.D.Count);
+            Assert.Equal(key, rehydrated.D.Keys.Cast<object>().First());
+            Assert.Equal(2, rehydrated.D[key]);
+            Assert.Equal(1, rehydrated.G.Count);
+            Assert.Equal(key, rehydrated.G.Keys.First());
+            Assert.Equal(3, rehydrated.G[key]);
         }
 
-        [Test]
-        [TestCase("")]
-        [TestCase("$")]
-        [TestCase("$x")]
-        [TestCase(".")]
-        [TestCase("x.")]
-        [TestCase(".y")]
-        [TestCase("x.y")]
+        [Theory]
+        [InlineData("")]
+        [InlineData("$")]
+        [InlineData("$x")]
+        [InlineData(".")]
+        [InlineData("x.")]
+        [InlineData(".y")]
+        [InlineData("x.y")]
         public void TestInvalidKeys(string key)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
@@ -76,9 +75,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
             }
         }
 
-        [Test]
-        [TestCase(1, "1")]
-        [TestCase(1.5, "1.5")]
+        [Theory]
+        [InlineData(1, "1")]
+        [InlineData(1.5, "1.5")]
         public void TestKeyIsNotAString(object key, string keyAsString)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };

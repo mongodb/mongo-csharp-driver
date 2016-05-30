@@ -18,24 +18,33 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Samples
 {
     public class AggregationSample
     {
-        private IMongoCollection<ZipEntry> _collection;
+        private static IMongoCollection<ZipEntry> __collection;
+        private static bool __oneTimeSetupHasRun = false;
+        private static object __oneTimeSetupLock = new object();
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public AggregationSample()
+        {
+            lock (__oneTimeSetupLock)
+            {
+                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
+            }
+        }
+
+        public bool OneTimeSetup()
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            _collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            __collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             // This is a subset of the data from the mongodb docs zip code aggregation examples
-            _collection.InsertMany(new[]
+            __collection.InsertMany(new[]
             {
                 new ZipEntry { Zip = "01053", City = "LEEDS", State = "MA", Population = 1350 },
                 new ZipEntry { Zip = "01054", City = "LEVERETT", State = "MA", Population = 1748 },
@@ -46,12 +55,14 @@ namespace MongoDB.Driver.Tests.Samples
                 new ZipEntry { Zip = "36783", City = "THOMASTON", State = "AL", Population = 1527 },
                 new ZipEntry { Zip = "36784", City = "THOMASVILLE", State = "AL", Population = 6229 },
             });
+
+            return true;
         }
 
-        [Test]
+        [Fact]
         public async Task States_with_pops_over_20000()
         {
-            var pipeline = _collection.Aggregate()
+            var pipeline = __collection.Aggregate()
                 .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
                 .Match(x => x.TotalPopulation > 20000);
 
@@ -64,10 +75,10 @@ namespace MongoDB.Driver.Tests.Samples
             result.Count.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public async Task States_with_pops_over_20000_queryable_method()
         {
-            var pipeline = _collection.AsQueryable()
+            var pipeline = __collection.AsQueryable()
                 .GroupBy(x => x.State, (k, s) => new { State = k, TotalPopulation = s.Sum(x => x.Population) })
                 .Where(x => x.TotalPopulation > 20000);
 
@@ -77,10 +88,10 @@ namespace MongoDB.Driver.Tests.Samples
         }
 
 #if !MONO
-        [Test]
+        [Fact]
         public async Task States_with_pops_over_20000_queryable_syntax()
         {
-            var pipeline = from z in _collection.AsQueryable()
+            var pipeline = from z in __collection.AsQueryable()
                            group z by z.State into g
                            where g.Sum(x => x.Population) > 20000
                            select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
@@ -91,10 +102,10 @@ namespace MongoDB.Driver.Tests.Samples
         }
 #endif
 
-        [Test]
+        [Fact]
         public async Task Average_city_population_by_state()
         {
-            var pipeline = _collection.Aggregate()
+            var pipeline = __collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .Group(x => x.StateAndCity.State, g => new { State = g.Key, AverageCityPopulation = g.Average(x => x.Population) })
                 .SortBy(x => x.State);
@@ -112,10 +123,10 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].State.Should().Be("MA");
         }
 
-        [Test]
+        [Fact]
         public async Task Largest_and_smallest_cities_by_state()
         {
-            var pipeline = _collection.Aggregate()
+            var pipeline = __collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .SortBy(x => x.Population)
                 .Group(x => x.StateAndCity.State, g => new
@@ -155,12 +166,12 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].SmallestCity.Population.Should().Be(1350);
         }
 #if !MONO
-        [Test]
+        [Fact]
         public async Task Largest_and_smallest_cities_by_state_queryable_syntax()
         {
             var pipeline = from o in
                                (
-                                    from z in _collection.AsQueryable()
+                                    from z in __collection.AsQueryable()
                                     group z by new { z.State, z.City } into g
                                     select new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) }
                                )

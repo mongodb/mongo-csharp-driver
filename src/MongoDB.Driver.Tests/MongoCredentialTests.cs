@@ -15,32 +15,31 @@
 
 using System.Linq;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoCredentialTests
     {
-        [Test]
+        [Fact]
         public void TestCreateMongoCRCredential()
         {
             var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
-            Assert.AreEqual("MONGODB-CR", credential.Mechanism);
-            Assert.AreEqual("username", credential.Username);
-            Assert.AreEqual(new PasswordEvidence("password"), credential.Evidence);
+            Assert.Equal("MONGODB-CR", credential.Mechanism);
+            Assert.Equal("username", credential.Username);
+            Assert.Equal(new PasswordEvidence("password"), credential.Evidence);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateMongoX509Credential()
         {
             var credential = MongoCredential.CreateMongoX509Credential("username");
-            Assert.AreEqual("MONGODB-X509", credential.Mechanism);
-            Assert.AreEqual("username", credential.Username);
-            Assert.IsInstanceOf<ExternalEvidence>(credential.Evidence);
+            Assert.Equal("MONGODB-X509", credential.Mechanism);
+            Assert.Equal("username", credential.Username);
+            Assert.IsType<ExternalEvidence>(credential.Evidence);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var a = MongoCredential.CreateMongoCRCredential("db", "user1", "password");
@@ -51,68 +50,68 @@ namespace MongoDB.Driver.Tests
             var f = MongoCredential.CreateMongoCRCredential("db", "user2", "password1").WithMechanismProperty("TEST", true);
             var n = (MongoCredential)null;
 
-            Assert.IsTrue(object.Equals(a, b));
-            Assert.IsFalse(object.Equals(a, c));
-            Assert.IsFalse(a.Equals(n));
-            Assert.IsFalse(a.Equals(null));
-            Assert.IsFalse(c.Equals(d));
-            Assert.IsFalse(d.Equals(e));
-            Assert.IsTrue(e.Equals(f));
+            Assert.True(object.Equals(a, b));
+            Assert.False(object.Equals(a, c));
+            Assert.False(a.Equals(n));
+            Assert.False(a.Equals(null));
+            Assert.False(c.Equals(d));
+            Assert.False(d.Equals(e));
+            Assert.True(e.Equals(f));
 
-            Assert.IsTrue(a == b);
-            Assert.IsFalse(a == c);
-            Assert.IsFalse(a == null);
-            Assert.IsFalse(null == a);
-            Assert.IsTrue(n == null);
-            Assert.IsTrue(null == n);
-            Assert.IsFalse(c == d);
-            Assert.IsFalse(d == e);
-            Assert.IsTrue(e == f);
+            Assert.True(a == b);
+            Assert.False(a == c);
+            Assert.False(a == null);
+            Assert.False(null == a);
+            Assert.True(n == null);
+            Assert.True(null == n);
+            Assert.False(c == d);
+            Assert.False(d == e);
+            Assert.True(e == f);
 
-            Assert.IsFalse(a != b);
-            Assert.IsTrue(a != c);
-            Assert.IsTrue(a != null);
-            Assert.IsTrue(null != a);
-            Assert.IsFalse(n != null);
-            Assert.IsFalse(null != n);
-            Assert.IsTrue(c != d);
-            Assert.IsTrue(d != e);
-            Assert.IsFalse(e != f);
+            Assert.False(a != b);
+            Assert.True(a != c);
+            Assert.True(a != null);
+            Assert.True(null != a);
+            Assert.False(n != null);
+            Assert.False(null != n);
+            Assert.True(c != d);
+            Assert.True(d != e);
+            Assert.False(e != f);
         }
 
-        [Test]
+        [Fact]
         public void TestPassword()
         {
             var credentials = MongoCredential.CreateMongoCRCredential("database", "username", "password");
 #pragma warning disable 618
-            Assert.AreEqual("password", credentials.Password);
+            Assert.Equal("password", credentials.Password);
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestCreateGssapiCredentialWithOnlyUsername()
         {
             var username = "testuser";
             var credential = MongoCredential.CreateGssapiCredential(username);
-            Assert.AreEqual(username, credential.Username);
-            Assert.IsInstanceOf<ExternalEvidence>(credential.Evidence);
-            Assert.AreEqual("GSSAPI", credential.Mechanism);
-            Assert.AreEqual("$external", credential.Source);
-            Assert.AreEqual(new ExternalEvidence(), credential.Evidence);
+            Assert.Equal(username, credential.Username);
+            Assert.IsType<ExternalEvidence>(credential.Evidence);
+            Assert.Equal("GSSAPI", credential.Mechanism);
+            Assert.Equal("$external", credential.Source);
+            Assert.Equal(new ExternalEvidence(), credential.Evidence);
         }
 
-        [Test]
+        [Fact]
         public void TestCreatePlainCredential()
         {
             var credential = MongoCredential.CreatePlainCredential("$external", "a", "b");
-            Assert.AreEqual("a", credential.Username);
-            Assert.IsInstanceOf<PasswordEvidence>(credential.Evidence);
-            Assert.AreEqual("PLAIN", credential.Mechanism);
-            Assert.AreEqual("$external", credential.Source);
-            Assert.AreEqual(new PasswordEvidence("b"), credential.Evidence);
+            Assert.Equal("a", credential.Username);
+            Assert.IsType<PasswordEvidence>(credential.Evidence);
+            Assert.Equal("PLAIN", credential.Mechanism);
+            Assert.Equal("$external", credential.Source);
+            Assert.Equal(new PasswordEvidence("b"), credential.Evidence);
         }
 
-        [Test]
+        [Fact]
         public void TestMechanismProperty()
         {
             var credential = MongoCredential.CreateMongoCRCredential("database", "username", "password");
@@ -121,11 +120,11 @@ namespace MongoDB.Driver.Tests
                 .WithMechanismProperty("OTHER", 10);
 
 
-            Assert.AreNotSame(credential, withProperties);
-            Assert.IsNull(credential.GetMechanismProperty<string>("SPN", null));
-            Assert.AreEqual(0, credential.GetMechanismProperty<int>("OTHER", 0));
-            Assert.AreEqual("awesome", withProperties.GetMechanismProperty<string>("SPN", null));
-            Assert.AreEqual(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
+            Assert.NotSame(credential, withProperties);
+            Assert.Null(credential.GetMechanismProperty<string>("SPN", null));
+            Assert.Equal(0, credential.GetMechanismProperty<int>("OTHER", 0));
+            Assert.Equal("awesome", withProperties.GetMechanismProperty<string>("SPN", null));
+            Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
         }
     }
 }

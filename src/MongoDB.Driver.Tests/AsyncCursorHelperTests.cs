@@ -19,14 +19,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class AsyncCursorHelperTests
     {
-        [Test]
+        [Fact]
         public void AnyAsync_should_return_true_when_a_result_exists()
         {
             var task = SetupResultInFirstBatch();
@@ -36,7 +35,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void AnyAsync_should_return_false_when_no_result_exists()
         {
             var task = SetupNoResultIn1Batch();
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(false);
         }
 
-        [Test]
+        [Fact]
         public void AnyAsync_should_return_true_when_result_exists_but_is_in_the_second_batch()
         {
             var task = SetupResultInSecondBatch();
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void AnyAsync_should_return_false_when_no_result_exists_delayed_to_the_second_batch()
         {
             var task = SetupNoResultInTwoBatches();
@@ -66,7 +65,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(false);
         }
 
-        [Test]
+        [Fact]
         public void FirstAsync_should_return_first_result_when_one_exists()
         {
             var task = SetupResultInFirstBatch();
@@ -76,7 +75,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void FirstAsync_should_throw_an_exception_when_no_results_exist()
         {
             var task = SetupNoResultIn1Batch();
@@ -86,7 +85,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void FirstAsync_should_return_first_result_when_one_exists_but_is_in_the_second_batch()
         {
             var task = SetupResultInSecondBatch();
@@ -96,7 +95,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void FirstAsync_should_throw_an_exception_when_no_result_exists_delayed_to_the_second_batch()
         {
             var task = SetupNoResultInTwoBatches();
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefaultAsync_should_return_first_result_when_one_exists()
         {
             var task = SetupResultInFirstBatch();
@@ -116,7 +115,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefaultAsync_should_return_default_when_no_results_exist()
         {
             var task = SetupNoResultIn1Batch();
@@ -126,7 +125,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefaultAsync_should_return_first_result_when_one_exists_but_is_in_the_second_batch()
         {
             var task = SetupResultInSecondBatch();
@@ -136,7 +135,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefaultAsync_should_return_default_value_when_no_result_exists_delayed_to_the_second_batch()
         {
             var task = SetupNoResultInTwoBatches();
@@ -146,7 +145,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void SingleAsync_should_return_first_result_when_one_exists()
         {
             var task = SetupResultInFirstBatch();
@@ -156,7 +155,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void SingleAsync_should_throw_an_exception_when_no_results_exist()
         {
             var task = SetupNoResultIn1Batch();
@@ -166,7 +165,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void SingleAsync_should_return_first_result_when_one_exists_but_is_in_the_second_batch()
         {
             var task = SetupResultInSecondBatch();
@@ -176,7 +175,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void SingleAsync_should_throw_an_exception_when_no_result_exists_delayed_to_the_second_batch()
         {
             var task = SetupNoResultInTwoBatches();
@@ -186,7 +185,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefaultAsync_should_return_first_result_when_one_exists()
         {
             var task = SetupResultInFirstBatch();
@@ -196,7 +195,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefaultAsync_should_return_default_when_no_results_exist()
         {
             var task = SetupNoResultIn1Batch();
@@ -206,7 +205,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefaultAsync_should_return_first_result_when_one_exists_but_is_in_the_second_batch()
         {
             var task = SetupResultInSecondBatch();
@@ -216,7 +215,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefaultAsync_should_return_default_value_when_no_result_exists_delayed_to_the_second_batch()
         {
             var task = SetupNoResultInTwoBatches();

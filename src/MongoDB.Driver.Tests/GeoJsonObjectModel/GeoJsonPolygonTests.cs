@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonPolygonTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpecNoHoles()
         {
             var polygon = GeoJson.Polygon(
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestExampleFromSpecWithHoles()
         {
             var polygon = GeoJson.Polygon(
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon2D()
         {
             var polygon = GeoJson.Polygon(
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon2DGeographic()
         {
             var polygon = GeoJson.Polygon(
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon2DProjected()
         {
             var polygon = GeoJson.Polygon(
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon2DWithExtraMembers()
         {
             var polygon = GeoJson.Polygon(
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon3D()
         {
             var polygon = GeoJson.Polygon(
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon3DGeographic()
         {
             var polygon = GeoJson.Polygon(
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon3DProjected()
         {
             var polygon = GeoJson.Polygon(
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, polygon);
         }
 
-        [Test]
+        [Fact]
         public void TestPolygon3DWithExtraMembers()
         {
             var polygon = GeoJson.Polygon(
@@ -174,10 +174,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonPolygon<TCoordinates> polygon) where TCoordinates : GeoJsonCoordinates
         {
             var json = polygon.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonPolygon<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

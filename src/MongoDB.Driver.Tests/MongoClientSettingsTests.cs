@@ -21,16 +21,15 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoClientSettingsTests
     {
         private readonly MongoServerAddress _localHost = new MongoServerAddress("localhost");
 
-        [Test]
+        [Fact]
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned
@@ -50,191 +49,191 @@ namespace MongoDB.Driver.Tests
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
 
             var clone = settings.Clone();
-            Assert.AreEqual(settings, clone);
+            Assert.Equal(settings, clone);
         }
 
-        [Test]
+        [Fact]
         public void TestConnectionMode()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(ConnectionMode.Automatic, settings.ConnectionMode);
+            Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
 
             var connectionMode = ConnectionMode.Direct;
             settings.ConnectionMode = connectionMode;
-            Assert.AreEqual(connectionMode, settings.ConnectionMode);
+            Assert.Equal(connectionMode, settings.ConnectionMode);
 
             settings.Freeze();
-            Assert.AreEqual(connectionMode, settings.ConnectionMode);
+            Assert.Equal(connectionMode, settings.ConnectionMode);
             Assert.Throws<InvalidOperationException>(() => { settings.ConnectionMode = connectionMode; });
         }
 
-        [Test]
+        [Fact]
         public void TestConnectTimeout()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
+            Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
 
             var connectTimeout = new TimeSpan(1, 2, 3);
             settings.ConnectTimeout = connectTimeout;
-            Assert.AreEqual(connectTimeout, settings.ConnectTimeout);
+            Assert.Equal(connectTimeout, settings.ConnectTimeout);
 
             settings.Freeze();
-            Assert.AreEqual(connectTimeout, settings.ConnectTimeout);
+            Assert.Equal(connectTimeout, settings.ConnectTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.ConnectTimeout = connectTimeout; });
         }
 
-        [Test]
+        [Fact]
         public void TestCredentials()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(0, settings.Credentials.Count());
+            Assert.Equal(0, settings.Credentials.Count());
         }
 
-        [Test]
+        [Fact]
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(ConnectionMode.Automatic, settings.ConnectionMode);
-            Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
-            Assert.AreEqual(0, settings.Credentials.Count());
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(false, settings.IPv6);
-            Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
-            Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
-            Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
-            Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
-            Assert.AreEqual(ReadConcern.Default, settings.ReadConcern);
-            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(null, settings.ReplicaSetName);
-            Assert.AreEqual(_localHost, settings.Server);
-            Assert.AreEqual(_localHost, settings.Servers.First());
-            Assert.AreEqual(1, settings.Servers.Count());
-            Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
-            Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
-            Assert.AreEqual(null, settings.SslSettings);
-            Assert.AreEqual(false, settings.UseSsl);
-            Assert.AreEqual(true, settings.VerifySslCertificate);
-            Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
-            Assert.AreEqual(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
+            Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
+            Assert.Equal(0, settings.Credentials.Count());
+            Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(false, settings.IPv6);
+            Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
+            Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
+            Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
+            Assert.Equal(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(ReadConcern.Default, settings.ReadConcern);
+            Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
+            Assert.Equal(null, settings.ReplicaSetName);
+            Assert.Equal(_localHost, settings.Server);
+            Assert.Equal(_localHost, settings.Servers.First());
+            Assert.Equal(1, settings.Servers.Count());
+            Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.Equal(null, settings.SslSettings);
+            Assert.Equal(false, settings.UseSsl);
+            Assert.Equal(true, settings.VerifySslCertificate);
+            Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
+            Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
+            Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var settings = new MongoClientSettings();
             var clone = settings.Clone();
-            Assert.IsTrue(clone.Equals(settings));
+            Assert.True(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ConnectionMode = ConnectionMode.Direct;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ConnectTimeout = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db2", "user2", "password2") };
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db", "user2", "password2") };
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.IPv6 = !settings.IPv6;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.MaxConnectionIdleTime = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.MaxConnectionLifeTime = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.MaxConnectionPoolSize = settings.MaxConnectionPoolSize + 1;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ReadConcern = ReadConcern.Majority;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.MinConnectionPoolSize = settings.MinConnectionPoolSize + 1;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ReplicaSetName = "abc";
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.LocalThreshold = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.Server = new MongoServerAddress("someotherhost");
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ServerSelectionTimeout = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.SocketTimeout = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.SslSettings = new SslSettings { CheckCertificateRevocation = false };
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.UseSsl = !settings.UseSsl;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.VerifySslCertificate = !settings.VerifySslCertificate;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.WaitQueueSize = settings.WaitQueueSize + 1;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.WaitQueueTimeout = new TimeSpan(1, 2, 3);
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.WriteConcern = WriteConcern.W2;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
         }
 
-        [Test]
+        [Fact]
         public void TestFreeze()
         {
             var settings = new MongoClientSettings();
 
-            Assert.IsFalse(settings.IsFrozen);
+            Assert.False(settings.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
-            Assert.IsTrue(settings.IsFrozen);
-            Assert.AreEqual(hashCode, settings.GetHashCode());
-            Assert.AreEqual(stringRepresentation, settings.ToString());
+            Assert.True(settings.IsFrozen);
+            Assert.Equal(hashCode, settings.GetHashCode());
+            Assert.Equal(stringRepresentation, settings.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestFromUrl()
         {
             // set everything to non default values to test that all settings are converted
@@ -249,257 +248,257 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
-            Assert.AreEqual(url.ConnectionMode, settings.ConnectionMode);
-            Assert.AreEqual(url.ConnectTimeout, settings.ConnectTimeout);
-            Assert.AreEqual(1, settings.Credentials.Count());
-            Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
-            Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
-            Assert.AreEqual("other", settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
-            Assert.AreEqual(true, settings.Credentials.Single().GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
-            Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
-            Assert.AreEqual(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
-            Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(url.IPv6, settings.IPv6);
-            Assert.AreEqual(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
-            Assert.AreEqual(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
-            Assert.AreEqual(url.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
-            Assert.AreEqual(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
-            Assert.AreEqual(url.ReadConcernLevel, settings.ReadConcern.Level);
-            Assert.AreEqual(url.ReadPreference, settings.ReadPreference);
-            Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
-            Assert.AreEqual(url.LocalThreshold, settings.LocalThreshold);
-            Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
-            Assert.AreEqual(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
-            Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
-            Assert.AreEqual(null, settings.SslSettings);
-            Assert.AreEqual(url.UseSsl, settings.UseSsl);
-            Assert.AreEqual(url.VerifySslCertificate, settings.VerifySslCertificate);
-            Assert.AreEqual(url.ComputedWaitQueueSize, settings.WaitQueueSize);
-            Assert.AreEqual(url.WaitQueueTimeout, settings.WaitQueueTimeout);
-            Assert.AreEqual(url.GetWriteConcern(true), settings.WriteConcern);
+            Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
+            Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
+            Assert.Equal(1, settings.Credentials.Count());
+            Assert.Equal(url.Username, settings.Credentials.Single().Username);
+            Assert.Equal(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
+            Assert.Equal("other", settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
+            Assert.Equal(true, settings.Credentials.Single().GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
+            Assert.Equal(url.AuthenticationSource, settings.Credentials.Single().Source);
+            Assert.Equal(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
+            Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(url.IPv6, settings.IPv6);
+            Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
+            Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
+            Assert.Equal(url.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
+            Assert.Equal(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(url.ReadConcernLevel, settings.ReadConcern.Level);
+            Assert.Equal(url.ReadPreference, settings.ReadPreference);
+            Assert.Equal(url.ReplicaSetName, settings.ReplicaSetName);
+            Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
+            Assert.True(url.Servers.SequenceEqual(settings.Servers));
+            Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
+            Assert.Equal(null, settings.SslSettings);
+            Assert.Equal(url.UseSsl, settings.UseSsl);
+            Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
+            Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
+            Assert.Equal(url.WaitQueueTimeout, settings.WaitQueueTimeout);
+            Assert.Equal(url.GetWriteConcern(true), settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestFromUrlWithMongoDBX509()
         {
             var url = new MongoUrl("mongodb://username@localhost/?authMechanism=MONGODB-X509");
             var settings = MongoClientSettings.FromUrl(url);
 
             var credential = settings.Credentials.Single();
-            Assert.AreEqual("MONGODB-X509", credential.Mechanism);
-            Assert.AreEqual("username", credential.Username);
-            Assert.IsInstanceOf<ExternalEvidence>(credential.Evidence);
+            Assert.Equal("MONGODB-X509", credential.Mechanism);
+            Assert.Equal("username", credential.Username);
+            Assert.IsType<ExternalEvidence>(credential.Evidence);
         }
 
-        [Test]
+        [Fact]
         public void TestFrozenCopy()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.Equal(false, settings.IsFrozen);
 
             var frozenCopy = settings.FrozenCopy();
-            Assert.AreEqual(true, frozenCopy.IsFrozen);
-            Assert.AreNotSame(settings, frozenCopy);
-            Assert.AreEqual(settings, frozenCopy);
+            Assert.Equal(true, frozenCopy.IsFrozen);
+            Assert.NotSame(settings, frozenCopy);
+            Assert.Equal(settings, frozenCopy);
 
             var secondFrozenCopy = frozenCopy.FrozenCopy();
-            Assert.AreSame(frozenCopy, secondFrozenCopy);
+            Assert.Same(frozenCopy, secondFrozenCopy);
         }
 
-        [Test]
+        [Fact]
         public void TestGuidRepresentation()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
 
             var guidRepresentation = GuidRepresentation.PythonLegacy;
             settings.GuidRepresentation = guidRepresentation;
-            Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
 
             settings.Freeze();
-            Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
             Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
         }
 
-        [Test]
+        [Fact]
         public void TestIPv6()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(false, settings.IPv6);
+            Assert.Equal(false, settings.IPv6);
 
             var ipv6 = true;
             settings.IPv6 = ipv6;
-            Assert.AreEqual(ipv6, settings.IPv6);
+            Assert.Equal(ipv6, settings.IPv6);
 
             settings.Freeze();
-            Assert.AreEqual(ipv6, settings.IPv6);
+            Assert.Equal(ipv6, settings.IPv6);
             Assert.Throws<InvalidOperationException>(() => { settings.IPv6 = ipv6; });
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionIdleTime()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
+            Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
 
             var maxConnectionIdleTime = new TimeSpan(1, 2, 3);
             settings.MaxConnectionIdleTime = maxConnectionIdleTime;
-            Assert.AreEqual(maxConnectionIdleTime, settings.MaxConnectionIdleTime);
+            Assert.Equal(maxConnectionIdleTime, settings.MaxConnectionIdleTime);
 
             settings.Freeze();
-            Assert.AreEqual(maxConnectionIdleTime, settings.MaxConnectionIdleTime);
+            Assert.Equal(maxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Throws<InvalidOperationException>(() => { settings.MaxConnectionIdleTime = maxConnectionIdleTime; });
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionLifeTime()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
+            Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
 
             var maxConnectionLifeTime = new TimeSpan(1, 2, 3);
             settings.MaxConnectionLifeTime = maxConnectionLifeTime;
-            Assert.AreEqual(maxConnectionLifeTime, settings.MaxConnectionLifeTime);
+            Assert.Equal(maxConnectionLifeTime, settings.MaxConnectionLifeTime);
 
             settings.Freeze();
-            Assert.AreEqual(maxConnectionLifeTime, settings.MaxConnectionLifeTime);
+            Assert.Equal(maxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.Throws<InvalidOperationException>(() => { settings.MaxConnectionLifeTime = maxConnectionLifeTime; });
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionPoolSize()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
+            Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
             var maxConnectionPoolSize = 123;
             settings.MaxConnectionPoolSize = maxConnectionPoolSize;
-            Assert.AreEqual(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
+            Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
             settings.Freeze();
-            Assert.AreEqual(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
+            Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.Throws<InvalidOperationException>(() => { settings.MaxConnectionPoolSize = maxConnectionPoolSize; });
         }
 
-        [Test]
+        [Fact]
         public void TestMinConnectionPoolSize()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
 
             var minConnectionPoolSize = 123;
             settings.MinConnectionPoolSize = minConnectionPoolSize;
-            Assert.AreEqual(minConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(minConnectionPoolSize, settings.MinConnectionPoolSize);
 
             settings.Freeze();
-            Assert.AreEqual(minConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(minConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Throws<InvalidOperationException>(() => { settings.MinConnectionPoolSize = minConnectionPoolSize; });
         }
 
-        [Test]
+        [Fact]
         public void TestReadConcern()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(ReadConcern.Default, settings.ReadConcern);
+            Assert.Equal(ReadConcern.Default, settings.ReadConcern);
 
             var readConcern = ReadConcern.Majority;
             settings.ReadConcern = readConcern;
-            Assert.AreSame(readConcern, settings.ReadConcern);
+            Assert.Same(readConcern, settings.ReadConcern);
 
             settings.Freeze();
-            Assert.AreEqual(readConcern, settings.ReadConcern);
+            Assert.Equal(readConcern, settings.ReadConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadConcern = ReadConcern.Default; });
         }
 
-        [Test]
+        [Fact]
         public void TestReadPreference()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
+            Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
 
             var readPreference = ReadPreference.Primary;
             settings.ReadPreference = readPreference;
-            Assert.AreSame(readPreference, settings.ReadPreference);
+            Assert.Same(readPreference, settings.ReadPreference);
 
             settings.Freeze();
-            Assert.AreEqual(readPreference, settings.ReadPreference);
+            Assert.Equal(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
         }
 
-        [Test]
+        [Fact]
         public void TestReplicaSetName()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(null, settings.ReplicaSetName);
+            Assert.Equal(null, settings.ReplicaSetName);
 
             var replicaSetName = "abc";
             settings.ReplicaSetName = replicaSetName;
-            Assert.AreSame(replicaSetName, settings.ReplicaSetName);
+            Assert.Same(replicaSetName, settings.ReplicaSetName);
 
             settings.Freeze();
-            Assert.AreSame(replicaSetName, settings.ReplicaSetName);
+            Assert.Same(replicaSetName, settings.ReplicaSetName);
             Assert.Throws<InvalidOperationException>(() => { settings.ReplicaSetName = replicaSetName; });
         }
 
-        [Test]
+        [Fact]
         public void TestLocalThreshold()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(MongoDefaults.LocalThreshold, settings.LocalThreshold);
 
             var localThreshold = new TimeSpan(1, 2, 3);
             settings.LocalThreshold = localThreshold;
-            Assert.AreEqual(localThreshold, settings.LocalThreshold);
+            Assert.Equal(localThreshold, settings.LocalThreshold);
 
             settings.Freeze();
-            Assert.AreEqual(localThreshold, settings.LocalThreshold);
+            Assert.Equal(localThreshold, settings.LocalThreshold);
             Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
         }
 
-        [Test]
+        [Fact]
         public void TestServer()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(_localHost, settings.Server);
-            Assert.IsTrue(new[] { _localHost }.SequenceEqual(settings.Servers));
+            Assert.Equal(_localHost, settings.Server);
+            Assert.True(new[] { _localHost }.SequenceEqual(settings.Servers));
 
             var server = new MongoServerAddress("server");
             var servers = new[] { server };
             settings.Server = server;
-            Assert.AreEqual(server, settings.Server);
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.Equal(server, settings.Server);
+            Assert.True(servers.SequenceEqual(settings.Servers));
 
             settings.Freeze();
-            Assert.AreEqual(server, settings.Server);
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.Equal(server, settings.Server);
+            Assert.True(servers.SequenceEqual(settings.Servers));
             Assert.Throws<InvalidOperationException>(() => { settings.Server = server; });
         }
 
-        [Test]
+        [Fact]
         public void TestServersWithOneServer()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(_localHost, settings.Server);
-            Assert.IsTrue(new[] { _localHost }.SequenceEqual(settings.Servers));
+            Assert.Equal(_localHost, settings.Server);
+            Assert.True(new[] { _localHost }.SequenceEqual(settings.Servers));
 
             var server = new MongoServerAddress("server");
             var servers = new[] { server };
             settings.Servers = servers;
-            Assert.AreEqual(server, settings.Server);
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.Equal(server, settings.Server);
+            Assert.True(servers.SequenceEqual(settings.Servers));
 
             settings.Freeze();
-            Assert.AreEqual(server, settings.Server);
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.Equal(server, settings.Server);
+            Assert.True(servers.SequenceEqual(settings.Servers));
             Assert.Throws<InvalidOperationException>(() => { settings.Server = server; });
         }
 
-        [Test]
+        [Fact]
         public void TestServersWithTwoServers()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(_localHost, settings.Server);
-            Assert.IsTrue(new[] { _localHost }.SequenceEqual(settings.Servers));
+            Assert.Equal(_localHost, settings.Server);
+            Assert.True(new[] { _localHost }.SequenceEqual(settings.Servers));
 
             var servers = new MongoServerAddress[]
             {
@@ -508,15 +507,15 @@ namespace MongoDB.Driver.Tests
             };
             settings.Servers = servers;
             Assert.Throws<InvalidOperationException>(() => { var s = settings.Server; });
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.True(servers.SequenceEqual(settings.Servers));
 
             settings.Freeze();
             Assert.Throws<InvalidOperationException>(() => { var s = settings.Server; });
-            Assert.IsTrue(servers.SequenceEqual(settings.Servers));
+            Assert.True(servers.SequenceEqual(settings.Servers));
             Assert.Throws<InvalidOperationException>(() => { settings.Servers = servers; });
         }
 
-        [Test]
+        [Fact]
         public void TestSocketConfigurator()
         {
             var settings = DriverTestConfiguration.Client.Settings.Clone();
@@ -525,132 +524,132 @@ namespace MongoDB.Driver.Tests
             settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));
             var subject = new MongoClient(settings);
 
-            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(4));
+            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
-            Assert.That(socketConfiguratorWasCalled, Is.True);
+            Assert.True(socketConfiguratorWasCalled);
         }
 
-        [Test]
+        [Fact]
         public void TestServerSelectionTimeout()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
 
             var serverSelectionTimeout = new TimeSpan(1, 2, 3);
             settings.ServerSelectionTimeout = serverSelectionTimeout;
-            Assert.AreEqual(serverSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Equal(serverSelectionTimeout, settings.ServerSelectionTimeout);
 
             settings.Freeze();
-            Assert.AreEqual(serverSelectionTimeout, settings.ServerSelectionTimeout);
+            Assert.Equal(serverSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.ServerSelectionTimeout = serverSelectionTimeout; });
         }
 
-        [Test]
+        [Fact]
         public void TestSocketTimeout()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
 
             var socketTimeout = new TimeSpan(1, 2, 3);
             settings.SocketTimeout = socketTimeout;
-            Assert.AreEqual(socketTimeout, settings.SocketTimeout);
+            Assert.Equal(socketTimeout, settings.SocketTimeout);
 
             settings.Freeze();
-            Assert.AreEqual(socketTimeout, settings.SocketTimeout);
+            Assert.Equal(socketTimeout, settings.SocketTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.SocketTimeout = socketTimeout; });
         }
 
-        [Test]
+        [Fact]
         public void TestSslSettings()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(null, settings.SslSettings);
+            Assert.Equal(null, settings.SslSettings);
 
             var sslSettings = new SslSettings { CheckCertificateRevocation = false };
             settings.SslSettings = sslSettings;
-            Assert.AreEqual(sslSettings, settings.SslSettings);
+            Assert.Equal(sslSettings, settings.SslSettings);
 
             settings.Freeze();
-            Assert.AreEqual(sslSettings, settings.SslSettings);
+            Assert.Equal(sslSettings, settings.SslSettings);
             Assert.Throws<InvalidOperationException>(() => { settings.SslSettings = sslSettings; });
         }
 
-        [Test]
+        [Fact]
         public void TestUseSsl()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(false, settings.UseSsl);
+            Assert.Equal(false, settings.UseSsl);
 
             var useSsl = true;
             settings.UseSsl = useSsl;
-            Assert.AreEqual(useSsl, settings.UseSsl);
+            Assert.Equal(useSsl, settings.UseSsl);
 
             settings.Freeze();
-            Assert.AreEqual(useSsl, settings.UseSsl);
+            Assert.Equal(useSsl, settings.UseSsl);
             Assert.Throws<InvalidOperationException>(() => { settings.UseSsl = useSsl; });
         }
 
-        [Test]
+        [Fact]
         public void TestVerifySslCertificate()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(true, settings.VerifySslCertificate);
+            Assert.Equal(true, settings.VerifySslCertificate);
 
             var verifySslCertificate = false;
             settings.VerifySslCertificate = verifySslCertificate;
-            Assert.AreEqual(verifySslCertificate, settings.VerifySslCertificate);
+            Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
 
             settings.Freeze();
-            Assert.AreEqual(verifySslCertificate, settings.VerifySslCertificate);
+            Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
             Assert.Throws<InvalidOperationException>(() => { settings.VerifySslCertificate = verifySslCertificate; });
         }
 
-        [Test]
+        [Fact]
         public void TestWaitQueueSize()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
+            Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
 
             var waitQueueSize = 123;
             settings.WaitQueueSize = waitQueueSize;
-            Assert.AreEqual(waitQueueSize, settings.WaitQueueSize);
+            Assert.Equal(waitQueueSize, settings.WaitQueueSize);
 
             settings.Freeze();
-            Assert.AreEqual(waitQueueSize, settings.WaitQueueSize);
+            Assert.Equal(waitQueueSize, settings.WaitQueueSize);
             Assert.Throws<InvalidOperationException>(() => { settings.WaitQueueSize = waitQueueSize; });
         }
 
-        [Test]
+        [Fact]
         public void TestWaitQueueTimeout()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
+            Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
 
             var waitQueueTimeout = new TimeSpan(1, 2, 3);
             settings.WaitQueueTimeout = waitQueueTimeout;
-            Assert.AreEqual(waitQueueTimeout, settings.WaitQueueTimeout);
+            Assert.Equal(waitQueueTimeout, settings.WaitQueueTimeout);
 
             settings.Freeze();
-            Assert.AreEqual(waitQueueTimeout, settings.WaitQueueTimeout);
+            Assert.Equal(waitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.WaitQueueTimeout = waitQueueTimeout; });
         }
 
-        [Test]
+        [Fact]
         public void TestWriteConcern()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
 
             var writeConcern = new WriteConcern();
             settings.WriteConcern = writeConcern;
-            Assert.AreSame(writeConcern, settings.WriteConcern);
+            Assert.Same(writeConcern, settings.WriteConcern);
 
             settings.Freeze();
-            Assert.AreEqual(writeConcern, settings.WriteConcern);
+            Assert.Equal(writeConcern, settings.WriteConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
         }
 
-        [Test]
+        [Fact]
         public void ToClusterKey_should_copy_relevant_values()
         {
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };

@@ -20,14 +20,14 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class UpdateDefinitionBuilderTests
     {
-        [Test]
+        [Fact]
         public void AddToSet()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AddToSet("a", new[] { 1, 2 }), "{$addToSet: {a: [1, 2]}}");
         }
 
-        [Test]
+        [Fact]
         public void AddToSet_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AddToSet("FavoriteColors", "green"), "{$addToSet: {colors: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void AddToSetEach()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AddToSetEach("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$addToSet: {a: {$each: [[1, 2], [3, 4]]}}}");
         }
 
-        [Test]
+        [Fact]
         public void AddToSetEach_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseAnd()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseAnd("a", 1), "{$bit: {a: {and: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseAnd_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseAnd("Age", 1), "{$bit: {age: {and: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseOr()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseOr("a", 1), "{$bit: {a: {or: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseOr_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseOr("Age", 1), "{$bit: {age: {or: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseXor()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseXor("a", 1), "{$bit: {a: {xor: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void BitwiseXor_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitwiseXor("Age", 1), "{$bit: {age: {xor: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void Combine()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests
             Assert(update, "{$set: {a: 1, b: 2}, $inc: {c: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_overlapping_operators()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests
             Assert(update, "{$set: {a: 1, b: 2, c: 3}}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_overlapping_operators_and_duplicate_elements()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests
             Assert(update, "{$set: {a: 4, b: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_overlapping_operators_and_duplicate_elements_using_extension_methods()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
             Assert(update, "{$set: {a: 4, b: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_no_updates()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests
             Assert(update, "{ }");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("a"), "{$currentDate: {a: true}}");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate_with_date_type()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("a", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {a: {$type: 'date'}}}");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate_with_timestamp_type()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("a", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {a: {$type: 'timestamp'}}}");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("LastUpdated"), "{$currentDate: {last_updated: true}}");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate_Typed_with_date_type()
         {
             var subject = CreateSubject<Person>();
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}");
         }
 
-        [Test]
+        [Fact]
         public void CurrentDate_Typed_with_timestamp_type()
         {
             var subject = CreateSubject<Person>();
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}");
         }
 
-        [Test]
+        [Fact]
         public void Inc()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Inc("a", 1), "{$inc: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Inc_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Inc("Age", 1), "{$inc: {age: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Indexed_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set(x => x.Pets.ElementAt(index).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
         }
 
-        [Test]
+        [Fact]
         public void Indexed_Positional_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
         }
 
-        [Test]
+        [Fact]
         public void Max()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Max("a", 1), "{$max: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Max_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Max("Age", 1), "{$max: {age: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Min()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Min("a", 1), "{$min: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Min_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Min("Age", 1), "{$min: {age: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Mul()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -307,7 +307,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Mul("a", 2), "{$mul: {a: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Mul_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Mul("Age", 2), "{$mul: {age: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void PopFirst()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PopFirst("a"), "{$pop: {a: -1}}");
         }
 
-        [Test]
+        [Fact]
         public void PopFirst_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PopFirst("FavoriteColors"), "{$pop: {colors: -1}}");
         }
 
-        [Test]
+        [Fact]
         public void PopLast()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PopLast("a"), "{$pop: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void PopLast_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PopLast("FavoriteColors"), "{$pop: {colors: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Pull()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -359,7 +359,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Pull("a", new[] { 1, 2 }), "{$pull: {a: [1, 2]}}");
         }
 
-        [Test]
+        [Fact]
         public void Pull_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -368,7 +368,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Pull("FavoriteColors", "green"), "{$pull: {colors: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void PullAll()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -377,7 +377,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PullAll("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$pullAll: {a: [[1, 2], [3, 4]]}}");
         }
 
-        [Test]
+        [Fact]
         public void PullAll_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PullAll("FavoriteColors", new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
         }
 
-        [Test]
+        [Fact]
         public void PullFilter()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -394,7 +394,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PullFilter<BsonDocument>("a", "{b: {$gt: 1}}"), "{$pull: {a: {b: {$gt: 1}}}}");
         }
 
-        [Test]
+        [Fact]
         public void PullFilter_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PullFilter<Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}");
         }
 
-        [Test]
+        [Fact]
         public void Push()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -412,7 +412,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Push("a", new[] { 1, 2 }), "{$push: {a: [1, 2]}}");
         }
 
-        [Test]
+        [Fact]
         public void Push_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -421,7 +421,8 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Push("FavoriteColors", "green"), "{$push: {colors: 'green'}}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void PushEach(
             [Values(null, 10)] int? slice,
             [Values(null, 20)] int? position,
@@ -448,7 +449,8 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PushEach("a", new[] { 1, 2 }, slice, position, sort), expectedPush);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void PushEach_Typed(
             [Values(null, 10)] int? slice,
             [Values(null, 20)] int? position,
@@ -475,7 +477,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.PushEach(x => x.FavoriteColors, new[] { "green", "violet" }, slice, position, sort), expectedPush);
         }
 
-        [Test]
+        [Fact]
         public void Rename()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -483,7 +485,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Rename("a", "b"), "{$rename: {a: 'b'}}");
         }
 
-        [Test]
+        [Fact]
         public void Rename_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -492,7 +494,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Rename("Age", "birthDate"), "{$rename: {age: 'birthDate'}}");
         }
 
-        [Test]
+        [Fact]
         public void Set()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -500,7 +502,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set("a", 1), "{$set: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Set_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -509,7 +511,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set("Age", 1), "{$set: {age: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Set_Typed_with_cast()
         {
             var subject = CreateSubject<Message>();
@@ -521,7 +523,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
         }
 
-        [Test]
+        [Fact]
         public void Set_Typed_with_type_as()
         {
             var subject = CreateSubject<Message>();
@@ -533,7 +535,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
         }
 
-        [Test]
+        [Fact]
         public void SetOnInsert()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -541,7 +543,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.SetOnInsert("a", 1), "{$setOnInsert: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void SetOnInsert_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -550,7 +552,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.SetOnInsert("Age", 1), "{$setOnInsert: {age: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Unset()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -558,7 +560,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Unset("a"), "{$unset: {a: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Unset_Typed()
         {
             var subject = CreateSubject<Person>();

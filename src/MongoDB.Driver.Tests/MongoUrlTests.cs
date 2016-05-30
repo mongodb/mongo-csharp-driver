@@ -18,15 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
-    [Category("ConnectionString")]
+    //[Category("ConnectionString")]
     public class MongoUrlTests
     {
-        [Test]
+        [Fact]
         public void TestAll()
         {
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
@@ -98,38 +97,38 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
-                Assert.AreEqual("GSSAPI", url.AuthenticationMechanism);
-                CollectionAssert.AreEqual(authMechanismProperties, url.AuthenticationMechanismProperties);
-                Assert.AreEqual("db", url.AuthenticationSource);
-                Assert.AreEqual(123, url.ComputedWaitQueueSize);
-                Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
-                Assert.AreEqual(TimeSpan.FromSeconds(1), url.ConnectTimeout);
-                Assert.AreEqual("database", url.DatabaseName);
-                Assert.AreEqual(true, url.FSync);
-                Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
-                Assert.AreEqual(true, url.IPv6);
-                Assert.AreEqual(true, url.Journal);
-                Assert.AreEqual(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
-                Assert.AreEqual(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);
-                Assert.AreEqual(4, url.MaxConnectionPoolSize);
-                Assert.AreEqual(5, url.MinConnectionPoolSize);
-                Assert.AreEqual("password", url.Password);
-                Assert.AreEqual(ReadConcernLevel.Majority, url.ReadConcernLevel);
-                Assert.AreEqual(readPreference, url.ReadPreference);
-                Assert.AreEqual("name", url.ReplicaSetName);
-                Assert.AreEqual(TimeSpan.FromSeconds(6), url.LocalThreshold);
-                Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
-                Assert.AreEqual(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
-                Assert.AreEqual(TimeSpan.FromSeconds(7), url.SocketTimeout);
-                Assert.AreEqual("username", url.Username);
-                Assert.AreEqual(true, url.UseSsl);
-                Assert.AreEqual(false, url.VerifySslCertificate);
-                Assert.AreEqual(2, ((WriteConcern.WCount)url.W).Value);
-                Assert.AreEqual(0.0, url.WaitQueueMultiple);
-                Assert.AreEqual(123, url.WaitQueueSize);
-                Assert.AreEqual(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
-                Assert.AreEqual(TimeSpan.FromSeconds(9), url.WTimeout);
-                Assert.AreEqual(connectionString, url.ToString());
+                Assert.Equal("GSSAPI", url.AuthenticationMechanism);
+                Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
+                Assert.Equal("db", url.AuthenticationSource);
+                Assert.Equal(123, url.ComputedWaitQueueSize);
+                Assert.Equal(ConnectionMode.ReplicaSet, url.ConnectionMode);
+                Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
+                Assert.Equal("database", url.DatabaseName);
+                Assert.Equal(true, url.FSync);
+                Assert.Equal(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
+                Assert.Equal(true, url.IPv6);
+                Assert.Equal(true, url.Journal);
+                Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
+                Assert.Equal(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);
+                Assert.Equal(4, url.MaxConnectionPoolSize);
+                Assert.Equal(5, url.MinConnectionPoolSize);
+                Assert.Equal("password", url.Password);
+                Assert.Equal(ReadConcernLevel.Majority, url.ReadConcernLevel);
+                Assert.Equal(readPreference, url.ReadPreference);
+                Assert.Equal("name", url.ReplicaSetName);
+                Assert.Equal(TimeSpan.FromSeconds(6), url.LocalThreshold);
+                Assert.Equal(new MongoServerAddress("host", 27017), url.Server);
+                Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
+                Assert.Equal("username", url.Username);
+                Assert.Equal(true, url.UseSsl);
+                Assert.Equal(false, url.VerifySslCertificate);
+                Assert.Equal(2, ((WriteConcern.WCount)url.W).Value);
+                Assert.Equal(0.0, url.WaitQueueMultiple);
+                Assert.Equal(123, url.WaitQueueSize);
+                Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
+                Assert.Equal(connectionString, url.ToString());
             }
         }
 

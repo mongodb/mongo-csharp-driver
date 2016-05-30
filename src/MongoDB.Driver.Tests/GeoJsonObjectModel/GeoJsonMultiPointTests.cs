@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonMultiPointTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint2D()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint2DGeographic()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint2DProjected()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint2DWithExtraMembers()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint3D()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint3DGeographic()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint3DProjected()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPoint3DWithExtraMembers()
         {
             var multiPoint = GeoJson.MultiPoint(
@@ -126,10 +126,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonMultiPoint<TCoordinates> multiPoint) where TCoordinates : GeoJsonCoordinates
         {
             var json = multiPoint.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonMultiPoint<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

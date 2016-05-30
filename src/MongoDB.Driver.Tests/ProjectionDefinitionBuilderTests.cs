@@ -18,14 +18,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class ProjectionDefinitionBuilderTests
     {
-        [Test]
+        [Fact]
         public void Combine()
         {
             var subject = CreateSubject<Person>();
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Tests
             Assert(projection, "{fn: 1, LastName: 0}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_redundant_fields()
         {
             var subject = CreateSubject<Person>();
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Tests
             Assert(projection, "{LastName: 0, fn: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_redundant_fields_using_extension_method()
         {
             var subject = CreateSubject<Person>();
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Tests
             Assert(projection, "{LastName: 0, fn: 1}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -78,7 +77,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch_from_filter()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -86,7 +85,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("a.$"), "{'a.$': 1}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch_from_filter_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("Pets.$"), "{'pets.$': 1}");
         }
 
-        [Test]
+        [Fact]
         public void Exclude()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Exclude("a"), "{a: 0}");
         }
 
-        [Test]
+        [Fact]
         public void Exclude_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -112,7 +111,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Exclude("FirstName"), "{fn: 0}");
         }
 
-        [Test]
+        [Fact]
         public void Include()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -120,7 +119,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("a"), "{a: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Include_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -129,7 +128,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("FirstName"), "{fn: 1}");
         }
 
-        [Test]
+        [Fact]
         public void MetaTextScore()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -137,7 +136,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.MetaTextScore("a"), "{a: {$meta: 'textScore'}}");
         }
 
-        [Test]
+        [Fact]
         public void Slice()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -145,7 +144,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("a", 10), "{a: {$slice: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Slice_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -154,7 +153,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("Pets", 10), "{pets: {$slice: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Slice_with_limit()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -162,7 +161,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("a", 10, 20), "{a: {$slice: [10, 20]}}");
         }
 
-        [Test]
+        [Fact]
         public void Slice_Typed_with_limit()
         {
             var subject = CreateSubject<Person>();

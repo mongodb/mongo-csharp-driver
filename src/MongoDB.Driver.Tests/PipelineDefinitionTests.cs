@@ -18,14 +18,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class PipelineStagePipelineDefinitionTests
     {
-        [Test]
+        [Fact]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages_and_throw_when_invalid()
         {
             var stages = new IPipelineStageDefinition[] 
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages()
         {
             var stages = new IPipelineStageDefinition[] 

@@ -16,31 +16,30 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Configuration;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
-    [TestFixture]
-    [Explicit]
-    [Category("Authentication")]
-    [Category("GssapiMechanism")]
+    //[Category("Authentication")]
+    //[Category("GssapiMechanism")]
     public class GssapiAuthenticationTests
     {
         private static readonly string __collectionName = "test";
 
         private MongoClientSettings _settings;
 
-        [SetUp]
-        public void Setup()
+        public GssapiAuthenticationTests()
         {
             _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
-        [Test]
+        [SkippableFact]
         public void TestNoCredentials()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             _settings.Credentials = Enumerable.Empty<MongoCredential>();
             var client = new MongoClient(_settings);
 
@@ -54,9 +53,10 @@ namespace MongoDB.Driver.Tests.Communication.Security
         }
 
 
-        [Test]
+        [SkippableFact]
         public void TestSuccessfulAuthentication()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             var client = new MongoClient(_settings);
 
             var result = client
@@ -65,12 +65,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 .FindSync(new BsonDocument())
                 .ToList();
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [SkippableFact]
         public void TestBadPassword()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             var currentCredentialUsername = _settings.Credentials.Single().Username;
             _settings.Credentials = new[]
             {

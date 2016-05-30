@@ -26,19 +26,20 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
+using System.Collections;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 {
-    [TestFixture]
     public class TestRunner
     {
         private static MongoClient __client;
         private static EventCapturer __capturedEvents;
         private static Dictionary<string, Func<ICrudOperationTest>> __tests;
-
         private static string[] __commandsToCapture;
+        private static bool __oneTimeSetupHasRun = false;
+        private static object __oneTimeSetupLock = new object();
 
         static TestRunner()
         {
@@ -67,8 +68,15 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             };
         }
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public TestRunner()
+        {
+            lock (__oneTimeSetupLock)
+            {
+                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
+            }
+        }
+
+        public bool OneTimeSetup()
         {
             __capturedEvents = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => __commandsToCapture.Contains(e.CommandName))
@@ -88,9 +96,12 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             };
 
             __client = new MongoClient(settings);
+
+            return true;
         }
 
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [SkippableTheory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition, bool async)
         {
             definition = (BsonDocument)DeepCopy(definition); // protect against side effects when the same definition is run twice (async=false/true)
@@ -102,7 +113,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 var maxServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion > maxServerVersion)
                 {
-                    Assert.Ignore($"Test ignored because server version {serverVersion} is greater than max server version {maxServerVersion}.");
+                    throw new SkipTestException($"Test ignored because server version {serverVersion} is greater than max server version {maxServerVersion}.");
                 }
             }
             if (definition.TryGetValue("ignore_if_server_version_less_than", out bsonValue))
@@ -111,7 +122,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 var minServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion < minServerVersion)
                 {
-                    Assert.Ignore($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
+                    throw new SkipTestException($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
                 }
             }
 
@@ -142,7 +153,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             {
                 if (!__capturedEvents.Any() && !SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5)))
                 {
-                    Assert.Fail("Expected an event, but no events were captured.");
+                    Assert.True(false, "Expected an event, but no events were captured.");
                 }
 
                 if (expected.Contains("command_started_event"))
@@ -169,7 +180,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
                 else
                 {
-                    Assert.Fail("Unknown event type.");
+                    Assert.True(false, "Unknown event type.");
                 }
             }
         }
@@ -194,8 +205,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             string reason;
             if (!test.CanExecute(__client.Cluster.Description, arguments, out reason))
             {
-                Assert.Ignore(reason);
-                return;
+                throw new SkipTestException(reason);
             }
 
             test.Execute(__client.Cluster.Description, database, collection, arguments, async);
@@ -313,9 +323,9 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             return value;
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.";
                 var testDocuments = Assembly
@@ -324,6 +334,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path => ReadDocument(path));
 
+                var testCases = new List<object[]>();
                 foreach (var testDocument in testDocuments)
                 {
                     var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
@@ -334,14 +345,22 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     {
                         foreach (var async in new[] { false, true })
                         {
-                            var testCase = new TestCaseData(data, databaseName, collectionName, definition, async);
-                            testCase.SetCategory("Specifications");
-                            testCase.SetCategory("command-monitoring");
-                            testCase.SetName($"{definition["description"]}({async})");
-                            yield return testCase;
+                            //var testCase = new TestCaseData(data, databaseName, collectionName, definition, async);
+                            //testCase.SetCategory("Specifications");
+                            //testCase.SetCategory("command-monitoring");
+                            //testCase.SetName($"{definition["description"]}({async})");
+                            var testCase = new object[] { data, databaseName, collectionName, definition, async };
+                            testCases.Add(testCase);
                         }
                     }
                 }
+
+                return testCases.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDocument(string path)

@@ -17,14 +17,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class SortDefinitionBuilderTests
     {
-        [Test]
+        [Fact]
         public void Ascending()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -32,7 +31,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Ascending("a"), "{a: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Ascending_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Ascending("FirstName"), "{fn: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Tests
             Assert(sort, "{a: 1, b: -1, c: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_repeated_fields()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.Tests
             Assert(sort, "{b: -1, a: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_repeated_fields_using_extension_methods()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Tests
             Assert(sort, "{b: -1, a: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Descending()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Descending("a"), "{a: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Descending_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -94,7 +93,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Descending("FirstName"), "{fn: -1}");
         }
 
-        [Test]
+        [Fact]
         public void MetaTextScore()
         {
             var subject = CreateSubject<BsonDocument>();

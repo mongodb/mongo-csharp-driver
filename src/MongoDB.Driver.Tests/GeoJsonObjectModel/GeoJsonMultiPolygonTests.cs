@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonMultiPolygonTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var multiPolygon = GeoJson.MultiPolygon<GeoJson2DCoordinates>(
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon2D()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon2DGeographic()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon2DProjected()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon2DWithExtraMembers()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon3D()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon3DGeographic()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon3DProjected()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
-        [Test]
+        [Fact]
         public void TestMultiPolygon3DWithExtraMembers()
         {
             var multiPolygon = GeoJson.MultiPolygon(
@@ -131,10 +131,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonMultiPolygon<TCoordinates> multiPolygon) where TCoordinates : GeoJsonCoordinates
         {
             var json = multiPolygon.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonMultiPolygon<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

@@ -23,15 +23,16 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Translators;
 using FluentAssertions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class IFindFluentExtensionsTests
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
@@ -68,9 +69,10 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_throw_when_find_is_null(
-          [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             IFindFluent<Person, Person> subject = null;
 
@@ -87,9 +89,10 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
-           [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var subject1 = Substitute.For<IFindFluent<Person, Person>>();
             var subject2 = Substitute.For<IFindFluent<Person, Person>>();
@@ -124,7 +127,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstOrDefault_should_throw_when_find_is_null(
             [Values(false, true)] bool async)
         {
@@ -143,7 +147,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
         }
 
-        [Test]
+        [Fact]
         public void Project_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
         {
             var subject = CreateSubject()
@@ -154,7 +158,7 @@ namespace MongoDB.Driver.Tests
             AssertProjection(subject, expectedProjection);
         }
 
-        [Test]
+        [Fact]
         public void Project_should_generate_the_correct_fields_when_a_string_is_used()
         {
             var subject = CreateSubject()
@@ -165,7 +169,7 @@ namespace MongoDB.Driver.Tests
             AssertProjection(subject, expectedProjection);
         }
 
-        [Test]
+        [Fact]
         public void Project_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
         {
             var subject = CreateSubject()
@@ -176,9 +180,10 @@ namespace MongoDB.Driver.Tests
             AssertProjection(subject, expectedProjection);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(
-          [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var subject1 = Substitute.For<IFindFluent<Person, Person>>();
             var subject2 = Substitute.For<IFindFluent<Person, Person>>();
@@ -214,7 +219,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_throw_when_find_is_null(
             [Values(false, true)] bool async)
         {
@@ -233,7 +239,8 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
@@ -271,7 +278,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_throw_when_find_is_null(
             [Values(false, true)] bool async)
         {
@@ -290,7 +298,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("find");
         }
 
-        [Test]
+        [Fact]
         public void SortBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -301,7 +309,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -312,7 +320,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -323,7 +331,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenBy_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -334,7 +342,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -345,7 +353,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -356,7 +364,7 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_ThenByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();
@@ -369,12 +377,12 @@ namespace MongoDB.Driver.Tests
 
         private static void AssertProjection<TResult>(IFindFluent<Person, TResult> subject, BsonDocument expectedProjection)
         {
-            Assert.AreEqual(expectedProjection, subject.Options.Projection.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry).Document);
+            Assert.Equal(expectedProjection, subject.Options.Projection.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry).Document);
         }
 
         private static void AssertSort(IFindFluent<Person, Person> subject, BsonDocument expectedSort)
         {
-            Assert.AreEqual(expectedSort, subject.Options.Sort.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
+            Assert.Equal(expectedSort, subject.Options.Sort.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
         }
 
         private IFindFluent<Person, Person> CreateSubject()

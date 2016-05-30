@@ -24,13 +24,14 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Tests;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver
 {
@@ -40,8 +41,7 @@ namespace MongoDB.Driver
         private readonly ReadConcern _readConcern = ReadConcern.Majority;
         private MockOperationExecutor _operationExecutor;
 
-        [SetUp]
-        public void Setup()
+        public MongoCollectionImplTests()
         {
             _operationExecutor = new MockOperationExecutor();
         }
@@ -62,7 +62,7 @@ namespace MongoDB.Driver
                 _operationExecutor);
         }
 
-        [Test]
+        [Fact]
         public void CollectionName_should_be_set()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -75,14 +75,15 @@ namespace MongoDB.Driver
             subject.Database.Should().NotBeNull();
         }
 
-        [Test]
+        [Fact]
         public void Settings_should_be_set()
         {
             var subject = CreateSubject<BsonDocument>();
             subject.Settings.Should().NotBeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified(
             [Values(false, true)] bool async)
         {
@@ -124,7 +125,8 @@ namespace MongoDB.Driver
             operation.UseCursor.Should().Be(options.UseCursor);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aggregate_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified(
             [Values(false, true)] bool async)
         {
@@ -197,7 +199,8 @@ namespace MongoDB.Driver
             operation.Sort.Should().BeNull();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_should_execute_the_BulkMixedWriteOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isOrdered,
@@ -339,7 +342,8 @@ namespace MongoDB.Driver
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_execute_the_CountOperation(
             [Values(false, true)] bool async)
         {
@@ -376,7 +380,8 @@ namespace MongoDB.Driver
             operation.Skip.Should().Be(options.Skip);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteMany_should_execute_the_BulkMixedOperation(
             [Values(false, true)] bool async)
         {
@@ -400,7 +405,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, null, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteMany_should_throw_a_WriteException_when_an_error_occurs(
             [Values(false, true)] bool async)
         {
@@ -438,7 +444,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteOne_should_execute_the_BulkMixedOperation(
             [Values(false, true)] bool async)
         {
@@ -462,7 +469,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, null, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DeleteOne_should_throw_a_WriteException_when_an_error_occurs(
             [Values(false, true)] bool async)
         {
@@ -500,7 +508,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Distinct_should_execute_the_DistinctOperation(
             [Values(false, true)] bool async)
         {
@@ -533,7 +542,8 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Find_should_execute_the_FindOperation(
             [Values(false, true)] bool async)
         {
@@ -593,7 +603,8 @@ namespace MongoDB.Driver
             operation.Sort.Should().Be(sort);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Find_with_an_expression_should_execute_correctly(
             [Values(false, true)] bool async)
         {
@@ -653,7 +664,8 @@ namespace MongoDB.Driver
             operation.Sort.Should().Be(sort);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Find_with_Projection_As_should_execute_correctly(
             [Values(false, true)] bool async)
         {
@@ -682,7 +694,8 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndDelete_should_execute_the_FindOneAndDeleteOperation(
             [Values(false, true)] bool async)
         {
@@ -718,7 +731,8 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndDelete_with_Projection_As_should_execute_correctly(
             [Values(false, true)] bool async)
         {
@@ -746,7 +760,8 @@ namespace MongoDB.Driver
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -793,7 +808,8 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndReplace_with_Projection_As_should_execute_correctly(
             [Values(false, true)] bool async)
         {
@@ -822,7 +838,8 @@ namespace MongoDB.Driver
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndUpdate_should_execute_the_FindOneAndUpdateOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -869,7 +886,8 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndUpdate_with_Projection_As_should_execute_correctly(
             [Values(false, true)] bool async)
         {
@@ -898,7 +916,8 @@ namespace MongoDB.Driver
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_CreateOne_should_execute_the_CreateIndexesOperation(
             [Values(false, true)] bool async)
         {
@@ -968,7 +987,8 @@ namespace MongoDB.Driver
             request.GetIndexName().Should().Be(options.Name);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_CreateMany_should_execute_the_CreateIndexesOperation(
             [Values(false, true)] bool async)
         {
@@ -1065,7 +1085,8 @@ namespace MongoDB.Driver
             request2.GetIndexName().Should().Be("z_1");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_DropAll_should_execute_the_DropIndexOperation(
             [Values(false, true)] bool async)
         {
@@ -1088,7 +1109,8 @@ namespace MongoDB.Driver
             operation.IndexName.Should().Be("*");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_DropOne_should_execute_the_DropIndexOperation(
             [Values(false, true)] bool async)
         {
@@ -1111,7 +1133,8 @@ namespace MongoDB.Driver
             operation.IndexName.Should().Be("name");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_DropOne_should_throw_an_exception_if_an_asterisk_is_used(
             [Values(false, true)] bool async)
         {
@@ -1130,7 +1153,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<ArgumentException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Indexes_List_should_execute_the_ListIndexesOperation(
             [Values(false, true)] bool async)
         {
@@ -1152,7 +1176,8 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertOne_should_execute_the_BulkMixedOperation(
             [Values(false, true)] bool async)
         {
@@ -1176,7 +1201,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, null, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertOne_should_throw_a_WriteException_when_an_error_occurs(
             [Values(false, true)] bool async)
         {
@@ -1214,7 +1240,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertOne_should_respect_AssignIdOnInsert(
             [Values(false, true)] bool assignIdOnInsert,
             [Values(false, true)] bool async)
@@ -1243,7 +1270,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, null, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertMany_should_execute_the_BulkMixedOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isOrdered,
@@ -1279,7 +1307,8 @@ namespace MongoDB.Driver
             VerifyWrites(expectedRequests, bypassDocumentValidation, isOrdered, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertMany_should_respect_AssignIdOnInsert(
             [Values(false, true)] bool assignIdOnInsert,
             [Values(false, true)] bool async)
@@ -1308,7 +1337,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, null, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MapReduce_with_inline_output_mode_should_execute_the_MapReduceOperation(
             [Values(false, true)] bool async)
         {
@@ -1355,7 +1385,8 @@ namespace MongoDB.Driver
             operation.Verbose.Should().Be(options.Verbose);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MapReduce_with_collection_output_mode_should_execute_the_MapReduceOperation(
             [Values(false, true)] bool async)
         {
@@ -1407,7 +1438,8 @@ namespace MongoDB.Driver
             operation.Verbose.Should().Be(options.Verbose);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOne_should_execute_the_BulkMixedOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -1435,7 +1467,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOne_should_throw_a_WriteException_when_an_error_occurs(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -1476,7 +1509,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateMany_should_execute_the_BulkMixedOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -1504,7 +1538,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateMany_should_throw_a_WriteException_when_an_error_occurs(
             [Values(null, false,true)] bool? bypassDocumentValidation,
             [Values(false,true)] bool isUpsert,
@@ -1545,7 +1580,8 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateOne_should_execute_the_BulkMixedOperation(
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -1573,7 +1609,8 @@ namespace MongoDB.Driver
             VerifySingleWrite(expectedRequest, bypassDocumentValidation, true, call);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UpdateOne_should_throw_a_WriteException_when_an_error_occurs(
             [Values(false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
@@ -1614,7 +1651,7 @@ namespace MongoDB.Driver
             action.ShouldThrow<MongoWriteException>();
         }
 
-        [Test]
+        [Fact]
         public void WithReadPreference_should_return_a_new_collection_with_the_read_preference_changed()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -1622,7 +1659,7 @@ namespace MongoDB.Driver
             newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
         }
 
-        [Test]
+        [Fact]
         public void WithWriteConcern_should_return_a_new_collection_with_the_write_concern_changed()
         {
             var subject = CreateSubject<BsonDocument>();

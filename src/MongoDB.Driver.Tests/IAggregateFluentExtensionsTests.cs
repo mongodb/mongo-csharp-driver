@@ -23,18 +23,19 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using FluentAssertions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class IAggregateFluentExtensionsTests
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
@@ -71,7 +72,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void First_should_throw_when_aggregate_is_null(
             [Values(false, true)] bool async)
         {
@@ -90,7 +92,8 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
@@ -127,7 +130,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FirstOrDefault_should_throw_when_aggregate_is_null(
             [Values(false, true)] bool async)
         {
@@ -146,7 +150,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-        [Test]
+        [Fact]
         public void Group_should_generate_the_correct_group_when_a_result_type_is_not_specified()
         {
             var subject = CreateSubject()
@@ -157,7 +161,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedGroup);
         }
 
-        [Test]
+        [Fact]
         public void Group_should_generate_the_correct_document_using_expressions()
         {
             var subject = CreateSubject()
@@ -168,7 +172,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedGroup);
         }
 
-        [Test]
+        [Fact]
         public void Lookup_should_generate_the_correct_group_when_using_BsonDocument()
         {
             var subject = CreateSubject()
@@ -179,7 +183,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedLookup);
         }
 
-        [Test]
+        [Fact]
         public void Lookup_should_generate_the_correct_group_when_using_lambdas()
         {
             var subject = CreateSubject()
@@ -194,7 +198,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedLookup);
         }
 
-        [Test]
+        [Fact]
         public void Match_should_generate_the_correct_match()
         {
             var subject = CreateSubject()
@@ -205,7 +209,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedMatch);
         }
 
-        [Test]
+        [Fact]
         public void Project_should_generate_the_correct_document_when_a_result_type_is_not_specified()
         {
             var subject = CreateSubject()
@@ -216,7 +220,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedProject);
         }
 
-        [Test]
+        [Fact]
         public void Project_should_generate_the_correct_document_using_expressions()
         {
             var subject = CreateSubject()
@@ -227,7 +231,8 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedProject);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(
            [Values(false, true)] bool async)
         {
@@ -263,7 +268,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_throw_when_aggregate_is_null(
             [Values(false, true)] bool async)
         {
@@ -282,7 +288,8 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(
             [Values(false, true)] bool async)
         {
@@ -318,7 +325,8 @@ namespace MongoDB.Driver.Tests
             result.FirstName = "John";
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void SingleOrDefault_should_throw_when_aggregate_is_null(
             [Values(false, true)] bool async)
         {
@@ -337,7 +345,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-        [Test]
+        [Fact]
         public void SortBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -348,7 +356,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -360,7 +368,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -372,7 +380,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortBy_ThenBy_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -385,7 +393,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -396,7 +404,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_ThenBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -408,7 +416,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void SortByDescending_ThenByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
@@ -420,7 +428,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedSort);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_expression_to_BsonDocument_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
@@ -431,7 +439,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_expression_to_new_result_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
@@ -442,7 +450,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
@@ -453,7 +461,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_to_new_result_with_a_serializer_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
@@ -464,7 +472,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_options_where_no_options_are_set()
         {
             var subject = CreateSubject()
@@ -475,7 +483,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_options_with_preserveNullAndEmptyArrays_set()
         {
             var subject = CreateSubject()
@@ -486,7 +494,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_options_with_includeArrayIndex_set()
         {
             var subject = CreateSubject()
@@ -497,7 +505,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedUnwind);
         }
 
-        [Test]
+        [Fact]
         public void Unwind_with_options_with_includeArrayIndex_set_and_preserveNullAndEmptyArrays_set()
         {
             var subject = CreateSubject()
@@ -519,7 +527,7 @@ namespace MongoDB.Driver.Tests
             var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             var last = renderedPipeline.Documents.Last();
-            Assert.AreEqual(expectedLast, last);
+            Assert.Equal(expectedLast, last);
         }
 
         private IAggregateFluent<Person> CreateSubject(

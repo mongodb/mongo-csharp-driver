@@ -18,14 +18,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class IndexKeysDefinitionBuilderTests
     {
-        [Test]
+        [Fact]
         public void Ascending()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Ascending("a"), "{a: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Ascending_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Ascending("FirstName"), "{fn: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Tests
             Assert(result, "{a: 1, b: -1, c: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_repeated_fields()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<MongoException>();
         }
 
-        [Test]
+        [Fact]
         public void Combine_many_texts()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Tests
             Assert(result, "{a: 'text', b: 'text', c: 'text'}");
         }
 
-        [Test]
+        [Fact]
         public void Combine_with_repeated_fields_using_extension_methods()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -96,7 +95,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldThrow<MongoException>();
         }
 
-        [Test]
+        [Fact]
         public void Descending()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -104,7 +103,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Descending("a"), "{a: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Descending_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -113,7 +112,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Descending("FirstName"), "{fn: -1}");
         }
 
-        [Test]
+        [Fact]
         public void Geo2D()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -121,7 +120,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Geo2D("a"), "{a: '2d'}");
         }
 
-        [Test]
+        [Fact]
         public void Geo2D_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -130,7 +129,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Geo2D("FirstName"), "{fn: '2d'}");
         }
 
-        [Test]
+        [Fact]
         public void GeoHaystack()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -139,7 +138,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoHaystack("a", "b"), "{a: 'geoHaystack', b: 1 }");
         }
 
-        [Test]
+        [Fact]
         public void GeoHaystack_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -149,7 +148,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoHaystack("FirstName", "LastName"), "{fn: 'geoHaystack', ln: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Geo2DSphere()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -157,7 +156,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Geo2DSphere("a"), "{a: '2dsphere'}");
         }
 
-        [Test]
+        [Fact]
         public void Geo2DSphere_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -166,7 +165,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Geo2DSphere("FirstName"), "{fn: '2dsphere'}");
         }
 
-        [Test]
+        [Fact]
         public void Text()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -175,7 +174,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Text("$**"), "{'$**': 'text'}");
         }
 
-        [Test]
+        [Fact]
         public void Text_Typed()
         {
             var subject = CreateSubject<Person>();

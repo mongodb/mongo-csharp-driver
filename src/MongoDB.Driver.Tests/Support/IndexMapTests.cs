@@ -15,111 +15,110 @@
 
 using System.Collections.Generic;
 using MongoDB.Driver.Support;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Support
 {
-    [TestFixture]
     public class IndexMapTests
     {
-        [Test]
+        [Fact]
         public void TestDictionaryBasedWith0()
         {
             var map = new IndexMap.DictionaryBased();
             Assert.Throws<KeyNotFoundException>(() => map.Map(0));
         }
 
-        [Test]
+        [Fact]
         public void TestDictionaryBasedWith1()
         {
             IndexMap map = new IndexMap.DictionaryBased();
             map = map.Add(0, 1);
-            Assert.AreEqual(1, map.Map(0));
+            Assert.Equal(1, map.Map(0));
             Assert.Throws<KeyNotFoundException>(() => map.Map(1));
         }
 
-        [Test]
+        [Fact]
         public void TestDictionaryBasedWith2()
         {
             IndexMap map = new IndexMap.DictionaryBased();
             map = map.Add(0, 1);
             map = map.Add(1, 3);
-            Assert.AreEqual(1, map.Map(0));
-            Assert.AreEqual(3, map.Map(1));
+            Assert.Equal(1, map.Map(0));
+            Assert.Equal(3, map.Map(1));
             Assert.Throws<KeyNotFoundException>(() => map.Map(2));
         }
 
-        [Test]
+        [Fact]
         public void TestMixedWith1Then1()
         {
             IndexMap map = new IndexMap.RangeBased();
             map = map.Add(0, 1);
-            Assert.IsInstanceOf<IndexMap.RangeBased>(map);
+            Assert.IsType<IndexMap.RangeBased>(map);
             map = map.Add(1, 3);
-            Assert.IsInstanceOf<IndexMap.DictionaryBased>(map);
-            Assert.AreEqual(1, map.Map(0));
-            Assert.AreEqual(3, map.Map(1));
+            Assert.IsType<IndexMap.DictionaryBased>(map);
+            Assert.Equal(1, map.Map(0));
+            Assert.Equal(3, map.Map(1));
             Assert.Throws<KeyNotFoundException>(() => map.Map(2));
         }
 
-        [Test]
+        [Fact]
         public void TestMixedWith2Then1()
         {
             IndexMap map = new IndexMap.RangeBased();
             map = map.Add(0, 1);
             map = map.Add(1, 2);
-            Assert.IsInstanceOf<IndexMap.RangeBased>(map);
+            Assert.IsType<IndexMap.RangeBased>(map);
             map = map.Add(2, 4);
-            Assert.IsInstanceOf<IndexMap.DictionaryBased>(map);
-            Assert.AreEqual(1, map.Map(0));
-            Assert.AreEqual(2, map.Map(1));
-            Assert.AreEqual(4, map.Map(2));
+            Assert.IsType<IndexMap.DictionaryBased>(map);
+            Assert.Equal(1, map.Map(0));
+            Assert.Equal(2, map.Map(1));
+            Assert.Equal(4, map.Map(2));
             Assert.Throws<KeyNotFoundException>(() => map.Map(3));
         }
 
-        [Test]
+        [Fact]
         public void TestRangeBasedAdd1()
         {
             IndexMap map = new IndexMap.RangeBased();
             map = map.Add(0, 1);
-            Assert.IsInstanceOf<IndexMap.RangeBased>(map);
-            Assert.AreEqual(1, map.Map(0));
+            Assert.IsType<IndexMap.RangeBased>(map);
+            Assert.Equal(1, map.Map(0));
             Assert.Throws<KeyNotFoundException>(() => map.Map(1));
         }
 
-        [Test]
+        [Fact]
         public void TestRangeBasedAdd2()
         {
             IndexMap map = new IndexMap.RangeBased();
             map = map.Add(0, 1);
             map = map.Add(1, 2);
-            Assert.IsInstanceOf<IndexMap.RangeBased>(map);
-            Assert.AreEqual(1, map.Map(0));
-            Assert.AreEqual(2, map.Map(1));
+            Assert.IsType<IndexMap.RangeBased>(map);
+            Assert.Equal(1, map.Map(0));
+            Assert.Equal(2, map.Map(1));
             Assert.Throws<KeyNotFoundException>(() => map.Map(2));
         }
 
-        [Test]
+        [Fact]
         public void TestRangeBasedWith0()
         {
             var map = new IndexMap.RangeBased();
             Assert.Throws<KeyNotFoundException>(() => map.Map(0));
         }
 
-        [Test]
+        [Fact]
         public void TestRangeBasedWith1()
         {
             var map = new IndexMap.RangeBased(0, 1, 1);
-            Assert.AreEqual(1, map.Map(0));
+            Assert.Equal(1, map.Map(0));
             Assert.Throws<KeyNotFoundException>(() => map.Map(1));
         }
 
-        [Test]
+        [Fact]
         public void TestRangeBasedWith2()
         {
             var map = new IndexMap.RangeBased(0, 1, 2);
-            Assert.AreEqual(1, map.Map(0));
-            Assert.AreEqual(2, map.Map(1));
+            Assert.Equal(1, map.Map(0));
+            Assert.Equal(2, map.Map(1));
             Assert.Throws<KeyNotFoundException>(() => map.Map(2));
         }
     }

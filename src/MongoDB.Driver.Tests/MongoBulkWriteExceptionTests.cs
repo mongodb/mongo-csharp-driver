@@ -25,50 +25,59 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoBulkWriteExceptionTests
     {
-        private BulkWriteResult<BsonDocument> _bulkWriteResult;
-        private ConnectionId _connectionId;
-        private WriteConcernError _writeConcernError;
-        private BulkWriteError[] _writeErrors;
-        private WriteModel<BsonDocument>[] _unprocessedRequests;
+        private static BulkWriteResult<BsonDocument> __bulkWriteResult;
+        private static ConnectionId __connectionId;
+        private static WriteConcernError __writeConcernError;
+        private static BulkWriteError[] __writeErrors;
+        private static WriteModel<BsonDocument>[] __unprocessedRequests;
+        private static bool __oneTimeSetupHasRun = false;
+        private static object __oneTimeSetupLock = new object();
 
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoBulkWriteExceptionTests()
         {
-            _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
+            lock (__oneTimeSetupLock)
+            {
+                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
+            }
+        }
+
+        public bool OneTimeSetup()
+        {
+            __connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
             var processedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("b", 1)) };
             var upserts = new BulkWriteUpsert[0];
-            _bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
-            _writeConcernError = new WriteConcernError(11, "funny", new BsonDocument("c", 1));
-            _writeErrors = new[] { new BulkWriteError(10, ServerErrorCategory.Uncategorized, 1, "blah", new BsonDocument("a", 1)) };
-            _unprocessedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("a", 1)) };
+            __bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
+            __writeConcernError = new WriteConcernError(11, "funny", new BsonDocument("c", 1));
+            __writeErrors = new[] { new BulkWriteError(10, ServerErrorCategory.Uncategorized, 1, "blah", new BsonDocument("a", 1)) };
+            __unprocessedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("a", 1)) };
+
+            return true;
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoBulkWriteException<BsonDocument>(_connectionId, _bulkWriteResult, _writeErrors, _writeConcernError, _unprocessedRequests);
+            var subject = new MongoBulkWriteException<BsonDocument>(__connectionId, __bulkWriteResult, __writeErrors, __writeConcernError, __unprocessedRequests);
 
-            subject.ConnectionId.Should().BeSameAs(_connectionId);
+            subject.ConnectionId.Should().BeSameAs(__connectionId);
             subject.Message.Should().Contain("bulk write operation");
-            subject.Result.Should().BeSameAs(_bulkWriteResult);
-            subject.UnprocessedRequests.Should().Equal(_unprocessedRequests);
-            subject.WriteConcernError.Should().BeSameAs(_writeConcernError);
-            subject.WriteErrors.Should().Equal(_writeErrors);
+            subject.Result.Should().BeSameAs(__bulkWriteResult);
+            subject.UnprocessedRequests.Should().Equal(__unprocessedRequests);
+            subject.WriteConcernError.Should().BeSameAs(__writeConcernError);
+            subject.WriteErrors.Should().Equal(__writeErrors);
         }
 
-        [Test]
+        [Fact]
         public void FromCore_should_convert_from_core_exception_with_a_write_concern_error_when_original_models_exists()
         {
             var exception = new MongoBulkWriteOperationException(
-                _connectionId,
+                __connectionId,
                 result: new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -97,11 +106,11 @@ namespace MongoDB.Driver.Tests
             mapped.UnprocessedRequests[0].Should().BeSameAs(models[0]);
         }
 
-        [Test]
+        [Fact]
         public void FromCore_should_convert_from_core_exception_with_a_write_concern_error_when_original_models_do_not_exist()
         {
             var exception = new MongoBulkWriteOperationException(
-                _connectionId,
+                __connectionId,
                 result: new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -128,10 +137,10 @@ namespace MongoDB.Driver.Tests
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
-            var subject = new MongoBulkWriteException<BsonDocument>(_connectionId, _bulkWriteResult, _writeErrors, _writeConcernError, _unprocessedRequests);
+            var subject = new MongoBulkWriteException<BsonDocument>(__connectionId, __bulkWriteResult, __writeErrors, __writeConcernError, __unprocessedRequests);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())

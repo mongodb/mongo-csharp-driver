@@ -16,14 +16,13 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoCollectionSettingsTests
     {
-        [Test]
+        [Fact]
         public void TestAll()
         {
             var settings = new MongoCollectionSettings
@@ -35,29 +34,29 @@ namespace MongoDB.Driver.Tests
                 WriteConcern = WriteConcern.Acknowledged
             };
 
-            Assert.AreEqual(true, settings.AssignIdOnInsert);
-            Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
-            Assert.AreEqual(ReadConcern.Majority, settings.ReadConcern);
-            Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.Equal(true, settings.AssignIdOnInsert);
+            Assert.Equal(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
+            Assert.Equal(ReadConcern.Majority, settings.ReadConcern);
+            Assert.Same(ReadPreference.Primary, settings.ReadPreference);
+            Assert.Same(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestAssignIdOnInsert()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(false, settings.AssignIdOnInsert);
+            Assert.Equal(false, settings.AssignIdOnInsert);
 
             var assignIdOnInsert = !settings.AssignIdOnInsert;
             settings.AssignIdOnInsert = assignIdOnInsert;
-            Assert.AreEqual(assignIdOnInsert, settings.AssignIdOnInsert);
+            Assert.Equal(assignIdOnInsert, settings.AssignIdOnInsert);
 
             settings.Freeze();
-            Assert.AreEqual(assignIdOnInsert, settings.AssignIdOnInsert);
+            Assert.Equal(assignIdOnInsert, settings.AssignIdOnInsert);
             Assert.Throws<InvalidOperationException>(() => { settings.AssignIdOnInsert = assignIdOnInsert; });
         }
 
-        [Test]
+        [Fact]
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned
@@ -70,138 +69,138 @@ namespace MongoDB.Driver.Tests
                 WriteConcern = WriteConcern.W2
             };
             var clone = settings.Clone();
-            Assert.IsTrue(clone.Equals(settings));
+            Assert.True(clone.Equals(settings));
         }
 
-        [Test]
+        [Fact]
         public void TestConstructor()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(false, settings.AssignIdOnInsert);
-            Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
-            Assert.AreEqual(null, settings.ReadConcern);
-            Assert.AreEqual(null, settings.ReadPreference);
-            Assert.AreEqual(null, settings.WriteConcern);
+            Assert.Equal(false, settings.AssignIdOnInsert);
+            Assert.Equal(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.Equal(null, settings.ReadConcern);
+            Assert.Equal(null, settings.ReadPreference);
+            Assert.Equal(null, settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var settings = new MongoCollectionSettings();
             var clone = settings.Clone();
-            Assert.IsTrue(clone.Equals(settings));
+            Assert.True(clone.Equals(settings));
 
             settings.Freeze();
             clone.Freeze();
-            Assert.IsTrue(clone.Equals(settings));
+            Assert.True(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.AssignIdOnInsert = !clone.AssignIdOnInsert;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ReadConcern = ReadConcern.Majority;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
             clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.WriteConcern = WriteConcern.W2;
-            Assert.IsFalse(clone.Equals(settings));
+            Assert.False(clone.Equals(settings));
         }
 
-        [Test]
+        [Fact]
         public void TestFeeze()
         {
             var settings = new MongoCollectionSettings();
-            Assert.IsFalse(settings.IsFrozen);
+            Assert.False(settings.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
-            Assert.IsTrue(settings.IsFrozen);
-            Assert.AreEqual(hashCode, settings.GetHashCode());
-            Assert.AreEqual(stringRepresentation, settings.ToString());
+            Assert.True(settings.IsFrozen);
+            Assert.Equal(hashCode, settings.GetHashCode());
+            Assert.Equal(stringRepresentation, settings.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestFrozenCopy()
         {
             var settings = new MongoCollectionSettings();
-            Assert.IsFalse(settings.IsFrozen);
+            Assert.False(settings.IsFrozen);
 
             var frozenCopy = settings.FrozenCopy();
-            Assert.IsFalse(settings.IsFrozen);
-            Assert.IsTrue(frozenCopy.IsFrozen);
-            Assert.AreNotSame(settings, frozenCopy);
+            Assert.False(settings.IsFrozen);
+            Assert.True(frozenCopy.IsFrozen);
+            Assert.NotSame(settings, frozenCopy);
 
             var secondFrozenCopy = frozenCopy.FrozenCopy();
-            Assert.IsTrue(secondFrozenCopy.IsFrozen);
-            Assert.AreSame(frozenCopy, secondFrozenCopy);
+            Assert.True(secondFrozenCopy.IsFrozen);
+            Assert.Same(frozenCopy, secondFrozenCopy);
         }
 
-        [Test]
+        [Fact]
         public void TestGuidRepresentation()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.Equal(GuidRepresentation.Unspecified, settings.GuidRepresentation);
 
             var guidRepresentation = GuidRepresentation.PythonLegacy;
             settings.GuidRepresentation = guidRepresentation;
-            Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
 
             settings.Freeze();
-            Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
             Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
         }
 
-        [Test]
+        [Fact]
         public void TestReadConcern()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(null, settings.ReadConcern);
+            Assert.Equal(null, settings.ReadConcern);
 
             var readConcern = ReadConcern.Majority;
             settings.ReadConcern = readConcern;
-            Assert.AreEqual(readConcern, settings.ReadConcern);
+            Assert.Equal(readConcern, settings.ReadConcern);
 
             settings.Freeze();
-            Assert.AreEqual(readConcern, settings.ReadConcern);
+            Assert.Equal(readConcern, settings.ReadConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadConcern = readConcern; });
         }
 
-        [Test]
+        [Fact]
         public void TestReadPreference()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(null, settings.ReadPreference);
+            Assert.Equal(null, settings.ReadPreference);
 
             var readPreference = ReadPreference.Secondary;
             settings.ReadPreference = readPreference;
-            Assert.AreEqual(readPreference, settings.ReadPreference);
+            Assert.Equal(readPreference, settings.ReadPreference);
 
             settings.Freeze();
-            Assert.AreEqual(readPreference, settings.ReadPreference);
+            Assert.Equal(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
         }
 
-        [Test]
+        [Fact]
         public void TestWriteConcern()
         {
             var settings = new MongoCollectionSettings();
-            Assert.AreEqual(null, settings.WriteConcern);
+            Assert.Equal(null, settings.WriteConcern);
 
             var writeConcern = WriteConcern.W2;
             settings.WriteConcern = writeConcern;
-            Assert.AreEqual(writeConcern, settings.WriteConcern);
+            Assert.Equal(writeConcern, settings.WriteConcern);
 
             settings.Freeze();
-            Assert.AreEqual(writeConcern, settings.WriteConcern);
+            Assert.Equal(writeConcern, settings.WriteConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
         }
     }

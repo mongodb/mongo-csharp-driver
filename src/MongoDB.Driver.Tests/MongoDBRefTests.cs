@@ -18,11 +18,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoDBRefTests
     {
         public class C
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Tests
             public MongoDBRef DBRef;
         }
 
-        [Test]
+        [Fact]
         public void TestNull()
         {
             var id = ObjectId.GenerateNewId();
@@ -40,14 +39,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : null }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimeRefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -58,14 +57,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : ISODate('1970-01-01T00:00:00Z') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestDocumentRefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -76,14 +75,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : { 'x' : 1, 'y' : 2 } } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestEqualsWithDatabase()
         {
             var a1 = new MongoDBRef("d", "c", 1);
@@ -95,34 +94,34 @@ namespace MongoDB.Driver.Tests
             var null1 = (MongoDBRef)null;
             var null2 = (MongoDBRef)null;
 
-            Assert.AreNotSame(a1, a2);
-            Assert.AreSame(a2, a3);
-            Assert.IsTrue(a1.Equals((object)a2));
-            Assert.IsFalse(a1.Equals((object)null));
-            Assert.IsFalse(a1.Equals((object)"x"));
+            Assert.NotSame(a1, a2);
+            Assert.Same(a2, a3);
+            Assert.True(a1.Equals((object)a2));
+            Assert.False(a1.Equals((object)null));
+            Assert.False(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a1 == a2);
-            Assert.IsTrue(a2 == a3);
-            Assert.IsFalse(a1 == b);
-            Assert.IsFalse(a1 == c);
-            Assert.IsFalse(a1 == d);
-            Assert.IsFalse(a1 == null1);
-            Assert.IsFalse(null1 == a1);
-            Assert.IsTrue(null1 == null2);
+            Assert.True(a1 == a2);
+            Assert.True(a2 == a3);
+            Assert.False(a1 == b);
+            Assert.False(a1 == c);
+            Assert.False(a1 == d);
+            Assert.False(a1 == null1);
+            Assert.False(null1 == a1);
+            Assert.True(null1 == null2);
 
-            Assert.IsFalse(a1 != a2);
-            Assert.IsFalse(a2 != a3);
-            Assert.IsTrue(a1 != b);
-            Assert.IsTrue(a1 != c);
-            Assert.IsTrue(a1 != d);
-            Assert.IsTrue(a1 != null1);
-            Assert.IsTrue(null1 != a1);
-            Assert.IsFalse(null1 != null2);
+            Assert.False(a1 != a2);
+            Assert.False(a2 != a3);
+            Assert.True(a1 != b);
+            Assert.True(a1 != c);
+            Assert.True(a1 != d);
+            Assert.True(a1 != null1);
+            Assert.True(null1 != a1);
+            Assert.False(null1 != null2);
 
-            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
+            Assert.Equal(a1.GetHashCode(), a2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void TestEqualsWithoutDatabase()
         {
             var a1 = new MongoDBRef("c", 1);
@@ -133,32 +132,32 @@ namespace MongoDB.Driver.Tests
             var null1 = (MongoDBRef)null;
             var null2 = (MongoDBRef)null;
 
-            Assert.AreNotSame(a1, a2);
-            Assert.AreSame(a2, a3);
-            Assert.IsTrue(a1.Equals((object)a2));
-            Assert.IsFalse(a1.Equals((object)null));
-            Assert.IsFalse(a1.Equals((object)"x"));
+            Assert.NotSame(a1, a2);
+            Assert.Same(a2, a3);
+            Assert.True(a1.Equals((object)a2));
+            Assert.False(a1.Equals((object)null));
+            Assert.False(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a1 == a2);
-            Assert.IsTrue(a2 == a3);
-            Assert.IsFalse(a1 == b);
-            Assert.IsFalse(a1 == c);
-            Assert.IsFalse(a1 == null1);
-            Assert.IsFalse(null1 == a1);
-            Assert.IsTrue(null1 == null2);
+            Assert.True(a1 == a2);
+            Assert.True(a2 == a3);
+            Assert.False(a1 == b);
+            Assert.False(a1 == c);
+            Assert.False(a1 == null1);
+            Assert.False(null1 == a1);
+            Assert.True(null1 == null2);
 
-            Assert.IsFalse(a1 != a2);
-            Assert.IsFalse(a2 != a3);
-            Assert.IsTrue(a1 != b);
-            Assert.IsTrue(a1 != c);
-            Assert.IsTrue(a1 != null1);
-            Assert.IsTrue(null1 != a1);
-            Assert.IsFalse(null1 != null2);
+            Assert.False(a1 != a2);
+            Assert.False(a2 != a3);
+            Assert.True(a1 != b);
+            Assert.True(a1 != c);
+            Assert.True(a1 != null1);
+            Assert.True(null1 != a1);
+            Assert.False(null1 != null2);
 
-            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
+            Assert.Equal(a1.GetHashCode(), a2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void TestGuidRefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -170,14 +169,14 @@ namespace MongoDB.Driver.Tests
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#guid", guid.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestInt32RefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -187,14 +186,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : 1 } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestInt64RefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -204,14 +203,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : NumberLong('123456789012345') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestObjectIdRefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -223,14 +222,14 @@ namespace MongoDB.Driver.Tests
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#ref", refId.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestStringRefId()
         {
             var id = ObjectId.GenerateNewId();
@@ -240,14 +239,14 @@ namespace MongoDB.Driver.Tests
             var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : 'abc' } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Test]
+        [Fact]
         public void TestWithDatabase()
         {
             var id = ObjectId.GenerateNewId();
@@ -258,11 +257,11 @@ namespace MongoDB.Driver.Tests
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#ref", dbRef.Id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

@@ -16,13 +16,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonLineStringTests
     {
-        [Test]
+        [Fact]
         public void TestExampleFromSpec()
         {
             var lineString = GeoJson.LineString(
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test2DLineString()
         {
             var lineString = GeoJson.LineString(
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test2DLineStringGeographic()
         {
             var lineString = GeoJson. LineString(
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test2DLineStringProjected()
         {
             var lineString = GeoJson.LineString(GeoJson.Projected(1.0, 2.0), GeoJson.Projected(3.0, 4.0));
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test2DLineStringWithExtraMembers()
         {
             var lineString = GeoJson.LineString(
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test3DLineString()
         {
             var lineString = GeoJson.LineString(
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test3DLineStringGeographic()
         {
             var lineString = GeoJson.LineString(
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test3DLineStringProjected()
         {
             var lineString = GeoJson.LineString(
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, lineString);
         }
 
-        [Test]
+        [Fact]
         public void Test3DLineStringWithExtraMembers()
         {
             var lineString = GeoJson.LineString(
@@ -124,10 +124,10 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         private void TestRoundTrip<TCoordinates>(string expected, GeoJsonLineString<TCoordinates> lineString) where TCoordinates : GeoJsonCoordinates
         {
             var json = lineString.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             var rehydrated = BsonSerializer.Deserialize<GeoJsonLineString<TCoordinates>>(json);
-            Assert.AreEqual(expected, rehydrated.ToJson());
+            Assert.Equal(expected, rehydrated.ToJson());
         }
     }
 }

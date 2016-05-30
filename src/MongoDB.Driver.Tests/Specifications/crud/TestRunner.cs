@@ -20,18 +20,27 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Xunit;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using System.Collections;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
-    [TestFixture]
     public class TestRunner
     {
         private static Dictionary<string, Func<ICrudOperationTest>> _tests;
+        private static bool __oneTimeSetupHasRun = false;
+        private static object __oneTimeSetupLock = new object();
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public TestRunner()
+        {
+            lock (__oneTimeSetupLock)
+            {
+                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
+            }
+        }
+
+        public bool OneTimeSetup()
         {
             _tests = new Dictionary<string, Func<ICrudOperationTest>>
             {
@@ -50,9 +59,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 { "updateOne", () => new UpdateOneTest() },
                 { "updateMany", () => new UpdateManyTest() }
             };
+
+            return true;
         }
 
-        [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
+        [SkippableTheory]
+        [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(IEnumerable<BsonDocument> data, BsonDocument definition, bool async)
         {
             var database = DriverTestConfiguration.Client
@@ -80,16 +92,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             string reason;
             if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
-                Assert.Ignore(reason);
-                return;
+                throw new SkipTestException(reason);
             }
 
             test.Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome, async);
         }
 
-        private static class TestCaseFactory
+        private class TestCaseFactory : IEnumerable<object[]>
         {
-            public static IEnumerable<ITestCaseData> GetTestCases()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.crud.tests.";
                 var testDocuments = Assembly
@@ -98,6 +109,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path => ReadDocument(path));
 
+                var testCases = new List<object[]>();
                 foreach (var testDocument in testDocuments)
                 {
                     var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
@@ -106,14 +118,22 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     {
                         foreach (var async in new[] { false, true})
                         {
-                            var testCase = new TestCaseData(data, definition, async);
-                            testCase.SetCategory("Specifications");
-                            testCase.SetCategory("crud");
-                            testCase.SetName($"{definition["description"]}({async})");
-                            yield return testCase;
+                            //var testCase = new TestCaseData(data, definition, async);
+                            //testCase.SetCategory("Specifications");
+                            //testCase.SetCategory("crud");
+                            //testCase.SetName($"{definition["description"]}({async})");
+                            var testCase = new object[] { data, definition, async };
+                            testCases.Add(testCase);
                         }
                     }
                 }
+
+                return testCases.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private static BsonDocument ReadDocument(string path)

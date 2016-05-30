@@ -19,17 +19,18 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class AggregateFluentTests
     {
         private IMongoCollection<C> _collection;
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void As_should_add_the_expected_stage(
             [Values(false, true)] bool async)
         {
@@ -68,7 +69,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OfType_should_add_the_expected_stage(
             [Values(false, true)] bool async)
         {
@@ -110,7 +112,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Out_should_add_the_expected_stage_and_call_Aggregate(
             [Values(false, true)] bool async)
         {
@@ -150,7 +153,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ToCursor_should_call_Aggregate(
             [Values(false, true)] bool async)
         {

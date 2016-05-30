@@ -24,40 +24,49 @@ using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoWriteExceptionTests
     {
-        private ConnectionId _connectionId;
-        private Exception _innerException;
-        private WriteConcernError _writeConcernError;
-        private WriteError _writeError;
+        private static ConnectionId __connectionId;
+        private static Exception __innerException;
+        private static WriteConcernError __writeConcernError;
+        private static WriteError __writeError;
+        private static bool __oneTimeSetupHasRun = false;
+        private static object __oneTimeSetupLock = new object();
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoWriteExceptionTests()
         {
-            _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
-            _innerException = new Exception("inner");
-            _writeConcernError = new WriteConcernError(1, "writeConcernError", new BsonDocument("details", "writeConcernError"));
-            _writeError = new WriteError(ServerErrorCategory.Uncategorized, 1, "writeError", new BsonDocument("details", "writeError"));
+            lock (__oneTimeSetupLock)
+            {
+                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
+            }
         }
 
-        [Test]
+        public bool OneTimeSetup()
+        {
+            __connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
+            __innerException = new Exception("inner");
+            __writeConcernError = new WriteConcernError(1, "writeConcernError", new BsonDocument("details", "writeConcernError"));
+            __writeError = new WriteError(ServerErrorCategory.Uncategorized, 1, "writeError", new BsonDocument("details", "writeError"));
+            return true;
+        }
+
+        [Fact]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoWriteException(_connectionId, _writeError, _writeConcernError, _innerException);
+            var subject = new MongoWriteException(__connectionId, __writeError, __writeConcernError, __innerException);
 
-            subject.ConnectionId.Should().Be(_connectionId);
-            subject.InnerException.Should().Be(_innerException);
+            subject.ConnectionId.Should().Be(__connectionId);
+            subject.InnerException.Should().Be(__innerException);
             subject.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  writeError" + Environment.NewLine + "  writeConcernError");
-            subject.WriteConcernError.Should().Be(_writeConcernError);
-            subject.WriteError.Should().Be(_writeError);
+            subject.WriteConcernError.Should().Be(__writeConcernError);
+            subject.WriteError.Should().Be(__writeError);
         }
 
-        [Test]
+        [Fact]
         public void FromBulkWriteException_should_return_expected_result()
         {
             var processedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("_id", 1)) };
@@ -66,11 +75,11 @@ namespace MongoDB.Driver.Tests
             var writeErrors = new[] { new BulkWriteError(1, ServerErrorCategory.Uncategorized, 2, "message", new BsonDocument("details", 1)) };
             var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("details", 1));
             var unprocessedRequests = new List<WriteModel<BsonDocument>>();
-            var bulkWriteException = new MongoBulkWriteException<BsonDocument>(_connectionId, bulkWriteResult, writeErrors, writeConcernError, unprocessedRequests);
+            var bulkWriteException = new MongoBulkWriteException<BsonDocument>(__connectionId, bulkWriteResult, writeErrors, writeConcernError, unprocessedRequests);
 
             var result = MongoWriteException.FromBulkWriteException(bulkWriteException);
 
-            result.ConnectionId.Should().Be(_connectionId);
+            result.ConnectionId.Should().Be(__connectionId);
             result.InnerException.Should().BeSameAs(bulkWriteException);
             result.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  message" + Environment.NewLine + "  message");
             result.WriteConcernError.Should().Be(writeConcernError);
@@ -78,10 +87,10 @@ namespace MongoDB.Driver.Tests
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
-            var subject = new MongoWriteException(_connectionId, _writeError, _writeConcernError, _innerException);
+            var subject = new MongoWriteException(__connectionId, __writeError, __writeConcernError, __innerException);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())

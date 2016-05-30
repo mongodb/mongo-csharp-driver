@@ -18,17 +18,16 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
-    [Category("ConnectionString")]
+    //[Category("ConnectionString")]
     public class MongoUrlBuilderTests
     {
         private MongoServerAddress _localhost = new MongoServerAddress("localhost");
 
-        [Test]
+        [Fact]
         public void TestAll()
         {
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
@@ -100,73 +99,73 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual("GSSAPI", builder.AuthenticationMechanism);
-                CollectionAssert.AreEqual(authMechanismProperties, builder.AuthenticationMechanismProperties);
-                Assert.AreEqual("db", builder.AuthenticationSource);
-                Assert.AreEqual(123, builder.ComputedWaitQueueSize);
-                Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
-                Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
-                Assert.AreEqual("database", builder.DatabaseName);
-                Assert.AreEqual(true, builder.FSync);
-                Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
-                Assert.AreEqual(true, builder.IPv6);
-                Assert.AreEqual(true, builder.Journal);
-                Assert.AreEqual(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
-                Assert.AreEqual(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
-                Assert.AreEqual(4, builder.MaxConnectionPoolSize);
-                Assert.AreEqual(5, builder.MinConnectionPoolSize);
-                Assert.AreEqual("password", builder.Password);
-                Assert.AreEqual(ReadConcernLevel.Majority, builder.ReadConcernLevel);
-                Assert.AreEqual(readPreference, builder.ReadPreference);
-                Assert.AreEqual("name", builder.ReplicaSetName);
-                Assert.AreEqual(TimeSpan.FromSeconds(6), builder.LocalThreshold);
-                Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
-                Assert.AreEqual(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
-                Assert.AreEqual(TimeSpan.FromSeconds(7), builder.SocketTimeout);
-                Assert.AreEqual("username", builder.Username);
-                Assert.AreEqual(true, builder.UseSsl);
-                Assert.AreEqual(false, builder.VerifySslCertificate);
-                Assert.AreEqual(2, ((WriteConcern.WCount)builder.W).Value);
-                Assert.AreEqual(0.0, builder.WaitQueueMultiple);
-                Assert.AreEqual(123, builder.WaitQueueSize);
-                Assert.AreEqual(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
-                Assert.AreEqual(TimeSpan.FromSeconds(9), builder.WTimeout);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
+                Assert.Equal(authMechanismProperties, builder.AuthenticationMechanismProperties);
+                Assert.Equal("db", builder.AuthenticationSource);
+                Assert.Equal(123, builder.ComputedWaitQueueSize);
+                Assert.Equal(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+                Assert.Equal(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
+                Assert.Equal("database", builder.DatabaseName);
+                Assert.Equal(true, builder.FSync);
+                Assert.Equal(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
+                Assert.Equal(true, builder.IPv6);
+                Assert.Equal(true, builder.Journal);
+                Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
+                Assert.Equal(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
+                Assert.Equal(4, builder.MaxConnectionPoolSize);
+                Assert.Equal(5, builder.MinConnectionPoolSize);
+                Assert.Equal("password", builder.Password);
+                Assert.Equal(ReadConcernLevel.Majority, builder.ReadConcernLevel);
+                Assert.Equal(readPreference, builder.ReadPreference);
+                Assert.Equal("name", builder.ReplicaSetName);
+                Assert.Equal(TimeSpan.FromSeconds(6), builder.LocalThreshold);
+                Assert.Equal(new MongoServerAddress("host", 27017), builder.Server);
+                Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
+                Assert.Equal("username", builder.Username);
+                Assert.Equal(true, builder.UseSsl);
+                Assert.Equal(false, builder.VerifySslCertificate);
+                Assert.Equal(2, ((WriteConcern.WCount)builder.W).Value);
+                Assert.Equal(0.0, builder.WaitQueueMultiple);
+                Assert.Equal(123, builder.WaitQueueSize);
+                Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
-        [TestCase("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
-        [TestCase("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
-        [TestCase("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
+        [InlineData("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
+        [InlineData("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
+        [InlineData("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
         public void TestAuthMechanism(string mechanism, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, AuthenticationMechanism = mechanism };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(mechanism, builder.AuthenticationMechanism);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(mechanism, builder.AuthenticationMechanism);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase("db", "mongodb://localhost/?authSource=db")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData("db", "mongodb://localhost/?authSource=db")]
         public void TestAuthSource(string authSource, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, AuthenticationSource = authSource };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(authSource, builder.AuthenticationSource);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(authSource, builder.AuthenticationSource);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestComputedWaitQueueSize_UsingMultiple()
         {
             var built = new MongoUrlBuilder { Server = _localhost, MaxConnectionPoolSize = 123, WaitQueueMultiple = 2.0 };
@@ -174,15 +173,15 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(123, builder.MaxConnectionPoolSize);
-                Assert.AreEqual(2.0, builder.WaitQueueMultiple);
-                Assert.AreEqual(0, builder.WaitQueueSize);
-                Assert.AreEqual(246, builder.ComputedWaitQueueSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(123, builder.MaxConnectionPoolSize);
+                Assert.Equal(2.0, builder.WaitQueueMultiple);
+                Assert.Equal(0, builder.WaitQueueSize);
+                Assert.Equal(246, builder.ComputedWaitQueueSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestComputedWaitQueueSize_UsingSize()
         {
             var built = new MongoUrlBuilder { Server = _localhost, WaitQueueSize = 123 };
@@ -190,19 +189,19 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(0.0, builder.WaitQueueMultiple);
-                Assert.AreEqual(123, builder.WaitQueueSize);
-                Assert.AreEqual(123, builder.ComputedWaitQueueSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(0.0, builder.WaitQueueMultiple);
+                Assert.Equal(123, builder.WaitQueueSize);
+                Assert.Equal(123, builder.ComputedWaitQueueSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
-        [TestCase(ConnectionMode.Direct, "mongodb://localhost/?connect={0}", new[] { "direct", "Direct" })]
-        [TestCase(ConnectionMode.ReplicaSet, "mongodb://localhost/?connect={0}", new[] { "replicaSet", "ReplicaSet" })]
-        [TestCase(ConnectionMode.ShardRouter, "mongodb://localhost/?connect={0}", new[] { "shardRouter", "ShardRouter" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
+        [InlineData(ConnectionMode.Direct, "mongodb://localhost/?connect={0}", new[] { "direct", "Direct" })]
+        [InlineData(ConnectionMode.ReplicaSet, "mongodb://localhost/?connect={0}", new[] { "replicaSet", "ReplicaSet" })]
+        [InlineData(ConnectionMode.ShardRouter, "mongodb://localhost/?connect={0}", new[] { "shardRouter", "ShardRouter" })]
         public void TestConnectionMode(ConnectionMode? connectionMode, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -211,18 +210,18 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(connectionMode ?? ConnectionMode.Automatic, builder.ConnectionMode);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(connectionMode ?? ConnectionMode.Automatic, builder.ConnectionMode);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?connectTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?connectTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?connectTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?connectTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?connectTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?connectTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestConnectTimeout(int? ms, string formatString, string[] values)
         {
             var connectTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -232,12 +231,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?connectTimeout=30s", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(connectTimeout ?? MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(connectTimeout ?? MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestConnectTimeout_Range()
         {
             var builder = new MongoUrlBuilder();
@@ -246,40 +245,40 @@ namespace MongoDB.Driver.Tests
             builder.ConnectTimeout = TimeSpan.FromMilliseconds(1);
         }
 
-        [Test]
-        [TestCase(null, null, "mongodb://localhost")]
-        [TestCase("username@domain.com", "password", "mongodb://username%40domain.com:password@localhost")]
-        [TestCase("username", "password", "mongodb://username:password@localhost")]
-        [TestCase("usern;me", "p;ssword", "mongodb://usern%3Bme:p%3Bssword@localhost")]
-        [TestCase("usern;me", null, "mongodb://usern%3Bme@localhost")]
-        [TestCase("usern;me", "", "mongodb://usern%3Bme:@localhost")]
+        [Theory]
+        [InlineData(null, null, "mongodb://localhost")]
+        [InlineData("username@domain.com", "password", "mongodb://username%40domain.com:password@localhost")]
+        [InlineData("username", "password", "mongodb://username:password@localhost")]
+        [InlineData("usern;me", "p;ssword", "mongodb://usern%3Bme:p%3Bssword@localhost")]
+        [InlineData("usern;me", null, "mongodb://usern%3Bme@localhost")]
+        [InlineData("usern;me", "", "mongodb://usern%3Bme:@localhost")]
         public void TestCredential(string username, string password, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, Username = username, Password = password };
 
             foreach (var url in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(password, url.Password);
-                Assert.AreEqual(username, url.Username);
-                Assert.AreEqual(connectionString, url.ToString());
+                Assert.Equal(password, url.Password);
+                Assert.Equal(username, url.Username);
+                Assert.Equal(connectionString, url.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase("database", "mongodb://localhost/database")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData("database", "mongodb://localhost/database")]
         public void TestDatabaseName(string databaseName, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, DatabaseName = databaseName };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(databaseName, builder.DatabaseName);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(databaseName, builder.DatabaseName);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDefaults()
         {
             var built = new MongoUrlBuilder();
@@ -287,43 +286,43 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(null, builder.AuthenticationMechanism);
-                Assert.AreEqual(0, builder.AuthenticationMechanismProperties.Count());
-                Assert.AreEqual(null, builder.AuthenticationSource);
-                Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
-                Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
-                Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
-                Assert.AreEqual(null, builder.DatabaseName);
-                Assert.AreEqual(null, builder.FSync);
-                Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
-                Assert.AreEqual(false, builder.IPv6);
-                Assert.AreEqual(null, builder.Journal);
-                Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
-                Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
-                Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
-                Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
-                Assert.AreEqual(null, builder.Password);
-                Assert.AreEqual(null, builder.ReadPreference);
-                Assert.AreEqual(null, builder.ReplicaSetName);
-                Assert.AreEqual(MongoDefaults.LocalThreshold, builder.LocalThreshold);
-                Assert.AreEqual(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
-                Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
-                Assert.AreEqual(null, builder.Username);
-                Assert.AreEqual(false, builder.UseSsl);
-                Assert.AreEqual(true, builder.VerifySslCertificate);
-                Assert.AreEqual(null, builder.W);
-                Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
-                Assert.AreEqual(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
-                Assert.AreEqual(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
-                Assert.AreEqual(null, builder.WTimeout);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(null, builder.AuthenticationMechanism);
+                Assert.Equal(0, builder.AuthenticationMechanismProperties.Count());
+                Assert.Equal(null, builder.AuthenticationSource);
+                Assert.Equal(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
+                Assert.Equal(ConnectionMode.Automatic, builder.ConnectionMode);
+                Assert.Equal(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
+                Assert.Equal(null, builder.DatabaseName);
+                Assert.Equal(null, builder.FSync);
+                Assert.Equal(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                Assert.Equal(false, builder.IPv6);
+                Assert.Equal(null, builder.Journal);
+                Assert.Equal(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
+                Assert.Equal(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
+                Assert.Equal(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
+                Assert.Equal(MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
+                Assert.Equal(null, builder.Password);
+                Assert.Equal(null, builder.ReadPreference);
+                Assert.Equal(null, builder.ReplicaSetName);
+                Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
+                Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
+                Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+                Assert.Equal(null, builder.Username);
+                Assert.Equal(false, builder.UseSsl);
+                Assert.Equal(true, builder.VerifySslCertificate);
+                Assert.Equal(null, builder.W);
+                Assert.Equal(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
+                Assert.Equal(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
+                Assert.Equal(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
+                Assert.Equal(null, builder.WTimeout);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?fsync={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?fsync={0}", new[] { "true", "True" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?fsync={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?fsync={0}", new[] { "true", "True" })]
         public void TestFSync(bool? fsync, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost, FSync = fsync };
@@ -331,97 +330,97 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(fsync, builder.FSync);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(fsync, builder.FSync);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(false, false, "mongodb://localhost")]
-        [TestCase(false, false, "mongodb://localhost/?safe=false")]
-        [TestCase(false, true, "mongodb://localhost/?safe=true")]
-        [TestCase(false, false, "mongodb://localhost/?w=0")]
-        [TestCase(false, true, "mongodb://localhost/?w=1")]
-        [TestCase(false, true, "mongodb://localhost/?w=2")]
-        [TestCase(false, true, "mongodb://localhost/?w=mode")]
-        [TestCase(true, true, "mongodb://localhost")]
-        [TestCase(true, false, "mongodb://localhost/?safe=false")]
-        [TestCase(true, true, "mongodb://localhost/?safe=true")]
-        [TestCase(true, false, "mongodb://localhost/?w=0")]
-        [TestCase(true, true, "mongodb://localhost/?w=1")]
-        [TestCase(true, true, "mongodb://localhost/?w=2")]
-        [TestCase(true, true, "mongodb://localhost/?w=mode")]
+        [Theory]
+        [InlineData(false, false, "mongodb://localhost")]
+        [InlineData(false, false, "mongodb://localhost/?safe=false")]
+        [InlineData(false, true, "mongodb://localhost/?safe=true")]
+        [InlineData(false, false, "mongodb://localhost/?w=0")]
+        [InlineData(false, true, "mongodb://localhost/?w=1")]
+        [InlineData(false, true, "mongodb://localhost/?w=2")]
+        [InlineData(false, true, "mongodb://localhost/?w=mode")]
+        [InlineData(true, true, "mongodb://localhost")]
+        [InlineData(true, false, "mongodb://localhost/?safe=false")]
+        [InlineData(true, true, "mongodb://localhost/?safe=true")]
+        [InlineData(true, false, "mongodb://localhost/?w=0")]
+        [InlineData(true, true, "mongodb://localhost/?w=1")]
+        [InlineData(true, true, "mongodb://localhost/?w=2")]
+        [InlineData(true, true, "mongodb://localhost/?w=mode")]
         public void TestGetWriteConcern_IsAcknowledged(bool acknowledgedDefault, bool acknowledged, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
-            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
+            Assert.Equal(acknowledged, writeConcern.IsAcknowledged);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(false, "mongodb://localhost/?fsync=false")]
-        [TestCase(true, "mongodb://localhost/?fsync=true")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(false, "mongodb://localhost/?fsync=false")]
+        [InlineData(true, "mongodb://localhost/?fsync=true")]
         public void TestGetWriteConcern_FSync(bool? fsync, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(true);
-            Assert.AreEqual(fsync, writeConcern.FSync);
+            Assert.Equal(fsync, writeConcern.FSync);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(true, "mongodb://localhost/?{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [InlineData(true, "mongodb://localhost/?{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
         public void TestGetWriteConcern_Journal(bool? journal, string formatString, string[] values, string[] journalAliases)
         {
             var canonicalConnectionString = string.Format(formatString, values[0], "journal");
             foreach (var builder in EnumerateParsedBuilders(formatString, values, journalAliases))
             {
                 var writeConcern = builder.GetWriteConcern(true);
-                Assert.AreEqual(journal, writeConcern.Journal);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(journal, writeConcern.Journal);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(false, false, 0, "mongodb://localhost")]
-        [TestCase(false, false, 0, "mongodb://localhost/?w=0")]
-        [TestCase(false, true, 1, "mongodb://localhost/?w=1")]
-        [TestCase(false, true, 2, "mongodb://localhost/?w=2")]
-        [TestCase(false, true, "mode", "mongodb://localhost/?w=mode")]
-        [TestCase(true, true, null, "mongodb://localhost")]
-        [TestCase(true, false, 0, "mongodb://localhost/?w=0")]
-        [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
-        [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
-        [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
+        [Theory]
+        [InlineData(false, false, 0, "mongodb://localhost")]
+        [InlineData(false, false, 0, "mongodb://localhost/?w=0")]
+        [InlineData(false, true, 1, "mongodb://localhost/?w=1")]
+        [InlineData(false, true, 2, "mongodb://localhost/?w=2")]
+        [InlineData(false, true, "mode", "mongodb://localhost/?w=mode")]
+        [InlineData(true, true, null, "mongodb://localhost")]
+        [InlineData(true, false, 0, "mongodb://localhost/?w=0")]
+        [InlineData(true, true, 1, "mongodb://localhost/?w=1")]
+        [InlineData(true, true, 2, "mongodb://localhost/?w=2")]
+        [InlineData(true, true, "mode", "mongodb://localhost/?w=mode")]
         public void TestGetWriteConcern_W(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoUrlBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
-            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
-            Assert.AreEqual(w, writeConcern.W);
+            Assert.Equal(acknowledged, writeConcern.IsAcknowledged);
+            Assert.Equal(w, writeConcern.W);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(500, "mongodb://localhost/?wtimeout=500ms")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(500, "mongodb://localhost/?wtimeout=500ms")]
         public void TestGetWriteConcern_WTimeout(int? ms, string connectionString)
         {
             var wtimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var builder = new MongoUrlBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(true);
-            Assert.AreEqual(wtimeout, writeConcern.WTimeout);
+            Assert.Equal(wtimeout, writeConcern.WTimeout);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
-        [TestCase(GuidRepresentation.CSharpLegacy, "mongodb://localhost/?{1}={0}", new[] { "csharpLegacy", "CSharpLegacy" }, new[] { "uuidRepresentation", "guids" })]
-        [TestCase(GuidRepresentation.JavaLegacy, "mongodb://localhost/?{1}={0}", new[] { "javaLegacy", "JavaLegacy" }, new[] { "uuidRepresentation", "guids" })]
-        [TestCase(GuidRepresentation.PythonLegacy, "mongodb://localhost/?{1}={0}", new[] { "pythonLegacy", "PythonLegacy" }, new[] { "uuidRepresentation", "guids" })]
-        [TestCase(GuidRepresentation.Standard, "mongodb://localhost/?{1}={0}", new[] { "standard", "Standard" }, new[] { "uuidRepresentation", "guids" })]
-        [TestCase(GuidRepresentation.Unspecified, "mongodb://localhost/?{1}={0}", new[] { "unspecified", "Unspecified" }, new[] { "uuidRepresentation", "guids" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
+        [InlineData(GuidRepresentation.CSharpLegacy, "mongodb://localhost/?{1}={0}", new[] { "csharpLegacy", "CSharpLegacy" }, new[] { "uuidRepresentation", "guids" })]
+        [InlineData(GuidRepresentation.JavaLegacy, "mongodb://localhost/?{1}={0}", new[] { "javaLegacy", "JavaLegacy" }, new[] { "uuidRepresentation", "guids" })]
+        [InlineData(GuidRepresentation.PythonLegacy, "mongodb://localhost/?{1}={0}", new[] { "pythonLegacy", "PythonLegacy" }, new[] { "uuidRepresentation", "guids" })]
+        [InlineData(GuidRepresentation.Standard, "mongodb://localhost/?{1}={0}", new[] { "standard", "Standard" }, new[] { "uuidRepresentation", "guids" })]
+        [InlineData(GuidRepresentation.Unspecified, "mongodb://localhost/?{1}={0}", new[] { "unspecified", "Unspecified" }, new[] { "uuidRepresentation", "guids" })]
         public void TestGuidRepresentation(GuidRepresentation? guidRepresentation, string formatString, string[] values, string[] uuidAliases)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -430,15 +429,15 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0], "uuidRepresentation").Replace("/?uuidRepresentation=csharpLegacy", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, uuidAliases))
             {
-                Assert.AreEqual(guidRepresentation ?? MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(guidRepresentation ?? MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?ipv6={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?ipv6={0}", new[] { "true", "True" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?ipv6={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?ipv6={0}", new[] { "true", "True" })]
         public void TestIPv6(bool? ipv6, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -447,15 +446,15 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?ipv6=false", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(ipv6 ?? false, builder.IPv6);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(ipv6 ?? false, builder.IPv6);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(true, "mongodb://localhost/?{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" }, new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [InlineData(true, "mongodb://localhost/?{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
         public void TestJournal(bool? journal, string formatString, string[] values, string[] journalAliases)
         {
             var built = new MongoUrlBuilder { Server = _localhost, Journal = journal };
@@ -463,18 +462,18 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0], "journal");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, journalAliases))
             {
-                Assert.AreEqual(journal, builder.Journal);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(journal, builder.Journal);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?maxIdleTime{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?maxIdleTime{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?maxIdleTime{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestMaxConnectionIdleTime(int? ms, string formatString, string[] values)
         {
             var maxConnectionIdleTime = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -484,12 +483,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(maxConnectionIdleTime ?? MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(maxConnectionIdleTime ?? MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionIdleTime_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -498,13 +497,13 @@ namespace MongoDB.Driver.Tests
             builder.MaxConnectionIdleTime = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?maxLifeTime{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?maxLifeTime{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?maxLifeTime{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestMaxConnectionLifeTime(int? ms, string formatString, string[] values)
         {
             var maxConnectionLifeTime = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -514,12 +513,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?maxLifeTime=30m", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(maxConnectionLifeTime ?? MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(maxConnectionLifeTime ?? MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionLifeTime_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -528,9 +527,9 @@ namespace MongoDB.Driver.Tests
             builder.MaxConnectionIdleTime = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(123, "mongodb://localhost/?maxPoolSize=123")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(123, "mongodb://localhost/?maxPoolSize=123")]
         public void TestMaxConnectionPoolSize(int? maxConnectionPoolSize, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -538,12 +537,12 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(maxConnectionPoolSize ?? MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(maxConnectionPoolSize ?? MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMaxConnectionPoolSize_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -552,9 +551,9 @@ namespace MongoDB.Driver.Tests
             builder.MaxConnectionPoolSize = 1;
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(123, "mongodb://localhost/?minPoolSize=123")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(123, "mongodb://localhost/?minPoolSize=123")]
         public void TestMinConnectionPoolSize(int? minConnectionPoolSize, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -562,12 +561,12 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(minConnectionPoolSize ?? MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(minConnectionPoolSize ?? MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMinConnectionPoolSize_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -576,27 +575,27 @@ namespace MongoDB.Driver.Tests
             builder.MinConnectionPoolSize = 1;
         }
 
-        [Test]
-        [TestCase("mongodb://localhost/?readConcernLevel=local", ReadConcernLevel.Local)]
-        [TestCase("mongodb://localhost/?readConcernLevel=majority", ReadConcernLevel.Majority)]
+        [Theory]
+        [InlineData("mongodb://localhost/?readConcernLevel=local", ReadConcernLevel.Local)]
+        [InlineData("mongodb://localhost/?readConcernLevel=majority", ReadConcernLevel.Majority)]
         public void TestReadConcernLevel(string connectionString, ReadConcernLevel readConcernLevel)
         {
             var built = new MongoUrlBuilder { ReadConcernLevel = readConcernLevel };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(readConcernLevel, builder.ReadConcernLevel);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(readConcernLevel, builder.ReadConcernLevel);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(ReadPreferenceMode.Primary, "mongodb://localhost/?readPreference={0}", new[] { "primary", "Primary" })]
-        [TestCase(ReadPreferenceMode.PrimaryPreferred, "mongodb://localhost/?readPreference={0}", new[] { "primaryPreferred", "PrimaryPreferred" })]
-        [TestCase(ReadPreferenceMode.Secondary, "mongodb://localhost/?readPreference={0}", new[] { "secondary", "Secondary" })]
-        [TestCase(ReadPreferenceMode.SecondaryPreferred, "mongodb://localhost/?readPreference={0}", new[] { "secondaryPreferred", "SecondaryPreferred" })]
-        [TestCase(ReadPreferenceMode.Nearest, "mongodb://localhost/?readPreference={0}", new[] { "nearest", "Nearest" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(ReadPreferenceMode.Primary, "mongodb://localhost/?readPreference={0}", new[] { "primary", "Primary" })]
+        [InlineData(ReadPreferenceMode.PrimaryPreferred, "mongodb://localhost/?readPreference={0}", new[] { "primaryPreferred", "PrimaryPreferred" })]
+        [InlineData(ReadPreferenceMode.Secondary, "mongodb://localhost/?readPreference={0}", new[] { "secondary", "Secondary" })]
+        [InlineData(ReadPreferenceMode.SecondaryPreferred, "mongodb://localhost/?readPreference={0}", new[] { "secondaryPreferred", "SecondaryPreferred" })]
+        [InlineData(ReadPreferenceMode.Nearest, "mongodb://localhost/?readPreference={0}", new[] { "nearest", "Nearest" })]
         public void TestReadPreference(ReadPreferenceMode? mode, string formatString, string[] values)
         {
             ReadPreference readPreference = null;
@@ -606,12 +605,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(readPreference, builder.ReadPreference);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(readPreference, builder.ReadPreference);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestReadPreference_NoReadPreferenceModeWithOneTagSet()
         {
             var connectionString = "mongodb://localhost/?readPreferenceTags=dc:ny,rack:1";
@@ -619,7 +618,7 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder(connectionString));
         }
 
-        [Test]
+        [Fact]
         public void TestReadPreference_SecondaryWithOneTagSet()
         {
             var tagSets = new TagSet[]
@@ -632,18 +631,18 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
+                Assert.Equal(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
                 var builderTagSets = builder.ReadPreference.TagSets.ToArray();
-                Assert.AreEqual(1, builderTagSets.Length);
+                Assert.Equal(1, builderTagSets.Length);
                 var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
-                Assert.AreEqual(2, builderTagSet1Tags.Length);
-                Assert.AreEqual(new Tag("dc", "ny"), builderTagSet1Tags[0]);
-                Assert.AreEqual(new Tag("rack", "1"), builderTagSet1Tags[1]);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(2, builderTagSet1Tags.Length);
+                Assert.Equal(new Tag("dc", "ny"), builderTagSet1Tags[0]);
+                Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestReadPreference_SecondaryWithTwoTagSets()
         {
             var tagSets = new TagSet[]
@@ -657,44 +656,44 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
+                Assert.Equal(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
                 var builderTagSets = builder.ReadPreference.TagSets.ToArray();
-                Assert.AreEqual(2, builderTagSets.Length);
+                Assert.Equal(2, builderTagSets.Length);
                 var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
                 var builderTagSet2Tags = builderTagSets[1].Tags.ToArray();
-                Assert.AreEqual(2, builderTagSet1Tags.Length);
-                Assert.AreEqual(new Tag("dc", "ny"), builderTagSet1Tags[0]);
-                Assert.AreEqual(new Tag("rack", "1"), builderTagSet1Tags[1]);
-                Assert.AreEqual(1, builderTagSet2Tags.Length);
-                Assert.AreEqual(new Tag("dc", "sf"), builderTagSet2Tags[0]);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(2, builderTagSet1Tags.Length);
+                Assert.Equal(new Tag("dc", "ny"), builderTagSet1Tags[0]);
+                Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
+                Assert.Equal(1, builderTagSet2Tags.Length);
+                Assert.Equal(new Tag("dc", "sf"), builderTagSet2Tags[0]);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase("name", "mongodb://localhost/?replicaSet=name")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData("name", "mongodb://localhost/?replicaSet=name")]
         public void TestReplicaSetName(string name, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, ReplicaSetName = name };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(name, builder.ReplicaSetName);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(name, builder.ReplicaSetName);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=0;safe=false", "w=0;safe=False", "safe=false", "safe=False" })]
-        [TestCase(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=1;safe=false", "w=1;safe=False" })]
-        [TestCase(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=2;safe=false", "w=2;safe=False" })]
-        [TestCase(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=mode;safe=false", "w=mode;safe=False" })]
-        [TestCase(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=0;safe=true", "w=0;safe=True", "safe=true", "safe=True" })]
-        [TestCase(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=1;safe=true", "w=1;safe=True" })]
-        [TestCase(2, "mongodb://localhost/?{0}", new[] { "w=2", "w=2;safe=true", "w=2;safe=True" })]
-        [TestCase("mode", "mongodb://localhost/?{0}", new[] { "w=mode", "w=mode;safe=true", "w=mode;safe=True" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=0;safe=false", "w=0;safe=False", "safe=false", "safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=1;safe=false", "w=1;safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=2;safe=false", "w=2;safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=mode;safe=false", "w=mode;safe=False" })]
+        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=0;safe=true", "w=0;safe=True", "safe=true", "safe=True" })]
+        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=1;safe=true", "w=1;safe=True" })]
+        [InlineData(2, "mongodb://localhost/?{0}", new[] { "w=2", "w=2;safe=true", "w=2;safe=True" })]
+        [InlineData("mode", "mongodb://localhost/?{0}", new[] { "w=mode", "w=mode;safe=true", "w=mode;safe=True" })]
         public void TestSafe(object wobj, string formatString, string[] values)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)(int)wobj : (string)wobj;
@@ -703,18 +702,18 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(w, builder.W);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(w, builder.W);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?localThreshold{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?localThreshold{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?localThreshold{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?localThreshold{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?localThreshold{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?localThreshold{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?localThreshold{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?localThreshold{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?localThreshold{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?localThreshold{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestLocalThreshold(int? ms, string formatString, string[] values)
         {
             var localThreshold = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -724,12 +723,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(localThreshold ?? MongoDefaults.LocalThreshold, builder.LocalThreshold);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(localThreshold ?? MongoDefaults.LocalThreshold, builder.LocalThreshold);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestLocalThreshold_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -738,10 +737,10 @@ namespace MongoDB.Driver.Tests
             builder.LocalThreshold = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase("host", null, "mongodb://host")]
-        [TestCase("host", 27017, "mongodb://host")]
-        [TestCase("host", 27018, "mongodb://host:27018")]
+        [Theory]
+        [InlineData("host", null, "mongodb://host")]
+        [InlineData("host", 27017, "mongodb://host")]
+        [InlineData("host", 27018, "mongodb://host:27018")]
         public void TestServer(string host, int? port, string connectionString)
         {
             var server = (host == null) ? null : (port == null) ? new MongoServerAddress(host) : new MongoServerAddress(host, port.Value);
@@ -749,31 +748,31 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(server, builder.Server);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(server, builder.Server);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(new string[] { "host" }, new object[] { null }, "mongodb://host")]
-        [TestCase(new string[] { "host" }, new object[] { 27017 }, "mongodb://host")]
-        [TestCase(new string[] { "host" }, new object[] { 27018 }, "mongodb://host:27018")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { null, null }, "mongodb://host1,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { null, 27017 }, "mongodb://host1,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { null, 27018 }, "mongodb://host1,host2:27018")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27017, null }, "mongodb://host1,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27017, 27017 }, "mongodb://host1,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27017, 27018 }, "mongodb://host1,host2:27018")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, null }, "mongodb://host1:27018,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, 27017 }, "mongodb://host1:27018,host2")]
-        [TestCase(new string[] { "host1", "host2" }, new object[] { 27018, 27018 }, "mongodb://host1:27018,host2:27018")]
-        [TestCase(new string[] { "[::1]", "host2" }, new object[] { 27018, 27018 }, "mongodb://[::1]:27018,host2:27018")]
+        [Theory]
+        [InlineData(new string[] { "host" }, new object[] { null }, "mongodb://host")]
+        [InlineData(new string[] { "host" }, new object[] { 27017 }, "mongodb://host")]
+        [InlineData(new string[] { "host" }, new object[] { 27018 }, "mongodb://host:27018")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { null, null }, "mongodb://host1,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { null, 27017 }, "mongodb://host1,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { null, 27018 }, "mongodb://host1,host2:27018")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27017, null }, "mongodb://host1,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27017, 27017 }, "mongodb://host1,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27017, 27018 }, "mongodb://host1,host2:27018")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27018, null }, "mongodb://host1:27018,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27018, 27017 }, "mongodb://host1:27018,host2")]
+        [InlineData(new string[] { "host1", "host2" }, new object[] { 27018, 27018 }, "mongodb://host1:27018,host2:27018")]
+        [InlineData(new string[] { "[::1]", "host2" }, new object[] { 27018, 27018 }, "mongodb://[::1]:27018,host2:27018")]
         public void TestServers(string[] hosts, object[] ports, string connectionString)
         {
             var servers = (hosts == null) ? null : new List<MongoServerAddress>();
             if (hosts != null)
             {
-                Assert.AreEqual(hosts.Length, ports.Length);
+                Assert.Equal(hosts.Length, ports.Length);
                 for (var i = 0; i < hosts.Length; i++)
                 {
                     var server = (hosts[i] == null) ? null : (ports[i] == null) ? new MongoServerAddress(hosts[i]) : new MongoServerAddress(hosts[i], (int)ports[i]);
@@ -784,33 +783,33 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(servers, builder.Servers);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(servers, builder.Servers);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase("mongodb://localhost/?slaveOk=true", ReadPreferenceMode.SecondaryPreferred)]
-        [TestCase("mongodb://localhost/?slaveOk=false", ReadPreferenceMode.Primary)]
+        [Theory]
+        [InlineData("mongodb://localhost/?slaveOk=true", ReadPreferenceMode.SecondaryPreferred)]
+        [InlineData("mongodb://localhost/?slaveOk=false", ReadPreferenceMode.Primary)]
         public void TestSlaveOk(string url, ReadPreferenceMode mode)
         {
             var builder = new MongoUrlBuilder(url);
-            Assert.AreEqual(mode, builder.ReadPreference.ReadPreferenceMode);
+            Assert.Equal(mode, builder.ReadPreference.ReadPreferenceMode);
         }
 
-        [Test]
+        [Fact]
         public void TestSlaveOk_AfterReadPreference()
         {
             Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(20000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
-        [TestCase(1800000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(20000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
+        [InlineData(1800000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestServerSelectionTimeout(int? ms, string formatString, string[] values)
         {
             var serverSelectionTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -820,12 +819,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(serverSelectionTimeout ?? MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(serverSelectionTimeout ?? MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestServerSelectionTimeout_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -834,13 +833,13 @@ namespace MongoDB.Driver.Tests
             builder.ServerSelectionTimeout = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?socketTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?socketTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?socketTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?socketTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?socketTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?socketTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?socketTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?socketTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?socketTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?socketTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestSocketTimeout(int? ms, string formatString, string[] values)
         {
             var socketTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -850,12 +849,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(socketTimeout ?? MongoDefaults.SocketTimeout, builder.SocketTimeout);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(socketTimeout ?? MongoDefaults.SocketTimeout, builder.SocketTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSocketTimeout_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -864,10 +863,10 @@ namespace MongoDB.Driver.Tests
             builder.SocketTimeout = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?ssl={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?ssl={0}", new[] { "true", "True" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?ssl={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?ssl={0}", new[] { "true", "True" })]
         public void TestUseSsl(bool? useSsl, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -876,15 +875,15 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?ssl=false", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(useSsl ?? false, builder.UseSsl);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(useSsl ?? false, builder.UseSsl);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "true", "True" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "true", "True" })]
         public void TestVerifySslCertificate(bool? verifySslCertificate, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -893,22 +892,22 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?sslVerifyCertificate=true", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(verifySslCertificate ?? true, builder.VerifySslCertificate);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(verifySslCertificate ?? true, builder.VerifySslCertificate);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
-        [TestCase(false, false, 0, "mongodb://localhost/?w=0")]
-        [TestCase(false, false, 0, "mongodb://localhost/?w=0")]
-        [TestCase(false, true, 1, "mongodb://localhost/?w=1")]
-        [TestCase(false, true, 2, "mongodb://localhost/?w=2")]
-        [TestCase(false, true, "mode", "mongodb://localhost/?w=mode")]
-        [TestCase(true, true, null, "mongodb://localhost")]
-        [TestCase(true, false, 0, "mongodb://localhost/?w=0")]
-        [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
-        [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
-        [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
+        [Theory]
+        [InlineData(false, false, 0, "mongodb://localhost/?w=0")]
+        [InlineData(false, false, 0, "mongodb://localhost/?w=0")]
+        [InlineData(false, true, 1, "mongodb://localhost/?w=1")]
+        [InlineData(false, true, 2, "mongodb://localhost/?w=2")]
+        [InlineData(false, true, "mode", "mongodb://localhost/?w=mode")]
+        [InlineData(true, true, null, "mongodb://localhost")]
+        [InlineData(true, false, 0, "mongodb://localhost/?w=0")]
+        [InlineData(true, true, 1, "mongodb://localhost/?w=1")]
+        [InlineData(true, true, 2, "mongodb://localhost/?w=2")]
+        [InlineData(true, true, "mode", "mongodb://localhost/?w=mode")]
         public void TestW(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
@@ -917,13 +916,13 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
-                Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
-                Assert.AreEqual(w, writeConcern.W);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(acknowledged, writeConcern.IsAcknowledged);
+                Assert.Equal(w, writeConcern.W);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestW_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -935,9 +934,9 @@ namespace MongoDB.Driver.Tests
             builder.W = "mode"; // a mode name
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(2.0, "mongodb://localhost/?waitQueueMultiple=2")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(2.0, "mongodb://localhost/?waitQueueMultiple=2")]
         public void TestWaitQueueMultiple(double? multiple, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -945,13 +944,13 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(multiple ?? MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
-                Assert.AreEqual((multiple == null) ? MongoDefaults.WaitQueueSize : 0, builder.WaitQueueSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal(multiple ?? MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
+                Assert.Equal((multiple == null) ? MongoDefaults.WaitQueueSize : 0, builder.WaitQueueSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWaitQueueMultiple_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -960,9 +959,9 @@ namespace MongoDB.Driver.Tests
             builder.WaitQueueMultiple = 1.0;
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(123, "mongodb://localhost/?waitQueueSize=123")]
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(123, "mongodb://localhost/?waitQueueSize=123")]
         public void TestWaitQueueSize(int? size, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
@@ -970,13 +969,13 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual((size == null) ? MongoDefaults.WaitQueueMultiple : 0.0, builder.WaitQueueMultiple);
-                Assert.AreEqual(size ?? MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
-                Assert.AreEqual(connectionString, builder.ToString());
+                Assert.Equal((size == null) ? MongoDefaults.WaitQueueMultiple : 0.0, builder.WaitQueueMultiple);
+                Assert.Equal(size ?? MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWaitQueueSize_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -985,13 +984,13 @@ namespace MongoDB.Driver.Tests
             builder.WaitQueueSize = 1;
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?waitQueueTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestWaitQueueTimeout(int? ms, string formatString, string[] values)
         {
             var waitQueueTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -1001,12 +1000,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(waitQueueTimeout ?? MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(waitQueueTimeout ?? MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWaitQueueTimeout_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
@@ -1015,13 +1014,13 @@ namespace MongoDB.Driver.Tests
             builder.WaitQueueTimeout = TimeSpan.FromSeconds(1);
         }
 
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestWTimeout(int? ms, string formatString, string[] values)
         {
             var wtimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
@@ -1031,12 +1030,12 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(wtimeout, builder.WTimeout);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
+                Assert.Equal(wtimeout, builder.WTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWTimeout_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };

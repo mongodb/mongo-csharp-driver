@@ -19,18 +19,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq
 {
-    [TestFixture]
     public class MongoQueryableTests : IntegrationTestBase
     {
-        [Test]
+        [Fact]
         public void Any()
         {
             var result = CreateQuery().Any();
@@ -38,7 +39,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Any_with_predicate()
         {
             var result = CreateQuery().Any(x => x.C.E.F == 234124);
@@ -48,7 +49,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public async Task AnyAsync()
         {
             var result = await CreateQuery().AnyAsync();
@@ -56,7 +57,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public async Task AnyAsync_with_predicate()
         {
             var result = await CreateQuery().AnyAsync(x => x.C.E.F == 234124);
@@ -66,7 +67,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Average()
         {
             var result = CreateQuery().Select(x => x.C.E.F + 1).Average();
@@ -74,7 +75,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(62);
         }
 
-        [Test]
+        [Fact]
         public void Average_with_select_and_where()
         {
             var result = CreateQuery()
@@ -85,7 +86,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Average_with_selector()
         {
             var result = CreateQuery().Average(x => x.C.E.F + 1);
@@ -93,7 +94,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(62);
         }
 
-        [Test]
+        [Fact]
         public async Task AverageAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).AverageAsync();
@@ -101,7 +102,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(61);
         }
 
-        [Test]
+        [Fact]
         public async Task AverageAsync_with_selector()
         {
             var result = await CreateQuery().AverageAsync(x => x.C.E.F);
@@ -109,7 +110,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(61);
         }
 
-        [Test]
+        [Fact]
         public void Count()
         {
             var result = CreateQuery().Count();
@@ -117,7 +118,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Count_with_predicate()
         {
             var result = CreateQuery().Count(x => x.C.E.F == 11);
@@ -125,7 +126,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Count_with_no_matches()
         {
             var result = CreateQuery().Count(x => x.C.E.F == 13151235);
@@ -133,7 +134,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public async Task CountAsync()
         {
             var result = await CreateQuery().CountAsync();
@@ -141,7 +142,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public async Task CountAsync_with_predicate()
         {
             var result = await CreateQuery().CountAsync(x => x.C.E.F == 11);
@@ -149,7 +150,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public async Task CountAsync_with_no_matches()
         {
             var result = await CreateQuery().CountAsync(x => x.C.E.F == 123412523);
@@ -157,10 +158,10 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableFact]
         public void Distinct_followed_by_where()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
             var query = CreateQuery()
                 .Distinct()
                 .Where(x => x.A == "Awesome");
@@ -171,7 +172,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { '_id.A': 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void First()
         {
             var result = CreateQuery().Select(x => x.C.E.F).First();
@@ -179,7 +180,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void First_with_predicate()
         {
             var result = CreateQuery().Select(x => x.C.E.F).First(x => x == 11);
@@ -187,7 +188,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task FirstAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).FirstAsync();
@@ -195,7 +196,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task FirstAsync_with_predicate()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).FirstAsync(x => x == 11);
@@ -203,7 +204,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefault()
         {
             var result = CreateQuery().Select(x => x.C.E.F).FirstOrDefault();
@@ -211,7 +212,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void FirstOrDefault_with_predicate()
         {
             var result = CreateQuery().Select(x => x.C.E.F).FirstOrDefault(x => x == 11);
@@ -219,7 +220,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task FirstOrDefaultAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync();
@@ -227,7 +228,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task FirstOrDefaultAsync_with_predicate()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync(x => x == 11);
@@ -235,7 +236,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Enumerable_foreach()
         {
             var query = from x in CreateQuery()
@@ -256,7 +257,7 @@ namespace Tests.MongoDB.Driver.Linq
             sum.Should().Be(50);
         }
 
-        [Test]
+        [Fact]
         public void GroupBy_method()
         {
             var query = CreateQuery()
@@ -267,7 +268,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $group: { _id: '$A' } }");
         }
 
-        [Test]
+        [Fact]
         public void Group_method_using_select()
         {
             var query = CreateQuery()
@@ -280,7 +281,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$_id', Count: '$__agg0', Min: '$__agg1', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void GroupBy_groupby_method()
         {
             var query = CreateQuery()
@@ -293,7 +294,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $group: { _id: '$__agg0' } }");
         }
 
-        [Test]
+        [Fact]
         public void GroupBy_select_anonymous_type_method()
         {
             var query = CreateQuery()
@@ -306,7 +307,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #if !MONO
-        [Test]
+        [Fact]
         public void GroupBy_select_anonymous_type_syntax()
         {
             var query = from p in CreateQuery()
@@ -319,7 +320,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #endif
-        [Test]
+        [Fact]
         public void GroupBy_where_method()
         {
             var query = CreateQuery()
@@ -332,7 +333,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { _id: 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void GroupBy_where_with_accumulator_method()
         {
             var query = CreateQuery()
@@ -345,7 +346,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { __agg0: 'Balloon' } }");
         }
 
-        [Test]
+        [Fact]
         public void GroupBy_where_select_anonymous_type_with_duplicate_accumulators_method()
         {
             var query = CreateQuery()
@@ -361,7 +362,7 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
 #if !MONO
-        [Test]
+        [Fact]
         public void GroupBy_where_select_anonymous_type_with_duplicate_accumulators_syntax()
         {
             var query = from p in CreateQuery()
@@ -376,7 +377,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #endif
-        [Test]
+        [Fact]
         public void GroupBy_with_resultSelector_anonymous_type_method()
         {
             var query = CreateQuery()
@@ -387,10 +388,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $group: { _id: '$A', FirstB: { $first: '$B'} } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoin_method()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -403,10 +404,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoinForeignField_method()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -419,10 +420,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoin_syntax()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         select new { A = p.A, SumCEF = joined.Sum(x => x.CEF) };
@@ -433,10 +434,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', SumCEF: { $sum: '$joined.CEF' }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoin_syntax_with_a_transparent_identifier()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         orderby p.B
@@ -449,12 +450,12 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', Joined: '$joined', _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoin_syntax_with_select_many()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
-                        join o in _otherCollection on p.Id equals o.Id into joined
+                        join o in __otherCollection on p.Id equals o.Id into joined
                         from subo in joined
                         select new { A = p.A, CEF = subo.CEF };
 
@@ -465,12 +466,12 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', CEF: '$joined.CEF', _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
-                        join o in _otherCollection on p.Id equals o.Id into joined
+                        join o in __otherCollection on p.Id equals o.Id into joined
                         from subo in joined.DefaultIfEmpty()
                         select new { A = p.A, CEF = (int?)subo.CEF ?? null };
 
@@ -481,10 +482,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', CEF: { $ifNull: ['$joined.CEF', null] }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void Join_method()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -498,10 +499,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $unwind: '$o' }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void JoinForeignField_method()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -515,10 +516,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $unwind: '$o' }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void Join_syntax()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         select new { A = p.A, CEF = o.CEF };
@@ -530,10 +531,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9", Modules = "enterprise")]
+        [SkippableFact]
         public void Join_syntax_with_a_transparent_identifier()
         {
+            RequireServer.Where(minimumVersion: "3.1.9", modules: "enterprise");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         orderby p.B, o.Id
@@ -547,7 +548,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void LongCount()
         {
             var result = CreateQuery().LongCount();
@@ -555,7 +556,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void LongCount_with_predicate()
         {
             var result = CreateQuery().LongCount(x => x.C.E.F == 11);
@@ -563,7 +564,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void LongCount_with_no_results()
         {
             var result = CreateQuery().LongCount(x => x.C.E.F == 123452135);
@@ -571,7 +572,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public async Task LongCountAsync()
         {
             var result = await CreateQuery().LongCountAsync();
@@ -579,7 +580,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public async Task LongCountAsync_with_predicate()
         {
             var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 11);
@@ -587,7 +588,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public async Task LongCountAsync_with_no_results()
         {
             var result = await CreateQuery().LongCountAsync(x => x.C.E.F == 12351235);
@@ -595,7 +596,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Max()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Max();
@@ -603,7 +604,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Max_with_selector()
         {
             var result = CreateQuery().Max(x => x.C.E.F);
@@ -611,7 +612,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public async Task MaxAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).MaxAsync();
@@ -619,7 +620,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public async Task MaxAsync_with_selector()
         {
             var result = await CreateQuery().MaxAsync(x => x.C.E.F);
@@ -627,7 +628,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(111);
         }
 
-        [Test]
+        [Fact]
         public void Min()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Min();
@@ -635,7 +636,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Min_with_selector()
         {
             var result = CreateQuery().Min(x => x.C.E.F);
@@ -643,7 +644,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task MinAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).MinAsync();
@@ -651,7 +652,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task MinAsync_with_selector()
         {
             var result = await CreateQuery().MinAsync(x => x.C.E.F);
@@ -659,7 +660,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void OfType()
         {
             var query = CreateQuery().OfType<RootDescended>();
@@ -669,7 +670,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { _t: 'RootDescended' } }");
         }
 
-        [Test]
+        [Fact]
         public void OfType_with_a_field()
         {
             var query = CreateQuery()
@@ -684,7 +685,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { 'E.W': 1111 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_method()
         {
             var query = CreateQuery()
@@ -695,7 +696,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: 1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_syntax()
         {
             var query = from x in CreateQuery()
@@ -707,7 +708,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: 1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderByDescending_method()
         {
             var query = CreateQuery()
@@ -718,7 +719,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: -1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderByDescending_syntax()
         {
             var query = from x in CreateQuery()
@@ -730,7 +731,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: -1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_ThenBy_ThenByDescending_method()
         {
             var query = CreateQuery()
@@ -743,7 +744,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: 1, B: 1, C: -1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_ThenBy_ThenByDescending_syntax()
         {
             var query = from x in CreateQuery()
@@ -755,7 +756,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sort: { A: 1, B: 1, C: -1 } }");
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_ThenBy_ThenByDescending_with_redundant_fields_method()
         {
             var query = CreateQuery()
@@ -767,7 +768,7 @@ namespace Tests.MongoDB.Driver.Linq
             act.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Fact]
         public void OrderBy_ThenBy_ThenByDescending_with_redundant_fields_in_different_directions_method()
         {
             var query = CreateQuery()
@@ -779,10 +780,10 @@ namespace Tests.MongoDB.Driver.Linq
             act.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void Sample()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
             var query = CreateQuery().Sample(100);
 
             Assert(query,
@@ -790,7 +791,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sample: { size: 100 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_identity()
         {
             var query = CreateQuery().Select(x => x);
@@ -798,7 +799,7 @@ namespace Tests.MongoDB.Driver.Linq
             Assert(query, 2);
         }
 
-        [Test]
+        [Fact]
         public void Select_method_computed_scalar_followed_by_distinct_followed_by_where()
         {
             var query = CreateQuery()
@@ -812,7 +813,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { _id: 'Awesome Balloon' } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_method_computed_scalar_followed_by_where()
         {
             var query = CreateQuery()
@@ -825,10 +826,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { __fld0: 'Awesome Balloon' } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableFact]
         public void Select_method_with_predicated_any()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
             var query = CreateQuery()
                 .Select(x => x.G.Any(g => g.D == "Don't"));
 
@@ -837,7 +838,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $anyElementTrue: { $map: { input: '$G', as: 'g', 'in': { $eq: ['$$g.D', \"Don't\"] } } } }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_anonymous_type_where_method()
         {
             var query = CreateQuery()
@@ -850,7 +851,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { Yeah: 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_scalar_where_method()
         {
             var query = CreateQuery()
@@ -863,7 +864,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { A: 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_anonymous_type_method()
         {
             var query = CreateQuery().Select(x => new { Yeah = x.A });
@@ -873,7 +874,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Yeah: '$A', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_anonymous_type_syntax()
         {
             var query = from x in CreateQuery()
@@ -884,7 +885,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Yeah: '$A', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_method_scalar()
         {
             var query = CreateQuery().Select(x => x.A);
@@ -894,7 +895,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_syntax_scalar()
         {
             var query = from x in CreateQuery()
@@ -905,7 +906,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { A: '$A', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_method_computed_scalar()
         {
             var query = CreateQuery().Select(x => x.A + " " + x.B);
@@ -915,7 +916,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_syntax_computed_scalar()
         {
             var query = from x in CreateQuery()
@@ -926,7 +927,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_method_array()
         {
             var query = CreateQuery().Select(x => x.M);
@@ -936,7 +937,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { M: '$M', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Select_syntax_array()
         {
             var query = from x in CreateQuery()
@@ -947,10 +948,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { M: '$M', _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void Select_method_array_index()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
             var query = CreateQuery().Select(x => x.M[0]);
 
             Assert(query,
@@ -958,10 +959,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void Select_syntax_array_index()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
             var query = from x in CreateQuery()
                         select x.M[0];
 
@@ -970,10 +971,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void Select_method_embedded_pipeline()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
             var query = CreateQuery().Select(x => x.M.First());
 
             Assert(query,
@@ -981,10 +982,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableFact]
         public void Select_method_computed_array()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
             var query = CreateQuery()
                 .Select(x => x.M.Select(i => i + 1));
 
@@ -993,10 +994,10 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableFact]
         public void Select_syntax_computed_array()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
             var query = from x in CreateQuery()
                         select x.M.Select(i => i + 1);
 
@@ -1005,7 +1006,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_only_resultSelector()
         {
             var query = CreateQuery()
@@ -1017,7 +1018,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { G: '$G', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_method_simple_scalar()
         {
             var query = CreateQuery()
@@ -1029,7 +1030,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { G: '$G', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_syntax_simple_scalar()
         {
             var query = from x in CreateQuery()
@@ -1042,7 +1043,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { G: '$G', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_method_computed_scalar()
         {
             var query = CreateQuery()
@@ -1054,7 +1055,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_syntax_computed_scalar()
         {
             var query = from x in CreateQuery()
@@ -1067,7 +1068,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_method_anonymous_type()
         {
             var query = CreateQuery()
@@ -1079,7 +1080,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_with_collection_selector_syntax_anonymous_type()
         {
             var query = from x in CreateQuery()
@@ -1092,7 +1093,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void SelectMany_followed_by_a_group()
         {
             var first = from x in CreateQuery()
@@ -1115,7 +1116,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', SumF: '$__agg0', _id: 0 } }");
         }
 
-        [Test]
+        [Fact]
         public void Single()
         {
             var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).Single();
@@ -1123,7 +1124,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Single_with_predicate()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Single(x => x == 11);
@@ -1131,7 +1132,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task SingleAsync()
         {
             var result = await CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleAsync();
@@ -1139,7 +1140,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task SingleAsync_with_predicate()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).SingleAsync(x => x == 11);
@@ -1147,7 +1148,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefault()
         {
             var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleOrDefault();
@@ -1155,7 +1156,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void SingleOrDefault_with_predicate()
         {
             var result = CreateQuery().Select(x => x.C.E.F).SingleOrDefault(x => x == 11);
@@ -1163,7 +1164,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task SingleOrDefaultAsync()
         {
             var result = await CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleOrDefaultAsync();
@@ -1171,7 +1172,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public async Task SingleOrDefaultAsync_with_predicate()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).SingleOrDefaultAsync(x => x == 11);
@@ -1179,7 +1180,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(11);
         }
 
-        [Test]
+        [Fact]
         public void Skip()
         {
             var query = CreateQuery().Skip(10);
@@ -1189,79 +1190,87 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $skip: 10 }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void StandardDeviationPopulation()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulation();
 
             result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void StandardDeviationPopulation_with_selector()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = CreateQuery().StandardDeviationPopulation(x => x.C.E.F);
 
             result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public async Task StandardDeviationPopulationAsync()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulationAsync();
 
             result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public async Task StandardDeviationPopulationAsync_with_selector()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = await CreateQuery().StandardDeviationPopulationAsync(x => x.C.E.F);
 
             result.Should().Be(50);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void StandardDeviationSample()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationSample();
 
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void StandardDeviationSample_with_selector()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = CreateQuery().StandardDeviationSample(x => x.C.E.F);
 
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public async Task StandardDeviationSampleAsync()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationSampleAsync();
 
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public async Task StandardDeviationSampleAsync_with_selector()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             var result = await CreateQuery().StandardDeviationSampleAsync(x => x.C.E.F);
 
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [Test]
+        [Fact]
         public void Sum()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Sum();
@@ -1269,7 +1278,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(122);
         }
 
-        [Test]
+        [Fact]
         public void Sum_with_selector()
         {
             var result = CreateQuery().Sum(x => x.C.E.F);
@@ -1277,7 +1286,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(122);
         }
 
-        [Test]
+        [Fact]
         public void Sum_with_no_results()
         {
             var result = CreateQuery().Where(x => x.C.E.F == 12341235).Sum(x => x.C.E.F);
@@ -1285,7 +1294,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public async Task SumAsync()
         {
             var result = await CreateQuery().Select(x => x.C.E.F).SumAsync();
@@ -1293,7 +1302,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(122);
         }
 
-        [Test]
+        [Fact]
         public async Task SumAsync_with_selector()
         {
             var result = await CreateQuery().SumAsync(x => x.C.E.F);
@@ -1301,7 +1310,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(122);
         }
 
-        [Test]
+        [Fact]
         public async Task SumAsync_with_no_results()
         {
             var result = await CreateQuery().Where(x => x.C.E.F == 21341235).SumAsync(x => x.C.E.F);
@@ -1309,7 +1318,7 @@ namespace Tests.MongoDB.Driver.Linq
             result.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void Take()
         {
             var query = CreateQuery().Take(1);
@@ -1319,7 +1328,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $limit: 1 }");
         }
 
-        [Test]
+        [Fact]
         public void Where_method()
         {
             var query = CreateQuery()
@@ -1330,7 +1339,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { A: 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void Where_syntax()
         {
             var query = from x in CreateQuery()
@@ -1342,7 +1351,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match: { A: 'Awesome' } }");
         }
 
-        [Test]
+        [Fact]
         public void Where_method_with_predicated_any()
         {
             var query = CreateQuery()
@@ -1357,7 +1366,7 @@ namespace Tests.MongoDB.Driver.Linq
         {
             var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
 
-            CollectionAssert.AreEqual(expectedStages.Select(x => BsonDocument.Parse(x)).ToList(), executionModel.Stages);
+            executionModel.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
             // async
             var results = queryable.ToListAsync().GetAwaiter().GetResult();
@@ -1372,12 +1381,12 @@ namespace Tests.MongoDB.Driver.Linq
 
         private IMongoQueryable<Root> CreateQuery()
         {
-            return _collection.AsQueryable();
+            return __collection.AsQueryable();
         }
 
         private IMongoQueryable<Other> CreateOtherQuery()
         {
-            return _otherCollection.AsQueryable();
+            return __otherCollection.AsQueryable();
         }
     }
 }

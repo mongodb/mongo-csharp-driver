@@ -16,30 +16,29 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
-    [TestFixture]
-    [Explicit]
-    [Category("Authentication")]
-    [Category("PlainMechanism")]
+    //[Category("Authentication")]
+    //[Category("PlainMechanism")]
     public class PlainAuthenticationTests
     {
         private static readonly string __collectionName = "test";
 
         private MongoClientSettings _settings;
 
-        [SetUp]
-        public void Setup()
+        public PlainAuthenticationTests()
         {
             _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
-        [Test]
+        [SkippableFact]
         public void TestNoCredentials()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             _settings.Credentials = Enumerable.Empty<MongoCredential>();
             var client = new MongoClient(_settings);
 
@@ -52,9 +51,10 @@ namespace MongoDB.Driver.Tests.Communication.Security
             });
         }
 
-        [Test]
+        [SkippableFact]
         public void TestSuccessfulAuthentication()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             var client = new MongoClient(_settings);
 
             var result = client
@@ -63,12 +63,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 .FindSync(new BsonDocument())
                 .ToList();
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [SkippableFact]
         public void TestBadPassword()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
             var currentCredential = _settings.Credentials.Single();
             _settings.Credentials = new[]
             {

@@ -20,15 +20,15 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class FilterDefinitionBuilderTests
     {
-        [Test]
+        [Fact]
         public void All()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.All("x", new[] { 10, 20 }), "{x: {$all: [10,20]}}");
         }
 
-        [Test]
+        [Fact]
         public void All_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.All("FavoriteColors", new[] { "blue", "green" }), "{colors: {$all: ['blue','green']}}");
         }
 
-        [Test]
+        [Fact]
         public void And()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: 1, b: 2}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_clashing_keys_should_get_promoted_to_dollar_form()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$and: [{a: 1}, {a: 2}]}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_clashing_keys_but_different_operators_should_get_merged()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: {$gt: 1, $lt: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_an_empty_filter()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: 10}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_a_nested_and_should_get_flattened()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: 1, b: 2, c: 3}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_a_nested_and_and_clashing_keys()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_a_nested_and_and_clashing_operators_on_the_same_key()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$and: [{a: {$lt: 1}}, {a: {$lt: 2}}]}");
         }
 
-        [Test]
+        [Fact]
         public void And_with_a_nested_and_and_clashing_keys_using_ampersand()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAllClear()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAllClear("a", 43), "{a: {$bitsAllClear: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAllClear_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAllClear(x => x.Age, 43), "{age: {$bitsAllClear: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAllSet()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAllSet("a", 43), "{a: {$bitsAllSet: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAllSet_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAllSet(x => x.Age, 43), "{age: {$bitsAllSet: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAnyClear()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAnyClear("a", 43), "{a: {$bitsAnyClear: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAnyClear_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAnyClear(x => x.Age, 43), "{age: {$bitsAnyClear: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAnySet()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAnySet("a", 43), "{a: {$bitsAnySet: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void BitsAnySet_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.BitsAnySet(x => x.Age, 43), "{age: {$bitsAnySet: 43}}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.ElemMatch(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
-        [Test]
+        [Fact]
         public void ElemMatch_over_dictionary_represented_as_array_of_documents()
         {
             var subject = CreateSubject<Feature>();
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{Enabled: {$elemMatch: { k: 0, v: true}}}");
         }
 
-        [Test]
+        [Fact]
         public void Empty()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Empty, "{}");
         }
 
-        [Test]
+        [Fact]
         public void Empty_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Empty, "{}");
         }
 
-        [Test]
+        [Fact]
         public void Eq()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyEq("x", 10), "{x: 10}");
         }
 
-        [Test]
+        [Fact]
         public void Eq_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyEq("FavoriteColors", "yellow"), "{colors: 'yellow'}");
         }
 
-        [Test]
+        [Fact]
         public void Exists()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Exists("x", false), "{x: {$exists: false}}");
         }
 
-        [Test]
+        [Fact]
         public void Exists_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -274,14 +274,14 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Exists("FirstName", false), "{fn: {$exists: false}}");
         }
 
-        [Test]
+        [Fact]
         public void Expression()
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Where(x => x.FirstName == "Jack" && x.Age > 10), "{fn: 'Jack', age: {$gt: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoIntersects()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -294,7 +294,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoIntersects("x", poly), "{x: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoIntersects_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoIntersects("Location", poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoIntersects_Typed_with_GeoJson()
         {
             var subject = CreateSubject<Person>();
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoIntersects("Location", poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithin()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithin("x", poly), "{x: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithin_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithin("Location", poly), "{loc: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinBox()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -358,7 +358,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinBox("x", 10, 20, 30, 40), "{x: {$geoWithin: {$box: [[10.0, 20.0], [30.0, 40.0]]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinBox_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -367,7 +367,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinBox("Location", 10, 20, 30, 40), "{loc: {$geoWithin: {$box: [[10.0, 20.0], [30.0, 40.0]]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinCenter()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinCenter("x", 10, 20, 30), "{x: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinCenter_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinCenter("Location", 10, 20, 30), "{loc: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinCenterSphere()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -392,7 +392,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinCenterSphere("x", 10, 20, 30), "{x: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinCenterSphere_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -401,7 +401,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinCenterSphere("Location", 10, 20, 30), "{loc: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinPolygon()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -409,7 +409,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinPolygon("x", new[,] { { 1d, 2d }, { 3d, 4d } }), "{x: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GeoWithinPolygon_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -418,7 +418,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.GeoWithinPolygon("Location", new[,] { { 1d, 2d }, { 3d, 4d } }), "{loc: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
         }
 
-        [Test]
+        [Fact]
         public void GreaterThan()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyGt("x", 10), "{x: {$gt: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void GreaterThan_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -438,7 +438,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyGt("FavoriteColors", "green"), "{colors: {$gt: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void GreaterThanOrEqual()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyGte("x", 10), "{x: {$gte: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void GreaterThanOrEqual_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -458,7 +458,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyGte("FavoriteColors", "green"), "{colors: {$gte: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void In()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -467,7 +467,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyIn("x", new[] { 10, 20 }), "{x: {$in: [10,20]}}");
         }
 
-        [Test]
+        [Fact]
         public void In_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -478,7 +478,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyIn("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
         }
 
-        [Test]
+        [Fact]
         public void Lt()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyLt("x", 10), "{x: {$lt: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Lt_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -498,7 +498,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyLt("FavoriteColors", "green"), "{colors: {$lt: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void Lte()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -507,7 +507,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyLte("x", 10), "{x: {$lte: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Lte_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -518,7 +518,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyLte("FavoriteColors", "green"), "{colors: {$lte: 'green'}}");
         }
 
-        [Test]
+        [Fact]
         public void Mod()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Mod("x", 10, 4), "{x: {$mod: [NumberLong(10), NumberLong(4)]}}");
         }
 
-        [Test]
+        [Fact]
         public void Mod_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -537,7 +537,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Mod("FavoriteColors", 10, 4), "{colors: {$mod: [NumberLong(10), NumberLong(4)]}}");
         }
 
-        [Test]
+        [Fact]
         public void Ne()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -546,7 +546,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyNe("x", 10), "{x: {$ne: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Ne_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -557,7 +557,8 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyNe("FavoriteColors", "green"), "{colors: {$ne: 'green'}}");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Near(
             [Values(null, 10d)] double? maxDistance,
             [Values(null, 20d)] double? minDistance)
@@ -578,7 +579,8 @@ namespace MongoDB.Driver.Tests
             Assert(filter, expected);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Near_with_GeoJson(
             [Values(null, 10d)] double? maxDistance,
             [Values(null, 20d)] double? minDistance)
@@ -601,7 +603,8 @@ namespace MongoDB.Driver.Tests
             Assert(filter, expected);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void NearSphere(
             [Values(null, 10d)] double? maxDistance,
             [Values(null, 20d)] double? minDistance)
@@ -622,7 +625,8 @@ namespace MongoDB.Driver.Tests
             Assert(filter, expected);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void NearSphere_with_GeoJson(
             [Values(null, 10d)] double? maxDistance,
             [Values(null, 20d)] double? minDistance)
@@ -645,7 +649,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, expected);
         }
 
-        [Test]
+        [Fact]
         public void Nin()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -654,7 +658,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyNin("x", new[] { 10, 20 }), "{x: {$nin: [10,20]}}");
         }
 
-        [Test]
+        [Fact]
         public void Nin_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -665,7 +669,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.AnyNin("FavoriteColors", new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_and()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -674,7 +678,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$nor: [{$and: [{a: 1}, {b: 2}]}]}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_equal()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -683,7 +687,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: {$ne: 1}}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_exists()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -696,7 +700,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter2, "{a: {$exists: true}}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_in()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -705,7 +709,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: {$nin: [10, 20]}}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_not()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -714,7 +718,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_not_equal()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -723,7 +727,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: 1}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_not_in()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -732,7 +736,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: {$in: [10, 20]}}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_not_or()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -741,7 +745,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$or: [{a: 1}, {b: 2}]}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_or()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -750,7 +754,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$nor: [{a: 1}, {b: 2}]}");
         }
 
-        [Test]
+        [Fact]
         public void Not_with_or_using_bang_operator()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -759,7 +763,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$nor: [{a: 1}, {b: 2}]}");
         }
 
-        [Test]
+        [Fact]
         public void OfType_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -792,7 +796,7 @@ namespace MongoDB.Driver.Tests
             Assert(animalFilter, "{ $or : [{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }, { \"favoritePet._t\" : \"Dog\", \"favoritePet.isLapDog\" : true }] }");
         }
 
-        [Test]
+        [Fact]
         public void Or()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -803,7 +807,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$or: [{a: 1}, {b: 2}]}");
         }
 
-        [Test]
+        [Fact]
         public void Or_should_flatten_nested_ors()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -814,7 +818,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
         }
 
-        [Test]
+        [Fact]
         public void Or_should_flatten_nested_ors_with_a_pipe()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -823,7 +827,7 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
         }
 
-        [Test]
+        [Fact]
         public void Regex()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -831,7 +835,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Regex("x", "/abc/"), "{x: /abc/}");
         }
 
-        [Test]
+        [Fact]
         public void Regex_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -842,7 +846,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Regex("FavoriteColors", "/abc/"), "{colors: /abc/}");
         }
 
-        [Test]
+        [Fact]
         public void Size()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -850,7 +854,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Size("x", 10), "{x: {$size: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void Size_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -858,7 +862,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Size("FavoriteColors", 10), "{colors: {$size: 10}}");
         }
 
-        [Test]
+        [Fact]
         public void SizeGt()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -866,7 +870,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.SizeGt("x", 10), "{'x.10': {$exists: true}}");
         }
 
-        [Test]
+        [Fact]
         public void SizeGt_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -874,7 +878,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.SizeGt("FavoriteColors", 10), "{'colors.10': {$exists: true}}");
         }
 
-        [Test]
+        [Fact]
         public void Text()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -885,7 +889,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Text("funny", new TextSearchOptions { DiacriticSensitive = true }), "{$text: {$search: 'funny', $diacriticSensitive: true}}");
         }
 
-        [Test]
+        [Fact]
         public void Type()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -893,7 +897,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("x", BsonType.String), "{x: {$type: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Type_string()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -901,7 +905,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("x", "string"), "{x: {$type: \"string\"}}");
         }
 
-        [Test]
+        [Fact]
         public void Type_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -909,7 +913,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("FirstName", BsonType.String), "{fn: {$type: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void Type_Typed_string()
         {
             var subject = CreateSubject<Person>();
@@ -917,7 +921,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("FirstName", "string"), "{fn: {$type: \"string\"}}");
         }
 
-        [Test]
+        [Fact]
         public void Generic_type_constraint_causing_base_class_conversion()
         {
             var filter = TypeConstrainedFilter<Twin>(21);

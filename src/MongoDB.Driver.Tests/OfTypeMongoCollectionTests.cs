@@ -24,13 +24,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class OfTypeMongoCollectionTests
     {
         private BsonDocument _ofTypeFilter;
@@ -39,8 +39,7 @@ namespace MongoDB.Driver.Tests
         private IMongoCollection<A> _rootCollection;
         private IMongoCollection<B> _derivedCollection;
 
-        [SetUp]
-        public void SetUp()
+        public OfTypeMongoCollectionTests()
         {
             _ofTypeFilter = new BsonDocument("_t", "B");
             _providedFilter = new BsonDocument("PropB", 4);
@@ -54,7 +53,8 @@ namespace MongoDB.Driver.Tests
             _derivedCollection.Settings.Returns(new MongoCollectionSettings());
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aggregate_should_add_match_to_beginning_of_pipeline(
             [Values(false, true)] bool async)
         {
@@ -81,7 +81,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aggregate_should_combine_match_statements_at_the_beginning_of_a_pipeline(
             [Values(false, true)] bool async)
         {
@@ -110,7 +111,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_DeleteOne(
             [Values(false, true)] bool async)
         {
@@ -140,7 +142,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_DeleteMany(
             [Values(false, true)] bool async)
         {
@@ -170,7 +173,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_ReplaceOne(
             [Values(false, true)] bool async)
         {
@@ -205,7 +209,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_UpdateMany(
             [Values(false, true)] bool async)
         {
@@ -239,7 +244,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_UpdateOne(
             [Values(false, true)] bool async)
         {
@@ -273,7 +279,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -300,7 +307,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Distinct_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -329,7 +337,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Find_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -356,7 +365,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndDelete_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -383,7 +393,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndReplace_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -413,7 +424,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void FindOneAndUpdate_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -443,7 +455,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MapReduce_should_include_the_filter_when_one_was_not_provided(
             [Values(false, true)] bool async)
         {
@@ -471,7 +484,8 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MapReduce_should_include_the_filter(
             [Values(false, true)] bool async)
         {
@@ -503,7 +517,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void OfType_should_resort_to_root_collections_OfType()
         {
             var subject = CreateSubject();
@@ -560,14 +574,12 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    [TestFixture]
     public class OfTypeCollectionIntegrationTests
     {
         private IMongoCollection<BsonDocument> _docsCollection;
         private IMongoCollection<A> _rootCollection;
 
-        [SetUp]
-        public void SetUp()
+        public OfTypeCollectionIntegrationTests()
         {
             var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -590,7 +602,8 @@ namespace MongoDB.Driver.Tests
             _rootCollection.InsertMany(docs);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_only_count_derived_types(
             [Values(false, true)] bool async)
         {
@@ -612,7 +625,8 @@ namespace MongoDB.Driver.Tests
             result2.Should().Be(3);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_only_count_derived_types_with_a_filter(
             [Values(false, true)] bool async)
         {
@@ -631,7 +645,8 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(4);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertOne_should_include_discriminator_when_document_is_of_type_B(
             [Values(false, true)] bool async)
         {
@@ -651,7 +666,8 @@ namespace MongoDB.Driver.Tests
             insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void InsertOne_should_include_discriminator_when_document_is_of_type_C(
             [Values(false, true)] bool async)
         {
@@ -671,7 +687,8 @@ namespace MongoDB.Driver.Tests
             insertedC["_t"].Should().Be(new BsonArray(new[] { "A", "B", "C" }));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOne_should_not_match_document_of_wrong_type(
             [Values(false, true)] bool async)
         {
@@ -691,7 +708,8 @@ namespace MongoDB.Driver.Tests
             result.MatchedCount.Should().Be(0); // document matching { PropA : 1 } is not of type B
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOne_should_match_document_of_right_type(
             [Values(false, true)] bool async)
         {

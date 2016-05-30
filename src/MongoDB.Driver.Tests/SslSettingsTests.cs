@@ -21,11 +21,10 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class SslSettingsTests
     {
         private X509Certificate ClientCertificateSelectionCallback(
@@ -47,55 +46,55 @@ namespace MongoDB.Driver.Tests
             return true;
         }
 
-        [Test]
+        [Fact]
         public void TestCheckCertificateRevocation()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(true, settings.CheckCertificateRevocation);
+            Assert.Equal(true, settings.CheckCertificateRevocation);
 
             var checkCertificateRevocation = !settings.CheckCertificateRevocation;
             settings.CheckCertificateRevocation = checkCertificateRevocation;
-            Assert.AreEqual(checkCertificateRevocation, settings.CheckCertificateRevocation);
+            Assert.Equal(checkCertificateRevocation, settings.CheckCertificateRevocation);
 
             settings.Freeze();
-            Assert.AreEqual(checkCertificateRevocation, settings.CheckCertificateRevocation);
+            Assert.Equal(checkCertificateRevocation, settings.CheckCertificateRevocation);
             Assert.Throws<InvalidOperationException>(() => { settings.CheckCertificateRevocation = checkCertificateRevocation; });
         }
 
-        [Test]
+        [Fact]
         public void TestClientCertificates()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(null, settings.ClientCertificates);
+            Assert.Equal(null, settings.ClientCertificates);
 
             var certificateFileName = GetTestCertificateFileName();
             var clientCertificates = new[] { new X509Certificate2(certificateFileName, "password"), new X509Certificate2(certificateFileName, "password") };
             settings.ClientCertificates = clientCertificates;
-            Assert.IsTrue(clientCertificates.SequenceEqual(settings.ClientCertificates));
-            Assert.AreNotSame(clientCertificates[0], settings.ClientCertificates.ElementAt(0));
-            Assert.AreNotSame(clientCertificates[1], settings.ClientCertificates.ElementAt(1));
+            Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
+            Assert.NotSame(clientCertificates[0], settings.ClientCertificates.ElementAt(0));
+            Assert.NotSame(clientCertificates[1], settings.ClientCertificates.ElementAt(1));
 
             settings.Freeze();
-            Assert.IsTrue(clientCertificates.SequenceEqual(settings.ClientCertificates));
+            Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.Throws<InvalidOperationException>(() => { settings.ClientCertificates = clientCertificates; });
         }
 
-        [Test]
+        [Fact]
         public void TestClientCertificateSelectionCallback()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(null, settings.ClientCertificateSelectionCallback);
+            Assert.Equal(null, settings.ClientCertificateSelectionCallback);
 
             var callback = (LocalCertificateSelectionCallback)ClientCertificateSelectionCallback;
             settings.ClientCertificateSelectionCallback = callback;
-            Assert.AreEqual(callback, settings.ClientCertificateSelectionCallback);
+            Assert.Equal(callback, settings.ClientCertificateSelectionCallback);
 
             settings.Freeze();
-            Assert.AreEqual(callback, settings.ClientCertificateSelectionCallback);
+            Assert.Equal(callback, settings.ClientCertificateSelectionCallback);
             Assert.Throws<InvalidOperationException>(() => { settings.ClientCertificateSelectionCallback = callback; });
         }
 
-        [Test]
+        [Fact]
         public void TestClone()
         {
             var certificateFileName = GetTestCertificateFileName();
@@ -109,84 +108,86 @@ namespace MongoDB.Driver.Tests
             };
 
             var clone = settings.Clone();
-            Assert.AreEqual(settings, clone);
+            Assert.Equal(settings, clone);
         }
 
-        [Test]
+        [Fact]
         public void TestDefaults()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(true, settings.CheckCertificateRevocation);
-            Assert.AreEqual(null, settings.ClientCertificates);
-            Assert.AreEqual(null, settings.ClientCertificateSelectionCallback);
-            Assert.AreEqual(SslProtocols.Default, settings.EnabledSslProtocols);
-            Assert.AreEqual(null, settings.ServerCertificateValidationCallback);
+            Assert.Equal(true, settings.CheckCertificateRevocation);
+            Assert.Equal(null, settings.ClientCertificates);
+            Assert.Equal(null, settings.ClientCertificateSelectionCallback);
+            Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
+            Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var settings = new SslSettings();
             var clone = settings.Clone();
-            Assert.AreEqual(settings, clone);
+            Assert.Equal(settings, clone);
 
             clone = settings.Clone();
             clone.CheckCertificateRevocation = !settings.CheckCertificateRevocation;
-            Assert.AreNotEqual(settings, clone);
+            Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
             var certificateFileName = GetTestCertificateFileName();
             clone.ClientCertificates = new[] { new X509Certificate2(certificateFileName, "password") };
-            Assert.AreNotEqual(settings, clone);
+            Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
             clone.ClientCertificateSelectionCallback = ClientCertificateSelectionCallback;
-            Assert.AreNotEqual(settings, clone);
+            Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
             clone.EnabledSslProtocols = SslProtocols.Tls;
-            Assert.AreNotEqual(settings, clone);
+            Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
             clone.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
-            Assert.AreNotEqual(settings, clone);
+            Assert.NotEqual(settings, clone);
         }
 
-        [Test]
+        [Fact]
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(SslProtocols.Default, settings.EnabledSslProtocols);
+            Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
 
             var enabledSslProtocols = SslProtocols.Tls;
             settings.EnabledSslProtocols = enabledSslProtocols;
-            Assert.AreEqual(enabledSslProtocols, settings.EnabledSslProtocols);
+            Assert.Equal(enabledSslProtocols, settings.EnabledSslProtocols);
 
             settings.Freeze();
-            Assert.AreEqual(enabledSslProtocols, settings.EnabledSslProtocols);
+            Assert.Equal(enabledSslProtocols, settings.EnabledSslProtocols);
             Assert.Throws<InvalidOperationException>(() => { settings.EnabledSslProtocols = enabledSslProtocols; });
         }
 
-        [Test]
+        [Fact]
         public void TestServerCertificateValidationCallback()
         {
             var settings = new SslSettings();
-            Assert.AreEqual(null, settings.ServerCertificateValidationCallback);
+            Assert.Equal(null, settings.ServerCertificateValidationCallback);
 
             var callback = (RemoteCertificateValidationCallback)ServerCertificateValidationCallback;
             settings.ServerCertificateValidationCallback = callback;
-            Assert.AreEqual(callback, settings.ServerCertificateValidationCallback);
+            Assert.Equal(callback, settings.ServerCertificateValidationCallback);
 
             settings.Freeze();
-            Assert.AreEqual(callback, settings.ServerCertificateValidationCallback);
+            Assert.Equal(callback, settings.ServerCertificateValidationCallback);
             Assert.Throws<InvalidOperationException>(() => { settings.ServerCertificateValidationCallback = callback; });
         }
 
         private string GetTestCertificateFileName()
         {
-            var assemblyFilename = Assembly.GetExecutingAssembly().Location;
-            var assemblyDirectory = Path.GetDirectoryName(assemblyFilename);
-            return Path.Combine(assemblyDirectory, "testcert.pfx");
+            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var codeBaseUrl = new Uri(codeBase);
+            var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
+            var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);
+            return Path.Combine(codeBaseDirectory, "testcert.pfx");
         }
     }
 }

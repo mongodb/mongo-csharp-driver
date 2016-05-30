@@ -22,16 +22,17 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq.Translators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    [TestFixture]
     public class PredicateTranslatorTests : IntegrationTestBase
     {
-        [Test]
+        [Fact]
         public void All()
         {
             var local = new[] { "itchy" };
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'C.E.I': { $all: [ 'itchy' ] } }");
         }
 
-        [Test]
+        [Fact]
         public void All_with_a_not()
         {
             var local = new[] { "itchy" };
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'C.E.I': { $not: { $all: [ 'itchy' ] } } }");
         }
 
-        [Test]
+        [Fact]
         public void Any_without_a_predicate()
         {
             Assert(
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{G: {$ne: null, $not: {$size: 0}}}");
         }
 
-        [Test]
+        [Fact]
         public void Any_without_a_predicate_equals_true()
         {
             Assert(
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{G: {$ne: null, $not: {$size: 0}}}");
         }
 
-        [Test]
+        [Fact]
         public void Any_without_a_predicate_not_equals_true()
         {
             Assert(
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
         }
 
-        [Test]
+        [Fact]
         public void Any_without_a_predicate_equals_false()
         {
             Assert(
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
         }
 
-        [Test]
+        [Fact]
         public void Any_not_without_a_predicate()
         {
             Assert(
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{$nor: [{G: {$ne: null, $not: {$size: 0}}}]}");
         }
 
-        [Test]
+        [Fact]
         public void Any_without_a_predicate_not_equals_false()
         {
             Assert(
@@ -107,7 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{G: {$ne: null, $not: {$size: 0}}}");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_a_predicate_on_documents()
         {
             Assert(
@@ -121,7 +122,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{G: {$elemMatch: {D: \"Don't\", 'E.F': 33}}}");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_a_nested_Any()
         {
             Assert(
@@ -135,7 +136,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"G.S.D\": \"Delilah\"}");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_a_not()
         {
             Assert(
@@ -149,7 +150,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"G.S.D\": {$ne: \"Delilah\"}}");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_a_predicate_on_scalars_legacy()
         {
             Assert(
@@ -163,10 +164,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{M: {$elemMatch: {$gt: 2, $lt: 6}}}");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [SkippableFact]
         public void Any_with_a_predicate_on_scalars()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
                 1,
@@ -188,7 +190,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             //            })));
         }
 
-        [Test]
+        [Fact]
         public void Any_with_a_type_is()
         {
             Assert(
@@ -197,7 +199,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"C.X\": {\"$elemMatch\": {\"_t\": \"V\" } } }");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_local_contains_on_an_embedded_document()
         {
             var local = new List<string> { "Delilah", "Dolphin" };
@@ -208,7 +210,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"G.D\": { $in: [\"Delilah\", \"Dolphin\" ] } }");
         }
 
-        [Test]
+        [Fact]
         public void Any_with_local_contains_on_a_scalar_array()
         {
             var local = new List<string> { "itchy" };
@@ -219,57 +221,62 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"C.E.I\": { $in: [\"itchy\" ] } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void BitsAllClear_with_bitwise_operators()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             Assert(
                 x => (x.C.E.F & 20) == 0,
                 1,
                 "{'C.E.F': { $bitsAllClear: 20 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void BitsAllSet_with_bitwise_operators()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             Assert(
                 x => (x.C.E.F & 7) == 7,
                 1,
                 "{'C.E.F': { $bitsAllSet: 7 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void BitsAllSet_with_HasFlag()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             Assert(
                 x => x.Q.HasFlag(Q.One),
                 1,
                 "{Q: { $bitsAllSet: 1 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void BitsAnyClear_with_bitwise_operators()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             Assert(
                 x => (x.C.E.F & 7) != 7,
                 1,
                 "{'C.E.F': { $bitsAnyClear: 7 } }");
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.9")]
+        [SkippableFact]
         public void BitsAnySet_with_bitwise_operators()
         {
+            RequireServer.Where(minimumVersion: "3.1.9");
+
             Assert(
                 x => (x.C.E.F & 20) != 0,
                 1,
                 "{'C.E.F': { $bitsAnySet: 20 } }");
         }
 
-        [Test]
+        [Fact]
         public void LocalIListContains()
         {
             IList<int> local = new[] { 10, 20, 30 };
@@ -280,7 +287,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
-        [Test]
+        [Fact]
         public void LocalListContains()
         {
             var local = new List<int> { 10, 20, 30 };
@@ -291,7 +298,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
-        [Test]
+        [Fact]
         public void LocalArrayContains()
         {
             var local = new[] { 10, 20, 30 };
@@ -302,7 +309,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayLengthEquals()
         {
             Assert(
@@ -316,7 +323,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{M: {$size: 3}}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayLengthNotEquals()
         {
             Assert(
@@ -325,7 +332,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{M: {$not: {$size: 3}}}");
         }
 
-        [Test]
+        [Fact]
         public void NotArrayLengthEquals()
         {
             Assert(
@@ -334,7 +341,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{M: {$not: {$size: 3}}}");
         }
 
-        [Test]
+        [Fact]
         public void NotArrayLengthNotEquals()
         {
             Assert(
@@ -343,7 +350,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{M: {$size: 3}}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayPositionEquals()
         {
             Assert(
@@ -352,7 +359,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'M.1': 4}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayPositionNotEquals()
         {
             Assert(
@@ -361,7 +368,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'M.1': {$ne: 4}}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayPositionModEqual()
         {
             Assert(
@@ -370,7 +377,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'M.1': {$mod: [NumberLong(2), NumberLong(0)]}}");
         }
 
-        [Test]
+        [Fact]
         public void ArrayPositionModNotEqual()
         {
             Assert(
@@ -379,7 +386,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'M.1': {$not: {$mod: [NumberLong(3), NumberLong(2)]}}}");
         }
 
-        [Test]
+        [Fact]
         public void Boolean()
         {
             Assert(
@@ -388,7 +395,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: true}");
         }
 
-        [Test]
+        [Fact]
         public void BooleanEqualsTrue()
         {
             Assert(
@@ -397,7 +404,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: true}");
         }
 
-        [Test]
+        [Fact]
         public void BooleanEqualsMethod()
         {
             Assert(
@@ -406,7 +413,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: true}");
         }
 
-        [Test]
+        [Fact]
         public void BooleanEqualsFalse()
         {
             Assert(
@@ -415,7 +422,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: false}");
         }
 
-        [Test]
+        [Fact]
         public void BooleanNotEqualsTrue()
         {
             Assert(
@@ -424,7 +431,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: {$ne: true}}");
         }
 
-        [Test]
+        [Fact]
         public void BooleanNotEqualsFalse()
         {
             Assert(
@@ -433,7 +440,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: {$ne: false}}");
         }
 
-        [Test]
+        [Fact]
         public void NotBoolean()
         {
             Assert(
@@ -442,7 +449,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{K: {$ne: true}}");
         }
 
-        [Test]
+        [Fact]
         public void ClassEquals()
         {
             Assert(
@@ -451,7 +458,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{C: {D: 'Dexter', E: null, S: null, X: null}}");
         }
 
-        [Test]
+        [Fact]
         public void ClassEqualsMethod()
         {
             Assert(
@@ -460,7 +467,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{C: {D: 'Dexter', E: null, S: null, X: null}}");
         }
 
-        [Test]
+        [Fact]
         public void ClassNotEquals()
         {
             Assert(
@@ -469,7 +476,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{C: {$ne: {D: 'Dexter', E: null, S: null, X: null}}}");
         }
 
-        [Test]
+        [Fact]
         public void ClassMemberEquals()
         {
             Assert(
@@ -478,7 +485,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'C.D': 'Dexter'}");
         }
 
-        [Test]
+        [Fact]
         public void ClassMemberNotEquals()
         {
             Assert(
@@ -487,7 +494,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'C.D': {$ne: 'Dexter'}}");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_equal()
         {
             Assert(
@@ -496,7 +503,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': 'Amazing' }");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_greater_than()
         {
             Assert(
@@ -505,7 +512,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': { $gt: 'Around' } }");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_greater_than_or_equal()
         {
             Assert(
@@ -514,7 +521,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': { $gte: 'Around' } }");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_less_than()
         {
             Assert(
@@ -523,7 +530,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': { $lt: 'Around' } }");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_less_than_or_equal()
         {
             Assert(
@@ -532,7 +539,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': { $lte: 'Around' } }");
         }
 
-        [Test]
+        [Fact]
         public void CompareTo_not_equal()
         {
             Assert(
@@ -541,7 +548,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'A': { $ne: 'Amazing' } }");
         }
 
-        [Test]
+        [Fact]
         public void DictionaryIndexer()
         {
             Assert(
@@ -550,7 +557,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'T.one': 1}");
         }
 
-        [Test]
+        [Fact]
         public void EnumerableCount()
         {
             Assert(
@@ -559,7 +566,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'G': {$size: 2}}");
         }
 
-        [Test]
+        [Fact]
         public void EnumerableElementAtEquals()
         {
             Assert(
@@ -568,7 +575,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'G.1.D': 'Dolphin'}");
         }
 
-        [Test]
+        [Fact]
         public void Equals_with_byte_based_enum()
         {
             Assert(
@@ -577,7 +584,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'Q': 1}");
         }
 
-        [Test]
+        [Fact]
         public void Equals_with_nullable_date_time()
         {
             Assert(
@@ -586,7 +593,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'R': { $ne: null, $gt: ISODate('0001-01-01T00:00:00Z') } }");
         }
 
-        [Test]
+        [Fact]
         public void HashSetCount()
         {
             Assert(
@@ -595,7 +602,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'L': {$size: 3}}");
         }
 
-        [Test]
+        [Fact]
         public void ListCount()
         {
             Assert(
@@ -604,7 +611,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'O': {$size: 3}}");
         }
 
-        [Test]
+        [Fact]
         public void ListSubEquals()
         {
             Assert(
@@ -613,7 +620,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{'O.2': NumberLong(30)}");
         }
 
-        [Test]
+        [Fact]
         public void RegexInstanceMatch()
         {
             var regex = new Regex("^Awe");
@@ -623,7 +630,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /^Awe/}");
         }
 
-        [Test]
+        [Fact]
         public void RegexStaticMatch()
         {
             Assert(
@@ -632,7 +639,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /^Awe/}");
         }
 
-        [Test]
+        [Fact]
         public void RegexStaticMatch_with_options()
         {
             Assert(
@@ -641,7 +648,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /^Awe/i}");
         }
 
-        [Test]
+        [Fact]
         public void StringContains()
         {
             Assert(
@@ -650,7 +657,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /some/s}");
         }
 
-        [Test]
+        [Fact]
         public void StringContains_with_dot()
         {
             Assert(
@@ -659,7 +666,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /\\./s}");
         }
 
-        [Test]
+        [Fact]
         public void StringNotContains()
         {
             Assert(
@@ -668,7 +675,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: {$not: /some/s}}");
         }
 
-        [Test]
+        [Fact]
         public void StringEndsWith()
         {
             Assert(
@@ -677,7 +684,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /some$/s}");
         }
 
-        [Test]
+        [Fact]
         public void StringStartsWith()
         {
             Assert(
@@ -686,7 +693,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: /^some/s}");
         }
 
-        [Test]
+        [Fact]
         public void StringEquals()
         {
             Assert(
@@ -695,7 +702,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: 'Awesome'}");
         }
 
-        [Test]
+        [Fact]
         public void StringEqualsMethod()
         {
             Assert(
@@ -704,7 +711,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: 'Awesome'}");
         }
 
-        [Test]
+        [Fact]
         public void NotStringEqualsMethod()
         {
             Assert(
@@ -713,16 +720,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: {$ne: 'Awesome'}}");
         }
 
-        [Test]
+        [Fact]
         public void OfType()
         {
-            Assert(_otherCollection,
+            Assert(__otherCollection,
                 x => x.Children.OfType<OtherChild2>().Any(y => y.Z == 10),
                 0,
                 "{Children: {$elemMatch: { _t: 'OtherChild2', Z: 10 }}}");
         }
 
-        [Test]
+        [Fact]
         public void String_IsNullOrEmpty()
         {
             Assert(
@@ -731,7 +738,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: { $in: [null, ''] } }");
         }
 
-        [Test]
+        [Fact]
         public void Not_String_IsNullOrEmpty()
         {
             Assert(
@@ -740,29 +747,29 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: { $nin: [null, ''] } }");
         }
 
-        [Test]
+        [Fact]
         public void Binding_through_a_necessary_conversion()
         {
             long id = 10;
-            var root = _collection.FindSync(x => x.Id == id).FirstOrDefault();
+            var root = __collection.FindSync(x => x.Id == id).FirstOrDefault();
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Binding_through_an_unnecessary_conversion()
         {
-            var root = FindFirstOrDefault(_collection, 10);
+            var root = FindFirstOrDefault(__collection, 10);
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
         }
 
-        [Test]
+        [Fact]
         public void Binding_through_an_unnecessary_conversion_with_a_builder()
         {
-            var root = FindFirstOrDefaultWithBuilder(_collection, 10);
+            var root = FindFirstOrDefaultWithBuilder(__collection, 10);
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
@@ -801,7 +808,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, BsonDocument expectedFilter)
         {
-            Assert(_collection, filter, expectedCount, expectedFilter);
+            Assert(__collection, filter, expectedCount, expectedFilter);
         }
     }
 }

@@ -15,14 +15,13 @@
 
 using FluentAssertions;
 using MongoDB.Driver.Linq.Translators;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    [TestFixture]
     public class ProjectedObjectTests
     {
-        [Test]
+        [Fact]
         public void Should_retrieve_scalar_value_from_top_level()
         {
             var subject = CreateSubject();
@@ -32,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             a.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void Should_retrieve_dotted_value_from_top_level()
         {
             var subject = CreateSubject();
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             c.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_retrieve_value_from_nested_level()
         {
             var subject = CreateSubject();
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             g.Should().Be("funny");
         }
 
-        [Test]
+        [Fact]
         public void Should_retrieve_dotted_value_from_nested_level()
         {
             var subject = CreateSubject();
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             g.Should().Be(10);
         }
 
-        [Test]
+        [Fact]
         public void Should_retrieve_dotted_value_from_dotted_nested_level()
         {
             var subject = CreateSubject();
