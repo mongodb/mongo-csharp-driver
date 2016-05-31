@@ -16,11 +16,10 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp283
 {
-    [TestFixture]
     public class CSharp283Tests
     {
         private BsonArray _bsonArray = new BsonArray { 1, 2, 3 };
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
         private List<BsonValue> _bsonValueList = new List<BsonValue> { 1, 2, 3 };
         private IEnumerable<BsonValue> _ienumerableBsonValue = new BsonValue[] { 1, 2, 3 };
 
-        [Test]
+        [Fact]
         public void TestQueryAll()
         {
             var query1 = Query.All("name", new BsonValue[] { _bsonValue });
@@ -41,14 +40,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$all' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$all' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryIn()
         {
             var query1 = Query.In("name", new BsonValue[] { _bsonValue });
@@ -60,14 +59,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$in' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$in' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryNin()
         {
             var query1 = Query.NotIn("name", new BsonValue[] { _bsonValue });
@@ -79,14 +78,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$nin' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$nin' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryNotAll()
         {
             var query1 = Query.Not(Query.All("name", new BsonValue[] { _bsonValue }));
@@ -98,14 +97,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$not' : { '$all' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$all' : [1, 2, 3] } } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryNotIn()
         {
             var query1 = Query.Not(Query.In("name", new BsonValue[] { _bsonValue }));
@@ -117,14 +116,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$nin' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$nin' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryNotNin()
         {
             var query1 = Query.Not(Query.NotIn("name", new BsonValue[] { _bsonValue }));
@@ -136,14 +135,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ 'name' : { '$in' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$in' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, query1.ToJson());
-            Assert.AreEqual(expectedMultiple, query2.ToJson());
-            Assert.AreEqual(expectedMultiple, query3.ToJson());
-            Assert.AreEqual(expectedMultiple, query4.ToJson());
-            Assert.AreEqual(expectedMultiple, query5.ToJson());
+            Assert.Equal(expectedSingle, query1.ToJson());
+            Assert.Equal(expectedMultiple, query2.ToJson());
+            Assert.Equal(expectedMultiple, query3.ToJson());
+            Assert.Equal(expectedMultiple, query4.ToJson());
+            Assert.Equal(expectedMultiple, query5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestUpdateAddToSetEach()
         {
             var update1 = Update.AddToSetEach("name", _bsonValue);
@@ -155,14 +154,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ '$addToSet' : { 'name' : { '$each' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ '$addToSet' : { 'name' : { '$each' : [1, 2, 3] } } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, update1.ToJson());
-            Assert.AreEqual(expectedMultiple, update2.ToJson());
-            Assert.AreEqual(expectedMultiple, update3.ToJson());
-            Assert.AreEqual(expectedMultiple, update4.ToJson());
-            Assert.AreEqual(expectedMultiple, update5.ToJson());
+            Assert.Equal(expectedSingle, update1.ToJson());
+            Assert.Equal(expectedMultiple, update2.ToJson());
+            Assert.Equal(expectedMultiple, update3.ToJson());
+            Assert.Equal(expectedMultiple, update4.ToJson());
+            Assert.Equal(expectedMultiple, update5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestUpdatePullAll()
         {
             var update1 = Update.PullAll("name", _bsonValue);
@@ -174,14 +173,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ '$pullAll' : { 'name' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ '$pullAll' : { 'name' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, update1.ToJson());
-            Assert.AreEqual(expectedMultiple, update2.ToJson());
-            Assert.AreEqual(expectedMultiple, update3.ToJson());
-            Assert.AreEqual(expectedMultiple, update4.ToJson());
-            Assert.AreEqual(expectedMultiple, update5.ToJson());
+            Assert.Equal(expectedSingle, update1.ToJson());
+            Assert.Equal(expectedMultiple, update2.ToJson());
+            Assert.Equal(expectedMultiple, update3.ToJson());
+            Assert.Equal(expectedMultiple, update4.ToJson());
+            Assert.Equal(expectedMultiple, update5.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestUpdatePushAll()
         {
             var update1 = Update.PushAll("name", _bsonValue);
@@ -193,11 +192,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp283
             var expectedSingle = "{ '$pushAll' : { 'name' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ '$pushAll' : { 'name' : [1, 2, 3] } }".Replace("'", "\"");
 
-            Assert.AreEqual(expectedSingle, update1.ToJson());
-            Assert.AreEqual(expectedMultiple, update2.ToJson());
-            Assert.AreEqual(expectedMultiple, update3.ToJson());
-            Assert.AreEqual(expectedMultiple, update4.ToJson());
-            Assert.AreEqual(expectedMultiple, update5.ToJson());
+            Assert.Equal(expectedSingle, update1.ToJson());
+            Assert.Equal(expectedMultiple, update2.ToJson());
+            Assert.Equal(expectedMultiple, update3.ToJson());
+            Assert.Equal(expectedMultiple, update4.ToJson());
+            Assert.Equal(expectedMultiple, update5.ToJson());
         }
     }
 }

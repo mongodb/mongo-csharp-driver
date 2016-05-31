@@ -15,11 +15,10 @@
 
 using System.Linq;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp613
 {
-    [TestFixture]
     public class CSharp613Tests
     {
         private class C
@@ -28,8 +27,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp613
             public short S;
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestShortToIntImplicitConversion()
         {
             var collection = LegacyTestConfiguration.Collection;
@@ -42,8 +40,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp613
                         select c;
 
             var result = query.FirstOrDefault();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.S);
+            Assert.NotNull(result);
+            Assert.Equal(2, result.S);
         }
     }
 }

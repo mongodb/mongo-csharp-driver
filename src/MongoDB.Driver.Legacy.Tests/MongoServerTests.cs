@@ -16,59 +16,66 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoServerTests
     {
-        private MongoServer _server;
-        private MongoDatabase _database;
-        private MongoCollection<BsonDocument> _collection;
-        private bool _isMasterSlavePair;
-        private bool _isReplicaSet;
+        private static MongoServer __server;
+        private static MongoDatabase __database;
+        private static MongoCollection<BsonDocument> __collection;
+        private static bool __isMasterSlavePair;
+        private static bool __isReplicaSet;
+        private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoServerTests()
         {
-            _server = LegacyTestConfiguration.Server;
-            _database = LegacyTestConfiguration.Database;
-            _collection = LegacyTestConfiguration.Collection;
-            _isReplicaSet = LegacyTestConfiguration.IsReplicaSet;
-
-            var adminDatabase = _server.GetDatabase("admin");
-            var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
-            var argv = commandResult.Response["argv"].AsBsonArray;
-            _isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
+            var _ = __lazyOneTimeSetup.Value;
         }
 
-        [Test]
+        private static bool OneTimeSetup()
+        {
+            __server = LegacyTestConfiguration.Server;
+            __database = LegacyTestConfiguration.Database;
+            __collection = LegacyTestConfiguration.Collection;
+            __isReplicaSet = LegacyTestConfiguration.IsReplicaSet;
+
+            var adminDatabase = __server.GetDatabase("admin");
+            var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
+            var argv = commandResult.Response["argv"].AsBsonArray;
+            __isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
+
+            return true;
+        }
+
+        [Fact]
         public void TestArbiters()
         {
-            if (_isReplicaSet)
+            if (__isReplicaSet)
             {
-                var isMasterResult = _database.RunCommand("isMaster").Response;
+                var isMasterResult = __database.RunCommand("isMaster").Response;
                 BsonValue arbiters;
                 int arbiterCount = 0;
                 if (isMasterResult.TryGetValue("arbiters", out arbiters))
                 {
                     arbiterCount = arbiters.AsBsonArray.Count;
                 }
-                Assert.AreEqual(arbiterCount, _server.Arbiters.Length);
+                Assert.Equal(arbiterCount, __server.Arbiters.Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestBuildInfo()
         {
             var versionZero = new Version(0, 0, 0);
-            var buildInfo = _server.BuildInfo;
-            Assert.AreNotEqual(versionZero, buildInfo.Version);
+            var buildInfo = __server.BuildInfo;
+            Assert.NotEqual(versionZero, buildInfo.Version);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateMongoServerSettings()
         {
             var settings = new MongoServerSettings
@@ -79,58 +86,58 @@ namespace MongoDB.Driver.Tests
             var server1 = MongoServer.Create(settings);
             var server2 = MongoServer.Create(settings);
 #pragma warning restore 618
-            Assert.AreSame(server1, server2);
-            Assert.AreEqual(settings, server1.Settings);
+            Assert.Same(server1, server2);
+            Assert.Equal(settings, server1.Settings);
         }
 
-        [Test]
+        [Fact]
         public void TestDatabaseExists()
         {
-            if (!_isMasterSlavePair)
+            if (!__isMasterSlavePair)
             {
-                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
-                var database = _server.GetDatabase(databaseNamespace.DatabaseName);
+                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
+                var database = __server.GetDatabase(databaseNamespace.DatabaseName);
                 var collection = database.GetCollection("test");
 
                 database.Drop();
-                Assert.IsFalse(_server.DatabaseExists(database.Name));
+                Assert.False(__server.DatabaseExists(database.Name));
                 collection.Insert(new BsonDocument("x", 1));
-                Assert.IsTrue(_server.DatabaseExists(database.Name));
+                Assert.True(__server.DatabaseExists(database.Name));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDropDatabase()
         {
-            if (!_isMasterSlavePair)
+            if (!__isMasterSlavePair)
             {
-                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
-                var database = _server.GetDatabase(databaseNamespace.DatabaseName);
+                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
+                var database = __server.GetDatabase(databaseNamespace.DatabaseName);
                 var collection = database.GetCollection("test");
 
                 collection.Insert(new BsonDocument());
-                var databaseNames = _server.GetDatabaseNames();
-                Assert.IsTrue(databaseNames.Contains(database.Name));
+                var databaseNames = __server.GetDatabaseNames();
+                Assert.True(databaseNames.Contains(database.Name));
 
-                _server.DropDatabase(database.Name);
-                databaseNames = _server.GetDatabaseNames();
-                Assert.IsFalse(databaseNames.Contains(database.Name));
+                __server.DropDatabase(database.Name);
+                databaseNames = __server.GetDatabaseNames();
+                Assert.False(databaseNames.Contains(database.Name));
             }
         }
 
-        [Test]
+        [Fact]
         public void TestFetchDBRef()
         {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 2 } });
-            var dbRef = new MongoDBRef(_database.Name, _collection.Name, 1);
-            var document = _server.FetchDBRef(dbRef);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["_id"].AsInt32);
-            Assert.AreEqual(2, document["x"].AsInt32);
+            __collection.Drop();
+            __collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 2 } });
+            var dbRef = new MongoDBRef(__database.Name, __collection.Name, 1);
+            var document = __server.FetchDBRef(dbRef);
+            Assert.Equal(2, document.ElementCount);
+            Assert.Equal(1, document["_id"].AsInt32);
+            Assert.Equal(2, document["x"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestGetAllServers()
         {
             var snapshot1 = MongoServer.GetAllServers();
@@ -138,146 +145,146 @@ namespace MongoDB.Driver.Tests
             var server = MongoServer.Create("mongodb://newhostnamethathasnotbeenusedbefore");
 #pragma warning restore
             var snapshot2 = MongoServer.GetAllServers();
-            Assert.AreEqual(snapshot1.Length + 1, snapshot2.Length);
-            Assert.IsFalse(snapshot1.Contains(server));
-            Assert.IsTrue(snapshot2.Contains(server));
+            Assert.Equal(snapshot1.Length + 1, snapshot2.Length);
+            Assert.False(snapshot1.Contains(server));
+            Assert.True(snapshot2.Contains(server));
             MongoServer.UnregisterServer(server);
             var snapshot3 = MongoServer.GetAllServers();
-            Assert.AreEqual(snapshot1.Length, snapshot3.Length);
-            Assert.IsFalse(snapshot3.Contains(server));
+            Assert.Equal(snapshot1.Length, snapshot3.Length);
+            Assert.False(snapshot3.Contains(server));
         }
 
-        [Test]
+        [Fact]
         public void TestGetDatabase()
         {
             var settings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Primary };
-            var database = _server.GetDatabase("test", settings);
-            Assert.AreEqual("test", database.Name);
-            Assert.AreEqual(ReadPreference.Primary, database.Settings.ReadPreference);
+            var database = __server.GetDatabase("test", settings);
+            Assert.Equal("test", database.Name);
+            Assert.Equal(ReadPreference.Primary, database.Settings.ReadPreference);
         }
 
-        [Test]
+        [Fact]
         public void TestGetDatabaseNames()
         {
-            var names = _server.GetDatabaseNames();
+            var names = __server.GetDatabaseNames();
 
-            CollectionAssert.IsOrdered(names);
+            Assert.Equal(names.OrderBy(n => n), names);
         }
 
-        [Test]
+        [Fact]
         public void TestInstance()
         {
-            if (_server.Instances.Length == 1)
+            if (__server.Instances.Length == 1)
             {
-                var instance = _server.Instance;
-                Assert.IsNotNull(instance);
-                Assert.IsTrue(instance.IsPrimary);
+                var instance = __server.Instance;
+                Assert.NotNull(instance);
+                Assert.True(instance.IsPrimary);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestInstances()
         {
-            var instances = _server.Instances;
-            Assert.IsNotNull(instances);
-            Assert.GreaterOrEqual(instances.Length, 1);
+            var instances = __server.Instances;
+            Assert.NotNull(instances);
+            Assert.True(instances.Length >= 1);
         }
 
-        [Test]
+        [Fact]
         public void TestIsDatabaseNameValid()
         {
             string message;
-            Assert.Throws<ArgumentNullException>(() => { _server.IsDatabaseNameValid(null, out message); });
-            Assert.IsFalse(_server.IsDatabaseNameValid("", out message));
-            Assert.IsFalse(_server.IsDatabaseNameValid("/", out message));
-            Assert.IsFalse(_server.IsDatabaseNameValid(new string('x', 128), out message));
-            Assert.IsTrue(_server.IsDatabaseNameValid("$external", out message));
+            Assert.Throws<ArgumentNullException>(() => { __server.IsDatabaseNameValid(null, out message); });
+            Assert.False(__server.IsDatabaseNameValid("", out message));
+            Assert.False(__server.IsDatabaseNameValid("/", out message));
+            Assert.False(__server.IsDatabaseNameValid(new string('x', 128), out message));
+            Assert.True(__server.IsDatabaseNameValid("$external", out message));
         }
 
-        [Test]
+        [Fact]
         public void TestPing()
         {
-            _server.Ping();
+            __server.Ping();
         }
 
-        [Test]
+        [Fact]
         public void TestPrimary()
         {
-            var instance = _server.Primary;
-            Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.IsPrimary);
+            var instance = __server.Primary;
+            Assert.NotNull(instance);
+            Assert.True(instance.IsPrimary);
         }
 
-        [Test]
-        [Explicit]
+        [SkippableFact]
         public void TestReconnect()
         {
-            _server.Reconnect();
-            Assert.IsTrue(_server.State == MongoServerState.Connected || _server.State == MongoServerState.ConnectedToSubset);
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            __server.Reconnect();
+            Assert.True(__server.State == MongoServerState.Connected || __server.State == MongoServerState.ConnectedToSubset);
         }
 
-        [Test]
+        [Fact]
         public void TestReplicaSetName()
         {
-            if (_isReplicaSet)
+            if (__isReplicaSet)
             {
-                Assert.IsNotNull(_server.ReplicaSetName);
+                Assert.NotNull(__server.ReplicaSetName);
             }
             else
             {
-                Assert.IsNull(_server.ReplicaSetName);
+                Assert.Null(__server.ReplicaSetName);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRequestStart()
         {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-            using (_server.RequestStart())
+            Assert.Equal(0, __server.RequestNestingLevel);
+            using (__server.RequestStart())
             {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
+                Assert.Equal(1, __server.RequestNestingLevel);
             }
-            Assert.AreEqual(0, _server.RequestNestingLevel);
+            Assert.Equal(0, __server.RequestNestingLevel);
         }
 
-        [Test]
+        [Fact]
         public void TestRequestStartPrimary()
         {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-            using (_server.RequestStart(_server.Primary))
+            Assert.Equal(0, __server.RequestNestingLevel);
+            using (__server.RequestStart(__server.Primary))
             {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
+                Assert.Equal(1, __server.RequestNestingLevel);
             }
-            Assert.AreEqual(0, _server.RequestNestingLevel);
+            Assert.Equal(0, __server.RequestNestingLevel);
         }
 
-        [Test]
+        [Fact]
         public void TestRequestStartPrimaryNested()
         {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-            using (_server.RequestStart(_server.Primary))
+            Assert.Equal(0, __server.RequestNestingLevel);
+            using (__server.RequestStart(__server.Primary))
             {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-                using (_server.RequestStart(_server.Primary))
+                Assert.Equal(1, __server.RequestNestingLevel);
+                using (__server.RequestStart(__server.Primary))
                 {
-                    Assert.AreEqual(2, _server.RequestNestingLevel);
+                    Assert.Equal(2, __server.RequestNestingLevel);
                 }
-                Assert.AreEqual(1, _server.RequestNestingLevel);
+                Assert.Equal(1, __server.RequestNestingLevel);
             }
-            Assert.AreEqual(0, _server.RequestNestingLevel);
+            Assert.Equal(0, __server.RequestNestingLevel);
         }
 
-        [Test]
+        [Fact]
         public void TestSecondaries()
         {
-            Assert.IsTrue(_server.Secondaries.Length < _server.Instances.Length);
+            Assert.True(__server.Secondaries.Length < __server.Instances.Length);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion()
         {
             var versionZero = new Version(0, 0, 0);
-            Assert.AreNotEqual(versionZero, _server.BuildInfo.Version);
+            Assert.NotEqual(versionZero, __server.BuildInfo.Version);
         }
     }
 }

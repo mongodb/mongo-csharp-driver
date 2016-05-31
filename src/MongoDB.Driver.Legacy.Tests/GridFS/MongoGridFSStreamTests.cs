@@ -18,18 +18,16 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
-    [TestFixture]
     public class MongoGridFSStreamTests
     {
         private MongoDatabase _database;
         private MongoGridFS _gridFS;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoGridFSStreamTests()
         {
             _database = LegacyTestConfiguration.Database;
             var settings = new MongoGridFSSettings
@@ -40,49 +38,49 @@ namespace MongoDB.Driver.Tests.GridFS
             _gridFS = _database.GetGridFS(settings);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateZeroLengthFile()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             using (var stream = _gridFS.Create("test"))
             {
-                Assert.IsTrue(stream.CanRead);
-                Assert.IsTrue(stream.CanSeek);
-                Assert.IsFalse(stream.CanTimeout);
-                Assert.IsTrue(stream.CanWrite);
-                Assert.AreEqual(0, stream.Length);
-                Assert.AreEqual(0, stream.Position);
+                Assert.True(stream.CanRead);
+                Assert.True(stream.CanSeek);
+                Assert.False(stream.CanTimeout);
+                Assert.True(stream.CanWrite);
+                Assert.Equal(0, stream.Length);
+                Assert.Equal(0, stream.Position);
 
                 fileInfo = _gridFS.FindOne("test");
-                Assert.IsTrue(fileInfo.Exists);
-                Assert.IsNull(fileInfo.Aliases);
-                Assert.AreEqual("test", fileInfo.Name);
-                Assert.AreEqual(_gridFS.Settings.ChunkSize, fileInfo.ChunkSize);
-                Assert.IsNull(fileInfo.ContentType);
-                Assert.AreEqual(0, fileInfo.Length);
-                Assert.IsNull(fileInfo.MD5);
-                Assert.IsNull(fileInfo.Metadata);
+                Assert.True(fileInfo.Exists);
+                Assert.Null(fileInfo.Aliases);
+                Assert.Equal("test", fileInfo.Name);
+                Assert.Equal(_gridFS.Settings.ChunkSize, fileInfo.ChunkSize);
+                Assert.Null(fileInfo.ContentType);
+                Assert.Equal(0, fileInfo.Length);
+                Assert.Null(fileInfo.MD5);
+                Assert.Null(fileInfo.Metadata);
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(0, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(0, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
         }
 
-        [Test]
+        [Fact]
         public void TestCreate1ByteFile()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             using (var stream = _gridFS.Create("test"))
             {
@@ -90,27 +88,27 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(1, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(1, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
 
             using (var stream = _gridFS.OpenRead("test"))
             {
                 var b = stream.ReadByte();
-                Assert.AreEqual(1, b);
+                Assert.Equal(1, b);
                 b = stream.ReadByte();
-                Assert.AreEqual(-1, b); // EOF
+                Assert.Equal(-1, b); // EOF
             }
         }
 
-        [Test]
+        [Fact]
         public void TestCreate3ChunkFile()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             using (var stream = _gridFS.Create("test"))
             {
@@ -120,30 +118,30 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(fileInfo.ChunkSize * 3, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
 
             using (var stream = _gridFS.OpenRead("test"))
             {
                 var bytes = new byte[fileInfo.ChunkSize * 3];
                 var bytesRead = stream.Read(bytes, 0, fileInfo.ChunkSize * 3);
-                Assert.AreEqual(bytesRead, fileInfo.ChunkSize * 3);
-                Assert.IsTrue(bytes.All(b => b == 0));
+                Assert.Equal(bytesRead, fileInfo.ChunkSize * 3);
+                Assert.True(bytes.All(b => b == 0));
 
                 bytesRead = stream.Read(bytes, 0, 1);
-                Assert.AreEqual(0, bytesRead); // EOF
+                Assert.Equal(0, bytesRead); // EOF
             }
         }
 
-        [Test]
+        [Fact]
         public void TestCreate3ChunkFile1ByteAtATime()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             using (var stream = _gridFS.Create("test"))
             {
@@ -156,30 +154,30 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(fileInfo.ChunkSize * 3, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
 
             using (var stream = _gridFS.OpenRead("test"))
             {
                 for (int i = 0; i < fileInfo.ChunkSize * 3; i++)
                 {
                     var b = stream.ReadByte();
-                    Assert.AreEqual((byte)i, b);
+                    Assert.Equal((byte)i, b);
                 }
                 var eof = stream.ReadByte();
-                Assert.AreEqual(-1, eof);
+                Assert.Equal(-1, eof);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestCreate3ChunkFile14BytesAtATime()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             using (var stream = _gridFS.Create("test"))
             {
@@ -193,9 +191,9 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(fileInfo.ChunkSize * 3, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
 
             using (var stream = _gridFS.OpenRead("test"))
             {
@@ -204,15 +202,15 @@ namespace MongoDB.Driver.Tests.GridFS
                 for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4)
                 {
                     var bytesRead = stream.Read(bytes, 0, 4);
-                    Assert.AreEqual(4, bytesRead);
-                    Assert.IsTrue(expected.SequenceEqual(bytes));
+                    Assert.Equal(4, bytesRead);
+                    Assert.True(expected.SequenceEqual(bytes));
                 }
                 var eof = stream.Read(bytes, 0, 1);
-                Assert.AreEqual(0, eof);
+                Assert.Equal(0, eof);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestOpenCreateWithId()
         {
             _gridFS.Files.RemoveAll();
@@ -229,10 +227,10 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.AreEqual(new BsonInt32(1), fileInfo.Id);
+            Assert.Equal(new BsonInt32(1), fileInfo.Id);
         }
 
-        [Test]
+        [Fact]
         public void TestOpenCreateWithMetadata()
         {
             _gridFS.Files.RemoveAll();
@@ -250,17 +248,17 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.AreEqual(metadata, fileInfo.Metadata);
+            Assert.Equal(metadata, fileInfo.Metadata);
         }
 
-        [Test]
+        [Fact]
         public void TestUpdateMD5()
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.IsNull(fileInfo);
+            Assert.Null(fileInfo);
 
             var settings = new MongoGridFSSettings()
             {
@@ -277,9 +275,9 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(4, fileInfo.Length);
-            Assert.IsNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(4, fileInfo.Length);
+            Assert.Null(fileInfo.MD5);
 
             settings = new MongoGridFSSettings()
             {
@@ -296,9 +294,9 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             fileInfo = _gridFS.FindOne("test");
-            Assert.IsTrue(fileInfo.Exists);
-            Assert.AreEqual(8, fileInfo.Length);
-            Assert.IsNotNull(fileInfo.MD5);
+            Assert.True(fileInfo.Exists);
+            Assert.Equal(8, fileInfo.Length);
+            Assert.NotNull(fileInfo.MD5);
         }
     }
 }

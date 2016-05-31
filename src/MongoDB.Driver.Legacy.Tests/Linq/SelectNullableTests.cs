@@ -13,16 +13,17 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class SelectNullableTests
     {
         private enum E { None, A, B };
@@ -37,113 +38,120 @@ namespace MongoDB.Driver.Tests.Linq
             public int? X { get; set; }
         }
 
-        private MongoCollection<C> _collection;
+        private static MongoCollection<C> __collection;
+        private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public SelectNullableTests()
         {
-            _collection = LegacyTestConfiguration.GetCollection<C>();
-
-            _collection.Drop();
-            _collection.Insert(new C { E = null });
-            _collection.Insert(new C { E = E.A });
-            _collection.Insert(new C { E = E.B });
-            _collection.Insert(new C { X = null });
-            _collection.Insert(new C { X = 1 });
-            _collection.Insert(new C { X = 2 });
+            var _ = __lazyOneTimeSetup.Value;
         }
 
-        [Test]
-        [Platform(Exclude = "Mono", Reason = "Does not pass on Mono 3.2.5. Excluding for now.")]
+        private static bool OneTimeSetup()
+        {
+            __collection = LegacyTestConfiguration.GetCollection<C>();
+
+            __collection.Drop();
+            __collection.Insert(new C { E = null });
+            __collection.Insert(new C { E = E.A });
+            __collection.Insert(new C { E = E.B });
+            __collection.Insert(new C { X = null });
+            __collection.Insert(new C { X = 1 });
+            __collection.Insert(new C { X = 2 });
+
+            return true;
+        }
+
+        [SkippableFact]
         public void TestWhereEEqualsA()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            RequireEnvironmentVariable.IsDefined("MONO"); // Does not pass on Mono 3.2.5. Excluding for now.
+            var query = from c in __collection.AsQueryable<C>()
                         where c.E == E.A
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => ((Nullable<Int32>)c.E == (Nullable<Int32>)1)", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => ((Nullable<Int32>)c.E == (Nullable<Int32>)1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"e\" : \"A\" }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, Consume(query));
+            Assert.Equal("{ \"e\" : \"A\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, Consume(query));
         }
 
-        [Test]
+        [Fact]
         public void TestWhereEEqualsNull()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.E == null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => (c.E == (Nullable<E>)null)", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => (c.E == (Nullable<E>)null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"e\" : null }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(4, Consume(query));
+            Assert.Equal("{ \"e\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
-        [Test]
+        [Fact]
         public void TestWhereXEquals1()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.X == 1
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => (c.X == (Nullable<Int32>)1)", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => (c.X == (Nullable<Int32>)1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : 1 }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, Consume(query));
+            Assert.Equal("{ \"x\" : 1 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, Consume(query));
         }
 
-        [Test]
+        [Fact]
         public void TestWhereXEqualsNull()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.X == null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => (c.X == (Nullable<Int32>)null)", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => (c.X == (Nullable<Int32>)null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : null }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(4, Consume(query));
+            Assert.Equal("{ \"x\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         private int Consume<T>(IQueryable<T> query)

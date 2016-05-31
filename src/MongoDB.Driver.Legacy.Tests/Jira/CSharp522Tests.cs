@@ -17,11 +17,10 @@ using System;
 using System.Linq;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp522
 {
-    [TestFixture]
     public class CSharp522Tests
     {
         public class C
@@ -33,14 +32,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp522
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp522Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
             _collection.Drop();
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             _collection.RemoveAll();
@@ -53,7 +51,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp522
                 .Distinct();
             var ex = Assert.Throws<NotSupportedException>(() => { query.ToList(); });
             var message = "Distinct is only supported for a single field. Projections used with Distinct must resolve to a single field in the document.";
-            Assert.AreEqual(message, ex.Message);
+            Assert.Equal(message, ex.Message);
         }
     }
 }

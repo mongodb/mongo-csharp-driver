@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp110
 {
-    [TestFixture]
     public class CSharp110Tests
     {
 #pragma warning disable 649 // never assigned to
@@ -30,7 +29,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp110
         }
 #pragma warning restore
 
-        [Test]
+        [Fact]
         public void TestFind()
         {
             var server = LegacyTestConfiguration.Server;
@@ -46,8 +45,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp110
             var query = Query.EQ("X", 2);
             foreach (var document in collection.Find(query))
             {
-                Assert.AreNotEqual(ObjectId.Empty, document.Id);
-                Assert.AreEqual(2, document.X);
+                Assert.NotEqual(ObjectId.Empty, document.Id);
+                Assert.Equal(2, document.X);
             }
         }
     }

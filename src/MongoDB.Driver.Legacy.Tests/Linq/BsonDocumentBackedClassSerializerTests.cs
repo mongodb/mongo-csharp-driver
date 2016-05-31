@@ -21,74 +21,72 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class BsonDocumentBackedClassSerializerTests
     {
-        [Test]
+        [Fact]
         public void TestDynamicMemberName()
         {
             var query = Query<TestDocument>.Where(x => x["Dynamic-Awesome"] == true);
             var expected = "{ \"Dynamic-Awesome\" : true }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Ignore("LINQ BsonDocumentBackedClass")]
-        [Test]
+        [Fact(Skip = "LINQ BsonDocumentBackedClass")]
         public void TestIndexerWithKnownMemberName()
         {
             var query = Query<TestDocument>.Where(x => x["Name"] == "awesome");
             var expected = "{ \"name\" : \"awesome\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Ignore("LINQ BsonDocumentBackedClass")]
-        [Test]
+        [Fact(Skip = "LINQ BsonDocumentBackedClass")]
         public void TestIndexerWithEnum()
         {
             var query = Query<TestDocument>.Where(x => x[KnownPropertyNames.Name] == "awesome");
             var expected = "{ \"name\" : \"awesome\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIndexerWithObjectId()
         {
             var objectId = ObjectId.GenerateNewId();
             var query = Query<TestDocument>.Where(x => x[objectId] == "awesome");
             var expected = string.Format("{{ \"{0}\" : \"awesome\" }}", objectId);
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIndexerOnList()
         {
             var query = Query<TestDocument>.Where(x => x.Colors[0] == 12);
             var expected = "{ \"colors.0\" : \"12\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestElementAtOnList()
         {
             var query = Query<TestDocument>.Where(x => x.Colors.ElementAt(0) == 12);
             var expected = "{ \"colors.0\" : \"12\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIndexerOnArray()
         {
             var query = Query<TestDocument>.Where(x => x.Colors2[0] == 12);
             var expected = "{ \"colors2.0\" : \"12\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestThrowsExceptionWhenMemberDoesNotExistAndIsNotDynamic()
         {
             Assert.Throws<NotSupportedException>(() => Query<TestDocument>.Where(x => x["ThrowMe"] == 42));

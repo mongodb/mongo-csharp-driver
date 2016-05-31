@@ -17,11 +17,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp198
 {
-    [TestFixture]
     public class CSharp198Tests
     {
         public class Id
@@ -43,13 +42,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp198
 
         private MongoCollection<Foo> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp198Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<Foo>();
         }
 
-        [Test]
+        [Fact]
         public void TestSave()
         {
             _collection.RemoveAll();
@@ -61,11 +59,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp198
             _collection.Save(foo1);
 
             var foo1Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo1.Id)));
-            Assert.IsInstanceOf<Foo>(foo1Rehydrated);
-            Assert.IsInstanceOf<Id>(foo1Rehydrated.Id);
-            Assert.AreEqual(1, foo1Rehydrated.Id.AccountId);
-            Assert.AreEqual(2, foo1Rehydrated.Id.Index);
-            Assert.AreEqual("foo1", foo1Rehydrated.Name);
+            Assert.IsType<Foo>(foo1Rehydrated);
+            Assert.IsType<Id>(foo1Rehydrated.Id);
+            Assert.Equal(1, foo1Rehydrated.Id.AccountId);
+            Assert.Equal(2, foo1Rehydrated.Id.Index);
+            Assert.Equal("foo1", foo1Rehydrated.Name);
 
             var foo2 = new Foo
             {
@@ -75,12 +73,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp198
             _collection.Save(foo2);
 
             var foo2Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo2.Id)));
-            Assert.IsInstanceOf<Foo>(foo2Rehydrated);
-            Assert.IsInstanceOf<IdWithExtraField>(foo2Rehydrated.Id);
-            Assert.AreEqual(3, foo2Rehydrated.Id.AccountId);
-            Assert.AreEqual(4, foo2Rehydrated.Id.Index);
-            Assert.AreEqual(5, ((IdWithExtraField)foo2Rehydrated.Id).Extra);
-            Assert.AreEqual("foo2", foo2Rehydrated.Name);
+            Assert.IsType<Foo>(foo2Rehydrated);
+            Assert.IsType<IdWithExtraField>(foo2Rehydrated.Id);
+            Assert.Equal(3, foo2Rehydrated.Id.AccountId);
+            Assert.Equal(4, foo2Rehydrated.Id.Index);
+            Assert.Equal(5, ((IdWithExtraField)foo2Rehydrated.Id).Extra);
+            Assert.Equal("foo2", foo2Rehydrated.Name);
         }
     }
 }

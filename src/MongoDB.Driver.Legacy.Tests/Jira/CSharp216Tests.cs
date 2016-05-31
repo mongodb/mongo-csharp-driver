@@ -16,22 +16,20 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp216
 {
-    [TestFixture]
     public class CSharp216Tests
     {
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp216Tests()
         {
             _database = LegacyTestConfiguration.Database;
         }
 
-        [Test]
+        [Fact]
         public void TestAmbiguousEvalArguments()
         {
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
@@ -42,12 +40,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
 #pragma warning disable 618
                 var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
-                Assert.AreEqual(BsonType.Boolean, result.BsonType);
-                Assert.AreEqual(true, result.AsBoolean);
+                Assert.Equal(BsonType.Boolean, result.BsonType);
+                Assert.Equal(true, result.AsBoolean);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNoLock()
         {
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
@@ -58,8 +56,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
 #pragma warning disable 618
                 var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
-                Assert.AreEqual(BsonType.Boolean, result.BsonType);
-                Assert.AreEqual(true, result.AsBoolean);
+                Assert.Equal(BsonType.Boolean, result.BsonType);
+                Assert.Equal(true, result.AsBoolean);
             }
         }
     }

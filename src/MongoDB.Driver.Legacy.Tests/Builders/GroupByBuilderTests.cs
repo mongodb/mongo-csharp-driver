@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class GroupByBuilderTests
     {
         private class Test
@@ -33,60 +32,60 @@ namespace MongoDB.Driver.Tests.Builders
             public int C = 0;
         }
 
-        [Test]
+        [Fact]
         public void Test1Key()
         {
             var groupBy = GroupBy.Keys("a");
             string expected = "{ \"a\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void Test1Key_Typed()
         {
             var groupBy = GroupBy<Test>.Keys(x => x.A);
             string expected = "{ \"a\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void Test2Keys()
         {
             var groupBy = GroupBy.Keys("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void Test2Keys_Typed()
         {
             var groupBy = GroupBy<Test>.Keys(x => x.A, x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void Test3Keys()
         {
             var groupBy = GroupBy.Keys("a", "b", "c");
             string expected = "{ \"a\" : 1, \"b\" : 1, \"c\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void Test3Keys_Typed()
         {
             var groupBy = GroupBy<Test>.Keys(x => x.A, x => x.B, x => x.C);
             string expected = "{ \"a\" : 1, \"b\" : 1, \"c\" : 1 }";
-            Assert.AreEqual(expected, groupBy.ToJson());
+            Assert.Equal(expected, groupBy.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestFunction()
         {
             var groupBy = GroupBy.Function("this.age >= 21");
             string expected = "new BsonJavaScript(\"this.age >= 21\")";
-            Assert.AreEqual(expected, groupBy.ToString());
+            Assert.Equal(expected, groupBy.ToString());
         }
     }
 }

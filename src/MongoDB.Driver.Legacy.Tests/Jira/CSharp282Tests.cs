@@ -17,23 +17,21 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp282Tests
     {
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp282Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
             _collection.Drop();
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyUpdateBuilder()
         {
             var document = new BsonDocument("x", 1);

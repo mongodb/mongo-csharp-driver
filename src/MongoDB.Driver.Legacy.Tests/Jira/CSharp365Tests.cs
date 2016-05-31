@@ -16,14 +16,13 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp365
 {
-    [TestFixture]
     public class CSharp365Tests
     {
-        [Test]
+        [Fact]
         public void TestExplainWithFieldsAndCoveredIndex()
         {
             var server = LegacyTestConfiguration.Server;
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
                 var plan = cursor.Explain();
                 if (server.BuildInfo.Version < new Version(2, 7, 0))
                 {
-                    Assert.IsTrue(plan["indexOnly"].ToBoolean());
+                    Assert.True(plan["indexOnly"].ToBoolean());
                 }
                 else
                 {
@@ -56,8 +55,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
                     var inputStage = winningPlan["inputStage"].AsBsonDocument;
                     var stage = inputStage["stage"].AsString;
                     var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                    Assert.That(stage, Is.EqualTo("IXSCAN"));
-                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ A : 1, _id : 1 }")));
+                    Assert.Equal("IXSCAN", stage);
+                    Assert.Equal(BsonDocument.Parse("{ A : 1, _id : 1 }"), keyPattern);
                 }
             }
         }

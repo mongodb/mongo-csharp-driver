@@ -13,59 +13,65 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp281Tests
     {
-        private MongoCollection<BsonDocument> _collection;
+        private static MongoCollection<BsonDocument> __collection;
+        private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp281Tests()
         {
-            _collection = LegacyTestConfiguration.Collection;
-            _collection.Drop();
+            var _ = __lazyOneTimeSetup.Value;
         }
 
-        [Test]
+        private static bool OneTimeSetup()
+        {
+            __collection = LegacyTestConfiguration.Collection;
+            __collection.Drop();
+            return true;
+        }
+
+        [Fact]
         public void TestPopFirst()
         {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            _collection.RemoveAll();
-            _collection.Insert(document);
+            __collection.RemoveAll();
+            __collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = Update.PopFirst("x");
-            _collection.Update(query, update);
+            __collection.Update(query, update);
 
-            document = _collection.FindOne();
+            document = __collection.FindOne();
             var array = document["x"].AsBsonArray;
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(2, array[0].AsInt32);
-            Assert.AreEqual(3, array[1].AsInt32);
+            Assert.Equal(2, array.Count);
+            Assert.Equal(2, array[0].AsInt32);
+            Assert.Equal(3, array[1].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestPopLast()
         {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            _collection.RemoveAll();
-            _collection.Insert(document);
+            __collection.RemoveAll();
+            __collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = Update.PopLast("x");
-            _collection.Update(query, update);
+            __collection.Update(query, update);
 
-            document = _collection.FindOne();
+            document = __collection.FindOne();
             var array = document["x"].AsBsonArray;
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(1, array[0].AsInt32);
-            Assert.AreEqual(2, array[1].AsInt32);
+            Assert.Equal(2, array.Count);
+            Assert.Equal(1, array[0].AsInt32);
+            Assert.Equal(2, array[1].AsInt32);
         }
     }
 }

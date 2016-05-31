@@ -19,22 +19,20 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp163
 {
-    [TestFixture]
     public class CSharp163Tests
     {
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp163Tests()
         {
             _database = LegacyTestConfiguration.Database;
         }
 
-        [Test]
+        [Fact]
         public void TestNullAliasesAndContentType()
         {
             _database.GridFS.Files.RemoveAll();
@@ -44,17 +42,17 @@ namespace MongoDB.Driver.Tests.Jira.CSharp163
             var bytes = Encoding.UTF8.GetBytes(text);
             var stream = new MemoryStream(bytes);
             var fileInfo = _database.GridFS.Upload(stream, null); // test no filename!
-            Assert.IsNull(fileInfo.Aliases);
-            Assert.IsNull(fileInfo.ContentType);
-            Assert.IsNull(fileInfo.Metadata);
-            Assert.IsNull(fileInfo.Name);
+            Assert.Null(fileInfo.Aliases);
+            Assert.Null(fileInfo.ContentType);
+            Assert.Null(fileInfo.Metadata);
+            Assert.Null(fileInfo.Name);
 
             var query = Query.EQ("_id", fileInfo.Id);
             var files = _database.GridFS.Files.FindOne(query);
-            Assert.IsFalse(files.Contains("aliases"));
-            Assert.IsFalse(files.Contains("contentType"));
-            Assert.IsFalse(files.Contains("filename"));
-            Assert.IsFalse(files.Contains("metadata"));
+            Assert.False(files.Contains("aliases"));
+            Assert.False(files.Contains("contentType"));
+            Assert.False(files.Contains("filename"));
+            Assert.False(files.Contains("metadata"));
 
             // simulate null values as stored by other drivers
             var update = Update
@@ -65,10 +63,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp163
             _database.GridFS.Files.Update(query, update);
 
             var fileInfo2 = _database.GridFS.FindOne(query);
-            Assert.IsNull(fileInfo2.Aliases);
-            Assert.IsNull(fileInfo2.ContentType);
-            Assert.IsNull(fileInfo2.Metadata);
-            Assert.IsNull(fileInfo2.Name);
+            Assert.Null(fileInfo2.Aliases);
+            Assert.Null(fileInfo2.ContentType);
+            Assert.Null(fileInfo2.Metadata);
+            Assert.Null(fileInfo2.Name);
 
             // test that non-null values still work
             var aliases = new[] { "a", "b", "c" };
@@ -81,10 +79,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp163
             fileInfo.MoveTo(name);
 
             var fileInfo3 = _database.GridFS.FindOne(query);
-            Assert.IsTrue(aliases.SequenceEqual(fileInfo3.Aliases));
-            Assert.AreEqual(contentType, fileInfo3.ContentType);
-            Assert.AreEqual(metadata, fileInfo3.Metadata);
-            Assert.AreEqual(name, fileInfo3.Name);
+            Assert.True(aliases.SequenceEqual(fileInfo3.Aliases));
+            Assert.Equal(contentType, fileInfo3.ContentType);
+            Assert.Equal(metadata, fileInfo3.Metadata);
+            Assert.Equal(name, fileInfo3.Name);
         }
     }
 }

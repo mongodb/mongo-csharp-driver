@@ -22,11 +22,10 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class SelectDictionaryTests
     {
         private class C
@@ -48,12 +47,17 @@ namespace MongoDB.Driver.Tests.Linq
             public IDictionary J { get; set; } // serialized as { J : [["x", 1], ... ] }
         }
 
-        private MongoCollection _collection;
+        private static MongoCollection __collection;
+        private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public SelectDictionaryTests()
         {
-            _collection = LegacyTestConfiguration.GetCollection<C>();
+            var _ = __lazyOneTimeSetup.Value;
+        }
+
+        private static bool OneTimeSetup()
+        {
+            __collection = LegacyTestConfiguration.GetCollection<C>();
 
             var de = new Dictionary<string, int>();
             var dx = new Dictionary<string, int>() { { "x", 1 } };
@@ -63,241 +67,243 @@ namespace MongoDB.Driver.Tests.Linq
             var hx = new Hashtable { { "x", 1 } };
             var hy = new Hashtable { { "y", 1 } };
 
-            _collection.Drop();
-            _collection.Insert(new C { D = null, E = null, F = null, H = null, I = null, J = null });
-            _collection.Insert(new C { D = de, E = de, F = de, H = he, I = he, J = he });
-            _collection.Insert(new C { D = dx, E = dx, F = dx, H = hx, I = hx, J = hx });
-            _collection.Insert(new C { D = dy, E = dy, F = dy, H = hy, I = hy, J = hy });
+            __collection.Drop();
+            __collection.Insert(new C { D = null, E = null, F = null, H = null, I = null, J = null });
+            __collection.Insert(new C { D = de, E = de, F = de, H = he, I = he, J = he });
+            __collection.Insert(new C { D = dx, E = dx, F = dx, H = hx, I = hx, J = hx });
+            __collection.Insert(new C { D = dy, E = dy, F = dy, H = hy, I = hy, J = hy });
+
+            return true;
         }
 
-        [Test]
+        [Fact]
         public void TestWhereDContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.D.ContainsKey("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.D.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.D.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"D.x\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, query.ToList().Count());
+            Assert.Equal("{ \"D.x\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereDContainsKeyZ()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.D.ContainsKey("z")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.D.ContainsKey(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.D.ContainsKey(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"D.z\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, query.ToList().Count());
+            Assert.Equal("{ \"D.z\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(0, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereEContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.E.ContainsKey("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.E.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.E.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"E.k\" : \"x\" }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, query.ToList().Count());
+            Assert.Equal("{ \"E.k\" : \"x\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereEContainsKeyZ()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.E.ContainsKey("z")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.E.ContainsKey(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.E.ContainsKey(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"E.k\" : \"z\" }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, query.ToList().Count());
+            Assert.Equal("{ \"E.k\" : \"z\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(0, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereFContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.F.ContainsKey("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.F.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.F.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
             var ex = Assert.Throws<NotSupportedException>(() => { selectQuery.BuildQuery(); });
-            Assert.AreEqual("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message);
+            Assert.Equal("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void TestWhereHContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.H.Contains("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.H.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.H.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"H.x\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, query.ToList().Count());
+            Assert.Equal("{ \"H.x\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereHContainsKeyZ()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.H.Contains("z")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.H.Contains(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.H.Contains(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"H.z\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, query.ToList().Count());
+            Assert.Equal("{ \"H.z\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(0, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereIContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.I.Contains("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.I.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.I.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"I.k\" : \"x\" }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, query.ToList().Count());
+            Assert.Equal("{ \"I.k\" : \"x\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereIContainsKeyZ()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.I.Contains("z")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.I.Contains(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.I.Contains(\"z\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"I.k\" : \"z\" }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, query.ToList().Count());
+            Assert.Equal("{ \"I.k\" : \"z\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(0, query.ToList().Count());
         }
 
-        [Test]
+        [Fact]
         public void TestWhereJContainsKeyX()
         {
-            var query = from c in _collection.AsQueryable<C>()
+            var query = from c in __collection.AsQueryable<C>()
                         where c.J.Contains("x")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.J.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(C c) => c.J.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
             var ex = Assert.Throws<NotSupportedException>(() => { selectQuery.BuildQuery(); });
-            Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message);
+            Assert.Equal("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message);
         }
     }
 }

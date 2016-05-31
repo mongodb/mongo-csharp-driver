@@ -18,11 +18,10 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp653
 {
-    [TestFixture]
     public class CSharp653Tests
     {
         public interface IEntity
@@ -39,36 +38,36 @@ namespace MongoDB.Driver.Tests.Jira.CSharp653
             public string Name { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestAndWithAll()
         {
             var all = new QueryDocument();
             var query = Query.And(all);
             var expected = "{ }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAndWithAllOnLeft()
         {
             var all = new QueryDocument();
             var right = Query<Entity>.EQ(x => x.Name, "John");
             var query = Query.And(all, right);
             var expected = "{ 'Name' : 'John' }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAndWithAllOnRight()
         {
             var left = Query<Entity>.EQ(x => x.Name, "John");
             var all = new QueryDocument();
             var query = Query.And(left, all);
             var expected = "{ 'Name' : 'John' }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestLinqCount()
         {
             var collection = LegacyTestConfiguration.GetCollection<Entity>();
@@ -87,36 +86,36 @@ namespace MongoDB.Driver.Tests.Jira.CSharp653
 #pragma warning restore
             var count = query.Count();
 
-            Assert.AreEqual(100, count);
+            Assert.Equal(100, count);
         }
 
-        [Test]
+        [Fact]
         public void TestOrWithAll()
         {
             var all = new QueryDocument();
             var query = Query.Or(all);
             var expected = "{ }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOrWithAllOnLeft()
         {
             var all = new QueryDocument();
             var right = Query<Entity>.EQ(x => x.Name, "John");
             var query = Query.Or(all, right);
             var expected = "{ }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestOrWithAllOnRight()
         {
             var left = Query<Entity>.EQ(x => x.Name, "John");
             var all = new QueryDocument();
             var query = Query.Or(left, all);
             var expected = "{ }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
     }
 }

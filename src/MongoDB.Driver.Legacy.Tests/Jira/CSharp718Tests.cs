@@ -16,11 +16,10 @@
 using System.Linq;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp718
     {
         public class C
@@ -31,29 +30,28 @@ namespace MongoDB.Driver.Tests.Jira
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp718()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
             TestSetup();
         }
 
-        [Test]
+        [Fact]
         public void TestLinqNullEquality()
         {
             var postsWithFoo = (from d in _collection.AsQueryable<C>()
                 where d.Foo == null
                 select d).Count();
-            Assert.AreEqual(2, postsWithFoo);
+            Assert.Equal(2, postsWithFoo);
         }
 
-        [Test]
+        [Fact]
         public void TestLinqNullInequality()
         {
             var postsWithFoo = (from d in _collection.AsQueryable<C>()
                 where d.Foo != null
                 select d).Count();
-            Assert.AreEqual(3, postsWithFoo);
+            Assert.Equal(3, postsWithFoo);
         }
 
         private void TestSetup()

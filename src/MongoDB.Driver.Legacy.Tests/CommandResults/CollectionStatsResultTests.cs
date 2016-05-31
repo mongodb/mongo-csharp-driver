@@ -16,63 +16,63 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.CommandResults
 {
-    [TestFixture]
     public class CollectionStatsResultTests
     {
         private MongoServer _server;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CollectionStatsResultTests()
         {
             _server = LegacyTestConfiguration.Server;
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
-        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
+        [SkippableFact]
         public void Test()
         {
+            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
             // make sure collection exists and has exactly one document
             _collection.Drop();
             _collection.Insert(new BsonDocument());
 
             var result = _collection.GetStats();
-            Assert.IsTrue(result.Ok);
-            Assert.AreEqual(_collection.FullName, result.Namespace);
-            Assert.AreEqual(1, result.ObjectCount);
-            Assert.IsTrue(result.AverageObjectSize > 0.0);
-            Assert.IsTrue(result.DataSize > 0);
-            Assert.IsTrue(result.ExtentCount > 0);
-            Assert.IsTrue(result.IndexCount > 0);
-            Assert.IsTrue(result.IndexSizes["_id_"] > 0);
-            Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));
-            Assert.IsTrue(result.IndexSizes.Count > 0);
-            Assert.IsTrue(result.IndexSizes.Keys.Contains("_id_"));
-            Assert.IsTrue(result.IndexSizes.Values.Count() > 0);
-            Assert.IsTrue(result.IndexSizes.Values.First() > 0);
-            Assert.IsFalse(result.IsCapped);
-            Assert.IsTrue(result.LastExtentSize > 0);
-            Assert.IsFalse(result.Response.Contains("max"));
-            Assert.AreEqual(_collection.FullName, result.Namespace);
-            Assert.AreEqual(1, result.ObjectCount);
-            Assert.IsTrue(result.PaddingFactor > 0.0);
-            Assert.IsTrue(result.StorageSize > 0);
-            Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
-            Assert.IsTrue(result.TotalIndexSize > 0);
+            Assert.True(result.Ok);
+            Assert.Equal(_collection.FullName, result.Namespace);
+            Assert.Equal(1, result.ObjectCount);
+            Assert.True(result.AverageObjectSize > 0.0);
+            Assert.True(result.DataSize > 0);
+            Assert.True(result.ExtentCount > 0);
+            Assert.True(result.IndexCount > 0);
+            Assert.True(result.IndexSizes["_id_"] > 0);
+            Assert.True(result.IndexSizes.ContainsKey("_id_"));
+            Assert.True(result.IndexSizes.Count > 0);
+            Assert.True(result.IndexSizes.Keys.Contains("_id_"));
+            Assert.True(result.IndexSizes.Values.Count() > 0);
+            Assert.True(result.IndexSizes.Values.First() > 0);
+            Assert.False(result.IsCapped);
+            Assert.True(result.LastExtentSize > 0);
+            Assert.False(result.Response.Contains("max"));
+            Assert.Equal(_collection.FullName, result.Namespace);
+            Assert.Equal(1, result.ObjectCount);
+            Assert.True(result.PaddingFactor > 0.0);
+            Assert.True(result.StorageSize > 0);
+            Assert.Equal(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
+            Assert.True(result.TotalIndexSize > 0);
             if (_server.BuildInfo.Version < new Version(2, 6, 0))
             {
-                Assert.AreEqual(CollectionUserFlags.None, result.UserFlags);
+                Assert.Equal(CollectionUserFlags.None, result.UserFlags);
             }
             else
             {
-                Assert.AreEqual(CollectionUserFlags.UsePowerOf2Sizes, result.UserFlags);
+                Assert.Equal(CollectionUserFlags.UsePowerOf2Sizes, result.UserFlags);
             }
         }
     }

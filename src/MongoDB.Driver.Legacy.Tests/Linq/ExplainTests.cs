@@ -19,11 +19,10 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class ExplainTests
     {
         private class C
@@ -35,13 +34,12 @@ namespace MongoDB.Driver.Tests.Linq
 
         private MongoCollection _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public ExplainTests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
         {
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
@@ -55,10 +53,10 @@ namespace MongoDB.Driver.Tests.Linq
             RemoveKey(linqExplain, "executionTimeMillisEstimate");
             RemoveKey(queryExplain, "executionTimeMillisEstimate");
 
-            Assert.AreEqual(linqExplain, queryExplain);
+            Assert.Equal(linqExplain, queryExplain);
         }
 
-        [Test]
+        [Fact]
         public void TestVerboseExplainFromLinqQueryEqualsVerboseExplainFromCursor()
         {
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain(true);
@@ -72,16 +70,16 @@ namespace MongoDB.Driver.Tests.Linq
             RemoveKey(linqExplain, "executionTimeMillisEstimate");
             RemoveKey(queryExplain, "executionTimeMillisEstimate");
 
-            Assert.AreEqual(linqExplain, queryExplain);
+            Assert.Equal(linqExplain, queryExplain);
         }
 
-        [Test]
+        [Fact]
         public void TestDistinctQueryCannotBeExplained()
         {
             Assert.Throws<NotSupportedException>(()=> _collection.AsQueryable<C>().Select(c=>c.X).Distinct().Explain());
         }
 
-        [Test]
+        [Fact]
         public void TestTakeZeroQueriesCannotBeExplained()
         {
             Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Take(0).Explain());

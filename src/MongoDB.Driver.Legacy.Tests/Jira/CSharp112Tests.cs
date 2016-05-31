@@ -18,11 +18,10 @@ using System.IO;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp112
 {
-    [TestFixture]
     public class CSharp112Tests
     {
 #pragma warning disable 649 // never assigned to
@@ -47,13 +46,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
 
         private MongoCollection _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp112Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeDouble()
         {
             // test with valid values
@@ -86,7 +84,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
             {
                 var query = Query.EQ("_id", i + 1);
                 var document = _collection.FindOneAs<D>(query);
-                Assert.AreEqual(BsonValue.Create(values[i]).ToDouble(), document.N);
+                Assert.Equal(BsonValue.Create(values[i]).ToDouble(), document.N);
             }
 
             // test with values that cause data loss
@@ -114,19 +112,19 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 try
                 {
                     _collection.FindOneAs<D>(query);
-                    Assert.Fail("Expected an exception to be thrown.");
+                    Assert.True(false, "Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
                 {
                     var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+D: Truncation resulted in data loss.";
-                    Assert.IsInstanceOf<FormatException>(ex);
-                    Assert.IsInstanceOf<TruncationException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message);
+                    Assert.IsType<FormatException>(ex);
+                    Assert.IsType<TruncationException>(ex.InnerException);
+                    Assert.Equal(expectedMessage, ex.Message);
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeInt32()
         {
             // test with valid values
@@ -158,7 +156,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
             {
                 var query = Query.EQ("_id", i + 1);
                 var document = _collection.FindOneAs<I>(query);
-                Assert.AreEqual(BsonValue.Create(values[i]).ToInt32(), document.N);
+                Assert.Equal(BsonValue.Create(values[i]).ToInt32(), document.N);
             }
 
             // test with values that cause overflow
@@ -188,14 +186,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 try
                 {
                     _collection.FindOneAs<I>(query);
-                    Assert.Fail("Expected an exception to be thrown.");
+                    Assert.True(false, "Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
                 {
                     var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+I";
-                    Assert.IsInstanceOf<FormatException>(ex);
-                    Assert.IsInstanceOf<OverflowException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
+                    Assert.IsType<FormatException>(ex);
+                    Assert.IsType<OverflowException>(ex.InnerException);
+                    Assert.Equal(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
                 }
             }
 
@@ -222,19 +220,19 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 try
                 {
                     _collection.FindOneAs<I>(query);
-                    Assert.Fail("Expected an exception to be thrown.");
+                    Assert.True(false, "Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
                 {
                     var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+I: Truncation resulted in data loss.";
-                    Assert.IsInstanceOf<FormatException>(ex);
-                    Assert.IsInstanceOf<TruncationException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message);
+                    Assert.IsType<FormatException>(ex);
+                    Assert.IsType<TruncationException>(ex.InnerException);
+                    Assert.Equal(expectedMessage, ex.Message);
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeInt64()
         {
             // test with valid values
@@ -271,7 +269,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
             {
                 var query = Query.EQ("_id", i + 1);
                 var document = _collection.FindOneAs<L>(query);
-                Assert.AreEqual(BsonValue.Create(values[i]).ToInt64(), document.N);
+                Assert.Equal(BsonValue.Create(values[i]).ToInt64(), document.N);
             }
 
             // test with values that cause overflow
@@ -297,14 +295,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 try
                 {
                     _collection.FindOneAs<L>(query);
-                    Assert.Fail("Expected an exception to be thrown.");
+                    Assert.True(false, "Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
                 {
                     var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+L";
-                    Assert.IsInstanceOf<FormatException>(ex);
-                    Assert.IsInstanceOf<OverflowException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
+                    Assert.IsType<FormatException>(ex);
+                    Assert.IsType<OverflowException>(ex.InnerException);
+                    Assert.Equal(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
                 }
             }
 
@@ -331,14 +329,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 try
                 {
                     _collection.FindOneAs<L>(query);
-                    Assert.Fail("Expected an exception to be thrown.");
+                    Assert.True(false, "Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
                 {
                     var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+L: Truncation resulted in data loss.";
-                    Assert.IsInstanceOf<FormatException>(ex);
-                    Assert.IsInstanceOf<TruncationException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message);
+                    Assert.IsType<FormatException>(ex);
+                    Assert.IsType<TruncationException>(ex.InnerException);
+                    Assert.Equal(expectedMessage, ex.Message);
                 }
             }
         }

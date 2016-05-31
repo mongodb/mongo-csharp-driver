@@ -17,11 +17,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class FieldsBuilderTypedTests
     {
         public class TestClass
@@ -40,102 +39,102 @@ namespace MongoDB.Driver.Tests.Builders
             public int b;
         }
 
-        [Test]
+        [Fact]
         public void TestElemMatch()
         {
             var fields = Fields<TestClass>.ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
             string expected = "{ \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeElemMatch()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
             string expected = "{ \"x\" : 1, \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestInclude()
         {
             var fields = Fields<TestClass>.Include(tc => tc.a);
             string expected = "{ \"a\" : 1 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestExclude()
         {
             var fields = Fields<TestClass>.Exclude(tc => tc.a);
             string expected = "{ \"a\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSliceNameSize()
         {
             var fields = Fields<TestClass>.Slice(tc => tc.a, 10);
             string expected = "{ \"a\" : { \"$slice\" : 10 } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSliceNameSkipLimit()
         {
             var fields = Fields<TestClass>.Slice(tc => tc.a, 10, 20);
             string expected = "{ \"a\" : { \"$slice\" : [10, 20] } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
-        [Test]
+        [Fact]
         public void TestIncludeInclude()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Include(tc => tc.a);
             string expected = "{ \"x\" : 1, \"a\" : 1 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeExclude()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Exclude(tc => tc.a);
             string expected = "{ \"x\" : 1, \"a\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeSliceNameSize()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : 10 } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeSliceNameSkipLimit()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10, 20);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : [10, 20] } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaTextGenerate()
         {
             var fields = Fields<TestClass>.MetaTextScore(y => y.relevance);
             string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaTextIncludeExcludeGenerate()
         {
             var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Include(y => y.x).Exclude(y => y._id);
             string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" }, \"x\" : 1, \"_id\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaText()
         {
             if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
@@ -158,15 +157,15 @@ namespace MongoDB.Driver.Tests.Builders
 
                 var query = Query.Text("fox");
                 var result = collection.FindOneAs<BsonDocument>(query);
-                Assert.AreEqual(1, result["_id"].AsInt32);
-                Assert.IsFalse(result.Contains("relevance"));
-                Assert.IsTrue(result.Contains("x"));
+                Assert.Equal(1, result["_id"].AsInt32);
+                Assert.False(result.Contains("relevance"));
+                Assert.True(result.Contains("x"));
 
                 var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Exclude(y => y.x);
                 result = collection.FindOneAs<BsonDocument>(new FindOneArgs() { Query = query, Fields = fields });
-                Assert.AreEqual(1, result["_id"].AsInt32);
-                Assert.IsTrue(result.Contains("relevance"));
-                Assert.IsFalse(result.Contains("x"));
+                Assert.Equal(1, result["_id"].AsInt32);
+                Assert.True(result.Contains("relevance"));
+                Assert.False(result.Contains("x"));
             }
         }
     }

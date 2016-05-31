@@ -19,11 +19,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp714
 {
-    [TestFixture]
     public class CSharp714Tests
     {
         public class C
@@ -37,8 +36,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
         private IIdGenerator _generator = new AscendingGuidGenerator();
         private static int __maxNoOfDocuments = 100;
         
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp714Tests()
         {
             _database = LegacyTestConfiguration.Database;
             var collectionSettings = new MongoCollectionSettings() { GuidRepresentation = GuidRepresentation.Standard };
@@ -46,7 +44,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
             _collection.Drop();
         }
         
-        [Test]
+        [Fact]
         public void TestGuidsAreAscending()
         {
             _collection.RemoveAll();
@@ -56,7 +54,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
             var id = __maxNoOfDocuments - 1;
             foreach (var c in cursor) 
             {
-                Assert.AreEqual(id--, c.Id);
+                Assert.Equal(id--, c.Id);
             }
         }
 

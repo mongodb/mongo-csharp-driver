@@ -19,19 +19,17 @@ using System.Text;
 using System.Threading;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using NUnit.Framework;
+using Xunit;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp269
 {
-    [TestFixture]
     public class CSharp269Tests
     {
         private MongoServer _server;
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp269Tests()
         {
             var clientSettings = DriverTestConfiguration.Client.Settings.Clone();
             clientSettings.ReadPreference = ReadPreference.SecondaryPreferred;
@@ -44,7 +42,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp269
             _database.GridFS.Chunks.Drop();
         }
 
-        [Test]
+        [Fact]
         public void TestUploadAndDownload()
         {
             MongoGridFSFileInfo uploadedFileInfo;
@@ -75,7 +73,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp269
                     _database.GridFS.Download(stream, "HelloWorld.txt");
                     var downloadedBytes = stream.ToArray();
                     var downloadedText = Encoding.UTF8.GetString(downloadedBytes);
-                    Assert.AreEqual("HelloWorld", downloadedText);
+                    Assert.Equal("HelloWorld", downloadedText);
                 }
             }
         }

@@ -14,26 +14,24 @@
 */
 
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp330Tests
     {
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp330Tests()
         {
             _database = LegacyTestConfiguration.Database;
         }
 
-        [Test]
+        [Fact]
         public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase()
         {
             var gridFS = _database.GridFS;
-            Assert.AreEqual(true, gridFS.Settings.WriteConcern.IsAcknowledged);
+            Assert.Equal(true, gridFS.Settings.WriteConcern.IsAcknowledged);
         }
     }
 }

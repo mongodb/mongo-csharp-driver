@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp172
 {
-    [TestFixture]
     public class CSharp172Tests
     {
         public class C
@@ -32,24 +31,24 @@ namespace MongoDB.Driver.Tests.Jira.CSharp172
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp172Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestRoundtrip()
         {
             var obj1 = new C { N = 1 };
-            Assert.That(obj1.Id, Is.Null.Or.Empty);
+            Assert.Null(obj1.Id);
             _collection.RemoveAll();
             _collection.Insert(obj1);
-            Assert.That(obj1.Id, Is.Not.Null.And.Not.Empty);
+            Assert.NotNull(obj1.Id);
+            Assert.NotEqual("", obj1.Id);
 
             var obj2 = _collection.FindOne();
-            Assert.AreEqual(obj1.Id, obj2.Id);
-            Assert.AreEqual(obj1.N, obj2.N);
+            Assert.Equal(obj1.Id, obj2.Id);
+            Assert.Equal(obj1.N, obj2.N);
         }
     }
 }

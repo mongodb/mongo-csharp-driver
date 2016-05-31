@@ -16,134 +16,132 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.CommandResults
 {
-    [TestFixture]
     public class CommandResultTests
     {
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CommandResultTests()
         {
             _database = LegacyTestConfiguration.Database;
         }
 
-        [Test]
+        [Fact]
         public void TestCodeMissing()
         {
             var document = new BsonDocument();
             var result = new CommandResult(document);
 
-            Assert.IsFalse(result.Code.HasValue);
+            Assert.False(result.Code.HasValue);
         }
 
-        [Test]
+        [Fact]
         public void TestCode()
         {
             var document = new BsonDocument("code", 18);
             var result = new CommandResult(document);
 
-            Assert.IsTrue(result.Code.HasValue);
-            Assert.AreEqual(18, result.Code);
+            Assert.True(result.Code.HasValue);
+            Assert.Equal(18, result.Code);
         }
 
-        [Test]
+        [Fact]
         public void TestOkMissing()
         {
             var document = new BsonDocument();
             var result = new CommandResult(document);
-            Assert.That(result.Ok, Is.False);
+            Assert.False(result.Ok);
         }
 
-        [Test]
+        [Fact]
         public void TestOkFalse()
         {
             var document = new BsonDocument("ok", false);
             var result = new CommandResult(document);
-            Assert.IsFalse(result.Ok);
-            Assert.IsNotNull(result.ErrorMessage);
+            Assert.False(result.Ok);
+            Assert.NotNull(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestOkTrue()
         {
             var document = new BsonDocument("ok", true);
             var result = new CommandResult(document);
-            Assert.IsTrue(result.Ok);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.True(result.Ok);
+            Assert.Null(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestOkZero()
         {
             var document = new BsonDocument("ok", 0);
             var result = new CommandResult(document);
-            Assert.IsFalse(result.Ok);
-            Assert.IsNotNull(result.ErrorMessage);
+            Assert.False(result.Ok);
+            Assert.NotNull(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestOkZeroPointZero()
         {
             var document = new BsonDocument("ok", 0.0);
             var result = new CommandResult(document);
-            Assert.IsFalse(result.Ok);
-            Assert.IsNotNull(result.ErrorMessage);
+            Assert.False(result.Ok);
+            Assert.NotNull(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestOkOne()
         {
             var document = new BsonDocument("ok", 1);
             var result = new CommandResult(document);
-            Assert.IsTrue(result.Ok);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.True(result.Ok);
+            Assert.Null(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestOkOnePointZero()
         {
             var document = new BsonDocument("ok", 1.0);
             var result = new CommandResult(document);
-            Assert.IsTrue(result.Ok);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.True(result.Ok);
+            Assert.Null(result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMessageMissing()
         {
             var document = new BsonDocument();
             var result = new CommandResult(document);
-            Assert.AreEqual("Unknown error", result.ErrorMessage);
+            Assert.Equal("Unknown error", result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMessagePresent()
         {
             var document = new BsonDocument("errmsg", "An error message");
             var result = new CommandResult(document);
-            Assert.AreEqual("An error message", result.ErrorMessage);
+            Assert.Equal("An error message", result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestErrorMessageNotString()
         {
             var document = new BsonDocument("errmsg", 3.14159);
             var result = new CommandResult(document);
-            Assert.AreEqual("3.14159", result.ErrorMessage);
+            Assert.Equal("3.14159", result.ErrorMessage);
         }
 
-        [Test]
+        [Fact]
         public void TestIsMasterCommand()
         {
             var result = _database.RunCommand("ismaster");
-            Assert.IsTrue(result.Ok);
+            Assert.True(result.Ok);
         }
 
-        [Test]
+        [Fact]
         public void TestInvalidCommand()
         {
             Assert.Throws<MongoCommandException>(() => _database.RunCommand("invalid"));

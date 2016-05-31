@@ -15,83 +15,82 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class BsonDocumentTests
     {
-        [Test]
+        [Fact]
         public void TestArray()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Colors"][0] == "Blue");
             var expected = "{ \"Colors.0\" : \"Blue\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Name"] == "awesome");
             var expected = "{ \"Name\" : \"awesome\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGreaterThan()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Age"] > 20);
             var expected = "{ \"Age\" : { \"$gt\" : 20 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGreaterThanOrEquals()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Age"] >= 20);
             var expected = "{ \"Age\" : { \"$gte\" : 20 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestLessThan()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Age"] < 20);
             var expected = "{ \"Age\" : { \"$lt\" : 20 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestLessThanOrEquals()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Age"] <= 20);
             var expected = "{ \"Age\" : { \"$lte\" : 20 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNotEquals()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Name"] != "awesome");
             var expected = "{ \"Name\" : { \"$ne\" : \"awesome\" } }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNestedDocumentEquals()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Address"]["City"] == "New York");
             var expected = "{ \"Address.City\" : \"New York\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNestedDocumentInAnArray()
         {
             var query = Query<BsonDocument>.Where(doc => doc["Children"][0]["Name"] == "Jack");
             var expected = "{ \"Children.0.Name\" : \"Jack\" }";
-            Assert.AreEqual(expected, query.ToJson());
+            Assert.Equal(expected, query.ToJson());
         }
     }
 }

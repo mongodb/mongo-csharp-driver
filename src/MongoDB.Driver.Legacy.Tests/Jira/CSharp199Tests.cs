@@ -16,14 +16,13 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp199
 {
-    [TestFixture]
     public class CSharp199Tests
     {
-        [Test]
+        [Fact]
         public void TestSingleRename()
         {
             var server = LegacyTestConfiguration.Server;
@@ -42,13 +41,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
                 var document = collection.FindOne();
 
                 var expectedUpdate = "{ '$rename' : { 'a' : 'x' } }".Replace("'", "\"");
-                Assert.AreEqual(expectedUpdate, update.ToJson());
+                Assert.Equal(expectedUpdate, update.ToJson());
                 var expectedDocument = "{ '_id' : 1, 'x' : 2 }".Replace("'", "\"");
-                Assert.AreEqual(expectedDocument, document.ToJson());
+                Assert.Equal(expectedDocument, document.ToJson());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMultipleRenames()
         {
             var server = LegacyTestConfiguration.Server;
@@ -67,13 +66,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
                 var document = collection.FindOne();
 
                 var expectedUpdate = "{ '$rename' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
-                Assert.AreEqual(expectedUpdate, update.ToJson());
+                Assert.Equal(expectedUpdate, update.ToJson());
                 var expectedDocument = "{ '_id' : 1, 'x' : 2, 'y' : 3 }".Replace("'", "\"");
-                Assert.AreEqual(expectedDocument, document.ToJson());
+                Assert.Equal(expectedDocument, document.ToJson());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRenameWithSet()
         {
             var server = LegacyTestConfiguration.Server;
@@ -92,9 +91,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
                 var document = collection.FindOne();
 
                 var expectedUpdate = "{ '$rename' : { 'a' : 'x' }, '$set' : { 'b' : 4 } }".Replace("'", "\"");
-                Assert.AreEqual(expectedUpdate, update.ToJson());
+                Assert.Equal(expectedUpdate, update.ToJson());
                 var expectedDocument = "{ '_id' : 1, 'b' : 4, 'x' : 2 }".Replace("'", "\""); // server rearranges elements
-                Assert.AreEqual(expectedDocument, document.ToJson());
+                Assert.Equal(expectedDocument, document.ToJson());
             }
         }
     }

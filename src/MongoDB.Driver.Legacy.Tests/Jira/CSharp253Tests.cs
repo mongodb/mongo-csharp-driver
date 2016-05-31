@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp253
 {
-    [TestFixture]
     public class CSharp253Tests
     {
         public class C
@@ -33,14 +32,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp253
         private MongoServer _server;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp253Tests()
         {
             _server = LegacyTestConfiguration.Server;
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestInsertClass()
         {
             var c = new C
@@ -51,21 +49,21 @@ namespace MongoDB.Driver.Tests.Jira.CSharp253
             _collection.Insert(c);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertDollar()
         {
             Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("$x", 1)); });
             Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("x", new BsonDocument("$x", 1))); });
         }
 
-        [Test]
+        [Fact]
         public void TestInsertPeriod()
         {
             Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a.b", 1)); });
             Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a", new BsonDocument("b.c", 1))); });
         }
 
-        [Test]
+        [Fact]
         public void TestLegacyDollar()
         {
             var document = new BsonDocument
@@ -94,7 +92,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp253
             _collection.Insert(document);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateIndexOnNestedElement()
         {
             _collection.CreateIndex("a.b");

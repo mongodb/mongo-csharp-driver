@@ -15,24 +15,22 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.CommandResults
 {
-    [TestFixture]
     public class ValidateCollectionResultTests
     {
         private MongoServer _server;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public ValidateCollectionResultTests()
         {
             _server = LegacyTestConfiguration.Server;
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
@@ -42,8 +40,8 @@ namespace MongoDB.Driver.Tests.CommandResults
                 _collection.Insert(new BsonDocument());
 
                 var result = _collection.Validate();
-                Assert.IsTrue(result.Ok);
-                Assert.AreEqual(_collection.FullName, result.Namespace);
+                Assert.True(result.Ok);
+                Assert.Equal(_collection.FullName, result.Namespace);
             }
         }
     }

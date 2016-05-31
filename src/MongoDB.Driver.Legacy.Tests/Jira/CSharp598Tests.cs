@@ -17,53 +17,44 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp598
 {
-    [TestFixture]
     public class CSharp598Tests
     {
-        [Test]
+        [Fact]
         public void TestVariableWorksForQuery()
         {
             int index = 10;
-            IMongoQuery query = null;
-            Assert.DoesNotThrow(() =>
-            {
-                query = Query<TestClass>.EQ(x => x.List[index].Name, "Blah");
-            });
 
-            Assert.AreEqual("{ \"List.10.Name\" : \"Blah\" }", query.ToString());
+            IMongoQuery query = Query<TestClass>.EQ(x => x.List[index].Name, "Blah");
+
+            Assert.Equal("{ \"List.10.Name\" : \"Blah\" }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestVariableWorksForUpdate()
         {
             int index = 10;
-            IMongoUpdate update = null;
-            Assert.DoesNotThrow(() =>
-            {
-                update = Update<TestClass>.Set(x => x.List[index].Name, "Blah");
-            });
 
-            Assert.AreEqual("{ \"$set\" : { \"List.10.Name\" : \"Blah\" } }", update.ToString());
+            IMongoUpdate update = Update<TestClass>.Set(x => x.List[index].Name, "Blah");
+
+            Assert.Equal("{ \"$set\" : { \"List.10.Name\" : \"Blah\" } }", update.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestVariableWorksForQueryWithVariableChange()
         {
-            int index = 10;
-            IMongoQuery query = null;
             var queryBuilder = new QueryBuilder<TestClass>();
-            Assert.DoesNotThrow(() =>
-            {
-                query = queryBuilder.EQ(x => x.List[index].Name, "Blah");
-                index = 11;
-                query = queryBuilder.EQ(x => x.List[index].Name, "Blah");
-            });
 
-            Assert.AreEqual("{ \"List.11.Name\" : \"Blah\" }", query.ToString());
+            int index = 10;
+            IMongoQuery query = queryBuilder.EQ(x => x.List[index].Name, "Blah");
+
+            index = 11;
+            query = queryBuilder.EQ(x => x.List[index].Name, "Blah");
+
+            Assert.Equal("{ \"List.11.Name\" : \"Blah\" }", query.ToString());
         }
 
         private class TestClass

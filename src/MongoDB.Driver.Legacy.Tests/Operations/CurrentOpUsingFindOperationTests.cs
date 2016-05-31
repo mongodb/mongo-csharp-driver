@@ -18,15 +18,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Operations
 {
-    [TestFixture]
     public class CurrentOpUsingFindOperationTests
     {
         // private fields
@@ -34,14 +35,13 @@ namespace MongoDB.Driver.Tests.Operations
         private MessageEncoderSettings _messageEncoderSettings;
 
         // public methods
-        [OneTimeSetUp]
-        public virtual void OneTimeSetUp()
+        public CurrentOpUsingFindOperationTests()
         {
             _adminDatabaseNamespace = new DatabaseNamespace("admin");
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var result = new CurrentOpUsingFindOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Operations
             result.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             Action action = () => new CurrentOpUsingFindOperation(null, _messageEncoderSettings);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Test]
+        [Fact]
         public void CreateOperation_should_return_expected_result()
         {
             var subject = new CurrentOpUsingFindOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -71,10 +71,10 @@ namespace MongoDB.Driver.Tests.Operations
             result.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
         }
 
-        [Test]
-        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet, StorageEngines = "mmapv1")]
+        [SkippableFact]
         public void Execute_should_return_expected_result()
         {
+            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
             var subject = new CurrentOpUsingFindOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {

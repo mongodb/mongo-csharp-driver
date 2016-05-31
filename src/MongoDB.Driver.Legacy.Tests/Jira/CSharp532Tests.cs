@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp532
 {
-    [TestFixture]
     public class CSharp532Tests
     {
         [BsonKnownTypes(typeof(B))]
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp532
             public A A { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestTypedBuildersWithSubclasses()
         {
             var b = new B();

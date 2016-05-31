@@ -17,11 +17,10 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp958Tests
     {
         private interface IPerson { }
@@ -32,7 +31,7 @@ namespace MongoDB.Driver.Tests.Jira
             public string Name { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestAssignIdWorksWithInterface()
         {
             var collection = LegacyTestConfiguration.GetCollection<IPerson>();
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Tests.Jira
 
             IPerson person = new Person { Name = "Jack" };
             collection.Insert(person);
-            Assert.AreNotEqual(ObjectId.Empty, ((Person)person).Id);
+            Assert.NotEqual(ObjectId.Empty, ((Person)person).Id);
         }
     }
 }

@@ -15,22 +15,20 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp230
 {
-    [TestFixture]
     public class CSharp230Tests
     {
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp230Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestCreateIndexAfterDropCollection()
         {
             if (_collection.Exists())
@@ -38,14 +36,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp230
                 _collection.Drop();
             }
 
-            Assert.IsFalse(_collection.IndexExists("x"));
+            Assert.False(_collection.IndexExists("x"));
             _collection.CreateIndex("x");
-            Assert.IsTrue(_collection.IndexExists("x"));
+            Assert.True(_collection.IndexExists("x"));
 
             _collection.Drop();
-            Assert.IsFalse(_collection.IndexExists("x"));
+            Assert.False(_collection.IndexExists("x"));
             _collection.CreateIndex("x");
-            Assert.IsTrue(_collection.IndexExists("x"));
+            Assert.True(_collection.IndexExists("x"));
         }
     }
 }

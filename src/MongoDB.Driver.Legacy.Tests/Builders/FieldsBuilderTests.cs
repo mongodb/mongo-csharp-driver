@@ -16,109 +16,108 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class FieldsBuilderTests
     {
-        [Test]
+        [Fact]
         public void TestElemMatch()
         {
             var fields = Fields.ElemMatch("a2", Query.EQ("b", 10));
             string expected = "{ \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeElemMatch()
         {
             var fields = Fields.Include("x").ElemMatch("a2", Query.EQ("b", 10));
             string expected = "{ \"x\" : 1, \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestInclude()
         {
             var fields = Fields.Include("a");
             string expected = "{ \"a\" : 1 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestExclude()
         {
             var fields = Fields.Exclude("a");
             string expected = "{ \"a\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSliceNameSize()
         {
             var fields = Fields.Slice("a", 10);
             string expected = "{ \"a\" : { \"$slice\" : 10 } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSliceNameSkipLimit()
         {
             var fields = Fields.Slice("a", 10, 20);
             string expected = "{ \"a\" : { \"$slice\" : [10, 20] } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
-        [Test]
+        [Fact]
         public void TestIncludeInclude()
         {
             var fields = Fields.Include("x").Include("a");
             string expected = "{ \"x\" : 1, \"a\" : 1 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeExclude()
         {
             var fields = Fields.Include("x").Exclude("a");
             string expected = "{ \"x\" : 1, \"a\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeSliceNameSize()
         {
             var fields = Fields.Include("x").Slice("a", 10);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : 10 } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIncludeSliceNameSkipLimit()
         {
             var fields = Fields.Include("x").Slice("a", 10, 20);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : [10, 20] } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaTextGenerate()
         {
             var fields = Fields.MetaTextScore("score");
             string expected = "{ \"score\" : { \"$meta\" : \"textScore\" } }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaTextIncludeExcludeGenerate()
         {
             var fields = Fields.MetaTextScore("searchrelevancescore").Include("x").Exclude("_id");
             string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"textScore\" }, \"x\" : 1, \"_id\" : 0 }";
-            Assert.AreEqual(expected, fields.ToJson());
+            Assert.Equal(expected, fields.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMetaText()
         {
             if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
@@ -138,13 +137,13 @@ namespace MongoDB.Driver.Tests.Builders
                 });
                 var query = Query.Text("fox");
                 var result = collection.FindOneAs<BsonDocument>(query);
-                Assert.AreEqual(2, result.ElementCount);
-                Assert.IsFalse(result.Contains("relevance"));
+                Assert.Equal(2, result.ElementCount);
+                Assert.False(result.Contains("relevance"));
 
                 var fields = Fields.MetaTextScore("relevance");
                 result = collection.FindOneAs<BsonDocument>(new FindOneArgs { Query = query, Fields = fields });
-                Assert.AreEqual(3, result.ElementCount);
-                Assert.IsTrue(result.Contains("relevance"));
+                Assert.Equal(3, result.ElementCount);
+                Assert.True(result.Contains("relevance"));
             }
         }
     }

@@ -15,14 +15,13 @@
 
 using System;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp361
 {
-    [TestFixture]
     public class CSharp361Tests
     {
-        [Test]
+        [Fact]
         public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign()
         {
             var server = LegacyTestConfiguration.Server;

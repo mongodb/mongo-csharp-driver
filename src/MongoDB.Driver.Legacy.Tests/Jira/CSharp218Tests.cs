@@ -17,11 +17,10 @@ using System;
 using System.IO;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp218
 {
-    [TestFixture]
     public class CSharp218Tests
     {
         public class C
@@ -44,13 +43,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
 
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp218Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeClassWithStructPropertyFails()
         {
             _collection.RemoveAll();
@@ -59,18 +57,18 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
             try
             {
                 _collection.FindOneAs<C>();
-                Assert.Fail("Expected an exception to be thrown.");
+                Assert.True(false, "Expected an exception to be thrown.");
             }
             catch (Exception ex)
             {
                 var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
-                Assert.IsInstanceOf<FormatException>(ex);
-                Assert.IsInstanceOf<BsonSerializationException>(ex.InnerException);
-                Assert.AreEqual(expectedMessage, ex.Message);
+                Assert.IsType<FormatException>(ex);
+                Assert.IsType<BsonSerializationException>(ex.InnerException);
+                Assert.Equal(expectedMessage, ex.Message);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeStructFails()
         {
             _collection.RemoveAll();
@@ -79,52 +77,52 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
             Assert.Throws<BsonSerializationException>(() => _collection.FindOneAs<S>());
         }
 
-        [Test]
+        [Fact]
         public void TestInsertForClassWithIdSucceeds()
         {
             _collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Insert(c);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(c.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(c.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(c.Id, r["_id"].AsObjectId);
+            Assert.Equal(c.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(c.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertForClassWithoutIdSucceeds()
         {
             _collection.RemoveAll();
             var c = new C { P = new P { X = 1, Y = 2 } };
             _collection.Insert(c);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(c.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(c.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(c.Id, r["_id"].AsObjectId);
+            Assert.Equal(c.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(c.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertForStructWithIdSucceeds()
         {
             _collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Insert(s);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(s.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(s.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(s.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(s.Id, r["_id"].AsObjectId);
+            Assert.Equal(s.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(s.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestInsertForStructWithoutIdFails()
         {
             _collection.RemoveAll();
@@ -132,52 +130,52 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
             Assert.Throws<BsonSerializationException>(() => _collection.Insert(s));
         }
 
-        [Test]
+        [Fact]
         public void TestSaveForClassWithIdSucceeds()
         {
             _collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Save(c);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(c.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(c.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(c.Id, r["_id"].AsObjectId);
+            Assert.Equal(c.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(c.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSaveForClassWithoutIdSucceeds()
         {
             _collection.RemoveAll();
             var c = new C { P = new P { X = 1, Y = 2 } };
             _collection.Save(c);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(c.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(c.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(c.Id, r["_id"].AsObjectId);
+            Assert.Equal(c.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(c.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSaveForStructWithIdSucceeds()
         {
             _collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Save(s);
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var r = _collection.FindOne();
-            Assert.AreEqual(2, r.ElementCount);
-            Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(s.Id, r["_id"].AsObjectId);
-            Assert.AreEqual(s.P.X, r["P"]["X"].AsInt32);
-            Assert.AreEqual(s.P.Y, r["P"]["Y"].AsInt32);
+            Assert.Equal(2, r.ElementCount);
+            Assert.Equal(2, r["P"].AsBsonDocument.ElementCount);
+            Assert.Equal(s.Id, r["_id"].AsObjectId);
+            Assert.Equal(s.P.X, r["P"]["X"].AsInt32);
+            Assert.Equal(s.P.Y, r["P"]["Y"].AsInt32);
         }
 
-        [Test]
+        [Fact]
         public void TestSaveForStructWithoutIdFails()
         {
             _collection.RemoveAll();

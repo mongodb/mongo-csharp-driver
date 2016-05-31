@@ -14,101 +14,100 @@
 */
 
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoServerBuildInfoTests
     {
-        [Test]
+        [Fact]
         public void TestVersion2_4()
         {
             var buildInfo = new MongoServerBuildInfo("2.4");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(-1, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(-1, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_0()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.0");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(0, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(0, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_1()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.1");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(1, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(1, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_1_rc0()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.1-rc0");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(1, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(1, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_1_2()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.1.2");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(1, buildInfo.Version.Build);
-            Assert.AreEqual(2, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(1, buildInfo.Version.Build);
+            Assert.Equal(2, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_1_2_rc0()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.1.2-rc0");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(1, buildInfo.Version.Build);
-            Assert.AreEqual(2, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(1, buildInfo.Version.Build);
+            Assert.Equal(2, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_dot_beta()
         {
             var buildInfo = new MongoServerBuildInfo("2.4.beta");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(-1, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(-1, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersion2_4_alpha1()
         {
             var buildInfo = new MongoServerBuildInfo("2.4a1");
-            Assert.AreEqual(2, buildInfo.Version.Major);
-            Assert.AreEqual(4, buildInfo.Version.Minor);
-            Assert.AreEqual(-1, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(2, buildInfo.Version.Major);
+            Assert.Equal(4, buildInfo.Version.Minor);
+            Assert.Equal(-1, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
 
-        [Test]
+        [Fact]
         public void TestVersionInvalid()
         {
             var buildInfo = new MongoServerBuildInfo("v2.4a1");
-            Assert.AreEqual(0, buildInfo.Version.Major);
-            Assert.AreEqual(0, buildInfo.Version.Minor);
-            Assert.AreEqual(0, buildInfo.Version.Build);
-            Assert.AreEqual(-1, buildInfo.Version.Revision);
+            Assert.Equal(0, buildInfo.Version.Major);
+            Assert.Equal(0, buildInfo.Version.Minor);
+            Assert.Equal(0, buildInfo.Version.Build);
+            Assert.Equal(-1, buildInfo.Version.Revision);
         }
     }
 }

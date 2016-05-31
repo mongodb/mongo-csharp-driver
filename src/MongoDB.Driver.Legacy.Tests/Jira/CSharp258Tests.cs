@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp258
 {
-    [TestFixture]
     public class CSharp258Tests
     {
         public class C
@@ -31,13 +30,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp258
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp258Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimePropertyWithNewMaxDateTimeRepresentation()
         {
             _collection.RemoveAll();
@@ -49,10 +47,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp258
                 });
 
             var c = _collection.FindOne();
-            Assert.AreEqual(DateTime.MaxValue, c.DateTime);
+            Assert.Equal(DateTime.MaxValue, c.DateTime);
         }
 
-        [Test]
+        [Fact]
         public void TestDateTimePropertyWithOldMaxDateTimeRepresentation()
         {
             _collection.RemoveAll();
@@ -64,10 +62,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp258
                 });
 
             var c = _collection.FindOne();
-            Assert.AreEqual(DateTime.MaxValue, c.DateTime);
+            Assert.Equal(DateTime.MaxValue, c.DateTime);
         }
 
-        [Test]
+        [Fact]
         public void TestDocumentWithNewMaxDateTimeRepresentation()
         {
             _collection.RemoveAll();
@@ -79,11 +77,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp258
                 });
 
             var document = _collection.FindOneAs<BsonDocument>();
-            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
-            Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
+            Assert.Equal(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
+            Assert.Equal(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }
 
-        [Test]
+        [Fact]
         public void TestDocumentWithOldMaxDateTimeRepresentation()
         {
             _collection.RemoveAll();
@@ -95,8 +93,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp258
                 });
 
             var document = _collection.FindOneAs<BsonDocument>();
-            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
-            Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
+            Assert.Equal(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
+            Assert.Equal(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }
     }
 }

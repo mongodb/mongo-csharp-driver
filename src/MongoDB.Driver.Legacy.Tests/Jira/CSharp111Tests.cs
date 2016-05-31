@@ -17,11 +17,10 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp111
 {
-    [TestFixture]
     public class CSharp111Tests
     {
 #pragma warning disable 649 // never assigned to
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp111
             public int X;
         }
 
-        [Test]
+        [Fact]
         public void TestAddToSetEach()
         {
             var server = LegacyTestConfiguration.Server;
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp111
             }
             expected = expected.Replace("#ID", id.ToString());
             expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

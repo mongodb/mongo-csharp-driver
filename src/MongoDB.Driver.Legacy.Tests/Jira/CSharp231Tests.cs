@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp231
 {
-    [TestFixture]
     public class CSharp231Tests
     {
         public class ClassWithArrayId
@@ -163,13 +162,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp231Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonArrayId()
         {
             _collection.RemoveAll();
@@ -181,7 +179,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonBinaryDataId()
         {
             _collection.RemoveAll();
@@ -193,7 +191,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonBooleanId()
         {
             _collection.RemoveAll();
@@ -205,7 +203,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonDateTimeId()
         {
             _collection.RemoveAll();
@@ -220,7 +218,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonDocumentId()
         {
             _collection.RemoveAll();
@@ -232,7 +230,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonDoubleId()
         {
             _collection.RemoveAll();
@@ -244,7 +242,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonInt32Id()
         {
             _collection.RemoveAll();
@@ -256,7 +254,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonInt64Id()
         {
             _collection.RemoveAll();
@@ -268,7 +266,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonMaxKeyId()
         {
             _collection.RemoveAll();
@@ -277,7 +275,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonMinKeyId()
         {
             _collection.RemoveAll();
@@ -286,47 +284,47 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonNullId()
         {
             _collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonNull.Value }, { "X", 1 } };
             _collection.Insert(doc);
-            Assert.AreEqual(BsonNull.Value, doc["_id"]);
+            Assert.Equal(BsonNull.Value, doc["_id"]);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonObjectId()
         {
             _collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonNull.Value }, { "X", 1 } };
             _collection.Insert(doc);
-            Assert.AreEqual(BsonNull.Value, doc["_id"]);
+            Assert.Equal(BsonNull.Value, doc["_id"]);
 
             doc = new BsonDocument { { "_id", ObjectId.Empty }, { "X", 1 } };
             _collection.Insert(doc);
-            Assert.AreNotEqual(ObjectId.Empty, doc["_id"].AsObjectId);
+            Assert.NotEqual(ObjectId.Empty, doc["_id"].AsObjectId);
 
             doc = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonStringId()
         {
             _collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", new BsonString("") }, { "X", 1 } };
             _collection.Insert(doc);
-            Assert.AreEqual("", doc["_id"].AsString);
+            Assert.Equal("", doc["_id"].AsString);
 
             doc = new BsonDocument { { "_id", new BsonString("123") }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithBsonTimestampId()
         {
             _collection.RemoveAll();
@@ -335,18 +333,18 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentWithNoId()
         {
             _collection.RemoveAll();
 
             var doc = new BsonDocument { { "X", 1 } };
             _collection.Insert(doc);
-            Assert.IsInstanceOf<BsonObjectId>(doc["_id"]);
-            Assert.AreNotEqual(ObjectId.Empty, doc["_id"].AsObjectId);
+            Assert.IsType<BsonObjectId>(doc["_id"]);
+            Assert.NotEqual(ObjectId.Empty, doc["_id"].AsObjectId);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithArrayId()
         {
             _collection.RemoveAll();
@@ -361,7 +359,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBooleanId()
         {
             _collection.RemoveAll();
@@ -373,7 +371,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonArrayId()
         {
             _collection.RemoveAll();
@@ -388,7 +386,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
-        [Test]
+        [Fact]
         public void TestClastWithBsonBinaryDataId()
         {
             _collection.RemoveAll();
@@ -403,7 +401,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonBooleanId()
         {
             _collection.RemoveAll();
@@ -418,7 +416,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonDocumentId()
         {
             _collection.RemoveAll();
@@ -433,7 +431,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonDateTimeId()
         {
             _collection.RemoveAll();
@@ -451,7 +449,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonDoubleId()
         {
             _collection.RemoveAll();
@@ -466,7 +464,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonInt32Id()
         {
             _collection.RemoveAll();
@@ -481,7 +479,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonInt64Id()
         {
             _collection.RemoveAll();
@@ -496,95 +494,95 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonMaxKeyId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonMaxKeyId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.AreEqual(null, doc.Id);
+            Assert.Equal(null, doc.Id);
 
             doc = new ClassWithBsonMaxKeyId { Id = BsonMaxKey.Value, X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonMinKeyId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonMinKeyId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.AreEqual(null, doc.Id);
+            Assert.Equal(null, doc.Id);
 
             doc = new ClassWithBsonMinKeyId { Id = BsonMinKey.Value, X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonNullId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonNullId { Id = null, X = 1 };
             _collection.Insert(doc); // serializes _id as { "_id" : { "_csharpnull" : true }, "X" : 1 }
-            Assert.AreEqual(null, doc.Id);
+            Assert.Equal(null, doc.Id);
 
             doc = new ClassWithBsonNullId { Id = BsonNull.Value, X = 1 };
             _collection.Insert(doc); // serializes _id as { "_id" : null, "X" : 1 }
-            Assert.AreEqual(BsonNull.Value, doc.Id);
+            Assert.Equal(BsonNull.Value, doc.Id);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonObjectId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonObjectId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.IsNotNull(doc.Id);
-            Assert.AreNotEqual(ObjectId.Empty, doc.Id.AsObjectId);
+            Assert.NotNull(doc.Id);
+            Assert.NotEqual(ObjectId.Empty, doc.Id.AsObjectId);
 
             doc = new ClassWithBsonObjectId { Id = ObjectId.Empty, X = 1 };
             _collection.Insert(doc);
-            Assert.AreNotEqual(ObjectId.Empty, doc.Id.AsObjectId);
+            Assert.NotEqual(ObjectId.Empty, doc.Id.AsObjectId);
 
             doc = new ClassWithBsonObjectId { Id = ObjectId.GenerateNewId(), X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonStringId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonStringId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.IsNull(doc.Id);
+            Assert.Null(doc.Id);
 
             doc = new ClassWithBsonStringId { Id = "", X = 1 };
             _collection.Insert(doc);
-            Assert.AreEqual("", doc.Id.AsString);
+            Assert.Equal("", doc.Id.AsString);
 
             doc = new ClassWithBsonStringId { Id = "123", X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonTimestampId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonTimestampId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.IsNull(doc.Id);
+            Assert.Null(doc.Id);
 
             doc = new ClassWithBsonTimestampId { Id = new BsonTimestamp(1, 2), X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithBsonValueId()
         {
             // repeats all tee TestClassWithBsonXyzId tests using ClassWithBsonValueId
@@ -709,7 +707,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(null, doc.Id);
+                Assert.Equal(null, doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = BsonMaxKey.Value, X = 1 };
                 _collection.Insert(doc);
@@ -721,7 +719,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(null, doc.Id);
+                Assert.Equal(null, doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = BsonMinKey.Value, X = 1 };
                 _collection.Insert(doc);
@@ -733,11 +731,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(null, doc.Id);
+                Assert.Equal(null, doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = BsonNull.Value, X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(BsonNull.Value, doc.Id);
+                Assert.Equal(BsonNull.Value, doc.Id);
             }
 
             {
@@ -746,11 +744,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.IsNull(doc.Id); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
+                Assert.Null(doc.Id); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
 
                 doc = new ClassWithBsonValueId { Id = ObjectId.Empty, X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(ObjectId.Empty, doc.Id.AsObjectId); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
+                Assert.Equal(ObjectId.Empty, doc.Id.AsObjectId); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
 
                 doc = new ClassWithBsonValueId { Id = ObjectId.GenerateNewId(), X = 1 };
                 _collection.Insert(doc);
@@ -762,11 +760,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.IsNull(doc.Id);
+                Assert.Null(doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = "", X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual("", doc.Id.AsString);
+                Assert.Equal("", doc.Id.AsString);
 
                 doc = new ClassWithBsonValueId { Id = "123", X = 1 };
                 _collection.Insert(doc);
@@ -778,14 +776,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
 
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
-                Assert.IsNull(doc.Id);
+                Assert.Null(doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = new BsonTimestamp(1, 2), X = 1 };
                 _collection.Insert(doc);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithDateTimeId()
         {
             _collection.RemoveAll();
@@ -800,7 +798,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithDoubleId()
         {
             _collection.RemoveAll();
@@ -812,7 +810,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithInt32Id()
         {
             _collection.RemoveAll();
@@ -824,7 +822,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithInt64Id()
         {
             _collection.RemoveAll();
@@ -836,31 +834,31 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithObjectId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithObjectId { Id = ObjectId.Empty, X = 1 };
             _collection.Insert(doc);
-            Assert.AreNotEqual(ObjectId.Empty, doc.Id);
+            Assert.NotEqual(ObjectId.Empty, doc.Id);
 
             doc = new ClassWithObjectId { Id = ObjectId.GenerateNewId(), X = 1 };
             _collection.Insert(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestClassWithStringId()
         {
             _collection.RemoveAll();
 
             var doc = new ClassWithStringId { Id = null, X = 1 };
             _collection.Insert(doc);
-            Assert.IsNull(doc.Id);
+            Assert.Null(doc.Id);
 
             doc = new ClassWithStringId { Id = "", X = 1 };
             _collection.Insert(doc);
-            Assert.AreEqual("", doc.Id);
+            Assert.Equal("", doc.Id);
 
             doc = new ClassWithStringId { Id = "123", X = 1 };
             _collection.Insert(doc);

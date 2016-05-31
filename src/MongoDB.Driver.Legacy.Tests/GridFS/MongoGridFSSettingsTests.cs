@@ -16,34 +16,33 @@
 using System;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
-    [TestFixture]
     public class MongoGridFSSettingsTests
     {
-        [Test]
+        [Fact]
         public void TestDefaults()
         {
             var settings = MongoGridFSSettings.Defaults;
-            Assert.AreEqual(255 * 1024, settings.ChunkSize);
-            Assert.AreEqual("fs", settings.Root);
-            Assert.AreEqual(true, settings.UpdateMD5);
-            Assert.AreEqual(true, settings.VerifyMD5);
-            Assert.AreEqual(true, settings.IsFrozen);
-            Assert.AreEqual(null, settings.WriteConcern);
+            Assert.Equal(255 * 1024, settings.ChunkSize);
+            Assert.Equal("fs", settings.Root);
+            Assert.Equal(true, settings.UpdateMD5);
+            Assert.Equal(true, settings.VerifyMD5);
+            Assert.Equal(true, settings.IsFrozen);
+            Assert.Equal(null, settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestDefaultsObsolete()
         {
 #pragma warning disable 618
             var settings = new MongoGridFSSettings();
-            Assert.IsFalse(settings.IsFrozen);
-            Assert.AreEqual(0, settings.ChunkSize);
-            Assert.AreEqual(null, settings.Root);
-            Assert.AreEqual(null, settings.WriteConcern);
+            Assert.False(settings.IsFrozen);
+            Assert.Equal(0, settings.ChunkSize);
+            Assert.Equal(null, settings.Root);
+            Assert.Equal(null, settings.WriteConcern);
 #pragma warning restore
         }
 
@@ -57,27 +56,27 @@ namespace MongoDB.Driver.Tests.GridFS
                 VerifyMD5 = true,
                 WriteConcern = WriteConcern.Acknowledged
             };
-            Assert.AreEqual(64 * 1024, settings.ChunkSize);
-            Assert.AreEqual("root", settings.Root);
-            Assert.AreEqual(true, settings.UpdateMD5);
-            Assert.AreEqual(true, settings.VerifyMD5);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
-            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.Equal(64 * 1024, settings.ChunkSize);
+            Assert.Equal("root", settings.Root);
+            Assert.Equal(true, settings.UpdateMD5);
+            Assert.Equal(true, settings.VerifyMD5);
+            Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.Equal(false, settings.IsFrozen);
         }
 
-        [Test]
+        [Fact]
         public void TestCreationEmpty()
         {
             var settings = new MongoGridFSSettings();
-            Assert.AreEqual(0, settings.ChunkSize);
-            Assert.AreEqual(null, settings.Root);
-            Assert.AreEqual(false, settings.UpdateMD5);
-            Assert.AreEqual(false, settings.VerifyMD5);
-            Assert.AreEqual(false, settings.IsFrozen);
-            Assert.AreEqual(null, settings.WriteConcern);
+            Assert.Equal(0, settings.ChunkSize);
+            Assert.Equal(null, settings.Root);
+            Assert.Equal(false, settings.UpdateMD5);
+            Assert.Equal(false, settings.VerifyMD5);
+            Assert.Equal(false, settings.IsFrozen);
+            Assert.Equal(null, settings.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void TestCreationObsolete()
         {
 #pragma warning disable 618
@@ -87,16 +86,16 @@ namespace MongoDB.Driver.Tests.GridFS
                 Root = "root",
                 WriteConcern = WriteConcern.Acknowledged
             };
-            Assert.IsFalse(settings.IsFrozen);
-            Assert.AreEqual("root.chunks", settings.ChunksCollectionName);
-            Assert.AreEqual(64 * 1024, settings.ChunkSize);
-            Assert.AreEqual("root.files", settings.FilesCollectionName);
-            Assert.AreEqual("root", settings.Root);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.False(settings.IsFrozen);
+            Assert.Equal("root.chunks", settings.ChunksCollectionName);
+            Assert.Equal(64 * 1024, settings.ChunkSize);
+            Assert.Equal("root.files", settings.FilesCollectionName);
+            Assert.Equal("root", settings.Root);
+            Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void TestCloneAndEquals()
         {
             var settings = new MongoGridFSSettings()
@@ -108,11 +107,11 @@ namespace MongoDB.Driver.Tests.GridFS
                 WriteConcern = WriteConcern.Acknowledged
             };
             var clone = settings.Clone();
-            Assert.IsTrue(settings == clone);
-            Assert.AreEqual(settings, clone);
+            Assert.True(settings == clone);
+            Assert.Equal(settings, clone);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var a = new MongoGridFSSettings() { ChunkSize = 123 };
@@ -120,35 +119,35 @@ namespace MongoDB.Driver.Tests.GridFS
             var c = new MongoGridFSSettings() { ChunkSize = 345 };
             var n = (WriteConcern)null;
 
-            Assert.IsTrue(object.Equals(a, b));
-            Assert.IsFalse(object.Equals(a, c));
-            Assert.IsFalse(a.Equals(n));
-            Assert.IsFalse(a.Equals(null));
+            Assert.True(object.Equals(a, b));
+            Assert.False(object.Equals(a, c));
+            Assert.False(a.Equals(n));
+            Assert.False(a.Equals(null));
 
-            Assert.IsTrue(a == b);
-            Assert.IsFalse(a == c);
-            Assert.IsFalse(a == null);
-            Assert.IsFalse(null == a);
-            Assert.IsTrue(n == null);
-            Assert.IsTrue(null == n);
+            Assert.True(a == b);
+            Assert.False(a == c);
+            Assert.False(a == null);
+            Assert.False(null == a);
+            Assert.True(n == null);
+            Assert.True(null == n);
 
-            Assert.IsFalse(a != b);
-            Assert.IsTrue(a != c);
-            Assert.IsTrue(a != null);
-            Assert.IsTrue(null != a);
-            Assert.IsFalse(n != null);
-            Assert.IsFalse(null != n);
+            Assert.False(a != b);
+            Assert.True(a != c);
+            Assert.True(a != null);
+            Assert.True(null != a);
+            Assert.False(n != null);
+            Assert.False(null != n);
         }
 
-        [Test]
+        [Fact]
         public void TestFreeze()
         {
             var settings = new MongoGridFSSettings();
-            Assert.IsFalse(settings.IsFrozen);
+            Assert.False(settings.IsFrozen);
             settings.Freeze();
-            Assert.IsTrue(settings.IsFrozen);
+            Assert.True(settings.IsFrozen);
             settings.Freeze(); // test that it's OK to call Freeze more than once
-            Assert.IsTrue(settings.IsFrozen);
+            Assert.True(settings.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => settings.ChunkSize = 64 * 1024);
             Assert.Throws<InvalidOperationException>(() => settings.Root = "root");
             Assert.Throws<InvalidOperationException>(() => settings.UpdateMD5 = true);

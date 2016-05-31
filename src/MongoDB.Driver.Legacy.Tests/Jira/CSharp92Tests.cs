@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp92
 {
-    [TestFixture]
     public class CSharp92Tests
     {
         private class C
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp92
             public string P { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSaveDocument()
         {
             var server = LegacyTestConfiguration.Server;
@@ -41,12 +40,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp92
             collection.Insert(document);
 
             var fetched = collection.FindOne();
-            Assert.IsInstanceOf<BsonDocument>(fetched);
-            Assert.AreEqual(-1, fetched["_id"].AsInt32);
-            Assert.AreEqual("x", fetched["P"].AsString);
+            Assert.IsType<BsonDocument>(fetched);
+            Assert.Equal(-1, fetched["_id"].AsInt32);
+            Assert.Equal("x", fetched["P"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestSaveClass()
         {
             var server = LegacyTestConfiguration.Server;
@@ -58,9 +57,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp92
             collection.Insert(document);
 
             var fetched = collection.FindOne();
-            Assert.IsInstanceOf<C>(fetched);
-            Assert.AreEqual(-1, fetched.Id);
-            Assert.AreEqual("x", fetched.P);
+            Assert.IsType<C>(fetched);
+            Assert.Equal(-1, fetched.Id);
+            Assert.Equal("x", fetched.P);
         }
     }
 }

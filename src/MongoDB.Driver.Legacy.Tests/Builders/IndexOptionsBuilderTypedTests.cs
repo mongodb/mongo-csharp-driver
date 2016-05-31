@@ -16,11 +16,10 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class IndexOptionsBuilderTypedTests
     {
 
@@ -31,148 +30,148 @@ namespace MongoDB.Driver.Tests.Builders
             public string idioma;
         }
 
-        [Test]
+        [Fact]
         public void TestBackground()
         {
             var options = IndexOptions<TestClass>.SetBackground(true);
             string expected = "{ \"background\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestBits()
         {
             var options = IndexOptions<TestClass>.SetBits(32);
             string expected = "{ \"bits\" : 32 }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDropDups()
         {
             var options = IndexOptions<TestClass>.SetDropDups(true);
             string expected = "{ \"dropDups\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGeoSpatialRange()
         {
             var options = IndexOptions<TestClass>.SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestName()
         {
             var options = IndexOptions<TestClass>.SetName("custom");
             string expected = "{ \"name\" : \"custom\" }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestPartialFilterExpression()
         {
             var options = IndexOptions<TestClass>.SetPartialFilterExpression(Query.GT("x", 0));
             string expected = "{ \"partialFilterExpression\" : { \"x\" : { \"$gt\" : 0 } } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSparse()
         {
             var options = IndexOptions<TestClass>.SetSparse(true);
             string expected = "{ \"sparse\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTimeToLive()
         {
             var options = IndexOptions<TestClass>.SetTimeToLive(TimeSpan.FromHours(1));
             string expected = "{ \"expireAfterSeconds\" : 3600 }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestUnique()
         {
             var options = IndexOptions<TestClass>.SetUnique(true);
             string expected = "{ \"unique\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNameBackground()
         {
             var options = IndexOptions<TestClass>.SetName("custom").SetBackground(true);
             string expected = "{ \"name\" : \"custom\", \"background\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNameDropDups()
         {
             var options = IndexOptions<TestClass>.SetName("custom").SetDropDups(true);
             string expected = "{ \"name\" : \"custom\", \"dropDups\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNameGeoSpatialRange()
         {
             var options = IndexOptions<TestClass>.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestNameUnique()
         {
             var options = IndexOptions<TestClass>.SetName("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextDefaultLanguage()
         {
             var options = IndexOptions<TestClass>.SetTextDefaultLanguage("spanish");
             string expected = "{ \"default_language\" : \"spanish\" }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextLanguageOverride()
         {
             var options = IndexOptions<TestClass>.SetTextLanguageOverride(x => x.idioma);
             string expected = "{ \"language_override\" : \"idioma\" }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextOptions()
         {
             var options = IndexOptions<TestClass>.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride(x => x.idioma).SetWeight(x => x.textfield, 2);
             string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\", \"weights\" : { \"textfield\" : 2 } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestWeight()
         {
             var options = IndexOptions<TestClass>.SetWeight(x => x.textfield, 2);
             string expected = "{ \"weights\" : { \"textfield\" : 2 } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestMultipleWeights()
         {
             var options = IndexOptions<TestClass>.SetWeight(x => x.textfield, 2).SetWeight(x => x.idioma, 10);
             string expected = "{ \"weights\" : { \"textfield\" : 2, \"idioma\" : 10 } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
     }
 }

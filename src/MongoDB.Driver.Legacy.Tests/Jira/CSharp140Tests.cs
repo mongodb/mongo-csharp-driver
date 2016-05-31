@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp140
 {
-    [TestFixture]
     public class CSharp140Tests
     {
         private class C
@@ -28,125 +27,125 @@ namespace MongoDB.Driver.Tests.Jira.CSharp140
             public int X;
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeAnonymousClass()
         {
             var a = new { X = 1 };
             var json = a.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeCommandWrapped()
         {
             var c = new C { X = 1 };
             var w = CommandWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeFieldsWrapped()
         {
             var c = new C { X = 1 };
             var w = FieldsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
 #pragma warning disable 618
-        [Test]
+        [Fact]
         public void TestSerializeGeoNearOptionsWrapped()
         {
             var c = new C { X = 1 };
             var w = GeoNearOptionsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 #pragma warning restore
 
-        [Test]
+        [Fact]
         public void TestSerializeGroupByWrapped()
         {
             var c = new C { X = 1 };
             var w = GroupByWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeIndexKeysWrapped()
         {
             var c = new C { X = 1 };
             var w = IndexKeysWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeIndexOptionsWrapped()
         {
             var c = new C { X = 1 };
             var w = IndexOptionsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeQueryWrapped()
         {
             var c = new C { X = 1 };
             var w = QueryWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeScopeWrapped()
         {
             var c = new C { X = 1 };
             var w = ScopeWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeSortByWrapped()
         {
             var c = new C { X = 1 };
             var w = SortByWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeUpdateWrapped()
         {
             var c = new C { X = 1 };
             var w = UpdateWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestSerializeUpdateReplace()
         {
             var c = new C { X = 1 };
             var w = Update.Replace<object>(c);
             var json = w.ToJson();
             var expected = "{ '_t' : 'C', 'X' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

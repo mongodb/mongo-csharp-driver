@@ -20,11 +20,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class SkipAndTakeTests
     {
         private class C
@@ -36,63 +35,62 @@ namespace MongoDB.Driver.Tests.Linq
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public SkipAndTakeTests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestSkip()
         {
             var query = _collection.AsQueryable<C>().Skip(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(5, selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal(5, selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipThenSkip()
         {
             var query = _collection.AsQueryable<C>().Skip(5).Skip(15);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(20, selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal(20, selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipThenTake()
         {
             var query = _collection.AsQueryable<C>().Skip(5).Take(20);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(5, selectQuery.Skip);
-            Assert.AreEqual(20, selectQuery.Take);
+            Assert.Equal(5, selectQuery.Skip);
+            Assert.Equal(20, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipThenTakeThenSkip()
         {
             var query = _collection.AsQueryable<C>().Skip(5).Take(20).Skip(10);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(15, selectQuery.Skip);
-            Assert.AreEqual(10, selectQuery.Take);
+            Assert.Equal(15, selectQuery.Skip);
+            Assert.Equal(10, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipThenTakeThenSkipWithTooMany()
         {
             var query = _collection.AsQueryable<C>().Skip(5).Take(20).Skip(30);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.AreEqual(0, selectQuery.Take);
+            Assert.Null(selectQuery.Skip);
+            Assert.Equal(0, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestSkipThenWhereThenTake()
         {
             var query = _collection.AsQueryable<C>().Skip(20).Where(c => c.X == 10).Take(30);
@@ -100,57 +98,57 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Throws(typeof(NotSupportedException), () => MongoQueryTranslator.Translate(query));
         }
 
-        [Test]
+        [Fact]
         public void TestTake()
         {
             var query = _collection.AsQueryable<C>().Take(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.AreEqual(5, selectQuery.Take);
+            Assert.Null(selectQuery.Skip);
+            Assert.Equal(5, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestTakeThenSkip()
         {
             var query = _collection.AsQueryable<C>().Take(20).Skip(10);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(10, selectQuery.Skip);
-            Assert.AreEqual(10, selectQuery.Take);
+            Assert.Equal(10, selectQuery.Skip);
+            Assert.Equal(10, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestTakeThenSkipThenTake()
         {
             var query = _collection.AsQueryable<C>().Take(20).Skip(10).Take(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(10, selectQuery.Skip);
-            Assert.AreEqual(5, selectQuery.Take);
+            Assert.Equal(10, selectQuery.Skip);
+            Assert.Equal(5, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestTakeThenSkipThenTakeWithTooMany()
         {
             var query = _collection.AsQueryable<C>().Take(20).Skip(10).Take(15);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(10, selectQuery.Skip);
-            Assert.AreEqual(10, selectQuery.Take);
+            Assert.Equal(10, selectQuery.Skip);
+            Assert.Equal(10, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestTakeThenTake()
         {
             var query = _collection.AsQueryable<C>().Take(20).Take(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.AreEqual(5, selectQuery.Take);
+            Assert.Null(selectQuery.Skip);
+            Assert.Equal(5, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void TestTakeThenWhereThenSkip()
         {
             var query = _collection.AsQueryable<C>().Take(20).Where(c => c.X == 10).Skip(30);
@@ -158,28 +156,28 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Throws(typeof(NotSupportedException), () => MongoQueryTranslator.Translate(query));
         }
 
-        [Test]
+        [Fact]
         public void TestWhereThenSkipThenTake()
         {
             var query = _collection.AsQueryable<C>().Where(c => c.X == 10).Skip(10).Take(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(10, selectQuery.Skip);
-            Assert.AreEqual(5, selectQuery.Take);
+            Assert.Equal(10, selectQuery.Skip);
+            Assert.Equal(5, selectQuery.Take);
         }
 
-        [Test]
+        [Fact]
         public void Test0Take()
         {
             var query = _collection.AsQueryable<C>().Take(0).ToList();
-            Assert.AreEqual(0, query.Count);
+            Assert.Equal(0, query.Count);
         }
 
-        [Test]
+        [Fact]
         public void TestOfTypeCWith0Take()
         {
             var query = _collection.AsQueryable<Uri>().OfType<C>().Take(0).ToList();
-            Assert.AreEqual(0, query.Count);
+            Assert.Equal(0, query.Count);
         }
     }
 }

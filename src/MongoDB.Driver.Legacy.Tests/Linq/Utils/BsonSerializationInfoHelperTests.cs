@@ -17,11 +17,10 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Utils
 {
-    [TestFixture]
     public class BsonSerializationInfoHelperTests
     {
         private class Test
@@ -72,124 +71,124 @@ namespace MongoDB.Driver.Tests.Linq.Utils
             public string String { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestPrimitiveMember()
         {
             var query = Query<Test>.EQ(t => t.Primitive, 1);
 
-            Assert.AreEqual("{ \"p\" : 1 }", query.ToString());
+            Assert.Equal("{ \"p\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexMember()
         {
             var query = Query<Test>.EQ(t => t.Complex, null);
 
-            Assert.AreEqual("{ \"c\" : null }", query.ToString());
+            Assert.Equal("{ \"c\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexMemberMember()
         {
             var query = Query<Test>.EQ(t => t.Complex.Primitive, 1);
 
-            Assert.AreEqual("{ \"c.p\" : 1 }", query.ToString());
+            Assert.Equal("{ \"c.p\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexMemberComplex()
         {
             var query = Query<Test>.EQ(t => t.Complex.Complex, null);
 
-            Assert.AreEqual("{ \"c.c\" : null }", query.ToString());
+            Assert.Equal("{ \"c.c\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexMemberComplexMember()
         {
             var query = Query<Test>.EQ(t => t.Complex.Complex.Primitive, 1);
 
-            Assert.AreEqual("{ \"c.c.p\" : 1 }", query.ToString());
+            Assert.Equal("{ \"c.c.p\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestPrimitiveEnumerable()
         {
             var query = Query<Test>.EQ(t => t.PrimitiveEnumerable, null);
 
-            Assert.AreEqual("{ \"pe\" : null }", query.ToString());
+            Assert.Equal("{ \"pe\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexEnumerable()
         {
             var query = Query<Test>.EQ(t => t.ComplexEnumerable, null);
 
-            Assert.AreEqual("{ \"ce\" : null }", query.ToString());
+            Assert.Equal("{ \"ce\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestPrimitiveIndex()
         {
             var query = Query<Test>.EQ(t => t.PrimitiveEnumerable[0], 1);
 
-            Assert.AreEqual("{ \"pe.0\" : 1 }", query.ToString());
+            Assert.Equal("{ \"pe.0\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexIndex()
         {
             var query = Query<Test>.EQ(t => t.ComplexEnumerable[1], null);
 
-            Assert.AreEqual("{ \"ce.1\" : null }", query.ToString());
+            Assert.Equal("{ \"ce.1\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexIndexMember()
         {
             var query = Query<Test>.EQ(t => t.ComplexEnumerable[1].Primitive, 2);
 
-            Assert.AreEqual("{ \"ce.1.p\" : 2 }", query.ToString());
+            Assert.Equal("{ \"ce.1.p\" : 2 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestPrimitiveElementAt()
         {
             var query = Query<Test>.EQ(t => t.PrimitiveEnumerable.ElementAt(0), 1);
 
-            Assert.AreEqual("{ \"pe.0\" : 1 }", query.ToString());
+            Assert.Equal("{ \"pe.0\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexElementAt()
         {
             var query = Query<Test>.EQ(t => t.ComplexEnumerable.ElementAt(0), null);
 
-            Assert.AreEqual("{ \"ce.0\" : null }", query.ToString());
+            Assert.Equal("{ \"ce.0\" : null }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestComplexElementAtMember()
         {
             var query = Query<Test>.EQ(t => t.ComplexEnumerable.ElementAt(0).Primitive, 1);
 
-            Assert.AreEqual("{ \"ce.0.p\" : 1 }", query.ToString());
+            Assert.Equal("{ \"ce.0.p\" : 1 }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestRootConversion()
         {
             var query = Query<Test>.EQ(t => ((Test5)t).String, "f");
 
-            Assert.AreEqual("{ \"s\" : \"f\" }", query.ToString());
+            Assert.Equal("{ \"s\" : \"f\" }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestNestedConversion()
         {
             var query = Query<Test>.EQ(t => ((Test4)t.Complex.Complex).PrimitiveEnumerable, null);
             
-            Assert.AreEqual("{ \"c.c.pe\" : null }", query.ToString());
+            Assert.Equal("{ \"c.c.pe\" : null }", query.ToString());
         }
     }
 }

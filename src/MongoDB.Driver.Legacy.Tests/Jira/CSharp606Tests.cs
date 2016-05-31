@@ -16,27 +16,26 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp606
 {
-    [TestFixture]
     public class CSharp606Tests
     {
-        [Test]
+        [Fact]
         public void TestTypeIsOnProperty()
         {
             IMongoQuery query = Query<TestClass>.Where(x => x.Prop is B);
 
-            Assert.AreEqual("{ \"Prop._t\" : \"B\" }", query.ToString());
+            Assert.Equal("{ \"Prop._t\" : \"B\" }", query.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TestTypeOfComparisonOnProperty()
         {
             IMongoQuery query = Query<TestClass>.Where(x => x.Prop.GetType() == typeof(B));
 
-            Assert.AreEqual("{ \"Prop._t.0\" : { \"$exists\" : false }, \"Prop._t\" : \"B\" }", query.ToString());
+            Assert.Equal("{ \"Prop._t.0\" : { \"$exists\" : false }, \"Prop._t\" : \"B\" }", query.ToString());
         }
 
         private class TestClass

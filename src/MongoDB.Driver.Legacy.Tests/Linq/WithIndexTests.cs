@@ -20,11 +20,10 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class WithIndexTests
     {
         private class B
@@ -35,92 +34,99 @@ namespace MongoDB.Driver.Tests.Linq
             public int c;
         }
 
-        private MongoCollection<B> _collection;
+        private static MongoCollection<B> __collection;
+        private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public WithIndexTests()
         {
-            _collection = LegacyTestConfiguration.GetCollection<B>();
-
-            _collection.Drop();
-            _collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
-            _collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
-
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 1, b = 10, c = 100 });
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 2, b = 20, c = 200 });
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 3, b = 30, c = 300 });
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 4, b = 40, c = 400 });
+            var _ = __lazyOneTimeSetup.Value;
         }
 
-        [Test]
+        private static bool OneTimeSetup()
+        {
+            __collection = LegacyTestConfiguration.GetCollection<B>();
+
+            __collection.Drop();
+            __collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+            __collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+
+            __collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 1, b = 10, c = 100 });
+            __collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 2, b = 20, c = 200 });
+            __collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 3, b = 30, c = 300 });
+            __collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 4, b = 40, c = 400 });
+
+            return true;
+        }
+
+        [Fact]
         public void TestSimpleQueryHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().WithIndex("i");
+            var query = __collection.AsQueryable().WithIndex("i");
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithSkipAndTakeHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().WithIndex("i").Skip(2).Take(5);
+            var query = __collection.AsQueryable().WithIndex("i").Skip(2).Take(5);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
 
-            query = _collection.AsQueryable().Skip(2).Take(5).WithIndex("i");
+            query = __collection.AsQueryable().Skip(2).Take(5).WithIndex("i");
             selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithProjectionHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().WithIndex("i").Select(o => o.a);
+            var query = __collection.AsQueryable().WithIndex("i").Select(o => o.a);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
-            Assert.AreEqual("(B o) => o.a", ExpressionFormatter.ToString(selectQuery.Projection));
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("(B o) => o.a", ExpressionFormatter.ToString(selectQuery.Projection));
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithConditionHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().Where(o => o.a == 1 && o.b == 3).WithIndex("i");
+            var query = __collection.AsQueryable().Where(o => o.a == 1 && o.b == 3).WithIndex("i");
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
-            Assert.AreEqual("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithIndexBeforeConditionHasIndexNameHint()
         {
-            var query = _collection.AsQueryable().WithIndex("i").Where(o => o.a == 1 && o.b == 3);
+            var query = __collection.AsQueryable().WithIndex("i").Where(o => o.a == 1 && o.b == 3);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual("i", selectQuery.IndexHint.AsString);
-            Assert.AreEqual("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal("i", selectQuery.IndexHint.AsString);
+            Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIndexNameHintIsUsedInQuery()
         {
-            var query = _collection.AsQueryable().Where(o => o.b == 1);
+            var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
             {
-                Assert.AreEqual("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
+                Assert.Equal("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
             }
             else
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
                 var stage = winningPlan["stage"].AsString;
-                Assert.That(stage, Is.Not.EqualTo("IXSCAN"));
+                Assert.NotEqual("IXSCAN", stage);
             }
 
             // Now check that we can force it to use our index
-            query = _collection.AsQueryable().Where(o => o.a == 1).WithIndex("i");
+            query = __collection.AsQueryable().Where(o => o.a == 1).WithIndex("i");
             plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
             {
-                Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+                Assert.Equal("BtreeCursor i", plan["cursor"].AsString);
             }
             else
             {
@@ -132,82 +138,82 @@ namespace MongoDB.Driver.Tests.Linq
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
                 var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                Assert.That(stage, Is.EqualTo("IXSCAN"));
-                Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ a : 1, b : 1 }")));
+                Assert.Equal("IXSCAN", stage);
+                Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestSimpleQueryHasIndexDocumentHint()
         {
-            var query = _collection.AsQueryable().WithIndex(new BsonDocument("x", 1));
+            var query = __collection.AsQueryable().WithIndex(new BsonDocument("x", 1));
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithSkipAndTakeHasIndexDocumentHint()
         {
-            var query = _collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Skip(2).Take(5);
+            var query = __collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Skip(2).Take(5);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
 
-            query = _collection.AsQueryable().Skip(2).Take(5).WithIndex(new BsonDocument("x", 1));
+            query = __collection.AsQueryable().Skip(2).Take(5).WithIndex(new BsonDocument("x", 1));
             selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithProjectionHasIndexDocumentHint()
         {
-            var query = _collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Select(o => o.a);
+            var query = __collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Select(o => o.a);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
-            Assert.AreEqual("(B o) => o.a", ExpressionFormatter.ToString(selectQuery.Projection));
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal("(B o) => o.a", ExpressionFormatter.ToString(selectQuery.Projection));
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithConditionHasIndexDocumentHint()
         {
-            var query = _collection.AsQueryable().Where(o => o.a == 1 && o.b == 3).WithIndex(new BsonDocument("x", 1));
+            var query = __collection.AsQueryable().Where(o => o.a == 1 && o.b == 3).WithIndex(new BsonDocument("x", 1));
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
-            Assert.AreEqual("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestQueryWithIndexBeforeConditionHasIndexDocumentHint()
         {
-            var query = _collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Where(o => o.a == 1 && o.b == 3);
+            var query = __collection.AsQueryable().WithIndex(new BsonDocument("x", 1)).Where(o => o.a == 1 && o.b == 3);
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
-            Assert.AreEqual(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
-            Assert.AreEqual("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(new BsonDocument("x", 1), selectQuery.IndexHint.AsBsonDocument);
+            Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestIndexDocumentHintIsUsedInQuery()
         {
-            var query = _collection.AsQueryable().Where(o => o.b == 1);
+            var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
             {
-                Assert.AreEqual("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
+                Assert.Equal("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
             }
             else
             {
                 var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
                 var stage = winningPlan["stage"].AsString;
-                Assert.That(stage, Is.Not.EqualTo("IXSCAN"));
+                Assert.NotEqual("IXSCAN", stage);
             }
 
             // Now check that we can force it to use our index
             var indexDoc = new BsonDocument()
                 .AddRange(new[] { new BsonElement("a", 1), new BsonElement("b", 1) });
-            query = _collection.AsQueryable().Where(o => o.a == 1).WithIndex(indexDoc);
+            query = __collection.AsQueryable().Where(o => o.a == 1).WithIndex(indexDoc);
             plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
             {
-                Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+                Assert.Equal("BtreeCursor i", plan["cursor"].AsString);
             }
             else
             {
@@ -219,28 +225,28 @@ namespace MongoDB.Driver.Tests.Linq
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
                 var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                Assert.That(stage, Is.EqualTo("IXSCAN"));
-                Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ a : 1, b : 1 }")));
+                Assert.Equal("IXSCAN", stage);
+                Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWithIndexCannotBeBeforeDistinct()
         {
             Assert.Throws<NotSupportedException>(
-                () => _collection.AsQueryable().Select(o => o.a).WithIndex("i").Distinct().ToList());
+                () => __collection.AsQueryable().Select(o => o.a).WithIndex("i").Distinct().ToList());
         }
 
-        [Test]
+        [Fact]
         public void TestWithIndexCannotBeAfterDistinct()
         {
-            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable().Select(o => o.a).Distinct().WithIndex("i").ToList());
+            Assert.Throws<NotSupportedException>(() => __collection.AsQueryable().Select(o => o.a).Distinct().WithIndex("i").ToList());
         }
 
-        [Test]
+        [Fact]
         public void TestThereCanOnlyBeOneIndexHint()
         {
-            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable().WithIndex("i").WithIndex(new BsonDocument("a", 1)).ToList());
+            Assert.Throws<NotSupportedException>(() => __collection.AsQueryable().WithIndex("i").WithIndex(new BsonDocument("a", 1)).ToList());
         }
 
     }

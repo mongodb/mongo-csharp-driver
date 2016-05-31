@@ -20,11 +20,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp378
 {
-    [TestFixture]
     public class CSharp378Tests
     {
         public class C
@@ -58,14 +57,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp378Tests()
         {
             _database = LegacyTestConfiguration.Database;
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestSaveC()
         {
             _collection.Drop();
@@ -74,21 +72,21 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
             _collection.Insert(doc);
             var id = doc.Id;
 
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var fetched = _collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(1, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(1, fetched.X);
 
             doc.X = 2;
             _collection.Save(doc);
 
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             fetched = _collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(2, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(2, fetched.X);
         }
 
-        [Test]
+        [Fact]
         public void TestSaveD()
         {
             var collectionSettings = new MongoCollectionSettings { GuidRepresentation = GuidRepresentation.Standard };
@@ -99,18 +97,18 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
             var doc = new D { Id = id, X = 1 };
             collection.Insert(doc);
 
-            Assert.AreEqual(1, collection.Count());
+            Assert.Equal(1, collection.Count());
             var fetched = collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(1, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(1, fetched.X);
 
             doc.X = 2;
             collection.Save(doc);
 
-            Assert.AreEqual(1, collection.Count());
+            Assert.Equal(1, collection.Count());
             fetched = collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(2, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(2, fetched.X);
         }
     }
 }

@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp134
 {
-    [TestFixture]
     public class CSharp134Tests
     {
 #pragma warning disable 649 // never assigned to
@@ -32,13 +31,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp134
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp134Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeMongoDBRef()
         {
             var dbRef = new MongoDBRef("test", ObjectId.GenerateNewId());
@@ -47,9 +45,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp134
             _collection.Insert(c);
 
             var rehydrated = _collection.FindOne();
-            Assert.IsNull(rehydrated.DbRef.DatabaseName);
-            Assert.AreEqual(dbRef.CollectionName, rehydrated.DbRef.CollectionName);
-            Assert.AreEqual(dbRef.Id, rehydrated.DbRef.Id);
+            Assert.Null(rehydrated.DbRef.DatabaseName);
+            Assert.Equal(dbRef.CollectionName, rehydrated.DbRef.CollectionName);
+            Assert.Equal(dbRef.Id, rehydrated.DbRef.Id);
         }
     }
 }

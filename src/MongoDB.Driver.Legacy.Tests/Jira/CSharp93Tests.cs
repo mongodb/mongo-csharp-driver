@@ -15,14 +15,13 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp93
 {
-    [TestFixture]
     public class CSharp93Tests
     {
-        [Test]
+        [Fact]
         public void TestDropAllIndexes()
         {
             var server = LegacyTestConfiguration.Server;
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp93
             collection.DropIndex(IndexKeys.Ascending("x", "y"));
         }
 
-        [Test]
+        [Fact]
         public void CreateIndex_SetUniqueTrue_Success()
         {
             var server = LegacyTestConfiguration.Server;

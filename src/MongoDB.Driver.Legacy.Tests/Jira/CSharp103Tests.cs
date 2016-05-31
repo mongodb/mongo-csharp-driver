@@ -14,14 +14,13 @@
 */
 
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp103
 {
-    [TestFixture]
     public class CSharp103Tests
     {
-        [Test]
+        [Fact]
         public void TestNullReferenceException()
         {
             var server = LegacyTestConfiguration.Server;

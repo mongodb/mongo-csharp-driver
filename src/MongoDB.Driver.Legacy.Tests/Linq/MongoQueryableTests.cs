@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class MongoQueryableTests
     {
         private class C
@@ -34,31 +33,30 @@ namespace MongoDB.Driver.Tests.Linq
         private MongoServer _server;
         private MongoCollection _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoQueryableTests()
         {
             _server = LegacyTestConfiguration.Server;
             _server.Connect();
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorWithOneArgument()
         {
             var provider = new MongoQueryProvider(_collection);
             var iqueryable = (IQueryable)new MongoQueryable<C>(provider);
-            Assert.AreSame(typeof(C), iqueryable.ElementType);
-            Assert.AreSame(provider, iqueryable.Provider);
+            Assert.Same(typeof(C), iqueryable.ElementType);
+            Assert.Same(provider, iqueryable.Provider);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructorWithTwoArguments()
         {
             var queryable = _collection.AsQueryable<C>();
             var iqueryable = (IQueryable)new MongoQueryable<C>((MongoQueryProvider)queryable.Provider, queryable.Expression);
-            Assert.AreSame(typeof(C), iqueryable.ElementType);
-            Assert.AreSame(queryable.Provider, iqueryable.Provider);
-            Assert.AreSame(queryable.Expression, iqueryable.Expression);
+            Assert.Same(typeof(C), iqueryable.ElementType);
+            Assert.Same(queryable.Provider, iqueryable.Provider);
+            Assert.Same(queryable.Expression, iqueryable.Expression);
         }
     }
 }

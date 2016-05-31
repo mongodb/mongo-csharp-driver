@@ -17,22 +17,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp325Tests
     {
         private MongoServer _server;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp325Tests()
         {
             _server = LegacyTestConfiguration.Server;
         }
 
-        [Test]
+        [Fact]
         public void TestValidateDatabaseName()
         {
             var invalidChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };

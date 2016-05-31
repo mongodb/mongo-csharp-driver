@@ -19,14 +19,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class MongoClientTests
     {
-        [Test]
+        [Fact]
         public void UsesSameMongoServerForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
@@ -39,10 +38,10 @@ namespace MongoDB.Driver.Tests
             var server2 = client2.GetServer();
 #pragma warning restore
 
-            Assert.AreSame(server1, server2);
+            Assert.Same(server1, server2);
         }
 
-        [Test]
+        [Fact]
         public void UsesSameMongoServerWhenReadPreferenceTagsAreTheSame()
         {
             var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Tests
             var server2 = client2.GetServer();
 #pragma warning restore
 
-            Assert.AreSame(server1, server2);
+            Assert.Same(server1, server2);
         }
     }
 }

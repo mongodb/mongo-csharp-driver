@@ -14,47 +14,47 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.CommandResults
 {
-    [TestFixture]
     public class DatabaseStatsResultTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public DatabaseStatsResultTests()
         {
             _server = LegacyTestConfiguration.Server;
             _database = LegacyTestConfiguration.Database;
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [SkippableFact]
         public void Test()
         {
+            RequireServer.Where(storageEngines: "mmapv1");
             if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 // make sure collection and database exist
                 _collection.Insert(new BsonDocument());
 
                 var result = _database.GetStats();
-                Assert.IsTrue(result.Ok);
-                Assert.IsTrue(result.AverageObjectSize > 0);
-                Assert.IsTrue(result.CollectionCount > 0);
-                Assert.IsTrue(result.DataSize > 0);
-                Assert.IsTrue(result.ExtentCount > 0);
-                Assert.IsTrue(result.FileSize > 0);
-                Assert.IsTrue(result.IndexCount > 0);
-                Assert.IsTrue(result.IndexSize > 0);
-                Assert.IsTrue(result.ObjectCount > 0);
-                Assert.IsTrue(result.StorageSize > 0);
+                Assert.True(result.Ok);
+                Assert.True(result.AverageObjectSize > 0);
+                Assert.True(result.CollectionCount > 0);
+                Assert.True(result.DataSize > 0);
+                Assert.True(result.ExtentCount > 0);
+                Assert.True(result.FileSize > 0);
+                Assert.True(result.IndexCount > 0);
+                Assert.True(result.IndexSize > 0);
+                Assert.True(result.ObjectCount > 0);
+                Assert.True(result.StorageSize > 0);
             }
         }
     }

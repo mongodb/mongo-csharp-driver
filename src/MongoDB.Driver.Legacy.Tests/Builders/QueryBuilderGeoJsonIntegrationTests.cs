@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
@@ -41,8 +41,7 @@ namespace MongoDB.Driver.Tests.Builders
             public GeoJsonPolygon<GeoJson2DGeographicCoordinates> Surrounding { get; set; }
         }
 
-        [SetUp]
-        public void SetUp()
+        public QueryBuilderGeoJsonIntegrationTests()
         {
             var db = LegacyTestConfiguration.Database;
             _collection = db.GetCollection<GeoClass>("geo");
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.Tests.Builders
             _collection.Save(doc);
         }
 
-        [Test]
+        [Fact]
         public void TestGeoIntersects()
         {
             var server = LegacyTestConfiguration.Server;
@@ -78,11 +77,11 @@ namespace MongoDB.Driver.Tests.Builders
 
                 var results = _collection.Count(query);
 
-                Assert.AreEqual(1, results);
+                Assert.Equal(1, results);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestNear()
         {
             var server = LegacyTestConfiguration.Server;
@@ -95,11 +94,11 @@ namespace MongoDB.Driver.Tests.Builders
 
                 var results = _collection.Count(query);
 
-                Assert.AreEqual(1, results);
+                Assert.Equal(1, results);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWithin()
         {
             var server = LegacyTestConfiguration.Server;
@@ -117,11 +116,11 @@ namespace MongoDB.Driver.Tests.Builders
 
                 var results = _collection.Count(query);
 
-                Assert.AreEqual(1, results);
+                Assert.Equal(1, results);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestWithinNotFound()
         {
             var server = LegacyTestConfiguration.Server;
@@ -139,7 +138,7 @@ namespace MongoDB.Driver.Tests.Builders
 
                 var results = _collection.Count(query);
 
-                Assert.AreEqual(0, results);
+                Assert.Equal(0, results);
             }
         }
     }

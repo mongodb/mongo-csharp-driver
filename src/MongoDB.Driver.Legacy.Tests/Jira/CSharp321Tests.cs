@@ -17,20 +17,19 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp321
 {
-    [TestFixture]
     public class CSharp321Tests
     {
-        [Test]
+        [Fact]
         public void TestNoArgs()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Query.And());
         }
 
-        [Test]
+        [Fact]
         public void TestOneNestedAnd()
         {
             var query = Query.And(
@@ -38,10 +37,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestOneClause()
         {
             var query = Query.And(
@@ -49,10 +48,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestTwoClauses()
         {
             var query = Query.And(
@@ -61,10 +60,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineAndWithOneClause()
         {
             var query = Query.And(
@@ -73,10 +72,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineAndWithAnd()
         {
             var query = Query.And(
@@ -85,10 +84,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineTwoClausesWithAnd()
         {
             var query = Query.And(
@@ -98,10 +97,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestThreeClauses()
         {
             var query = Query.And(
@@ -111,10 +110,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineTwoCombinableClausesForSameField()
         {
             var query = Query.And(
@@ -123,10 +122,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : { '$gte' : 1, '$lte' : 2 } }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineTwoEQForSameField()
         {
             // never mind that this query can't match anything
@@ -136,10 +135,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ '$and' : [{ 'x' : 1 }, { 'x' : 2 }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestCombineTwoNonCombinableClausesForSameField()
         {
             // never mind that this query is somewhat redundant
@@ -149,10 +148,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ '$and' : [{ 'x' : { '$gt' : 1 } }, { 'x' : { '$gt' : 2 } }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestNestedAndClause()
         {
             var query = Query.And(
@@ -161,7 +160,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             );
             var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

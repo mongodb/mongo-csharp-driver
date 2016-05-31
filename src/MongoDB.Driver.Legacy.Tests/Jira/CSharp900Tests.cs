@@ -20,11 +20,10 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp900Tests
     {
         private class B
@@ -46,8 +45,7 @@ namespace MongoDB.Driver.Tests.Jira
 
         private MongoCollection<B> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp900Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<B>();
 
@@ -61,110 +59,104 @@ namespace MongoDB.Driver.Tests.Jira
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = "1", SubValues = new List<C>() { new C("2"), new C("3"), new C("4"), new C("5") } });
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestEqual()
         {
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (byte)x.Value == (byte)1).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (float)x.Value == 1f).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (int)x.Value == 1).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (double)x.Value == 1D).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (ulong)x.Value == 1UL).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => (string)x.Value == "1").Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (byte)x.Value == (byte)1).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (float)x.Value == 1f).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (int)x.Value == 1).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (double)x.Value == 1D).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (ulong)x.Value == 1UL).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => (string)x.Value == "1").Count());
 
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value == (byte)2)).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value == 2f)).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value == 2)).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value == 2D)).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value == 2UL)).Count());
-            Assert.AreEqual(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (string)y.Value == "2")).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value == (byte)2)).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value == 2f)).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value == 2)).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value == 2D)).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value == 2UL)).Count());
+            Assert.Equal(1, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (string)y.Value == "2")).Count());
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestNotEqual()
         {
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value != (byte)1).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (float)x.Value != 1f).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (int)x.Value != 1).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (double)x.Value != 1D).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value != 1UL).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (string)x.Value != "1").Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value != (byte)1).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (float)x.Value != 1f).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (int)x.Value != 1).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (double)x.Value != 1D).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value != 1UL).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (string)x.Value != "1").Count());
 
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value != (byte)2)).Count());
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value != 2f)).Count());
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value != 2)).Count());
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value != 2D)).Count());
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value != 2UL)).Count());
-            Assert.AreEqual(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (string)y.Value != "2")).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value != (byte)2)).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value != 2f)).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value != 2)).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value != 2D)).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value != 2UL)).Count());
+            Assert.Equal(3, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (string)y.Value != "2")).Count());
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestGreaterThan()
         {
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value > (byte)0).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (float)x.Value > 0f).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (int)x.Value > 0).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (double)x.Value > 0D).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value > 0UL).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value > (byte)0).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (float)x.Value > 0f).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (int)x.Value > 0).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (double)x.Value > 0D).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value > 0UL).Count());
 
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value > (byte)1)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value > 1f)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value > 1)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value > 1D)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value > 1UL)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value > (byte)1)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value > 1f)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value > 1)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value > 1D)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value > 1UL)).Count());
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestGreaterThanOrEqual()
         {
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value >= (byte)0).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (float)x.Value >= 0f).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (int)x.Value >= 0).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (double)x.Value >= 0D).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value >= 0UL).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value >= (byte)0).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (float)x.Value >= 0f).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (int)x.Value >= 0).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (double)x.Value >= 0D).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value >= 0UL).Count());
 
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value >= (byte)1)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value >= 1f)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value >= 1)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value >= 1D)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value >= 1UL)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value >= (byte)1)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value >= 1f)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value >= 1)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value >= 1D)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value >= 1UL)).Count());
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestLessThan()
         {
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value < (byte)10).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (float)x.Value < 10f).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (int)x.Value < 10).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (double)x.Value < 10D).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value < 10UL).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value < (byte)10).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (float)x.Value < 10f).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (int)x.Value < 10).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (double)x.Value < 10D).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value < 10UL).Count());
 
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value < (byte)10)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value < 10f)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value < 10)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value < 10D)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value < 10UL)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value < (byte)10)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value < 10f)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value < 10)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value < 10D)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value < 10UL)).Count());
         }
 
-        [Ignore("LINQ Convert")]
-        [Test]
+        [Fact(Skip = "LINQ Convert")]
         public void TestLessThanOrEqual()
         {
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value <= (byte)10).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (float)x.Value <= 10f).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (int)x.Value <= 10).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (double)x.Value <= 10D).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value <= 10UL).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (byte)x.Value <= (byte)10).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (float)x.Value <= 10f).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (int)x.Value <= 10).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (double)x.Value <= 10D).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => (ulong)x.Value <= 10UL).Count());
 
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value <= (byte)10)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value <= 10f)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value <= 10)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value <= 10D)).Count());
-            Assert.AreEqual(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value <= 10UL)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (byte)y.Value <= (byte)10)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (float)y.Value <= 10f)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (int)y.Value <= 10)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (double)y.Value <= 10D)).Count());
+            Assert.Equal(2, _collection.AsQueryable<B>().Where(x => x.SubValues.Any(y => (ulong)y.Value <= 10UL)).Count());
         }
     }
 }

@@ -17,22 +17,19 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp542
 {
-    [TestFixture()]
     public class CSharp542
     {
-
         public class Test
         {
             public ObjectId Id;
             public Nullable<int> MyNullableInt;
         }
 
-        [Test()]
-
+        [Fact]
         public void TestNullableComparison()
         {
             var server = LegacyTestConfiguration.Server;

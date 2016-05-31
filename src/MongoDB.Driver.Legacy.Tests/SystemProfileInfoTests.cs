@@ -18,26 +18,24 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [TestFixture]
     public class SystemProfileInfoTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public SystemProfileInfoTests()
         {
             _server = LegacyTestConfiguration.Server;
             _database = LegacyTestConfiguration.Database;
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestMinimal()
         {
             var info = new SystemProfileInfo
@@ -46,10 +44,10 @@ namespace MongoDB.Driver.Tests
                 Duration = TimeSpan.FromMilliseconds(123)
             };
             var expected = "{ 'ts' : ISODate('2011-10-07T00:00:00Z'), 'millis' : 123.0 }".Replace("'", "\"");
-            Assert.AreEqual(expected, info.ToJson());
+            Assert.Equal(expected, info.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeAll()
         {
             var info = new SystemProfileInfo
@@ -105,49 +103,49 @@ namespace MongoDB.Driver.Tests
             };
             var json = info.ToJson(new JsonWriterSettings { Indent = true });
             var rehydrated = BsonSerializer.Deserialize<SystemProfileInfo>(json);
-            Assert.AreEqual(info.Abbreviated, rehydrated.Abbreviated);
-            Assert.AreEqual(info.Client, rehydrated.Client);
-            Assert.AreEqual(info.Command, rehydrated.Command);
-            Assert.AreEqual(info.CursorId, rehydrated.CursorId);
-            Assert.AreEqual(info.Duration, rehydrated.Duration);
-            Assert.AreEqual(info.Error, rehydrated.Error);
-            Assert.AreEqual(info.Exception, rehydrated.Exception);
-            Assert.AreEqual(info.ExceptionCode, rehydrated.ExceptionCode);
-            Assert.AreEqual(info.Exhaust, rehydrated.Exhaust);
-            Assert.AreEqual(info.FastMod, rehydrated.FastMod);
-            Assert.AreEqual(info.FastModInsert, rehydrated.FastModInsert);
-            Assert.AreEqual(info.IdHack, rehydrated.IdHack);
-            Assert.AreEqual(info.Info, rehydrated.Info);
-            Assert.AreEqual(info.KeyUpdates, rehydrated.KeyUpdates);
-            Assert.AreEqual(info.LockStatistics.RawDocument, rehydrated.LockStatistics.RawDocument);
-            Assert.AreEqual(info.LockStatistics.TimeAcquiring.DatabaseReadLock, rehydrated.LockStatistics.TimeAcquiring.DatabaseReadLock);
-            Assert.AreEqual(info.LockStatistics.TimeAcquiring.DatabaseWriteLock, rehydrated.LockStatistics.TimeAcquiring.DatabaseWriteLock);
-            Assert.AreEqual(info.LockStatistics.TimeAcquiring.GlobalReadLock, rehydrated.LockStatistics.TimeAcquiring.GlobalReadLock);
-            Assert.AreEqual(info.LockStatistics.TimeAcquiring.GlobalWriteLock, rehydrated.LockStatistics.TimeAcquiring.GlobalWriteLock);
-            Assert.AreEqual(info.LockStatistics.TimeLocked.DatabaseReadLock, rehydrated.LockStatistics.TimeLocked.DatabaseReadLock);
-            Assert.AreEqual(info.LockStatistics.TimeLocked.DatabaseWriteLock, rehydrated.LockStatistics.TimeLocked.DatabaseWriteLock);
-            Assert.AreEqual(info.LockStatistics.TimeLocked.GlobalReadLock, rehydrated.LockStatistics.TimeLocked.GlobalReadLock);
-            Assert.AreEqual(info.LockStatistics.TimeLocked.GlobalWriteLock, rehydrated.LockStatistics.TimeLocked.GlobalWriteLock);
-            Assert.AreEqual(info.Moved, rehydrated.Moved);
-            Assert.AreEqual(info.Namespace, rehydrated.Namespace);
-            Assert.AreEqual(info.NumberMoved, rehydrated.NumberMoved);
-            Assert.AreEqual(info.NumberReturned, rehydrated.NumberReturned);
-            Assert.AreEqual(info.NumberScanned, rehydrated.NumberScanned);
-            Assert.AreEqual(info.NumberToReturn, rehydrated.NumberToReturn);
-            Assert.AreEqual(info.NumberToSkip, rehydrated.NumberToSkip);
-            Assert.AreEqual(info.NumberUpdated, rehydrated.NumberUpdated);
-            Assert.AreEqual(info.NumberOfYields, rehydrated.NumberOfYields);
-            Assert.AreEqual(info.Op, rehydrated.Op);
-            Assert.AreEqual(info.Query, rehydrated.Query);
-            Assert.AreEqual(info.ResponseLength, rehydrated.ResponseLength);
-            Assert.AreEqual(info.ScanAndOrder, rehydrated.ScanAndOrder);
-            Assert.AreEqual(info.Timestamp, rehydrated.Timestamp);
-            Assert.AreEqual(info.UpdateObject, rehydrated.UpdateObject);
-            Assert.AreEqual(info.Upsert, rehydrated.Upsert);
-            Assert.AreEqual(info.User, rehydrated.User);
+            Assert.Equal(info.Abbreviated, rehydrated.Abbreviated);
+            Assert.Equal(info.Client, rehydrated.Client);
+            Assert.Equal(info.Command, rehydrated.Command);
+            Assert.Equal(info.CursorId, rehydrated.CursorId);
+            Assert.Equal(info.Duration, rehydrated.Duration);
+            Assert.Equal(info.Error, rehydrated.Error);
+            Assert.Equal(info.Exception, rehydrated.Exception);
+            Assert.Equal(info.ExceptionCode, rehydrated.ExceptionCode);
+            Assert.Equal(info.Exhaust, rehydrated.Exhaust);
+            Assert.Equal(info.FastMod, rehydrated.FastMod);
+            Assert.Equal(info.FastModInsert, rehydrated.FastModInsert);
+            Assert.Equal(info.IdHack, rehydrated.IdHack);
+            Assert.Equal(info.Info, rehydrated.Info);
+            Assert.Equal(info.KeyUpdates, rehydrated.KeyUpdates);
+            Assert.Equal(info.LockStatistics.RawDocument, rehydrated.LockStatistics.RawDocument);
+            Assert.Equal(info.LockStatistics.TimeAcquiring.DatabaseReadLock, rehydrated.LockStatistics.TimeAcquiring.DatabaseReadLock);
+            Assert.Equal(info.LockStatistics.TimeAcquiring.DatabaseWriteLock, rehydrated.LockStatistics.TimeAcquiring.DatabaseWriteLock);
+            Assert.Equal(info.LockStatistics.TimeAcquiring.GlobalReadLock, rehydrated.LockStatistics.TimeAcquiring.GlobalReadLock);
+            Assert.Equal(info.LockStatistics.TimeAcquiring.GlobalWriteLock, rehydrated.LockStatistics.TimeAcquiring.GlobalWriteLock);
+            Assert.Equal(info.LockStatistics.TimeLocked.DatabaseReadLock, rehydrated.LockStatistics.TimeLocked.DatabaseReadLock);
+            Assert.Equal(info.LockStatistics.TimeLocked.DatabaseWriteLock, rehydrated.LockStatistics.TimeLocked.DatabaseWriteLock);
+            Assert.Equal(info.LockStatistics.TimeLocked.GlobalReadLock, rehydrated.LockStatistics.TimeLocked.GlobalReadLock);
+            Assert.Equal(info.LockStatistics.TimeLocked.GlobalWriteLock, rehydrated.LockStatistics.TimeLocked.GlobalWriteLock);
+            Assert.Equal(info.Moved, rehydrated.Moved);
+            Assert.Equal(info.Namespace, rehydrated.Namespace);
+            Assert.Equal(info.NumberMoved, rehydrated.NumberMoved);
+            Assert.Equal(info.NumberReturned, rehydrated.NumberReturned);
+            Assert.Equal(info.NumberScanned, rehydrated.NumberScanned);
+            Assert.Equal(info.NumberToReturn, rehydrated.NumberToReturn);
+            Assert.Equal(info.NumberToSkip, rehydrated.NumberToSkip);
+            Assert.Equal(info.NumberUpdated, rehydrated.NumberUpdated);
+            Assert.Equal(info.NumberOfYields, rehydrated.NumberOfYields);
+            Assert.Equal(info.Op, rehydrated.Op);
+            Assert.Equal(info.Query, rehydrated.Query);
+            Assert.Equal(info.ResponseLength, rehydrated.ResponseLength);
+            Assert.Equal(info.ScanAndOrder, rehydrated.ScanAndOrder);
+            Assert.Equal(info.Timestamp, rehydrated.Timestamp);
+            Assert.Equal(info.UpdateObject, rehydrated.UpdateObject);
+            Assert.Equal(info.Upsert, rehydrated.Upsert);
+            Assert.Equal(info.User, rehydrated.User);
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeSystemProfileInfoReturnedFromServer()
         {
             if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
@@ -223,7 +221,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void TestLockStatsAreStoredInMicroSeconds()
         {
             string json = @"
@@ -248,14 +246,14 @@ namespace MongoDB.Driver.Tests
             // 1 tick = 10 microseconds. Can't use TimeSpan.FromMilliseconds(0.5) because
             // TimeSpan.FromMilliseconds(0.5).TotalMilliseconds gives 1.0 (which makes no sense but that's the way it is)
             // to get precision below 1 millisecond you must use ticks.
-            Assert.AreEqual(TimeSpan.FromTicks(5000), rehydrated.LockStatistics.TimeLocked.DatabaseReadLock);
-            Assert.AreEqual(TimeSpan.FromTicks(6000), rehydrated.LockStatistics.TimeLocked.GlobalReadLock);
-            Assert.AreEqual(TimeSpan.FromTicks(10000), rehydrated.LockStatistics.TimeLocked.DatabaseWriteLock);
-            Assert.AreEqual(TimeSpan.FromTicks(11000), rehydrated.LockStatistics.TimeLocked.GlobalWriteLock);
-            Assert.AreEqual(TimeSpan.FromTicks(25000), rehydrated.LockStatistics.TimeAcquiring.DatabaseReadLock);
-            Assert.AreEqual(TimeSpan.FromTicks(26000), rehydrated.LockStatistics.TimeAcquiring.GlobalReadLock);
-            Assert.AreEqual(TimeSpan.FromTicks(100000), rehydrated.LockStatistics.TimeAcquiring.DatabaseWriteLock);
-            Assert.AreEqual(TimeSpan.FromTicks(110000), rehydrated.LockStatistics.TimeAcquiring.GlobalWriteLock);
+            Assert.Equal(TimeSpan.FromTicks(5000), rehydrated.LockStatistics.TimeLocked.DatabaseReadLock);
+            Assert.Equal(TimeSpan.FromTicks(6000), rehydrated.LockStatistics.TimeLocked.GlobalReadLock);
+            Assert.Equal(TimeSpan.FromTicks(10000), rehydrated.LockStatistics.TimeLocked.DatabaseWriteLock);
+            Assert.Equal(TimeSpan.FromTicks(11000), rehydrated.LockStatistics.TimeLocked.GlobalWriteLock);
+            Assert.Equal(TimeSpan.FromTicks(25000), rehydrated.LockStatistics.TimeAcquiring.DatabaseReadLock);
+            Assert.Equal(TimeSpan.FromTicks(26000), rehydrated.LockStatistics.TimeAcquiring.GlobalReadLock);
+            Assert.Equal(TimeSpan.FromTicks(100000), rehydrated.LockStatistics.TimeAcquiring.DatabaseWriteLock);
+            Assert.Equal(TimeSpan.FromTicks(110000), rehydrated.LockStatistics.TimeAcquiring.GlobalWriteLock);
         }
     }
 }

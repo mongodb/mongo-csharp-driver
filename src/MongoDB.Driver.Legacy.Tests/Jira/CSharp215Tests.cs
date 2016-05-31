@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp215
 {
-    [TestFixture]
     public class CSharp215Tests
     {
         public class C
@@ -32,13 +31,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp215
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp215Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
         }
 
-        [Test]
+        [Fact]
         public void TestSave()
         {
             _collection.RemoveAll();
@@ -47,18 +45,18 @@ namespace MongoDB.Driver.Tests.Jira.CSharp215
             _collection.Save(doc);
             var id = doc.Id;
 
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             var fetched = _collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(1, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(1, fetched.X);
 
             doc.X = 2;
             _collection.Save(doc);
 
-            Assert.AreEqual(1, _collection.Count());
+            Assert.Equal(1, _collection.Count());
             fetched = _collection.FindOne();
-            Assert.AreEqual(id, fetched.Id);
-            Assert.AreEqual(2, fetched.X);
+            Assert.Equal(id, fetched.Id);
+            Assert.Equal(2, fetched.X);
         }
     }
 }

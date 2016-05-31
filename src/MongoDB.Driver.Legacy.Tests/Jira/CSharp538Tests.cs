@@ -16,11 +16,10 @@
 using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp538
 {
-    [TestFixture]
     public class CSharp538Tests
     {
         [BsonKnownTypes(typeof(B))]
@@ -34,14 +33,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp538
 
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             var db = LegacyTestConfiguration.Database;
             var collection = db.GetCollection<A>("csharp_538");
 
             var count = collection.AsQueryable().OfType<B>().Count();
-            Assert.AreEqual(0, count);
+            Assert.Equal(0, count);
         }
     }
 }

@@ -15,14 +15,13 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class CollectionOptionsBuilderTests
     {
-        [Test]
+        [Fact]
         public void TestSetAll()
         {
             var options = CollectionOptions
@@ -31,95 +30,95 @@ namespace MongoDB.Driver.Tests.Builders
                 .SetMaxDocuments(100)
                 .SetMaxSize(2000);
             var expected = "{ 'autoIndexId' : true, 'capped' : true, 'max' : NumberLong(100), 'size' : NumberLong(2000) }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetAutoIndexIdFalse()
         {
             var options = CollectionOptions.SetAutoIndexId(false);
             var expected = "{ 'autoIndexId' : false }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetAutoIndexIdTrue()
         {
             var options = CollectionOptions.SetAutoIndexId(true);
             var expected = "{ 'autoIndexId' : true }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetCappedFalse()
         {
             var options = CollectionOptions.SetCapped(false);
             var expected = "{ 'capped' : false }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetCappedTrue()
         {
             var options = CollectionOptions.SetCapped(true);
             var expected = "{ 'capped' : true }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetIndexOptionDefaults()
         {
             var options = CollectionOptions.SetIndexOptionDefaults(new IndexOptionDefaults { StorageEngine = new BsonDocument("mmapv1", new BsonDocument()) });
             var expected = "{ \"indexOptionDefaults\" : { \"storageEngine\" : { \"mmapv1\" : { } } } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetMaxDocuments()
         {
             var options = CollectionOptions.SetMaxDocuments(100);
             var expected = "{ 'max' : NumberLong(100) }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetMaxSize()
         {
             var options = CollectionOptions.SetMaxSize(2147483649);
             var expected = "{ 'size' : NumberLong('2147483649') }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetNone()
         {
             var options = new CollectionOptionsBuilder();
             var expected = "{ }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetValidationAction()
         {
             var options = CollectionOptions.SetValidationAction(DocumentValidationAction.Error);
             var expected = "{ \"validationAction\" : \"error\" }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetValidationLevel()
         {
             var options = CollectionOptions.SetValidationLevel(DocumentValidationLevel.Strict);
             var expected = "{ \"validationLevel\" : \"strict\" }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestSetValidator()
         {
             var options = CollectionOptions.SetValidator(new QueryDocument("_id", new BsonDocument("$exists", true)));
             var expected = "{ \"validator\" : { \"_id\" : { \"$exists\" : true } } }";
-            Assert.AreEqual(expected, options.ToJson());
+            Assert.Equal(expected, options.ToJson());
         }
     }
 }

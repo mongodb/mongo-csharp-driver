@@ -17,11 +17,10 @@ using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp290
 {
-    [TestFixture]
     public class CSharp290Tests
     {
         private Dictionary<string, object> _dictionary = new Dictionary<string, object> { { "type", "Dictionary<string, object>" } };
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
         private IDictionary _idictionaryNonGeneric = new Hashtable() { { "type", "IDictionary" } };
         private IDictionary<string, object> _idictionary = new Dictionary<string, object> { { "type", "IDictionary<string, object>" } };
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentConstructor()
         {
             var document1 = new BsonDocument(_dictionary);
@@ -37,13 +36,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new BsonDocument(_idictionaryNonGeneric);
             var document4 = new BsonDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonDocumentAdd()
         {
             var document1 = new BsonDocument().AddRange(_dictionary);
@@ -51,13 +50,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new BsonDocument().AddRange(_idictionaryNonGeneric);
             var document4 = new BsonDocument().AddRange(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonTypeMapperMapToBsonValue()
         {
             var document1 = (BsonDocument)BsonTypeMapper.MapToBsonValue(_dictionary, BsonType.Document);
@@ -65,28 +64,28 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = (BsonDocument)BsonTypeMapper.MapToBsonValue(_idictionaryNonGeneric, BsonType.Document);
             var document4 = (BsonDocument)BsonTypeMapper.MapToBsonValue(_idictionary, BsonType.Document);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestBsonTypeMapperTryMapToBsonValue()
         {
             BsonValue document1, document2, document3, document4;
-            Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(_dictionary, out document1));
-            Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(_hashtable, out document2));
-            Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(_idictionaryNonGeneric, out document3));
-            Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(_idictionary, out document4));
+            Assert.True(BsonTypeMapper.TryMapToBsonValue(_dictionary, out document1));
+            Assert.True(BsonTypeMapper.TryMapToBsonValue(_hashtable, out document2));
+            Assert.True(BsonTypeMapper.TryMapToBsonValue(_idictionaryNonGeneric, out document3));
+            Assert.True(BsonTypeMapper.TryMapToBsonValue(_idictionary, out document4));
 
-            Assert.AreEqual("Dictionary<string, object>", ((BsonDocument)document1)["type"].AsString);
-            Assert.AreEqual("Hashtable", ((BsonDocument)document2)["type"].AsString);
-            Assert.AreEqual("IDictionary", ((BsonDocument)document3)["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", ((BsonDocument)document4)["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", ((BsonDocument)document1)["type"].AsString);
+            Assert.Equal("Hashtable", ((BsonDocument)document2)["type"].AsString);
+            Assert.Equal("IDictionary", ((BsonDocument)document3)["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", ((BsonDocument)document4)["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestCollectionOptionsDocumentConstructor()
         {
             var document1 = new CollectionOptionsDocument(_dictionary);
@@ -94,13 +93,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new CollectionOptionsDocument(_idictionaryNonGeneric);
             var document4 = new CollectionOptionsDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestCommandDocumentConstructor()
         {
             var document1 = new CommandDocument(_dictionary);
@@ -108,13 +107,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new CommandDocument(_idictionaryNonGeneric);
             var document4 = new CommandDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestFieldsDocumentConstructor()
         {
             var document1 = new FieldsDocument(_dictionary);
@@ -122,14 +121,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new FieldsDocument(_idictionaryNonGeneric);
             var document4 = new FieldsDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
 #pragma warning disable 618
-        [Test]
+        [Fact]
         public void TestGeoNearOptionsDocumentConstructor()
         {
             var document1 = new GeoNearOptionsDocument(_dictionary);
@@ -137,14 +136,14 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new GeoNearOptionsDocument(_idictionaryNonGeneric);
             var document4 = new GeoNearOptionsDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 #pragma warning restore
 
-        [Test]
+        [Fact]
         public void TestGroupByDocumentConstructor()
         {
             var document1 = new GroupByDocument(_dictionary);
@@ -152,13 +151,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new GroupByDocument(_idictionaryNonGeneric);
             var document4 = new GroupByDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestIndexKeysDocumentConstructor()
         {
             var document1 = new IndexKeysDocument(_dictionary);
@@ -166,13 +165,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new IndexKeysDocument(_idictionaryNonGeneric);
             var document4 = new IndexKeysDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestIndexOptionsDocumentConstructor()
         {
             var document1 = new IndexOptionsDocument(_dictionary);
@@ -180,13 +179,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new IndexOptionsDocument(_idictionaryNonGeneric);
             var document4 = new IndexOptionsDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestQueryDocumentConstructor()
         {
             var document1 = new QueryDocument(_dictionary);
@@ -194,13 +193,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new QueryDocument(_idictionaryNonGeneric);
             var document4 = new QueryDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestScopeDocumentConstructor()
         {
             var document1 = new ScopeDocument(_dictionary);
@@ -208,13 +207,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new ScopeDocument(_idictionaryNonGeneric);
             var document4 = new ScopeDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestSortByDocumentConstructor()
         {
             var document1 = new SortByDocument(_dictionary);
@@ -222,13 +221,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new SortByDocument(_idictionaryNonGeneric);
             var document4 = new SortByDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void TestUpdateDocumentConstructor()
         {
             var document1 = new UpdateDocument(_dictionary);
@@ -236,10 +235,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             var document3 = new UpdateDocument(_idictionaryNonGeneric);
             var document4 = new UpdateDocument(_idictionary);
 
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
+            Assert.Equal("Dictionary<string, object>", document1["type"].AsString);
+            Assert.Equal("Hashtable", document2["type"].AsString);
+            Assert.Equal("IDictionary", document3["type"].AsString);
+            Assert.Equal("IDictionary<string, object>", document4["type"].AsString);
         }
     }
 }

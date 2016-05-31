@@ -20,11 +20,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Samples
 {
-    [TestFixture]
     public class MagicDiscriminatorTests
     {
         [BsonKnownTypes(typeof(B), typeof(C))]
@@ -86,44 +85,43 @@ namespace MongoDB.Driver.Tests.Samples
 
         private MongoCollection<A> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MagicDiscriminatorTests()
         {
             _collection = LegacyTestConfiguration.GetCollection<A>();
         }
 
-        [Test]
+        [Fact]
         public void TestBAsA()
         {
             var b = new B { InA = "a", OnlyInB = "b" };
 
             var json = b.ToJson();
             var expected = "{ 'InA' : 'a', 'OnlyInB' : 'b' }".Replace("'", "\""); // note: no _t discriminator!
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             _collection.RemoveAll();
             _collection.Insert(b);
             var copy = (B)_collection.FindOne();
-            Assert.IsInstanceOf<B>(copy);
-            Assert.AreEqual("a", copy.InA);
-            Assert.AreEqual("b", copy.OnlyInB);
+            Assert.IsType<B>(copy);
+            Assert.Equal("a", copy.InA);
+            Assert.Equal("b", copy.OnlyInB);
         }
 
-        [Test]
+        [Fact]
         public void TestCAsA()
         {
             var c = new C { InA = "a", OnlyInC = "c" };
 
             var json = c.ToJson();
             var expected = "{ 'InA' : 'a', 'OnlyInC' : 'c' }".Replace("'", "\""); // note: no _t discriminator!
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
 
             _collection.RemoveAll();
             _collection.Insert(c);
             var copy = (C)_collection.FindOne();
-            Assert.IsInstanceOf<C>(copy);
-            Assert.AreEqual("a", copy.InA);
-            Assert.AreEqual("c", copy.OnlyInC);
+            Assert.IsType<C>(copy);
+            Assert.Equal("a", copy.InA);
+            Assert.Equal("c", copy.OnlyInC);
         }
     }
 }

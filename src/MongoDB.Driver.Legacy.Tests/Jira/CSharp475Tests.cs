@@ -16,11 +16,10 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp475
 {
-    [TestFixture]
     public class CSharp475Tests
     {
         public abstract class Base
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp475
             public string B { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ProjectAfterOfTypeTest()
         {
             var server = LegacyTestConfiguration.Server;
@@ -47,8 +46,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp475
 
             var query = from t in collection.AsQueryable().OfType<T1>() select t.B;
             var results = query.ToList();
-            Assert.That(results.Count, Is.EqualTo(1));
-            Assert.That(results[0], Is.EqualTo("T1.B"));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("T1.B", results[0]);
 
             db.Drop();
         }

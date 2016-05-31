@@ -18,24 +18,22 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
-    [TestFixture]
     public class MongoGridFSFileInfoTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoGridFSFileInfoTests()
         {
             _server = LegacyTestConfiguration.Server;
             _database = LegacyTestConfiguration.Database;
         }
 
-        [Test]
+        [Fact]
         public void TestCreateWithRemoteFileNameAndCreateOptions()
         {
             var aliases = new string[] { "a", "b" };
@@ -52,18 +50,18 @@ namespace MongoDB.Driver.Tests.GridFS
             };
             var settings = new MongoGridFSSettings();
             var info = new MongoGridFSFileInfo(_server, _server.Primary, _database.Name, settings, "filename", createOptions);
-            Assert.IsTrue(aliases.SequenceEqual(info.Aliases));
-            Assert.AreEqual(123, info.ChunkSize);
-            Assert.AreEqual("content", info.ContentType);
-            Assert.AreEqual(1, info.Id.AsInt32);
-            Assert.AreEqual(0, info.Length);
-            Assert.AreEqual(null, info.MD5);
-            Assert.AreEqual(metadata, info.Metadata);
-            Assert.AreEqual("filename", info.Name);
-            Assert.AreEqual(uploadDate, info.UploadDate);
+            Assert.True(aliases.SequenceEqual(info.Aliases));
+            Assert.Equal(123, info.ChunkSize);
+            Assert.Equal("content", info.ContentType);
+            Assert.Equal(1, info.Id.AsInt32);
+            Assert.Equal(0, info.Length);
+            Assert.Equal(null, info.MD5);
+            Assert.Equal(metadata, info.Metadata);
+            Assert.Equal("filename", info.Name);
+            Assert.Equal(uploadDate, info.UploadDate);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var settings = new MongoGridFSSettings();
@@ -75,27 +73,27 @@ namespace MongoDB.Driver.Tests.GridFS
             var null1 = (MongoGridFSFileInfo)null;
             var null2 = (MongoGridFSFileInfo)null;
 
-            Assert.AreNotSame(a1, a2);
-            Assert.AreSame(a2, a3);
-            Assert.IsTrue(a1.Equals((object)a2));
-            Assert.IsFalse(a1.Equals((object)null));
-            Assert.IsFalse(a1.Equals((object)"x"));
+            Assert.NotSame(a1, a2);
+            Assert.Same(a2, a3);
+            Assert.True(a1.Equals((object)a2));
+            Assert.False(a1.Equals((object)null));
+            Assert.False(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a1 == a2);
-            Assert.IsTrue(a2 == a3);
-            Assert.IsFalse(a1 == b);
-            Assert.IsFalse(a1 == null1);
-            Assert.IsFalse(null1 == a1);
-            Assert.IsTrue(null1 == null2);
+            Assert.True(a1 == a2);
+            Assert.True(a2 == a3);
+            Assert.False(a1 == b);
+            Assert.False(a1 == null1);
+            Assert.False(null1 == a1);
+            Assert.True(null1 == null2);
 
-            Assert.IsFalse(a1 != a2);
-            Assert.IsFalse(a2 != a3);
-            Assert.IsTrue(a1 != b);
-            Assert.IsTrue(a1 != null1);
-            Assert.IsTrue(null1 != a1);
-            Assert.IsFalse(null1 != null2);
+            Assert.False(a1 != a2);
+            Assert.False(a2 != a3);
+            Assert.True(a1 != b);
+            Assert.True(a1 != null1);
+            Assert.True(null1 != a1);
+            Assert.False(null1 != null2);
 
-            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
+            Assert.Equal(a1.GetHashCode(), a2.GetHashCode());
         }
     }
 }

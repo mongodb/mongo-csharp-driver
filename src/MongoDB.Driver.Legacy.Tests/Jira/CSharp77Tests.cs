@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp77
 {
-    [TestFixture]
     public class CSharp77Tests
     {
         private class Foo
@@ -30,7 +29,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp77
             public string Summary { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestSave()
         {
             var server = LegacyTestConfiguration.Server;
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp77
                 };
                 collection.Save(foo);
                 var count = collection.Count();
-                Assert.AreEqual(i + 1, count);
+                Assert.Equal(i + 1, count);
             }
         }
     }

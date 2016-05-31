@@ -16,11 +16,10 @@
 using System;
 using System.Linq;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp471Tests
     {
         public class Base
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Tests.Jira
             public string C { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void CastTest()
         {
             var db = LegacyTestConfiguration.Database;
@@ -57,23 +56,23 @@ namespace MongoDB.Driver.Tests.Jira
                         select t;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(Base), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(collection, translatedQuery.Collection);
+            Assert.Same(typeof(Base), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(Base t) => ((t is T1) && ((T1)t.B == \"T1.B\"))", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(Base t) => ((t is T1) && ((T1)t.B == \"T1.B\"))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_t\" : \"T1\", \"B\" : \"T1.B\" }", selectQuery.BuildQuery().ToString());
+            Assert.Equal("{ \"_t\" : \"T1\", \"B\" : \"T1.B\" }", selectQuery.BuildQuery().ToString());
 
             var results = query.ToList();
-            Assert.That(results.Count, Is.EqualTo(1));
-            Assert.That(results[0], Is.InstanceOf(typeof(T1)));
-            Assert.That(results[0].A, Is.EqualTo("T1.A"));
+            Assert.Equal(1, results.Count);
+            Assert.IsType<T1>(results[0]);
+            Assert.Equal("T1.A", results[0].A);
         }
     }
 }

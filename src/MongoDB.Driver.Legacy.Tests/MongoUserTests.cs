@@ -14,35 +14,34 @@
 */
 
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
 #pragma warning disable 618
-    [TestFixture]
     public class MongoUserTests
     {
-        [Test]
+        [Fact]
         public void TestConstructor1()
         {
             var u = new MongoUser("u", new PasswordEvidence("p"), true);
             var ph = MongoUser.HashPassword("u", "p");
-            Assert.AreEqual("u", u.Username);
-            Assert.AreEqual(ph, u.PasswordHash);
-            Assert.AreEqual(true, u.IsReadOnly);
+            Assert.Equal("u", u.Username);
+            Assert.Equal(ph, u.PasswordHash);
+            Assert.Equal(true, u.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestConstructor2()
         {
             var h = MongoUser.HashPassword("u", "p");
             var u = new MongoUser("u", h, true);
-            Assert.AreEqual("u", u.Username);
-            Assert.AreEqual(h, u.PasswordHash);
-            Assert.AreEqual(true, u.IsReadOnly);
+            Assert.Equal("u", u.Username);
+            Assert.Equal(h, u.PasswordHash);
+            Assert.Equal(true, u.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void TestEquals()
         {
             var a1 = new MongoUser("u", "h", false);
@@ -54,31 +53,31 @@ namespace MongoDB.Driver.Tests
             var null1 = (MongoUser)null;
             var null2 = (MongoUser)null;
 
-            Assert.AreNotSame(a1, a2);
-            Assert.AreSame(a2, a3);
-            Assert.IsTrue(a1.Equals((object)a2));
-            Assert.IsFalse(a1.Equals((object)null));
-            Assert.IsFalse(a1.Equals((object)"x"));
+            Assert.NotSame(a1, a2);
+            Assert.Same(a2, a3);
+            Assert.True(a1.Equals((object)a2));
+            Assert.False(a1.Equals((object)null));
+            Assert.False(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a1 == a2);
-            Assert.IsTrue(a2 == a3);
-            Assert.IsFalse(a1 == b);
-            Assert.IsFalse(a1 == c);
-            Assert.IsFalse(a1 == d);
-            Assert.IsFalse(a1 == null1);
-            Assert.IsFalse(null1 == a1);
-            Assert.IsTrue(null1 == null2);
+            Assert.True(a1 == a2);
+            Assert.True(a2 == a3);
+            Assert.False(a1 == b);
+            Assert.False(a1 == c);
+            Assert.False(a1 == d);
+            Assert.False(a1 == null1);
+            Assert.False(null1 == a1);
+            Assert.True(null1 == null2);
 
-            Assert.IsFalse(a1 != a2);
-            Assert.IsFalse(a2 != a3);
-            Assert.IsTrue(a1 != b);
-            Assert.IsTrue(a1 != c);
-            Assert.IsTrue(a1 != d);
-            Assert.IsTrue(a1 != null1);
-            Assert.IsTrue(null1 != a1);
-            Assert.IsFalse(null1 != null2);
+            Assert.False(a1 != a2);
+            Assert.False(a2 != a3);
+            Assert.True(a1 != b);
+            Assert.True(a1 != c);
+            Assert.True(a1 != d);
+            Assert.True(a1 != null1);
+            Assert.True(null1 != a1);
+            Assert.False(null1 != null2);
 
-            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
+            Assert.Equal(a1.GetHashCode(), a2.GetHashCode());
         }
     }
 #pragma warning restore

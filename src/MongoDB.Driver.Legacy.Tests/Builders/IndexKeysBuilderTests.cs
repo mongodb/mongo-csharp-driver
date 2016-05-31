@@ -18,194 +18,192 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
 {
-    [TestFixture]
     public class IndexKeysBuilderTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoServerInstance _primary;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public IndexKeysBuilderTests()
         {
             _server = LegacyTestConfiguration.Server;
             _database = LegacyTestConfiguration.Database;
             _primary = _server.Primary;
         }
 
-        [Test]
+        [Fact]
         public void TestAscending1()
         {
             var keys = IndexKeys.Ascending("a");
             string expected = "{ \"a\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscending2()
         {
             var keys = IndexKeys.Ascending("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscendingAscending()
         {
             var keys = IndexKeys.Ascending("a").Ascending("b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscendingDescending()
         {
             var keys = IndexKeys.Ascending("a").Descending("b");
             string expected = "{ \"a\" : 1, \"b\" : -1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDescending1()
         {
             var keys = IndexKeys.Descending("a");
             string expected = "{ \"a\" : -1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDescending2()
         {
             var keys = IndexKeys.Descending("a", "b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDescendingAscending()
         {
             var keys = IndexKeys.Descending("a").Ascending("b");
             string expected = "{ \"a\" : -1, \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestDescendingDescending()
         {
             var keys = IndexKeys.Descending("a").Descending("b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGeoSpatial()
         {
             var keys = IndexKeys.GeoSpatial("a");
             string expected = "{ \"a\" : \"2d\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGeoSpatialAscending()
         {
             var keys = IndexKeys.GeoSpatial("a").Ascending("b");
             string expected = "{ \"a\" : \"2d\", \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscendingGeoSpatial()
         {
             var keys = IndexKeys.Ascending("a").GeoSpatial("b");
             string expected = "{ \"a\" : 1, \"b\" : \"2d\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGeoSpatialSpherical()
         {
             var keys = IndexKeys.GeoSpatialSpherical("a");
             string expected = "{ \"a\" : \"2dsphere\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestGeoSpatialSphericalAscending()
         {
             var keys = IndexKeys.GeoSpatialSpherical("a").Ascending("b");
             string expected = "{ \"a\" : \"2dsphere\", \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscendingGeoSpatialSpherical()
         {
             var keys = IndexKeys.Ascending("a").GeoSpatialSpherical("b");
             string expected = "{ \"a\" : 1, \"b\" : \"2dsphere\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestHashed()
         {
             var keys = IndexKeys.Hashed("a");
             string expected = "{ \"a\" : \"hashed\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestHashedAscending()
         {
             var keys = IndexKeys.Hashed("a").Ascending("b");
             string expected = "{ \"a\" : \"hashed\", \"b\" : 1 }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestAscendingHashed()
         {
             var keys = IndexKeys.Ascending("a").Hashed("b");
             string expected = "{ \"a\" : 1, \"b\" : \"hashed\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestText()
         {
             var key = IndexKeys.Text("a");
             string expected = "{ \"a\" : \"text\" }";
-            Assert.AreEqual(expected, key.ToJson());
+            Assert.Equal(expected, key.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextMultiple()
         {
             var keys = IndexKeys.Text("a", "b");
             string expected = "{ \"a\" : \"text\", \"b\" : \"text\" }";
-            Assert.AreEqual(expected, keys.ToJson());
+            Assert.Equal(expected, keys.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextAll()
         {
             var key = IndexKeys.TextAll();
             string expected = "{ \"$**\" : \"text\" }";
-            Assert.AreEqual(expected, key.ToJson());
+            Assert.Equal(expected, key.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextCombination()
         {
             var key = IndexKeys.Text("a").Ascending("b");
             string expected = "{ \"a\" : \"text\", \"b\" : 1 }";
-            Assert.AreEqual(expected, key.ToJson());
+            Assert.Equal(expected, key.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void TestTextIndexCreation()
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
@@ -217,9 +215,9 @@ namespace MongoDB.Driver.Tests.Builders
                     collection.CreateIndex(IndexKeys.Text("a", "b").Ascending("c"), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
                     var indexes = collection.GetIndexes();
                     var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
-                    Assert.AreEqual("idioma", index["language_override"].AsString);
-                    Assert.AreEqual("spanish", index["default_language"].AsString);
-                    Assert.AreEqual(1, index["key"]["c"].AsInt32);
+                    Assert.Equal("idioma", index["language_override"].AsString);
+                    Assert.Equal("spanish", index["default_language"].AsString);
+                    Assert.Equal(1, index["key"]["c"].AsInt32);
                 }
             }
         }

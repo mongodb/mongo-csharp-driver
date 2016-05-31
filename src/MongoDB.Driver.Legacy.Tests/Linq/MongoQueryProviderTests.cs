@@ -16,11 +16,10 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
-    [TestFixture]
     public class MongoQueryProviderTests
     {
         private class C
@@ -33,40 +32,39 @@ namespace MongoDB.Driver.Tests.Linq
         private MongoServer _server;
         private MongoCollection _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MongoQueryProviderTests()
         {
             _server = LegacyTestConfiguration.Server;
             _server.Connect();
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestConstructor()
         {
             new MongoQueryProvider(_collection);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateQuery()
         {
             var expression = _collection.AsQueryable<C>().Expression;
             var provider = new MongoQueryProvider(_collection);
             var query = provider.CreateQuery<C>(expression);
-            Assert.AreSame(typeof(C), query.ElementType);
-            Assert.AreSame(provider, query.Provider);
-            Assert.AreSame(expression, query.Expression);
+            Assert.Same(typeof(C), query.ElementType);
+            Assert.Same(provider, query.Provider);
+            Assert.Same(expression, query.Expression);
         }
 
-        [Test]
+        [Fact]
         public void TestCreateQueryNonGeneric()
         {
             var expression = _collection.AsQueryable<C>().Expression;
             var provider = new MongoQueryProvider(_collection);
             var query = provider.CreateQuery(expression);
-            Assert.AreSame(typeof(C), query.ElementType);
-            Assert.AreSame(provider, query.Provider);
-            Assert.AreSame(expression, query.Expression);
+            Assert.Same(typeof(C), query.ElementType);
+            Assert.Same(provider, query.Provider);
+            Assert.Same(expression, query.Expression);
         }
     }
 }

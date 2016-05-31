@@ -18,15 +18,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Operations
 {
-    [TestFixture]
     public class CurrentOpUsingCommandOperationTests
     {
         // private fields
@@ -34,14 +35,13 @@ namespace MongoDB.Driver.Tests.Operations
         private MessageEncoderSettings _messageEncoderSettings;
 
         // public methods
-        [OneTimeSetUp]
-        public virtual void OneTimeSetUp()
+        public CurrentOpUsingCommandOperationTests()
         {
             _adminDatabaseNamespace = new DatabaseNamespace("admin");
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var result = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Operations
             result.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             Action action = () => new CurrentOpUsingCommandOperation(null, _messageEncoderSettings);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Test]
+        [Fact]
         public void CreateOperation_should_return_expected_result()
         {
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -71,10 +71,10 @@ namespace MongoDB.Driver.Tests.Operations
             result.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.2")]
+        [SkippableFact]
         public void Execute_should_return_expected_result()
         {
+            RequireServer.Where(minimumVersion: "3.1.2");
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {

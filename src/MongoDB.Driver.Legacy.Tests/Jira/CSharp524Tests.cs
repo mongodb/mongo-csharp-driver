@@ -17,11 +17,10 @@ using System;
 using System.Linq;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp524
 {
-    [TestFixture]
     public class CSharp524Tests
     {
         public class C
@@ -32,14 +31,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp524
 
         private MongoCollection<C> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp524Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
             _collection.Drop();
         }
 
-        [Test]
+        [Fact]
         public void TestDistinctMustBeLastOperator()
         {
             _collection.RemoveAll();
@@ -51,13 +49,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp524
                 .Distinct();
 
             var result = query.AsEnumerable().OrderBy(x => x).ToList();
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(1, result[0]);
-            Assert.AreEqual(2, result[1]);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(1, result[0]);
+            Assert.Equal(2, result[1]);
 
             var ex = Assert.Throws<NotSupportedException>(() => { query.Count(); });
             var message = "No further operators may follow Distinct in a LINQ query.";
-            Assert.AreEqual(message, ex.Message);
+            Assert.Equal(message, ex.Message);
         }
     }
 }

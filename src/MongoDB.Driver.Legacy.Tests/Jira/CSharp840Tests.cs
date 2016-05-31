@@ -17,17 +17,15 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp840
     {
         private MongoCollection<BsonDocument> _collection;
 
-        [SetUp]
-        public void SetUp()
+        public CSharp840()
         {
             _collection = LegacyTestConfiguration.GetCollection<BsonDocument>();
             if (_collection.Exists()) { _collection.Drop(); }
@@ -36,23 +34,23 @@ namespace MongoDB.Driver.Tests.Jira
             _collection.Insert(new BsonDocument { { "x", 3 }, { "Length", 123 } });
         }
 
-        [Test]
+        [Fact]
         public void TestNotWhere()
         {
             var query = Query.Not(Query.Where("this.Length == null"));
             var values = ExecuteQuery(query);
-            Assert.AreEqual(1, values.Length);
-            Assert.AreEqual(3, values[0]);
+            Assert.Equal(1, values.Length);
+            Assert.Equal(3, values[0]);
         }
 
-        [Test]
+        [Fact]
         public void TestWhere()
         {
             var query = Query.Where("this.Length == null");
             var values = ExecuteQuery(query);
-            Assert.AreEqual(2, values.Length);
-            Assert.AreEqual(1, values[0]);
-            Assert.AreEqual(2, values[1]);
+            Assert.Equal(2, values.Length);
+            Assert.Equal(1, values[0]);
+            Assert.Equal(2, values[1]);
         }
 
         private int[] ExecuteQuery(IMongoQuery query)

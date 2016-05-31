@@ -17,11 +17,10 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp100
 {
-    [TestFixture]
     public class CSharp100Tests
     {
         [DataContract]
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp100
         {
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializationOfTwoBs()
         {
             var server = LegacyTestConfiguration.Server;

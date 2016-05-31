@@ -15,11 +15,10 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp247
 {
-    [TestFixture]
     public class CSharp247Tests
     {
         public interface I
@@ -35,13 +34,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp247
 
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp247Tests()
         {
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestDeserializeInterface()
         {
             _collection.RemoveAll();
@@ -51,10 +49,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp247
             var id = c.Id;
 
             var i = _collection.FindOneAs<I>();
-            Assert.IsInstanceOf<C>(i);
+            Assert.IsType<C>(i);
             var r = (C)i;
-            Assert.AreEqual(id, r.Id);
-            Assert.AreEqual(1, r.X);
+            Assert.Equal(id, r.Id);
+            Assert.Equal(1, r.X);
         }
     }
 }

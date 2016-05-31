@@ -16,16 +16,17 @@
 using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Operations
 {
-    [TestFixture]
     public class CurrentOpOperationTests
     {
         // private fields
@@ -33,14 +34,13 @@ namespace MongoDB.Driver.Tests.Operations
         private MessageEncoderSettings _messageEncoderSettings;
 
         // public methods
-        [OneTimeSetUp]
-        public virtual void OneTimeSetUp()
+        public CurrentOpOperationTests()
         {
             _adminDatabaseNamespace = new DatabaseNamespace("admin");
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var result = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Operations
             result.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
             Action action = () => new CurrentOpOperation(null, _messageEncoderSettings);
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Test]
+        [Fact]
         public void CreateOperation_should_return_expected_result_when_server_version_does_not_support_command()
         {
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Operations
             result.As<CurrentOpUsingFindOperation>().MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
+        [Fact]
         public void CreateOperation_should_return_expected_result_when_server_version_does_support_command()
         {
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
@@ -81,10 +81,10 @@ namespace MongoDB.Driver.Tests.Operations
             result.As<CurrentOpUsingCommandOperation>().MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
-        [Test]
-        [RequiresServer(MinimumVersion = "3.1.2")]
+        [SkippableFact]
         public void Execute_should_return_expected_result()
         {
+            RequireServer.Where(minimumVersion: "3.1.2");
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {

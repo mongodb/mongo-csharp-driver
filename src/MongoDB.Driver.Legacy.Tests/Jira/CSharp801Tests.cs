@@ -16,38 +16,36 @@
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp801
     {
         private MongoCollection<C> _collection;
 
-        [SetUp]
-        public void SetUp()
+        public CSharp801()
         {
             _collection = LegacyTestConfiguration.GetCollection<C>();
             if (_collection.Exists()) { _collection.Drop(); }
         }
 
-        [Test]
+        [Fact]
         public void GenerateIdCalledFromInsert()
         {
             _collection.RemoveAll();
             _collection.Insert(new C());
             var c = _collection.FindOne();
-            Assert.AreEqual(1, c.Id);
+            Assert.Equal(1, c.Id);
         }
 
-        [Test]
+        [Fact]
         public void GenerateIdCalledFromSave()
         {
             _collection.RemoveAll();
             _collection.Save(new C());
             var c = _collection.FindOne();
-            Assert.AreEqual(1, c.Id);
+            Assert.Equal(1, c.Id);
         }
 
         // nested classes

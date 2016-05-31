@@ -22,18 +22,17 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.GridFS;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
-    [TestFixture]
     public class MongoGridFSExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
         private Exception _innerException = new Exception("inner");
         private string _message = "message";
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_subject()
         {
             var subject = new MongoGridFSException(_connectionId, _message);
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Tests.GridFS
             subject.Message.Should().BeSameAs(_message);
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_innerException_should_initialize_subject()
         {
             var subject = new MongoGridFSException(_connectionId, _message, _innerException);
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Tests.GridFS
         }
 
 #if NET45
-        [Test]
+        [Fact]
         public void Serialization_should_work()
         {
             var subject = new MongoGridFSException(_connectionId, _message, _innerException);

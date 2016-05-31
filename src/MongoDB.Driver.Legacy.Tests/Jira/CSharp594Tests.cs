@@ -16,14 +16,13 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp594
 {
-    [TestFixture]
     public class CSharp594Tests
     {
-        [Test]
+        [Fact]
         public void TestTryMapToBsonValueWithBsonValues()
         {
             // test all the BsonValue subclasses because we removed them from the __fromMappings table
@@ -53,27 +52,27 @@ namespace MongoDB.Driver.Tests.Jira.CSharp594
             {
                 BsonValue bsonValue;
                 var ok = BsonTypeMapper.TryMapToBsonValue(testValue, out bsonValue);
-                Assert.AreEqual(true, ok);
-                Assert.AreSame(testValue, bsonValue);
+                Assert.Equal(true, ok);
+                Assert.Same(testValue, bsonValue);
             }
         }
 
-        [Test]
+        [Fact]
         public void TestTryMapToBsonValueWithQueryDocument()
         {
             var query = new QueryDocument("x", 1);
             BsonValue bsonValue;
             var ok = BsonTypeMapper.TryMapToBsonValue(query, out bsonValue);
-            Assert.AreEqual(true, ok);
-            Assert.AreSame(query, bsonValue);
+            Assert.Equal(true, ok);
+            Assert.Same(query, bsonValue);
         }
 
-        [Test]
+        [Fact]
         public void TestMapToBsonValueWithQueryDocument()
         {
             var query = new QueryDocument("x", 1);
             var bsonDocument = BsonTypeMapper.MapToBsonValue(query, BsonType.Document);
-            Assert.AreSame(query, bsonDocument);
+            Assert.Same(query, bsonDocument);
         }
     }
 }

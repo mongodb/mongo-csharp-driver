@@ -18,11 +18,10 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp779
     {
         public class RepresentationExample
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Guid SingleEntry { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void InRepresentationIssue()
         {
             var guid = Guid.NewGuid();
@@ -42,17 +41,17 @@ namespace MongoDB.Driver.Tests.Jira
             var singleUpdate = Query<RepresentationExample>
                 .In(x => x.SingleEntry, new[] { guid });
 
-            Assert.That(singleUpdate.ToJson().Contains(guid.ToString()));
-            Assert.That(!singleUpdate.ToJson().Contains("CSUUID"));
+            Assert.Contains(guid.ToString(), singleUpdate.ToJson());
+            Assert.DoesNotContain("CSUUID", singleUpdate.ToJson());
 
             var multipleUpdate = Query<RepresentationExample>
                 .In(x => x.MultipleEntry, new[] { guid });
 
-            Assert.That(multipleUpdate.ToJson(), Contains.Substring(guid.ToString()));
-            Assert.That(!multipleUpdate.ToJson().Contains("CSUUID"));
+            Assert.Contains(guid.ToString(), multipleUpdate.ToJson());
+            Assert.DoesNotContain("CSUUID", multipleUpdate.ToJson());
         }
 
-        [Test]
+        [Fact]
         public void UpdateRepresentationIssue()
         {
             var guid = Guid.NewGuid();
@@ -60,14 +59,14 @@ namespace MongoDB.Driver.Tests.Jira
             var singleUpdate = Update<RepresentationExample>
                 .Set(x => x.SingleEntry, guid);
 
-            Assert.That(singleUpdate.ToJson().Contains(guid.ToString()));
-            Assert.That(!singleUpdate.ToJson().Contains("CSUUID"));
+            Assert.Contains(guid.ToString(), singleUpdate.ToJson());
+            Assert.DoesNotContain("CSUUID", singleUpdate.ToJson());
 
             var multipleUpdate = Update<RepresentationExample>
                 .PullAll(x => x.MultipleEntry, new[] { guid });
 
-            Assert.That(multipleUpdate.ToJson(), Contains.Substring(guid.ToString()));
-            Assert.That(!multipleUpdate.ToJson().Contains("CSUUID"));
+            Assert.Contains(guid.ToString(), multipleUpdate.ToJson());
+            Assert.DoesNotContain("CSUUID", multipleUpdate.ToJson());
         }
     }
 }

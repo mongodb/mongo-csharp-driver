@@ -15,14 +15,13 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp137
 {
-    [TestFixture]
     public class CSharp137Tests
     {
-        [Test]
+        [Fact]
         public void TestAndInNotIn()
         {
             var query = Query.And(
@@ -30,7 +29,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
                 Query.NotIn("value", new BsonValue[] { 11, 12, 13, 14 })
             );
 
-            Assert.AreEqual(
+            Assert.Equal(
                 new BsonDocument
                 {
                     { "value", new BsonDocument
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
                 query.ToBsonDocument());
         }
 
-        [Test]
+        [Fact]
         public void TestAndGtLt()
         {
             var query = Query.And(
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
                 Query.LT("value", 20)
             );
 
-            Assert.AreEqual(
+            Assert.Equal(
                 new BsonDocument
                 {
                     { "value", new BsonDocument
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
                 query.ToBsonDocument());
         }
 
-        [Test]
+        [Fact]
         public void TestDuplicateEq()
         {
             // now that server supports $and this is actually syntactically valid
@@ -78,10 +77,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
             );
             var expected = "{ '$and' : [{ 'value' : 6 }, { 'value' : 20 }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestEq1()
         {
             // now that server supports $and this is actually syntactically valid
@@ -91,10 +90,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
             );
             var expected = "{ '$and' : [{ 'value' : 6 }, { 'value' : { '$lt' : 20 } }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestEq2()
         {
             // now that server supports $and this is actually syntactically valid
@@ -104,10 +103,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
             );
             var expected = "{ '$and' : [{ 'value' : { '$gt' : 6 } }, { 'value' : 20 }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
 
-        [Test]
+        [Fact]
         public void TestDuplicateOperation()
         {
             // now that server supports $and this is actually syntactically valid
@@ -117,7 +116,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp137
             );
             var expected = "{ '$and' : [{ 'value' : { '$lte' : 6 } }, { 'value' : { '$lte' : 20 } }] }".Replace("'", "\"");
             var json = query.ToJson();
-            Assert.AreEqual(expected, json);
+            Assert.Equal(expected, json);
         }
     }
 }

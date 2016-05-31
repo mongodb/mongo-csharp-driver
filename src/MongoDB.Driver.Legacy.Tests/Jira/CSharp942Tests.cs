@@ -16,14 +16,13 @@
 using System;
 using System.Linq;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp942Tests
     {
-        [Test]
+        [Fact]
         public void TestExhaustQueryFlagThrowsException()
         {
             var collection = LegacyTestConfiguration.Collection;

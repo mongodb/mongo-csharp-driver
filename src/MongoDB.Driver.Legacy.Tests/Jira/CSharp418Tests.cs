@@ -17,11 +17,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp418
 {
-    [TestFixture]
     public class CSharp418Tests
     {
         public class C
@@ -37,13 +36,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp418
 
         private MongoCollection<D> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public CSharp418Tests()
         {
             _collection = LegacyTestConfiguration.GetCollection<D>();
         }
 
-        [Test]
+        [Fact]
         public void TestQueryAgainstInheritedField()
         {
             _collection.Drop();
@@ -54,19 +52,19 @@ namespace MongoDB.Driver.Tests.Jira.CSharp418
                         select d;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(D), translatedQuery.DocumentType);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(_collection, translatedQuery.Collection);
+            Assert.Same(typeof(D), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(D d) => (d.X == 1)", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
+            Assert.Equal("(D d) => (d.X == 1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-            Assert.AreEqual("{ \"X\" : 1 }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, query.ToList().Count);
+            Assert.Equal("{ \"X\" : 1 }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, query.ToList().Count);
         }
     }
 }

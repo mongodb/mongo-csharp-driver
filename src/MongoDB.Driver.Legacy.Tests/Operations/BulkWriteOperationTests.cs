@@ -16,30 +16,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Operations
 {
-    [TestFixture]
     public class BulkWriteOperationTests
     {
         private MongoServer _server;
         private MongoServerInstance _primary;
         private MongoCollection<BsonDocument> _collection;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public BulkWriteOperationTests()
         {
             _server = LegacyTestConfiguration.Server;
             _primary = _server.Instances.First(x => x.IsPrimary);
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Test]
+        [Fact]
         public void TestBatchSplittingBySizeWithErrorsOrdered()
         {
             _collection.Drop();
@@ -60,11 +61,11 @@ namespace MongoDB.Driver.Tests.Operations
             var exception = Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => { bulk.Execute(); });
             var result = exception.Result;
 
-            Assert.IsNull(exception.WriteConcernError);
-            Assert.AreEqual(1, exception.WriteErrors.Count);
+            Assert.Null(exception.WriteConcernError);
+            Assert.Equal(1, exception.WriteErrors.Count);
             var writeError = exception.WriteErrors[0];
-            Assert.AreEqual(6, writeError.Index);
-            Assert.AreEqual(11000, writeError.Code);
+            Assert.Equal(6, writeError.Index);
+            Assert.Equal(11000, writeError.Code);
 
             var expectedResult = new ExpectedResult
             {
@@ -75,10 +76,10 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = documents.Take(6);
-            Assert.That(_collection.FindAll(), Is.EqualTo(expectedDocuments));
+            Assert.Equal(expectedDocuments, _collection.FindAll());
         }
 
-        [Test]
+        [Fact]
         public void TestBatchSplittingBySizeWithErrorsUnordered()
         {
             _collection.Drop();
@@ -99,11 +100,11 @@ namespace MongoDB.Driver.Tests.Operations
             var exception = Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => { bulk.Execute(); });
             var result = exception.Result;
 
-            Assert.IsNull(exception.WriteConcernError);
-            Assert.AreEqual(1, exception.WriteErrors.Count);
+            Assert.Null(exception.WriteConcernError);
+            Assert.Equal(1, exception.WriteErrors.Count);
             var writeError = exception.WriteErrors[0];
-            Assert.AreEqual(6, writeError.Index);
-            Assert.AreEqual(11000, writeError.Code);
+            Assert.Equal(6, writeError.Index);
+            Assert.Equal(11000, writeError.Code);
 
             var expectedResult = new ExpectedResult
             {
@@ -113,12 +114,13 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = Enumerable.Range(0, 8).Where(i => i != 6).Select(i => documents[i]);
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [TestCase(-1)]
-        [TestCase(0)]
-        [TestCase(1)]
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
         public void TestBatchSplittingDeletesNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
@@ -132,13 +134,14 @@ namespace MongoDB.Driver.Tests.Operations
             }
             var result = bulk.Execute();
 
-            Assert.AreEqual(count, result.DeletedCount);
-            Assert.AreEqual(0, _collection.Count());
+            Assert.Equal(count, result.DeletedCount);
+            Assert.Equal(0, _collection.Count());
         }
 
-        [TestCase(-1)]
-        [TestCase(0)]
-        [TestCase(1)]
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
         public void TestBatchSplittingInsertsNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
@@ -151,13 +154,14 @@ namespace MongoDB.Driver.Tests.Operations
             }
             var result = bulk.Execute();
 
-            Assert.AreEqual(count, result.InsertedCount);
-            Assert.AreEqual(count, _collection.Count());
+            Assert.Equal(count, result.InsertedCount);
+            Assert.Equal(count, _collection.Count());
         }
 
-        [TestCase(-1)]
-        [TestCase(0)]
-        [TestCase(1)]
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
         public void TestBatchSplittingUpdatesNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
@@ -173,20 +177,20 @@ namespace MongoDB.Driver.Tests.Operations
 
             if (_primary.Supports(FeatureId.WriteCommands))
             {
-                Assert.AreEqual(true, result.IsModifiedCountAvailable);
-                Assert.AreEqual(count, result.ModifiedCount);
+                Assert.Equal(true, result.IsModifiedCountAvailable);
+                Assert.Equal(count, result.ModifiedCount);
             }
             else
             {
-                Assert.AreEqual(false, result.IsModifiedCountAvailable);
+                Assert.Equal(false, result.IsModifiedCountAvailable);
             }
-            Assert.AreEqual(count, _collection.Count());
-            Assert.AreEqual(count, _collection.Count(Query.EQ("n", -1)));
+            Assert.Equal(count, _collection.Count());
+            Assert.Equal(count, _collection.Count(Query.EQ("n", -1)));
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestExecuteTwice(bool ordered)
         {
             _collection.Drop();
@@ -196,11 +200,11 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [Test]
-        [TestCase(false, 0)]
-        [TestCase(false, 1)]
-        [TestCase(true, 0)]
-        [TestCase(true, 1)]
+        [Theory]
+        [InlineData(false, 0)]
+        [InlineData(false, 1)]
+        [InlineData(true, 0)]
+        [InlineData(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
             // use RequestStart because some of the test cases use { w : 0 }
@@ -217,13 +221,13 @@ namespace MongoDB.Driver.Tests.Operations
                 CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { document };
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
             }
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestExecuteWithNoRequests(bool ordered)
         {
             _collection.Drop();
@@ -231,9 +235,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestFindAfterExecute(bool ordered)
         {
             _collection.Drop();
@@ -243,9 +247,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Find(new QueryDocument()));
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestFindWithNullQuery(bool ordered)
         {
             _collection.Drop();
@@ -253,9 +257,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestInsertAfterExecute(bool ordered)
         {
             _collection.Drop();
@@ -265,9 +269,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Insert(new BsonDocument()));
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestInsertKeyValidation(bool ordered)
         {
             _collection.Drop();
@@ -276,9 +280,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestInsertMultipleDocuments(bool ordered)
         {
             _collection.Drop();
@@ -299,12 +303,12 @@ namespace MongoDB.Driver.Tests.Operations
             var expectedResult = new ExpectedResult { InsertedCount = 3, RequestCount = 3 };
             CheckExpectedResult(expectedResult, result);
 
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+            _collection.FindAll().Should().BeEquivalentTo(documents);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestInsertOneDocument(bool ordered)
         {
             _collection.Drop();
@@ -318,10 +322,10 @@ namespace MongoDB.Driver.Tests.Operations
             var expectedResult = new ExpectedResult { InsertedCount = 1 };
             CheckExpectedResult(expectedResult, result);
 
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(new[] { document }));
+            _collection.FindAll().Should().BeEquivalentTo(new[] { document });
         }
 
-        [Test]
+        [Fact]
         public void TestMixedOperationsOrdered()
         {
             _collection.Drop();
@@ -347,19 +351,19 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var upserts = result.Upserts;
-            Assert.AreEqual(1, upserts.Count);
-            Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
-            Assert.AreEqual(2, upserts[0].Index);
+            Assert.Equal(1, upserts.Count);
+            Assert.IsType<BsonObjectId>(upserts[0].Id);
+            Assert.Equal(2, upserts[0].Index);
 
             var expectedDocuments = new BsonDocument[]
             {
                 new BsonDocument { { "a", 1 }, { "b", 1 } },
                 new BsonDocument { { "a", 2 }, { "b", 2 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
+        [Fact]
         public void TestMixedOperationsUnordered()
         {
             _collection.Drop();
@@ -386,9 +390,9 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var upserts = result.Upserts;
-            Assert.AreEqual(1, upserts.Count);
-            Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
-            Assert.AreEqual(3, upserts[0].Index);
+            Assert.Equal(1, upserts.Count);
+            Assert.IsType<BsonObjectId>(upserts[0].Id);
+            Assert.Equal(3, upserts[0].Index);
 
             var expectedDocuments = new BsonDocument[]
             {
@@ -396,10 +400,10 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "a", 3 } },
                 new BsonDocument { { "a", 4 }, { "b", 4 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
+        [Fact]
         public void TestMixedUpsertsOrdered()
         {
             _collection.Drop();
@@ -423,10 +427,10 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument { { "_id", id }, { "y", 1 } } };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
+        [Fact]
         public void TestMixedUpsertsUnordered()
         {
             _collection.Drop();
@@ -450,15 +454,15 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new BsonDocument[0];
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
-        [RequiresServer(ClusterTypes = ClusterTypes.Standalone)]
+        [SkippableTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestNonDefaultWriteConcern(bool ordered)
         {
+            RequireServer.Where(clusterTypes: ClusterTypes.Standalone);
             _collection.Drop();
 
             var documents = new[]
@@ -473,16 +477,16 @@ namespace MongoDB.Driver.Tests.Operations
             if (_primary.BuildInfo.Version < new Version(2, 6, 0))
             {
                 Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => { bulk.Execute(writeConcern); });
-                Assert.AreEqual(1, _collection.Count());
+                Assert.Equal(1, _collection.Count());
             }
             else
             {
                 Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-                Assert.AreEqual(0, _collection.Count());
+                Assert.Equal(0, _collection.Count());
             }
         }
 
-        [Test]
+        [Fact]
         public void TestOrderedBatchWithErrors()
         {
             _collection.Drop();
@@ -508,26 +512,26 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var upserts = result.Upserts;
-            Assert.AreEqual(0, upserts.Count);
+            Assert.Equal(0, upserts.Count);
 
-            Assert.IsNull(exception.WriteConcernError);
-            Assert.AreEqual(4, exception.UnprocessedRequests.Count);
+            Assert.Null(exception.WriteConcernError);
+            Assert.Equal(4, exception.UnprocessedRequests.Count);
 
             var writeErrors = exception.WriteErrors;
-            Assert.AreEqual(1, writeErrors.Count);
-            Assert.AreEqual(1, writeErrors[0].Index);
-            Assert.AreEqual(11000, writeErrors[0].Code);
+            Assert.Equal(1, writeErrors.Count);
+            Assert.Equal(1, writeErrors[0].Index);
+            Assert.Equal(11000, writeErrors[0].Code);
 
             var expectedDocuments = new BsonDocument[]
             {
                 new BsonDocument { { "b", 1 }, { "a", 1 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestRemoveMultiple(bool ordered)
         {
             _collection.Drop();
@@ -551,12 +555,12 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { documents[1] };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestRemoveOneOnlyRemovesOneDocument(bool ordered)
         {
             _collection.Drop();
@@ -571,12 +575,12 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument("key", 1) };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestRemoveWithEmptyQueryRemovesAllDocuments(bool ordered)
         {
             _collection.Drop();
@@ -590,12 +594,12 @@ namespace MongoDB.Driver.Tests.Operations
             var expectedResult = new ExpectedResult { DeletedCount = 2 };
             CheckExpectedResult(expectedResult, result);
 
-            Assert.AreEqual(0, _collection.Count());
+            Assert.Equal(0, _collection.Count());
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestRemoveWithQueryRemovesOnlyMatchingDocuments(bool ordered)
         {
             _collection.Drop();
@@ -610,12 +614,12 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument("key", 2) };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestReplaceOneKeyValidation(bool ordered)
         {
             _collection.Drop();
@@ -628,9 +632,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestReplaceOneWithMultipleMatchingDocuments(bool ordered)
         {
             _collection.Drop();
@@ -655,10 +659,10 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument("key", 1),
                 new BsonDocument("key", 3)
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
+        [Fact]
         public void TestUnorderedBatchWithErrors()
         {
             _collection.Drop();
@@ -684,19 +688,19 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var upserts = result.Upserts;
-            Assert.AreEqual(1, upserts.Count);
-            Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
-            Assert.AreEqual(2, upserts[0].Index);
+            Assert.Equal(1, upserts.Count);
+            Assert.IsType<BsonObjectId>(upserts[0].Id);
+            Assert.Equal(2, upserts[0].Index);
 
-            Assert.IsNull(exception.WriteConcernError);
-            Assert.AreEqual(0, exception.UnprocessedRequests.Count);
+            Assert.Null(exception.WriteConcernError);
+            Assert.Equal(0, exception.UnprocessedRequests.Count);
 
             var writeErrors = exception.WriteErrors;
-            Assert.AreEqual(3, writeErrors.Count);
-            Assert.AreEqual(1, writeErrors[0].Index);
-            Assert.AreEqual(3, writeErrors[1].Index);
-            Assert.AreEqual(5, writeErrors[2].Index);
-            Assert.IsTrue(writeErrors.All(e => e.Code == 11000));
+            Assert.Equal(3, writeErrors.Count);
+            Assert.Equal(1, writeErrors[0].Index);
+            Assert.Equal(3, writeErrors[1].Index);
+            Assert.Equal(5, writeErrors[2].Index);
+            Assert.True(writeErrors.All(e => e.Code == 11000));
 
             var expectedDocuments = new BsonDocument[]
             {
@@ -706,12 +710,12 @@ namespace MongoDB.Driver.Tests.Operations
                     new BsonDocument { { "b", 3 }, { "a", 2 } },
                 new BsonDocument { { "b", 4 }, { "a", 3 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpdateChecksThatAllTopLevelFieldNamesAreOperators(bool ordered)
         {
             _collection.Drop();
@@ -722,9 +726,9 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpdateOneBasic(bool ordered)
         {
             _collection.Drop();
@@ -748,12 +752,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "key", 1 } },
                 new BsonDocument { { "key", 3 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpdateOneKeyValidation(bool ordered)
         {
             var updates = new IMongoUpdate[]
@@ -772,9 +776,9 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpdateOnlyAffectsDocumentsThatMatch(bool ordered)
         {
             _collection.Drop();
@@ -801,12 +805,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "key", 1 }, { "x", 1 } },
                 new BsonDocument { { "key", 2 }, { "x", 2 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpdateUpdatesAllMatchingDocuments(bool ordered)
         {
             _collection.Drop();
@@ -830,12 +834,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "key", 1 }, { "x", 3 } },
                 new BsonDocument { { "key", 2 }, { "x", 3 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertOneVeryLargeDocument(bool ordered)
         {
             if (_primary.BuildInfo.Version >= new Version(2, 6, 0))
@@ -858,13 +862,13 @@ namespace MongoDB.Driver.Tests.Operations
                 {
                     new BsonDocument { { "_id", 1 }, { "x", bigString } }
                 };
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
             }
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertReplaceOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
             _collection.Drop();
@@ -883,12 +887,12 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument { { "x", 2 } } };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertReplaceOneOnlyReplacesOneMatchingDocument(bool ordered)
         {
             _collection.Drop();
@@ -912,13 +916,13 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "x", 1 } },
                 new BsonDocument { { "key", 1 } }
             };
-            Assert.AreEqual(2, _collection.Count());
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            Assert.Equal(2, _collection.Count());
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertUpdateOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
             _collection.Drop();
@@ -937,7 +941,7 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument { { "key", 2 }, { "x", 2 } } };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
 
             // repeat the same operation with the current collection contents
             var bulk2 = InitializeBulkOperation(_collection, ordered);
@@ -952,12 +956,12 @@ namespace MongoDB.Driver.Tests.Operations
                 IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
             };
             CheckExpectedResult(expectedResult2, result2);
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertUpdateOneOnlyAffectsOneMatchingDocument(bool ordered)
         {
             _collection.Drop();
@@ -981,12 +985,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "key", 1 }, { "x", 1 } },
                 new BsonDocument { { "key", 1 } }
             };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertUpdateUpsertsAndDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
             _collection.Drop();
@@ -1005,7 +1009,7 @@ namespace MongoDB.Driver.Tests.Operations
             CheckExpectedResult(expectedResult, result);
 
             var expectedDocuments = new[] { new BsonDocument { { "key", 2 }, { "x", 2 } } };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
 
             // repeat the same batch with the current collection contents
             var bulk2 = InitializeBulkOperation(_collection, ordered);
@@ -1020,12 +1024,12 @@ namespace MongoDB.Driver.Tests.Operations
                 IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
             };
             CheckExpectedResult(expectedResult2, result2);
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertWithMultipleMatchingDocuments(bool ordered)
         {
             _collection.Drop();
@@ -1051,12 +1055,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "_id", 1 }, { "x", 2 } },
                 new BsonDocument { { "_id", 2 }, { "x", 2 } }
             };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertWithNoMatchingDocument(bool ordered)
         {
             _collection.Drop();
@@ -1082,12 +1086,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "_id", id1 }, { "x", 1 } },
                 new BsonDocument { { "_id", id2 }, { "x", 2 } }
             };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestUpsertWithOneMatchingDocument(bool ordered)
         {
             _collection.Drop();
@@ -1113,12 +1117,12 @@ namespace MongoDB.Driver.Tests.Operations
                 new BsonDocument { { "_id", 1 }, { "x", 3 } },
                 new BsonDocument { { "_id", 2 }, { "x", 2 } }
             };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestW0DoesNotReportErrors(bool ordered)
         {
             // use a request so we can read our own writes even with older servers
@@ -1141,13 +1145,13 @@ namespace MongoDB.Driver.Tests.Operations
                 CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { documents[0] };
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
             }
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void TestW2AgainstStandalone(bool ordered)
         {
             if (_primary.InstanceType == MongoServerInstanceType.StandAlone)
@@ -1162,7 +1166,7 @@ namespace MongoDB.Driver.Tests.Operations
                 if (_primary.Supports(FeatureId.WriteCommands))
                 {
                     Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
-                    Assert.AreEqual(0, _collection.Count());
+                    Assert.Equal(0, _collection.Count());
                 }
                 else
                 {
@@ -1172,22 +1176,22 @@ namespace MongoDB.Driver.Tests.Operations
                     var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
                     CheckExpectedResult(expectedResult, result);
 
-                    Assert.AreEqual(0, exception.UnprocessedRequests.Count);
-                    Assert.AreEqual(0, exception.WriteErrors.Count);
+                    Assert.Equal(0, exception.UnprocessedRequests.Count);
+                    Assert.Equal(0, exception.WriteErrors.Count);
 
                     var writeConcernError = exception.WriteConcernError;
-                    Assert.IsNotNull(writeConcernError);
+                    Assert.NotNull(writeConcernError);
 
-                    Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+                    _collection.FindAll().Should().BeEquivalentTo(documents);
                 }
             }
         }
 
-        [Test]
-        [Explicit]
-        [RequiresServer(MinimumVersion = "2.4.0", ClusterTypes = ClusterTypes.ReplicaSet)]
+        [SkippableFact]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
+            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            RequireServer.Where(minimumVersion: "2.4.0", clusterTypes: ClusterTypes.ReplicaSet);
             _collection.Drop();
 
             var secondary = LegacyTestConfiguration.Server.Secondaries.First();
@@ -1204,37 +1208,37 @@ namespace MongoDB.Driver.Tests.Operations
                 CheckExpectedResult(expectedResult, result);
 
                 var writeErrors = exception.WriteErrors;
-                Assert.AreEqual(1, writeErrors.Count);
-                Assert.AreEqual(11000, writeErrors[0].Code);
-                Assert.AreEqual(1, writeErrors[0].Index);
+                Assert.Equal(1, writeErrors.Count);
+                Assert.Equal(11000, writeErrors[0].Code);
+                Assert.Equal(1, writeErrors[0].Index);
 
                 var writeConcernError = exception.WriteConcernError;
-                Assert.AreEqual(64, writeConcernError.Code);
+                Assert.Equal(64, writeConcernError.Code);
             }
         }
 
         // private methods
         private void CheckExpectedResult(ExpectedResult expectedResult, BulkWriteResult<BsonDocument> result)
         {
-            Assert.AreEqual(expectedResult.IsAcknowledged ?? true, result.IsAcknowledged);
-            Assert.AreEqual(expectedResult.ProcessedRequestsCount ?? expectedResult.RequestCount ?? 1, result.ProcessedRequests.Count);
-            Assert.AreEqual(expectedResult.RequestCount ?? 1, result.RequestCount);
+            Assert.Equal(expectedResult.IsAcknowledged ?? true, result.IsAcknowledged);
+            Assert.Equal(expectedResult.ProcessedRequestsCount ?? expectedResult.RequestCount ?? 1, result.ProcessedRequests.Count);
+            Assert.Equal(expectedResult.RequestCount ?? 1, result.RequestCount);
 
             if (result.IsAcknowledged)
             {
-                Assert.AreEqual(expectedResult.DeletedCount ?? 0, result.DeletedCount);
-                Assert.AreEqual(expectedResult.InsertedCount ?? 0, result.InsertedCount);
-                Assert.AreEqual(expectedResult.MatchedCount ?? 0, result.MatchedCount);
-                Assert.AreEqual(expectedResult.IsModifiedCountAvailable ?? true, result.IsModifiedCountAvailable);
+                Assert.Equal(expectedResult.DeletedCount ?? 0, result.DeletedCount);
+                Assert.Equal(expectedResult.InsertedCount ?? 0, result.InsertedCount);
+                Assert.Equal(expectedResult.MatchedCount ?? 0, result.MatchedCount);
+                Assert.Equal(expectedResult.IsModifiedCountAvailable ?? true, result.IsModifiedCountAvailable);
                 if (result.IsModifiedCountAvailable)
                 {
-                    Assert.AreEqual(expectedResult.ModifiedCount ?? 0, result.ModifiedCount);
+                    Assert.Equal(expectedResult.ModifiedCount ?? 0, result.ModifiedCount);
                 }
                 else
                 {
                     Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
                 }
-                Assert.AreEqual(expectedResult.UpsertsCount ?? 0, result.Upserts.Count);
+                Assert.Equal(expectedResult.UpsertsCount ?? 0, result.Upserts.Count);
             }
             else
             {

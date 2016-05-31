@@ -19,14 +19,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    [TestFixture]
     public class CSharp893CheckElementNameTests
     {
-        [Test]
+        [Fact]
         public void TestEmptyElementNameNotAllowed()
         {
             var collection = LegacyTestConfiguration.GetCollection<BsonDocument>();
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Tests.Jira
         public C TestEmptyKey(C c, string expected)
         {
             var json = c.ToJson();
-            Assert.AreEqual(expected.Replace("'", "\""), json);
+            Assert.Equal(expected.Replace("'", "\""), json);
 
             var collection = LegacyTestConfiguration.GetCollection<C>();
             collection.Drop();
@@ -50,7 +49,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryObjectObjectArrayOfArraysTests : CSharp893DictionaryTestsBase<CSharp893DictionaryObjectObjectArrayOfArraysTests.C>
     {
         public class C
@@ -60,18 +58,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<object, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryObjectObjectArrayOfDocumentsTests : CSharp893DictionaryTestsBase<CSharp893DictionaryObjectObjectArrayOfDocumentsTests.C>
     {
         public class C
@@ -81,18 +78,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<object, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [{ 'k' : '', 'v' : 2 }] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryObjectObjectDocumentTests : CSharp893DictionaryTestsBase<CSharp893DictionaryObjectObjectDocumentTests.C>
     {
         public class C
@@ -102,7 +98,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<object, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
@@ -110,7 +106,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryObjectObjectDynamicTests : CSharp893DictionaryTestsBase<CSharp893DictionaryObjectObjectDynamicTests.C>
     {
         public class C
@@ -119,7 +114,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<object, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
@@ -127,7 +122,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryStringObjectArrayOfArraysTests : CSharp893DictionaryTestsBase<CSharp893DictionaryStringObjectArrayOfArraysTests.C>
     {
         public class C
@@ -137,18 +131,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<string, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryStringObjectArrayOfDocumentsTests : CSharp893DictionaryTestsBase<CSharp893DictionaryStringObjectArrayOfDocumentsTests.C>
     {
         public class C
@@ -158,18 +151,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<string, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [{ 'k' : '', 'v' : 2 }] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryStringObjectDocumentTests : CSharp893DictionaryTestsBase<CSharp893DictionaryStringObjectDocumentTests.C>
     {
         public class C
@@ -179,7 +171,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<string, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
@@ -187,7 +179,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893DictionaryStringObjectDynamicTests : CSharp893DictionaryTestsBase<CSharp893DictionaryStringObjectDynamicTests.C>
     {
         public class C
@@ -196,7 +187,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Dictionary<string, object> d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
@@ -204,7 +195,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893HashtableArrayOfArraysTests : CSharp893DictionaryTestsBase<CSharp893HashtableArrayOfArraysTests.C>
     {
         public class C
@@ -214,18 +204,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Hashtable d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893HashtableArrayOfDocumentsTests : CSharp893DictionaryTestsBase<CSharp893HashtableArrayOfDocumentsTests.C>
     {
         public class C
@@ -235,18 +224,17 @@ namespace MongoDB.Driver.Tests.Jira
             public Hashtable d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
             var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [{ 'k' : '', 'v' : 2 }] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
-    [TestFixture]
     public class CSharp893HashtableDocumentTests : CSharp893DictionaryTestsBase<CSharp893HashtableDocumentTests.C>
     {
         public class C
@@ -256,7 +244,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Hashtable d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
@@ -264,7 +252,6 @@ namespace MongoDB.Driver.Tests.Jira
         }
     }
 
-    [TestFixture]
     public class CSharp893HashtableDynamicTests : CSharp893DictionaryTestsBase<CSharp893HashtableDynamicTests.C>
     {
         public class C
@@ -273,7 +260,7 @@ namespace MongoDB.Driver.Tests.Jira
             public Hashtable d;
         }
 
-        [Test]
+        [Fact]
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
