@@ -401,7 +401,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        //[Category("ReadConcern")]
+        [Trait("Category", "ReadConcern")]
         public void CreateCommand_should_return_expected_result_when_readConcern_is_provided(
             [Values("{level: 'local'}", "{level: 'majority'}")]
             string readConcernJson)

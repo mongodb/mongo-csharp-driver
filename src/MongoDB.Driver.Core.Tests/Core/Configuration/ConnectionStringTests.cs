@@ -27,7 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    //[Category("ConnectionString")]
+    [Trait("Category", "ConnectionString")]
     public class ConnectionStringTests
     {
         [Fact]

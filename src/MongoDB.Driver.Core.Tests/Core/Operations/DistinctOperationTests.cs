@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        //[Category("ReadConcern")]
+        [Trait("Category", "ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)

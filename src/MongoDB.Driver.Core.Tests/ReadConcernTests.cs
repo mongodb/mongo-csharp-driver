@@ -26,7 +26,7 @@ using Xunit;
 
 namespace MongoDB.Driver
 {
-    //[Category("ReadConcern")]
+    [Trait("Category", "ReadConcern")]
     public class ReadConcernTests
     {
         [Fact]
