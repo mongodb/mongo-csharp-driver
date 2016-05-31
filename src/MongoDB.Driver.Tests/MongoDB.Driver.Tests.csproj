@@ -140,7 +140,6 @@
     <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
     <Compile Include="Samples\AggregationSample.cs" />
-    <Compile Include="SetupFixture.cs" />
     <Compile Include="Specifications\crud\FindOneAndDeleteTest.cs" />
     <Compile Include="Specifications\crud\FindOneAndUpdateTest.cs" />
     <Compile Include="Specifications\crud\FindOneAndReplaceTest.cs" />
