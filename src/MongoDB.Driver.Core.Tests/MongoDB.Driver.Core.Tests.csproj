@@ -184,7 +184,6 @@
     <Compile Include="Core\Clusters\ServerSelectors\LatencyLimitingServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\EndPointServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
-    <Compile Include="SetUpFixture.cs" />
     <Compile Include="Specifications\connection-string\TestRunner.cs" />
     <Compile Include="Specifications\read-write-concern\DocumentTestRunner.cs" />
     <Compile Include="Specifications\read-write-concern\ConnectionStringTestRunner.cs" />
