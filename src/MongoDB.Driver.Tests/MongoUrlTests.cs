@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    //[Category("ConnectionString")]
+    [Trait("Category", "ConnectionString")]
     public class MongoUrlTests
     {
         [Fact]

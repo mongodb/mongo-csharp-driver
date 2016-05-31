@@ -23,8 +23,8 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
-    //[Category("Authentication")]
-    //[Category("GssapiMechanism")]
+    [Trait("Category", "Authentication")]
+    [Trait("Category", "GssapiMechanism")]
     public class GssapiAuthenticationTests
     {
         private static readonly string __collectionName = "test";

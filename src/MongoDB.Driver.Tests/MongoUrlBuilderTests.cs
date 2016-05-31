@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    //[Category("ConnectionString")]
+    [Trait("Category", "ConnectionString")]
     public class MongoUrlBuilderTests
     {
         private MongoServerAddress _localhost = new MongoServerAddress("localhost");

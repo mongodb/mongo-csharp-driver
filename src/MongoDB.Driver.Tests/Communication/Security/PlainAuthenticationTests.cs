@@ -22,8 +22,8 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
-    //[Category("Authentication")]
-    //[Category("PlainMechanism")]
+    [Trait("Category", "Authentication")]
+    [Trait("Category", "PlainMechanism")]
     public class PlainAuthenticationTests
     {
         private static readonly string __collectionName = "test";
