@@ -24,7 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Tests;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var options = new GridFSBucketOptions();
 
             var result = new GridFSBucket(database, options);
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_use_default_options_when_options_is_null()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
 
             var result = new GridFSBucket(database, null);
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void Database_get_should_return_the_expected_result()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var subject = new GridFSBucket(database, null);
 
             var result = subject.Database;
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var destination = Substitute.For<Stream>();
+            var destination = new Mock<Stream>().Object;
 
 #pragma warning disable 618
             Action action;
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var destination = Substitute.For<Stream>();
+            var destination = new Mock<Stream>().Object;
 
             Action action;
             if (async)
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void Options_get_should_return_the_expected_result()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var options = new GridFSBucketOptions();
             var subject = new GridFSBucket(database, options);
 
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var source = Substitute.For<Stream>();
+            var source = new Mock<Stream>().Object;
 
             Action action;
             if (async)
@@ -527,15 +527,15 @@ namespace MongoDB.Driver.GridFS.Tests
         // private methods
         private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {
-            var cluster = Substitute.For<ICluster>();
+            var cluster = new Mock<ICluster>().Object;
 
-            var client = Substitute.For<IMongoClient>();
-            client.Cluster.Returns(cluster);
+            var mockClient = new Mock<IMongoClient>();
+            mockClient.SetupGet(c => c.Cluster).Returns(cluster);
 
-            var database = Substitute.For<IMongoDatabase>();
-            database.Client.Returns(client);
+            var mockDatabase = new Mock<IMongoDatabase>();
+            mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
 
-            return new GridFSBucket(database, options);
+            return new GridFSBucket(mockDatabase.Object, options);
         }
     }
 }

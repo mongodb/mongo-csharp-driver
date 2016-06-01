@@ -25,7 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
@@ -45,9 +45,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var bucket = new GridFSBucket<ObjectId>(database);
-            var binding = Substitute.For<IReadBinding>();
+            var binding = new Mock<IReadBinding>().Object;
             var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument { { "_id", ObjectId.GenerateNewId() } }, new GridFSFileInfoSerializer<ObjectId>());
 
             var result = new GridFSSeekableDownloadStream<ObjectId>(bucket, binding, fileInfo);
@@ -239,9 +239,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
         private GridFSSeekableDownloadStream<ObjectId> CreateSubject(long? length = null)
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var bucket = new GridFSBucket<ObjectId>(database);
-            var binding = Substitute.For<IReadBinding>();
+            var binding = new Mock<IReadBinding>().Object;
             var fileInfoDocument = new BsonDocument
             {
                 { "_id", ObjectId.Parse("0102030405060708090a0b0c") },

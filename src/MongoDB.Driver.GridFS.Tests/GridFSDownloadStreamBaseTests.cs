@@ -25,7 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
-using NSubstitute;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
@@ -132,9 +132,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var bucket = new GridFSBucket<ObjectId>(database);
-            var binding = Substitute.For<IReadBinding>();
+            var binding = new Mock<IReadBinding>().Object;
             var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
 
             var result = new FakeGridFSDownloadStream(bucket, binding, fileInfo);
@@ -308,9 +308,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
         private GridFSDownloadStreamBase<ObjectId> CreateSubject(GridFSFileInfo<ObjectId> fileInfo = null)
         {
-            var database = Substitute.For<IMongoDatabase>();
+            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
             var bucket = new GridFSBucket<ObjectId>(database);
-            var binding = Substitute.For<IReadBinding>();
+            var binding = new Mock<IReadBinding>().Object;
             fileInfo = fileInfo ?? new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
 
             return new FakeGridFSDownloadStream(bucket, binding, fileInfo);
