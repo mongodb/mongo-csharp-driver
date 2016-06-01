@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSUploadOptionsTests
     {
-        [Test]
+        [Fact]
         public void Aliases_get_should_return_expected_result()
         {
 #pragma warning disable 618
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(value);
         }
 
-        [Test]
+        [Fact]
         public void Aliases_set_should_have_expected_result()
         {
             var subject = new GridFSUploadOptions();
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void BatchSize_get_should_return_expected_result()
         {
             var subject = new GridFSUploadOptions { BatchSize = 123 };
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void BatchSize_set_should_have_expected_result()
         {
             var subject = new GridFSUploadOptions();
@@ -73,9 +73,10 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.BatchSize.Should().Be(123);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_set_should_throw_when_value_is_invalid(
-           [Values(-1, 0)]
+            [Values(-1, 0)]
             int value)
         {
             var subject = new GridFSUploadOptions();
@@ -85,7 +86,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void ChunkSizeBytes_get_should_return_expected_result()
         {
             var subject = new GridFSUploadOptions { ChunkSizeBytes = 123 };
@@ -95,7 +96,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void ChunkSizeBytes_set_should_have_expected_result()
         {
             var subject = new GridFSUploadOptions();
@@ -105,9 +106,10 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.ChunkSizeBytes.Should().Be(123);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ChunkSizeBytes_set_should_throw_when_value_is_invalid(
-         [Values(-1, 0)]
+            [Values(-1, 0)]
             int value)
         {
             var subject = new GridFSUploadOptions();
@@ -117,7 +119,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void ContentType_get_should_return_expected_result()
         {
 #pragma warning disable 618
@@ -129,7 +131,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void ContentType_set_should_have_expected_result()
         {
 #pragma warning disable 618
@@ -141,7 +143,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void ContentType_set_should_throw_when_value_is_invalid()
         {
 #pragma warning disable 618
@@ -153,7 +155,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void default_constructor_should_return_expected_result()
         {
             var result = new GridFSUploadOptions();
@@ -167,7 +169,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void Metadata_get_should_return_expected_result()
         {
             var value = new BsonDocument("meta", 1);
@@ -178,7 +180,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(value);
         }
 
-        [Test]
+        [Fact]
         public void Metadata_set_should_have_expected_result()
         {
             var subject = new GridFSUploadOptions();

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,14 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSChunkExceptionTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var result = new GridFSChunkException(123, 2, "missing");
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Message.Should().Contain("missing");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_id_is_null()
         {
             Action action = () => new GridFSChunkException(null, 2, "missing");
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_n_is_negative()
         {
             Action action = () => new GridFSChunkException(123, -2, "missing");
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("n");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_reason_is_null()
         {
             Action action = () => new GridFSChunkException(123, 2, null);

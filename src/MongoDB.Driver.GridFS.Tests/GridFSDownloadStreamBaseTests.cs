@@ -20,19 +20,20 @@ using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSDownloadStreamBaseTests
     {
         // public methods
-        [Test]
+        [Fact]
         public void CanRead_should_return_true()
         {
             var subject = CreateSubject();
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void CanWrite_should_return_false()
         {
             var subject = CreateSubject();
@@ -52,9 +53,10 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeFalse();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Close_can_be_called_more_than_once(
-           [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
@@ -70,7 +72,8 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Close_should_dispose_subject(
             [Values(false, true)] bool async)
         {
@@ -88,9 +91,10 @@ namespace MongoDB.Driver.GridFS.Tests
             subject._disposed().Should().Be(true);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Close_with_cancellationToken_can_be_called_more_than_once(
-           [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
 
@@ -106,7 +110,8 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Close_with_cancellationToken_should_dispose_subject(
             [Values(false, true)] bool async)
         {
@@ -124,7 +129,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject._disposed().Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -140,13 +145,14 @@ namespace MongoDB.Driver.GridFS.Tests
             result._disposed().Should().BeFalse();
         }
 
-        [Test]
-        [RequiresServer]
+        [Theory]
+        [ParameterAttributeData]
         public void CopyTo_should_copy_stream(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double contentSizeMultiple,
             [Values(null, 128)] int? bufferSize,
             [Values(false, true)] bool async)
         {
+            RequireServer.Any();
             var bucket = CreateBucket(128);
             var contentSize = (int)(bucket.Options.ChunkSizeBytes * contentSizeMultiple);
             var content = CreateContent(contentSize);
@@ -182,7 +188,7 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var subject = CreateSubject();
@@ -191,7 +197,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void Dispose_should_have_expected_result()
         {
             var subject = CreateSubject();
@@ -201,7 +207,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject._disposed().Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void FileInfo_should_return_expected_result()
         {
             var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument(), new GridFSFileInfoSerializer<ObjectId>());
@@ -212,7 +218,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(fileInfo);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Flush_should_throw(
             [Values(false, true)] bool async)
         {
@@ -234,7 +241,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Fact]
         public void Length_should_return_expected_result()
         {
             var length = 123;
@@ -246,7 +253,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(length);
         }
 
-        [Test]
+        [Fact]
         public void SetLength_should_throw()
         {
             var subject = CreateSubject();
@@ -256,9 +263,10 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<NotSupportedException>();
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Write_should_throw(
-          [Values(false, true)] bool async)
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var buffer = new byte[0];

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSFileInfoTests
     {
-        [Test]
+        [Fact]
         public void Aliases_get_should_return_the_expected_result()
         {
             var value = new[] { "alias" };
@@ -42,7 +42,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Equal(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Aliases_should_be_deserialized_correctly(
             [Values(null, new string[0], new string[] { null }, new[] { "a" }, new[] { "a", "b" })]
             string[] value)
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void BackingDocument_get_should_return_the_expected_result()
         {
             var backingDocument = new BsonDocument("x", 1);
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(backingDocument);
         }
 
-        [Test]
+        [Fact]
         public void ChunkSizeBytes_get_should_return_the_expected_result()
         {
             var value = 1024;
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void ChunkSizeBytes_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();
@@ -92,7 +93,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.ChunkSizeBytes.Should().Be(document["chunkSize"].ToInt32());
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var backdocument = new BsonDocument();
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.BackingDocument.Should().BeSameAs(backdocument);
         }
 
-        [Test]
+        [Fact]
         public void ContentType_get_should_return_the_expected_result()
         {
             var value = "application/image";
@@ -115,7 +116,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ContentType_should_be_deserialized_correctly(
             [Values(null, "type")]
             string value)
@@ -133,7 +135,8 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void ExtraElements_should_be_deserialized_correctly(
             [Values(new string[0], new[] { "x" }, new[] { "x", "y" }, new[] { "ExtraElements" })]
             string[] names)
@@ -157,7 +160,7 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void Filename_get_should_return_the_expected_result()
         {
             var value = "abc";
@@ -168,7 +171,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Filename_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();
@@ -178,7 +181,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Filename.Should().Be(document["filename"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void Id_get_should_return_the_expected_result()
         {
             var value = ObjectId.GenerateNewId();
@@ -189,7 +192,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Id_get_should_throw_when_id_is_not_an_ObjectId()
         {
             var value = (BsonValue)123;
@@ -200,7 +203,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<InvalidCastException>();
         }
 
-        [Test]
+        [Fact]
         public void Id_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();
@@ -213,7 +216,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void Id_should_be_deserialized_correctly_when_id_is_not_an_ObjectId()
         {
             var document = CreateFilesCollectionDocument();
@@ -226,7 +229,7 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning restore
         }
 
-        [Test]
+        [Fact]
         public void IdAsBsonValue_get_should_return_the_expected_result()
         {
             var value = (BsonValue)123;
@@ -239,7 +242,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Length_get_should_return_the_expected_result()
         {
             var value = 123;
@@ -250,7 +253,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Length_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();
@@ -260,7 +263,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.Length.Should().Be(document["length"].ToInt64());
         }
 
-        [Test]
+        [Fact]
         public void MD5_get_should_return_the_expected_result()
         {
             var value = "md5";
@@ -271,7 +274,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void MD5_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();
@@ -281,7 +284,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.MD5.Should().Be(document["md5"].AsString);
         }
 
-        [Test]
+        [Fact]
         public void Metadata_get_should_return_the_expected_result()
         {
             var value = new BsonDocument("x", 1);
@@ -292,7 +295,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Metadata_should_be_deserialized_correctly(
             [Values(null, "{ }", "{ x : 1 }")]
             string json)
@@ -310,7 +314,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Metadata.Should().Be(metadata);
         }
 
-        [Test]
+        [Fact]
         public void UploadDateTime_get_should_return_the_expected_result()
         {
             var value = (new BsonDateTime(DateTime.UtcNow)).ToUniversalTime(); // truncated to millisecond precision
@@ -321,7 +325,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void UploadDateTime_should_be_deserialized_correctly()
         {
             var document = CreateFilesCollectionDocument();

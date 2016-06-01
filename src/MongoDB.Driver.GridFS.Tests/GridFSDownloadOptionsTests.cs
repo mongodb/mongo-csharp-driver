@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSDownloadOptionsTests
     {
-        [Test]
+        [Fact]
         public void CheckMD5_get_should_return_expected_result()
         {
             var subject = new GridFSDownloadOptions { CheckMD5 = true };
@@ -36,7 +35,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void CheckMD5_set_should_have_expected_result()
         {
             var subject = new GridFSDownloadOptions();
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.CheckMD5.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void default_constructor_should_return_expected_result()
         {
             var result = new GridFSDownloadOptions();
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Seekable.Should().NotHaveValue();
         }
 
-        [Test]
+        [Fact]
         public void Seekable_get_should_return_expected_result()
         {
             var subject = new GridFSDownloadOptions { Seekable = true };
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void Seekable_set_should_have_expected_result()
         {
             var subject = new GridFSDownloadOptions();

@@ -20,18 +20,19 @@ using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSSeekableDownloadStreamTests
     {
-        [Test]
+        [Fact]
         public void CanSeek_should_return_true()
         {
             var subject = CreateSubject();
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -56,7 +57,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result._n().Should().Be(-1);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Position_get_and_set_should_work(
             [Values(0, 1, 2)] long value)
         {
@@ -68,7 +70,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(value);
         }
 
-        [Test]
+        [Fact]
         public void Position_set_should_throw_when_value_is_negative()
         {
             var subject = CreateSubject();
@@ -78,8 +80,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
-        [RequiresServer]
+        [Theory]
+        [ParameterAttributeData]
         public void Read_should_return_expected_result(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double fileLengthMultiple,
             [Values(0.0, 0.5)] double positionMultiple,
@@ -87,6 +89,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(0.0, 0.5, 1.0)] double countMultiple,
             [Values(false, true)] bool async)
         {
+            RequireServer.Any();
             var chunkSize = 4;
             var bucket = CreateBucket(chunkSize);
             var fileLength = (int)(chunkSize * fileLengthMultiple);
@@ -116,7 +119,8 @@ namespace MongoDB.Driver.GridFS.Tests
             buffer.Last().Should().Be(0);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Read_should_throw_when_buffer_is_null(
             [Values(false, true)] bool async)
         {
@@ -127,20 +131,21 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
 
-        [TestCase(0, 0, -1, false)]
-        [TestCase(0, 0, -1, true)]
-        [TestCase(0, 0, 1, false)]
-        [TestCase(0, 0, 1, true)]
-        [TestCase(1, 0, 2, false)]
-        [TestCase(1, 0, 2, true)]
-        [TestCase(1, 1, 1, false)]
-        [TestCase(1, 1, 1, true)]
-        [TestCase(2, 0, 3, false)]
-        [TestCase(2, 0, 3, true)]
-        [TestCase(2, 1, 2, false)]
-        [TestCase(2, 1, 2, true)]
-        [TestCase(2, 2, 1, false)]
-        [TestCase(2, 2, 1, true)]
+        [Theory]
+        [InlineData(0, 0, -1, false)]
+        [InlineData(0, 0, -1, true)]
+        [InlineData(0, 0, 1, false)]
+        [InlineData(0, 0, 1, true)]
+        [InlineData(1, 0, 2, false)]
+        [InlineData(1, 0, 2, true)]
+        [InlineData(1, 1, 1, false)]
+        [InlineData(1, 1, 1, true)]
+        [InlineData(2, 0, 3, false)]
+        [InlineData(2, 0, 3, true)]
+        [InlineData(2, 1, 2, false)]
+        [InlineData(2, 1, 2, true)]
+        [InlineData(2, 2, 1, false)]
+        [InlineData(2, 2, 1, true)]
         public void Read_should_throw_when_count_is_invalid(int bufferLength, int offset, int count, bool async)
         {
             var subject = CreateSubject();
@@ -159,12 +164,13 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
 
-        [TestCase(0, -1, false)]
-        [TestCase(0, -1, true)]
-        [TestCase(0, 1, false)]
-        [TestCase(0, 1, true)]
-        [TestCase(1, 2, false)]
-        [TestCase(1, 2, true)]
+        [Theory]
+        [InlineData(0, -1, false)]
+        [InlineData(0, -1, true)]
+        [InlineData(0, 1, false)]
+        [InlineData(0, 1, true)]
+        [InlineData(1, 2, false)]
+        [InlineData(1, 2, true)]
         public void Read_should_throw_when_offset_is_invalid(int bufferLength, int offset, bool async)
         {
             var subject = CreateSubject();
@@ -183,9 +189,10 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
 
-        [TestCase(0, 1, SeekOrigin.Begin, 1)]
-        [TestCase(1, 1, SeekOrigin.Current, 2)]
-        [TestCase(2, -1, SeekOrigin.End, 1)]
+        [Theory]
+        [InlineData(0, 1, SeekOrigin.Begin, 1)]
+        [InlineData(1, 1, SeekOrigin.Current, 2)]
+        [InlineData(2, -1, SeekOrigin.End, 1)]
         public void Seek_should_return_expected_result(
             long position,
             long offset,
@@ -200,7 +207,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(expectedResult);
         }
 
-        [Test]
+        [Fact]
         public void Seek_should_throw_when_new_position_is_negative()
         {
             var subject = CreateSubject();

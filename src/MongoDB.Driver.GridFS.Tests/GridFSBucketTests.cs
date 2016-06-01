@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Tests;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSBucketTests
     {
-        [Test]
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Options.WriteConcern.Should().Be(options.WriteConcern);
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_throw_when_database_is_null()
         {
             var options = new GridFSBucketOptions();
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("database");
         }
 
-        [Test]
+        [Fact]
         public void constructor_should_use_default_options_when_options_is_null()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Options.Should().BeSameAs(ImmutableGridFSBucketOptions.Defaults);
         }
 
-        [Test]
+        [Fact]
         public void Database_get_should_return_the_expected_result()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -77,7 +77,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(database);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Delete_with_BsonValue_id_should_throw_when_id_is_null(
             [Values(false, true)] bool async)
         {
@@ -98,7 +99,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadAsBytes_with_BsonValue_id_should_throw_when_id_is_null(
             [Values(false, true)] bool async)
         {
@@ -119,7 +121,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadAsBytesByName_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -138,7 +141,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadToStream_with_BsonValue_id_should_throw_when_id_is_null(
             [Values(false, true)] bool async)
         {
@@ -160,7 +164,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadToStream_with_BsonValue_id_should_throw_when_destination_is_null(
             [Values(false, true)] bool async)
         {
@@ -182,7 +187,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadToStream_with_ObjectId_id_should_throw_when_destination_is_null(
             [Values(false, true)] bool async)
         {
@@ -202,7 +208,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadToStreamByName_should_throw_when_destination_is_null(
             [Values(false, true)] bool async)
         {
@@ -222,7 +229,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void DownloadToStreamByName_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -242,7 +250,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Drop_should_drop_the_files_and_chunks_collections(
             [Values(false, true)] bool async)
         {
@@ -266,7 +275,8 @@ namespace MongoDB.Driver.GridFS.Tests
             collectionNames.Should().NotContain("fs.chunks");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Find_should_throw_when_filter_is_null(
             [Values(false, true)] bool async)
         {
@@ -285,7 +295,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filter");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OpenDownloadStream_with_BsonValue_id_should_throw_when_id_is_null(
             [Values(false, true)] bool async)
         {
@@ -306,7 +317,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OpenDownloadStreamByName_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -325,7 +337,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void OpenUploadStream_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -344,7 +357,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Fact]
         public void Options_get_should_return_the_expected_result()
         {
             var database = Substitute.For<IMongoDatabase>();
@@ -360,7 +373,8 @@ namespace MongoDB.Driver.GridFS.Tests
             result.WriteConcern.Should().Be(options.WriteConcern);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Rename_with_BsonValue_id_should_throw_when_id_is_null(
             [Values(false, true)] bool async)
         {
@@ -382,7 +396,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Rename_with_BsonValue_id_should_throw_when_newFilename_is_null(
             [Values(false, true)] bool async)
         {
@@ -404,7 +419,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newFilename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Rename_with_ObjectId_id_should_throw_when_newFilename_is_null(
             [Values(false, true)] bool async)
         {
@@ -424,7 +440,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newFilename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UploadFromBytes_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -444,7 +461,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UploadFromBytes_should_throw_when_source_is_null(
             [Values(false, true)] bool async)
         {
@@ -464,7 +482,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UploadFromStream_should_throw_when_filename_is_null(
             [Values(false, true)] bool async)
         {
@@ -484,7 +503,8 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void UploadFromStream_should_throw_when_source_is_null(
             [Values(false, true)] bool async)
         {

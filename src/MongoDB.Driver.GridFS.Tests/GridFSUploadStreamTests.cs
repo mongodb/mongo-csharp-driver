@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@ using System;
 using System.IO;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSUploadStreamTests
     {
         // public methods
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void CopyTo_should_throw(
             [Values(false, true)] bool async)
         {
@@ -49,7 +50,8 @@ namespace MongoDB.Driver.GridFS.Tests
             }
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void Flush_should_not_throw(
             [Values(false, true)] bool async)
         {

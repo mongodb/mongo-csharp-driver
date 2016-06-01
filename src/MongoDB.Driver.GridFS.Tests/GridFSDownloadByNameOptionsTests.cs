@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSDownloadByNameOptionsTests
     {
-        [Test]
+        [Fact]
         public void default_constructor_should_return_expected_result()
         {
             var result = new GridFSDownloadByNameOptions();
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Revision.Should().Be(-1);
         }
 
-        [Test]
+        [Fact]
         public void Revision_get_should_return_expected_result()
         {
             var subject = new GridFSDownloadByNameOptions { Revision = 2 };
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
 
         public void Revision_set_should_have_expected_result()
         {

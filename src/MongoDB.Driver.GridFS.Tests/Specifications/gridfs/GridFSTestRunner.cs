@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,21 +14,23 @@
 */
 
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
-    [TestFixture]
     public class GridFSTestRunner
     {
-        [TestCaseSource(typeof(TestCaseSource))]
-        [Category("Specifications_gridfs")]
+        [SkippableTheory]
+        [ClassData(typeof(TestCaseSource))]
+        [Trait("Category", "Specifications_gridfs")]
         public void RunTest(BsonDocument data, BsonDocument testDefinition)
         {
             var test = GridFSTestFactory.CreateTest(data, testDefinition);
@@ -36,8 +38,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             string reason;
             if (!test.CanRun(out reason))
             {
-                Assert.Ignore(reason);
-                return;
+                throw new SkipTestException(reason);
             }
 
             var client = DriverTestConfiguration.Client;
@@ -48,9 +49,9 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
             test.Run(bucket, async: true);
         }
 
-        public class TestCaseSource : IEnumerable
+        public class TestCaseSource : IEnumerable<object[]>
         {
-            public IEnumerator GetEnumerator()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.GridFS.Tests.Specifications.gridfs.tests.";
                 var testCases = Assembly
@@ -64,13 +65,19 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                         var testDefinitions = testFileContents["tests"].AsBsonArray;
                         return testDefinitions.Select(testDefinition =>
                         {
-                            return new TestCaseData(data, testDefinition)
-                                .SetCategory("Specifications_gridfs")
-                                .SetName(testDefinition["description"].AsString);
+                            //return new TestCaseData(data, testDefinition)
+                            //    .SetCategory("Specifications_gridfs")
+                            //    .SetName(testDefinition["description"].AsString);
+                            return new object[] { data, testDefinition };
                         });
                     })
                     .ToList();
                 return testCases.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             private BsonValue PreprocessHex(BsonValue value)

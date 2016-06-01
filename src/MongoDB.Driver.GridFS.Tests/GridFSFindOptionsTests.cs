@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSFindOptionsTests
     {
-        [Test]
+        [Fact]
         public void BatchSize_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { BatchSize = 123 };
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void BatchSize_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
@@ -46,7 +46,8 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.BatchSize.Should().Be(123);
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void BatchSize_set_should_throw_when_value_is_invalid(
             [Values(-1, 0)]
             int value)
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void default_constructor_should_return_expected_result()
         {
             var result = new GridFSFindOptions();
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Sort.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void Limit_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { Limit = 123 };
@@ -81,7 +82,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void Limit_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.Limit.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { MaxTime = TimeSpan.FromSeconds(123) };
@@ -101,7 +102,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(TimeSpan.FromSeconds(123));
         }
 
-        [Test]
+        [Fact]
         public void MaxTime_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
@@ -111,7 +112,8 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.MaxTime.Should().Be(TimeSpan.FromSeconds(123));
         }
 
-        [Test]
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_set_should_throw_when_value_is_invalid(
             [Values(-1, 0)]
             int seconds)
@@ -124,7 +126,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
  
-        [Test]
+        [Fact]
         public void NoCursorTimeout_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { NoCursorTimeout = true };
@@ -134,7 +136,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void NoCursorTimeout_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
@@ -144,7 +146,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.NoCursorTimeout.Should().Be(true);
         }
 
-        [Test]
+        [Fact]
         public void Skip_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { Skip = 123 };
@@ -154,7 +156,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void Skip_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();
@@ -164,7 +166,7 @@ namespace MongoDB.Driver.GridFS.Tests
             subject.Skip.Should().Be(123);
         }
 
-        [Test]
+        [Fact]
         public void Skip_set_should_throw_when_value_is_invalid()
         {
             var subject = new GridFSFindOptions();
@@ -174,7 +176,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
-        [Test]
+        [Fact]
         public void Sort_get_should_return_expected_result()
         {
             var sort = Builders<GridFSFileInfo>.Sort.Ascending(x => x.Length);
@@ -185,7 +187,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(sort);
         }
 
-        [Test]
+        [Fact]
         public void Sort_set_should_have_expected_result()
         {
             var subject = new GridFSFindOptions();

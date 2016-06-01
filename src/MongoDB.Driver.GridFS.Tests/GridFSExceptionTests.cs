@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
 {
-    [TestFixture]
     public class GridFSExceptionTests
     {
-        [Test]
+        [Fact]
         public void constructor_with_messsage_should_initialize_instance()
         {
             var result = new GridFSException("message");
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Message.Should().Be("message");
         }
 
-        [Test]
+        [Fact]
         public void constructor_with_messsage_and_innerException_should_initialize_instance()
         {
             var innerException = new Exception();
