@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2016 MongoDB Inc.
 '*
 '* Licensed under the Apache License, Version 2.0 (the "License");
 '* you may not use this file except in compliance with the License.
@@ -13,20 +13,6 @@
 '* limitations under the License.
 '
 
-Imports MongoDB.Driver
-Imports NUnit.Framework
+Imports Xunit
 
-Namespace MongoDB.Driver.VB.Tests
-
-    <SetUpFixture()>
-    Public Class SetUpFixture
-
-        <OneTimeTearDown>
-        Public Sub OneTimeTearDown()
-            Dim cluster = CoreTestConfiguration.Cluster ' force cluster to be created so database can be dropped
-            CoreTestConfiguration.TearDown()
-        End Sub
-
-    End Class
-
-End Namespace
+<Assembly: CollectionBehavior(DisableTestParallelization:=True)>

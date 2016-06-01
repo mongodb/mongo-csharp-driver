@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2010-2016 MongoDB Inc.
 '*
 '* Licensed under the Apache License, Version 2.0 (the "License");
 '* you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ Imports System.Collections
 Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Text
-Imports NUnit.Framework
+Imports Xunit
 
 Imports MongoDB.Bson
 Imports MongoDB.Bson.Serialization.Attributes
@@ -27,7 +27,6 @@ Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 
 Namespace MongoDB.Driver.VB.Tests.Linq
-    <TestFixture()> _
     Public Class SelectDictionaryTests
         Private Class C
             Public Property Id() As ObjectId
@@ -40,7 +39,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_Id As ObjectId
 
-            <BsonDictionaryOptions(DictionaryRepresentation.Document)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.Document)>
             Public Property D() As IDictionary(Of String, Integer)
                 Get
                     Return m_D
@@ -51,7 +50,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_D As IDictionary(Of String, Integer)
             ' serialized as { D : { x : 1, ... } }
-            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)>
             Public Property E() As IDictionary(Of String, Integer)
                 Get
                     Return m_E
@@ -62,7 +61,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_E As IDictionary(Of String, Integer)
             ' serialized as { E : [{ k : "x", v : 1 }, ...] }
-            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)>
             Public Property F() As IDictionary(Of String, Integer)
                 Get
                     Return m_F
@@ -73,7 +72,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_F As IDictionary(Of String, Integer)
             ' serialized as { F : [["x", 1], ... ] }
-            <BsonDictionaryOptions(DictionaryRepresentation.Document)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.Document)>
             Public Property H() As IDictionary
                 Get
                     Return m_H
@@ -84,7 +83,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_H As IDictionary
             ' serialized as { H : { x : 1, ... } }
-            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)>
             Public Property I() As IDictionary
                 Get
                     Return m_I
@@ -95,7 +94,7 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_I As IDictionary
             ' serialized as { I : [{ k : "x", v : 1 }, ...] }
-            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)> _
+            <BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)>
             Public Property J() As IDictionary
                 Get
                     Return m_J
@@ -108,289 +107,296 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             ' serialized as { J : [["x", 1], ... ] }
         End Class
 
-        Private _server As MongoServer
-        Private _database As MongoDatabase
-        Private _collection As MongoCollection
+        Private Shared __server As MongoServer
+        Private Shared __database As MongoDatabase
+        Private Shared __collection As MongoCollection
 
-        <OneTimeSetUp()>
-        Public Sub Setup()
-            _server = LegacyTestConfiguration.Server
-            _database = LegacyTestConfiguration.Database
-            _collection = LegacyTestConfiguration.GetCollection(Of C)()
+        Private Shared __lazyOneTimeSetup As Lazy(Of Boolean) = New Lazy(Of Boolean)(OneTimeSetup)
+
+        Public Sub New()
+            Dim x = __lazyOneTimeSetup.Value
+        End Sub
+
+        Private Shared Function OneTimeSetup() As Boolean
+            __server = LegacyTestConfiguration.Server
+            __database = LegacyTestConfiguration.Database
+            __collection = LegacyTestConfiguration.GetCollection(Of C)()
 
             Dim de = New Dictionary(Of String, Integer)()
-            Dim dx = New Dictionary(Of String, Integer)() From { _
-             {"x", 1} _
+            Dim dx = New Dictionary(Of String, Integer)() From {
+             {"x", 1}
             }
-            Dim dy = New Dictionary(Of String, Integer)() From { _
-             {"y", 1} _
+            Dim dy = New Dictionary(Of String, Integer)() From {
+             {"y", 1}
             }
 
             Dim he = New Hashtable()
-            Dim hx = New Hashtable() From { _
-             {"x", 1} _
+            Dim hx = New Hashtable() From {
+             {"x", 1}
             }
-            Dim hy = New Hashtable() From { _
-             {"y", 1} _
+            Dim hy = New Hashtable() From {
+             {"y", 1}
             }
 
-            _collection.Drop()
-            _collection.Insert(New C() With { _
-                .D = Nothing, _
-                .E = Nothing, _
-                .F = Nothing, _
-                .H = Nothing, _
-                .I = Nothing, _
+            __collection.Drop()
+            __collection.Insert(New C() With {
+                .D = Nothing,
+                .E = Nothing,
+                .F = Nothing,
+                .H = Nothing,
+                .I = Nothing,
                 .J = Nothing
             })
-            _collection.Insert(New C() With { _
-                .D = de, _
-                .E = de, _
-                .F = de, _
-                .H = he, _
-                .I = he, _
+            __collection.Insert(New C() With {
+                .D = de,
+                .E = de,
+                .F = de,
+                .H = he,
+                .I = he,
                 .J = he
             })
-            _collection.Insert(New C() With { _
-                .D = dx, _
-                .E = dx, _
-                .F = dx, _
-                .H = hx, _
-                .I = hx, _
+            __collection.Insert(New C() With {
+                .D = dx,
+                .E = dx,
+                .F = dx,
+                .H = hx,
+                .I = hx,
                 .J = hx
             })
-            _collection.Insert(New C() With { _
-                 .D = dy, _
-                 .E = dy, _
-                 .F = dy, _
-                 .H = hy, _
-                 .I = hy, _
-                 .J = hy _
+            __collection.Insert(New C() With {
+                 .D = dy,
+                 .E = dy,
+                 .F = dy,
+                 .H = hy,
+                 .I = hy,
+                 .J = hy
             })
-        End Sub
 
-        <Test()> _
+            Return True
+        End Function
+
+        <Fact>
         Public Sub TestWhereDContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.D.ContainsKey("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.D.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.D.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""D.x"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, query.ToList().Count())
+            Assert.Equal("{ ""D.x"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(1, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereDContainsKeyZ()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.D.ContainsKey("z")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.D.ContainsKey(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.D.ContainsKey(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""D.z"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, query.ToList().Count())
+            Assert.Equal("{ ""D.z"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(0, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereEContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.E.ContainsKey("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.E.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.E.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""E.k"" : ""x"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, query.ToList().Count())
+            Assert.Equal("{ ""E.k"" : ""x"" }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(1, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereEContainsKeyZ()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.E.ContainsKey("z")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.E.ContainsKey(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.E.ContainsKey(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""E.k"" : ""z"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, query.ToList().Count())
+            Assert.Equal("{ ""E.k"" : ""z"" }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(0, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereFContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.F.ContainsKey("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.F.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.F.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
             Dim ex = Assert.Throws(Of NotSupportedException)(Sub()
                                                                  selectQuery.BuildQuery()
                                                              End Sub)
-            Assert.AreEqual("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message)
+            Assert.Equal("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message)
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereHContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.H.Contains("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.H.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.H.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""H.x"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, query.ToList().Count())
+            Assert.Equal("{ ""H.x"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(1, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereHContainsKeyZ()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.H.Contains("z")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.H.Contains(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.H.Contains(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""H.z"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, query.ToList().Count())
+            Assert.Equal("{ ""H.z"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(0, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereIContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.I.Contains("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.I.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.I.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""I.k"" : ""x"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, query.ToList().Count())
+            Assert.Equal("{ ""I.k"" : ""x"" }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(1, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereIContainsKeyZ()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.I.Contains("z")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.I.Contains(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.I.Contains(""z"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
-            Assert.AreEqual("{ ""I.k"" : ""z"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, query.ToList().Count())
+            Assert.Equal("{ ""I.k"" : ""z"" }", selectQuery.BuildQuery().ToJson())
+            Assert.Equal(0, query.ToList().Count())
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestWhereJContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In __collection.AsQueryable(Of C)()
                         Where c.J.Contains("x")
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Assert.IsType(Of SelectQuery)(translatedQuery)
+            Assert.Same(__collection, translatedQuery.Collection)
+            Assert.Same(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.J.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+            Assert.Equal("(C c) => c.J.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.Null(selectQuery.OrderBy)
+            Assert.Null(selectQuery.Projection)
+            Assert.Null(selectQuery.Skip)
+            Assert.Null(selectQuery.Take)
 
             Dim ex = Assert.Throws(Of NotSupportedException)(Sub()
                                                                  selectQuery.BuildQuery()
                                                              End Sub)
-            Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message)
+            Assert.Equal("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message)
         End Sub
     End Class
 End Namespace

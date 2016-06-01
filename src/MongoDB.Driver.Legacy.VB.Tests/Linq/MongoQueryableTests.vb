@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2010-2016 MongoDB Inc.
 '*
 '* Licensed under the Apache License, Version 2.0 (the "License");
 '* you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Linq.Expressions
 Imports System.Text
-Imports NUnit.Framework
+Imports Xunit
 
 Imports MongoDB.Bson
 Imports MongoDB.Bson.Serialization.Attributes
@@ -28,7 +28,6 @@ Imports MongoDB.Driver.Linq
 Imports MongoDB.Driver.Tests
 
 Namespace MongoDB.Driver.VB.Tests.Linq
-    <TestFixture()> _
     Public Class MongoQueryableTests
         Private Class C
             Public Property Id() As ObjectId
@@ -42,29 +41,28 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         Private _database As MongoDatabase
         Private _collection As MongoCollection
 
-        <OneTimeSetUp()>
-        Public Sub Setup()
+        Public Sub New()
             _server = LegacyTestConfiguration.Server
             _server.Connect()
             _database = LegacyTestConfiguration.Database
             _collection = LegacyTestConfiguration.Collection
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestConstructorWithOneArgument()
             Dim provider = New MongoQueryProvider(_collection)
             Dim iqueryable = DirectCast(New MongoQueryable(Of C)(provider), IQueryable)
-            Assert.AreSame(GetType(C), iqueryable.ElementType)
-            Assert.AreSame(provider, iqueryable.Provider)
+            Assert.Same(GetType(C), iqueryable.ElementType)
+            Assert.Same(provider, iqueryable.Provider)
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestConstructorWithTwoArguments()
             Dim queryable = _collection.AsQueryable(Of C)()
             Dim iqueryable = DirectCast(New MongoQueryable(Of C)(DirectCast(queryable.Provider, MongoQueryProvider), queryable.Expression), IQueryable)
-            Assert.AreSame(GetType(C), iqueryable.ElementType)
-            Assert.AreSame(queryable.Provider, iqueryable.Provider)
-            Assert.AreSame(queryable.Expression, iqueryable.Expression)
+            Assert.Same(GetType(C), iqueryable.ElementType)
+            Assert.Same(queryable.Provider, iqueryable.Provider)
+            Assert.Same(queryable.Expression, iqueryable.Expression)
         End Sub
     End Class
 End Namespace

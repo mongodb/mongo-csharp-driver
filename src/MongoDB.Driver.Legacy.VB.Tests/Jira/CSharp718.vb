@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2010-2016 MongoDB Inc.
 '
 ' Licensed under the Apache License, Version 2.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 Imports System.Linq
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
-Imports NUnit.Framework
+Imports Xunit
 
 Namespace MongoDB.Driver.VB.Tests.Jira
 
-    <TestFixture()>
     Public Class CSharp718
 
         Public Class C
@@ -28,41 +27,46 @@ Namespace MongoDB.Driver.VB.Tests.Jira
             Public Foo() As Integer
         End Class
 
-        Private _server As MongoServer
-        Private _database As MongoDatabase
-        Private _collection As MongoCollection(Of C)
+        Private Shared __server As MongoServer
+        Private Shared __database As MongoDatabase
+        Private Shared __collection As MongoCollection(Of C)
+        Private Shared __lazyOneTimeSetup As Lazy(Of Boolean) = New Lazy(Of Boolean)(OneTimeSetup)
 
-        <OneTimeSetUp()>
-        Public Sub Setup()
-            _server = LegacyTestConfiguration.Server
-            _database = LegacyTestConfiguration.Database
-            _collection = LegacyTestConfiguration.GetCollection(Of C)()
+        Public Sub New()
+            Dim x = __lazyOneTimeSetup.Value
+        End Sub
+
+        Private Shared Function OneTimeSetup() As Boolean
+            __server = LegacyTestConfiguration.Server
+            __database = LegacyTestConfiguration.Database
+            __collection = LegacyTestConfiguration.GetCollection(Of C)()
             TestSetup()
-        End Sub
+            Return True
+        End Function
 
-        <Test()>
+        <Fact>
         Public Sub TestLinqIsNothing()
-            Dim postsWithFoo = (From d In _collection.AsQueryable(Of C)()
-                Where d.Foo Is Nothing
-                Select d).Count()
-            Assert.AreEqual(2, postsWithFoo)
+            Dim postsWithFoo = (From d In __collection.AsQueryable(Of C)()
+                                Where d.Foo Is Nothing
+                                Select d).Count()
+            Assert.Equal(2, postsWithFoo)
         End Sub
 
-        <Test()>
+        <Fact>
         Public Sub TestLinqIsNotNothing()
-            Dim postsWithFoo = (From d In _collection.AsQueryable(Of C)()
-                Where d.Foo IsNot Nothing
-                Select d).Count()
-            Assert.AreEqual(3, postsWithFoo)
+            Dim postsWithFoo = (From d In __collection.AsQueryable(Of C)()
+                                Where d.Foo IsNot Nothing
+                                Select d).Count()
+            Assert.Equal(3, postsWithFoo)
         End Sub
 
-        Private Sub TestSetup()
-            _collection.RemoveAll()
-            _collection.Insert(New C() With {.Id = 1})
-            _collection.Insert(New C() With {.Id = 2, .Foo = Nothing})
-            _collection.Insert(New C() With {.Id = 3, .Foo = {1}})
-            _collection.Insert(New C() With {.Id = 4, .Foo = {1, 2}})
-            _collection.Insert(New C() With {.Id = 5, .Foo = {1, 2, 3}})
+        Private Shared Sub TestSetup()
+            __collection.RemoveAll()
+            __collection.Insert(New C() With {.Id = 1})
+            __collection.Insert(New C() With {.Id = 2, .Foo = Nothing})
+            __collection.Insert(New C() With {.Id = 3, .Foo = {1}})
+            __collection.Insert(New C() With {.Id = 4, .Foo = {1, 2}})
+            __collection.Insert(New C() With {.Id = 5, .Foo = {1, 2, 3}})
         End Sub
     End Class
 End Namespace

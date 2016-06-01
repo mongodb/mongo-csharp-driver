@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2010-2016 MongoDB Inc.
 '*
 '* Licensed under the Apache License, Version 2.0 (the "License");
 '* you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Linq.Expressions
 Imports System.Text
-Imports NUnit.Framework
+Imports Xunit
 
 Imports MongoDB.Bson
 Imports MongoDB.Bson.Serialization.Attributes
@@ -28,7 +28,6 @@ Imports MongoDB.Driver.Linq
 Imports MongoDB.Driver.Tests
 
 Namespace MongoDB.Driver.VB.Tests.Linq
-    <TestFixture()> _
     Public Class MongoQueryProviderTests
         Private Class C
             Public Property Id() As ObjectId
@@ -42,37 +41,36 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         Private _database As MongoDatabase
         Private _collection As MongoCollection
 
-        <OneTimeSetUp()>
-        Public Sub Setup()
+        Public Sub New()
             _server = LegacyTestConfiguration.Server
             _server.Connect()
             _database = LegacyTestConfiguration.Database
             _collection = LegacyTestConfiguration.Collection
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestConstructor()
             Dim provider = New MongoQueryProvider(_collection)
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestCreateQuery()
             Dim expression = _collection.AsQueryable(Of C)().Expression
             Dim provider = New MongoQueryProvider(_collection)
             Dim query = provider.CreateQuery(Of C)(expression)
-            Assert.AreSame(GetType(C), query.ElementType)
-            Assert.AreSame(provider, query.Provider)
-            Assert.AreSame(expression, query.Expression)
+            Assert.Same(GetType(C), query.ElementType)
+            Assert.Same(provider, query.Provider)
+            Assert.Same(expression, query.Expression)
         End Sub
 
-        <Test()> _
+        <Fact>
         Public Sub TestCreateQueryNonGeneric()
             Dim expression = _collection.AsQueryable(Of C)().Expression
             Dim provider = New MongoQueryProvider(_collection)
             Dim query = provider.CreateQuery(expression)
-            Assert.AreSame(GetType(C), query.ElementType)
-            Assert.AreSame(provider, query.Provider)
-            Assert.AreSame(expression, query.Expression)
+            Assert.Same(GetType(C), query.ElementType)
+            Assert.Same(provider, query.Provider)
+            Assert.Same(expression, query.Expression)
         End Sub
     End Class
 End Namespace

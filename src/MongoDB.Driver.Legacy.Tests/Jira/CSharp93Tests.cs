@@ -53,12 +53,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp93
 
             if (collection.Exists())
             {
-                collection.DropAllIndexes();
+                collection.Drop();
             }
-            else
-            {
-                collection.Insert(new BsonDocument()); // make sure collection exists
-            }
+            collection.Insert(new BsonDocument()); // make sure collection exists
 
             collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
             collection.CreateIndex(IndexKeys.Ascending("y"), IndexOptions.SetUnique(false));

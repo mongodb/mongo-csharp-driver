@@ -1,4 +1,4 @@
-﻿' Copyright 2010-2014 MongoDB Inc.
+﻿' Copyright 2010-2016 MongoDB Inc.
 '*
 '* Licensed under the Apache License, Version 2.0 (the "License");
 '* you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Text
-Imports NUnit.Framework
+Imports Xunit
 
 Imports MongoDB.Bson
 Imports MongoDB.Bson.Serialization.Attributes
@@ -26,7 +26,6 @@ Imports MongoDB.Driver.Linq
 
 Namespace MongoDB.Driver.VB.Tests.Jira
 
-    <TestFixture()>
     Public Class CSharp542
 
         Public Class Test
@@ -35,7 +34,7 @@ Namespace MongoDB.Driver.VB.Tests.Jira
             Public MyNullableInt As Nullable(Of Integer)
         End Class
 
-        <Test()>
+        <Fact>
         Public Sub TestNullableComparison()
 
             Dim server = LegacyTestConfiguration.Server
