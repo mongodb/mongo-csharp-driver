@@ -16,20 +16,20 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class RemovePrimer : PrimerTestFixture
     {
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task RemoveMatchingDocument()
         {
+            AltersCollection();
+
             // @begin: remove-matching-documents
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("borough", "Manhattan");
             var result = await collection.DeleteManyAsync(filter);
             // @code: end
@@ -41,13 +41,14 @@ namespace MongoDB.Driver.Examples
             // @end: remove-matching-documents
         }
 
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task RemoveAllDocuments()
         {
+            AltersCollection();
+
             // @begin: remove-all-documents
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
             var result = await collection.DeleteManyAsync(filter);
             // @code: end
@@ -59,17 +60,18 @@ namespace MongoDB.Driver.Examples
             // @end: remove-all-documents
         }
 
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task DropCollection()
         {
+            AltersCollection();
+
             // @begin: drop-collection
             // @code: start
-            await _database.DropCollectionAsync("restaurants");
+            await __database.DropCollectionAsync("restaurants");
             // @code: end
 
             // @results: start
-            using (var cursor = await _database.ListCollectionsAsync())
+            using (var cursor = await __database.ListCollectionsAsync())
             {
                 var collections = await cursor.ToListAsync();
                 collections.Should().NotContain(document => document["name"] == "restaurants");

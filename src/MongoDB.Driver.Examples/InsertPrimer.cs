@@ -16,17 +16,17 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class InsertPrimer : PrimerTestFixture
     {
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task InsertADocument()
         {
+            AltersCollection();
+
             // @begin: insert-a-document
             // @code: start
             var document = new BsonDocument
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Examples
                 { "restaurant_id", "41704620" }
             };
 
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             await collection.InsertOneAsync(document);
             // @code: end
 

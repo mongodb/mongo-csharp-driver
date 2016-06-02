@@ -17,21 +17,22 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using NUnit.Framework;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class UpdatePrimer : PrimerTestFixture
     {
-        [Test]
-        [AltersCollection]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [Fact]
         public async Task UpdateTopLevelFields()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            AltersCollection();
+
             // @begin: update-top-level-fields
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("name", "Juni");
             var update = Builders<BsonDocument>.Update
                 .Set("cuisine", "American (New)")
@@ -50,13 +51,14 @@ namespace MongoDB.Driver.Examples
             // @end: update-top-level-fields
         }
 
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task UpdateEmbeddedField()
         {
+            AltersCollection();
+
             // @begin: update-embedded-field
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("restaurant_id", "41156888");
             var update = Builders<BsonDocument>.Update.Set("address.street", "East 31st Street");
             var result = await collection.UpdateOneAsync(filter, update);
@@ -73,14 +75,15 @@ namespace MongoDB.Driver.Examples
             // @end: update-embedded-field
         }
 
-        [Test]
-        [AltersCollection]
-        [RequiresServer(MinimumVersion = "2.6.0")]
+        [Fact]
         public async Task UpdateMultipleDocuments()
         {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            AltersCollection();
+
             // @begin: update-multiple-documents
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.Eq("address.zipcode", "10016") & builder.Eq("cuisine", "Other");
             var update = Builders<BsonDocument>.Update

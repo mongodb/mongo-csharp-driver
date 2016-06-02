@@ -16,21 +16,20 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class IndexesPrimer : PrimerTestFixture
     {
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task SingleFieldIndex()
         {
+            AltersCollection();
 
             // @begin: single-field-index
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine");
             await collection.Indexes.CreateOneAsync(keys);
             // @code: end
@@ -46,13 +45,14 @@ namespace MongoDB.Driver.Examples
             // @end: single-field-index
         }
 
-        [Test]
-        [AltersCollection]
+        [Fact]
         public async Task CreateCompoundIndex()
         {
+            AltersCollection();
+
             // @begin: create-compound-index
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine").Ascending("address.zipcode");
             await collection.Indexes.CreateOneAsync(keys);
             // @code: end

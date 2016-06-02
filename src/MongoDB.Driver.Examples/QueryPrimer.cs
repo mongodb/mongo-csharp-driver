@@ -19,19 +19,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class QueryPrimer : PrimerTestFixture
     {
-        [Test]
+        [Fact]
         public async Task QueryAll()
         {
             // @begin: query-all
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
             var count = 0;
             using (var cursor = await collection.FindAsync(filter))
@@ -55,12 +54,12 @@ namespace MongoDB.Driver.Examples
             // @end: query-all
         }
 
-        [Test]
+        [Fact]
         public async Task LogicalAnd()
         {
             // @begin: logical-and
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.Eq("cuisine", "Italian") & builder.Eq("address.zipcode", "10075");
             var result = await collection.Find(filter).ToListAsync();
@@ -73,12 +72,12 @@ namespace MongoDB.Driver.Examples
             // @end: logical-and
         }
 
-        [Test]
+        [Fact]
         public async Task LogicalOr()
         {
             // @begin: logical-or
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.Eq("cuisine", "Italian") | builder.Eq("address.zipcode", "10075");
             var result = await collection.Find(filter).ToListAsync();
@@ -91,12 +90,12 @@ namespace MongoDB.Driver.Examples
             // @end: logical-or
         }
 
-        [Test]
+        [Fact]
         public async Task QueryTopLevelField()
         {
             // @begin: query-top-level-field
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("borough", "Manhattan");
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
@@ -108,12 +107,12 @@ namespace MongoDB.Driver.Examples
             // @end: query-top-level-field
         }
 
-        [Test]
+        [Fact]
         public async Task QueryEmbeddedDocument()
         {
             // @begin: query-embedded-document
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("address.zipcode", "10075");
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
@@ -125,12 +124,12 @@ namespace MongoDB.Driver.Examples
             // @end: query-embedded-document
         }
 
-        [Test]
+        [Fact]
         public async Task QueryFieldInArray()
         {
             // @begin: query-field-in-array
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Eq("grades.grade", "B");
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
@@ -142,12 +141,12 @@ namespace MongoDB.Driver.Examples
             // @end: query-field-in-array
         }
 
-        [Test]
+        [Fact]
         public async Task GreaterThan()
         {
             // @begin: greater-than
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Gt("grades.score", 30);
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
@@ -159,12 +158,12 @@ namespace MongoDB.Driver.Examples
             // @end: greater-than
         }
 
-        [Test]
+        [Fact]
         public async Task LessThan()
         {
             // @begin: less-than
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = Builders<BsonDocument>.Filter.Lt("grades.score", 10);
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
@@ -176,12 +175,12 @@ namespace MongoDB.Driver.Examples
             // @end: less-than
         }
 
-        [Test]
+        [Fact]
         public async Task Sort()
         {
             // @begin: sort
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
             var sort = Builders<BsonDocument>.Sort.Ascending("borough").Ascending("address.zipcode");
             var result = await collection.Find(filter).Sort(sort).ToListAsync();

@@ -16,19 +16,18 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using NUnit.Framework;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    [TestFixture]
     public class AggregatePrimer : PrimerTestFixture
     {
-        [Test]
+        [Fact]
         public async Task GroupDocumentsByAFieldAndCalculateCount()
         {
             // @begin: group-documents-by-a-field-and-calculate-count
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var aggregate = collection.Aggregate().Group(new BsonDocument { { "_id", "$borough" }, { "count", new BsonDocument("$sum", 1) } });
             var results = await aggregate.ToListAsync();
             // @code: end
@@ -49,12 +48,12 @@ namespace MongoDB.Driver.Examples
             // @end: group-documents-by-a-field-and-calculate-count
         }
 
-        [Test]
+        [Fact]
         public async Task FilterAndGroupDocuments()
         {
             // @begin: filter-and-group-documents
             // @code: start
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
+            var collection = __database.GetCollection<BsonDocument>("restaurants");
             var aggregate = collection.Aggregate()
                 .Match(new BsonDocument { { "borough", "Queens" }, { "cuisine", "Brazilian" } })
                 .Group(new BsonDocument { { "_id", "$address.zipcode" }, { "count", new BsonDocument("$sum", 1) } });
