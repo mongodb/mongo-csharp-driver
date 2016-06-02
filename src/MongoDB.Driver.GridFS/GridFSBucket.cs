@@ -39,7 +39,8 @@ namespace MongoDB.Driver.GridFS
         // fields
         private readonly ICluster _cluster;
         private readonly IMongoDatabase _database;
-        private int _ensuredIndexes;
+        private bool _ensureIndexesDone;
+        private SemaphoreSlim _ensureIndexesSemaphore = new SemaphoreSlim(1);
         private readonly IBsonSerializer<GridFSFileInfo<TFileId>> _fileInfoSerializer;
         private readonly BsonSerializationInfo _idSerializationInfo;
         private readonly ImmutableGridFSBucketOptions _options;
@@ -56,7 +57,6 @@ namespace MongoDB.Driver.GridFS
             _options = options == null ? ImmutableGridFSBucketOptions.Defaults : new ImmutableGridFSBucketOptions(options);
 
             _cluster = database.Client.Cluster;
-            _ensuredIndexes = 0;
 
             var idSerializer = _options.SerializerRegistry.GetSerializer<TFileId>();
             _idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
@@ -767,33 +767,47 @@ namespace MongoDB.Driver.GridFS
 
         private void EnsureIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
         {
-            var ensuredIndexes = Interlocked.CompareExchange(ref _ensuredIndexes, 0, 0);
-            if (ensuredIndexes == 0)
+            _ensureIndexesSemaphore.Wait(cancellationToken);
+            try
             {
-                var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
-                if (isFilesCollectionEmpty)
+                if (!_ensureIndexesDone)
                 {
-                    CreateFilesCollectionIndexes(binding, cancellationToken);
-                    CreateChunksCollectionIndexes(binding, cancellationToken);
-                }
+                    var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
+                    if (isFilesCollectionEmpty)
+                    {
+                        CreateFilesCollectionIndexes(binding, cancellationToken);
+                        CreateChunksCollectionIndexes(binding, cancellationToken);
+                    }
 
-                Interlocked.Exchange(ref _ensuredIndexes, 1);
+                    _ensureIndexesDone = true;
+                }
+            }
+            finally
+            {
+                _ensureIndexesSemaphore.Release();
             }
         }
 
         private async Task EnsureIndexesAsync(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
         {
-            var ensuredIndexes = Interlocked.CompareExchange(ref _ensuredIndexes, 0, 0);
-            if (ensuredIndexes == 0)
+            await _ensureIndexesSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
-                var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
-                if (isFilesCollectionEmpty)
+                if (!_ensureIndexesDone)
                 {
-                    await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
-                    await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
-                }
+                    var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
+                    if (isFilesCollectionEmpty)
+                    {
+                        await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                        await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                    }
 
-                Interlocked.Exchange(ref _ensuredIndexes, 1);
+                    _ensureIndexesDone = true;
+                }
+            }
+            finally
+            {
+                _ensureIndexesSemaphore.Release();
             }
         }
 
