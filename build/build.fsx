@@ -2,7 +2,7 @@
 open System
 open Fake
 open Fake.AssemblyInfoFile
-open Fake.Testing.NUnit3
+open Fake.Testing.XUnit2
 
 let config = getBuildParamOrDefault "config" "Release"
 let baseVersion = getBuildParamOrDefault "baseVersion" "2.3.0"
@@ -123,22 +123,19 @@ Target "Test" (fun _ ->
     if not <| directoryExists binDir45 then new Exception(sprintf "Directory %s does not exist." binDir45) |> raise
     ensureDirectory testResultsDir
 
-    let framework = ref Net45
     let mutable testsDir = !! (binDir45 @@ "*Tests*.dll")
     if isMono then
         testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
-        framework := Mono40
+
+    let resultsOutputPath = testResultsDir @@ (getBuildParamOrDefault "testResults" "test-results.xml")
 
     testsDir
-        |> NUnit3 (fun p -> 
+        |> xUnit2 (fun p ->
             { p with
-                ResultSpecs = [testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml;format=nunit2"]
-                ShadowCopy = false
-                // ShowLabels = Environment.GetEnvironmentVariable("MONGO_LOGGING") <> null
-                Framework = !framework
-                Where = getBuildParamOrDefault "testWhere" ""
-                ProcessModel = SingleProcessModel
-                TimeOut = TimeSpan.FromMinutes 10.0
+                ErrorLevel = TestRunnerErrorLevel.Error
+                NUnitXmlOutputPath = Some resultsOutputPath
+                Parallel = ParallelMode.NoParallelization
+                TimeOut = TimeSpan.FromMinutes(10.0)
             })
 )
 

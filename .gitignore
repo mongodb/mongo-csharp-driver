@@ -58,3 +58,5 @@ src/packages
 artifacts
 packages
 Tools/FAKE
+Tools/xunit.runner.console
+
