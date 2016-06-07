@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(getNonceReply);
             connection.EnqueueReplyMessage(authenticateReply);
 
-            var currentRequestId = RequestMessage.CurrentGlobalRequestId;
+            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
 
             Action act;
             if (async)
@@ -103,12 +103,18 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             act.ShouldNotThrow();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, 100).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
             sentMessages.Count.Should().Be(2);
 
-            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 1) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {getnonce: 1}}");
-            sentMessages[1].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 2) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {authenticate: 1, user: \"user\", nonce: \"2375531c32080ae8\", key: \"21742f26431831d5cfca035a08c5bdf6\"}}");
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            actualRequestId0.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId1.Should().BeInRange(actualRequestId0 + 1, actualRequestId0 + 11);
+
+            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + actualRequestId0 + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {getnonce: 1}}");
+            sentMessages[1].Should().Be("{opcode: \"query\", requestId: " + actualRequestId1 + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {authenticate: 1, user: \"user\", nonce: \"2375531c32080ae8\", key: \"21742f26431831d5cfca035a08c5bdf6\"}}");
         }
     }
 }

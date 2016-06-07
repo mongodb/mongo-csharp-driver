@@ -16,6 +16,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -24,7 +25,7 @@ namespace MongoDB.Driver.Examples
 {
     public class UpdatePrimer : PrimerTestFixture
     {
-        [Fact]
+        [SkippableFact]
         public async Task UpdateTopLevelFields()
         {
             RequireServer.Where(minimumVersion: "2.6.0");
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Examples
             // @end: update-embedded-field
         }
 
-        [Fact]
+        [SkippableFact]
         public async Task UpdateMultipleDocuments()
         {
             RequireServer.Where(minimumVersion: "2.6.0");

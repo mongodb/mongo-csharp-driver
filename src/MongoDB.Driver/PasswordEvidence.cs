@@ -150,10 +150,10 @@ namespace MongoDB.Driver
                     try
                     {
                         var encoding = Utf8Encodings.Strict;
-                        var length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-                        var buffer = new byte[prefixBytes.Length + passwordBytes.Length];
+                        var passwordUtf8Length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
+                        var buffer = new byte[prefixBytes.Length + passwordUtf8Length];
                         Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
-                        Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordBytes.Length);
+                        Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordUtf8Length);
                         var hash = algorithm.ComputeHash(buffer);
                         Array.Clear(buffer, 0, buffer.Length);
                         return hash;

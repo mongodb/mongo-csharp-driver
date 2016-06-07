@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(saslStartReply);
 
-            var currentRequestId = RequestMessage.CurrentGlobalRequestId;
+            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
 
             Action act;
             if (async)
@@ -99,11 +99,15 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             act.ShouldNotThrow();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, 100).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 1) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslStart: 1, mechanism: \"PLAIN\", payload: new BinData(0, \"AHVzZXIAcGVuY2ls\")}}");
+            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
+            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+
+            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + actualRequestId + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslStart: 1, mechanism: \"PLAIN\", payload: new BinData(0, \"AHVzZXIAcGVuY2ls\")}}");
         }
     }
 }
