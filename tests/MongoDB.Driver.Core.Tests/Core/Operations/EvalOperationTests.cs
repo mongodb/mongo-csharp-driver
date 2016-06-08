@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public EvalOperationTests()
         {
-            _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
+            _databaseNamespace = DatabaseNamespace.Admin;
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
