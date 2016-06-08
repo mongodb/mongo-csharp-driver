@@ -41,8 +41,8 @@ let tempDir = artifactsDir @@ "tmp"
 
 let slnFile = 
     match isMono with
-    | true -> srcDir @@ "CSharpDriver-Mono.sln"
-    | false -> srcDir @@ "CSharpDriver.sln"
+    | true -> baseDir @@ "CSharpDriver-Mono.sln"
+    | false -> baseDir @@ "CSharpDriver.sln"
 
 let asmFile = srcDir @@ "MongoDB.Shared" @@ "GlobalAssemblyInfo.cs"
 let apiDocsFile = baseDir @@ "Docs" @@ "Api" @@ "CSharpDriverDocs.shfbproj"
@@ -105,7 +105,7 @@ Target "AssemblyInfo" (fun _ ->
 
 Target "Build" (fun _ ->
     !! "./**/packages.config"
-    |> Seq.iter (RestorePackage (fun x -> { x with OutputPath = srcDir @@ "packages" }))
+    |> Seq.iter (RestorePackage (fun x -> { x with OutputPath = baseDir @@ "packages" }))
 
 
     let mutable properties = ["Configuration", config
