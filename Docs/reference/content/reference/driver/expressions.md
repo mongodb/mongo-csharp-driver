@@ -130,6 +130,7 @@ Find(p => localNumbers.Any(i => p.FavoriteNumbers.Contains(i));
 ```
 ```json
 { FavoriteNumbers: { $in: [30, 40] } } 
+```
 
 #### $nin
 
