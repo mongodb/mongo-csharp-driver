@@ -391,9 +391,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var receivedTask10IsRunning = false;
-                    receivedTask10 = Task.Run(() => { receivedTask10IsRunning = true; return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => receivedTask10IsRunning, 1000).Should().BeTrue();
+                    var receivedTask10IsRunning = 0;
+                    receivedTask10 = Task.Run(() => { Interlocked.Exchange(ref receivedTask10IsRunning, 1); return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask10IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
                 }
 
                 Task<ResponseMessage> receivedTask11;
@@ -403,9 +403,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var receivedTask11IsRunning = false;
-                    receivedTask11 = Task.Run(() => { receivedTask11IsRunning = true; return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => receivedTask11IsRunning, 1000).Should().BeTrue();
+                    var receivedTask11IsRunning = 0;
+                    receivedTask11 = Task.Run(() => { Interlocked.Exchange(ref receivedTask11IsRunning, 1); return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask11IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
                 }
 
                 var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
@@ -458,9 +458,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var task1IsRunning = false;
-                    task1 = Task.Run(() => { task1IsRunning = true; return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task1IsRunning, 1000).Should().BeTrue();
+                    var task1IsRunning = 0;
+                    task1 = Task.Run(() => { Interlocked.Exchange(ref task1IsRunning, 1); return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task1IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
                 }
 
                 Task task2;
@@ -470,9 +470,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var task2IsRunning = false;
-                    task2 = Task.Run(() => { task2IsRunning = true; return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task2IsRunning, 1000).Should().BeTrue();
+                    var task2IsRunning = 0;
+                    task2 = Task.Run(() => { Interlocked.Exchange(ref task2IsRunning, 1); return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
                 }
 
                 readTcs.SetException(new SocketException());
@@ -704,9 +704,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var task2IsRunning = false;
-                    task2 = Task.Run(() => { task2IsRunning = true; _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => task2IsRunning, 1000).Should().BeTrue();
+                    var task2IsRunning = 0;
+                    task2 = Task.Run(() => { Interlocked.Exchange(ref task2IsRunning, 1); _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
                 }
 
                 writeTcs.SetException(new SocketException());
