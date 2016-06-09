@@ -30,12 +30,14 @@ namespace MongoDB.Driver.Tests
         private MongoServer _server;
         private MongoServerInstance _primary;
         private MongoDatabase _database;
+        private MongoDatabase _adminDatabase;
 
         public MongoDatabaseTests()
         {
             _server = LegacyTestConfiguration.Server;
             _primary = LegacyTestConfiguration.Server.Primary;
             _database = LegacyTestConfiguration.Database;
+            _adminDatabase = _server.GetDatabase("admin");
             // TODO: DropDatabase
             //_database.Drop();
         }
@@ -165,7 +167,7 @@ namespace MongoDB.Driver.Tests
             {
                 var code = "function() { return 1; }";
 #pragma warning disable 618
-                var result = _database.Eval(EvalFlags.NoLock, code);
+                var result = _adminDatabase.Eval(EvalFlags.NoLock, code);
 #pragma warning restore
                 Assert.Equal(1, result.ToInt32());
             }
@@ -188,7 +190,7 @@ namespace MongoDB.Driver.Tests
                                 Code = "return 0;",
                                 MaxTime = TimeSpan.FromMilliseconds(1)
                             };
-                            Assert.Throws<MongoExecutionTimeoutException>(() => _database.Eval(args));
+                            Assert.Throws<MongoExecutionTimeoutException>(() => _adminDatabase.Eval(args));
                         }
                     }
                 }
@@ -202,7 +204,7 @@ namespace MongoDB.Driver.Tests
             {
                 var code = "function(x) { return x + 1; }";
 #pragma warning disable 618
-                var result = _database.Eval(code, 1);
+                var result = _adminDatabase.Eval(code, 1);
 #pragma warning restore
                 Assert.Equal(2, result.ToInt32());
             }
@@ -215,7 +217,7 @@ namespace MongoDB.Driver.Tests
             {
                 var code = "function(x) { return x + 1; }";
 #pragma warning disable 618
-                var result = _database.Eval(EvalFlags.NoLock, code, 1);
+                var result = _adminDatabase.Eval(EvalFlags.NoLock, code, 1);
 #pragma warning restore
                 Assert.Equal(2, result.ToInt32());
             }
@@ -228,7 +230,7 @@ namespace MongoDB.Driver.Tests
             {
                 var code = "function(x, y) { return x / y; }";
 #pragma warning disable 618
-                var result = _database.Eval(code, 6, 2);
+                var result = _adminDatabase.Eval(code, 6, 2);
 #pragma warning restore
                 Assert.Equal(3, result.ToInt32());
             }
@@ -241,7 +243,7 @@ namespace MongoDB.Driver.Tests
             {
                 var code = "function(x, y) { return x / y; }";
 #pragma warning disable 618
-                var result = _database.Eval(EvalFlags.NoLock, code, 6, 2);
+                var result = _adminDatabase.Eval(EvalFlags.NoLock, code, 6, 2);
 #pragma warning restore
                 Assert.Equal(3, result.ToInt32());
             }

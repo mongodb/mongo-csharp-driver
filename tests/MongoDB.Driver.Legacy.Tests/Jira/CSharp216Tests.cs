@@ -22,11 +22,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
 {
     public class CSharp216Tests
     {
-        private MongoDatabase _database;
+        private MongoDatabase _adminDatabase;
 
         public CSharp216Tests()
         {
-            _database = LegacyTestConfiguration.Database;
+            _adminDatabase = LegacyTestConfiguration.Server.GetDatabase("admin");
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
                 var objectArrayArg = new object[] { 1, 2, 3 };
                 var boolArg = true;
 #pragma warning disable 618
-                var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+                var result = _adminDatabase.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
                 Assert.Equal(BsonType.Boolean, result.BsonType);
                 Assert.Equal(true, result.AsBoolean);
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
                 var objectArrayArg = new object[] { 1, 2, 3 };
                 var boolArg = true;
 #pragma warning disable 618
-                var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+                var result = _adminDatabase.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
                 Assert.Equal(BsonType.Boolean, result.BsonType);
                 Assert.Equal(true, result.AsBoolean);

@@ -29,12 +29,12 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class EvalOperationTests
     {
-        private DatabaseNamespace _databaseNamespace;
+        private DatabaseNamespace _adminDatabaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         public EvalOperationTests()
         {
-            _databaseNamespace = DatabaseNamespace.Admin;
+            _adminDatabaseNamespace = DatabaseNamespace.Admin;
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Args_should_work()
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             var args = new BsonValue[] { 1, 2, 3 };
 
             subject.Args = args;
@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var function = new BsonJavaScript("return 1");
 
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
 
             subject.Args.Should().BeNull();
-            subject.DatabaseNamespace.Should().Be(_databaseNamespace);
+            subject.DatabaseNamespace.Should().Be(_adminDatabaseNamespace);
             subject.Function.Should().Be(function);
             subject.MaxTime.Should().NotHaveValue();
             // subject.MessageEncoderSettings.Should().Be(_messageEncoderSettings);
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_function_is_null()
         {
-            Action action = () => new EvalOperation(_databaseNamespace, null, _messageEncoderSettings);
+            Action action = () => new EvalOperation(_adminDatabaseNamespace, null, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_expected_result()
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             var expectedResult = new BsonDocument
             {
                 { "$eval", function }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_expected_result_when_args_are_provided()
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             var args = new BsonValue[] { 1, 2, 3 };
             subject.Args = args;
             var expectedResult = new BsonDocument
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_expected_result_when_maxTime_is_provided()
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(1);
             var expectedResult = new BsonDocument
             {
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_expected_result_when_noLock_is_provided()
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.NoLock = true;
             var expectedResult = new BsonDocument
             {
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "return 1";
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "function(x) { return x; }";
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.Args = new BsonValue[] { 1 };
 
             var result = ExecuteOperation(subject, async);
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Where(authentication: AuthenticationRequirement.Off);
             var function = "return 1";
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.NoLock = true;
 
             var result = ExecuteOperation(subject, async);
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var function = "return 1";
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
 
             Action action = () => ExecuteOperation(subject, null, async);
 
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Operations
             int? value)
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             var maxTime = value.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(value.Value) : null;
 
             subject.MaxTime = maxTime;
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Core.Operations
             bool? value)
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
 
             subject.NoLock = value;
 
