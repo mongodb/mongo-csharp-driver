@@ -139,7 +139,7 @@ Target "Test" (fun _ ->
                 ErrorLevel = TestRunnerErrorLevel.Error
                 NUnitXmlOutputPath = Some resultsOutputPath
                 Parallel = ParallelMode.NoParallelization
-                TimeOut = TimeSpan.FromMinutes(10.0)
+                TimeOut = TimeSpan.FromMinutes(20.0)
                 IncludeTraits = includeTraits
             })
 )
