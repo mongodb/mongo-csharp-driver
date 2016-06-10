@@ -128,6 +128,10 @@ Target "Test" (fun _ ->
         testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
 
     let resultsOutputPath = testResultsDir @@ (getBuildParamOrDefault "testResults" "test-results.xml")
+    let includeTraits =
+        match getBuildParamOrDefault "Category" "" with
+        | "" -> []
+        | category -> [("Category", category)]
 
     testsDir
         |> xUnit2 (fun p ->
@@ -136,6 +140,7 @@ Target "Test" (fun _ ->
                 NUnitXmlOutputPath = Some resultsOutputPath
                 Parallel = ParallelMode.NoParallelization
                 TimeOut = TimeSpan.FromMinutes(10.0)
+                IncludeTraits = includeTraits
             })
 )
 
