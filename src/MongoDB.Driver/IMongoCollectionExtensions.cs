@@ -53,6 +53,18 @@ namespace MongoDB.Driver
             var provider = new MongoQueryProviderImpl<TDocument>(collection, new AggregateOptions());
             return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
+        
+        /// <summary>
+        /// Creates a queryable source of documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <returns>A queryable source of documents.</returns>
+        public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions aggregateOptions)
+        {
+            var provider = new MongoQueryProviderImpl<TDocument>(collection, aggregateOptions);
+            return new MongoQueryableImpl<TDocument, TDocument>(provider);
+        }
 
         /// <summary>
         /// Counts the number of documents in the collection.
