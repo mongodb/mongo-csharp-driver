@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private IConnection _connection;
+        private volatile IConnection _connection;
         private readonly IConnectionFactory _connectionFactory;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
@@ -136,25 +136,31 @@ namespace MongoDB.Driver.Core.Servers
             Exception heartbeatException = null;
             for (var attempt = 1; attempt <= maxRetryCount; attempt++)
             {
+                var connection = _connection;
                 try
                 {
-                    if (_connection == null)
+                    if (connection == null)
                     {
-                        _connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
+                        connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
                         // if we are cancelling, it's because the server has
                         // been shut down and we really don't need to wait.
-                        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
                     }
 
-                    heartbeatInfo = await GetHeartbeatInfoAsync(_connection, cancellationToken).ConfigureAwait(false);
+                    heartbeatInfo = await GetHeartbeatInfoAsync(connection, cancellationToken).ConfigureAwait(false);
                     heartbeatException = null;
+
+                    _connection = connection;
                     break;
                 }
                 catch (Exception ex)
                 {
                     heartbeatException = ex;
-                    _connection.Dispose();
                     _connection = null;
+                    if (connection != null)
+                    {
+                        connection.Dispose();
+                    }
                 }
             }
 
