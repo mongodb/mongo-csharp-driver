@@ -59,6 +59,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
+        /// <param name="aggregateOptions">The aggregate options</param>
         /// <returns>A queryable source of documents.</returns>
         public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions aggregateOptions)
         {
