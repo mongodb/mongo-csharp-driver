@@ -20,7 +20,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -789,7 +791,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
                 var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
@@ -892,7 +894,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
                 var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
@@ -970,7 +972,7 @@ namespace MongoDB.Bson.Serialization
             EnsureMemberMapIsForThisClass(memberMap);
 
             if (_frozen) { ThrowFrozenException(); }
-            if (memberMap.MemberType != typeof(BsonDocument) && !typeof(IDictionary<string, object>).IsAssignableFrom(memberMap.MemberType))
+            if (memberMap.MemberType != typeof(BsonDocument) && !typeof(IDictionary<string, object>).GetTypeInfo().IsAssignableFrom(memberMap.MemberType))
             {
                 var message = string.Format("Type of ExtraElements member must be BsonDocument or implement IDictionary<string, object>.");
                 throw new InvalidOperationException(message);
@@ -985,7 +987,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The known type.</param>
         public void AddKnownType(Type type)
         {
-            if (!_classType.IsAssignableFrom(type))
+            if (!_classType.GetTypeInfo().IsAssignableFrom(type))
             {
                 string message = string.Format("Class {0} cannot be assigned to Class {1}.  Ensure that known types are derived from the mapped class.", type.FullName, _classType.FullName);
                 throw new ArgumentNullException("type", message);
@@ -1093,7 +1095,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
                 var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
@@ -1142,7 +1144,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
                 var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
@@ -1284,7 +1286,7 @@ namespace MongoDB.Bson.Serialization
         private Func<object, bool> GetShouldSerializeMethod(MemberInfo memberInfo)
         {
             var shouldSerializeMethodName = "ShouldSerialize" + memberInfo.Name;
-            var shouldSerializeMethodInfo = _classType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            var shouldSerializeMethodInfo = _classType.GetTypeInfo().GetMethod(shouldSerializeMethodName, new Type[] { });
             if (shouldSerializeMethodInfo != null &&
                 shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool))
@@ -1591,6 +1593,30 @@ namespace MongoDB.Bson.Serialization
         {
             var interfaceType = interfacePropertyInfo.DeclaringType;
 
+#if NETCORE
+            var actualTypeInfo = actualType.GetTypeInfo();
+            var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            var actualTypePropertyInfos = actualTypeInfo.GetMembers(bindingFlags).OfType<PropertyInfo>();
+
+            var explicitlyImplementedPropertyName = $"{interfacePropertyInfo.DeclaringType.FullName}.{interfacePropertyInfo.Name}".Replace("+", ".");
+            var explicitlyImplementedPropertyInfo = actualTypePropertyInfos
+                .Where(p => p.Name == explicitlyImplementedPropertyName)
+                .SingleOrDefault();
+            if (explicitlyImplementedPropertyInfo != null)
+            {
+                return explicitlyImplementedPropertyInfo;
+            }
+
+            var implicitlyImplementedPropertyInfo = actualTypePropertyInfos
+                .Where(p => p.Name == interfacePropertyInfo.Name && p.PropertyType == interfacePropertyInfo.PropertyType)
+                .SingleOrDefault();
+            if (implicitlyImplementedPropertyInfo != null)
+            {
+                return implicitlyImplementedPropertyInfo;
+            }
+
+            throw new BsonSerializationException($"Unable to find property info for property: '{interfacePropertyInfo.Name}'.");
+#else
             // An interface map must be used because because there is no
             // other officially documented way to derive the explicitly
             // implemented property name.
@@ -1607,13 +1633,14 @@ namespace MongoDB.Bson.Serialization
 
             // Binding must be done by accessor methods because interface
             // maps only map accessor methods and do not map properties.
-            return actualType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            return actualType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Single(propertyInfo =>
                 {
                     // we are looking for a property that implements all the required accessors
                     var propertyAccessors = GetPropertyAccessors(propertyInfo);
                     return actualPropertyAccessors.All(x => propertyAccessors.Contains(x));
                 });
+#endif
         }
     }
 }

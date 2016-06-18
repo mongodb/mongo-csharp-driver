@@ -218,7 +218,12 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c = new C { Obj = new ExpandoObject() };
             var json = c.ToJson(configurator: config => config.IsDynamicType = t => false);
-            var expected = "{ 'Obj' : { '_t' : 'System.Dynamic.ExpandoObject', '_v' : { } } }".Replace("'", "\"");
+#if NETCORE
+            var discriminator = typeof(ExpandoObject).AssemblyQualifiedName;
+#else
+            var discriminator = "System.Dynamic.ExpandoObject";
+#endif
+            var expected = ("{ 'Obj' : { '_t' : '" + discriminator + "', '_v' : { } } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson(configurator: config => config.IsDynamicType = t => false);

@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             if ((_memberTypes & MemberTypes.Field) == MemberTypes.Field)
             {
-                var fields = classMap.ClassType.GetFields(_bindingFlags);
+                var fields = classMap.ClassType.GetTypeInfo().GetFields(_bindingFlags);
                 foreach (var field in fields)
                 {
                     MapField(classMap, field);
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             if ((_memberTypes & MemberTypes.Property) == MemberTypes.Property)
             {
-                var properties = classMap.ClassType.GetProperties(_bindingFlags);
+                var properties = classMap.ClassType.GetTypeInfo().GetProperties(_bindingFlags);
                 foreach (var property in properties)
                 {
                     MapProperty(classMap, property);

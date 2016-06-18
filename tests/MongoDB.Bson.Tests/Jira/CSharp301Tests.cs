@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,7 +60,12 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { } } }".Replace("'", "\"");
+#if NETCORE
+            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
+#else
+            var discriminator = "System.Collections.Hashtable";
+#endif
+            var expected = ("{ '_id' : 1, 'Obj' : { '_t' : '" + discriminator + "', '_v' : { } } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
@@ -73,7 +78,12 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { 'x' : 1 } } }".Replace("'", "\"");
+#if NETCORE
+            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
+#else
+            var discriminator = "System.Collections.Hashtable";
+#endif
+            var expected = ("{ '_id' : 1, 'Obj' : { '_t' : '" + discriminator + "', '_v' : { 'x' : 1 } } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);

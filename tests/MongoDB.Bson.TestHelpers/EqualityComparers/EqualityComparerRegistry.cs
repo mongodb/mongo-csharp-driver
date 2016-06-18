@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MongoDB.Bson.TestHelpers.EqualityComparers
 {
@@ -97,7 +98,7 @@ namespace MongoDB.Bson.TestHelpers.EqualityComparers
         private ComparerPair CreateComparerPair(Type valueType, IEqualityComparer nonGenericComparer)
         {
             var genericComparerType = typeof(GenericEqualityComparerAdapter<>).MakeGenericType(valueType);
-            var genericComparerConstructor = genericComparerType.GetConstructor(new[] { typeof(IEqualityComparer) });
+            var genericComparerConstructor = genericComparerType.GetTypeInfo().GetConstructor(new[] { typeof(IEqualityComparer) });
             var genericComparer = genericComparerConstructor.Invoke(new object[] { nonGenericComparer });
             return new ComparerPair { NonGenericComparer = nonGenericComparer, GenericComparer = genericComparer };
         }

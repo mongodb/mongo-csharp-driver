@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -38,7 +39,11 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
+#if NET45
             var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit
+#else
+            var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false).ToArray(); // don't inherit
+#endif
             if (serializerAttributes.Length == 1)
             {
                 var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];

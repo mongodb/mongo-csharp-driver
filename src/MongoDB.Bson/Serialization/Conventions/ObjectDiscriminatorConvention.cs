@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -103,7 +104,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 // Type.IsAssignableFrom is extremely expensive, always perform a direct type check before calling Type.IsAssignableFrom
-                if (primitiveType != null && (primitiveType == nominalType || nominalType.IsAssignableFrom(primitiveType)))
+                if (primitiveType != null && (primitiveType == nominalType || nominalType.GetTypeInfo().IsAssignableFrom(primitiveType)))
                 {
                     return primitiveType;
                 }

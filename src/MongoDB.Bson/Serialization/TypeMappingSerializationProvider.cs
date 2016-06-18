@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization
                 Type serializerTypeDefinition;
                 if (_serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments(), serializerRegistry);
+                    return CreateGenericSerializer(serializerTypeDefinition, type.GetTypeInfo().GetGenericArguments(), serializerRegistry);
                 }
             }
 
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     throw new ArgumentException("A generic type must either have all or none of the type parameters assigned.");
                 }
-                if (type.GetGenericArguments().Length != serializerType.GetGenericArguments().Length)
+                if (type.GetTypeInfo().GetGenericArguments().Length != serializerType.GetTypeInfo().GetGenericArguments().Length)
                 {
                     throw new ArgumentException("The type and the serializerType must have the same number of type parameters.");
                 }

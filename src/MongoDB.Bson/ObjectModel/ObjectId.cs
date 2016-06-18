@@ -24,7 +24,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
     {
         // private static fields

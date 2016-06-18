@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -304,7 +305,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     foreach (var type in hashSet)
                     {
-                        if (nominalType.IsAssignableFrom(type))
+                        if (nominalType.GetTypeInfo().IsAssignableFrom(type))
                         {
                             if (actualType == null)
                             {
@@ -330,7 +331,7 @@ namespace MongoDB.Bson.Serialization
                     throw new BsonSerializationException(message);
                 }
 
-                if (!nominalType.IsAssignableFrom(actualType))
+                if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
                 {
                     string message = string.Format(
                         "Actual type {0} is not assignable to expected type {1}.",
@@ -456,7 +457,7 @@ namespace MongoDB.Bson.Serialization
                     {
                         var iEquatableDefinition = typeof(IEquatable<>);
                         var iEquatableType = iEquatableDefinition.MakeGenericType(type);
-                        if (iEquatableType.IsAssignableFrom(type))
+                        if (iEquatableType.GetTypeInfo().IsAssignableFrom(type))
                         {
                             var zeroIdCheckerDefinition = typeof(ZeroIdChecker<>);
                             var zeroIdCheckerType = zeroIdCheckerDefinition.MakeGenericType(type);
@@ -690,7 +691,11 @@ namespace MongoDB.Bson.Serialization
                 if (!__typesWithRegisteredKnownTypes.Contains(nominalType))
                 {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
-                    var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+#if NET45
+                    var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+#else
+                    var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false).ToArray();
+#endif
                     if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
                     {
                         // try and force a scan of the known types

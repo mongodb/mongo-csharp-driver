@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         }
                     }
 
-                    if (memberType != null && (memberType == typeof(BsonDocument) || typeof(IDictionary<string, object>).IsAssignableFrom(memberType)))
+                    if (memberType != null && (memberType == typeof(BsonDocument) || typeof(IDictionary<string, object>).GetTypeInfo().IsAssignableFrom(memberType)))
                     {
                         classMap.MapExtraElementsMember(member);
                         return;

@@ -272,7 +272,7 @@ namespace MongoDB.Bson
                         }
                         return array;
                     }
-                    else if (typeof(IList<object>).IsAssignableFrom(options.MapBsonArrayTo))
+                    else if (typeof(IList<object>).GetTypeInfo().IsAssignableFrom(options.MapBsonArrayTo))
                     {
                         var list = (IList<object>)Activator.CreateInstance(options.MapBsonArrayTo);
                         for (int i = 0; i < bsonArray.Count; i++)
@@ -281,7 +281,7 @@ namespace MongoDB.Bson
                         }
                         return list;
                     }
-                    else if (typeof(IList).IsAssignableFrom(options.MapBsonArrayTo))
+                    else if (typeof(IList).GetTypeInfo().IsAssignableFrom(options.MapBsonArrayTo))
                     {
                         var list = (IList)Activator.CreateInstance(options.MapBsonArrayTo);
                         for (int i = 0; i < bsonArray.Count; i++)
@@ -322,7 +322,7 @@ namespace MongoDB.Bson
                     {
                         return bsonDocument;
                     }
-                    else if (typeof(IDictionary<string, object>).IsAssignableFrom(options.MapBsonDocumentTo))
+                    else if (typeof(IDictionary<string, object>).GetTypeInfo().IsAssignableFrom(options.MapBsonDocumentTo))
                     {
                         var dictionary = (IDictionary<string, object>)Activator.CreateInstance(options.MapBsonDocumentTo);
                         foreach (var element in bsonDocument.Elements)
@@ -350,7 +350,7 @@ namespace MongoDB.Bson
                         }
                         return dictionary;
                     }
-                    else if (typeof(IDictionary).IsAssignableFrom(options.MapBsonDocumentTo))
+                    else if (typeof(IDictionary).GetTypeInfo().IsAssignableFrom(options.MapBsonDocumentTo))
                     {
                         var dictionary = (IDictionary)Activator.CreateInstance(options.MapBsonDocumentTo);
                         foreach (var element in bsonDocument.Elements)

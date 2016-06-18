@@ -31,3 +31,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("MongoDB.Bson.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Bson.Tests.NetCore")]

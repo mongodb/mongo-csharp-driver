@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -269,7 +269,16 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var obj = new T { L = new ArrayList(), Q = new Queue(), S = new Stack() };
             var json = obj.ToJson();
             var rep = "[]";
-            var expected = "{ 'L' : { '_t' : 'System.Collections.ArrayList', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Queue', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Stack', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+#if NETCORE
+            var arrayListDiscriminator = typeof(ArrayList).AssemblyQualifiedName;
+            var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;
+            var stackDiscriminator = typeof(Stack).AssemblyQualifiedName;
+#else
+            var arrayListDiscriminator = "System.Collections.ArrayList";
+            var queueDiscriminator = "System.Collections.Queue";
+            var stackDiscriminator = "System.Collections.Stack";
+#endif
+            var expected = ("{ 'L' : { '_t' : '" + arrayListDiscriminator + "', '_v' : #R }, 'Q' : { '_t' : '" + queueDiscriminator + "', '_v' : #R }, 'S' : { '_t' : '" + stackDiscriminator + "', '_v' : #R } }").Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -287,7 +296,16 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var obj = new T { L = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
             var rep = "[1]";
-            var expected = "{ 'L' : { '_t' : 'System.Collections.ArrayList', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Queue', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Stack', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+#if NETCORE
+            var arrayListDiscriminator = typeof(ArrayList).AssemblyQualifiedName;
+            var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;
+            var stackDiscriminator = typeof(Stack).AssemblyQualifiedName;
+#else
+            var arrayListDiscriminator = "System.Collections.ArrayList";
+            var queueDiscriminator = "System.Collections.Queue";
+            var stackDiscriminator = "System.Collections.Stack";
+#endif
+            var expected = ("{ 'L' : { '_t' : '" + arrayListDiscriminator + "', '_v' : #R }, 'Q' : { '_t' : '" + queueDiscriminator + "', '_v' : #R }, 'S' : { '_t' : '" + stackDiscriminator + "', '_v' : #R } }").Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();

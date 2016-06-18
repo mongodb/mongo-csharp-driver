@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "NETStandard.Library": "1.5.0-rc2-24027",
+    "System.Collections.NonGeneric": "4.0.1-rc2-24027",
+    "System.Dynamic.Runtime": "4.0.11-rc2-24027",
+    "System.Linq.Expressions": "4.0.11-rc2-24027",
+    "System.Reflection.Emit.Lightweight": "4.0.1-rc2-24027",
+    "System.Security.Cryptography.Algorithms": "4.1.0-rc2-24027"
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Bson/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETCORE" ]
+      }
+    }
+  }
+}

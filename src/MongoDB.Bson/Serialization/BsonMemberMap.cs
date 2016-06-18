@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization
             _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
-            _memberTypeIsBsonValue = typeof(BsonValue).IsAssignableFrom(_memberType);
+            _memberTypeIsBsonValue = typeof(BsonValue).GetTypeInfo().IsAssignableFrom(_memberType);
 
             Reset();
         }
@@ -539,7 +539,9 @@ namespace MongoDB.Bson.Serialization
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Empty:
+#if NET45
                 case TypeCode.DBNull:
+#endif
                 case TypeCode.String:
                     break;
                 case TypeCode.Object:

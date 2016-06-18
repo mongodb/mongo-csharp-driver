@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 
 namespace MongoDB.Bson
 {

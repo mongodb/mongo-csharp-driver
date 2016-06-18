@@ -154,10 +154,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             // find and call a constructor that we can pass the accumulator to
             var accumulatorType = accumulator.GetType();
-            foreach (var constructorInfo in typeof(TValue).GetConstructors())
+            foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
             {
                 var parameterInfos = constructorInfo.GetParameters();
-                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.IsAssignableFrom(accumulatorType))
+                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
                 {
                     return (TValue)constructorInfo.Invoke(new object[] { accumulator });
                 }
@@ -166,7 +166,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             // otherwise try to find a no-argument constructor and an Add method
             var valueTypeInfo = typeof(TValue).GetTypeInfo();
             var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetMethod("Add", new Type[] { typeof(TItem) });
+            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {
                 var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });

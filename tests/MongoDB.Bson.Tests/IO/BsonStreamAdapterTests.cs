@@ -246,6 +246,7 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
+#if !NETCORE
         [Fact]
         public void Close_can_be_called_multiple_times()
         {
@@ -258,7 +259,9 @@ namespace MongoDB.Bson.Tests
             var subjectReflector = new Reflector(subject);
             subjectReflector._disposed.Should().BeTrue();
         }
+#endif
 
+#if !NETCORE
         [Fact]
         public void Close_should_dispose_subject()
         {
@@ -270,6 +273,7 @@ namespace MongoDB.Bson.Tests
             var subjectReflector = new Reflector(subject);
             subjectReflector._disposed.Should().BeTrue();
         }
+#endif
 
         [Fact]
         public void constructor_should_use_false_as_the_default_value_for_ownsStream()
@@ -353,6 +357,7 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
+#if !NETCORE
         [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
@@ -364,8 +369,10 @@ namespace MongoDB.Bson.Tests
 
             mockStream.Verify(s => s.Close(), Times.Once); // Dispose is not virtual but calls virtual Close
         }
+#endif
 
-        [Theory]
+#if !NETCORE
+       [Theory]
         [ParameterAttributeData]
         public void Dispose_should_dispose_stream_only_when_it_owns_it(
             [Values(false, true)]
@@ -378,6 +385,7 @@ namespace MongoDB.Bson.Tests
 
             mockStream.Verify(s => s.Close(), Times.Exactly(ownsStream ? 1 : 0)); // Dispose is not virtual but calls virtual Close
         }
+#endif
 
         [Fact]
         public void Dispose_should_dispose_subject()

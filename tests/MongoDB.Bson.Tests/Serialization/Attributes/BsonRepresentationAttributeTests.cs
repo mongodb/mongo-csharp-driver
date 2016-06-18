@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Linq;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -42,7 +44,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForI()
         {
             var fieldInfo = typeof(C).GetField("I");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(0, attributes.Length);
         }
 
@@ -50,7 +56,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForIL()
         {
             var fieldInfo = typeof(C).GetField("IL");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int64, attribute.Representation);
@@ -62,7 +72,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLI()
         {
             var fieldInfo = typeof(C).GetField("LI");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -74,7 +88,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLIO()
         {
             var fieldInfo = typeof(C).GetField("LIO");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -86,7 +104,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIT()
         {
             var fieldInfo = typeof(C).GetField("DIT");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -98,7 +120,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIOT()
         {
             var fieldInfo = typeof(C).GetField("DIOT");
+#if NETCORE
+            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
+#else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
+#endif
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);

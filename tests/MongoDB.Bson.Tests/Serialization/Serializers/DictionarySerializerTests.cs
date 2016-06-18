@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -30,6 +31,22 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
     public class C
     {
         public string P { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != typeof(C))
+            {
+                return false;
+            }
+
+            var other = (C)obj;
+            return P.Equals(other.P);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
     }
 
     public class DictionarySerializerTests
@@ -77,12 +94,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -100,12 +117,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -123,12 +140,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -157,12 +174,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -204,12 +221,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -251,12 +268,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -298,12 +315,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]
@@ -365,12 +382,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Hashtable>(rehydrated.HT);
-            Assert.IsType<Hashtable>(rehydrated.ID);
-            Assert.IsType<ListDictionary>(rehydrated.LD);
-            Assert.IsType<OrderedDictionary>(rehydrated.OD);
-            Assert.IsType<SortedList>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+
+            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
+            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
+            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.OD.Should().Equal(obj.OD);
+            rehydrated.LD.Should().Equal(obj.LD);
         }
 
         [Fact]

@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization
                 Type serializerTypeDefinition;
                 if (__serializersTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments(), serializerRegistry);
+                    return CreateGenericSerializer(serializerTypeDefinition, type.GetTypeInfo().GetGenericArguments(), serializerRegistry);
                 }
             }
 

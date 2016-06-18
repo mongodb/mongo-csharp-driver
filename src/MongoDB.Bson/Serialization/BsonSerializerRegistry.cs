@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentNullException("serializer");
             }
             var typeInfo = type.GetTypeInfo();
-            if (typeof(BsonValue).IsAssignableFrom(type))
+            if (typeof(BsonValue).GetTypeInfo().IsAssignableFrom(type))
             {
                 var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);

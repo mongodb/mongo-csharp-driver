@@ -51,6 +51,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual((rehydrated).ToBson()));
         }
 
+#if !NETCORE
         [Fact]
         public void TestDeserializingDiscriminatedVersion()
         {
@@ -61,5 +62,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var expected = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : [{ 'Name' : 'hiking' }, 10], 'Spouse' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } }".Replace("'", "\"");
             Assert.Equal(expected, json);
         }
+#endif
     }
 }

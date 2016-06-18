@@ -38,8 +38,8 @@ namespace MongoDB.Bson.Serialization
             }
 
             if ((typeInfo.IsClass || (typeInfo.IsValueType && !typeInfo.IsPrimitive)) &&
-                !typeof(Array).IsAssignableFrom(type) &&
-                !typeof(Enum).IsAssignableFrom(type))
+                !typeof(Array).GetTypeInfo().IsAssignableFrom(type) &&
+                !typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
                 var classMap = BsonClassMap.LookupClassMap(type);
                 var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);

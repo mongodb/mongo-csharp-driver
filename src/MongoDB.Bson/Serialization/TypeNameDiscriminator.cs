@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Serialization
                         typeArguments.Add(typeArgument);
                     }
 
-                    if (typeArguments.Count == genericTypeDefinition.GetGenericArguments().Length)
+                    if (typeArguments.Count == genericTypeDefinition.GetTypeInfo().GetGenericArguments().Length)
                     {
                         return genericTypeDefinition.MakeGenericType(typeArguments.ToArray());
                     }
@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Serialization
             if (typeInfo.IsGenericType)
             {
                 var typeArgumentNames = "";
-                foreach (var typeArgument in type.GetGenericArguments())
+                foreach (var typeArgument in type.GetTypeInfo().GetGenericArguments())
                 {
                     var typeArgumentName = GetDiscriminator(typeArgument);
                     if (typeArgumentName.IndexOf(',') != -1)
