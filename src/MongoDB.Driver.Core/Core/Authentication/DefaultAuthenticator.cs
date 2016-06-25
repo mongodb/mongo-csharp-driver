@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="credential">The credential.</param>
         public DefaultAuthenticator(UsernamePasswordCredential credential)
-            : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
+            : this(credential, new DefaultRandomStringGenerator())
         {
         }
 

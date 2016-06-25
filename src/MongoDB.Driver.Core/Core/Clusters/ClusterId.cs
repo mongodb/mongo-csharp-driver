@@ -21,7 +21,9 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a cluster identifier.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public sealed class ClusterId : IEquatable<ClusterId>
     {
         // fields

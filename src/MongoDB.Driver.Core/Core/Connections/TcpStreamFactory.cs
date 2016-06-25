@@ -130,6 +130,9 @@ namespace MongoDB.Driver.Core.Connections
                 try
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
+#if NETCORE
+                    await Task.Run(() => socket.Connect(endPoint)); // TODO: honor cancellationToken
+#else
                     if (dnsEndPoint != null)
                     {
                         // mono doesn't support DnsEndPoint in its BeginConnect method.
@@ -139,6 +142,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
                     }
+#endif
                     connected = true;
                     return;
                 }

@@ -16,7 +16,9 @@
 using System;
 using System.IO;
 using System.Net;
+#if !NETCORE
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -51,7 +53,7 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
         }
 
-#if NET45
+#if !NETCORE
         [Fact]
         public void Serialization_should_work()
         {

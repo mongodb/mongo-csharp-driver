@@ -195,9 +195,13 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
+#if NETCORE
+                const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.server_discovery_and_monitoring.tests.";
+#else
                 const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
-                var enumerable = Assembly
-                    .GetExecutingAssembly()
+#endif
+                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
+                var enumerable = executingAssembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path =>
@@ -222,7 +226,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             private static BsonDocument ReadDefinition(string path)
             {
-                using (var definitionStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path))
+                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
+                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
                 using (var definitionStringReader = new StreamReader(definitionStream))
                 {
                     var definitionString = definitionStringReader.ReadToEnd();

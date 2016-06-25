@@ -18,12 +18,16 @@ using System.Text;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    internal class RNGCryptoServiceProviderRandomStringGenerator : IRandomStringGenerator
+    internal class DefaultRandomStringGenerator : IRandomStringGenerator
     {
         public string Generate(int length, string legalCharacters)
         {
             var randomData = new byte[length];
+#if NETCORE
+            using (var rng = RandomNumberGenerator.Create())
+#else
             using (var rng = new RNGCryptoServiceProvider())
+#endif
             {
                 rng.GetBytes(randomData);
             }

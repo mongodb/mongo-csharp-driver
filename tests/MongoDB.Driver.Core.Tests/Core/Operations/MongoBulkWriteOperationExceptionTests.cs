@@ -16,7 +16,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+#if !NETCORE
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
@@ -60,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.WriteErrors.Should().BeSameAs(_writeErrors);
         }
 
-#if NET45
+#if !NETCORE
         [Fact]
         public void Serialization_should_work()
         {

@@ -60,64 +60,77 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
+#if !NETCORE
         public static string MongoPasswordDigest(string username, SecureString password)
         {
-            using (var md5 = MD5.Create())
+            IntPtr unmanagedPassword = IntPtr.Zero;
+            try
             {
-                var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
-
-                IntPtr unmanagedPassword = IntPtr.Zero;
+                unmanagedPassword = Marshal.SecureStringToBSTR(password);
+                var passwordChars = new char[password.Length];
+                GCHandle passwordCharsHandle = new GCHandle();
                 try
                 {
-                    unmanagedPassword = Marshal.SecureStringToBSTR(password);
-                    var passwordChars = new char[password.Length];
-                    GCHandle passwordCharsHandle = new GCHandle();
+                    passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
+                    Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
+
+                    var byteCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
+                    var passwordBytes = new byte[byteCount];
+                    GCHandle passwordBytesHandle = new GCHandle();
                     try
                     {
-                        passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
-                        Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
+                        passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
+                        Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
 
-                        var byteCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
-                        var passwordBytes = new byte[byteCount];
-                        GCHandle passwordBytesHandle = new GCHandle();
-                        try
-                        {
-                            passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
-                            Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-
-                            var buffer = new byte[bytes.Length + passwordBytes.Length];
-                            Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
-                            Buffer.BlockCopy(passwordBytes, 0, buffer, bytes.Length, passwordBytes.Length);
-
-                            return BsonUtils.ToHexString(md5.ComputeHash(buffer));
-                        }
-                        finally
-                        {
-                            Array.Clear(passwordBytes, 0, passwordBytes.Length);
-
-                            if (passwordBytesHandle.IsAllocated)
-                            {
-                                passwordBytesHandle.Free();
-                            }
-                        }
+                        return MongoPasswordDigest(username, passwordBytes);
                     }
                     finally
                     {
-                        Array.Clear(passwordChars, 0, passwordChars.Length);
+                        Array.Clear(passwordBytes, 0, passwordBytes.Length);
 
-                        if (passwordCharsHandle.IsAllocated)
+                        if (passwordBytesHandle.IsAllocated)
                         {
-                            passwordCharsHandle.Free();
+                            passwordBytesHandle.Free();
                         }
                     }
                 }
                 finally
                 {
-                    if (unmanagedPassword != IntPtr.Zero)
+                    Array.Clear(passwordChars, 0, passwordChars.Length);
+
+                    if (passwordCharsHandle.IsAllocated)
                     {
-                        Marshal.ZeroFreeBSTR(unmanagedPassword);
+                        passwordCharsHandle.Free();
                     }
                 }
+            }
+            finally
+            {
+                if (unmanagedPassword != IntPtr.Zero)
+                {
+                    Marshal.ZeroFreeBSTR(unmanagedPassword);
+                }
+            }
+        }
+#endif
+
+        public static string MongoPasswordDigest(string username, string password)
+        {
+            var passwordBytes = Utf8Encodings.Strict.GetBytes(password);
+            return MongoPasswordDigest(username, passwordBytes);
+        }
+
+        public static string MongoPasswordDigest(string username, byte[] passwordBytes)
+        {
+            using (var md5 = MD5.Create())
+            {
+                var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
+
+                var buffer = new byte[bytes.Length + passwordBytes.Length];
+                Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
+                Buffer.BlockCopy(passwordBytes, 0, buffer, bytes.Length, passwordBytes.Length);
+
+                return BsonUtils.ToHexString(md5.ComputeHash(buffer));
             }
         }
     }

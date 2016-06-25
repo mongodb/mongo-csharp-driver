@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 

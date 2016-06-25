@@ -53,7 +53,13 @@ namespace MongoDB.Driver.Core.Configuration
             _checkCertificateRevocation = checkCertificateRevocation.WithDefault(true);
             _clientCertificates = Ensure.IsNotNull(clientCertificates.WithDefault(Enumerable.Empty<X509Certificate>()), "clientCertificates").ToList();
             _clientCertificateSelectionCallback = clientCertificateSelectionCallback.WithDefault(null);
+#if !NETCORE
             _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Default);
+#else
+#pragma warning disable 618
+            _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Tls | SslProtocols.Ssl3); // .NET Core doesn't define Default
+#pragma warning restore
+#endif
             _serverCertificateValidationCallback = serverCertificateValidationCallback.WithDefault(null);
         }
 

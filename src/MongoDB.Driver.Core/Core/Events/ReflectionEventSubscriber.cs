@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Events
 
             _handlers = new Dictionary<Type, Delegate>();
 
-            var methods = instance.GetType().GetMethods(bindingFlags)
+            var methods = instance.GetType().GetTypeInfo().GetMethods(bindingFlags)
                 .Where(x => x.Name == methodName &&
                     x.GetParameters().Length == 1 &&
                     x.ReturnType == typeof(void));

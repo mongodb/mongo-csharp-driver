@@ -27,10 +27,28 @@ namespace MongoDB.Driver.Core.Authentication
     {
         // fields
         private string _source;
+#if NETCORE
+        private string _password;
+#else
         private SecureString _password;
+#endif
         private string _username;
 
         // constructors
+#if NETCORE
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsernamePasswordCredential"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        public UsernamePasswordCredential(string source, string username, string password)
+        {
+            _source = Ensure.IsNotNullOrEmpty(source, nameof(source));
+            _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
+            _password = Ensure.IsNotNull(password, nameof(password));
+        }
+#else
         /// <summary>
         /// Initializes a new instance of the <see cref="UsernamePasswordCredential"/> class.
         /// </summary>
@@ -54,6 +72,7 @@ namespace MongoDB.Driver.Core.Authentication
             _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
             _password = Ensure.IsNotNull(password, nameof(password));
         }
+#endif
 
         // properties
         /// <summary>
@@ -62,7 +81,11 @@ namespace MongoDB.Driver.Core.Authentication
         /// <value>
         /// The password.
         /// </value>
+#if NETCORE
+        public string Password
+#else
         public SecureString Password
+#endif
         {
             get { return _password; }
         }
@@ -96,6 +119,9 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
+#if NETCORE
+            return _password;
+#else
             IntPtr unmanagedPassword = IntPtr.Zero;
             try
             {
@@ -109,8 +135,10 @@ namespace MongoDB.Driver.Core.Authentication
                     Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
                 }
             }
+#endif
         }
 
+#if !NETCORE
         private static SecureString ConvertPasswordToSecureString(string password)
         {
             var secureString = new SecureString();
@@ -121,5 +149,6 @@ namespace MongoDB.Driver.Core.Authentication
             secureString.MakeReadOnly();
             return secureString;
         }
+#endif
     }
 }

@@ -9,6 +9,7 @@ obj
 *.cache
 TestResults
 .vs
+project.lock.json
 
 # CodeReview
 codereview.rc

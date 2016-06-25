@@ -15,7 +15,9 @@
 
 using System;
 using System.Net;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 

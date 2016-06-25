@@ -142,7 +142,11 @@ namespace MongoDB.Driver.Core.Authentication
             return protocol;
         }
 
+#if NETCORE
+        private string CreateKey(string username, string password, string nonce)
+#else
         private string CreateKey(string username, SecureString password, string nonce)
+#endif
         {
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
             using (var md5 = MD5.Create())
