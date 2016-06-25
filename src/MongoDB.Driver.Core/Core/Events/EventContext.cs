@@ -14,13 +14,47 @@
 */
 
 using System;
+#if NETCORE50 || NETSTANDARD1_5
+using System.Threading;
+#else
 using System.Runtime.Remoting.Messaging;
+#endif
 using MongoDB.Driver.Core.Misc;
+
 
 namespace MongoDB.Driver.Core.Events
 {
     internal static class EventContext
     {
+#if NETCORE50 || NETSTANDARD1_5
+        private static AsyncLocal<int?> findOperationBatchSize = new AsyncLocal<int?>();
+        public static int? FindOperationBatchSize
+        {
+            get { return findOperationBatchSize.Value; }
+            private set { findOperationBatchSize.Value = value; }
+        }
+
+        private static AsyncLocal<int?> findOperationLimit = new AsyncLocal<int?>();
+        public static int? FindOperationLimit
+        {
+            get { return findOperationLimit.Value; }
+            private set { findOperationLimit.Value = value; }
+        }
+
+        private static AsyncLocal<CollectionNamespace> killCursorsCollectionNamespace = new AsyncLocal<CollectionNamespace>();
+        public static CollectionNamespace KillCursorsCollectionNamespace
+        {
+            get { return killCursorsCollectionNamespace.Value; }
+            private set { killCursorsCollectionNamespace.Value = value; }
+        }
+
+        private static AsyncLocal<long?> operationId = new AsyncLocal<long?>();
+        public static long? OperationId
+        {
+            get { return operationId.Value; }
+            private set { operationId.Value = value; }
+        }
+#else
         private static readonly string __findBatchSize = "__MONGODB.FIND_OPERATION_BATCH_SIZE__";
         private static readonly string __findLimit = "__MONGODB.FIND_OPERATION_LIMIT__";
         private static readonly string __killCursorsNamespace = "__MONGODB.KILL_CURSORS_OPERATION_COLLECTION_NAMESPACE__";
@@ -77,6 +111,8 @@ namespace MongoDB.Driver.Core.Events
                 CallContext.LogicalSetData(__operationId, value);
             }
         }
+#endif
+
 
         public static IDisposable BeginFind(int? batchSize, int? limit)
         {

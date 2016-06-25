@@ -69,7 +69,11 @@ namespace MongoDB.Driver.Core.Authentication
                 IntPtr unmanagedPassword = IntPtr.Zero;
                 try
                 {
+#if NETCORE50 || NETSTANDARD1_5
+                    unmanagedPassword = SecureStringMarshal.SecureStringToCoTaskMemUnicode(password);
+#else
                     unmanagedPassword = Marshal.SecureStringToBSTR(password);
+#endif
                     var passwordChars = new char[password.Length];
                     GCHandle passwordCharsHandle = new GCHandle();
                     try
@@ -115,7 +119,11 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     if (unmanagedPassword != IntPtr.Zero)
                     {
+#if NETCORE50 || NETSTANDARD1_5
+                        SecureStringMarshal.ZeroFreeCoTaskMemUnicode(unmanagedPassword);
+#else
                         Marshal.ZeroFreeBSTR(unmanagedPassword);
+#endif
                     }
                 }
             }

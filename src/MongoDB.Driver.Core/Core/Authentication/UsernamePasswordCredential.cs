@@ -99,14 +99,22 @@ namespace MongoDB.Driver.Core.Authentication
             IntPtr unmanagedPassword = IntPtr.Zero;
             try
             {
+#if NETCORE50 || NETSTANDARD1_5
+                unmanagedPassword = SecureStringMarshal.SecureStringToCoTaskMemUnicode(_password);
+#else
                 unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(_password);
+#endif
                 return Marshal.PtrToStringUni(unmanagedPassword);
             }
             finally
             {
                 if (unmanagedPassword != IntPtr.Zero)
                 {
+#if NETCORE50 || NETSTANDARD1_5
+                    SecureStringMarshal.ZeroFreeCoTaskMemUnicode(unmanagedPassword);
+#else
                     Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
+#endif
                 }
             }
         }

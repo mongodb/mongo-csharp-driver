@@ -47,7 +47,11 @@ namespace MongoDB.Driver.Core.Connections
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
                 var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
+#if NETCORE50 || NETSTANDARD1_5
+                sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).GetAwaiter().GetResult();
+#else
                 sslStream.AuthenticateAsClient(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation);
+#endif
                 return sslStream;
             }
             catch

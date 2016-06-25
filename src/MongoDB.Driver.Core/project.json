@@ -1,7 +1,11 @@
 {
   "version": "2.2.4-*",
   "dependencies": {
+    "MongoDB.Bson": "2.2.4-*",
     "NETStandard.Library": "1.5.0-rc2-24027",
+    "System.Collections.Specialized": "4.0.1-rc2-24027",
+    "System.Diagnostics.TraceSource": "4.0.0-rc2-24027",
+    "System.Net.Security": "4.0.0-rc2-24027",
     "System.Dynamic.Runtime": "4.0.11-rc2-24027",
     "Microsoft.AspNetCore.Identity": "1.0.0-rc2-final",
     "System.Security.SecureString": "4.0.0-beta-23409",
@@ -9,9 +13,8 @@
     "System.Collections.NonGeneric": "4.0.1-rc2-24027",
     "System.Reflection.Emit.Lightweight": "4.0.1-rc2-24027",
     "System.Reflection.Extensions": "4.0.1-rc2-24027",
-    "System.Runtime.InteropServices": "4.1.0-rc2-24027",
-    "System.Reflection.TypeExtensions": "4.1.0-rc2-24027",
-    "System.Runtime.Serialization.Formatters": "4.0.0-rc4-24214-01"
+    "System.Runtime.InteropServices": "4.2.0-beta-24225-02",
+    "System.Runtime.Handles": "4.0.2-beta-24225-02"
   },
   "frameworks": {
     "netstandard1.5": {
