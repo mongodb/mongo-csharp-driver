@@ -63,3 +63,4 @@ Tools/xunit.runner.console
 src/MongoDB.Bson/project.lock.json
 src/MongoDB.Driver.Core/project.lock.json
 src/MongoDB.Driver/project.lock.json
+samples/MongoDB.Tests.ConsoleApp/project.lock.json
