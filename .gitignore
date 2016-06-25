@@ -60,3 +60,4 @@ packages
 Tools/FAKE
 Tools/xunit.runner.console
 
+src/MongoDB.Bson/project.lock.json

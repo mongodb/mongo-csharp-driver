@@ -17,6 +17,10 @@ using System;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Attributes;
 
+#if NETCORE50 || NETSTANDARD1_5
+using System.Linq;
+#endif
+
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
@@ -37,14 +41,16 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
             }
-
+#if NETCORE50 || NETSTANDARD1_5
+            var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false).ToArray(); // don't inherit
+#else
             var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit
+#endif
             if (serializerAttributes.Length == 1)
             {
                 var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];
                 return serializerAttribute.CreateSerializer(type);
             }
-
             return null;
         }
     }

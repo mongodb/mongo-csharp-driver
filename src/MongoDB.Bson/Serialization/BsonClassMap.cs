@@ -1594,7 +1594,11 @@ namespace MongoDB.Bson.Serialization
             // An interface map must be used because because there is no
             // other officially documented way to derive the explicitly
             // implemented property name.
+#if NETCORE50 || NETSTANDARD1_5
+            var interfaceMap = actualType.GetTypeInfo().GetRuntimeInterfaceMap(interfaceType);
+#else
             var interfaceMap = actualType.GetInterfaceMap(interfaceType);
+#endif
 
             var interfacePropertyAccessors = GetPropertyAccessors(interfacePropertyInfo);
 

@@ -65,7 +65,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             // public methods
             public void Apply(BsonClassMap classMap)
             {
+#if NETCORE50 || NETSTANDARD1_5
+                foreach (IBsonClassMapAttribute attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(typeof(IBsonClassMapAttribute), false))
+#else
                 foreach (IBsonClassMapAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonClassMapAttribute), false))
+#endif
                 {
                     attribute.Apply(classMap);
                 }
@@ -102,7 +106,11 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             public void PostProcess(BsonClassMap classMap)
             {
+#if NETCORE50 || NETSTANDARD1_5
+                foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(typeof(IBsonPostProcessingAttribute), false))
+#else
                 foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonPostProcessingAttribute), false))
+#endif
                 {
                     attribute.PostProcess(classMap);
                 }
@@ -111,9 +119,15 @@ namespace MongoDB.Bson.Serialization.Conventions
             // private methods
             private bool AllowsDuplicate(Type type)
             {
+#if NETCORE50 || NETSTANDARD1_5
+                var usageAttribute = type.GetTypeInfo().GetCustomAttributes(typeof(BsonMemberMapAttributeUsageAttribute), true)
+                    .OfType<BsonMemberMapAttributeUsageAttribute>()
+                    .SingleOrDefault();
+#else
                 var usageAttribute = type.GetCustomAttributes(typeof(BsonMemberMapAttributeUsageAttribute), true)
                     .OfType<BsonMemberMapAttributeUsageAttribute>()
                     .SingleOrDefault();
+#endif
 
                 return usageAttribute == null || usageAttribute.AllowMultipleMembers;
             }

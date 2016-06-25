@@ -16,6 +16,10 @@
 using System;
 using MongoDB.Bson.IO;
 
+#if NETCORE50 || NETSTANDARD1_5
+using System.Reflection;
+#endif
+
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
