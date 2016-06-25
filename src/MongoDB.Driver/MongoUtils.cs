@@ -74,14 +74,22 @@ namespace MongoDB.Driver
                 return "";
             }
 
+#if NETCORE50 || NETSTANDARD1_5
+            var bstr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(secureString);
+#else
             var bstr = Marshal.SecureStringToBSTR(secureString);
+#endif
             try
             {
                 return Marshal.PtrToStringBSTR(bstr);
             }
             finally
             {
+#if NETCORE50 || NETSTANDARD1_5
+                SecureStringMarshal.ZeroFreeCoTaskMemUnicode(bstr);
+#else
                 Marshal.ZeroFreeBSTR(bstr);
+#endif
             }
         }
     }

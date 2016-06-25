@@ -127,7 +127,11 @@ namespace MongoDB.Driver
         /// </summary>
         private static string GenerateDigest(SecureString secureString)
         {
+#if NETCORE50 || NETSTANDARD1_5
+            using (var sha256 = SHA256.Create())
+#else
             using (var sha256 = new SHA256CryptoServiceProvider())
+#endif
             {
                 var hash = ComputeHash(sha256, new byte[0], secureString);
                 return BsonUtils.ToHexString(hash);
@@ -136,7 +140,11 @@ namespace MongoDB.Driver
 
         private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, SecureString secureString)
         {
+#if NETCORE50 || NETSTANDARD1_5
+            var bstr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(secureString);
+#else
             var bstr = Marshal.SecureStringToBSTR(secureString);
+#endif
             try
             {
                 var passwordChars = new char[secureString.Length];
@@ -172,7 +180,11 @@ namespace MongoDB.Driver
             }
             finally
             {
+#if NETCORE50 || NETSTANDARD1_5
+                SecureStringMarshal.ZeroFreeCoTaskMemUnicode(bstr);
+#else
                 Marshal.ZeroFreeBSTR(bstr);
+#endif
             }
         }
     }
