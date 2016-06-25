@@ -1,5 +1,6 @@
 ﻿{
   "version": "1.0.0-*",
+  "authors": [ "zhongzf@126.com" ],
   "buildOptions": {
     "emitEntryPoint": true
   },
@@ -9,8 +10,8 @@
       "type": "platform",
       "version": "1.0.0-rc2-3002702"
     },
-    "MongoDB.Bson": "2.2.4-*",
-    "MongoDB.Driver": "2.2.4-*"
+    "RaisingStudio.MongoDB.Bson": "2.2.4-*",
+    "RaisingStudio.MongoDB.Driver": "2.2.4-*"
   },
 
   "frameworks": {

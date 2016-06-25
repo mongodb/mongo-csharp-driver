@@ -1,7 +1,9 @@
 {
   "version": "2.2.4-*",
+  "authors": [ "zhongzf@126.com" ],
+  "description": "MongoDB supported Driver Core library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.",
   "dependencies": {
-    "MongoDB.Bson": "2.2.4-*",
+    "RaisingStudio.MongoDB.Bson": "2.2.4-*",
     "NETStandard.Library": "1.5.0-rc2-24027",
     "System.Collections.Specialized": "4.0.1-rc2-24027",
     "System.Diagnostics.TraceSource": "4.0.0-rc2-24027",
