@@ -26,7 +26,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Credential to access a MongoDB database.
     /// </summary>
+#if !NETCORE
     [Serializable]
+#endif
     public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields
@@ -95,7 +97,11 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
+#if !NETCORE
                     return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
+#else
+                    return passwordEvidence.Password;
+#endif
                 }
 
                 return null;
@@ -157,6 +163,7 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+#if !NETCORE
         /// <summary>
         /// Creates a default credential.
         /// </summary>
@@ -171,6 +178,7 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
+#endif
 
         /// <summary>
         /// Creates a GSSAPI credential.
@@ -200,6 +208,7 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+#if !NETCORE
         /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
@@ -213,6 +222,7 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
+#endif
 
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
@@ -229,6 +239,7 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+#if !NETCORE
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
         /// </summary>
@@ -243,6 +254,7 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
+#endif
 
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
@@ -272,6 +284,7 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+#if !NETCORE
         /// <summary>
         /// Creates a PLAIN credential.
         /// </summary>
@@ -286,6 +299,7 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
+#endif
 
         // public methods
         /// <summary>
@@ -377,10 +391,15 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
+#if !NETCORE
+                var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
+#else
+                var insecurePassword = passwordEvidence.Password;
+#endif
                 var credential = new UsernamePasswordCredential(
                     _identity.Source,
                     _identity.Username,
-                    MongoUtils.ToInsecureString(passwordEvidence.SecurePassword));
+                    insecurePassword);
                 if (_mechanism == null)
                 {
                     return new DefaultAuthenticator(credential);

@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Processors
                     serializer = BuildMemberInit((MemberInitExpression)node);
                     break;
                 case ExpressionType.New:
-                    if (!typeof(IEnumerable).IsAssignableFrom(node.Type))
+                    if (!typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(node.Type))
                     {
                         serializer = BuildNew((NewExpression)node);
                     }

@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
                 return Expression.Call(
                     typeof(MongoEnumerable),
                     "ToHashSet",
-                    node.Type.GetGenericArguments(),
+                    node.Type.GetTypeInfo().GetGenericArguments(),
                     node.Arguments.ToArray());
             }
 
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
                 return Expression.Call(
                     typeof(Enumerable),
                     "ToList",
-                    node.Type.GetGenericArguments(),
+                    node.Type.GetTypeInfo().GetGenericArguments(),
                     node.Arguments.ToArray());
             }
 

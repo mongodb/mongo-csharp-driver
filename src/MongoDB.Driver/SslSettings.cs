@@ -37,7 +37,11 @@ namespace MongoDB.Driver
         private bool _checkCertificateRevocation = true;
         private X509CertificateCollection _clientCertificateCollection;
         private LocalCertificateSelectionCallback _clientCertificateSelectionCallback;
+#if NETCORE
+        private SslProtocols _enabledSslProtocols = SslProtocols.Tls;
+#else
         private SslProtocols _enabledSslProtocols = SslProtocols.Default;
+#endif
         private RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
         // the following fields are set when the SslSettings are frozen
@@ -257,11 +261,19 @@ namespace MongoDB.Driver
             var certificate2 = certificate as X509Certificate2;
             if (certificate2 != null)
             {
+#if !NETCORE
                 return new X509Certificate2(certificate2);
+#else
+                return new X509Certificate2(certificate2.RawData);
+#endif
             }
             else
             {
+#if !NETCORE
                 return new X509Certificate(certificate);
+#else
+                return new X509Certificate(certificate.Export(X509ContentType.Cert));
+#endif     
             }
         }
 

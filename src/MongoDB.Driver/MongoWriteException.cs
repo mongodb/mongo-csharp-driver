@@ -14,7 +14,9 @@
 */
 
 using System;
+#if !NETCORE
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 
@@ -23,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a write exception.
     /// </summary>
-#if NET45
+#if !NETCORE
     [Serializable]
 #endif
     public class MongoWriteException : MongoServerException

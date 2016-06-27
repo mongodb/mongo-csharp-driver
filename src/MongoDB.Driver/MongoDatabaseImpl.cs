@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ namespace MongoDB.Driver
                 return;
             }
 
-            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetMethod("CreateCollectionHelper", BindingFlags.NonPublic | BindingFlags.Instance);
-            var documentType = options.GetType().GetGenericArguments()[0];
+            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetTypeInfo().GetMethod("CreateCollectionHelper", BindingFlags.NonPublic | BindingFlags.Instance);
+            var documentType = options.GetType().GetTypeInfo().GetGenericArguments()[0];
             var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
             methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
         }
@@ -104,8 +104,8 @@ namespace MongoDB.Driver
                 return CreateCollectionHelperAsync<BsonDocument>(name, genericOptions, cancellationToken);
             }
 
-            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetMethod("CreateCollectionHelperAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var documentType = options.GetType().GetGenericArguments()[0];
+            var genericMethodDefinition = typeof(MongoDatabaseImpl).GetTypeInfo().GetMethod("CreateCollectionHelperAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+            var documentType = options.GetType().GetTypeInfo().GetGenericArguments()[0];
             var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
             return (Task)methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
         }

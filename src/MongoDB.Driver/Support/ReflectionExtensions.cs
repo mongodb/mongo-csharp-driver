@@ -70,14 +70,14 @@ namespace MongoDB.Driver.Support
                 throw new ArgumentException("Type must be nullable.", "type");
             }
 
-            return type.GetGenericArguments()[0];
+            return type.GetTypeInfo().GetGenericArguments()[0];
         }
 
         public static Type GetSequenceElementType(this Type type)
         {
             Type ienum = FindIEnumerable(type);
             if (ienum == null) { return type; }
-            return ienum.GetGenericArguments()[0];
+            return ienum.GetTypeInfo().GetGenericArguments()[0];
         }
 
         private static Type FindIEnumerable(Type seqType)
@@ -95,10 +95,10 @@ namespace MongoDB.Driver.Support
 
             if (seqTypeInfo.IsGenericType)
             {
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (Type arg in seqType.GetTypeInfo().GetGenericArguments())
                 {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
+                    if (ienum.GetTypeInfo().IsAssignableFrom(seqType))
                     {
                         return ienum;
                     }

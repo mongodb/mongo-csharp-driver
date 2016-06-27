@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateContainsKey(MethodCallExpression methodCallExpression)
         {
             var dictionaryType = methodCallExpression.Object.Type;
-            var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
+            var implementedInterfaces = new List<Type>(dictionaryType.GetTypeInfo().GetInterfaces());
             if (dictionaryType.GetTypeInfo().IsInterface)
             {
                 implementedInterfaces.Add(dictionaryType);
@@ -545,7 +545,7 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateContains(MethodCallExpression methodCallExpression)
         {
             // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
-            if (methodCallExpression.Object != null && typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
+            if (methodCallExpression.Object != null && typeof(IDictionary).GetTypeInfo().IsAssignableFrom(methodCallExpression.Object.Type))
             {
                 return TranslateContainsKey(methodCallExpression);
             }

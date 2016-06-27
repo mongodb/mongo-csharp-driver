@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ namespace MongoDB.Driver
     /// Model for updating a single document.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if !NETCORE
     [Serializable]
+#endif
     public sealed class UpdateOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields

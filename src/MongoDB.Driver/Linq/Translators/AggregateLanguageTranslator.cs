@@ -307,10 +307,10 @@ namespace MongoDB.Driver.Linq.Translators
                 return result;
             }
 
-            var expressionTypeInfo = node.Expression.Type.GetTypeInfo();
+            var expressionType = node.Expression.Type;
             if (node.Expression != null
-                && (expressionTypeInfo.ImplementsInterface(typeof(ICollection<>))
-                    || expressionTypeInfo.ImplementsInterface(typeof(ICollection)))
+                && (expressionType.ImplementsInterface(typeof(ICollection<>))
+                    || expressionType.ImplementsInterface(typeof(ICollection)))
                 && node.Member.Name == "Count")
             {
                 return new BsonDocument("$size", TranslateValue(node.Expression));

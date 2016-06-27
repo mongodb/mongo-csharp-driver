@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
+#if !NETCORE
     [Serializable]
+#endif
     public class MongoUrl : IEquatable<MongoUrl>
     {
         // private static fields

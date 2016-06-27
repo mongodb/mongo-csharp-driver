@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Linq.Translators
             var correlationId = Guid.NewGuid();
             bindingContext.AddCorrelatingId(groupExpression, correlationId);
             bindingContext.AddExpressionMapping(groupProjector.Parameters[0], groupExpression);
-            bindingContext.AddMemberMapping(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), keySelector);
+            bindingContext.AddMemberMapping(typeof(IGrouping<TKey, TDocument>).GetTypeInfo().GetProperty("Key"), keySelector);
 
             var node = PartialEvaluator.Evaluate(groupProjector.Body);
             node = Transformer.Transform(node);

@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NETCORE
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -27,7 +29,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
-#if NET45
+#if !NETCORE
     [Serializable]
 #endif
     public abstract class MongoBulkWriteException : MongoServerException
@@ -122,7 +124,7 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET45
+#if !NETCORE
     [Serializable]
 #endif
     public sealed class MongoBulkWriteException<TDocument> : MongoBulkWriteException

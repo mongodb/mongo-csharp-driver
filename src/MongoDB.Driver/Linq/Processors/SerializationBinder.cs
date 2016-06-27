@@ -188,13 +188,13 @@ namespace MongoDB.Driver.Linq.Processors
             if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked || newNode.NodeType == ExpressionType.TypeAs)
             {
                 // handle unnecessary convert expressions
-                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))
+                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.GetTypeInfo().IsAssignableFrom(newNode.Operand.Type))
                 {
                     return newNode.Operand;
                 }
 
                 // handle downcast convert expressions
-                if (newNode.Operand.Type.IsAssignableFrom(newNode.Type))
+                if (newNode.Operand.Type.GetTypeInfo().IsAssignableFrom(newNode.Type))
                 {
                     var serializationExpression = newNode.Operand as SerializationExpression;
                     if (serializationExpression != null)

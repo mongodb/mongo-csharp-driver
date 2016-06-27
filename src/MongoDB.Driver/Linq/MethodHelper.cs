@@ -66,10 +66,10 @@ namespace MongoDB.Driver.Linq
         public static IEnumerable<MethodInfo> GetEnumerableAndQueryableMethodDefinitions(string name)
         {
             return typeof(Enumerable)
-                .GetMethods()
-                .Concat(typeof(Queryable).GetMethods())
-                .Concat(typeof(MongoEnumerable).GetMethods())
-                .Concat(typeof(MongoQueryable).GetMethods())
+                .GetTypeInfo().GetMethods()
+                .Concat(typeof(Queryable).GetTypeInfo().GetMethods())
+                .Concat(typeof(MongoEnumerable).GetTypeInfo().GetMethods())
+                .Concat(typeof(MongoQueryable).GetTypeInfo().GetMethods())
                 .Where(x => x.Name == name)
                 .Select(x => GetMethodDefinition(x));
         }
@@ -89,7 +89,15 @@ namespace MongoDB.Driver.Linq
             }
 
             var declaringTypeDefinition = methodInfo.DeclaringType.GetGenericTypeDefinition();
+#if !NETCORE
             return (MethodInfo)MethodBase.GetMethodFromHandle(methodInfo.MethodHandle, declaringTypeDefinition.TypeHandle);
+#else
+            var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public;
+            var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            return declaringTypeDefinition.GetTypeInfo().GetMethods(bindingFlags)
+                .Where(m => m.Name == methodInfo.Name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
+                .Single();
+#endif
         }
     }
 }

@@ -60,6 +60,7 @@ namespace MongoDB.Driver
             return value.Substring(0, 1).ToLower() + value.Substring(1);
         }
 
+#if !NETCORE
         // internal methods
         /// <summary>
         /// Should only be used when the safety of the data cannot be guaranteed.  For instance,
@@ -84,5 +85,6 @@ namespace MongoDB.Driver
                 Marshal.ZeroFreeBSTR(bstr);
             }
         }
+#endif
     }
 }
