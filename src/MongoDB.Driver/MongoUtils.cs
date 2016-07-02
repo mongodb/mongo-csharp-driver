@@ -59,7 +59,7 @@ namespace MongoDB.Driver
         /// <returns>The camel cased string.</returns>
         public static string ToCamelCase(string value)
         {
-            return value.Substring(0, 1).ToLower() + value.Substring(1);
+            return value.Length == 0 ? "" : value.Substring(0, 1).ToLower() + value.SubString(1);
         }
 
         // internal methods
