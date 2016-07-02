@@ -62,6 +62,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         public static string MongoPasswordDigest(string username, SecureString password)
         {
+            Ensure.IsNotNull(password, nameof(password));
+            
             using (var md5 = MD5.Create())
             {
                 var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
