@@ -34,10 +34,9 @@ namespace MongoDB.Driver
         /// <returns>The MD5 hash.</returns>
         public static string Hash(string text)
         {
-            var md5 = MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
-            return hash;
+            MD5 md5 = MD5.Create();
+            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+            return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
         }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace MongoDB.Driver
         /// <returns>The camel cased string.</returns>
         public static string ToCamelCase(string value)
         {
-            return value.Substring(0, 1).ToLower() + value.Substring(1);
+            return !String.IsNullOrWhiteSpace(value) ? value.Substring(0, 1).ToLower() + value.Substring(1) : String.Empty;
         }
 
         // internal methods
@@ -71,7 +70,7 @@ namespace MongoDB.Driver
         {
             if (secureString == null || secureString.Length == 0)
             {
-                return "";
+                return String.Empty;
             }
 
             var bstr = Marshal.SecureStringToBSTR(secureString);
