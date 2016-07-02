@@ -35,7 +35,7 @@ namespace MongoDB.Driver
         public static string Hash(string text)
         {
             MD5 md5 = MD5.Create();
-            bytes[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
             return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
         }
 
