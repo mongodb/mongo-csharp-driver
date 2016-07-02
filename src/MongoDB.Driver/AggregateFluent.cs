@@ -28,54 +28,62 @@ namespace MongoDB.Driver
 {
     internal class AggregateFluent<TDocument, TResult> : AggregateFluentBase<TResult>
     {
+        // consts
+        private const string OPERATOR_GROUP_NAME = "$group";
+        private const string OPERATOR_LOOKUP_NAME = "$lookup";
+        private const string OPERATOR_MATCH_NAME = "$match";
+        private const string OPERATOR_PROJECT_NAME = "$project";
+        private const string OPERATOR_SORT_NAME = "$sort";
+        private const string OPERATOR_UNWIND_NAME = "$unwind";
+        
         // fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
         private readonly List<IPipelineStageDefinition> _stages;
+        
 
         // constructors
         public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<IPipelineStageDefinition> stages, AggregateOptions options)
         {
-            _collection = Ensure.IsNotNull(collection, nameof(collection));
-            _stages = Ensure.IsNotNull(stages, nameof(stages)).ToList();
-            _options = Ensure.IsNotNull(options, nameof(options));
+            this._collection = Ensure.IsNotNull(collection, nameof(collection));
+            this._stages = Ensure.IsNotNull(stages, nameof(stages)).ToList();
+            this._options = Ensure.IsNotNull(options, nameof(options));
         }
 
         // properties
         public override AggregateOptions Options
         {
-            get { return _options; }
+            get { return this._options; }
         }
 
         public override IList<IPipelineStageDefinition> Stages
         {
-            get { return _stages; }
+            get { return this._stages; }
         }
 
         // methods
         public override IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage)
         {
             return new AggregateFluent<TDocument, TNewResult>(
-                _collection,
-                _stages.Concat(new[] { stage }),
-                _options);
+                this._collection,
+                this._stages.Concat(new[] { stage }),
+                this._options);
         }
 
         public override IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer)
         {
             var projection = Builders<TResult>.Projection.As<TNewResult>(newResultSerializer);
-            return Project(projection);
+            return this.Project(projection);
         }
 
         public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)
         {
-            const string operatorName = "$group";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
-                operatorName,
+                OPERATOR_GROUP_NAME,
                 (s, sr) =>
                 {
                     var renderedProjection = group.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(OPERATOR_GROUP_NAME, new BsonDocument(OPERATOR_GROUP_NAME, renderedProjection.Document), renderedProjection.ProjectionSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
@@ -89,15 +97,14 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options)
         {
             options = options ?? new AggregateLookupOptions<TForeignDocument, TNewResult>();
-            const string operatorName = "$lookup";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
-                operatorName,
+                OPERATOR_LOOKUP_NAME,
                 (localSerializer, sr) =>
                 {
                     var foreignSerializer = options.ForeignSerializer ?? (localSerializer as IBsonSerializer<TForeignDocument>) ?? sr.GetSerializer<TForeignDocument>();
                     var newResultSerializer = options.ResultSerializer ?? (localSerializer as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
                     return new RenderedPipelineStageDefinition<TNewResult>(
-                        operatorName, new BsonDocument(operatorName, new BsonDocument
+                        OPERATOR_LOOKUP_NAME, new BsonDocument(OPERATOR_LOOKUP_NAME, new BsonDocument
                         {
                             { "from", foreignCollectionName },
                             { "localField", localField.Render(localSerializer, sr).FieldName },
@@ -112,10 +119,9 @@ namespace MongoDB.Driver
 
         public override IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter)
         {
-            const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
-                operatorName,
-                (s, sr) => new RenderedPipelineStageDefinition<TResult>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr)), s));
+                OPERATOR_MATCH_NAME,
+                (s, sr) => new RenderedPipelineStageDefinition<TResult>(OPERATOR_MATCH_NAME, new BsonDocument(OPERATOR_MATCH_NAME, filter.Render(s, sr)), s));
 
             return AppendStage<TResult>(stage);
         }
@@ -129,17 +135,16 @@ namespace MongoDB.Driver
                 throw new NotSupportedException(message);
             }
 
-            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TResult), typeof(TNewResult));
-            var ofTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
+            BsonValue discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TResult), typeof(TNewResult));
+            BsonDocument ofTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
 
-            const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
-                operatorName,
+                OPERATOR_MATCH_NAME,
                 (s, sr) =>
                 {
                     return new RenderedPipelineStageDefinition<TNewResult>(
-                        operatorName,
-                        new BsonDocument(operatorName, ofTypeFilter),
+                        OPERATOR_MATCH_NAME,
+                        new BsonDocument(OPERATOR_MATCH_NAME, ofTypeFilter),
                         newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>());
                 });
 
@@ -160,9 +165,8 @@ namespace MongoDB.Driver
 
         public override IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection)
         {
-            const string operatorName = "$project";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
-                operatorName,
+                OPERATOR_PROJECT_NAME,
                 (s, sr) =>
                 {
                     var renderedProjection = projection.Render(s, sr);
@@ -173,9 +177,9 @@ namespace MongoDB.Driver
                     }
                     else
                     {
-                        document = new BsonDocument(operatorName, renderedProjection.Document);
+                        document = new BsonDocument(OPERATOR_PROJECT_NAME, renderedProjection.Document);
                     }
-                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, document, renderedProjection.ProjectionSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(OPERATOR_PROJECT_NAME, document, renderedProjection.ProjectionSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
@@ -188,10 +192,9 @@ namespace MongoDB.Driver
 
         public override IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort)
         {
-            const string operatorName = "$sort";
             var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
-                operatorName,
-                (s, sr) => new RenderedPipelineStageDefinition<TResult>(operatorName, new BsonDocument(operatorName, sort.Render(s, sr)), s));
+                OPERATOR_SORT_NAME,
+                (s, sr) => new RenderedPipelineStageDefinition<TResult>(OPERATOR_SORT_NAME, new BsonDocument(OPERATOR_SORT_NAME, sort.Render(s, sr)), s));
 
 
             return AppendStage(stage);
@@ -206,14 +209,13 @@ namespace MongoDB.Driver
         {
             options = options ?? new AggregateUnwindOptions<TNewResult>();
 
-            const string operatorName = "$unwind";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
-                operatorName,
+                OPERATOR_UNWIND_NAME,
                 (s, sr) =>
                 {
                     var newResultSerializer = options.ResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>();
 
-                    var fieldName = "$" + field.Render(s, sr).FieldName;
+                    string fieldName = String.Concat("$", field.Render(s, sr).FieldName);
                     string includeArrayIndexFieldName = null;
                     if (options.IncludeArrayIndex != null)
                     {
@@ -231,8 +233,8 @@ namespace MongoDB.Driver
                         };
                     }
                     return new RenderedPipelineStageDefinition<TNewResult>(
-                        operatorName,
-                        new BsonDocument(operatorName, value),
+                        OPERATOR_UNWIND_NAME,
+                        new BsonDocument(OPERATOR_UNWIND_NAME, value),
                         newResultSerializer);
                 });
 
@@ -241,23 +243,23 @@ namespace MongoDB.Driver
 
         public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
-            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
-            return _collection.Aggregate(pipeline, _options, cancellationToken);
+            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(this._stages);
+            return this._collection.Aggregate(pipeline, this._options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken)
         {
-            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
-            return _collection.AggregateAsync(pipeline, _options, cancellationToken);
+            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(this._stages);
+            return this._collection.AggregateAsync(pipeline, this._options, cancellationToken);
         }
 
         public override string ToString()
         {
-            var sb = new StringBuilder("aggregate([");
-            if (_stages.Count > 0)
+            StringBuilder sb = new StringBuilder("aggregate([");
+            if (this._stages.Count > 0)
             {
-                var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
-                var renderedPipeline = pipeline.Render(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+                var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(this._stages);
+                var renderedPipeline = pipeline.Render(this._collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
                 sb.Append(string.Join(", ", renderedPipeline.Documents.Select(x => x.ToString())));
             }
             sb.Append("])");
