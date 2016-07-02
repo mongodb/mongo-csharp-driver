@@ -131,6 +131,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         private CommandWireProtocol<BsonDocument> CreateCommandProtocol(BsonDocument command)
         {
+            Ensure.IsNotNull(command, nameof(command));
+            
             return new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace(DatabaseName),
                 command,
@@ -141,6 +143,9 @@ namespace MongoDB.Driver.Core.Authentication
 
         private BsonDocument CreateContinueCommand(ISaslStep currentStep, BsonDocument result)
         {
+            Ensure.IsNotNull(currentStep, nameof(currentStep));
+            Ensure.IsNotNull(result, nameof(result));
+            
             return new BsonDocument
             {
                 { "saslContinue", 1 },
@@ -151,12 +156,16 @@ namespace MongoDB.Driver.Core.Authentication
 
         private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
         {
+            Ensure.IsNotNull(connection, nameof(connection));
+            
             var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
 
         private BsonDocument CreateStartCommand(ISaslStep currentStep)
         {
+            Ensure.IsNotNull(currentStep, nameof(currentStep));
+            
             return new BsonDocument
             {
                 { "saslStart", 1 },
@@ -167,6 +176,10 @@ namespace MongoDB.Driver.Core.Authentication
 
         private ISaslStep Transition(SaslConversation conversation, ISaslStep currentStep, BsonDocument result)
         {
+            Ensure.IsNotNull(conversation, nameof(conversation));
+            Ensure.IsNotNull(currentStep, nameof(currentStep));
+            Ensure.IsNotNull(result, nameof(result));
+            
             // we might be done here if the client is not expecting a reply from the server
             if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
             {
