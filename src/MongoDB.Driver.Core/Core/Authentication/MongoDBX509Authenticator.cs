@@ -118,6 +118,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
         {
+            Ensure.IsNotNull(connection, nameof(connection));
+            
             var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
