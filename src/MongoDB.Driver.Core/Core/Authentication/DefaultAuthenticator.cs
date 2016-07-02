@@ -76,6 +76,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         private IAuthenticator CreateAuthenticator(ConnectionDescription description)
         {
+            Ensure.IsNotNull(description, nameof(description));
+            
             if (SupportedFeatures.IsScramSha1AuthenticationSupported(description.ServerVersion))
             {
                 return new ScramSha1Authenticator(_credential, _randomStringGenerator);
