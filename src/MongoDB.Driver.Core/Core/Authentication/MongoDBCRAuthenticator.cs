@@ -107,6 +107,8 @@ namespace MongoDB.Driver.Core.Authentication
         // private methods
         private CommandWireProtocol<BsonDocument> CreateAuthenticateProtocol(BsonDocument getNonceReply)
         {
+            Ensure.IsNotNull(getNonceReply, nameof(getNonceReply));
+            
             var nonce = getNonceReply["nonce"].AsString;
             var command = new BsonDocument
             {
@@ -126,6 +128,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
         {
+            Ensure.IsNotNull(connection, nameof(connection));
+            
             var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
@@ -144,6 +148,8 @@ namespace MongoDB.Driver.Core.Authentication
 
         private string CreateKey(string username, SecureString password, string nonce)
         {
+            Ensure.IsNotNull(password, nameof(password));
+            
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
             using (var md5 = MD5.Create())
             {
