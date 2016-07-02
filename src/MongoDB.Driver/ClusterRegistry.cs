@@ -80,7 +80,7 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-            var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
+            var endPoints = clusterKey.Servers == null ? new List<EndPoint>() : clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
             return settings.With(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Enumerable(endPoints),
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
 
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
-            var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
+            var authenticators = clusterKey.Credentials == null ? new List<IAuthenticator>() : clusterKey.Credentials.Select(c => c.ToAuthenticator());
             return settings.With(
                 authenticators: Optional.Enumerable(authenticators),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
