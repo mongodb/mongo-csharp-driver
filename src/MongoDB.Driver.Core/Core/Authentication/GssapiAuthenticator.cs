@@ -121,6 +121,9 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static GssapiMechanism CreateMechanism(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
         {
+            Ensure.IsNotNull(credential, nameof(credential));
+            Ensure.IsNotNull(properties, nameof(properties));
+            
             if (credential.Source != "$external")
             {
                 throw new ArgumentException("GSSAPI authentication may only use the $external source.", "credential");
@@ -131,28 +134,28 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static GssapiMechanism CreateMechanism(string username, SecureString password, IEnumerable<KeyValuePair<string, string>> properties)
         {
+            Ensure.IsNotNull(password, nameof(password));
+            Ensure.IsNotNull(properties, nameof(properties));
+            
             var serviceName = DefaultServiceName;
             var canonicalizeHostName = false;
             string realm = null;
-            if (properties != null)
+            foreach (var pair in properties)
             {
-                foreach (var pair in properties)
+                switch (pair.Key.ToUpperInvariant())
                 {
-                    switch (pair.Key.ToUpperInvariant())
-                    {
-                        case __serviceNamePropertyName:
-                            serviceName = (string)pair.Value;
-                            break;
-                        case __serviceRealmPropertyName:
-                            realm = (string)pair.Value;
-                            break;
-                        case __canonicalizeHostNamePropertyName:
-                            canonicalizeHostName = bool.Parse(pair.Value);
-                            break;
-                        default:
-                            var message = string.Format("Unknown GSSAPI property '{0}'.", pair.Key);
-                            throw new ArgumentException(message, "properties");
-                    }
+                    case __serviceNamePropertyName:
+                        serviceName = (string)pair.Value;
+                        break;
+                    case __serviceRealmPropertyName:
+                        realm = (string)pair.Value;
+                        break;
+                    case __canonicalizeHostNamePropertyName:
+                        canonicalizeHostName = bool.Parse(pair.Value);
+                        break;
+                    default:
+                        var message = string.Format("Unknown GSSAPI property '{0}'.", pair.Key);
+                        throw new ArgumentException(message, "properties");
                 }
             }
 
@@ -245,6 +248,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
+                Ensure.IsNotNull(conversation, nameof(conversation));
+                
                 SecurityCredential securityCredential;
                 try
                 {
@@ -310,6 +315,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
+                Ensure.IsNotNull(conversation, nameof(conversation));
+                
                 byte[] bytesToSendToServer;
                 try
                 {
@@ -354,6 +361,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
+                Ensure.IsNotNull(conversation, nameof(conversation));
+                
                 byte[] decryptedBytes;
                 try
                 {
