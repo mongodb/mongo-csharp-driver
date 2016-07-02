@@ -144,6 +144,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
+                Ensure.IsNotNull(conversation, nameof(conversation));
+                
                 var encoding = Utf8Encodings.Strict;
                 var serverFirstMessage = encoding.GetString(bytesReceivedFromServer);
                 var map = NVParser.Parse(serverFirstMessage);
@@ -239,6 +241,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
+                Ensure.IsNotNull(conversation, nameof(conversation));
+                
                 var encoding = Utf8Encodings.Strict;
                 var map = NVParser.Parse(encoding.GetString(bytesReceivedFromServer));
                 var serverSignature = Convert.FromBase64String(map['v']);
@@ -288,6 +292,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             private static KeyValuePair<char, string> ReadKeyValue(TextReader reader)
             {
+                Ensure.IsNotNull(reader, nameof(reader));
+                
                 var key = ReadKey(reader);
                 Read(reader, '=');
                 var value = ReadValue(reader);
@@ -296,12 +302,14 @@ namespace MongoDB.Driver.Core.Authentication
 
             private static char ReadKey(TextReader reader)
             {
+                Ensure.IsNotNull(reader, nameof(reader));
                 // keys are of length 1.
                 return (char)reader.Read();
             }
 
             private static void Read(TextReader reader, char expected)
             {
+                Ensure.IsNotNull(reader, nameof(reader));
                 var ch = (char)reader.Read();
                 if (ch != expected)
                 {
@@ -311,6 +319,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             private static string ReadValue(TextReader reader)
             {
+                Ensure.IsNotNull(reader, nameof(reader));
                 var sb = new StringBuilder();
                 var ch = reader.Peek();
                 while (ch != ',' && ch != EOF)
