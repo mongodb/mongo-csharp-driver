@@ -26,6 +26,10 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+using System.Linq;
+#endif
+
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
@@ -690,7 +694,11 @@ namespace MongoDB.Bson.Serialization
                 if (!__typesWithRegisteredKnownTypes.Contains(nominalType))
                 {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false).ToArray();
+#else
                     var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+#endif
                     if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
                     {
                         // try and force a scan of the known types

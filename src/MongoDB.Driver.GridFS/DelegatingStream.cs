@@ -15,7 +15,10 @@
 
 using System;
 using System.IO;
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+#else
 using System.Runtime.Remoting;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -93,6 +96,8 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+#else
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -112,12 +117,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc/>
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
-        }
-
-        /// <inheritdoc/>
         public override ObjRef CreateObjRef(Type requestedType)
         {
             return _wrappedStream.CreateObjRef(requestedType);
@@ -131,15 +130,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _wrappedStream.Dispose();
-            }
-        }
-
-        /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
             return _wrappedStream.EndRead(asyncResult);
@@ -149,6 +139,35 @@ namespace MongoDB.Driver.GridFS
         public override void EndWrite(IAsyncResult asyncResult)
         {
             _wrappedStream.EndWrite(asyncResult);
+        }
+
+        /// <inheritdoc/>
+        public override object InitializeLifetimeService()
+        {
+            return _wrappedStream.InitializeLifetimeService();
+        }
+
+        /// <inheritdoc/>
+        [Obsolete()]
+        protected override void ObjectInvariant()
+        {
+            throw new NotSupportedException();
+        }
+#endif
+
+        /// <inheritdoc/>
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _wrappedStream.Dispose();
+            }
         }
 
         /// <inheritdoc/>
@@ -173,19 +192,6 @@ namespace MongoDB.Driver.GridFS
         public override int GetHashCode()
         {
             return _wrappedStream.GetHashCode();
-        }
-
-        /// <inheritdoc/>
-        public override object InitializeLifetimeService()
-        {
-            return _wrappedStream.InitializeLifetimeService();
-        }
-
-        /// <inheritdoc/>
-        [Obsolete()]
-        protected override void ObjectInvariant()
-        {
-            throw new NotSupportedException();
         }
 
         /// <inheritdoc/>

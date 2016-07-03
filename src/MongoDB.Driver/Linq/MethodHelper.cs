@@ -89,7 +89,12 @@ namespace MongoDB.Driver.Linq
             }
 
             var declaringTypeDefinition = methodInfo.DeclaringType.GetGenericTypeDefinition();
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+            // TODO: return (MethodInfo)MethodBase.GetMethodFromHandle(methodInfo.MethodHandle, declaringTypeDefinition.TypeHandle);
+            return methodInfo;
+#else
             return (MethodInfo)MethodBase.GetMethodFromHandle(methodInfo.MethodHandle, declaringTypeDefinition.TypeHandle);
+#endif
         }
     }
 }

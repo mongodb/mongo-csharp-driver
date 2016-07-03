@@ -205,7 +205,14 @@ namespace MongoDB.Driver.Core.Misc
                         result = new IPEndPoint(address, port);
                         return true;
                     }
-
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var hostAddresses = Dns.GetHostAddressesAsync(addressString).GetAwaiter().GetResult();
+                    if(hostAddresses != null && hostAddresses.Length > 0)
+                    {
+                        result = new IPEndPoint(hostAddresses[0], port);
+                        return true;
+                    }
+#endif
                     return false;
                 }
 

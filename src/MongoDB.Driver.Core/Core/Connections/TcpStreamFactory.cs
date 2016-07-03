@@ -129,6 +129,12 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    await Task.Run(() =>
+                    {
+                        socket.Connect(endPoint);
+                    });
+#else
                     var dnsEndPoint = endPoint as DnsEndPoint;
                     if (dnsEndPoint != null)
                     {
@@ -139,6 +145,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
                     }
+#endif
                     connected = true;
                     return;
                 }

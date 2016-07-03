@@ -23,6 +23,12 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
 
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+using System.Reflection;
+#else
+#endif
+
+
 namespace MongoDB.Driver.Linq.Translators
 {
     internal static class AggregateGroupTranslator

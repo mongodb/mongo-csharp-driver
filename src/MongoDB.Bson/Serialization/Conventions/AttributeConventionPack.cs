@@ -65,7 +65,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             // public methods
             public void Apply(BsonClassMap classMap)
             {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                foreach (IBsonClassMapAttribute attribute in classMap.ClassType.GetTypeInfo().CustomAttributes.Where(c=>c.AttributeType is IBsonClassMapAttribute))
+#else
                 foreach (IBsonClassMapAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonClassMapAttribute), false))
+#endif
                 {
                     attribute.Apply(classMap);
                 }
@@ -80,7 +84,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 if (creatorMap.MemberInfo != null)
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    foreach (IBsonCreatorMapAttribute attribute in creatorMap.MemberInfo.CustomAttributes.Where(c => c.AttributeType is IBsonCreatorMapAttribute))
+#else
                     foreach (IBsonCreatorMapAttribute attribute in creatorMap.MemberInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false))
+#endif
                     {
                         attribute.Apply(creatorMap);
                     }
@@ -89,7 +97,11 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             public void Apply(BsonMemberMap memberMap)
             {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                var attributes = memberMap.MemberInfo.CustomAttributes.Where(c => c.AttributeType is IBsonMemberMapAttribute).Select(c => c.AttributeType).Cast<IBsonMemberMapAttribute>();
+#else
                 var attributes = memberMap.MemberInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Cast<IBsonMemberMapAttribute>();
+#endif
                 var groupings = attributes.GroupBy(a => (a is BsonSerializerAttribute) ? 1 : 2);
                 foreach (var grouping in groupings.OrderBy(g => g.Key))
                 {
@@ -102,7 +114,11 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             public void PostProcess(BsonClassMap classMap)
             {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetTypeInfo().CustomAttributes.Where(c => c.AttributeType is IBsonPostProcessingAttribute))
+#else
                 foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonPostProcessingAttribute), false))
+#endif
                 {
                     attribute.PostProcess(classMap);
                 }
@@ -111,9 +127,15 @@ namespace MongoDB.Bson.Serialization.Conventions
             // private methods
             private bool AllowsDuplicate(Type type)
             {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                var usageAttribute = type.GetTypeInfo().GetCustomAttributes(typeof(BsonMemberMapAttributeUsageAttribute), true)
+                    .OfType<BsonMemberMapAttributeUsageAttribute>()
+                    .SingleOrDefault();
+#else
                 var usageAttribute = type.GetCustomAttributes(typeof(BsonMemberMapAttributeUsageAttribute), true)
                     .OfType<BsonMemberMapAttributeUsageAttribute>()
                     .SingleOrDefault();
+#endif
 
                 return usageAttribute == null || usageAttribute.AllowMultipleMembers;
             }
@@ -123,7 +145,11 @@ namespace MongoDB.Bson.Serialization.Conventions
                 // let other constructors opt-in if they have any IBsonCreatorMapAttribute attributes
                 foreach (var constructorInfo in classMap.ClassType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var hasAttribute = constructorInfo.CustomAttributes.Any(c => c.AttributeType is IBsonCreatorMapAttribute);
+#else
                     var hasAttribute = constructorInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+#endif
                     if (hasAttribute)
                     {
                         classMap.MapConstructor(constructorInfo);
@@ -133,7 +159,11 @@ namespace MongoDB.Bson.Serialization.Conventions
                 // let other static factory methods opt-in if they have any IBsonCreatorMapAttribute attributes
                 foreach (var methodInfo in classMap.ClassType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var hasAttribute = methodInfo.CustomAttributes.Any(c => c.AttributeType is IBsonCreatorMapAttribute);
+#else
                     var hasAttribute = methodInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+#endif
                     if (hasAttribute)
                     {
                         classMap.MapFactoryMethod(methodInfo);
@@ -146,7 +176,11 @@ namespace MongoDB.Bson.Serialization.Conventions
                 // let other fields opt-in if they have any IBsonMemberMapAttribute attributes
                 foreach (var fieldInfo in classMap.ClassType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var hasAttribute = fieldInfo.CustomAttributes.Any(c=>c.AttributeType is IBsonMemberMapAttribute);
+#else
                     var hasAttribute = fieldInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Any();
+#endif
                     if (hasAttribute)
                     {
                         classMap.MapMember(fieldInfo);
@@ -156,7 +190,11 @@ namespace MongoDB.Bson.Serialization.Conventions
                 // let other properties opt-in if they have any IBsonMemberMapAttribute attributes
                 foreach (var propertyInfo in classMap.ClassType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var hasAttribute = propertyInfo.CustomAttributes.Any(c => c.AttributeType is IBsonMemberMapAttribute);
+#else
                     var hasAttribute = propertyInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Any();
+#endif
                     if (hasAttribute)
                     {
                         classMap.MapMember(propertyInfo);
@@ -181,7 +219,11 @@ namespace MongoDB.Bson.Serialization.Conventions
                 var nonDuplicatesAlreadySeen = new List<Type>();
                 foreach (var memberMap in classMap.DeclaredMemberMaps)
                 {
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                    var attributes = (IBsonMemberMapAttribute[])memberMap.MemberInfo.CustomAttributes.Where(c => c.AttributeType is IBsonMemberMapAttribute).Cast<IBsonMemberMapAttribute>().ToArray();
+#else
                     var attributes = (IBsonMemberMapAttribute[])memberMap.MemberInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false);
+#endif
                     // combine them only if the modifier isn't already in the attributes list...
                     var attributeTypes = attributes.Select(x => x.GetType());
                     foreach (var attributeType in attributeTypes)

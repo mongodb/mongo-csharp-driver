@@ -1,0 +1,23 @@
+{  
+  "version": "2.2.4-*",
+  "authors": [ "zhongzf@126.com" ],
+  "description": "MongoDB supported BSON library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.",
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "System.Dynamic.Runtime": "4.0.11",
+    "Microsoft.AspNetCore.Identity": "1.0.0",
+    "System.Xml.XmlSerializer": "4.0.11",
+    "System.Collections.NonGeneric": "4.0.1",
+    "System.Reflection.Emit.Lightweight": "4.0.1",
+    "System.Reflection.Extensions": "4.0.1",
+    "System.Runtime.InteropServices": "4.1.0",
+    "System.Reflection.TypeExtensions": "4.1.0",
+    "System.Security.SecureString": "4.0.0-beta-23123",
+    "System.Runtime.Serialization.Formatters": "4.0.0-rc3-24212-01"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}

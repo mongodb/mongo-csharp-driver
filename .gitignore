@@ -60,3 +60,11 @@ packages
 Tools/FAKE
 Tools/xunit.runner.console
 
+src/MongoDB.Bson/project.lock.json
+src/MongoDB.Driver.Core/project.lock.json
+src/MongoDB.Driver/project.lock.json
+samples/MongoDB.Tests.ConsoleApp/project.lock.json
+src/RaisingStudio.MongoDB.Bson
+src/RaisingStudio.MongoDB.Driver.Core
+src/RaisingStudio.MongoDB.Driver
+samples/MongoDB.Tests.WebApplication/project.lock.json

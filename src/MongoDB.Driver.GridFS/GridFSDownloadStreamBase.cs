@@ -72,6 +72,16 @@ namespace MongoDB.Driver.GridFS
             get { return _bucket; }
         }
 
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+        public override void Close(CancellationToken cancellationToken)
+        {
+        }
+
+        public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Task.FromResult(true);
+        }
+#else
         // public methods
         public override void Close()
         {
@@ -88,6 +98,7 @@ namespace MongoDB.Driver.GridFS
             base.Close();
             return Task.FromResult(true);
         }
+#endif
 
         public override void Flush()
         {

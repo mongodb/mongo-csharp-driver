@@ -539,7 +539,11 @@ namespace MongoDB.Bson.Serialization
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Empty:
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+                // TODO: case TypeCode.DBNull:
+#else
                 case TypeCode.DBNull:
+#endif
                 case TypeCode.String:
                     break;
                 case TypeCode.Object:

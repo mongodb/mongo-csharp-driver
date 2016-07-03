@@ -1,0 +1,22 @@
+﻿{
+  "version": "1.0.0-*",
+  "authors": [ "zhongzf@126.com" ],
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    },
+    "MongoDB.Bson": "2.2.4-*",
+    "MongoDB.Driver": "2.2.4-*"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}

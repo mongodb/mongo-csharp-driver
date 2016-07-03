@@ -23,10 +23,18 @@ namespace MongoDB.Driver.Core.Misc
         public string Generate(int length, string legalCharacters)
         {
             var randomData = new byte[length];
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomData);
+            }
+#else
             using (var rng = new RNGCryptoServiceProvider())
             {
                 rng.GetBytes(randomData);
             }
+#endif
+
 
             var sb = new StringBuilder(length);
             for (int i = 0; i < length; i++)

@@ -25,6 +25,10 @@ using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Support;
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+using System.Linq;
+#else
+#endif
 
 namespace MongoDB.Driver.Linq.Translators
 {
@@ -308,9 +312,15 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var expressionTypeInfo = node.Expression.Type.GetTypeInfo();
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
+            if (node.Expression != null
+                && (expressionTypeInfo.ImplementedInterfaces.Contains(typeof(ICollection<>))
+                    || expressionTypeInfo.ImplementedInterfaces.Contains(typeof(ICollection)))
+#else
             if (node.Expression != null
                 && (expressionTypeInfo.ImplementsInterface(typeof(ICollection<>))
                     || expressionTypeInfo.ImplementsInterface(typeof(ICollection)))
+#endif
                 && node.Member.Name == "Count")
             {
                 return new BsonDocument("$size", TranslateValue(node.Expression));
