@@ -72,7 +72,7 @@ namespace MongoDB.Driver.GridFS
             get { return _bucket; }
         }
 
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
         public override void Close(CancellationToken cancellationToken)
         {
         }

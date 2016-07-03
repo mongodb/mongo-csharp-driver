@@ -42,7 +42,7 @@ namespace MongoDB.Driver.GridFS
         private readonly int _lastChunkNumber;
         private readonly int _lastChunkSize;
         private readonly MD5 _md5;
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
         private byte[] _md5Buffer;
 #else
 #endif
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.GridFS
             if (_checkMD5)
             {
                 _md5 = MD5.Create();
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                 _md5Buffer = new byte[0];
 #else
 #endif
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.GridFS
                     if (_md5 != null)
                     {
                         _md5.Dispose();
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                         _md5Buffer = null;
 #else
 #endif
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.GridFS
 
                 if (_checkMD5 && _position == FileInfo.Length)
                 {
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                     var md5 = BsonUtils.ToHexString(_md5.ComputeHash(_md5Buffer));
 #else
                     _md5.TransformFinalBlock(new byte[0], 0, 0);
@@ -316,7 +316,7 @@ namespace MongoDB.Driver.GridFS
 
                 if (_checkMD5)
                 {
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                     var buffer = new byte[_md5Buffer.Length + bytes.Length];
                     Buffer.BlockCopy(_md5Buffer, 0, buffer, 0, _md5Buffer.Length);
                     Buffer.BlockCopy(bytes, 0, buffer, _md5Buffer.Length, bytes.Length);

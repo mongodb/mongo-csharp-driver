@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 using System.Threading;
 #else
 using System.Runtime.Remoting.Messaging;
@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Events
 {
     internal static class EventContext
     {
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
         private static AsyncLocal<int?> findOperationBatchSize = new AsyncLocal<int?>();
         public static int? FindOperationBatchSize
         {

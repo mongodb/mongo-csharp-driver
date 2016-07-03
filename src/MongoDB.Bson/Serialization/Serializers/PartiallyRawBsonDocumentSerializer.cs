@@ -16,7 +16,7 @@
 using System;
 using MongoDB.Bson.IO;
 
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 using System.Reflection;
 #endif
 

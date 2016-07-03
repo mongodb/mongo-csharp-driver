@@ -8,7 +8,7 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002702"
+      "version": "1.0.0"
     },
     "MongoDB.Bson": "2.2.4-*",
     "MongoDB.Driver": "2.2.4-*"
@@ -16,7 +16,7 @@
 
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": [ "dnxcore50", "portable-net451+win8" ]
+      "imports": "dnxcore50"
     }
   }
 }

@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
 using System.Runtime.Remoting;
 #endif
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)

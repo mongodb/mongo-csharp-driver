@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                     await Task.Run(() =>
                     {
                         socket.Connect(endPoint);

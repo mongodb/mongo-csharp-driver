@@ -50,7 +50,7 @@ namespace MongoDB.Driver.GridFS
         private readonly BsonValue _idAsBsonValue;
         private long _length;
         private readonly MD5 _md5;
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
         private byte[] _md5Buffer;
 #else
 #endif
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(_binding, cancellationToken).ConfigureAwait(false);
         }
 
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
         public override void Close()
         {
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.GridFS
                 WriteFilesCollectionDocument(cancellationToken);
             }
 
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
             base.Close();
 #endif
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.GridFS
                 await WriteFilesCollectionDocumentAsync(cancellationToken).ConfigureAwait(false);
             }
 
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
             base.Close();
 #endif
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.GridFS
                 { "length", _length },
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                 { "md5", BsonUtils.ToHexString(_md5.ComputeHash(_md5Buffer)) },
 #else
                 { "md5", BsonUtils.ToHexString(_md5.Hash) },
@@ -313,7 +313,7 @@ namespace MongoDB.Driver.GridFS
                 chunkDocuments.Add(chunkDocument);
 
                 _batchPosition += chunk.Length;
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                 var buffer = new byte[_md5Buffer.Length + chunk.Length];
                 Buffer.BlockCopy(_md5Buffer, 0, buffer, 0, _md5Buffer.Length);
                 Buffer.BlockCopy(chunk, 0, buffer, _md5Buffer.Length, chunk.Length);
@@ -337,7 +337,7 @@ namespace MongoDB.Driver.GridFS
                     if (_md5 != null)
                     {
                         _md5.Dispose();
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
                         _md5Buffer = null;
 #else
 #endif
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.GridFS
                 TruncateFinalChunk();
                 WriteBatch(cancellationToken);
             }
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
             _md5.TransformFinalBlock(new byte[0], 0, 0);
 #endif
@@ -501,7 +501,7 @@ namespace MongoDB.Driver.GridFS
                 TruncateFinalChunk();
                 await WriteBatchAsync(cancellationToken).ConfigureAwait(false);
             }
-#if NETCORE50 || NETSTANDARD1_5
+#if NETCORE50 || NETSTANDARD1_5 || NETSTANDARD1_6
 #else
             _md5.TransformFinalBlock(new byte[0], 0, 0);
 #endif
