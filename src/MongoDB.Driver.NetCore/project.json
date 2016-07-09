@@ -1,23 +1,23 @@
 {
   "version": "1.0.0-*",
 
-    "dependencies": {
-        "MongoDB.Bson.NetCore": "1.0.0-*",
-        "MongoDB.Driver.Core.NetCore": "1.0.0-*",
-        "NETStandard.Library": "1.5.0-rc2-24027",
-        "System.Linq.Expressions": "4.0.11-rc2-24027",
-        "System.Linq.Queryable": "4.0.1-rc2-24027"
-    },
+  "dependencies": {
+    "MongoDB.Bson.NetCore": "1.0.0-*",
+    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
+    "NETStandard.Library": "1.6.0",
+    "System.Linq.Expressions": "4.1.0",
+    "System.Linq.Queryable": "4.0.1"
+  },
 
   "frameworks": {
-    "netstandard1.5": {
-        "imports": "dnxcore50",
-        "buildOptions": {
-            "compile": {
-                "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
-            },
-            "define": [ "DEBUG", "TRACE", "NETCORE" ]
-        }
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETCORE" ]
+      }
     }
   }
 }

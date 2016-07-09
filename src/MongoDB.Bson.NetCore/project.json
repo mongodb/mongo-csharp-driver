@@ -1,15 +1,15 @@
 {
   "version": "1.0.0-*",
   "dependencies": {
-    "NETStandard.Library": "1.5.0-rc2-24027",
-    "System.Collections.NonGeneric": "4.0.1-rc2-24027",
-    "System.Dynamic.Runtime": "4.0.11-rc2-24027",
-    "System.Linq.Expressions": "4.0.11-rc2-24027",
-    "System.Reflection.Emit.Lightweight": "4.0.1-rc2-24027",
-    "System.Security.Cryptography.Algorithms": "4.1.0-rc2-24027"
+    "NETStandard.Library": "1.6.0",
+    "System.Collections.NonGeneric": "4.0.1",
+    "System.Dynamic.Runtime": "4.0.11",
+    "System.Linq.Expressions": "4.1.0",
+    "System.Reflection.Emit.Lightweight": "4.0.1",
+    "System.Security.Cryptography.Algorithms": "4.2.0"
   },
   "frameworks": {
-    "netstandard1.5": {
+    "netstandard1.6": {
       "imports": "dnxcore50",
       "buildOptions": {
         "compile": {
