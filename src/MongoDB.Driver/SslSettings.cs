@@ -261,18 +261,18 @@ namespace MongoDB.Driver
             var certificate2 = certificate as X509Certificate2;
             if (certificate2 != null)
             {
-#if !NETCORE
-                return new X509Certificate2(certificate2);
-#else
+#if NETCORE
                 return new X509Certificate2(certificate2.RawData);
+#else
+                return new X509Certificate2(certificate2);
 #endif
             }
             else
             {
-#if !NETCORE
-                return new X509Certificate(certificate);
-#else
+#if NETCORE
                 return new X509Certificate(certificate.Export(X509ContentType.Cert));
+#else
+                return new X509Certificate(certificate);
 #endif     
             }
         }

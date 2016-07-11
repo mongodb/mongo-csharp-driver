@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "MongoDB.Bson.NetCore": "1.0.0-*",
+    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
+    "MongoDB.Driver.Core.TestHelpers.NetCore": "1.0.0-*",
+    "MongoDB.Driver.NetCore": "1.0.0-*",
+    "NETStandard.Library": "1.6.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Driver.TestHelpers/**/*.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETCORE" ]
+      }
+    }
+  }
+}

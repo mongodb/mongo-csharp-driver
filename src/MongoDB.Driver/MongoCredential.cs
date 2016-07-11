@@ -97,10 +97,10 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-#if !NETCORE
-                    return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
-#else
+#if NETCORE
                     return passwordEvidence.Password;
+#else
+                    return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
 #endif
                 }
 
@@ -391,10 +391,10 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
-#if !NETCORE
-                var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
-#else
+#if NETCORE
                 var insecurePassword = passwordEvidence.Password;
+#else
+                var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
 #endif
                 var credential = new UsernamePasswordCredential(
                     _identity.Source,

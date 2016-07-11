@@ -31,15 +31,24 @@ namespace MongoDB.Driver
     public sealed class PasswordEvidence : MongoIdentityEvidence
     {
         // private fields
-#if !NETCORE
+#if NETCORE
+        private readonly string _password;
+#else
         private readonly SecureString _securePassword;
         private readonly string _digest; // used to implement Equals without referring to the SecureString
-#else
-        private readonly string _password;
 #endif
 
         // constructors
-#if !NETCORE
+#if NETCORE
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordEvidence" /> class.
+        /// </summary>
+        /// <param name="password">The password.</param>
+        public PasswordEvidence(string password)
+        {
+            _password = password;
+        }
+#else
         /// <summary>
         /// Initializes a new instance of the <see cref="PasswordEvidence" /> class.
         /// </summary>
@@ -58,33 +67,24 @@ namespace MongoDB.Driver
         public PasswordEvidence(string password)
             : this(CreateSecureString(password))
         { }
-#else
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordEvidence" /> class.
-        /// </summary>
-        /// <param name="password">The password.</param>
-        public PasswordEvidence(string password)
-        {
-            _password = password;
-        }
 #endif
 
         // public properties
-#if !NETCORE
-        /// <summary>
-        /// Gets the password.
-        /// </summary>
-        public SecureString SecurePassword
-        {
-            get { return _securePassword; }
-        }
-#else
+#if NETCORE
         /// <summary>
         /// Gets the password.
         /// </summary>
         public string Password
         {
             get { return _password; }
+        }
+#else
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
+        public SecureString SecurePassword
+        {
+            get { return _securePassword; }
         }
 #endif
 
@@ -100,10 +100,10 @@ namespace MongoDB.Driver
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
 
-#if !NETCORE
-            return _digest == ((PasswordEvidence)rhs)._digest;
-#else
+#if NETCORE
             return _password == ((PasswordEvidence)rhs)._password;
+#else
+            return _digest == ((PasswordEvidence)rhs)._digest;
 #endif
         }
 
@@ -115,10 +115,10 @@ namespace MongoDB.Driver
         /// </returns>
         public override int GetHashCode()
         {
-#if !NETCORE
-            return _digest.GetHashCode();
-#else
+#if NETCORE
             return _password.GetHashCode();
+#else
+            return _digest.GetHashCode();
 #endif
         }
 
@@ -134,10 +134,10 @@ namespace MongoDB.Driver
             {
                 var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
-#if !NETCORE
-                var hash = ComputeHash(md5, prefixBytes, _securePassword);
-#else
+#if NETCORE
                 var hash = ComputeHash(md5, prefixBytes, _password);
+#else
+                var hash = ComputeHash(md5, prefixBytes, _securePassword);
 #endif
                 return BsonUtils.ToHexString(hash);
             }
@@ -176,7 +176,18 @@ namespace MongoDB.Driver
         }
 #endif
 
-#if !NETCORE
+#if NETCORE
+        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, string password)
+        {
+            var encoding = Utf8Encodings.Strict;
+            var passwordBytes = new byte[password.Length * 3]; // worst case for UTF16 to UTF8 encoding
+            var passwordUtf8Length = encoding.GetBytes(password, 0, password.Length, passwordBytes, 0);
+            var buffer = new byte[prefixBytes.Length + passwordUtf8Length];
+            Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
+            Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordUtf8Length);
+            return algorithm.ComputeHash(buffer);
+        }
+#else
         private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, SecureString secureString)
         {
             var bstr = Marshal.SecureStringToBSTR(secureString);
@@ -217,16 +228,6 @@ namespace MongoDB.Driver
             {
                 Marshal.ZeroFreeBSTR(bstr);
             }
-#else
-        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, string password)
-        {
-            var encoding = Utf8Encodings.Strict;
-            var passwordBytes = new byte[password.Length * 3]; // worst case for UTF16 to UTF8 encoding
-            var passwordUtf8Length = encoding.GetBytes(password, 0, password.Length, passwordBytes, 0);
-            var buffer = new byte[prefixBytes.Length + passwordUtf8Length];
-            Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
-            Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordUtf8Length);
-            return algorithm.ComputeHash(buffer);
         }
 #endif
     }

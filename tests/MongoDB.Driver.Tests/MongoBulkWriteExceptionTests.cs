@@ -17,7 +17,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+#if !NETCORE
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.EqualityComparers;

@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0-*",
+  "testRunner": "xunit",
+
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "FluentAssertions": "4.11.0",
+    "MongoDB.Bson.NetCore": "1.0.0-*",
+    "MongoDB.Bson.TestHelpers.NetCore": "1.0.0-*",
+    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
+    "MongoDB.Driver.Core.TestHelpers.NetCore": "1.0.0-*",
+    "MongoDB.Driver.NetCore": "1.0.0-*",
+    "MongoDB.Driver.TestHelpers.NetCore": "1.0.0-*",
+    "moq.netcore": "4.4.0-beta8",
+    "NETStandard.Library": "1.6.0",
+    "xunit": "2.2.0-beta2-build3300"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      },
+      "imports": [ "dnxcore50", "portable-net45+win8" ],
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Driver.Tests/**/*.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETCORE" ],
+        "embed": {
+          "include": [ "./Specifications/**/*.json" ]
+        },
+        "copyToOutput": [ "../MongoDB.Driver.Tests/testcert.pfx" ]
+      }
+    }
+  },
+}

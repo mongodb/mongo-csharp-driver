@@ -103,8 +103,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.crud.tests.";
-                var testDocuments = Assembly
-                    .GetExecutingAssembly()
+                var testDocuments = typeof(TestCaseFactory).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Select(path => ReadDocument(path));
@@ -138,7 +137,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             private static BsonDocument ReadDocument(string path)
             {
-                using (var definitionStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path))
+                using (var definitionStream = typeof(TestCaseFactory).GetTypeInfo().Assembly.GetManifestResourceStream(path))
                 using (var definitionStringReader = new StreamReader(definitionStream))
                 {
                     var definitionString = definitionStringReader.ReadToEnd();

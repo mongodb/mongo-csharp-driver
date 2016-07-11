@@ -118,7 +118,11 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(true, settings.CheckCertificateRevocation);
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
+#if NETCORE
+            Assert.Equal(SslProtocols.Tls, settings.EnabledSslProtocols);
+#else
             Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
+#endif
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
@@ -143,7 +147,7 @@ namespace MongoDB.Driver.Tests
             Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
-            clone.EnabledSslProtocols = SslProtocols.Tls;
+            clone.EnabledSslProtocols = SslProtocols.Tls12;
             Assert.NotEqual(settings, clone);
 
             clone = settings.Clone();
@@ -155,7 +159,11 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
+#if NETCORE
+            Assert.Equal(SslProtocols.Tls, settings.EnabledSslProtocols);
+#else
             Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
+#endif
 
             var enabledSslProtocols = SslProtocols.Tls;
             settings.EnabledSslProtocols = enabledSslProtocols;
@@ -183,11 +191,16 @@ namespace MongoDB.Driver.Tests
 
         private string GetTestCertificateFileName()
         {
-            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var codeBase = typeof(SslSettingsTests).GetTypeInfo().Assembly.CodeBase;
             var codeBaseUrl = new Uri(codeBase);
             var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
             var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);
-            return Path.Combine(codeBaseDirectory, "testcert.pfx");
+#if NETCORE
+            var certificateDirectory = Path.Combine(codeBaseDirectory, "MongoDB.Driver.Tests");
+#else
+            var certificateDirectory = codeBaseDirectory;
+#endif
+            return Path.Combine(certificateDirectory, "testcert.pfx");
         }
     }
 }

@@ -1150,8 +1150,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
-        [InlineData(StringComparison.InvariantCulture)]
 #if NET45
+        [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
 #endif
         public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
