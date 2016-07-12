@@ -17,7 +17,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.Core.TestHelpers/**/*.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETCORE" ]
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
       }
     }
   }

@@ -276,10 +276,10 @@ namespace MongoDB.Bson.IO
                 bsonWriter.WriteEndDocument();
 
                 byte[] memoryStreamBuffer;
-#if NET45
-                memoryStreamBuffer = memoryStream.GetBuffer();
-#else
+#if NETSTANDARD16
                 memoryStreamBuffer = memoryStream.ToArray();
+#else
+                memoryStreamBuffer = memoryStream.GetBuffer();
 #endif
                 var buffer = new ByteArrayBuffer(memoryStreamBuffer, (int)memoryStream.Length, isReadOnly: true);
                 return new ByteBufferSlice(buffer, (int)startPosition, (int)(endPosition - startPosition));

@@ -141,10 +141,10 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
-#if NET45
-            return Process.GetCurrentProcess().Id;
-#else
+#if NETSTANDARD16
             return 1;
+#else
+            return Process.GetCurrentProcess().Id;
 #endif
         }
 
@@ -158,10 +158,10 @@ namespace MongoDB.Bson.Serialization.IdGenerators
 
         private static string GetMachineName()
         {
-#if NET45
-            return Environment.MachineName;
-#else
+#if NETSTANDARD16
             return Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "";
+#else
+            return Environment.MachineName;
 #endif
         }
     }

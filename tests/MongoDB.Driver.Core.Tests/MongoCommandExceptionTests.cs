@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Net;
-#if !NETCORE
+#if NET45
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
@@ -80,7 +80,7 @@ namespace MongoDB.Driver
             result.Should().Be("error message");
         }
 
-#if !NETCORE
+#if NET45
         [Fact]
         public void Serialization_should_work()
         {

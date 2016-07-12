@@ -28,11 +28,11 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-#if NET45
+#if NETSTANDARD16
+    public sealed class ServerId : IEquatable<ServerId>
+#else
     [Serializable]
     public sealed class ServerId : IEquatable<ServerId>, ISerializable
-#else
-    public sealed class ServerId : IEquatable<ServerId>
 #endif
     {
         // fields

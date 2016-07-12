@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETCORE
+#if NET45
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;

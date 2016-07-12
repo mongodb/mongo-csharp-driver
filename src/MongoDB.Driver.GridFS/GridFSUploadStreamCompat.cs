@@ -77,7 +77,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.AbortAsync(cancellationToken);
         }
 
-#if NETCORE
+#if NETSTANDARD16
         /// <summary>
         /// Closes the GridFS stream.
         /// </summary>

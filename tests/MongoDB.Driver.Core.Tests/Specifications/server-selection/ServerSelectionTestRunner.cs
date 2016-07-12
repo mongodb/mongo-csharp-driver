@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETCORE
+#if NETSTANDARD16
                 const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.server_selection.tests.server_selection.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.server_selection.";

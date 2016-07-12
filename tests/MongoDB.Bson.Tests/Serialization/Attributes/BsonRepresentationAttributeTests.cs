@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForI()
         {
             var fieldInfo = typeof(C).GetField("I");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForIL()
         {
             var fieldInfo = typeof(C).GetField("IL");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLI()
         {
             var fieldInfo = typeof(C).GetField("LI");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
@@ -88,7 +88,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLIO()
         {
             var fieldInfo = typeof(C).GetField("LIO");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIT()
         {
             var fieldInfo = typeof(C).GetField("DIT");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIOT()
         {
             var fieldInfo = typeof(C).GetField("DIOT");
-#if NETCORE
+#if NETSTANDARD16
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
 #else
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);

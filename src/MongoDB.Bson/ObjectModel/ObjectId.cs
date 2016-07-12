@@ -377,10 +377,10 @@ namespace MongoDB.Bson
         // private static methods
         private static int GetAppDomainId()
         {
-#if NET45
-            return AppDomain.CurrentDomain.Id;
-#else
+#if NETSTANDARD16
             return 1;
+#else
+            return AppDomain.CurrentDomain.Id;
 #endif
         }
 
@@ -392,10 +392,10 @@ namespace MongoDB.Bson
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
-#if NET45
-            return Process.GetCurrentProcess().Id;
-#else
+#if NETSTANDARD16
             return 1;
+#else
+            return Process.GetCurrentProcess().Id;
 #endif
         }
 
@@ -408,10 +408,10 @@ namespace MongoDB.Bson
 
         private static string GetMachineName()
         {
-#if NET45
-            return Environment.MachineName;
-#else
+#if NETSTANDARD16
             return Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "";
+#else
+            return Environment.MachineName;
 #endif
         }
 

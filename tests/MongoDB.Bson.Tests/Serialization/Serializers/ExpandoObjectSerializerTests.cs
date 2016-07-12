@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual((rehydrated).ToBson()));
         }
 
-#if !NETCORE
+#if NET45
         [Fact]
         public void TestDeserializingDiscriminatedVersion()
         {

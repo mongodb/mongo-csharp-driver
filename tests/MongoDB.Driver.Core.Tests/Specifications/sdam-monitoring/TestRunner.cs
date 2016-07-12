@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETCORE
+#if NETSTANDARD16
                 const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.sdam_monitoring.tests.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.sdam_monitoring.tests.";

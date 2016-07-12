@@ -13,13 +13,13 @@
 * limitations under the License.
 */
 
+#if NET45
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-#if NET45
 namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters
 {
     internal sealed class PerformanceCounterPackage : IDisposable

@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq
             }
 
             var declaringTypeDefinition = methodInfo.DeclaringType.GetGenericTypeDefinition();
-#if NETCORE
+#if NETSTANDARD16
             var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public;
             var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
             return declaringTypeDefinition.GetTypeInfo().GetMethods(bindingFlags)

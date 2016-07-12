@@ -18,7 +18,8 @@ using MongoDB.Driver.Core.Misc;
 
 #if NET45
 using System.Runtime.Remoting.Messaging;
-#else
+#endif
+#if NETSTANDARD16
 using System.Threading;
 #endif
 

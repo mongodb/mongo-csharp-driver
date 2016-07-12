@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
+#if NET45
 using System;
 using System.Diagnostics;
 
-#if NET45
 namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters
 {
     [AttributeUsage(AttributeTargets.Property)]

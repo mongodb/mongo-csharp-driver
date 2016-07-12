@@ -141,7 +141,7 @@ namespace MongoDB.Driver
 
             __traceSource = new TraceSource("mongodb-tests", defaultLevel);
             __traceSource.Listeners.Clear(); // remove the default listener
-#if NETCORE
+#if NETSTANDARD16
             var listener = new TextWriterTraceListener(Console.Out);
 #else
             var listener = new ConsoleTraceListener();
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
 
         private static MethodInfo GetTestMethodInfoFromCallStack()
         {
-#if NETCORE
+#if NETSTANDARD16
             var stackTrace = new StackTrace(new Exception(), needFileInfo: false);
 #else
             var stackTrace = new StackTrace();

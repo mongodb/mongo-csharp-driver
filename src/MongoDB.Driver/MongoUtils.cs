@@ -60,7 +60,7 @@ namespace MongoDB.Driver
             return value.Substring(0, 1).ToLower() + value.Substring(1);
         }
 
-#if !NETCORE
+#if NET45
         // internal methods
         /// <summary>
         /// Should only be used when the safety of the data cannot be guaranteed.  For instance,

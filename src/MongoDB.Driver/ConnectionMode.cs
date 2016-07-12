@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Server connection mode.
     /// </summary>
-#if !NETCORE
+#if NET45
     [Serializable]
 #endif
     public enum ConnectionMode

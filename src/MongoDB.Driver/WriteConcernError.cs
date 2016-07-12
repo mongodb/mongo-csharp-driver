@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write concern error.
     /// </summary>
-#if !NETCORE
+#if NET45
     [Serializable]
 #endif
     public class WriteConcernError

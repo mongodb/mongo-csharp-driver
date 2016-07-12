@@ -19,7 +19,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.Core/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETCORE" ]
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
       }
     }
   }

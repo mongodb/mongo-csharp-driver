@@ -246,7 +246,7 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-#if !NETCORE
+#if NET45
         [Fact]
         public void Close_can_be_called_multiple_times()
         {
@@ -261,7 +261,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if !NETCORE
+#if NET45
         [Fact]
         public void Close_should_dispose_subject()
         {
@@ -357,7 +357,7 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-#if !NETCORE
+#if NET45
         [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
@@ -371,7 +371,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if !NETCORE
+#if NET45
        [Theory]
         [ParameterAttributeData]
         public void Dispose_should_dispose_stream_only_when_it_owns_it(

@@ -218,7 +218,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c = new C { Obj = new ExpandoObject() };
             var json = c.ToJson(configurator: config => config.IsDynamicType = t => false);
-#if NETCORE
+#if NETSTANDARD16
             var discriminator = typeof(ExpandoObject).AssemblyQualifiedName;
 #else
             var discriminator = "System.Dynamic.ExpandoObject";

@@ -26,14 +26,6 @@ namespace MongoDB.Driver.Core.Configuration
     {
         private static readonly SslStreamSettings __defaults = new SslStreamSettings();
 
-#if NETCORE
-#pragma warning disable 618
-        private static readonly SslProtocols __sslProtocolsDefault = SslProtocols.Tls | SslProtocols.Ssl3;
-#pragma warning restore
-#else
-        private static readonly SslProtocols __sslProtocolsDefault = SslProtocols.Default;
-#endif
-
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -42,7 +34,13 @@ namespace MongoDB.Driver.Core.Configuration
             subject.CheckCertificateRevocation.Should().BeTrue();
             subject.ClientCertificates.Should().BeEmpty();
             subject.ClientCertificateSelectionCallback.Should().BeNull();
-            subject.EnabledSslProtocols.Should().Be(__sslProtocolsDefault);
+#if NETSTANDARD16
+#pragma warning disable 618
+            subject.EnabledSslProtocols.Should().Be(SslProtocols.Tls | SslProtocols.Ssl3);
+#pragma warning restore
+#else
+            subject.EnabledSslProtocols.Should().Be(SslProtocols.Default);
+#endif
             subject.ServerCertificateValidationCallback.Should().BeNull();
         }
 
@@ -175,7 +173,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_enabledProtocols_should_return_expected_result()
         {
-            var oldEnabledProtocols = __sslProtocolsDefault;
+            var oldEnabledProtocols = SslProtocols.Tls;
             var newEnabledProtocols = SslProtocols.Tls12;
             var subject = new SslStreamSettings(enabledProtocols: oldEnabledProtocols);
 

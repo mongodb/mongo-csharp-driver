@@ -1268,13 +1268,13 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-#if NET45
+#if NETSTANDARD16
+                    var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
+                    throw new BsonSerializationException(message);
+#else
                     // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
                     var getUnitializedObjectMethodInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
                     body = Expression.Call(getUnitializedObjectMethodInfo, Expression.Constant(_classType));
-#else
-                    var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
-                    throw new BsonSerializationException(message);
 #endif
                 }
                 var lambdaExpression = Expression.Lambda<Func<object>>(body);
@@ -1537,9 +1537,7 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static MethodInfo[] GetPropertyAccessors(PropertyInfo propertyInfo)
         {
-#if NET45
-            return propertyInfo.GetAccessors(true);
-#else
+#if NETSTANDARD16
             var accessors = new List<MethodInfo>();
             if (propertyInfo.GetMethod != null)
             {
@@ -1550,6 +1548,8 @@ namespace MongoDB.Bson.Serialization
                 accessors.Add(propertyInfo.SetMethod);
             }
             return accessors.ToArray();
+#else
+            return propertyInfo.GetAccessors(true);
 #endif
         }
 
@@ -1593,7 +1593,7 @@ namespace MongoDB.Bson.Serialization
         {
             var interfaceType = interfacePropertyInfo.DeclaringType;
 
-#if NETCORE
+#if NETSTANDARD16
             var actualTypeInfo = actualType.GetTypeInfo();
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             var actualTypePropertyInfos = actualTypeInfo.GetMembers(bindingFlags).OfType<PropertyInfo>();

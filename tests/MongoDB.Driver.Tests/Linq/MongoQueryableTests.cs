@@ -320,6 +320,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #endif
+
         [Fact]
         public void GroupBy_where_method()
         {
@@ -377,6 +378,7 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #endif
+
         [Fact]
         public void GroupBy_with_resultSelector_anonymous_type_method()
         {

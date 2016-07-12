@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-#if NETCORE
+#if NETSTANDARD16
         private static readonly string __discriminatorAssemblyName = "MongoDB.Bson.Tests.NetCore";
 #else
         private static readonly AssemblyName __assemblyName = Assembly.GetExecutingAssembly().GetName();

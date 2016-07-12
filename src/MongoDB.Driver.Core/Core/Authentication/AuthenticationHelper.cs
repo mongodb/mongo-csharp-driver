@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-#if !NETCORE
+#if NET45
         public static string MongoPasswordDigest(string username, SecureString password)
         {
             IntPtr unmanagedPassword = IntPtr.Zero;

@@ -296,10 +296,10 @@ namespace MongoDB.Bson.IO
                 if (b == 0)
                 {
                     byte[] memoryStreamBuffer;
-#if NET45
-                    memoryStreamBuffer = memoryStream.GetBuffer();
-#else
+#if NETSTANDARD16
                     memoryStreamBuffer = memoryStream.ToArray();
+#else
+                    memoryStreamBuffer = memoryStream.GetBuffer();
 #endif
                     return new ArraySegment<byte>(memoryStreamBuffer, 0, (int)memoryStream.Length);
                 }

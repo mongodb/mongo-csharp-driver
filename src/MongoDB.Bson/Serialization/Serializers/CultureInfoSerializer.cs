@@ -73,14 +73,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case Flags.UseUserOverride: useUserOverride = _booleanSerializer.Deserialize(context); break;
                         }
                     });
-#if NET45
-                    return new CultureInfo(name, useUserOverride);
-#else
+#if NETSTANDARD16
                     if (!useUserOverride)
                     {
                         throw new FormatException("CultureInfo does not support useUserOverride on this version of the .NET Framework.");
                     }
                     return new CultureInfo(name);
+#else
+                    return new CultureInfo(name, useUserOverride);
 #endif
 
                 case BsonType.String:
@@ -101,10 +101,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-#if NET45
-            var useUserOverride = value.UseUserOverride;
-#else
+#if NETSTANDARD16
             var useUserOverride = true;
+#else
+            var useUserOverride = value.UseUserOverride;
 #endif
 
             if (useUserOverride)

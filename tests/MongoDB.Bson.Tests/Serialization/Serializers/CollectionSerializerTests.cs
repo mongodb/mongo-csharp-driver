@@ -269,7 +269,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var obj = new T { L = new ArrayList(), Q = new Queue(), S = new Stack() };
             var json = obj.ToJson();
             var rep = "[]";
-#if NETCORE
+#if NETSTANDARD16
             var arrayListDiscriminator = typeof(ArrayList).AssemblyQualifiedName;
             var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;
             var stackDiscriminator = typeof(Stack).AssemblyQualifiedName;
@@ -296,7 +296,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var obj = new T { L = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
             var rep = "[1]";
-#if NETCORE
+#if NETSTANDARD16
             var arrayListDiscriminator = typeof(ArrayList).AssemblyQualifiedName;
             var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;
             var stackDiscriminator = typeof(Stack).AssemblyQualifiedName;

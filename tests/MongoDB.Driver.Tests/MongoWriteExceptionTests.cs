@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-#if !NETCORE
+#if NET45
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;

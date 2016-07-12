@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     public sealed class PasswordEvidence : MongoIdentityEvidence
     {
         // private fields
-#if NETCORE
+#if NETSTANDARD16
         private readonly string _password;
 #else
         private readonly SecureString _securePassword;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver
 #endif
 
         // constructors
-#if NETCORE
+#if NETSTANDARD16
         /// <summary>
         /// Initializes a new instance of the <see cref="PasswordEvidence" /> class.
         /// </summary>
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
 #endif
 
         // public properties
-#if NETCORE
+#if NETSTANDARD16
         /// <summary>
         /// Gets the password.
         /// </summary>
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
 
-#if NETCORE
+#if NETSTANDARD16
             return _password == ((PasswordEvidence)rhs)._password;
 #else
             return _digest == ((PasswordEvidence)rhs)._digest;
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         /// </returns>
         public override int GetHashCode()
         {
-#if NETCORE
+#if NETSTANDARD16
             return _password.GetHashCode();
 #else
             return _digest.GetHashCode();
@@ -134,7 +134,7 @@ namespace MongoDB.Driver
             {
                 var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
-#if NETCORE
+#if NETSTANDARD16
                 var hash = ComputeHash(md5, prefixBytes, _password);
 #else
                 var hash = ComputeHash(md5, prefixBytes, _securePassword);
@@ -144,7 +144,7 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-#if !NETCORE
+#if NET45
         private static SecureString CreateSecureString(string str)
         {
             if (str != null)
@@ -162,7 +162,7 @@ namespace MongoDB.Driver
         }
 #endif
 
-#if !NETCORE
+#if NET45
         /// <summary>
         /// Computes the hash value of the secured string 
         /// </summary>
@@ -176,7 +176,7 @@ namespace MongoDB.Driver
         }
 #endif
 
-#if NETCORE
+#if NETSTANDARD16
         private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, string password)
         {
             var encoding = Utf8Encodings.Strict;

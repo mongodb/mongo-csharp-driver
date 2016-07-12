@@ -165,6 +165,7 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].SmallestCity.Name.Should().Be("LEEDS");
             result[1].SmallestCity.Population.Should().Be(1350);
         }
+
 #if !MONO
         [Fact]
         public async Task Largest_and_smallest_cities_by_state_queryable_syntax()

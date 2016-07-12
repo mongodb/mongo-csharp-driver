@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
+#if NET45
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
-#if NET45
 // this test doesn't pass against .NET Core because the Test class doesn't have a default constructor
 
 namespace MongoDB.Bson.Tests.Jira
