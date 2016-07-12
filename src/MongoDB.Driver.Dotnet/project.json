@@ -2,8 +2,8 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "MongoDB.Bson.NetCore": "1.0.0-*",
-    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
     "NETStandard.Library": "1.6.0",
     "System.Linq.Expressions": "4.1.0",
     "System.Linq.Queryable": "4.0.1"

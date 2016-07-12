@@ -2,10 +2,10 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "MongoDB.Bson.NetCore": "1.0.0-*",
-    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
-    "MongoDB.Driver.Core.TestHelpers.NetCore": "1.0.0-*",
-    "MongoDB.Driver.NetCore": "1.0.0-*",
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.TestHelpers.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Dotnet": "1.0.0-*",
     "NETStandard.Library": "1.6.0"
   },
 

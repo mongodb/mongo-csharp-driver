@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
             public IEnumerator<object[]> GetEnumerator()
             {
 #if NETSTANDARD16
-                const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.read_write_concern.tests.connection_string.";
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.read_write_concern.tests.connection_string.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.read_write_concern.tests.connection_string.";
 #endif

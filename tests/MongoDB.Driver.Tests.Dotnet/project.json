@@ -5,12 +5,12 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "FluentAssertions": "4.11.0",
-    "MongoDB.Bson.NetCore": "1.0.0-*",
-    "MongoDB.Bson.TestHelpers.NetCore": "1.0.0-*",
-    "MongoDB.Driver.Core.NetCore": "1.0.0-*",
-    "MongoDB.Driver.Core.TestHelpers.NetCore": "1.0.0-*",
-    "MongoDB.Driver.NetCore": "1.0.0-*",
-    "MongoDB.Driver.TestHelpers.NetCore": "1.0.0-*",
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Bson.TestHelpers.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.TestHelpers.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.TestHelpers.Dotnet": "1.0.0-*",
     "moq.netcore": "4.4.0-beta8",
     "NETStandard.Library": "1.6.0",
     "xunit": "2.2.0-beta2-build3300"

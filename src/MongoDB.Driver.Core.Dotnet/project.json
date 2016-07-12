@@ -2,7 +2,7 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "MongoDB.Bson.NetCore": "1.0.0-*",
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
     "NETStandard.Library": "1.6.0",
     "System.Collections.Specialized": "4.0.1",
     "System.Diagnostics.TraceSource": "4.0.0",

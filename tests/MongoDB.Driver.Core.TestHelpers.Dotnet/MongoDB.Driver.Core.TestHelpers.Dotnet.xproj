@@ -8,7 +8,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>e345ce1d-7876-49bf-bbd3-cd78707b715b</ProjectGuid>
-    <RootNamespace>MongoDB.Driver.Core.TestHelpers.NetCore</RootNamespace>
+    <RootNamespace>MongoDB.Driver.Core.TestHelpers.Dotnet</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>

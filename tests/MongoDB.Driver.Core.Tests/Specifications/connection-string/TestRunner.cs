@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Specifications.connection_string
             public IEnumerator<object[]> GetEnumerator()
             {
 #if NETSTANDARD16
-                const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.connection_string.tests.";
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.connection_string.tests.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.connection_string.tests.";
 #endif

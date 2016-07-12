@@ -5,30 +5,30 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CB619CDE-385F-4D7D-8601-A6482943975C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.NetCore", "src\MongoDB.Bson.NetCore\MongoDB.Bson.NetCore.xproj", "{8FBED623-BA2E-4279-B585-0ACE3AC7F754}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.Dotnet", "src\MongoDB.Bson.Dotnet\MongoDB.Bson.Dotnet.xproj", "{8FBED623-BA2E-4279-B585-0ACE3AC7F754}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6D163A80-981C-491A-B519-465342D76568}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.TestHelpers.NetCore", "tests\MongoDB.Bson.TestHelpers.NetCore\MongoDB.Bson.TestHelpers.NetCore.xproj", "{99526437-0509-4768-90AA-C4B1E48BD5CD}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.TestHelpers.Dotnet", "tests\MongoDB.Bson.TestHelpers.Dotnet\MongoDB.Bson.TestHelpers.Dotnet.xproj", "{99526437-0509-4768-90AA-C4B1E48BD5CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AC5DB261-73A0-4802-A3E0-7D5ED75FC52E}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.Tests.NetCore", "tests\MongoDB.Bson.Tests.NetCore\MongoDB.Bson.Tests.NetCore.xproj", "{4C1AEA13-BE27-40E6-B1AE-E505F3B3E957}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Bson.Tests.Dotnet", "tests\MongoDB.Bson.Tests.Dotnet\MongoDB.Bson.Tests.Dotnet.xproj", "{4C1AEA13-BE27-40E6-B1AE-E505F3B3E957}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.NetCore", "src\MongoDB.Driver.Core.NetCore\MongoDB.Driver.Core.NetCore.xproj", "{5A517A0D-D809-490A-9FB9-61EC4457CC5C}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.Dotnet", "src\MongoDB.Driver.Core.Dotnet\MongoDB.Driver.Core.Dotnet.xproj", "{5A517A0D-D809-490A-9FB9-61EC4457CC5C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.TestHelpers.NetCore", "tests\MongoDB.Driver.Core.TestHelpers.NetCore\MongoDB.Driver.Core.TestHelpers.NetCore.xproj", "{E345CE1D-7876-49BF-BBD3-CD78707B715B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.TestHelpers.Dotnet", "tests\MongoDB.Driver.Core.TestHelpers.Dotnet\MongoDB.Driver.Core.TestHelpers.Dotnet.xproj", "{E345CE1D-7876-49BF-BBD3-CD78707B715B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.Tests.NetCore", "tests\MongoDB.Driver.Core.Tests.NetCore\MongoDB.Driver.Core.Tests.NetCore.xproj", "{264D9363-60CF-4B7A-BCCB-6FE8D883B36B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Core.Tests.Dotnet", "tests\MongoDB.Driver.Core.Tests.Dotnet\MongoDB.Driver.Core.Tests.Dotnet.xproj", "{264D9363-60CF-4B7A-BCCB-6FE8D883B36B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.NetCore", "src\MongoDB.Driver.NetCore\MongoDB.Driver.NetCore.xproj", "{98B177EC-39FA-4854-BB6A-55CB837767EE}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Dotnet", "src\MongoDB.Driver.Dotnet\MongoDB.Driver.Dotnet.xproj", "{98B177EC-39FA-4854-BB6A-55CB837767EE}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.TestHelpers.NetCore", "tests\MongoDB.Driver.TestHelpers.NetCore\MongoDB.Driver.TestHelpers.NetCore.xproj", "{4D0C8048-E009-4CE5-9C7F-40A6E5CD8C7F}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.TestHelpers.Dotnet", "tests\MongoDB.Driver.TestHelpers.Dotnet\MongoDB.Driver.TestHelpers.Dotnet.xproj", "{4D0C8048-E009-4CE5-9C7F-40A6E5CD8C7F}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Tests.NetCore", "tests\MongoDB.Driver.Tests.NetCore\MongoDB.Driver.Tests.NetCore.xproj", "{0478B209-1898-4AD3-A09D-4275E6B20974}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Tests.Dotnet", "tests\MongoDB.Driver.Tests.Dotnet\MongoDB.Driver.Tests.Dotnet.xproj", "{0478B209-1898-4AD3-A09D-4275E6B20974}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

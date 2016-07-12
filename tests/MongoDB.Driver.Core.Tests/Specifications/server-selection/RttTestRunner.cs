@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Specifications.server_selection
             public IEnumerator<object[]> GetEnumerator()
             {
 #if NETSTANDARD16
-                const string prefix = "MongoDB.Driver.Core.Tests.NetCore.Specifications.server_selection.tests.rtt.";
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_selection.tests.rtt.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.rtt.";
 #endif

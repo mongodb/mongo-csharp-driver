@@ -10,8 +10,8 @@
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "System.Diagnostics.TraceSource": "4.0.0",
     "System.Dynamic.Runtime": "4.0.11",
-    "MongoDB.Bson.NetCore": "1.0.0-*",
-    "MongoDB.Bson.TestHelpers.NetCore": "1.0.0-*"
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Bson.TestHelpers.Dotnet": "1.0.0-*"
   },
 
   "frameworks": {
