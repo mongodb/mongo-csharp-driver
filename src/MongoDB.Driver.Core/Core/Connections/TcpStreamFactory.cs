@@ -150,6 +150,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (!cancelled && !timedOut)
                     {
+                        socket.Dispose();
                         throw;
                     }
                 }
@@ -200,6 +201,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (!cancelled && !timedOut)
                     {
+                        socket.Dispose();
                         throw;
                     }
                 }
