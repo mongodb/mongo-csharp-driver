@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -774,7 +774,7 @@ namespace MongoDB.Driver
         /// <returns>A document (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType, FindOneArgs args)
         {
-            var methodDefinition = GetType().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
@@ -898,7 +898,7 @@ namespace MongoDB.Driver
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
-            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(double), typeof(double), typeof(IMongoGeoHaystackSearchOptions) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(double), typeof(double), typeof(IMongoGeoHaystackSearchOptions) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { x, y, options });
         }
@@ -911,7 +911,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
         public virtual GeoHaystackSearchResult GeoHaystackSearchAs(Type documentType, GeoHaystackSearchArgs args)
         {
-            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { args });
         }
@@ -1009,7 +1009,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
         public virtual GeoNearResult GeoNearAs(Type documentType, GeoNearArgs args)
         {
-            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(GeoNearArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoNearAs", new Type[] { typeof(GeoNearArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoNearResult)methodInfo.Invoke(this, new object[] { args });
         }
@@ -1048,7 +1048,7 @@ namespace MongoDB.Driver
             int limit,
             IMongoGeoNearOptions options)
         {
-            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(IMongoQuery), typeof(double), typeof(double), typeof(int), typeof(IMongoGeoNearOptions) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoNearAs", new Type[] { typeof(IMongoQuery), typeof(double), typeof(double), typeof(int), typeof(IMongoGeoNearOptions) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoNearResult)methodInfo.Invoke(this, new object[] { query, x, y, limit, options });
         }
@@ -1476,7 +1476,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("nominalType");
             }
 
-            var methodDefinition = typeof(MongoCollection).GetMethod("InsertBatchInvoker", BindingFlags.NonPublic | BindingFlags.Instance);
+            var methodDefinition = typeof(MongoCollection).GetTypeInfo().GetMethod("InsertBatchInvoker", BindingFlags.NonPublic | BindingFlags.Instance);
             var methodInfo = methodDefinition.MakeGenericMethod(nominalType);
             return (IEnumerable<WriteConcernResult>)methodInfo.Invoke(this, new object[] { documents, options });
         }
@@ -1619,7 +1619,7 @@ namespace MongoDB.Driver
                 throw new ArgumentException(message, "args");
             }
 
-            var methodDefinition = GetType().GetMethods().Where(m => m.Name == "ParallelScanAs" && m.IsGenericMethodDefinition).Single();
+            var methodDefinition = GetType().GetTypeInfo().GetMethods().Where(m => m.Name == "ParallelScanAs" && m.IsGenericMethodDefinition).Single();
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {

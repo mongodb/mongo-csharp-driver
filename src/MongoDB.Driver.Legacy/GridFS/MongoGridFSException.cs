@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.GridFS

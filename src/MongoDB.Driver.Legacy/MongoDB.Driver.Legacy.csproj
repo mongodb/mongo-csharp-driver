@@ -47,6 +47,9 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs">
+      <Link>IncrementalMD5.cs</Link>
+    </Compile>
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\BuilderBase.cs" />

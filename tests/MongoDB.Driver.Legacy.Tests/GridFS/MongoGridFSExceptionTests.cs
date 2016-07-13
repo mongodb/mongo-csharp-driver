@@ -14,9 +14,13 @@
 */
 
 using System;
+#if NET45
 using System.IO;
+#endif
 using System.Net;
+#if NET45
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;

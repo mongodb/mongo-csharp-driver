@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,7 +56,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the results of the collection stats command.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(CommandResultSerializer<CollectionStatsResult>))]
     public class CollectionStatsResult : CommandResult
     {

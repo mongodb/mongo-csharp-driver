@@ -432,7 +432,7 @@ namespace MongoDB.Driver.Linq
             // don't test for too many things in case implementation details change in the future
             var typeInfo = type.GetTypeInfo();
             return
-                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
+                typeInfo.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Count() >= 1 &&
                 typeInfo.IsGenericType &&
                 typeInfo.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }

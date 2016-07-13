@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))
+            if (!typeof(IQueryable<T>).GetTypeInfo().IsAssignableFrom(expression.Type))
             {
                 throw new ArgumentOutOfRangeException("expression");
             }
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            if (!typeof(TResult).IsAssignableFrom(expression.Type))
+            if (!typeof(TResult).GetTypeInfo().IsAssignableFrom(expression.Type))
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Linq
         {
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
-            return ienum.GetGenericArguments()[0];
+            return ienum.GetTypeInfo().GetGenericArguments()[0];
         }
 
         private static Type FindIEnumerable(Type seqType)
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Linq
                 foreach (Type arg in seqTypeInfo.GetGenericArguments())
                 {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
+                    if (ienum.GetTypeInfo().IsAssignableFrom(seqType))
                     {
                         return ienum;
                     }

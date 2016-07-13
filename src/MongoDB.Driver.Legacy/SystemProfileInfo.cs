@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a document from the system.profile collection.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(SystemProfileInfoSerializer))]
     public class SystemProfileInfo : BsonDocumentBackedClass
     {
@@ -346,7 +348,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Statistics about locks for a system.profile document.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(SystemProfileLockStatisticsSerializer))]
     public class SystemProfileLockStatistics : BsonDocumentBackedClass
     {
@@ -397,7 +401,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Statistics about system.profile read and write time spent in locks.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(SystemProfileReadWriteLockStatisticsSerializer))]
     public class SystemProfileReadWriteLockStatistics : BsonDocumentBackedClass
     {

@@ -30,6 +30,12 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.TestHelpers.
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Tests.Dotnet", "tests\MongoDB.Driver.Tests.Dotnet\MongoDB.Driver.Tests.Dotnet.xproj", "{0478B209-1898-4AD3-A09D-4275E6B20974}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Legacy.Dotnet", "src\MongoDB.Driver.Legacy.Dotnet\MongoDB.Driver.Legacy.Dotnet.xproj", "{0A996882-082C-449A-8530-6E6D4CD52BAA}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Legacy.TestHelpers.Dotnet", "tests\MongoDB.Driver.Legacy.TestHelpers.Dotnet\MongoDB.Driver.Legacy.TestHelpers.Dotnet.xproj", "{7D946D76-6645-4F67-BCAB-198F78FC8B24}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Legacy.Tests.Dotnet", "tests\MongoDB.Driver.Legacy.Tests.Dotnet\MongoDB.Driver.Legacy.Tests.Dotnet.xproj", "{7586E8E3-687B-4064-B862-DCD307267B65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +78,18 @@ Global
 		{0478B209-1898-4AD3-A09D-4275E6B20974}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0478B209-1898-4AD3-A09D-4275E6B20974}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0478B209-1898-4AD3-A09D-4275E6B20974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A996882-082C-449A-8530-6E6D4CD52BAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A996882-082C-449A-8530-6E6D4CD52BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A996882-082C-449A-8530-6E6D4CD52BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A996882-082C-449A-8530-6E6D4CD52BAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D946D76-6645-4F67-BCAB-198F78FC8B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D946D76-6645-4F67-BCAB-198F78FC8B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D946D76-6645-4F67-BCAB-198F78FC8B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D946D76-6645-4F67-BCAB-198F78FC8B24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7586E8E3-687B-4064-B862-DCD307267B65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7586E8E3-687B-4064-B862-DCD307267B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7586E8E3-687B-4064-B862-DCD307267B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7586E8E3-687B-4064-B862-DCD307267B65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,5 +104,8 @@ Global
 		{98B177EC-39FA-4854-BB6A-55CB837767EE} = {CB619CDE-385F-4D7D-8601-A6482943975C}
 		{4D0C8048-E009-4CE5-9C7F-40A6E5CD8C7F} = {6D163A80-981C-491A-B519-465342D76568}
 		{0478B209-1898-4AD3-A09D-4275E6B20974} = {6D163A80-981C-491A-B519-465342D76568}
+		{0A996882-082C-449A-8530-6E6D4CD52BAA} = {CB619CDE-385F-4D7D-8601-A6482943975C}
+		{7D946D76-6645-4F67-BCAB-198F78FC8B24} = {6D163A80-981C-491A-B519-465342D76568}
+		{7586E8E3-687B-4064-B862-DCD307267B65} = {6D163A80-981C-491A-B519-465342D76568}
 	EndGlobalSection
 EndGlobal

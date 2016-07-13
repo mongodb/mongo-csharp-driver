@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -274,7 +275,7 @@ namespace MongoDB.Driver
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer) });
+            var constructorInfo = cursorType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer) });
             return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer });
         }
 
@@ -294,7 +295,7 @@ namespace MongoDB.Driver
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadConcern), typeof(ReadPreference), typeof(IBsonSerializer) });
+            var constructorInfo = cursorType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadConcern), typeof(ReadPreference), typeof(IBsonSerializer) });
             return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readConcern, readPreference, serializer });
         }
 

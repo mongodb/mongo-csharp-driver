@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Linq
             {
                 var type = _ofType ?? DocumentType;
 
-                return typeof(Enumerable).GetMethod("Empty").MakeGenericMethod(type).Invoke(null, null);
+                return typeof(Enumerable).GetTypeInfo().GetMethod("Empty").MakeGenericMethod(type).Invoke(null, null);
             }
 
             var query = BuildQuery();
@@ -221,9 +221,9 @@ namespace MongoDB.Driver.Linq
             else
             {
                 var lambdaType = projection.GetType();
-                var delegateType = lambdaType.GetGenericArguments()[0];
-                var sourceType = delegateType.GetGenericArguments()[0];
-                var resultType = delegateType.GetGenericArguments()[1];
+                var delegateType = lambdaType.GetTypeInfo().GetGenericArguments()[0];
+                var sourceType = delegateType.GetTypeInfo().GetGenericArguments()[0];
+                var resultType = delegateType.GetTypeInfo().GetGenericArguments()[1];
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
                 var compiledProjection = projection.Compile();
                 projector = (IProjector)Activator.CreateInstance(projectorType, cursor, compiledProjection);
@@ -299,12 +299,12 @@ namespace MongoDB.Driver.Linq
 
                 // when using OfType the parameter types might not match (but they do have to be compatible)
                 ParameterExpression parameter;
-                if (predicateParameter.Type.IsAssignableFrom(whereParameter.Type))
+                if (predicateParameter.Type.GetTypeInfo().IsAssignableFrom(whereParameter.Type))
                 {
                     predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicateBody, predicateParameter, whereParameter);
                     parameter = whereParameter;
                 }
-                else if (whereParameter.Type.IsAssignableFrom(predicateParameter.Type))
+                else if (whereParameter.Type.GetTypeInfo().IsAssignableFrom(predicateParameter.Type))
                 {
                     whereBody = ExpressionParameterReplacer.ReplaceParameter(whereBody, whereParameter, predicateParameter);
                     parameter = predicateParameter;
@@ -770,7 +770,7 @@ namespace MongoDB.Driver.Linq
             }
             var query = Query.EQ(discriminatorConvention.ElementName, discriminator);
 
-            var injectMethodInfo = typeof(LinqToMongo).GetMethod("Inject");
+            var injectMethodInfo = typeof(LinqToMongo).GetTypeInfo().GetMethod("Inject");
             var body = Expression.Call(injectMethodInfo, Expression.Constant(query));
             var parameter = Expression.Parameter(nominalType, "x");
             var predicate = Expression.Lambda(body, parameter);

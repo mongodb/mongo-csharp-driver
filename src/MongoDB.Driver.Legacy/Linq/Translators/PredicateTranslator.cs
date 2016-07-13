@@ -533,7 +533,7 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
             // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
-            if (methodCallExpression.Object != null && typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
+            if (methodCallExpression.Object != null && typeof(IDictionary).GetTypeInfo().IsAssignableFrom(methodCallExpression.Object.Type))
             {
                 return BuildContainsKeyQuery(methodCallExpression);
             }
@@ -553,7 +553,7 @@ namespace MongoDB.Driver.Linq
             var arguments = methodCallExpression.Arguments.ToArray();
             if (arguments.Length == 1)
             {
-                if (typeof(IEnumerable).IsAssignableFrom(methodCallExpression.Method.DeclaringType))
+                if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(methodCallExpression.Method.DeclaringType))
                 {
                     serializationInfo = _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Object);
                     valueExpression = arguments[0] as ConstantExpression;

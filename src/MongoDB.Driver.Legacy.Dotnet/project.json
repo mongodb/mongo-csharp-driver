@@ -1,0 +1,24 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Dotnet": "1.0.0-*",
+    "NETStandard.Library": "1.6.0",
+    "System.Net.NameResolution": "4.0.0",
+    "System.Reflection": "4.1.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Driver.Legacy/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
+      }
+    }
+  }
+}

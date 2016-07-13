@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
@@ -523,7 +524,7 @@ namespace MongoDB.Driver
         {
             var collectionDefinition = typeof(MongoCollection<>);
             var collectionType = collectionDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
+            var constructorInfo = collectionType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
             return (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionName, collectionSettings });
         }
 
@@ -799,7 +800,7 @@ namespace MongoDB.Driver
         /// <returns>A TCommandResult</returns>
         public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
         {
-            var methodDefinition = GetType().GetMethod("RunCommandAs", new Type[] { typeof(IMongoCommand) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("RunCommandAs", new Type[] { typeof(IMongoCommand) });
             var methodInfo = methodDefinition.MakeGenericMethod(commandResultType);
             return (CommandResult)methodInfo.Invoke(this, new object[] { command });
         }
