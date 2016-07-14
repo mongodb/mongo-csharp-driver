@@ -15,7 +15,9 @@
 
 using System;
 using System.IO;
+#if NET45
 using System.Runtime.Remoting;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -93,23 +95,29 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
+#if NET45
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             return _wrappedStream.BeginRead(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             return _wrappedStream.BeginWrite(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override void Close()
         {
             _wrappedStream.Close();
         }
+#endif
 
         /// <inheritdoc/>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
@@ -117,18 +125,22 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
-        /// <inheritdoc/>
+ #if NET45
+       /// <inheritdoc/>
         public override ObjRef CreateObjRef(Type requestedType)
         {
             return _wrappedStream.CreateObjRef(requestedType);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         [Obsolete()]
         protected override WaitHandle CreateWaitHandle()
         {
             throw new NotSupportedException();
         }
+#endif
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
@@ -139,17 +151,21 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+#if NET45
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
             return _wrappedStream.EndRead(asyncResult);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
             _wrappedStream.EndWrite(asyncResult);
         }
+#endif
 
         /// <inheritdoc/>
         public override bool Equals(object obj)
@@ -175,18 +191,22 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.GetHashCode();
         }
 
-        /// <inheritdoc/>
+ #if NET45
+       /// <inheritdoc/>
         public override object InitializeLifetimeService()
         {
             return _wrappedStream.InitializeLifetimeService();
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         [Obsolete()]
         protected override void ObjectInvariant()
         {
             throw new NotSupportedException();
         }
+#endif
 
         /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count)

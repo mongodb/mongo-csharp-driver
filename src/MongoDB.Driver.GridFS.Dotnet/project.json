@@ -1,0 +1,22 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
+    "MongoDB.Driver.Dotnet": "1.0.0-*",
+    "NETStandard.Library": "1.6.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "compile": {
+          "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
+        },
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
+      }
+    }
+  }
+}

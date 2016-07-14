@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.GridFS
         private readonly TFileId _id;
         private readonly BsonValue _idAsBsonValue;
         private long _length;
-        private readonly MD5 _md5;
+        private readonly IncrementalMD5 _md5;
         private readonly BsonDocument _metadata;
 
         // constructors
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.GridFS
             _batchSize = batchSize;
 
             _batch = new List<byte[]>();
-            _md5 = MD5.Create();
+            _md5 = IncrementalMD5.Create();
 
             var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
@@ -271,7 +272,7 @@ namespace MongoDB.Driver.GridFS
                 { "length", _length },
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
-                { "md5", BsonUtils.ToHexString(_md5.Hash) },
+                { "md5", BsonUtils.ToHexString(_md5.GetHashAndReset()) },
                 { "filename", _filename },
                 { "contentType", _contentType, _contentType != null },
                 { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },
@@ -296,7 +297,7 @@ namespace MongoDB.Driver.GridFS
                 chunkDocuments.Add(chunkDocument);
 
                 _batchPosition += chunk.Length;
-                _md5.TransformBlock(chunk, 0, chunk.Length, null, 0);
+                _md5.AppendData(chunk, 0, chunk.Length);
             }
 
             return chunkDocuments;
@@ -460,7 +461,6 @@ namespace MongoDB.Driver.GridFS
                 TruncateFinalChunk();
                 WriteBatch(cancellationToken);
             }
-            _md5.TransformFinalBlock(new byte[0], 0, 0);
         }
 
         private async Task WriteFinalBatchAsync(CancellationToken cancellationToken)
@@ -470,7 +470,6 @@ namespace MongoDB.Driver.GridFS
                 TruncateFinalChunk();
                 await WriteBatchAsync(cancellationToken).ConfigureAwait(false);
             }
-            _md5.TransformFinalBlock(new byte[0], 0, 0);
         }
     }
 }

@@ -53,9 +53,12 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             public IEnumerator<object[]> GetEnumerator()
             {
+#if NETSTANDARD16
+                const string prefix = "MongoDB.Driver.GridFS.Tests.Dotnet.Specifications.gridfs.tests.";
+#else
                 const string prefix = "MongoDB.Driver.GridFS.Tests.Specifications.gridfs.tests.";
-                var testCases = Assembly
-                    .GetExecutingAssembly()
+#endif
+                var testCases = typeof(TestCaseSource).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .SelectMany(path =>
@@ -114,7 +117,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 
             private BsonDocument ReadTestFile(string path)
             {
-                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path))
+                using (var stream = typeof(TestCaseSource).GetTypeInfo().Assembly.GetManifestResourceStream(path))
                 using (var streamReader = new StreamReader(stream))
                 {
                     var contents = streamReader.ReadToEnd();

@@ -32,3 +32,4 @@ using System.Runtime.InteropServices;
 
 
 [assembly: InternalsVisibleTo("MongoDB.Driver.GridFS.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.GridFS.Tests.Dotnet")]

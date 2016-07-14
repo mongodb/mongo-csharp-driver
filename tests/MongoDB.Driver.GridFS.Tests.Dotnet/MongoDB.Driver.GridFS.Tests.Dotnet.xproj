@@ -6,8 +6,8 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>7586e8e3-687b-4064-b862-dcd307267b65</ProjectGuid>
-    <RootNamespace>MongoDB.Driver.Legacy.Tests.Dotnet</RootNamespace>
+    <ProjectGuid>7e266fa4-dd26-4462-a4a6-fd50ba4ccf4c</ProjectGuid>
+    <RootNamespace>MongoDB.Driver.GridFS.Tests.Dotnet</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>

@@ -2697,7 +2697,7 @@ namespace MongoDB.Driver.Tests
 
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
-                _collection.RemoveAll();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
                 _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
                 _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });

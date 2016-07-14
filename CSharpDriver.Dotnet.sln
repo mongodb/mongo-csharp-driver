@@ -36,6 +36,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Legacy.TestH
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.Legacy.Tests.Dotnet", "tests\MongoDB.Driver.Legacy.Tests.Dotnet\MongoDB.Driver.Legacy.Tests.Dotnet.xproj", "{7586E8E3-687B-4064-B862-DCD307267B65}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.GridFS.Dotnet", "src\MongoDB.Driver.GridFS.Dotnet\MongoDB.Driver.GridFS.Dotnet.xproj", "{0A36CE36-4E10-4CD7-924F-86EE07962AA0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDB.Driver.GridFS.Tests.Dotnet", "tests\MongoDB.Driver.GridFS.Tests.Dotnet\MongoDB.Driver.GridFS.Tests.Dotnet.xproj", "{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +94,14 @@ Global
 		{7586E8E3-687B-4064-B862-DCD307267B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7586E8E3-687B-4064-B862-DCD307267B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7586E8E3-687B-4064-B862-DCD307267B65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A36CE36-4E10-4CD7-924F-86EE07962AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A36CE36-4E10-4CD7-924F-86EE07962AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A36CE36-4E10-4CD7-924F-86EE07962AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A36CE36-4E10-4CD7-924F-86EE07962AA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,5 +119,7 @@ Global
 		{0A996882-082C-449A-8530-6E6D4CD52BAA} = {CB619CDE-385F-4D7D-8601-A6482943975C}
 		{7D946D76-6645-4F67-BCAB-198F78FC8B24} = {6D163A80-981C-491A-B519-465342D76568}
 		{7586E8E3-687B-4064-B862-DCD307267B65} = {6D163A80-981C-491A-B519-465342D76568}
+		{0A36CE36-4E10-4CD7-924F-86EE07962AA0} = {CB619CDE-385F-4D7D-8601-A6482943975C}
+		{7E266FA4-DD26-4462-A4A6-FD50BA4CCF4C} = {6D163A80-981C-491A-B519-465342D76568}
 	EndGlobalSection
 EndGlobal

@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.GridFS
         private readonly BsonValue _idAsBsonValue;
         private readonly int _lastChunkNumber;
         private readonly int _lastChunkSize;
-        private readonly MD5 _md5;
+        private readonly IncrementalMD5 _md5;
         private int _nextChunkNumber;
         private long _position;
 
@@ -56,7 +57,7 @@ namespace MongoDB.Driver.GridFS
             _checkMD5 = checkMD5;
             if (_checkMD5)
             {
-                _md5 = MD5.Create();
+                _md5 = IncrementalMD5.Create();
             }
 
             _lastChunkNumber = (int)((fileInfo.Length - 1) / fileInfo.ChunkSizeBytes);
@@ -197,8 +198,7 @@ namespace MongoDB.Driver.GridFS
 
                 if (_checkMD5 && _position == FileInfo.Length)
                 {
-                    _md5.TransformFinalBlock(new byte[0], 0, 0);
-                    var md5 = BsonUtils.ToHexString(_md5.Hash);
+                    var md5 = BsonUtils.ToHexString(_md5.GetHashAndReset());
                     if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                     {
 #pragma warning disable 618
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.GridFS
 
                 if (_checkMD5)
                 {
-                    _md5.TransformBlock(bytes, 0, bytes.Length, null, 0);
+                    _md5.AppendData(bytes, 0, bytes.Length);
                 }
             }
         }

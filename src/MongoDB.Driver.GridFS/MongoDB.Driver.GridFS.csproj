@@ -47,6 +47,9 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs">
+      <Link>IncrementalMD5.cs</Link>
+    </Compile>
     <Compile Include="DelegatingStream.cs" />
     <Compile Include="GridFSBucket.cs" />
     <Compile Include="GridFSChunkException.cs" />

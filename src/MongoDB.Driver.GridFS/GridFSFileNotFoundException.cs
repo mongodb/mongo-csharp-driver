@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,7 +30,7 @@ namespace MongoDB.Driver.GridFS
 #endif
     public class GridFSFileNotFoundException : GridFSException
     {
-        #region static
+#region static
         private static string FormatMessage(BsonValue id)
         {
             Ensure.IsNotNull(id, nameof(id));
@@ -40,7 +42,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             return string.Format("GridFS file not found: revision {0} of filename \"{1}\".", revision, filename);
         }
-        #endregion
+#endregion
 
         // constructors
         /// <summary>
