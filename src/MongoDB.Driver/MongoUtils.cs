@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -34,10 +35,11 @@ namespace MongoDB.Driver
         /// <returns>The MD5 hash.</returns>
         public static string Hash(string text)
         {
-            var md5 = MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
-            return hash;
+            using (var md5 = MD5.Create())
+            {
+                var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+                return BsonUtils.ToHexString(bytes);
+            }
         }
 
         /// <summary>
@@ -73,15 +75,22 @@ namespace MongoDB.Driver
             {
                 return "";
             }
-
-            var bstr = Marshal.SecureStringToBSTR(secureString);
+            
+#if NET45
+            var str = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+#else
+            var str = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
+#endif
             try
             {
-                return Marshal.PtrToStringBSTR(bstr);
+                return Marshal.PtrToStringUni(str);
             }
             finally
             {
-                Marshal.ZeroFreeBSTR(bstr);
+                if (str != IntPtr.Zero)
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(str);
+                }
             }
         }
     }
