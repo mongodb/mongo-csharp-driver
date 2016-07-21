@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Authentication
         [InlineData("user", "pencil", "1c33006ec1ffd90f9cadcbcc0e118200")]
         public void MongoPasswordDigest_should_create_the_correct_hash(string username, string password, string expected)
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
 #else
             var securePassword = new SecureString();

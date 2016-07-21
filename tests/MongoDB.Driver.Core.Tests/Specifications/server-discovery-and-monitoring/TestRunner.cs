@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";

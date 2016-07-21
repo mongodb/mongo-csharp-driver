@@ -25,7 +25,7 @@ namespace MongoDB.Shared
 #if NET45
             return new IncrementalMD5Net45();
 #endif
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             return new IncrementalMD5NetStandard16();
 #endif
         }
@@ -74,7 +74,7 @@ namespace MongoDB.Shared
     }
 #endif
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
     internal class IncrementalMD5NetStandard16 : IncrementalMD5
     {
         private readonly IncrementalHash _incrementalHash;

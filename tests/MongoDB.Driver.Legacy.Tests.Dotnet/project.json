@@ -31,7 +31,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.Legacy.Tests/**/*.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD1_6" ]
       }
     }
   }

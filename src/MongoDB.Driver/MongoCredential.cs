@@ -97,7 +97,7 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                     return passwordEvidence.Password;
 #else
                     return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
@@ -391,7 +391,7 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 var insecurePassword = passwordEvidence.Password;
 #else
                 var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);

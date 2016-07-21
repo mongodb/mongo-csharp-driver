@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Authentication
             return protocol;
         }
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         private string CreateKey(string username, string password, string nonce)
 #else
         private string CreateKey(string username, SecureString password, string nonce)

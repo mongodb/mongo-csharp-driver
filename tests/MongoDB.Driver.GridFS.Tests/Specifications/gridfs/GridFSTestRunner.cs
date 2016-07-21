@@ -53,7 +53,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 const string prefix = "MongoDB.Driver.GridFS.Tests.Dotnet.Specifications.gridfs.tests.";
 #else
                 const string prefix = "MongoDB.Driver.GridFS.Tests.Specifications.gridfs.tests.";

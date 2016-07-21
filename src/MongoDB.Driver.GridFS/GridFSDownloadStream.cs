@@ -40,7 +40,7 @@ namespace MongoDB.Driver.GridFS
         public abstract GridFSFileInfo<TFileId> FileInfo { get; }
 
         // public methods
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         /// <summary>
         /// Closes the GridFS stream.
         /// </summary>

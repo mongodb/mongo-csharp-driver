@@ -296,7 +296,7 @@ namespace MongoDB.Bson.IO
                 if (b == 0)
                 {
                     byte[] memoryStreamBuffer;
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                     memoryStreamBuffer = memoryStream.ToArray();
 #else
                     memoryStreamBuffer = memoryStream.GetBuffer();

@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             return 1;
 #else
             return Process.GetCurrentProcess().Id;
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
 
         private static string GetMachineName()
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             return Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "";
 #else
             return Environment.MachineName;

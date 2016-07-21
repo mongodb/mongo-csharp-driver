@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false).ToArray(); // don't inherit
 #else
             var serializerAttributes = typeInfo.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit

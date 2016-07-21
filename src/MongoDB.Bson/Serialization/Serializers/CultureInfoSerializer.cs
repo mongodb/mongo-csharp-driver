@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case Flags.UseUserOverride: useUserOverride = _booleanSerializer.Deserialize(context); break;
                         }
                     });
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                     if (!useUserOverride)
                     {
                         throw new FormatException("CultureInfo does not support useUserOverride on this version of the .NET Framework.");
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var useUserOverride = true;
 #else
             var useUserOverride = value.UseUserOverride;

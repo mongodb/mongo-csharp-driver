@@ -1268,7 +1268,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                     var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
                     throw new BsonSerializationException(message);
 #else
@@ -1537,7 +1537,7 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static MethodInfo[] GetPropertyAccessors(PropertyInfo propertyInfo)
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var accessors = new List<MethodInfo>();
             if (propertyInfo.GetMethod != null)
             {
@@ -1593,7 +1593,7 @@ namespace MongoDB.Bson.Serialization
         {
             var interfaceType = interfacePropertyInfo.DeclaringType;
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var actualTypeInfo = actualType.GetTypeInfo();
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             var actualTypePropertyInfos = actualTypeInfo.GetMembers(bindingFlags).OfType<PropertyInfo>();

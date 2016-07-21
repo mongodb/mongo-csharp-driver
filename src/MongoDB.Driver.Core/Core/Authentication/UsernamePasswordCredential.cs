@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Authentication
     {
         // fields
         private string _source;
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         private string _password;
 #else
         private SecureString _password;
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Authentication
         private string _username;
 
         // constructors
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         /// <summary>
         /// Initializes a new instance of the <see cref="UsernamePasswordCredential"/> class.
         /// </summary>
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <value>
         /// The password.
         /// </value>
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         public string Password
 #else
         public SecureString Password
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             return _password;
 #else
             IntPtr unmanagedPassword = IntPtr.Zero;

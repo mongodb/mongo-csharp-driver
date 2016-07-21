@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.read_write_concern.tests.document.";
 #else
                 const string prefix = "MongoDB.Driver.Specifications.read_write_concern.tests.document.";

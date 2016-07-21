@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(true, settings.CheckCertificateRevocation);
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
-#if NETSTANDARD16
+#if NETSTANDARD1_6
 #pragma warning disable 618
             Assert.Equal(SslProtocols.Tls | SslProtocols.Ssl3, settings.EnabledSslProtocols);
 #pragma warning restore
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-#if NETSTANDARD16
+#if NETSTANDARD1_6
 #pragma warning disable 618
             Assert.Equal(SslProtocols.Tls | SslProtocols.Ssl3, settings.EnabledSslProtocols);
 #pragma warning restore
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Tests
             var codeBaseUrl = new Uri(codeBase);
             var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
             var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var certificateDirectory = Path.Combine(codeBaseDirectory, "MongoDB.Driver.Tests");
 #else
             var certificateDirectory = codeBaseDirectory;

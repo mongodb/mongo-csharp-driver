@@ -29,7 +29,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.Tests/**/*.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ],
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD1_6" ],
         "embed": {
           "include": [ "./Specifications/**/*.json" ]
         },

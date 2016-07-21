@@ -15,7 +15,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ],
+        "define": [ "DEBUG", "TRACE" ],
         "outputName" : "MongoDB.Driver.GridFS"
       }
     }

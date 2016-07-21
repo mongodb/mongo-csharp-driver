@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-#if NETSTANDARD16
+#if NETSTANDARD1_6
     public sealed class ServerId : IEquatable<ServerId>
 #else
     [Serializable]

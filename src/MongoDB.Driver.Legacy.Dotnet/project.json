@@ -17,7 +17,7 @@
         "compile": {
           "include": [ "../MongoDB.Driver.Legacy/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ],
+        "define": [ "DEBUG", "TRACE" ],
         "outputName" : "MongoDB.Driver.Legacy"
       }
     }

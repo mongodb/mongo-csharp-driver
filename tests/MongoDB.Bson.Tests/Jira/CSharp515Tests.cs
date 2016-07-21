@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-#if NETSTANDARD16
+#if NETSTANDARD1_6
         private static readonly string __discriminatorAssemblyName = "MongoDB.Bson.Tests.Dotnet";
 #else
         private static readonly AssemblyName __assemblyName = Assembly.GetExecutingAssembly().GetName();

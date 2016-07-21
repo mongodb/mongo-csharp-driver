@@ -260,7 +260,7 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
             var ipAddresses = Dns.GetHostAddressesAsync(_address.Host).GetAwaiter().GetResult();
 #else
             var ipAddresses = Dns.GetHostAddresses(_address.Host);

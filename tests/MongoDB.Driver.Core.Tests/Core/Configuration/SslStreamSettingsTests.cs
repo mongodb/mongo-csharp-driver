@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.CheckCertificateRevocation.Should().BeTrue();
             subject.ClientCertificates.Should().BeEmpty();
             subject.ClientCertificateSelectionCallback.Should().BeNull();
-#if NETSTANDARD16
+#if NETSTANDARD1_6
 #pragma warning disable 618
             subject.EnabledSslProtocols.Should().Be(SslProtocols.Tls | SslProtocols.Ssl3);
 #pragma warning restore

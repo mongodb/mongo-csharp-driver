@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         private bool _checkCertificateRevocation = true;
         private X509CertificateCollection _clientCertificateCollection;
         private LocalCertificateSelectionCallback _clientCertificateSelectionCallback;
-#if NETSTANDARD16
+#if NETSTANDARD1_6
 #pragma warning disable 618
         private SslProtocols _enabledSslProtocols = SslProtocols.Tls | SslProtocols.Ssl3;
 #pragma warning restore
@@ -263,7 +263,7 @@ namespace MongoDB.Driver
             var certificate2 = certificate as X509Certificate2;
             if (certificate2 != null)
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 return new X509Certificate2(certificate2.RawData);
 #else
                 return new X509Certificate2(certificate2);
@@ -271,7 +271,7 @@ namespace MongoDB.Driver
             }
             else
             {
-#if NETSTANDARD16
+#if NETSTANDARD1_6
                 return new X509Certificate(certificate.Export(X509ContentType.Cert));
 #else
                 return new X509Certificate(certificate);

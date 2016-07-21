@@ -15,7 +15,7 @@
         "compile": {
           "include": [ "../MongoDB.Bson.TestHelpers/**/*.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
+        "define": [ "DEBUG", "TRACE" ]
       }
     }
   }
