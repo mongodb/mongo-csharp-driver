@@ -96,17 +96,20 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
-            IntPtr unmanagedPassword = IntPtr.Zero;
+#if NET45
+            var str = Marshal.SecureStringToGlobalAllocUnicode(_password);
+#else
+            var str = SecureStringMarshal.SecureStringToGlobalAllocUnicode(_password);
+#endif
             try
             {
-                unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(_password);
-                return Marshal.PtrToStringUni(unmanagedPassword);
+                return Marshal.PtrToStringUni(str);
             }
             finally
             {
-                if (unmanagedPassword != IntPtr.Zero)
+                if (str != IntPtr.Zero)
                 {
-                    Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
+                    Marshal.ZeroFreeGlobalAllocUnicode(str);
                 }
             }
         }

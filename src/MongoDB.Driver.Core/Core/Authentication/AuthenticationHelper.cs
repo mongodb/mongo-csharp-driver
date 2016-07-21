@@ -62,60 +62,50 @@ namespace MongoDB.Driver.Core.Authentication
 
         public static string MongoPasswordDigest(string username, SecureString password)
         {
+            var prefixBytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
+
             using (var md5 = MD5.Create())
             {
-                var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
-
-                IntPtr unmanagedPassword = IntPtr.Zero;
+                var passwordChars = new char[password.Length];
+                // prevent passwordChars from moving around when SOH is compacted
+                var passwordCharsPin = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
+#if NET45
+                var unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(password);
+#else
+                var unmanagedPassword = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
+#endif
                 try
                 {
-                    unmanagedPassword = Marshal.SecureStringToBSTR(password);
-                    var passwordChars = new char[password.Length];
-                    GCHandle passwordCharsHandle = new GCHandle();
+                    Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
+
+                    var passwordBytesCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
+
+                    var buffer = new byte[prefixBytes.Length + passwordBytesCount];
+                    // prevent buffer from moving around when SOH is compacted
+                    var bufferPin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                     try
                     {
-                        passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
-                        Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
+                        Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
+                        Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, buffer, prefixBytes.Length);
 
-                        var byteCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
-                        var passwordBytes = new byte[byteCount];
-                        GCHandle passwordBytesHandle = new GCHandle();
-                        try
-                        {
-                            passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
-                            Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-
-                            var buffer = new byte[bytes.Length + passwordBytes.Length];
-                            Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
-                            Buffer.BlockCopy(passwordBytes, 0, buffer, bytes.Length, passwordBytes.Length);
-
-                            return BsonUtils.ToHexString(md5.ComputeHash(buffer));
-                        }
-                        finally
-                        {
-                            Array.Clear(passwordBytes, 0, passwordBytes.Length);
-
-                            if (passwordBytesHandle.IsAllocated)
-                            {
-                                passwordBytesHandle.Free();
-                            }
-                        }
+                        return BsonUtils.ToHexString(md5.ComputeHash(buffer));
                     }
                     finally
                     {
-                        Array.Clear(passwordChars, 0, passwordChars.Length);
-
-                        if (passwordCharsHandle.IsAllocated)
-                        {
-                            passwordCharsHandle.Free();
-                        }
+                        // for security reasons
+                        Array.Clear(buffer, 0, buffer.Length);
+                        bufferPin.Free();
                     }
                 }
                 finally
                 {
+                    // for security reasons
+                    Array.Clear(passwordChars, 0, passwordChars.Length);
+                    passwordCharsPin.Free();
+
                     if (unmanagedPassword != IntPtr.Zero)
                     {
-                        Marshal.ZeroFreeBSTR(unmanagedPassword);
+                        Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
                     }
                 }
             }
