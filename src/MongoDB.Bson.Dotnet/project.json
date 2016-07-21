@@ -15,7 +15,8 @@
         "compile": {
           "include": [ "../MongoDB.Bson/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
         },
-        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ]
+        "define": [ "DEBUG", "TRACE", "NETSTANDARD16" ],
+        "outputName" : "MongoDB.Bson"
       }
     }
   }
