@@ -62,27 +62,30 @@ namespace MongoDB.Driver.Core.Authentication
 
         public static string MongoPasswordDigest(string username, SecureString password)
         {
+            var prefixBytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
+            return MongoPasswordDigest(prefixBytes, password);
+        }
+
+        public static string MongoPasswordDigest(byte[] prefixBytes, SecureString password)
+        {
             using (var md5 = MD5.Create())
             {
-                var prefix = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
-                
-                IntPtr unmanagedPassword = IntPtr.Zero;
                 var passwordChars = new char[password.Length];
+#if NET45
+                var unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(password);
+#else
+                var unmanagedPassword = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
+#endif
                 try
                 {
-#if NET45
-                    unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(password);
-#else
-                    unmanagedPassword = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
-#endif
                     Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
-                    
+
                     var passwordBytesCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
-                    var buffer = new byte[prefix.Length + passwordBytesCount];
+                    var buffer = new byte[prefixBytes.Length + passwordBytesCount];
                     try
                     {
-                        Buffer.BlockCopy(prefix, 0, buffer, 0, prefix.Length);
-                        Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, buffer, prefix.Length);
+                        Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
+                        Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, buffer, prefixBytes.Length);
 
                         return BsonUtils.ToHexString(md5.ComputeHash(buffer));
                     }
@@ -96,7 +99,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     // for security reasons
                     Array.Clear(passwordChars, 0, passwordChars.Length);
-                    
+
                     if (unmanagedPassword != IntPtr.Zero)
                     {
                         Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
@@ -104,5 +107,6 @@ namespace MongoDB.Driver.Core.Authentication
                 }
             }
         }
+
     }
 }
