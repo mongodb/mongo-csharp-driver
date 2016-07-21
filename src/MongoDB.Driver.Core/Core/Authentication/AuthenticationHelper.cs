@@ -67,6 +67,8 @@ namespace MongoDB.Driver.Core.Authentication
             using (var md5 = MD5.Create())
             {
                 var passwordChars = new char[password.Length];
+                // prevent passwordChars from moving around when SOH is compacted
+                var passwordCharsPin = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
 #if NET45
                 var unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(password);
 #else
@@ -77,7 +79,10 @@ namespace MongoDB.Driver.Core.Authentication
                     Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
 
                     var passwordBytesCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
+
                     var buffer = new byte[prefixBytes.Length + passwordBytesCount];
+                    // prevent buffer from moving around when SOH is compacted
+                    var bufferPin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                     try
                     {
                         Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
@@ -89,12 +94,14 @@ namespace MongoDB.Driver.Core.Authentication
                     {
                         // for security reasons
                         Array.Clear(buffer, 0, buffer.Length);
+                        bufferPin.Free();
                     }
                 }
                 finally
                 {
                     // for security reasons
                     Array.Clear(passwordChars, 0, passwordChars.Length);
+                    passwordCharsPin.Free();
 
                     if (unmanagedPassword != IntPtr.Zero)
                     {
@@ -103,6 +110,5 @@ namespace MongoDB.Driver.Core.Authentication
                 }
             }
         }
-
     }
 }
