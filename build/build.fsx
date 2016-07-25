@@ -1,7 +1,10 @@
 #r @"../Tools/FAKE/tools/FakeLib.dll"
+#r @"../Tools/FAKE.Dotnet/tools/Fake.Dotnet.dll"
+
 open System
 open Fake
 open Fake.AssemblyInfoFile
+open Fake.Dotnet
 open Fake.Testing.XUnit2
 
 let config = getBuildParamOrDefault "config" "Release"
@@ -31,11 +34,13 @@ let buildDir = baseDir @@ "build"
 let landingDocsDir = baseDir @@ "docs" @@ "landing"
 let refDocsDir = baseDir @@ "docs" @@ "reference"
 let srcDir = baseDir @@ "src"
+let testsDir = baseDir @@ "tests"
 let toolsDir = baseDir @@ "tools"
 
 let artifactsDir = baseDir @@ "artifacts"
 let binDir = artifactsDir @@ "bin"
-let binDir45 = binDir @@ "net45"
+let binDirNet45 = binDir @@ "net45"
+let binDirNetStandard16 = binDir @@ "netstandard16"
 let testResultsDir = artifactsDir @@ "test_results"
 let tempDir = artifactsDir @@ "tmp"
 
@@ -46,8 +51,32 @@ let slnFile =
 
 let asmFile = srcDir @@ "MongoDB.Shared" @@ "GlobalAssemblyInfo.cs"
 let apiDocsFile = baseDir @@ "Docs" @@ "Api" @@ "CSharpDriverDocs.shfbproj"
-let installerFile = baseDir @@ "Installer" @@ "CSharpDriverInstaller.wixproj"
 let versionFile = artifactsDir @@ "version.txt"
+
+let dotNetSrcProjects = [
+    srcDir @@ "MongoDB.Bson.Dotnet" @@ "project.json"
+    srcDir @@ "MongoDB.Driver.Core.Dotnet" @@ "project.json"
+    srcDir @@ "MongoDB.Driver.Dotnet" @@ "project.json"
+    srcDir @@ "MongoDB.Driver.Legacy.Dotnet" @@ "project.json"
+    srcDir @@ "MongoDB.Driver.GridFS.Dotnet" @@ "project.json"
+]
+
+let dotNetTestHelpersProjects = [
+    testsDir @@ "MongoDB.Bson.TestHelpers.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.Core.TestHelpers.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.TestHelpers.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.Legacy.TestHelpers.Dotnet" @@ "project.json"
+]
+
+let dotNetTestProjects = [
+    testsDir @@ "MongoDB.Bson.Tests.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.Core.Tests.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.Tests.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.Legacy.Tests.Dotnet" @@ "project.json"
+    testsDir @@ "MongoDB.Driver.GridFS.Tests.Dotnet" @@ "project.json"
+]
+
+let dotNetProjects = List.concat [ dotNetSrcProjects; dotNetTestHelpersProjects; dotNetTestProjects ] 
 
 type NuspecFile = { File : string; Dependencies : string list; Symbols : bool; }
 let nuspecFiles =
@@ -67,7 +96,7 @@ let apiDocsArtifactZipFile = artifactsDir @@ "ApiDocs-" + semVersion + "-html.zi
 let refDocsArtifactZipFile = artifactsDir @@ "RefDocs-" + semVersion + "-html.zip"
 let zipArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".zip"
 
-MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some(Minimal) }
+MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some(MSBuildVerbosity.Minimal) }
 
 monoArguments <- "--runtime=v4.0.30319"
 
@@ -103,7 +132,7 @@ Target "AssemblyInfo" (fun _ ->
             AssemblyMetadata = ["githash", githash]})
 )
 
-Target "Build" (fun _ ->
+Target "BuildNet45" (fun _ ->
     !! "./**/packages.config"
     |> Seq.iter (RestorePackage (fun x -> { x with OutputPath = baseDir @@ "packages" }))
 
@@ -115,17 +144,31 @@ Target "Build" (fun _ ->
         properties <- properties @ ["DefineConstants", "MONO"]
 
     [slnFile]
-        |> MSBuild binDir45 "Build" properties
+        |> MSBuild binDirNet45 "Build" properties
         |> Log "Build: "
 )
 
-Target "Test" (fun _ ->
-    if not <| directoryExists binDir45 then new Exception(sprintf "Directory %s does not exist." binDir45) |> raise
+Target "InstallDotnet" (fun _ ->
+    DotnetCliInstall Preview2ToolingOptions
+)
+
+Target "BuildNetStandard16" (fun _ ->
+    for project in dotNetProjects do
+        DotnetRestore id project
+        DotnetCompile (fun c ->
+            { c with
+                Configuration = BuildConfiguration.Release
+            })
+            project
+)
+
+Target "TestNet45" (fun _ ->
+    if not <| directoryExists binDirNet45 then new Exception(sprintf "Directory %s does not exist." binDirNet45) |> raise
     ensureDirectory testResultsDir
 
-    let mutable testsDir = !! (binDir45 @@ "*Tests*.dll")
+    let mutable testDlls = !! (binDirNet45 @@ "*Tests.dll")
     if isMono then
-        testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
+        testDlls <- testDlls -- (binDirNet45 @@ "*VB.Tests.dll")
 
     let resultsOutputPath = testResultsDir @@ (getBuildParamOrDefault "testResults" "test-results.xml")
     let includeTraits =
@@ -133,7 +176,7 @@ Target "Test" (fun _ ->
         | "" -> []
         | category -> [("Category", category)]
 
-    testsDir
+    testDlls
         |> xUnit2 (fun p ->
             { p with
                 ErrorLevel = TestRunnerErrorLevel.Error
@@ -142,6 +185,13 @@ Target "Test" (fun _ ->
                 TimeOut = TimeSpan.FromMinutes(20.0)
                 IncludeTraits = includeTraits
             })
+)
+
+Target "TestNetStandard16" (fun _ ->
+    for project in dotNetTestProjects do
+        let args = sprintf "test %s" project
+        let result = Dotnet DotnetOptions.Default args
+        if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
 )
 
 Target "RefDocs" (fun _ ->
@@ -188,7 +238,7 @@ Target "ApiDocs" (fun _ ->
                       "HelpFileVersion", version]
 
     [apiDocsFile]
-        |> MSBuild binDir45 "" properties
+        |> MSBuild binDirNet45 "" properties
         |> Log "Docs: "
 
     Rename apiDocsArtifactFile (tempDir @@ "CSharpDriverDocs.chm")
@@ -208,21 +258,21 @@ Target "Zip" (fun _ ->
     checkFileExists releaseNotesFile
 
     let files =
-        [ binDir45 @@ "MongoDB.Bson.dll"
-          binDir45 @@ "MongoDB.Bson.pdb"
-          binDir45 @@ "MongoDB.Bson.xml"
-          binDir45 @@ "MongoDB.Driver.Core.dll"
-          binDir45 @@ "MongoDB.Driver.Core.pdb"
-          binDir45 @@ "MongoDB.Driver.Core.xml"
-          binDir45 @@ "MongoDB.Driver.dll"
-          binDir45 @@ "MongoDB.Driver.pdb"
-          binDir45 @@ "MongoDB.Driver.xml"
-          binDir45 @@ "MongoDB.Driver.GridFS.dll"
-          binDir45 @@ "MongoDB.Driver.GridFS.pdb"
-          binDir45 @@ "MongoDB.Driver.GridFS.xml"
-          binDir45 @@ "MongoDB.Driver.Legacy.dll"
-          binDir45 @@ "MongoDB.Driver.Legacy.pdb"
-          binDir45 @@ "MongoDB.Driver.Legacy.xml"
+        [ binDirNet45 @@ "MongoDB.Bson.dll"
+          binDirNet45 @@ "MongoDB.Bson.pdb"
+          binDirNet45 @@ "MongoDB.Bson.xml"
+          binDirNet45 @@ "MongoDB.Driver.Core.dll"
+          binDirNet45 @@ "MongoDB.Driver.Core.pdb"
+          binDirNet45 @@ "MongoDB.Driver.Core.xml"
+          binDirNet45 @@ "MongoDB.Driver.dll"
+          binDirNet45 @@ "MongoDB.Driver.pdb"
+          binDirNet45 @@ "MongoDB.Driver.xml"
+          binDirNet45 @@ "MongoDB.Driver.GridFS.dll"
+          binDirNet45 @@ "MongoDB.Driver.GridFS.pdb"
+          binDirNet45 @@ "MongoDB.Driver.GridFS.xml"
+          binDirNet45 @@ "MongoDB.Driver.Legacy.dll"
+          binDirNet45 @@ "MongoDB.Driver.Legacy.pdb"
+          binDirNet45 @@ "MongoDB.Driver.Legacy.xml"
           licenseFile
           releaseNotesFile 
           apiDocsArtifactFile ]
@@ -283,10 +333,30 @@ Target "NoOp" DoNothing
 Target "Docs" DoNothing
 Target "Package" DoNothing
 Target "Publish" DoNothing
+Target "Build" DoNothing
+Target "Test" DoNothing
 
 "Clean"
     ==> "AssemblyInfo"
+
+"AssemblyInfo"
+    ==> "BuildNet45"
+
+"AssemblyInfo"
+    ==> "InstallDotnet"
+    ==> "BuildNetStandard16"
+
+"BuildNet45"
     ==> "Build"
+
+"BuildNetStandard16"
+    ==> "Build"
+
+"TestNet45"
+    ==> "Test"
+
+"TestNetStandard16"
+    ==> "Test"
 
 "RefDocs"
     ==> "ApiDocs"
