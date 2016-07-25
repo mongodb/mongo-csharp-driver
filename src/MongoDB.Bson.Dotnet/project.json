@@ -16,7 +16,9 @@
           "include": [ "../MongoDB.Bson/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
         },
         "define": [ "DEBUG", "TRACE" ],
-        "outputName" : "MongoDB.Bson"
+        "warningsAsErrors": true,
+        "outputName" : "MongoDB.Bson",
+        "xmlDoc": true
       }
     }
   }

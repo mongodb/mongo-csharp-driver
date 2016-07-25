@@ -16,7 +16,9 @@
           "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
         },
         "define": [ "DEBUG", "TRACE" ],
-        "outputName" : "MongoDB.Driver.GridFS"
+        "warningsAsErrors": true,
+        "outputName" : "MongoDB.Driver.GridFS",
+        "xmlDoc": true
       }
     }
   }

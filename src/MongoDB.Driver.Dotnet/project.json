@@ -17,7 +17,9 @@
           "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
         },
         "define": [ "DEBUG", "TRACE" ],
-        "outputName" : "MongoDB.Driver"
+        "warningsAsErrors": true,
+        "outputName" : "MongoDB.Driver",
+        "xmlDoc": true
       }
     }
   }
