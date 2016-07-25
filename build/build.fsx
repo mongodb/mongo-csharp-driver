@@ -44,10 +44,7 @@ let binDirNetStandard16 = binDir @@ "netstandard16"
 let testResultsDir = artifactsDir @@ "test_results"
 let tempDir = artifactsDir @@ "tmp"
 
-let slnFile = 
-    match isMono with
-    | true -> baseDir @@ "CSharpDriver-Mono.sln"
-    | false -> baseDir @@ "CSharpDriver.sln"
+let slnFile = baseDir @@ "CSharpDriver.sln"
 
 let asmFile = srcDir @@ "MongoDB.Shared" @@ "GlobalAssemblyInfo.cs"
 let apiDocsFile = baseDir @@ "Docs" @@ "Api" @@ "CSharpDriverDocs.shfbproj"
@@ -98,8 +95,6 @@ let zipArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".zip"
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some(MSBuildVerbosity.Minimal) }
 
-monoArguments <- "--runtime=v4.0.30319"
-
 // Targets
 Target "Clean" (fun _ ->
     CleanDir artifactsDir
@@ -137,11 +132,10 @@ Target "BuildNet45" (fun _ ->
     |> Seq.iter (RestorePackage (fun x -> { x with OutputPath = baseDir @@ "packages" }))
 
 
-    let mutable properties = ["Configuration", config
-                              "TargetFrameworkVersion", "v4.5"]
-
-    if isMono then
-        properties <- properties @ ["DefineConstants", "MONO"]
+    let properties = [
+        ("Configuration", config);
+        ("TargetFrameworkVersion", "v4.5")
+    ]
 
     [slnFile]
         |> MSBuild binDirNet45 "Build" properties
@@ -166,9 +160,7 @@ Target "TestNet45" (fun _ ->
     if not <| directoryExists binDirNet45 then new Exception(sprintf "Directory %s does not exist." binDirNet45) |> raise
     ensureDirectory testResultsDir
 
-    let mutable testDlls = !! (binDirNet45 @@ "*Tests.dll")
-    if isMono then
-        testDlls <- testDlls -- (binDirNet45 @@ "*VB.Tests.dll")
+    let testDlls = !! (binDirNet45 @@ "*Tests.dll")
 
     let resultsOutputPath = testResultsDir @@ (getBuildParamOrDefault "testResults" "test-results.xml")
     let includeTraits =
@@ -257,28 +249,53 @@ Target "Zip" (fun _ ->
     checkFileExists licenseFile
     checkFileExists releaseNotesFile
 
-    let files =
-        [ binDirNet45 @@ "MongoDB.Bson.dll"
-          binDirNet45 @@ "MongoDB.Bson.pdb"
-          binDirNet45 @@ "MongoDB.Bson.xml"
-          binDirNet45 @@ "MongoDB.Driver.Core.dll"
-          binDirNet45 @@ "MongoDB.Driver.Core.pdb"
-          binDirNet45 @@ "MongoDB.Driver.Core.xml"
-          binDirNet45 @@ "MongoDB.Driver.dll"
-          binDirNet45 @@ "MongoDB.Driver.pdb"
-          binDirNet45 @@ "MongoDB.Driver.xml"
-          binDirNet45 @@ "MongoDB.Driver.GridFS.dll"
-          binDirNet45 @@ "MongoDB.Driver.GridFS.pdb"
-          binDirNet45 @@ "MongoDB.Driver.GridFS.xml"
-          binDirNet45 @@ "MongoDB.Driver.Legacy.dll"
-          binDirNet45 @@ "MongoDB.Driver.Legacy.pdb"
-          binDirNet45 @@ "MongoDB.Driver.Legacy.xml"
-          licenseFile
-          releaseNotesFile 
-          apiDocsArtifactFile ]
+    let zipStagingDirectory = artifactsDir @@ "zip-staging"
+    CleanDir zipStagingDirectory
+    DeleteDir zipStagingDirectory
 
-    files
-        |> CreateZip artifactsDir zipArtifactFile "" DefaultZipLevel true
+    let sharedFiles = [
+        licenseFile
+        releaseNotesFile 
+        apiDocsArtifactFile
+    ]
+
+    let net45Files = [
+        binDirNet45 @@ "MongoDB.Bson.dll"
+        binDirNet45 @@ "MongoDB.Bson.pdb"
+        binDirNet45 @@ "MongoDB.Bson.xml"
+        binDirNet45 @@ "MongoDB.Driver.Core.dll"
+        binDirNet45 @@ "MongoDB.Driver.Core.pdb"
+        binDirNet45 @@ "MongoDB.Driver.Core.xml"
+        binDirNet45 @@ "MongoDB.Driver.dll"
+        binDirNet45 @@ "MongoDB.Driver.pdb"
+        binDirNet45 @@ "MongoDB.Driver.xml"
+        binDirNet45 @@ "MongoDB.Driver.GridFS.dll"
+        binDirNet45 @@ "MongoDB.Driver.GridFS.pdb"
+        binDirNet45 @@ "MongoDB.Driver.GridFS.xml"
+        binDirNet45 @@ "MongoDB.Driver.Legacy.dll"
+        binDirNet45 @@ "MongoDB.Driver.Legacy.pdb"
+        binDirNet45 @@ "MongoDB.Driver.Legacy.xml"
+    ]
+
+    let netStandard16Files = [
+        srcDir @@ "MongoDB.Bson.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Bson.dll"
+        srcDir @@ "MongoDB.Bson.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Bson.pdb"
+        srcDir @@ "MongoDB.Driver.Core.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Core.dll"
+        srcDir @@ "MongoDB.Driver.Core.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Core.pdb"
+        srcDir @@ "MongoDB.Driver.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.dll"
+        srcDir @@ "MongoDB.Driver.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.pdb"
+        srcDir @@ "MongoDB.Driver.Legacy.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Legacy.dll"
+        srcDir @@ "MongoDB.Driver.Legacy.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Legacy.pdb"
+        srcDir @@ "MongoDB.Driver.GridFS.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.GridFS.dll"
+        srcDir @@ "MongoDB.Driver.GridFS.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.GridFS.pdb"
+    ]
+
+    CopyFiles zipStagingDirectory sharedFiles
+    CopyFiles (zipStagingDirectory @@ "net45") net45Files
+    CopyFiles (zipStagingDirectory @@ "netstandard1.6") netStandard16Files
+
+    !! (zipStagingDirectory @@ "**/*.*")
+        |> CreateZip zipStagingDirectory zipArtifactFile "" DefaultZipLevel false
 )
 
 let createNuGetPackage file deps symbols =
@@ -329,45 +346,34 @@ FinalTarget "Teardown" (fun _ ->
 )
 
 
-Target "NoOp" DoNothing
 Target "Docs" DoNothing
 Target "Package" DoNothing
 Target "Publish" DoNothing
 Target "Build" DoNothing
 Target "Test" DoNothing
 
-"Clean"
-    ==> "AssemblyInfo"
+// Build dependencies
+"AssemblyInfo" ==> "BuildNet45"
+"AssemblyInfo" ==> "BuildNetStandard16"
+"BuildNet45" ==> "Build"
+"BuildNetStandard16" ==> "Build"
+"Clean" ==> "AssemblyInfo"
+"InstallDotnet" ==> "BuildNetStandard16"
 
-"AssemblyInfo"
-    ==> "BuildNet45"
+// Test dependencies (assumes Build has already been run)
+"InstallDotnet" ==> "TestNetStandard16"
+"TestNet45" ==> "Test"
+"TestNetStandard16" ==> "Test"
 
-"AssemblyInfo"
-    ==> "InstallDotnet"
-    ==> "BuildNetStandard16"
+// Package dependencies (assumes Build has already been run)
+"ApiDocs" ==> "Docs"
+"ApiDocs" ==> "Zip"
+"Docs" ==> "Package"
+"NuGetPack" ==> "Package"
+"RefDocs" ==> "Docs"
+"Zip" ==> "Package"
 
-"BuildNet45"
-    ==> "Build"
-
-"BuildNetStandard16"
-    ==> "Build"
-
-"TestNet45"
-    ==> "Test"
-
-"TestNetStandard16"
-    ==> "Test"
-
-"RefDocs"
-    ==> "ApiDocs"
-    ==> "Docs"
-
-"Docs"
-    ==> "Zip"
-    ==> "NuGetPack"
-    ==> "Package"
-
-"NuGetPush"
-    ==> "Publish"
+// Publish dependencies (assumes Package has already been run)
+"NuGetPush" ==> "Publish"
 
 RunTargetOrDefault "Build"
