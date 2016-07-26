@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets an <see cref="IndexKeysDefinitionBuilder{TDocument}"/>.
+        /// Gets a <see cref="IndexKeysDefinitionBuilder{TDocument}"/>.
         /// </summary>
         public static IndexKeysDefinitionBuilder<TDocument> IndexKeys
         {

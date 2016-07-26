@@ -22,7 +22,7 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Representats a database in MongoDB.
+    /// Represents a database in MongoDB.
     /// </summary>
     /// <remarks>
     /// This interface is not guaranteed to remain stable. Implementors should use
