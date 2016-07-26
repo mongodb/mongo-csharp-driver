@@ -11,7 +11,7 @@
     "MongoDB.Driver.Core.TestHelpers.Dotnet": "1.0.0-*",
     "MongoDB.Driver.Dotnet": "1.0.0-*",
     "MongoDB.Driver.TestHelpers.Dotnet": "1.0.0-*",
-    "moq.netcore": "4.4.0-beta8",
+    "Moq": "4.6.36-alpha",
     "NETStandard.Library": "1.6.0",
     "xunit": "2.2.0-beta2-build3300"
   },
