@@ -992,12 +992,16 @@ namespace MongoDB.Driver.Linq.Translators
                     });
                     return true;
                 case "Pow":
-                    result = new BsonDocument("$pow", new BsonArray
+                    if (node.Arguments.Count == 2)
                     {
-                        field,
-                        TranslateValue(node.Arguments[1])
-                    });
-                    return true;
+                        result = new BsonDocument("$pow", new BsonArray
+                        {
+                            field,
+                            TranslateValue(node.Arguments[1])
+                        });
+                        return true;
+                    }
+                    break;
                 case "Sqrt":
                     result = new BsonDocument("$sqrt", new BsonArray
                     {
