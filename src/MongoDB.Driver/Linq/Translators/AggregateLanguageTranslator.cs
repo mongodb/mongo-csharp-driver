@@ -748,7 +748,11 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateDateTimeAddXXX(MethodCallExpression node, long multiplier, out BsonValue result)
         {
             result = null;
-            if (node.Arguments.Count != 1) return false;
+            if (node.Arguments.Count != 1) 
+            {
+                // All DateTime.AddXXX() functions take single argument
+                return false;
+            }
 
             var date = TranslateValue(node.Object);
             BsonValue arg;
@@ -758,7 +762,6 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 // argument value is constant
                 // no need to multiply on server, do it right away
-
                 double value = (double)((ConstantExpression)expr).Value;
 
                 // trim to long
@@ -770,7 +773,6 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 // value derived from another expression
                 // will be calculated on the server
-
                 arg = TranslateValue(expr);
 
                 if (multiplier != 1)
@@ -786,7 +788,11 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateDateTimeToString(MethodCallExpression node, out BsonValue result)
         {
             result = null;
-            if (node.Arguments.Count > 2) return false;
+            if (node.Arguments.Count > 2) 
+            {
+                // No overload for DateTime.ToString() takes more than 2 args
+                return false;
+            }
 
             var date = TranslateValue(node.Object);
 
@@ -797,11 +803,9 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 // can be either .ToString(IFormatProvider) or .ToString(string) overload
                 // need to check argument type to be sure
-
-                var arg0 = node.Arguments[0];
-                if (arg0.Type == typeof(string))
+                if (node.Arguments[0].Type == typeof(string))
                 {
-                    format = TranslateValue(arg0);
+                    format = TranslateValue(node.Arguments[0]);
                 }
             }
             else if (node.Arguments.Count == 2)
@@ -939,31 +943,37 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
-            if (node.Arguments.Count == 0) return false;
+            if (node.Arguments.Count == 0) 
+            {
+                // None of these methods take no args
+                return false;
+            }
+
+            var field = TranslateValue(node.Arguments[0]);
 
             switch (node.Method.Name)
             {
                 case "Abs":
-                    result = new BsonDocument("$abs", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$abs", field);
                     return true;
                 case "Ceiling":
-                    result = new BsonDocument("$ceil", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$ceil", field);
                     return true;
                 case "Exp":
                     result = new BsonDocument("$exp", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Floor":
-                    result = new BsonDocument("$floor", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$floor", field);
                     return true;
                 case "Log":
                     if (node.Arguments.Count == 2)
                     {
                         result = new BsonDocument("$log", new BsonArray
                         {
-                            TranslateValue(node.Arguments[0]),
+                            field,
                             TranslateValue(node.Arguments[1])
                         });
                     }
@@ -971,43 +981,46 @@ namespace MongoDB.Driver.Linq.Translators
                     {
                         result = new BsonDocument("$ln", new BsonArray
                         {
-                            TranslateValue(node.Arguments[0])
+                            field
                         });
                     }
                     return true;
                 case "Log10":
                     result = new BsonDocument("$log10", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Pow":
                     result = new BsonDocument("$pow", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0]),
+                        field,
                         TranslateValue(node.Arguments[1])
                     });
                     return true;
                 case "Sqrt":
                     result = new BsonDocument("$sqrt", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Truncate":
-                    result = new BsonDocument("$trunc", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$trunc", field);
                     return true;
             }
 
             return false;
         }
 
-        private static BsonValue StringEqualsHelper(BsonValue a, BsonValue b, Expression stringComparisonExpr)
+        private BsonValue StringEqualsHelper(BsonValue a, BsonValue b, Expression stringComparisonExpr)
         {
             StringComparison comparisonType = StringComparison.Ordinal;
 
             if (stringComparisonExpr != null && stringComparisonExpr.NodeType == ExpressionType.Constant)
+            {
+                // has comparison type specified
                 comparisonType = (StringComparison)((ConstantExpression)stringComparisonExpr).Value;
+            }
 
             switch (comparisonType)
             {
@@ -1030,7 +1043,11 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticStringMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
-            if (node.Arguments.Count == 0) return false;
+            if (node.Arguments.Count == 0) 
+            {
+                // None of these methods take no args
+                return false;
+            }
 
             var field = TranslateValue(node.Arguments[0]);
             
@@ -1110,6 +1127,7 @@ namespace MongoDB.Driver.Linq.Translators
             else if (node.Arguments.Count <= 2)
             {
                 // methods with 1 or 2 parameters
+                
                 var arg0 = TranslateValue(node.Arguments[0]);
                 
                 switch (node.Method.Name)
