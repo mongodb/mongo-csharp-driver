@@ -25,6 +25,7 @@ using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Support;
+using System.Linq;
 
 namespace MongoDB.Driver.Linq.Translators
 {
@@ -1080,15 +1081,16 @@ namespace MongoDB.Driver.Linq.Translators
                     break;
 
                 case "Concat":
-                    if (node.Arguments[0].Type == typeof(string[]))
+                    if (node.Arguments.Count == 1 && node.Arguments[0].Type == typeof(string[]))
                     {
                         // this is .Concat(params string[] args) overload
                         result = new BsonDocument("$concat", field);
                         return true;
                     }
-                    else if (node.Arguments[0].Type == typeof(string))
+                    else if (node.Arguments.Count >= 2 && node.Arguments.Count <= 4 && 
+                             node.Arguments.All(p => p.Type == typeof(string)))
                     {
-                        // this is one of .Concat(string [, string, [string, [string]]]) overloads
+                        // this is one of .Concat(string, string[, string[, string]]) overloads
                         var array = new BsonArray();
                         for (int i = 0; i < node.Arguments.Count; i++)
                         {
