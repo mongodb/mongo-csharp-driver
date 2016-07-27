@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -34,10 +35,11 @@ namespace MongoDB.Driver
         /// <returns>The MD5 hash.</returns>
         public static string Hash(string text)
         {
-            var md5 = MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
-            return hash;
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+                return BsonUtils.ToHexString(hash);
+            }
         }
 
         /// <summary>
@@ -60,7 +62,6 @@ namespace MongoDB.Driver
             return value.Substring(0, 1).ToLower() + value.Substring(1);
         }
 
-#if NET45
         // internal methods
         /// <summary>
         /// Should only be used when the safety of the data cannot be guaranteed.  For instance,
@@ -74,17 +75,22 @@ namespace MongoDB.Driver
             {
                 return "";
             }
-
-            var bstr = Marshal.SecureStringToBSTR(secureString);
-            try
+            else
             {
-                return Marshal.PtrToStringBSTR(bstr);
-            }
-            finally
-            {
-                Marshal.ZeroFreeBSTR(bstr);
+#if NETSTANDARD1_6
+                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
+#else
+                var secureStringIntPtr = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+#endif
+                try
+                {
+                    return Marshal.PtrToStringUni(secureStringIntPtr, secureString.Length);
+                }
+                finally
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(secureStringIntPtr);
+                }
             }
         }
-#endif
     }
 }

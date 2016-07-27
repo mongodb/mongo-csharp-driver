@@ -142,18 +142,14 @@ namespace MongoDB.Driver.Core.Authentication
             return protocol;
         }
 
-#if NETSTANDARD1_6
-        private string CreateKey(string username, string password, string nonce)
-#else
         private string CreateKey(string username, SecureString password, string nonce)
-#endif
         {
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
             using (var md5 = MD5.Create())
             {
                 var bytes = Utf8Encodings.Strict.GetBytes(nonce + username + passwordDigest);
-                bytes = md5.ComputeHash(bytes);
-                return BsonUtils.ToHexString(bytes);
+                var hash = md5.ComputeHash(bytes);
+                return BsonUtils.ToHexString(hash);
             }
         }
     }

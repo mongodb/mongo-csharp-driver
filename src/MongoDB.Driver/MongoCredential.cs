@@ -97,11 +97,7 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-#if NETSTANDARD1_6
-                    return passwordEvidence.Password;
-#else
                     return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
-#endif
                 }
 
                 return null;
@@ -163,7 +159,6 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
-#if NET45
         /// <summary>
         /// Creates a default credential.
         /// </summary>
@@ -178,7 +173,6 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
-#endif
 
         /// <summary>
         /// Creates a GSSAPI credential.
@@ -208,7 +202,6 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
-#if NET45
         /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
@@ -222,7 +215,6 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
-#endif
 
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
@@ -239,7 +231,6 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
-#if NET45
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
         /// </summary>
@@ -254,7 +245,6 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
-#endif
 
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
@@ -284,7 +274,6 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
-#if NET45
         /// <summary>
         /// Creates a PLAIN credential.
         /// </summary>
@@ -299,7 +288,6 @@ namespace MongoDB.Driver
                 username,
                 new PasswordEvidence(password));
         }
-#endif
 
         // public methods
         /// <summary>
@@ -391,11 +379,7 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
-#if NETSTANDARD1_6
-                var insecurePassword = passwordEvidence.Password;
-#else
                 var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
-#endif
                 var credential = new UsernamePasswordCredential(
                     _identity.Source,
                     _identity.Username,
