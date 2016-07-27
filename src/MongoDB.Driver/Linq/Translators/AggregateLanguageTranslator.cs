@@ -84,6 +84,9 @@ namespace MongoDB.Driver.Linq.Translators
                 case ExpressionType.Multiply:
                 case ExpressionType.MultiplyChecked:
                     return TranslateOperation((BinaryExpression)node, "$multiply", true);
+                case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
+                    return TranslateNegate((UnaryExpression)node);
                 case ExpressionType.New:
                     return TranslateNew((NewExpression)node);
                 case ExpressionType.NewArrayInit:
@@ -389,6 +392,12 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var mapping = ProjectionMapper.Map(node);
             return TranslateMapping(mapping);
+        }
+
+        private BsonValue TranslateNegate(UnaryExpression node)
+        {
+            var operand = TranslateValue(node.Operand);
+            return new BsonDocument("$subtract", new BsonArray(new BsonValue[] { 0, operand }));
         }
 
         private BsonValue TranslateNewArrayInit(NewArrayExpression node)
