@@ -86,6 +86,8 @@ namespace MongoDB.Driver.Linq.Translators
                     return TranslateOperation((BinaryExpression)node, "$multiply", true);
                 case ExpressionType.New:
                     return TranslateNew((NewExpression)node);
+                case ExpressionType.NewArrayInit:
+                    return TranslateNewArrayInit((NewArrayExpression)node);
                 case ExpressionType.Not:
                     return TranslateNot((UnaryExpression)node);
                 case ExpressionType.NotEqual:
@@ -387,6 +389,18 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var mapping = ProjectionMapper.Map(node);
             return TranslateMapping(mapping);
+        }
+
+        private BsonValue TranslateNewArrayInit(NewArrayExpression node)
+        {
+            var nodes = new BsonArray();
+
+            foreach (var expr in node.Expressions)
+            {
+                nodes.Add(TranslateValue(expr));
+            }
+
+            return nodes;
         }
 
         private BsonValue TranslateMapping(ProjectionMapping mapping)
@@ -774,6 +788,8 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
+            if (node.Arguments.Count == 0) return false;
+
             switch (node.Method.Name)
             {
                 case "Abs":
@@ -835,20 +851,84 @@ namespace MongoDB.Driver.Linq.Translators
             return false;
         }
 
+        private static BsonValue StringEqualsHelper(BsonValue a, BsonValue b, Expression stringComparisonExpr)
+        {
+            StringComparison comparisonType = StringComparison.Ordinal;
+
+            if (stringComparisonExpr != null && stringComparisonExpr.NodeType == ExpressionType.Constant)
+                comparisonType = (StringComparison)((ConstantExpression)stringComparisonExpr).Value;
+
+            switch (comparisonType)
+            {
+                case StringComparison.OrdinalIgnoreCase:
+                    // $strcasecmp returns -1/0/1, so additional operation is needed:
+                    return new BsonDocument("$eq", new BsonArray(new[] 
+                    {
+                        new BsonDocument("$strcasecmp", new BsonArray(new[] { a, b })),
+                        (BsonValue)0
+                    }));
+
+                case StringComparison.Ordinal:
+                    return new BsonDocument("$eq", new BsonArray(new[] { a, b }));
+
+                default:
+                    throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
+            }
+        }
+
         private bool TryTranslateStaticStringMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
+            if (node.Arguments.Count == 0) return false;
+
+            var field = TranslateValue(node.Arguments[0]);
+            
             switch (node.Method.Name)
             {
                 case "IsNullOrEmpty":
-                    var field = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$or",
-                        new BsonArray
+                    if (node.Arguments.Count == 1)
+                    {
+                        result = new BsonDocument("$or",
+                            new BsonArray
+                            {
+                                new BsonDocument("$eq", new BsonArray { field, BsonNull.Value }),
+                                new BsonDocument("$eq", new BsonArray { field, BsonString.Empty })
+                            });
+                        return true;
+                    }
+                    break;
+
+                case "Equals":
+                    if (node.Arguments.Count >= 2 && node.Arguments.Count <= 3)
+                    {
+                        result = StringEqualsHelper(field, TranslateValue(node.Arguments[1]),
+                            (node.Arguments.Count == 3) ? node.Arguments[2] : null);
+                        return true;
+                    }
+                    break;
+
+                case "Concat":
+                    if (node.Arguments[0].Type == typeof(string[]))
+                    {
+                        // this is .Concat(params string[] args) overload
+                        result = new BsonDocument("$concat", field);
+                        return true;
+                    }
+                    else if (node.Arguments[0].Type == typeof(string))
+                    {
+                        // this is one of .Concat(string [, string, [string, [string]]]) overloads
+                        var array = new BsonArray();
+                        for (int i = 0; i < node.Arguments.Count; i++)
                         {
-                            new BsonDocument("$eq", new BsonArray { field, BsonNull.Value }),
-                            new BsonDocument("$eq", new BsonArray { field, BsonString.Empty })
-                        });
-                    return true;
+                            array.Add(TranslateValue(node.Arguments[i]));
+                        }
+
+                        result = new BsonDocument("$concat", array);
+                        return true;
+                    }
+                    else
+                        throw new NotSupportedException("Some overloads of String.Concat() are not supported");
+
             }
 
             return false;
@@ -858,58 +938,45 @@ namespace MongoDB.Driver.Linq.Translators
         {
             result = null;
             var field = TranslateValue(node.Object);
-            switch (node.Method.Name)
+            
+            if (node.Arguments.Count == 0)
             {
-                case "Equals":
-                    if (node.Arguments.Count == 2 && node.Arguments[1].NodeType == ExpressionType.Constant)
-                    {
-                        var comparisonType = (StringComparison)((ConstantExpression)node.Arguments[1]).Value;
-                        switch (comparisonType)
-                        {
-                            case StringComparison.OrdinalIgnoreCase:
-                                result = new BsonDocument("$eq",
-                                    new BsonArray(new BsonValue[]
-                                        {
-                                            new BsonDocument("$strcasecmp", new BsonArray(new[] { field, TranslateValue(node.Arguments[0]) })),
-                                            0
-                                        }));
-                                return true;
-                            case StringComparison.Ordinal:
-                                result = new BsonDocument("$eq", new BsonArray(new[] { field, TranslateValue(node.Arguments[0]) }));
-                                return true;
-                            default:
-                                throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
-                        }
-                    }
-                    break;
-                case "Substring":
-                    if (node.Arguments.Count == 2)
-                    {
-                        result = new BsonDocument("$substr", new BsonArray(new[]
-                            {
-                                field,
-                                TranslateValue(node.Arguments[0]),
-                                TranslateValue(node.Arguments[1])
-                            }));
-                        return true;
-                    }
-                    break;
-                case "ToLower":
-                case "ToLowerInvariant":
-                    if (node.Arguments.Count == 0)
-                    {
+                // parameterless methods
+
+                switch (node.Method.Name)
+                {
+                    case "ToLower":
+                    case "ToLowerInvariant":
                         result = new BsonDocument("$toLower", field);
                         return true;
-                    }
-                    break;
-                case "ToUpper":
-                case "ToUpperInvariant":
-                    if (node.Arguments.Count == 0)
-                    {
+
+                    case "ToUpper":
+                    case "ToUpperInvariant":
                         result = new BsonDocument("$toUpper", field);
                         return true;
-                    }
-                    break;
+                }
+            }
+            else if (node.Arguments.Count <= 2)
+            {
+                // methods with 1 or 2 parameters
+                var arg0 = TranslateValue(node.Arguments[0]);
+                
+                switch (node.Method.Name)
+                {
+                    case "Equals":
+                        result = StringEqualsHelper(field, arg0, 
+                            (node.Arguments.Count == 2) ? node.Arguments[1] : null);
+                        return true;
+
+                    case "Substring":
+                        result = new BsonDocument("$substr", new BsonArray(new[]
+                        {
+                            field,
+                            arg0,
+                            (node.Arguments.Count == 2) ? TranslateValue(node.Arguments[1]) : -1
+                        }));
+                        return true;
+                }
             }
 
             return false;
