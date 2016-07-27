@@ -382,6 +382,12 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
+                if (node.Object.Type == typeof(DateTime)
+                    && TryTranslateDateTimeMethodCall(node, out result))
+                {
+                    return result;
+                }
+
                 if (node.Object.Type.GetTypeInfo().IsGenericType
                     && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                     && TryTranslateHashSetMethodCall(node, out result))
@@ -697,46 +703,154 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateDateTimeMemberAccess(MemberExpression node, out BsonValue result)
         {
             result = null;
-            var field = TranslateValue(node.Expression);
+            var date = TranslateValue(node.Expression);
+
             switch (node.Member.Name)
             {
                 case "Day":
-                    result = new BsonDocument("$dayOfMonth", field);
+                    result = new BsonDocument("$dayOfMonth", date);
                     return true;
                 case "DayOfWeek":
                     // The server's day of week values are 1 greater than
                     // .NET's DayOfWeek enum values
                     result = new BsonDocument("$subtract", new BsonArray
                         {
-                            new BsonDocument("$dayOfWeek", field),
+                            new BsonDocument("$dayOfWeek", date),
                             (BsonInt32)1
                         });
                     return true;
                 case "DayOfYear":
-                    result = new BsonDocument("$dayOfYear", field);
+                    result = new BsonDocument("$dayOfYear", date);
                     return true;
                 case "Hour":
-                    result = new BsonDocument("$hour", field);
+                    result = new BsonDocument("$hour", date);
                     return true;
                 case "Millisecond":
-                    result = new BsonDocument("$millisecond", field);
+                    result = new BsonDocument("$millisecond", date);
                     return true;
                 case "Minute":
-                    result = new BsonDocument("$minute", field);
+                    result = new BsonDocument("$minute", date);
                     return true;
                 case "Month":
-                    result = new BsonDocument("$month", field);
+                    result = new BsonDocument("$month", date);
                     return true;
                 case "Second":
-                    result = new BsonDocument("$second", field);
+                    result = new BsonDocument("$second", date);
                     return true;
                 case "Year":
-                    result = new BsonDocument("$year", field);
+                    result = new BsonDocument("$year", date);
                     return true;
             }
 
             return false;
         }
+        
+        private bool TryTranslateDateTimeAddXXX(MethodCallExpression node, long multiplier, out BsonValue result)
+        {
+            result = null;
+            if (node.Arguments.Count != 1) return false;
+
+            var date = TranslateValue(node.Object);
+            BsonValue arg;
+
+            var expr = node.Arguments[0];
+            if (expr.NodeType == ExpressionType.Constant)
+            {
+                // argument value is constant
+                // no need to multiply on server, do it right away
+
+                double value = (double)((ConstantExpression)expr).Value;
+
+                // trim to long
+                long value_ms = (long)Math.Round(value * multiplier);
+
+                arg = BsonValue.Create(value_ms);
+            }
+            else
+            {
+                // value derived from another expression
+                // will be calculated on the server
+
+                arg = TranslateValue(expr);
+
+                if (multiplier != 1)
+                {
+                    arg = new BsonDocument("$multiply", new BsonArray(new[] { multiplier, arg }));
+                }
+            }
+
+            result = new BsonDocument("$add", new BsonArray(new[] { date, arg }));
+            return true;
+        }
+
+        private bool TryTranslateDateTimeToString(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            if (node.Arguments.Count > 2) return false;
+
+            var date = TranslateValue(node.Object);
+
+            // assume default format YYYY-MM-DD HH:mm
+            BsonValue format = "%Y-%m-%d %H:%M";
+
+            if (node.Arguments.Count == 1)
+            {
+                // can be either .ToString(IFormatProvider) or .ToString(string) overload
+                // need to check argument type to be sure
+
+                var arg0 = node.Arguments[0];
+                if (arg0.Type == typeof(string))
+                {
+                    format = TranslateValue(arg0);
+                }
+            }
+            else if (node.Arguments.Count == 2)
+            {
+                // this is .ToString(string, IFormatProvider), format always goes first
+                format = TranslateValue(node.Arguments[0]);
+            }
+            
+            result = new BsonDocument("$dateToString", new BsonDocument().Add("format", format).Add("date", date));
+            return true;
+        }
+
+        private bool TryTranslateDateTimeMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            switch (node.Method.Name)
+            {
+                case "ToString":
+                    // $dateToString
+                    return TryTranslateDateTimeToString(node, out result);
+
+                case "AddYears":
+                case "AddMonths":
+                    // adding years/months has potential issues with leap years,
+                    // so don't bother with them for now
+                    throw new NotSupportedException("Adding months/years is not supported");
+
+                case "AddDays":
+                    return TryTranslateDateTimeAddXXX(node, 24 * 60 * 60 * 1000, out result);
+                case "AddHours":
+                    return TryTranslateDateTimeAddXXX(node, 60 * 60 * 1000, out result);
+                case "AddMinutes":
+                    return TryTranslateDateTimeAddXXX(node, 60 * 1000, out result);
+                case "AddSeconds":
+                    return TryTranslateDateTimeAddXXX(node, 1000, out result);
+                case "AddMilliseconds":
+                    return TryTranslateDateTimeAddXXX(node, 1, out result);
+
+                case "Add":
+                case "Subtract":
+                    // TimeSpan is not mapped into BsonValue,
+                    // so don't bother with it for now
+                    break;
+            }
+
+            // other methods are not supported
+            result = null;
+            return false;
+        }
+
 
         private bool TryTranslateFirstResultOperator(PipelineExpression node, out BsonValue result)
         {
