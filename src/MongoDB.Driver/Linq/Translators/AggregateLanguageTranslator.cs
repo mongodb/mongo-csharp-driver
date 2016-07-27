@@ -321,6 +321,34 @@ namespace MongoDB.Driver.Linq.Translators
                 return new BsonDocument("$size", TranslateValue(node.Expression));
             }
 
+            //
+            // Consider a collection of documents like this:
+            // {
+            //   _id: ...,
+            //   CustomerId: ...,
+            //   Order: {
+            //     Qty: 5,
+            //     Price: 15
+            //   }
+            // }
+            // 
+            // And then we're aggregating customers and calculating total price:
+            // $group: {
+            //   _id: "$CustomerId",
+            //   TotalQty: { $sum: "$Order.Qty" },
+            //   TotalPrice: { $sum: "$Order.Price" }
+            // }
+            //
+            // This is exactly the place when we get here with member access.
+            //
+
+            result = TranslateValue(node.Expression);
+            if (result.BsonType == BsonType.String && result.AsString.StartsWith("$"))
+            {
+                // this looks like variable access expression
+                return BsonValue.Create(result.AsString + "." + node.Member.Name);
+            }
+            
             var message = string.Format("Member {0} of type {1} in the expression tree {2} cannot be translated.",
                 node.Member.Name,
                 node.Member.DeclaringType,
