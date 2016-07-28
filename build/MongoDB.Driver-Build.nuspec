@@ -20,23 +20,31 @@
     <file src="artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Core.xml" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.pdb" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Driver.XML" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.xml" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.dll" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.xml" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.pdb" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.XML" target="lib\net45" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.xml" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Core.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Core.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Core.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Core.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.xml" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.GridFS.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.GridFS.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.GridFS.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.GridFS.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.GridFS.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.GridFS.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.xml" target="lib\net45" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.GridFS.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.GridFS.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.GridFS.xml" target="lib\netstandard1.6" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
     <file src="src\MongoDB.Driver.Core\**\*.cs" target="src\MongoDB.Driver.Core" />

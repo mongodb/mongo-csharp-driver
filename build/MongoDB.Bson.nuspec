@@ -18,9 +18,9 @@
     <file src="artifacts\bin\net45\MongoDB.Bson.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Bson.pdb" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Bson.Dotnet\bin\Release\netstandard1.6\MongoDB.Bson.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Bson.xml" target="lib\netstandard1.6" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
     <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />

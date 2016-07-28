@@ -19,9 +19,9 @@
     <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.pdb" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.xml" target="lib\net45" />
-    <file src="src\MongoDB.Driver.Legacy.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Legacy.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Legacy.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Legacy.pdb" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Legacy.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Legacy.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Legacy.xml" target="lib\netstandard1.6" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Driver.Legacy\**\*.cs" target="src\MongoDB.Driver.Legacy" />
     <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />

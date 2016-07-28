@@ -17,8 +17,10 @@
   <files>
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.pdb" target="lib\net45" />
-    <file src="src\MongoDB.Driver.Core.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Core.dll" target="lib\netstandard1.6" />
-    <file src="src\MongoDB.Driver.Core.Dotnet\bin\Release\netstandard1.6\MongoDB.Driver.Core.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Core.xml" target="lib\net45" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.dll" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.pdb" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.xml" target="lib\netstandard1.6" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Driver.Core\**\*.cs" target="src\MongoDB.Driver.Core" />
     <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />

@@ -2,6 +2,7 @@
 #r @"../Tools/FAKE.Dotnet/tools/Fake.Dotnet.dll"
 
 open System
+open System.IO
 open Fake
 open Fake.AssemblyInfoFile
 open Fake.Dotnet
@@ -40,7 +41,7 @@ let toolsDir = baseDir @@ "tools"
 let artifactsDir = baseDir @@ "artifacts"
 let binDir = artifactsDir @@ "bin"
 let binDirNet45 = binDir @@ "net45"
-let binDirNetStandard16 = binDir @@ "netstandard16"
+let binDirNetStandard16 = binDir @@ "netstandard1.6"
 let testResultsDir = artifactsDir @@ "test_results"
 let tempDir = artifactsDir @@ "tmp"
 
@@ -154,6 +155,14 @@ Target "BuildNetStandard16" (fun _ ->
                 Configuration = BuildConfiguration.Release
             })
             project
+
+    ensureDirectory binDirNetStandard16
+    for projectName in [ "MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"; "MongoDB.Driver.Legacy"; "MongoDB.Driver.GridFS"] do
+        let projectDirectory = baseDir @@ "src" @@ (projectName + ".Dotnet")
+        let outputDirectory = projectDirectory @@ "bin" @@ "Release" @@ "netstandard1.6"
+        for extension in [".dll"; ".pdb"; ".xml"] do
+            CopyFile binDirNetStandard16 (outputDirectory @@ (projectName + extension))
+
 )
 
 Target "TestNet45" (fun _ ->
@@ -278,16 +287,21 @@ Target "Zip" (fun _ ->
     ]
 
     let netStandard16Files = [
-        srcDir @@ "MongoDB.Bson.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Bson.dll"
-        srcDir @@ "MongoDB.Bson.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Bson.pdb"
-        srcDir @@ "MongoDB.Driver.Core.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Core.dll"
-        srcDir @@ "MongoDB.Driver.Core.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Core.pdb"
-        srcDir @@ "MongoDB.Driver.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.dll"
-        srcDir @@ "MongoDB.Driver.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.pdb"
-        srcDir @@ "MongoDB.Driver.Legacy.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Legacy.dll"
-        srcDir @@ "MongoDB.Driver.Legacy.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.Legacy.pdb"
-        srcDir @@ "MongoDB.Driver.GridFS.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.GridFS.dll"
-        srcDir @@ "MongoDB.Driver.GridFS.Dotnet" @@ "bin" @@ "Release" @@ "netstandard1.6" @@ "MongoDB.Driver.GridFS.pdb"
+        binDirNetStandard16 @@ "MongoDB.Bson.dll"
+        binDirNetStandard16 @@ "MongoDB.Bson.pdb"
+        binDirNetStandard16 @@ "MongoDB.Bson.xml"
+        binDirNetStandard16 @@ "MongoDB.Driver.Core.dll"
+        binDirNetStandard16 @@ "MongoDB.Driver.Core.pdb"
+        binDirNetStandard16 @@ "MongoDB.Driver.Core.xml"
+        binDirNetStandard16 @@ "MongoDB.Driver.dll"
+        binDirNetStandard16 @@ "MongoDB.Driver.pdb"
+        binDirNetStandard16 @@ "MongoDB.Driver.xml"
+        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.dll"
+        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.pdb"
+        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.xml"
+        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.dll"
+        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.pdb"
+        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.xml"
     ]
 
     CopyFiles zipStagingDirectory sharedFiles
