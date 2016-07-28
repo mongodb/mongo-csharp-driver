@@ -181,7 +181,7 @@ Target "TestNet45" (fun _ ->
 
 Target "TestNetStandard16" (fun _ ->
     for project in dotNetTestProjects do
-        let args = sprintf "test %s --no-build" project
+        let args = sprintf "test %s" project
         let result = Dotnet DotnetOptions.Default args
         if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
 )
