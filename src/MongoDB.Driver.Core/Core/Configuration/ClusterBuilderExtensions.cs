@@ -188,12 +188,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new PlainAuthenticator(credential);
                 }
-#if NET45
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties);
                 }
-#endif
             }
             else
             {
@@ -201,12 +199,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new MongoDBX509Authenticator(connectionString.Username);
                 }
-#if NET45
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
                 }
-#endif
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");

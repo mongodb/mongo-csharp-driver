@@ -400,14 +400,12 @@ namespace MongoDB.Driver
                 {
                     return new PlainAuthenticator(credential);
                 }
-#if NET45
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         credential,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
-#endif
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
@@ -415,14 +413,12 @@ namespace MongoDB.Driver
                 {
                     return new MongoDBX509Authenticator(_identity.Username);
                 }
-#if NET45
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         _identity.Username,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
-#endif
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");

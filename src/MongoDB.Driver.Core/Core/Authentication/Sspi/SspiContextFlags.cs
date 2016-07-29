@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -43,4 +42,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         InitIntegrity = 0x10000
     }
 }
-#endif

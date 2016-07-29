@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -65,18 +64,34 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             NumBuffers = buffers.Length;
 
             //Allocate memory for SecBuffer Array....
+#if NETSTANDARD1_6
+            BufferPtr = Marshal.AllocHGlobal(Marshal.SizeOf< SecurityBuffer>() * NumBuffers);
+#else
             BufferPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SecurityBuffer)) * NumBuffers);
+#endif
 
             for (int i = 0; i < buffers.Length; i++)
             {
                 var currentBuffer = buffers[i];
+#if NETSTANDARD1_6
+                var currentOffset = i * Marshal.SizeOf<SecurityBuffer>();
+#else
                 var currentOffset = i * Marshal.SizeOf(typeof(SecurityBuffer));
+#endif
                 Marshal.WriteInt32(BufferPtr, currentOffset, currentBuffer.Count);
 
+#if NETSTANDARD1_6
+                var length = currentOffset + Marshal.SizeOf<int>();
+#else
                 var length = currentOffset + Marshal.SizeOf(typeof(int));
+#endif
                 Marshal.WriteInt32(BufferPtr, length, (int)currentBuffer.BufferType);
 
+#if NETSTANDARD1_6
+                length = currentOffset + Marshal.SizeOf<int>() + Marshal.SizeOf<int>();
+#else
                 length = currentOffset + Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(int));
+#endif
                 Marshal.WriteIntPtr(BufferPtr, length, currentBuffer.Token);
             }
         }
@@ -88,7 +103,11 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             {
                 if (NumBuffers == 1)
                 {
+#if NETSTANDARD1_6
+                    var buffer = Marshal.PtrToStructure<SecurityBuffer>(BufferPtr);
+#else
                     var buffer = (SecurityBuffer)Marshal.PtrToStructure(BufferPtr, typeof(SecurityBuffer));
+#endif
                     buffer.Free();
                 }
                 else
@@ -97,8 +116,13 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     // The 1st buffer is going to be empty. We can skip it.
                     for (int i = 1; i < NumBuffers; i++)
                     {
+#if NETSTANDARD1_6
+                        var currentOffset = i * Marshal.SizeOf<SecurityBuffer>();
+                        var totalLength = currentOffset + Marshal.SizeOf<int>() + Marshal.SizeOf<int>();
+#else
                         var currentOffset = i * Marshal.SizeOf(typeof(SecurityBuffer));
                         var totalLength = currentOffset + Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(int));
+#endif
                         var buffer = Marshal.ReadIntPtr(BufferPtr, totalLength);
                         Marshal.FreeHGlobal(buffer);
                     }
@@ -125,7 +149,11 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             if (NumBuffers == 1)
             {
+#if NETSTANDARD1_6
+                var buffer = Marshal.PtrToStructure< SecurityBuffer>(BufferPtr);
+#else
                 var buffer = (SecurityBuffer)Marshal.PtrToStructure(BufferPtr, typeof(SecurityBuffer));
+#endif
 
                 if (buffer.Count > 0)
                 {
@@ -139,7 +167,11 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
                 for (int i = 0; i < NumBuffers; i++)
                 {
+#if NETSTANDARD1_6
+                    var currentOffset = i * Marshal.SizeOf<SecurityBuffer>();
+#else
                     var currentOffset = i * Marshal.SizeOf(typeof(SecurityBuffer));
+#endif
                     bytesToAllocate += Marshal.ReadInt32(BufferPtr, currentOffset);
                 }
 
@@ -147,9 +179,17 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
                 for (int i = 0, bufferIndex = 0; i < NumBuffers; i++)
                 {
+#if NETSTANDARD1_6
+                    var currentOffset = i * Marshal.SizeOf<SecurityBuffer>();
+#else
                     var currentOffset = i * Marshal.SizeOf(typeof(SecurityBuffer));
+#endif
                     var bytesToCopy = Marshal.ReadInt32(BufferPtr, currentOffset);
+#if NETSTANDARD1_6
+                    var length = currentOffset + Marshal.SizeOf<int>() + Marshal.SizeOf<int>();
+#else
                     var length = currentOffset + Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(int));
+#endif
                     IntPtr SecBufferpvBuffer = Marshal.ReadIntPtr(BufferPtr, length);
                     Marshal.Copy(SecBufferpvBuffer, bytes, bufferIndex, bytesToCopy);
                     bufferIndex += bytesToCopy;
@@ -160,4 +200,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
-#endif

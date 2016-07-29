@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -79,4 +78,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
-#endif

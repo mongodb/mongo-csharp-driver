@@ -13,9 +13,10 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
+#if NET45
 using System.Runtime.ConstrainedExecution;
+#endif
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -59,7 +60,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <summary>
         /// Sets to invalid.
         /// </summary>
+#if NET45
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         public void SetToInvalid()
         {
             _hi = IntPtr.Zero;
@@ -67,4 +70,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
-#endif

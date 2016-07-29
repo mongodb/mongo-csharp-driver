@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 namespace MongoDB.Driver.Core.Authentication.Sspi
 {
     /// <summary>
@@ -35,4 +34,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         Native = 16
     }
 }
-#endif

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,7 +204,11 @@ namespace MongoDB.Driver.Core.Authentication
 
                 if (_canonicalizeHostName)
                 {
+#if NETSTANDARD1_6
+                    var entry = Dns.GetHostEntryAsync(hostName).GetAwaiter().GetResult();
+#else
                     var entry = Dns.GetHostEntry(hostName);
+#endif
                     if (entry != null)
                     {
                         hostName = entry.HostName;
@@ -397,4 +400,3 @@ namespace MongoDB.Driver.Core.Authentication
         }
     }
 }
-#endif

@@ -6,6 +6,7 @@
     "NETStandard.Library": "1.6.0",
     "System.Collections.Specialized": "4.0.1",
     "System.Diagnostics.TraceSource": "4.0.0",
+    "System.Net.NameResolution": "4.0.0",
     "System.Net.Security": "4.0.0",
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Security.Cryptography.X509Certificates": "4.1.0",

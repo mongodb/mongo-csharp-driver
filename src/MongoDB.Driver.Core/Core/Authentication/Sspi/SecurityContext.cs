@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -86,7 +85,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             var descriptor = new SecurityBufferDescriptor(buffers);
             bool contextAddRefSuccess = false;
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -135,7 +136,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             bool contextAddRefSuccess = false;
             SecurityPackageContextSizes sizes;
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -176,7 +179,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             };
 
             var descriptor = new SecurityBufferDescriptor(buffers);
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -228,8 +233,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
-            
+
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 _credential.DangerousAddRef(ref credentialAddRefSuccess);
@@ -342,10 +349,18 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
 
                 var current = new IntPtr(array.ToInt64());
+#if NETSTANDARD1_6
+                var size = Marshal.SizeOf<SecurityPackageInfo>();
+#else
                 var size = Marshal.SizeOf(typeof(SecurityPackageInfo));
+#endif
                 for (int i = 0; i < count; i++)
                 {
+#if NETSTANDARD1_6
+                    var package = Marshal.PtrToStructure< SecurityPackageInfo>(current);
+#else
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
+#endif
                     if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {
                         return (int)package.MaxTokenSize;
@@ -371,4 +386,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
-#endif

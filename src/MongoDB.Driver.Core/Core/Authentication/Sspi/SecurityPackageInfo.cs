@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -37,4 +36,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         public string Comment;
     }
 }
-#endif

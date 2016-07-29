@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 namespace MongoDB.Driver.Core.Authentication.Sspi
 {
     /// <summary>
@@ -31,4 +30,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         Sizes = 0x0 
     }
 }
-#endif

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if NET45
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -48,7 +47,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             long timestamp;
 
             var credential = new SecurityCredential();
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try { }
             finally
             {
@@ -105,4 +106,3 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
     }
 }
-#endif
