@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             //Allocate memory for SecBuffer Array....
 #if NETSTANDARD1_6
-            BufferPtr = Marshal.AllocHGlobal(Marshal.SizeOf< SecurityBuffer>() * NumBuffers);
+            BufferPtr = Marshal.AllocHGlobal(Marshal.SizeOf<SecurityBuffer>() * NumBuffers);
 #else
             BufferPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SecurityBuffer)) * NumBuffers);
 #endif
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             if (NumBuffers == 1)
             {
 #if NETSTANDARD1_6
-                var buffer = Marshal.PtrToStructure< SecurityBuffer>(BufferPtr);
+                var buffer = Marshal.PtrToStructure<SecurityBuffer>(BufferPtr);
 #else
                 var buffer = (SecurityBuffer)Marshal.PtrToStructure(BufferPtr, typeof(SecurityBuffer));
 #endif
