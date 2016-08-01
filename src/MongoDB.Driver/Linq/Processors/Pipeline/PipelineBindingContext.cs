@@ -38,6 +38,11 @@ namespace MongoDB.Driver.Linq.Processors
             _memberMapping = new Dictionary<MemberInfo, Expression>();
         }
 
+        public IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return _serializerRegistry; }
+        }
+
         public void AddCorrelatingId(Expression node, Guid correlatingId)
         {
             Ensure.IsNotNull(node, nameof(node));

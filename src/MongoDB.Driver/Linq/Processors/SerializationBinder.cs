@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors.EmbeddedPipeline;
@@ -169,6 +170,8 @@ namespace MongoDB.Driver.Linq.Processors
                     return BindElementAt(node);
                 case "get_Item":
                     return BindGetItem(node);
+                case "Inject":
+                    return BindInject(node);
             }
 
             // Select and SelectMany are the only supported client-side projection operators
@@ -339,6 +342,28 @@ namespace MongoDB.Driver.Linq.Processors
             }
 
             return node; // return the original node because we can't translate this expression.
+        }
+
+
+        private Expression BindInject(MethodCallExpression node)
+        {
+            if (node.Method.DeclaringType == typeof(LinqExtensions))
+            {
+                var arg = node.Arguments[0] as ConstantExpression;
+                if (arg != null)
+                {
+                    var docType = node.Method.GetGenericArguments()[0];
+                    var serializer = _bindingContext.GetSerializer(node.Method.GetGenericArguments()[0], arg);
+                    var renderedFilter = (BsonDocument)typeof(FilterDefinition<>).MakeGenericType(docType)
+                        .GetTypeInfo()
+                        .GetMethod("Render")
+                        .Invoke(arg.Value, new object[] { serializer, _bindingContext.SerializerRegistry });
+
+                    return new InjectedFilterExpression(renderedFilter);
+                }
+            }
+
+            return node;
         }
 
         private Expression BindClientSideProjector(MethodCallExpression node)

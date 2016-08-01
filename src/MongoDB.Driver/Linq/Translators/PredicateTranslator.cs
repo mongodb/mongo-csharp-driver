@@ -117,6 +117,8 @@ namespace MongoDB.Driver.Linq.Translators
                                     filter = TranslateBoolean(mongoExpression);
                                 }
                                 break;
+                            case ExtensionExpressionType.InjectedFilter:
+                                return TranslateInjectedFilter((InjectedFilterExpression)node);
                             case ExtensionExpressionType.Pipeline:
                                 filter = TranslatePipeline((PipelineExpression)node);
                                 break;
@@ -661,6 +663,11 @@ namespace MongoDB.Driver.Linq.Translators
                 return __builder.In(fieldExpression.FieldName, serializedValues);
             }
             return null;
+        }
+
+        private FilterDefinition<BsonDocument> TranslateInjectedFilter(InjectedFilterExpression node)
+        {
+            return new BsonDocumentFilterDefinition<BsonDocument>(node.Filter);
         }
 
         private FilterDefinition<BsonDocument> TranslateIsMatch(MethodCallExpression methodCallExpression)

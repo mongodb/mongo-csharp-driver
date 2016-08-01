@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
 using Xunit;
 
@@ -773,6 +774,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             root.Should().NotBeNull();
             root.A.Should().Be("Awesome");
+        }
+
+        [Fact]
+        public void Injecting_a_filter()
+        {
+            var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
+            var root = __collection.FindSync(x => filter.Inject()).Single();
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+            root.B.Should().Be("Balloon");
+        }
+
+        [Fact]
+        public void Injecting_a_filter_with_a_conjunction()
+        {
+            var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
+            var root = __collection.FindSync(x => x.A == "Awesome" && filter.Inject()).Single();
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+            root.B.Should().Be("Balloon");
         }
 
         private T FindFirstOrDefault<T>(IMongoCollection<T> collection, int id) where T : IRoot

@@ -43,6 +43,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return node;
         }
 
+        internal Expression VisitInjectedFilter(InjectedFilterExpression node)
+        {
+            return node;
+        }
+
         protected internal virtual Expression VisitConcat(ConcatExpression node)
         {
             return node.Update(

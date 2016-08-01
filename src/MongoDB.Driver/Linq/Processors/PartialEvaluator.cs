@@ -169,7 +169,14 @@ namespace MongoDB.Driver.Linq.Processors
                     }
                 }
 
-                return base.VisitMethodCall(node);
+                node = (MethodCallExpression)base.VisitMethodCall(node);
+                if (node.Object == null && node.Method.DeclaringType == typeof(LinqExtensions) &&
+                    node.Method.Name == "Inject")
+                {
+                    _isBlocked = true;
+                }
+
+                return node;
             }
 
             protected override Expression VisitParameter(ParameterExpression node)
