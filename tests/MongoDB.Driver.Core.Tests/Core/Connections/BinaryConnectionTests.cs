@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 openTask1 = Task.Run(() => _subject.Open(CancellationToken.None));
             }
-            SpinWait.SpinUntil(() => task1IsBlocked, 1000).Should().BeTrue();
+            SpinWait.SpinUntil(() => task1IsBlocked, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             Task openTask2;
             if (async2)
@@ -202,8 +202,8 @@ namespace MongoDB.Driver.Core.Connections
             _subject.Description.Should().BeNull();
 
             completionSource.SetResult(new Mock<Stream>().Object);
-            SpinWait.SpinUntil(() => openTask1.IsCompleted, 1000).Should().BeTrue();
-            SpinWait.SpinUntil(() => openTask2.IsCompleted, 1000).Should().BeTrue();
+            SpinWait.SpinUntil(() => openTask1.IsCompleted, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => openTask2.IsCompleted, TimeSpan.FromSeconds(5)).Should().BeTrue();
             _subject.Description.Should().NotBeNull();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionOpeningEvent>();
@@ -393,7 +393,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var receivedTask10IsRunning = 0;
                     receivedTask10 = Task.Run(() => { Interlocked.Exchange(ref receivedTask10IsRunning, 1); return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask10IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask10IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 }
 
                 Task<ResponseMessage> receivedTask11;
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var receivedTask11IsRunning = 0;
                     receivedTask11 = Task.Run(() => { Interlocked.Exchange(ref receivedTask11IsRunning, 1); return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask11IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask11IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 }
 
                 var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var task1IsRunning = 0;
                     task1 = Task.Run(() => { Interlocked.Exchange(ref task1IsRunning, 1); return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task1IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task1IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 }
 
                 Task task2;
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var task2IsRunning = 0;
                     task2 = Task.Run(() => { Interlocked.Exchange(ref task2IsRunning, 1); return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 }
 
                 readTcs.SetException(new SocketException());
@@ -694,7 +694,7 @@ namespace MongoDB.Driver.Core.Connections
                     task1 = Task.Run(() => { _subject.SendMessage(message1, _messageEncoderSettings, CancellationToken.None); });
                 }
 
-                SpinWait.SpinUntil(() => task1IsBlocked, 1000).Should().BeTrue();
+                SpinWait.SpinUntil(() => task1IsBlocked, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 task1IsBlocked.Should().BeTrue();
 
                 Task task2;
@@ -706,7 +706,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var task2IsRunning = 0;
                     task2 = Task.Run(() => { Interlocked.Exchange(ref task2IsRunning, 1); _subject.SendMessage(message2, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, 1000).Should().BeTrue();
+                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
                 }
 
                 writeTcs.SetException(new SocketException());

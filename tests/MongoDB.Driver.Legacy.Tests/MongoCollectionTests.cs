@@ -2230,7 +2230,7 @@ namespace MongoDB.Driver.Tests
 
             for (int i = 1; i <= 5; i++)
             {
-                if (!SpinWait.SpinUntil(() => collection.Count(Query.EQ("_id", i)) == 1, TimeSpan.FromSeconds(4)))
+                if (!SpinWait.SpinUntil(() => collection.Count(Query.EQ("_id", i)) == 1, TimeSpan.FromSeconds(5)))
                 {
                     Assert.True(false, $"_id {i} does not exist.");
                 }

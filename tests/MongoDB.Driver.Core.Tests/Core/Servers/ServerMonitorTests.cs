@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Servers
 
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             changes.Count.Should().Be(1);
             changes[0].OldServerDescription.State.Should().Be(ServerState.Disconnected);
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             _subject.Description.State.Should().Be(ServerState.Connected);
             _subject.Description.Type.Should().Be(ServerType.Standalone);
@@ -148,14 +148,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
             _capturedEvents.Clear();
 
             _subject.RequestHeartbeat();
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
             _capturedEvents.Clear();
 
             _subject.Invalidate();
@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Core.Servers
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4)).Should().BeTrue();
-            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             // when heart fails, we immediately attempt a second, hence the multiple events...
             _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();

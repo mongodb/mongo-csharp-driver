@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             act.ShouldNotThrow();
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, 100).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
             sentMessages.Count.Should().Be(1);

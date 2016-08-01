@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Misc
             var subject = new SemaphoreSlimRequest(semaphore, cancellationTokenSource.Token);
 
             cancellationTokenSource.Cancel();
-            SpinWait.SpinUntil(() => subject.Task.IsCompleted, 1000).Should().BeTrue();
+            SpinWait.SpinUntil(() => subject.Task.IsCompleted, TimeSpan.FromSeconds(5)).Should().BeTrue();
             semaphore.Release();
 
             subject.Task.Status.Should().Be(TaskStatus.Canceled);
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Misc
             var subject = new SemaphoreSlimRequest(semaphore, CancellationToken.None);
 
             semaphore.Release();
-            SpinWait.SpinUntil(() => subject.Task.IsCompleted, 1000).Should().BeTrue();
+            SpinWait.SpinUntil(() => subject.Task.IsCompleted, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             subject.Task.Status.Should().Be(TaskStatus.RanToCompletion);
             semaphore.CurrentCount.Should().Be(0);

@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, nonCanonicalEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint },
                 canonicalEndPoint: _firstEndPoint);
-            SpinWait.SpinUntil(() => !subject.Description.Servers.Any(d => ((DnsEndPoint)d.EndPoint).Host == "wrong"), 100).Should().BeTrue();
+            SpinWait.SpinUntil(() => !subject.Description.Servers.Any(d => ((DnsEndPoint)d.EndPoint).Host == "wrong"), TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Disconnected);
@@ -580,7 +580,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             PublishDescription(subject, _firstEndPoint, ServerType.ReplicaSetPrimary,
                 hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
-            SpinWait.SpinUntil(() => subject.Description.Servers.Count == 3, 100).Should().BeTrue();
+            SpinWait.SpinUntil(() => subject.Description.Servers.Count == 3, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             foreach (var endPoint in new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint })
             {

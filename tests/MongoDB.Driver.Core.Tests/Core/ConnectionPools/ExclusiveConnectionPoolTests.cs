@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _subject.AvailableCount == _settings.MaxConnections &&
                     _subject.DormantCount == _settings.MinConnections &&
                     _subject.UsedCount == 0,
-                TimeSpan.FromSeconds(4))
+                TimeSpan.FromSeconds(5))
                 .Should().BeTrue();
 
             _subject.AvailableCount.Should().Be(_settings.MaxConnections);

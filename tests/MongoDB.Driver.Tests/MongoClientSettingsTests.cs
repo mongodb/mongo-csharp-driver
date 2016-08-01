@@ -524,7 +524,7 @@ namespace MongoDB.Driver.Tests
             settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));
             var subject = new MongoClient(settings);
 
-            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             Assert.True(socketConfiguratorWasCalled);
         }
