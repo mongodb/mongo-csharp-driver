@@ -183,13 +183,14 @@ Target "TestNet45" (fun _ ->
                 ErrorLevel = TestRunnerErrorLevel.Error
                 NUnitXmlOutputPath = Some resultsOutputPath
                 Parallel = ParallelMode.NoParallelization
-                TimeOut = TimeSpan.FromMinutes(20.0)
+                TimeOut = TimeSpan.FromDays(1.0)
                 IncludeTraits = includeTraits
             })
 )
 
 Target "TestNetStandard16" (fun _ ->
     for project in dotNetTestProjects do
+        DotnetRestore id project
         let args = sprintf "test %s" project
         let result = Dotnet DotnetOptions.Default args
         if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
