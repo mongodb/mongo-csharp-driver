@@ -68,7 +68,10 @@ namespace MongoDB.Driver.Linq.Processors
             var groupExpression = (GroupByExpression)node.Expression;
             if (_accumulatorLookup != null && _accumulatorLookup.Contains(node.CorrelationId))
             {
+                var oldAccumulatorLookup = _accumulatorLookup;
                 var source = Visit(groupExpression.Source);
+                _accumulatorLookup = oldAccumulatorLookup;
+
                 var accumulators = new List<AccumulatorExpression>();
                 var fieldExpressions = new List<FieldExpression>();
                 var comparer = new ExpressionComparer();

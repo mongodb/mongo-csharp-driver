@@ -111,6 +111,26 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
         [Fact]
+        public void GroupBy_combined_with_a_previous_embedded_pipeline()
+        {
+            var bs = new List<string>
+            {
+                "Baloon",
+                "Balloon"
+            };
+            var query = CreateQuery()
+                .Where(x => bs.Contains(x.B))
+                .GroupBy(x => x.A)
+                .Select(x => x.Max(y => y.C));
+
+            Assert(query,
+                1,
+                "{ $match: { 'B': { '$in': ['Baloon', 'Balloon'] } } }",
+                "{ $group: { '_id': '$A', '__agg0': { '$max': '$C' } } }",
+                "{ $project: { '__fld0': '$__agg0', '_id': 0 } }");
+        }
+
+        [Fact]
         public void Count()
         {
             var result = CreateQuery().Count();
