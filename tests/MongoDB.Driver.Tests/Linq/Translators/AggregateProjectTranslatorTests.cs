@@ -1369,7 +1369,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Fact]
         public void Should_throw_for_a_not_supported_string_concat_with_3_objects()
         {
-            Action act = () => Project(x => new { Result = string.Concat(x.C, null) });
+            Action act = () => Project(x => new { Result = string.Concat(x.C, x.J, x.K) });
 
             act.ShouldThrow<NotSupportedException>();
         }
@@ -1377,7 +1377,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Fact]
         public void Should_throw_for_a_not_supported_string_concat_with_4_objects()
         {
-            Action act = () => Project(x => new { Result = string.Concat(x.C, x.B) });
+            Action act = () => Project(x => new { Result = string.Concat(x.C, x.B, x.J, x.K) });
 
             act.ShouldThrow<NotSupportedException>();
         }
