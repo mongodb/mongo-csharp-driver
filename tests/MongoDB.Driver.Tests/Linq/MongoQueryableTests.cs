@@ -179,7 +179,7 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
         [SkippableFact]
-        public void Distinct_followed_by_where()
+        public void Distinct_document_followed_by_where()
         {
             RequireServer.Where(minimumVersion: "2.6.0");
             var query = CreateQuery()
@@ -190,6 +190,68 @@ namespace Tests.MongoDB.Driver.Linq
                 1,
                 "{ $group: { _id: '$$ROOT' } }",
                 "{ $match: { '_id.A': 'Awesome' } }");
+        }
+
+        [SkippableFact]
+        public void Distinct_document_preceded_by_select_where()
+        {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            var query = CreateQuery()
+                .Select(x => new { x.A, x.B })
+                .Where(x => x.A == "Awesome")
+                .Distinct();
+
+            Assert(query,
+                1,
+                "{ $project: { 'A': '$A', 'B': '$B', '_id': 0 } }",
+                "{ $match: { 'A': 'Awesome' } }",
+                "{ $group: { '_id': '$$ROOT' } }");
+        }
+
+        [SkippableFact]
+        public void Distinct_document_preceded_by_where_select()
+        {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            var query = CreateQuery()
+                .Where(x => x.A == "Awesome")
+                .Select(x => new { x.A, x.B })
+                .Distinct();
+
+            Assert(query,
+                1,
+                "{ $match: { 'A': 'Awesome' } }",
+                "{ $group: { '_id': { 'A': '$A', 'B': '$B' } } }");
+        }
+
+        [SkippableFact]
+        public void Distinct_field_preceded_by_where_select()
+        {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            var query = CreateQuery()
+                .Where(x => x.A == "Awesome")
+                .Select(x => x.A)
+                .Distinct();
+
+            Assert(query,
+                1,
+                "{ $match: { 'A': 'Awesome' } }",
+                "{ $group: { '_id': '$A' } }");
+        }
+
+        [SkippableFact]
+        public void Distinct_field_preceded_by_select_where()
+        {
+            RequireServer.Where(minimumVersion: "2.6.0");
+            var query = CreateQuery()
+                .Select(x => x.A)
+                .Where(x => x == "Awesome")
+                .Distinct();
+
+            Assert(query,
+                1,
+                "{ $project: { 'A': '$A', '_id': 0 } }",
+                "{ $match: { 'A': 'Awesome' } }",
+                "{ $group: { '_id': '$A' } }");
         }
 
         [Fact]

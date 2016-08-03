@@ -45,6 +45,10 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                     keySelector = fieldAsDocumentExpression.Expression;
                 }
             }
+            else if (pipeline.Projector is FieldExpression)
+            {
+                keySelector = pipeline.Projector;
+            }
             else
             {
                 var currentProjector = (ISerializationExpression)pipeline.Projector;
