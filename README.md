@@ -1,4 +1,4 @@
-MongoDB C# Driver
+﻿MongoDB C# Driver
 =================
 
 You can get the latest stable release from the [official Nuget.org feed](http://www.nuget.org/packages/mongocsharpdriver) or from our [github releases page](https://github.com/mongodb/mongo-csharp-driver/releases).
@@ -84,7 +84,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Robert Stam               robert@mongodb.com
 * Craig Wilson              craig.wilson@mongodb.com
 
-### Contributors (in alphabetical order):
+### Contributors:
 * Bit Diffusion Limited     code@bitdiff.com
 * Alex Brown                https://github.com/alexjamesbrown
 * Justin Dearing            zippy1981@gmail.com
@@ -112,7 +112,8 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bar Arnon                 https://github.com/I3arnon
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * James Hadwen              james.hadwen@sociustec.com
-* Jacob Jewell				jacobjewell@eflexsystems.com
-* Danny Kendrick			https://github.com/dkendrick
+* Jacob Jewell              jacobjewell@eflexsystems.com
+* Danny Kendrick            https://github.com/dkendrick
+* Alexander Aramov          https://github.com/alex687
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).

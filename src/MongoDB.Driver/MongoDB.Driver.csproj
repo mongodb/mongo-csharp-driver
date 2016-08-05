@@ -158,7 +158,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBindingContext.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
-    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AsQuerableBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AsQueryableBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\OfTypeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\SkipBinder.cs" />

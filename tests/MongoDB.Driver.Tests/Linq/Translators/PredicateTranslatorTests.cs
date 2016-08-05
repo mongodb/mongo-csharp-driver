@@ -222,6 +222,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{\"C.E.I\": { $in: [\"itchy\" ] } }");
         }
 
+        [Fact]
+        public void AsQueryable()
+        {
+            Expression<Func<C, bool>> filter = x => x.D == "Don't";
+
+            Assert(
+                x => x.G.AsQueryable().Any(filter),
+                1,
+                "{ 'G.D': \"Don't\" }");
+        }
+
         [SkippableFact]
         public void BitsAllClear_with_bitwise_operators()
         {

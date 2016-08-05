@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -1440,18 +1441,6 @@ namespace Tests.MongoDB.Driver.Linq
         {
             var query = CreateQuery()
                 .Where(x => x.G.Any(g => g.D == "Don't"));
-
-            Assert(query,
-                1,
-                "{ $match: { 'G.D': \"Don't\" } }");
-        }
-
-
-        [Test]
-        public void AsQuerable_method_inside_where()
-        {
-            var query = CreateQuery()
-                .Where(x => x.G.AsQueryable().Any(g => g.D == "Don't"));
 
             Assert(query,
                 1,

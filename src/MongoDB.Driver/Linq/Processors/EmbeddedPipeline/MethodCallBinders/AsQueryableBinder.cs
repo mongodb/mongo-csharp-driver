@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline.MethodCallBinders
 {
-    internal class AsQuerableBinder : IMethodCallBinder<EmbeddedPipelineBindingContext>
+    internal class AsQueryableBinder : IMethodCallBinder<EmbeddedPipelineBindingContext>
     {
         public static IEnumerable<MethodInfo> GetSupportedMethods()
         {

@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             var infoBinder = new MethodInfoMethodCallBinder<EmbeddedPipelineBindingContext>();
             infoBinder.Register(new AllBinder(), AllBinder.GetSupportedMethods());
             infoBinder.Register(new AnyBinder(), AnyBinder.GetSupportedMethods());
+            infoBinder.Register(new AsQueryableBinder(), AsQueryableBinder.GetSupportedMethods());
             infoBinder.Register(new AverageBinder(), AverageBinder.GetSupportedMethods());
             infoBinder.Register(new ConcatBinder(), ConcatBinder.GetSupportedMethods());
             infoBinder.Register(new DefaultIfEmptyBinder(), DefaultIfEmptyBinder.GetSupportedMethods());
@@ -52,7 +53,6 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new ToListBinder(), ToListBinder.GetSupportedMethods());
             infoBinder.Register(new UnionBinder(), UnionBinder.GetSupportedMethods());
             infoBinder.Register(new WhereBinder(), WhereBinder.GetSupportedMethods());
-            infoBinder.Register(new AsQuerableBinder(), AsQuerableBinder.GetSupportedMethods());
 
             var nameBinder = new NameBasedMethodCallBinder<EmbeddedPipelineBindingContext>();
             nameBinder.Register(new ContainsBinder(), ContainsBinder.IsSupported, ContainsBinder.SupportedMethodNames);
