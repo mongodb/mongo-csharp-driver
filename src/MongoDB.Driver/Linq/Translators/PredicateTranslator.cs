@@ -1628,6 +1628,11 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 return new FieldExpression("", node.Serializer);
             }
+
+            protected internal override Expression VisitPipeline(PipelineExpression node)
+            {
+                return node;
+            }
         }
     }
 }

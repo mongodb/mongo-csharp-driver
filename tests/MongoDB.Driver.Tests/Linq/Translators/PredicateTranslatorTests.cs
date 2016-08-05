@@ -135,6 +135,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 x => x.G.Any(g => g.S.Any(s => s.D == "Delilah")),
                 1,
                 "{\"G.S.D\": \"Delilah\"}");
+
+            Assert(
+                x => x.G.Any(g => g.D == "Don't" && g.S.Any(s => s.D == "Delilah")),
+                1,
+                "{G: {$elemMatch: {D: \"Don't\", \"S.D\": \"Delilah\" }}}");
+
+            Assert(
+                x => x.G.Any(g => g.D == "Don't" && g.S.Any(s => s.E == null && s.D == "Delilah")),
+                1,
+                "{G: {$elemMatch: {D: \"Don't\", \"S\": {$elemMatch: {E: null, D: \"Delilah\" }}}}}");
         }
 
         [Fact]
