@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -46,16 +48,68 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
+#if NET45
             var socket = CreateSocket(endPoint);
             Connect(socket, endPoint, cancellationToken);
             return CreateNetworkStream(socket);
+#else
+            // ugh... I know... but there isn't a non-async version of dns resolution
+            // in .NET Core
+            var resolved = ResolveEndPointsAsync(endPoint).GetAwaiter().GetResult();
+            for (int i = 0; i < resolved.Length; i++)
+            {
+                try
+                {
+                    var socket = CreateSocket(resolved[i]);
+                    Connect(socket, resolved[i], cancellationToken);
+                    return CreateNetworkStream(socket);
+                }
+                catch
+                {
+                    // if we have tried all of them and still failed,
+                    // then blow up.
+                    if (i == resolved.Length - 1)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // we should never get here...
+            throw new InvalidOperationException("Unabled to resolve endpoint.");
+#endif
         }
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
+#if NET45
             var socket = CreateSocket(endPoint);
             await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
             return CreateNetworkStream(socket);
+#else
+            var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
+            for (int i = 0; i < resolved.Length; i++)
+            {
+                try
+                {
+                    var socket = CreateSocket(resolved[i]);
+                    await ConnectAsync(socket, resolved[i], cancellationToken).ConfigureAwait(false);
+                    return CreateNetworkStream(socket);
+                }
+                catch
+                {
+                    // if we have tried all of them and still failed,
+                    // then blow up.
+                    if (i == resolved.Length - 1)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // we should never get here...
+            throw new InvalidOperationException("Unabled to resolve endpoint.");
+#endif
         }
 
         // non-public methods
@@ -65,11 +119,7 @@ namespace MongoDB.Driver.Core.Connections
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
 
-            var socketConfigurator = _settings.SocketConfigurator;
-            if (socketConfigurator != null)
-            {
-                socketConfigurator(socket);
-            }
+            _settings.SocketConfigurator?.Invoke(socket);
         }
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
@@ -202,7 +252,62 @@ namespace MongoDB.Driver.Core.Connections
             {
                 addressFamily = _settings.AddressFamily;
             }
+
             return new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
+        {
+            var dnsInitial = initial as DnsEndPoint;
+            if (dnsInitial == null)
+            {
+                return new[] { initial };
+            }
+
+            IPAddress address;
+            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            {
+                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+            }
+
+            var preferred = initial.AddressFamily;
+            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            {
+                preferred = _settings.AddressFamily;
+            }
+
+            return (await Dns.GetHostAddressesAsync(dnsInitial.Host).ConfigureAwait(false))
+                .Select(x => new IPEndPoint(x, dnsInitial.Port))
+                .OrderBy(x => x, new PreferredAddressFamilyComparer(preferred))
+                .ToArray();
+        }
+
+        private class PreferredAddressFamilyComparer : IComparer<EndPoint>
+        {
+            private readonly AddressFamily _preferred;
+
+            public PreferredAddressFamilyComparer(AddressFamily preferred)
+            {
+                _preferred = preferred;
+            }
+
+            public int Compare(EndPoint x, EndPoint y)
+            {
+                if (x.AddressFamily == y.AddressFamily)
+                {
+                    return 0;
+                }
+                if (x.AddressFamily == _preferred)
+                {
+                    return -1;
+                }
+                else if (y.AddressFamily == _preferred)
+                {
+                    return 1;
+                }
+
+                return 0;
+            }
         }
     }
 }
