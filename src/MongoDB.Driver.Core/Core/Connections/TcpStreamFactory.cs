@@ -150,16 +150,13 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (!cancelled && !timedOut)
                     {
-                        socket.Dispose();
+                        try { socket.Dispose(); } catch { }
                         throw;
                     }
                 }
             }
 
-            if (socket.Connected)
-            {
-                try { socket.Dispose(); } catch { }
-            }
+            try { socket.Dispose(); } catch { }
 
             cancellationToken.ThrowIfCancellationRequested();
             if (timedOut)
@@ -201,16 +198,13 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (!cancelled && !timedOut)
                     {
-                        socket.Dispose();
+                        try { socket.Dispose(); } catch { }
                         throw;
                     }
                 }
             }
 
-            if (socket.Connected)
-            {
-                try { socket.Dispose(); } catch { }
-            }
+            try { socket.Dispose(); } catch { }
 
             cancellationToken.ThrowIfCancellationRequested();
             if (timedOut)
