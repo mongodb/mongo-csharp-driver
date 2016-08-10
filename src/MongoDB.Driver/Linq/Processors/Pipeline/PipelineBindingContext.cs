@@ -100,7 +100,8 @@ namespace MongoDB.Driver.Linq.Processors
             var projector = selector as SerializationExpression;
             if (selector.NodeType == ExpressionType.MemberInit || selector.NodeType == ExpressionType.New)
             {
-                var serializer = GetSerializer(selector.Type, selector);
+                var serializer = SerializerBuilder.Build(selector, _serializerRegistry);
+
                 projector = new DocumentExpression(serializer);
             }
             else if (projector == null || projector is PipelineExpression || projector is IFieldExpression || projector is ArrayIndexExpression)

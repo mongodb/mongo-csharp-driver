@@ -885,6 +885,16 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
         [Fact]
+        public void Select_new_of_same()
+        {
+            var query = CreateQuery().Select(x => new Root { Id = x.Id, A = x.A });
+
+            Assert(query,
+                2,
+                "{ $project: { Id: '$_id', A: '$A', _id: 0} }");
+        }
+
+        [Fact]
         public void Select_method_computed_scalar_followed_by_distinct_followed_by_where()
         {
             var query = CreateQuery()
