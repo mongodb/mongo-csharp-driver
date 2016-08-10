@@ -118,13 +118,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(true, settings.CheckCertificateRevocation);
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
-#if NETSTANDARD1_6
-#pragma warning disable 618
-            Assert.Equal(SslProtocols.Tls | SslProtocols.Ssl3, settings.EnabledSslProtocols);
-#pragma warning restore
-#else
-            Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
-#endif
+            Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
@@ -161,13 +155,7 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-#if NETSTANDARD1_6
-#pragma warning disable 618
-            Assert.Equal(SslProtocols.Tls | SslProtocols.Ssl3, settings.EnabledSslProtocols);
-#pragma warning restore
-#else
-            Assert.Equal(SslProtocols.Default, settings.EnabledSslProtocols);
-#endif
+            Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
 
             var enabledSslProtocols = SslProtocols.Tls;
             settings.EnabledSslProtocols = enabledSslProtocols;

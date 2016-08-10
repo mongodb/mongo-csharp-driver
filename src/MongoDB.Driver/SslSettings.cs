@@ -37,13 +37,7 @@ namespace MongoDB.Driver
         private bool _checkCertificateRevocation = true;
         private X509CertificateCollection _clientCertificateCollection;
         private LocalCertificateSelectionCallback _clientCertificateSelectionCallback;
-#if NETSTANDARD1_6
-#pragma warning disable 618
-        private SslProtocols _enabledSslProtocols = SslProtocols.Tls | SslProtocols.Ssl3;
-#pragma warning restore
-#else
-        private SslProtocols _enabledSslProtocols = SslProtocols.Default;
-#endif
+        private SslProtocols _enabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
         private RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
         // the following fields are set when the SslSettings are frozen
@@ -253,7 +247,7 @@ namespace MongoDB.Driver
             {
                 parts.Add(string.Format("ServerCertificateValidationCallback={0}", _serverCertificateValidationCallback.GetMethodInfo().Name));
             }
-            
+
             return string.Format("{{{0}}}", string.Join(",", parts.ToArray()));
         }
 

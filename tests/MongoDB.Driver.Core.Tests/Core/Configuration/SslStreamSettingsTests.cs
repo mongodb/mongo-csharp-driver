@@ -34,13 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.CheckCertificateRevocation.Should().BeTrue();
             subject.ClientCertificates.Should().BeEmpty();
             subject.ClientCertificateSelectionCallback.Should().BeNull();
-#if NETSTANDARD1_6
-#pragma warning disable 618
-            subject.EnabledSslProtocols.Should().Be(SslProtocols.Tls | SslProtocols.Ssl3);
-#pragma warning restore
-#else
-            subject.EnabledSslProtocols.Should().Be(SslProtocols.Default);
-#endif
+            subject.EnabledSslProtocols.Should().Be(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
             subject.ServerCertificateValidationCallback.Should().BeNull();
         }
 
