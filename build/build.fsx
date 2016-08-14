@@ -22,11 +22,15 @@ let buildNumber =
   | v -> v
 
 let version = baseVersion + "." + buildNumber
+let versionSuffix = 
+    match preRelease with
+    | "build" | "local" -> preRelease + "-" + buildNumber.PadLeft(4, '0')
+    | "#release#" -> ""
+    | _ -> preRelease
 let semVersion = 
     match preRelease with
-    | "build" | "local" -> baseVersion + "-" + preRelease + "-" + buildNumber.PadLeft(4, '0')
     | "#release#" -> baseVersion
-    | _ -> baseVersion + "-" + preRelease
+    | _ -> baseVersion + "-" + versionSuffix
 
 let shortVersion = semVersion.Substring(0, 3) // this works assuming we don't have double digits
 
@@ -41,7 +45,7 @@ let toolsDir = baseDir @@ "tools"
 let artifactsDir = baseDir @@ "artifacts"
 let binDir = artifactsDir @@ "bin"
 let binDirNet45 = binDir @@ "net45"
-let binDirNetStandard16 = binDir @@ "netstandard1.6"
+let binDirNetStandard15 = binDir @@ "netstandard1.5"
 let testResultsDir = artifactsDir @@ "test_results"
 let tempDir = artifactsDir @@ "tmp"
 
@@ -76,13 +80,13 @@ let dotNetTestProjects = [
 
 let dotNetProjects = List.concat [ dotNetSrcProjects; dotNetTestHelpersProjects; dotNetTestProjects ] 
 
-type NuspecFile = { File : string; Dependencies : string list; Symbols : bool; }
+type NuspecFile = { File : string; Symbols : bool; }
 let nuspecFiles =
-    [ { File = buildDir @@ "MongoDB.Bson.nuspec"; Dependencies = []; Symbols = true; }
-      { File = buildDir @@ "MongoDB.Driver.Core.nuspec"; Dependencies = ["MongoDB.Bson"]; Symbols = true; }
-      { File = buildDir @@ "MongoDB.Driver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
-      { File = buildDir @@ "MongoDB.Driver.GridFS.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = true; }
-      { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = true; }]
+    [ { File = buildDir @@ "MongoDB.Bson.nuspec"; Symbols = true; }
+      { File = buildDir @@ "MongoDB.Driver.Core.nuspec"; Symbols = true; }
+      { File = buildDir @@ "MongoDB.Driver.nuspec"; Symbols = true; }
+      { File = buildDir @@ "MongoDB.Driver.GridFS.nuspec"; Symbols = true; }
+      { File = buildDir @@ "mongocsharpdriver.nuspec"; Symbols = true; }]
 
 let nuspecBuildFile = buildDir @@ "MongoDB.Driver-Build.nuspec"
 let licenseFile = baseDir @@ "License.txt"
@@ -147,21 +151,22 @@ Target "InstallDotnet" (fun _ ->
     DotnetCliInstall Preview2ToolingOptions
 )
 
-Target "BuildNetStandard16" (fun _ ->
+Target "BuildNetStandard15" (fun _ ->
     for project in dotNetProjects do
         DotnetRestore id project
         DotnetCompile (fun c ->
             { c with
                 Configuration = BuildConfiguration.Release
+                Common = {DotnetOptions.Default with CustomParams = Some ("--version-suffix " + versionSuffix)}
             })
             project
 
-    ensureDirectory binDirNetStandard16
+    ensureDirectory binDirNetStandard15
     for projectName in [ "MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"; "MongoDB.Driver.Legacy"; "MongoDB.Driver.GridFS"] do
         let projectDirectory = baseDir @@ "src" @@ (projectName + ".Dotnet")
-        let outputDirectory = projectDirectory @@ "bin" @@ "Release" @@ "netstandard1.6"
+        let outputDirectory = projectDirectory @@ "bin" @@ "Release" @@ "netstandard1.5"
         for extension in [".dll"; ".pdb"; ".xml"] do
-            CopyFile binDirNetStandard16 (outputDirectory @@ (projectName + extension))
+            CopyFile binDirNetStandard15 (outputDirectory @@ (projectName + extension))
 
 )
 
@@ -188,7 +193,7 @@ Target "TestNet45" (fun _ ->
             })
 )
 
-Target "TestNetStandard16" (fun _ ->
+Target "TestNetStandard15" (fun _ ->
     for project in dotNetTestProjects do
         DotnetRestore id project
         let args = sprintf "test %s" project
@@ -288,35 +293,34 @@ Target "Zip" (fun _ ->
     ]
 
     let netStandard16Files = [
-        binDirNetStandard16 @@ "MongoDB.Bson.dll"
-        binDirNetStandard16 @@ "MongoDB.Bson.pdb"
-        binDirNetStandard16 @@ "MongoDB.Bson.xml"
-        binDirNetStandard16 @@ "MongoDB.Driver.Core.dll"
-        binDirNetStandard16 @@ "MongoDB.Driver.Core.pdb"
-        binDirNetStandard16 @@ "MongoDB.Driver.Core.xml"
-        binDirNetStandard16 @@ "MongoDB.Driver.dll"
-        binDirNetStandard16 @@ "MongoDB.Driver.pdb"
-        binDirNetStandard16 @@ "MongoDB.Driver.xml"
-        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.dll"
-        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.pdb"
-        binDirNetStandard16 @@ "MongoDB.Driver.GridFS.xml"
-        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.dll"
-        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.pdb"
-        binDirNetStandard16 @@ "MongoDB.Driver.Legacy.xml"
+        binDirNetStandard15 @@ "MongoDB.Bson.dll"
+        binDirNetStandard15 @@ "MongoDB.Bson.pdb"
+        binDirNetStandard15 @@ "MongoDB.Bson.xml"
+        binDirNetStandard15 @@ "MongoDB.Driver.Core.dll"
+        binDirNetStandard15 @@ "MongoDB.Driver.Core.pdb"
+        binDirNetStandard15 @@ "MongoDB.Driver.Core.xml"
+        binDirNetStandard15 @@ "MongoDB.Driver.dll"
+        binDirNetStandard15 @@ "MongoDB.Driver.pdb"
+        binDirNetStandard15 @@ "MongoDB.Driver.xml"
+        binDirNetStandard15 @@ "MongoDB.Driver.GridFS.dll"
+        binDirNetStandard15 @@ "MongoDB.Driver.GridFS.pdb"
+        binDirNetStandard15 @@ "MongoDB.Driver.GridFS.xml"
+        binDirNetStandard15 @@ "MongoDB.Driver.Legacy.dll"
+        binDirNetStandard15 @@ "MongoDB.Driver.Legacy.pdb"
+        binDirNetStandard15 @@ "MongoDB.Driver.Legacy.xml"
     ]
 
     CopyFiles zipStagingDirectory sharedFiles
     CopyFiles (zipStagingDirectory @@ "net45") net45Files
-    CopyFiles (zipStagingDirectory @@ "netstandard1.6") netStandard16Files
+    CopyFiles (zipStagingDirectory @@ "netstandard1.5") netStandard16Files
 
     !! (zipStagingDirectory @@ "**/*.*")
         |> CreateZip zipStagingDirectory zipArtifactFile "" DefaultZipLevel false
 )
 
-let createNuGetPackage file deps symbols =
+let createNuGetPackage file symbols =
     NuGetPack (fun p ->
       { p with
-          Dependencies = deps
           Version = semVersion
           OutputPath = artifactsDir
           WorkingDir = baseDir
@@ -327,11 +331,10 @@ Target "NuGetPack" (fun _ ->
     !!(artifactsDir @@ "*.nupkg") |> DeleteFiles
 
     match preRelease with
-    | "build" -> createNuGetPackage nuspecBuildFile [] true
+    | "build" -> createNuGetPackage nuspecBuildFile true
     | _ ->
         for nuspecFile in nuspecFiles do
-            let deps = nuspecFile.Dependencies |> List.map (fun x -> (x, semVersion))
-            createNuGetPackage nuspecFile.File deps nuspecFile.Symbols
+            createNuGetPackage nuspecFile.File nuspecFile.Symbols
 )
 
 let pushNugetPackage project =
@@ -369,16 +372,16 @@ Target "Test" DoNothing
 
 // Build dependencies
 "AssemblyInfo" ==> "BuildNet45"
-"AssemblyInfo" ==> "BuildNetStandard16"
+"AssemblyInfo" ==> "BuildNetStandard15"
 "BuildNet45" ==> "Build"
-"BuildNetStandard16" ==> "Build"
+"BuildNetStandard15" ==> "Build"
 "Clean" ==> "AssemblyInfo"
-"InstallDotnet" ==> "BuildNetStandard16"
+"InstallDotnet" ==> "BuildNetStandard15"
 
 // Test dependencies (assumes Build has already been run)
-"InstallDotnet" ==> "TestNetStandard16"
+"InstallDotnet" ==> "TestNetStandard15"
 "TestNet45" ==> "Test"
-"TestNetStandard16" ==> "Test"
+"TestNetStandard15" ==> "Test"
 
 // Package dependencies (assumes Build has already been run)
 "ApiDocs" ==> "Docs"

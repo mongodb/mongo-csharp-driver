@@ -48,11 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NET45
-            var socket = CreateSocket(endPoint);
-            Connect(socket, endPoint, cancellationToken);
-            return CreateNetworkStream(socket);
-#else
+#if NETSTANDARD1_5 || NETSTANDARD1_6
             // ugh... I know... but there isn't a non-async version of dns resolution
             // in .NET Core
             var resolved = ResolveEndPointsAsync(endPoint).GetAwaiter().GetResult();
@@ -77,16 +73,16 @@ namespace MongoDB.Driver.Core.Connections
 
             // we should never get here...
             throw new InvalidOperationException("Unabled to resolve endpoint.");
+#else
+            var socket = CreateSocket(endPoint);
+            Connect(socket, endPoint, cancellationToken);
+            return CreateNetworkStream(socket);
 #endif
         }
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NET45
-            var socket = CreateSocket(endPoint);
-            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
-            return CreateNetworkStream(socket);
-#else
+#if NETSTANDARD1_5 || NETSTANDARD1_6
             var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
             for (int i = 0; i < resolved.Length; i++)
             {
@@ -109,6 +105,10 @@ namespace MongoDB.Driver.Core.Connections
 
             // we should never get here...
             throw new InvalidOperationException("Unabled to resolve endpoint.");
+#else
+            var socket = CreateSocket(endPoint);
+            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
+            return CreateNetworkStream(socket);
 #endif
         }
 
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Connections
                 try
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
-#if NETSTANDARD1_6
+#if NETSTANDARD1_5 || NETSTANDARD1_6
                     await Task.Run(() => socket.Connect(endPoint)); // TODO: honor cancellationToken
 #else
                     if (dnsEndPoint != null)

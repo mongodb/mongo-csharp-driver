@@ -60,10 +60,10 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
-#if NETSTANDARD1_6
-            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
-#else
+#if NET45
             var discriminator = "System.Collections.Hashtable";
+#else
+            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
 #endif
             var expected = ("{ '_id' : 1, 'Obj' : { '_t' : '" + discriminator + "', '_v' : { } } }").Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -78,10 +78,10 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
-#if NETSTANDARD1_6
-            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
-#else
+#if NET45
             var discriminator = "System.Collections.Hashtable";
+#else
+            var discriminator = typeof(Hashtable).AssemblyQualifiedName;
 #endif
             var expected = ("{ '_id' : 1, 'Obj' : { '_t' : '" + discriminator + "', '_v' : { 'x' : 1 } } }").Replace("'", "\"");
             Assert.Equal(expected, json);

@@ -77,10 +77,10 @@ namespace MongoDB.Driver
             }
             else
             {
-#if NETSTANDARD1_6
-                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
-#else
+#if NET45
                 var secureStringIntPtr = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+#else
+                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
 #endif
                 try
                 {

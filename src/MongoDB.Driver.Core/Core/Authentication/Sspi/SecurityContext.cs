@@ -349,17 +349,17 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
 
                 var current = new IntPtr(array.ToInt64());
-#if NETSTANDARD1_6
-                var size = Marshal.SizeOf<SecurityPackageInfo>();
-#else
+#if NET45
                 var size = Marshal.SizeOf(typeof(SecurityPackageInfo));
+#else
+                var size = Marshal.SizeOf<SecurityPackageInfo>();
 #endif
                 for (int i = 0; i < count; i++)
                 {
-#if NETSTANDARD1_6
-                    var package = Marshal.PtrToStructure< SecurityPackageInfo>(current);
-#else
+#if NET45
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
+#else
+                    var package = Marshal.PtrToStructure< SecurityPackageInfo>(current);
 #endif
                     if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {

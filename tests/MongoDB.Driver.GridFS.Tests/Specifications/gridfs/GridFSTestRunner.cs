@@ -53,10 +53,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_6
-                const string prefix = "MongoDB.Driver.GridFS.Tests.Dotnet.Specifications.gridfs.tests.";
-#else
+#if NET45
                 const string prefix = "MongoDB.Driver.GridFS.Tests.Specifications.gridfs.tests.";
+#else
+                const string prefix = "MongoDB.Driver.GridFS.Tests.Dotnet.Specifications.gridfs.tests.";
 #endif
                 var testCases = typeof(TestCaseSource).GetTypeInfo().Assembly
                     .GetManifestResourceNames()

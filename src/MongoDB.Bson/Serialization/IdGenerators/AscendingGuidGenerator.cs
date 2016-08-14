@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         // private static fields
         private static readonly AscendingGuidGenerator __instance = new AscendingGuidGenerator();
         private static readonly byte[] __machineProcessId;
-        private static int __increment; 
+        private static int __increment;
 
         // static constructor
         static AscendingGuidGenerator()
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             try
             {
                 // use low order two bytes only
-                processId = (short)GetCurrentProcessId(); 
+                processId = (short)GetCurrentProcessId();
             }
             catch (SecurityException)
             {
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         {
             get { return __instance; }
         }
-        
+
         // public methods
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             d[5] = (byte)(increment >> 16);
             d[6] = (byte)(increment >> 8);
             d[7] = (byte)(increment);
-            return new Guid (a, b, c, d);
+            return new Guid(a, b, c, d);
         }
 
         /// <summary>
@@ -141,11 +141,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
-#if NETSTANDARD1_6
-            return 1;
-#else
             return Process.GetCurrentProcess().Id;
-#endif
         }
 
         private static byte[] GetMachineHash()
@@ -158,11 +154,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
 
         private static string GetMachineName()
         {
-#if NETSTANDARD1_6
-            return Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "";
-#else
             return Environment.MachineName;
-#endif
         }
     }
 }

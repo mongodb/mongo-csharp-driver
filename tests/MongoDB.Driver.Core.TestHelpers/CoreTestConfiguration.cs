@@ -141,11 +141,7 @@ namespace MongoDB.Driver
 
             __traceSource = new TraceSource("mongodb-tests", defaultLevel);
             __traceSource.Listeners.Clear(); // remove the default listener
-#if NETSTANDARD1_6
             var listener = new TextWriterTraceListener(Console.Out);
-#else
-            var listener = new ConsoleTraceListener();
-#endif
             listener.TraceOutputOptions = TraceOptions.DateTime;
             __traceSource.Listeners.Add(listener);
             return builder.TraceWith(__traceSource);
@@ -292,10 +288,10 @@ namespace MongoDB.Driver
 
         private static MethodInfo GetTestMethodInfoFromCallStack()
         {
-#if NETSTANDARD1_6
-            var stackTrace = new StackTrace(new Exception(), needFileInfo: false);
-#else
+#if NET45
             var stackTrace = new StackTrace();
+#else
+            var stackTrace = new StackTrace(new Exception(), needFileInfo: false);
 #endif
             var stackFrames = stackTrace.GetFrames();
             for (var index = 0; index < stackFrames.Length; index++)
@@ -340,7 +336,7 @@ namespace MongoDB.Driver
                 return databaseName.Substring(0, 63);
             }
         }
-#endregion
+        #endregion
 
         // methods
         private static void DropDatabase()

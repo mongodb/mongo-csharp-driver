@@ -691,10 +691,10 @@ namespace MongoDB.Bson.Serialization
                 if (!__typesWithRegisteredKnownTypes.Contains(nominalType))
                 {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
-#if NETSTANDARD1_6
-                    var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false).ToArray();
-#else
+#if NET45
                     var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+#else
+                    var knownTypesAttribute = nominalType.GetTypeInfo().GetCustomAttributes(typeof(BsonKnownTypesAttribute), false).ToArray();
 #endif
                     if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
                     {

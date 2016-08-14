@@ -218,10 +218,10 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c = new C { Obj = new ExpandoObject() };
             var json = c.ToJson(configurator: config => config.IsDynamicType = t => false);
-#if NETSTANDARD1_6
-            var discriminator = typeof(ExpandoObject).AssemblyQualifiedName;
-#else
+#if NET45
             var discriminator = "System.Dynamic.ExpandoObject";
+#else
+            var discriminator = typeof(ExpandoObject).AssemblyQualifiedName;
 #endif
             var expected = ("{ 'Obj' : { '_t' : '" + discriminator + "', '_v' : { } } }").Replace("'", "\"");
             Assert.Equal(expected, json);

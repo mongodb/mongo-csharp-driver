@@ -287,10 +287,10 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_6
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.sdam_monitoring.tests.";
-#else
+#if NET45
                 const string prefix = "MongoDB.Driver.Specifications.sdam_monitoring.tests.";
+#else
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.sdam_monitoring.tests.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly

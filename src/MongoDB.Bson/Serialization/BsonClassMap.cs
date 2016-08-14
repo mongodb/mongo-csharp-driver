@@ -37,6 +37,14 @@ namespace MongoDB.Bson.Serialization
         private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
 
+        private static readonly MethodInfo __getUninitializedObjectMethodInfo =
+            typeof(string)
+            .GetTypeInfo()
+            .Assembly
+            .GetType("System.Runtime.Serialization.FormatterServices")
+            .GetTypeInfo()
+            ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+
         private static int __freezeNestingLevel = 0;
 
         // private fields
@@ -1266,17 +1274,17 @@ namespace MongoDB.Bson.Serialization
                     // lambdaExpression = () => (object) new TClass()
                     body = Expression.New(defaultConstructor);
                 }
+                else if (__getUninitializedObjectMethodInfo != null)
+                {
+                    // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
+                    body = Expression.Call(__getUninitializedObjectMethodInfo, Expression.Constant(_classType));
+                }
                 else
                 {
-#if NETSTANDARD1_6
                     var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
                     throw new BsonSerializationException(message);
-#else
-                    // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
-                    var getUnitializedObjectMethodInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
-                    body = Expression.Call(getUnitializedObjectMethodInfo, Expression.Constant(_classType));
-#endif
                 }
+
                 var lambdaExpression = Expression.Lambda<Func<object>>(body);
                 _creator = lambdaExpression.Compile();
             }
@@ -1537,20 +1545,7 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static MethodInfo[] GetPropertyAccessors(PropertyInfo propertyInfo)
         {
-#if NETSTANDARD1_6
-            var accessors = new List<MethodInfo>();
-            if (propertyInfo.GetMethod != null)
-            {
-                accessors.Add(propertyInfo.GetMethod);
-            }
-            if (propertyInfo.SetMethod != null)
-            {
-                accessors.Add(propertyInfo.SetMethod);
-            }
-            return accessors.ToArray();
-#else
             return propertyInfo.GetAccessors(true);
-#endif
         }
 
         private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
@@ -1593,7 +1588,7 @@ namespace MongoDB.Bson.Serialization
         {
             var interfaceType = interfacePropertyInfo.DeclaringType;
 
-#if NETSTANDARD1_6
+#if NETSTANDARD1_5 || NETSTANDARD1_6
             var actualTypeInfo = actualType.GetTypeInfo();
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             var actualTypePropertyInfos = actualTypeInfo.GetMembers(bindingFlags).OfType<PropertyInfo>();

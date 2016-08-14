@@ -1,25 +1,35 @@
 {
-  "version": "1.0.0-*",
-
+  "version": "2.3.0-*",
   "dependencies": {
-    "MongoDB.Bson.Dotnet": "1.0.0-*",
-    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
-    "NETStandard.Library": "1.6.0",
-    "System.Linq.Expressions": "4.1.0",
-    "System.Linq.Queryable": "4.0.1"
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.Dotnet": { "target": "project" }
   },
-
-  "frameworks": {
-    "netstandard1.6": {
-      "imports": "dnxcore50",
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
+    },
+    "warningsAsErrors": true,
+    "outputName" : "MongoDB.Driver",
+    "xmlDoc": true
+  },
+  "configurations": {
+    "Debug": {
       "buildOptions": {
-        "compile": {
-          "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
-        },
-        "define": [ "DEBUG", "TRACE" ],
-        "warningsAsErrors": true,
-        "outputName" : "MongoDB.Driver",
-        "xmlDoc": true
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Linq.Queryable": "4.0.1"
       }
     }
   }

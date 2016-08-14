@@ -1,24 +1,36 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "2.3.0-*",
 
   "dependencies": {
-    "MongoDB.Bson.Dotnet": "1.0.0-*",
-    "MongoDB.Driver.Core.Dotnet": "1.0.0-*",
-    "MongoDB.Driver.Dotnet": "1.0.0-*",
-    "NETStandard.Library": "1.6.0"
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Dotnet": { "target": "project" }
   },
-
-  "frameworks": {
-    "netstandard1.6": {
-      "imports": "dnxcore50",
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
+    },
+    "warningsAsErrors": true,
+    "outputName" : "MongoDB.Driver.GridFS",
+    "xmlDoc": true
+  },
+  "configurations": {
+    "Debug": {
       "buildOptions": {
-        "compile": {
-          "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
-        },
-        "define": [ "DEBUG", "TRACE" ],
-        "warningsAsErrors": true,
-        "outputName" : "MongoDB.Driver.GridFS",
-        "xmlDoc": true
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
       }
     }
   }

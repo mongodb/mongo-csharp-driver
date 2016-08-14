@@ -52,10 +52,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             
             if (password != null && password.Length > 0)
             {
-#if NETSTANDARD1_6
-                Password = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
-#else
+#if NET45
                 Password = Marshal.SecureStringToGlobalAllocUnicode(password);
+#else
+                Password = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
 #endif
                 PasswordLength = password.Length;
             }

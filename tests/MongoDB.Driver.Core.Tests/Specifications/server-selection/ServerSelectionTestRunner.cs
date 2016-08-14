@@ -188,10 +188,10 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_6
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_selection.tests.server_selection.";
-#else
+#if NET45
                 const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.server_selection.";
+#else
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_selection.tests.server_selection.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly

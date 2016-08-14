@@ -44,11 +44,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForI()
         {
             var fieldInfo = typeof(C).GetField("I");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(0, attributes.Length);
         }
 
@@ -56,11 +52,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForIL()
         {
             var fieldInfo = typeof(C).GetField("IL");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int64, attribute.Representation);
@@ -72,11 +64,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLI()
         {
             var fieldInfo = typeof(C).GetField("LI");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -88,11 +76,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForLIO()
         {
             var fieldInfo = typeof(C).GetField("LIO");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -104,11 +88,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIT()
         {
             var fieldInfo = typeof(C).GetField("DIT");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);
@@ -120,11 +100,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         public void TestRepresentationAttributeForDIOT()
         {
             var fieldInfo = typeof(C).GetField("DIOT");
-#if NETSTANDARD1_6
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).ToArray();
-#else
-            var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
-#endif
+            var attributes = fieldInfo.GetCustomAttributes<BsonRepresentationAttribute>(false).ToArray();
             Assert.Equal(1, attributes.Length);
             var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.Equal(BsonType.Int32, attribute.Representation);

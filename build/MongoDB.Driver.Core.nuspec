@@ -12,15 +12,28 @@
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>mongodb mongo nosql</tags>
     <language>en-US</language>
-    @dependencies@
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
+      </group>
+      <group targetFramework=".NETStandard1.5">
+        <dependency id="NETStandard.Library" version="[1.6.0, )" />
+        <dependency id="System.Collections.Specialized" version="[4.0.1, )" />
+        <dependency id="System.Diagnostics.TraceSource" version="[4.0.0, )" />
+        <dependency id="System.Net.NameResolution" version="[4.0.0, )" />
+        <dependency id="System.Net.Security" version="[4.0.0, )" />
+        <dependency id="System.Security.SecureString" version="[4.0.0, )" />
+        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
+      </group>
+    </dependencies>
   </metadata>
   <files>
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.pdb" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.Core.xml" target="lib\net45" />
-    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.dll" target="lib\netstandard1.6" />
-    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.pdb" target="lib\netstandard1.6" />
-    <file src="artifacts\bin\netstandard1.6\MongoDB.Driver.Core.xml" target="lib\netstandard1.6" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.Core.dll" target="lib\netstandard1.5" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.Core.pdb" target="lib\netstandard1.5" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.Core.xml" target="lib\netstandard1.5" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Driver.Core\**\*.cs" target="src\MongoDB.Driver.Core" />
     <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />

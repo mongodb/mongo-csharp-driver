@@ -115,10 +115,10 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_6
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.read_write_concern.tests.connection_string.";
-#else
+#if NET45
                 const string prefix = "MongoDB.Driver.Specifications.read_write_concern.tests.connection_string.";
+#else
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.read_write_concern.tests.connection_string.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly

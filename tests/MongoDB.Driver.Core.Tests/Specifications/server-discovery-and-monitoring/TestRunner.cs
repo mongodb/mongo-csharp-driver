@@ -195,10 +195,10 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_6
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.";
-#else
+#if NET45
                 const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
+#else
+                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
