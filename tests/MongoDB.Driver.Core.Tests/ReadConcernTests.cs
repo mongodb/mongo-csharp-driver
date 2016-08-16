@@ -54,6 +54,8 @@ namespace MongoDB.Driver
             ReadConcern.Default.Should().NotBe(ReadConcern.Local);
             ReadConcern.Default.Should().NotBe(ReadConcern.Majority);
             ReadConcern.Local.Should().NotBe(ReadConcern.Majority);
+            ReadConcern.Linearizable.Should().NotBe(ReadConcern.Local);
+            ReadConcern.Linearizable.Should().NotBe(ReadConcern.Majority);
         }
 
         [Fact]
@@ -61,6 +63,8 @@ namespace MongoDB.Driver
         {
             ReadConcern.Default.Should().Be(ReadConcern.Default);
             new ReadConcern().Should().Be(ReadConcern.Default);
+            ReadConcern.Linearizable.Should().Be(ReadConcern.Linearizable);
+            new ReadConcern(ReadConcernLevel.Linearizable).Should().Be(ReadConcern.Linearizable);
             ReadConcern.Local.Should().Be(ReadConcern.Local);
             new ReadConcern(ReadConcernLevel.Local).Should().Be(ReadConcern.Local);
             ReadConcern.Majority.Should().Be(ReadConcern.Majority);
@@ -101,6 +105,7 @@ namespace MongoDB.Driver
         }
 
         [Theory]
+        [InlineData(ReadConcernLevel.Linearizable, "{ level: 'linearizable' }")]
         [InlineData(ReadConcernLevel.Local, "{ level: 'local' }")]
         [InlineData(ReadConcernLevel.Majority, "{ level: 'majority' }")]
         [InlineData(null, "{ }")]
