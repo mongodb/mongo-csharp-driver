@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllClear_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.1.9");
+            RequireServer.Where(minimumVersion: "3.2.0");
 
             Assert(
                 x => (x.C.E.F & 20) == 0,
@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllSet_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.1.9");
+            RequireServer.Where(minimumVersion: "3.2.0");
 
             Assert(
                 x => (x.C.E.F & 7) == 7,
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllSet_with_HasFlag()
         {
-            RequireServer.Where(minimumVersion: "3.1.9");
+            RequireServer.Where(minimumVersion: "3.2.0");
 
             Assert(
                 x => x.Q.HasFlag(Q.One),
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAnyClear_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.1.9");
+            RequireServer.Where(minimumVersion: "3.2.0");
 
             Assert(
                 x => (x.C.E.F & 7) != 7,
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAnySet_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.1.9");
+            RequireServer.Where(minimumVersion: "3.2.0");
 
             Assert(
                 x => (x.C.E.F & 20) != 0,
