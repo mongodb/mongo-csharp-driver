@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,6 +60,17 @@ namespace MongoDB.Driver.Linq
                 typeof(EnumerableInterfaceImplementerSerializer<>).MakeGenericType(
                     implementationType),
                 itemSerializer);
+        }
+
+        public static IBsonSerializer RecursiveConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
+        {
+            var childConfigurable = configurable.ChildSerializer as IChildSerializerConfigurable;
+            if (childConfigurable != null)
+            {
+                childSerializer = RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
+            }
+
+            return configurable.WithChildSerializer(childSerializer);
         }
     }
 }

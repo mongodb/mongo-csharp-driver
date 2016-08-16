@@ -1102,6 +1102,28 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
         [Fact]
+        public void Select_followed_by_group()
+        {
+            var query = CreateQuery()
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    First = x.A,
+                    Second = x.B
+                })
+                .GroupBy(x => x.First, (k, s) => new
+                {
+                    First = k,
+                    Stuff = s.Select(y => new { y.Id, y.Second })
+                });
+
+            Assert(query,
+                2,
+                "{ $project: { Id: '$_id', First: '$A', Second: '$B', _id: 0 } }",
+                "{ $group: { _id: '$First', Stuff: { $push: { Id: '$Id', Second: '$Second' } } } }");
+        }
+
+        [Fact]
         public void SelectMany_with_only_resultSelector()
         {
             var query = CreateQuery()

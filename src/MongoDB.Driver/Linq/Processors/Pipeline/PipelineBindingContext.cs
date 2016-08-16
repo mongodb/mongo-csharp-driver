@@ -89,10 +89,23 @@ namespace MongoDB.Driver.Linq.Processors
             }
             else if (node == null || type != node.Type)
             {
-                return _serializerRegistry.GetSerializer(type);
+                serializer = _serializerRegistry.GetSerializer(type);
+                if (node != null)
+                {
+                    var childConfigurable = serializer as IChildSerializerConfigurable;
+                    if (childConfigurable != null)
+                    {
+                        var childSerializer = GetSerializer(node.Type, node);
+                        serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
+                    }
+                }
+            }
+            else
+            {
+                serializer = SerializerBuilder.Build(node, _serializerRegistry);
             }
 
-            return SerializerBuilder.Build(node, _serializerRegistry);
+            return serializer;
         }
 
         public SerializationExpression BindProjector(ref Expression selector)

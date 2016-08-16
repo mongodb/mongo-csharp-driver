@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Processors
                         IBsonSerializer itemSerializer;
                         if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, itemSerializationInfo.Serializer.ValueType, out itemSerializer))
                         {
-                            serializer = RecursiveConfigureChildSerializer(childConfigurable, itemSerializer);
+                            serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurable, itemSerializer);
                         }
                     }
                     else
@@ -89,16 +89,7 @@ namespace MongoDB.Driver.Linq.Processors
             return serializer;
         }
 
-        private IBsonSerializer RecursiveConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
-        {
-            var childConfigurable = configurable.ChildSerializer as IChildSerializerConfigurable;
-            if (childConfigurable != null)
-            {
-                childSerializer = RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
-            }
 
-            return configurable.WithChildSerializer(childSerializer);
-        }
 
         private IBsonSerializer BuildMemberInit(MemberInitExpression node)
         {
