@@ -170,6 +170,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return resultOperator.Update(this);
         }
 
+        protected internal virtual Expression VisitReverse(ReverseExpression node)
+        {
+            return node.Update(Visit(node.Source));
+        }
+
         protected internal virtual Expression VisitSample(SampleExpression node)
         {
             return node.Update(

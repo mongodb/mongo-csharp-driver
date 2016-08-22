@@ -800,6 +800,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(161051);
         }
 
+        [SkippableFact]
+        public void Should_translate_reverse()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = x.M.Reverse() });
+
+            result.Projection.Should().Be("{ Result: { \"$reverseArray\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(5, 4, 2);
+        }
+
         [Fact]
         public void Should_translate_second()
         {

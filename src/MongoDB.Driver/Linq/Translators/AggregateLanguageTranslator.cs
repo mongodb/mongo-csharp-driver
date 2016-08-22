@@ -120,6 +120,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateIntersect((IntersectExpression)node);
                             case ExtensionExpressionType.Pipeline:
                                 return TranslatePipeline((PipelineExpression)node);
+                            case ExtensionExpressionType.Reverse:
+                                return TranslateReverse((ReverseExpression)node);
                             case ExtensionExpressionType.Select:
                                 return TranslateSelect((SelectExpression)node);
                             case ExtensionExpressionType.Skip:
@@ -464,6 +466,11 @@ namespace MongoDB.Driver.Linq.Translators
 
             var message = string.Format("The result operation {0} is not supported.", node.ResultOperator.GetType());
             throw new NotSupportedException(message);
+        }
+
+        private BsonValue TranslateReverse(ReverseExpression node)
+        {
+            return new BsonDocument("$reverseArray", TranslateValue(node.Source));
         }
 
         private BsonValue TranslateSelect(SelectExpression node)

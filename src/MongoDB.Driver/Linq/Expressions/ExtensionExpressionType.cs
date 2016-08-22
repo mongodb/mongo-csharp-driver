@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Intersect,
         Join,
         OrderBy,
+        Reverse,
         Sample,
         Select,
         SelectMany,
