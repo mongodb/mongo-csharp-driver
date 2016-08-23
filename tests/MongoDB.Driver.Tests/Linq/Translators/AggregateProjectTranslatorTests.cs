@@ -801,6 +801,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
+        public void Should_translate_range()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = Enumerable.Range(x.C.E.F, 3) });
+
+            result.Projection.Should().Be("{ Result: { \"$range\": [\"$C.E.F\", { \"$add\": [\"$C.E.F\", 3] } ] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(11, 12, 13);
+        }
+
+        [SkippableFact]
         public void Should_translate_reverse()
         {
             RequireServer.Where(minimumVersion: "3.3.4");

@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -339,6 +340,12 @@ namespace MongoDB.Driver.Linq.Translators
 
                 if (node.Method.DeclaringType == typeof(Math)
                     && TryTranslateStaticMathMethodCall(node, out result))
+                {
+                    return result;
+                }
+
+                if (node.Method.DeclaringType == typeof(Enumerable)
+                    && TryTranslateStaticEnumerableMethodCall(node, out result))
                 {
                     return result;
                 }
@@ -775,6 +782,28 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             result = null;
+            return false;
+        }
+
+        private bool TryTranslateStaticEnumerableMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            switch (node.Method.Name)
+            {
+                case "Range":
+                    var start = TranslateValue(node.Arguments[0]);
+                    result = new BsonDocument("$range", new BsonArray
+                    {
+                        start,
+                        new BsonDocument("$add", new BsonArray
+                        {
+                            start,
+                            TranslateValue(node.Arguments[1])
+                        })
+                    });
+                    return true;
+            }
+
             return false;
         }
 
