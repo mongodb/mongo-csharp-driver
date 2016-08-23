@@ -412,6 +412,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be("b");
         }
 
+        [SkippableFact]
+        public void Should_translate_dateToString()
+        {
+            RequireServer.Where(minimumVersion: "3.2.0");
+
+            var result = Project(x => new { Result = x.J.ToString("%Y-%m-%d") });
+
+            result.Projection.Should().Be("{ Result: { \"$dateToString\": {format: \"%Y-%m-%d\", date: \"$J\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be("2012-12-01");
+        }
+
         [Fact]
         public void Should_translate_day_of_month()
         {

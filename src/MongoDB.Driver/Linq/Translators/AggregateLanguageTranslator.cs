@@ -366,6 +366,12 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
+                if (node.Object.Type == typeof(DateTime)
+                    && TryTranslateDateTimeCall(node, out result))
+                {
+                    return result;
+                }
+
                 if (node.Object.Type.GetTypeInfo().IsGenericType
                     && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                     && TryTranslateHashSetMethodCall(node, out result))
@@ -669,6 +675,29 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             result = null;
+            return false;
+        }
+
+        private bool TryTranslateDateTimeCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            var field = TranslateValue(node.Object);
+
+            switch (node.Method.Name)
+            {
+                case "ToString":
+                    if (node.Arguments.Count == 1)
+                    {
+                        var format = TranslateValue(node.Arguments[0]);
+                        result = new BsonDocument("$dateToString", new BsonDocument
+                        {
+                            { "format", format },
+                            { "date", field }
+                        });
+                    }
+                    return true;
+            }
+
             return false;
         }
 
