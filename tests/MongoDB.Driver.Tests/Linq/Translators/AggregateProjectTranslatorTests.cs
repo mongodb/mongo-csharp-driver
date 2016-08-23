@@ -1118,6 +1118,28 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
+        public void Should_translate_split()
+        {
+            RequireServer.Where(minimumVersion: "3.3.6");
+
+            var result = Project(x => new { Result = x.A.Split('e') });
+            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+
+            result = Project(x => new { Result = x.A.Split(new[] { 'e' }) });
+            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+
+            result = Project(x => new { Result = x.A.Split(new[] { 'e' }, StringSplitOptions.None) });
+            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+
+            result = Project(x => new { Result = x.A.Split(new[] { "es" }, StringSplitOptions.None) });
+            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"es\" ] }, _id: 0 }");
+            result.Value.Result.Should().BeEquivalentTo("Aw", "ome");
+        }
+
+        [SkippableFact]
         public void Should_translate_stdDevPop()
         {
             RequireServer.Where(minimumVersion: "3.1.7");

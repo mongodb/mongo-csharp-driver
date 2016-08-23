@@ -976,6 +976,57 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                     }
                     break;
+                case "Split":
+                    BsonValue separator = null;
+                    var separatorConstant = node.Arguments[0] as ConstantExpression;
+                    if (separatorConstant != null && separatorConstant.Type == typeof(char[]))
+                    {
+                        var chars = (char[])separatorConstant.Value;
+                        if (chars.Length == 1)
+                        {
+                            separator = new BsonString(new string(chars));
+                        }
+                    }
+                    else
+                    {
+                        separator = TranslateValue(node.Arguments[0]);
+                        var array = separator as BsonArray;
+                        if (array != null && array.Count == 1)
+                        {
+                            separator = array[0];
+                        }
+                        else if (array != null)
+                        {
+                            separator = null;
+                        }
+                    }
+
+                    if (separator != null)
+                    {
+                        if (node.Arguments.Count == 1)
+                        {
+                            result = new BsonDocument("$split", new BsonArray
+                            {
+                                field,
+                                separator
+                            });
+                            return true;
+                        }
+                        else if (node.Arguments.Count == 2 && node.Arguments[1].Type == typeof(StringSplitOptions))
+                        {
+                            var splitOptions = node.Arguments[1] as ConstantExpression;
+                            if (splitOptions != null && ((StringSplitOptions)splitOptions.Value) == StringSplitOptions.None)
+                            {
+                                result = new BsonDocument("$split", new BsonArray
+                                {
+                                    field,
+                                    separator
+                                });
+                                return true;
+                            }
+                        }
+                    }
+                    break;
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
