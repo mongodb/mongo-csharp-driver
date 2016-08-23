@@ -310,6 +310,12 @@ namespace MongoDB.Driver.Linq.Translators
                 return result;
             }
 
+            if (node.Expression.Type == typeof(string)
+                && TryTranslateStringMemberAccess(node, out result))
+            {
+                return result;
+            }
+
             var expressionType = node.Expression.Type;
             if (node.Expression != null
                 && (expressionType.ImplementsInterface(typeof(ICollection<>))
@@ -695,6 +701,20 @@ namespace MongoDB.Driver.Linq.Translators
                     return true;
                 case "Year":
                     result = new BsonDocument("$year", field);
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryTranslateStringMemberAccess(MemberExpression node, out BsonValue result)
+        {
+            result = null;
+            var field = TranslateValue(node.Expression);
+            switch (node.Member.Name)
+            {
+                case "Length":
+                    result = new BsonDocument("$strLenCP", field);
                     return true;
             }
 
