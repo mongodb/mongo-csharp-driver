@@ -224,5 +224,12 @@ namespace MongoDB.Driver.Linq.Expressions
                 Visit(node.Source),
                 Visit(node.Predicate));
         }
+
+        protected internal virtual Expression VisitZip(ZipExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Other));
+        }
     }
 }

@@ -133,6 +133,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateUnion((UnionExpression)node);
                             case ExtensionExpressionType.Where:
                                 return TranslateWhere((WhereExpression)node);
+                            case ExtensionExpressionType.Zip:
+                                return TranslateZip((ZipExpression)node);
                         }
                     }
                     break;
@@ -551,6 +553,13 @@ namespace MongoDB.Driver.Linq.Translators
                 { "as", node.ItemName },
                 { "cond", condValue }
             });
+        }
+
+        private BsonValue TranslateZip(ZipExpression node)
+        {
+            var inputs = new[] { TranslateValue(node.Source), TranslateValue(node.Other) };
+
+            return new BsonDocument("$zip", new BsonDocument("inputs", new BsonArray(inputs)));
         }
 
         private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)

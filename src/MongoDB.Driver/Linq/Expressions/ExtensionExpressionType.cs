@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Take,
         Union,
         Where,
+        Zip,
 
         // Bindings
         Accumulator,

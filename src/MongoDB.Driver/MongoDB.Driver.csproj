@@ -124,6 +124,7 @@
     <Compile Include="Linq\Expressions\IntersectExpression.cs" />
     <Compile Include="Linq\Expressions\SampleExpression.cs" />
     <Compile Include="Linq\Expressions\ReverseExpression.cs" />
+    <Compile Include="Linq\Expressions\ZipExpression.cs" />
     <Compile Include="Linq\Expressions\UnionExpression.cs" />
     <Compile Include="Linq\Expressions\WhereExpression.cs" />
     <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\TakeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ToHashSetBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ReverseBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ZipBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\UnionBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\IntersectBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ExceptBinder.cs" />

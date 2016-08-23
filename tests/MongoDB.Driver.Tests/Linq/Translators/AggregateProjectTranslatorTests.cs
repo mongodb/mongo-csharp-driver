@@ -1335,6 +1335,34 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(2012);
         }
 
+        [SkippableFact]
+        public void Should_translate_zip_with_operation()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: { \"$zip\": { inputs: [\"$M\", \"$O\"] } }, as: \"a_b\", in: { $add: [{ $arrayElemAt: [\"$$a_b\", 0] }, { $arrayElemAt: [\"$$a_b\", 1] }] } } }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo(12L, 24L, 35L);
+        }
+
+        [SkippableFact]
+        public void Should_translate_zip_with_anonymous_type()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => new { a, b }) });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: { \"$zip\": { inputs: [\"$M\", \"$O\"] } }, as: \"a_b\", in: { a: { $arrayElemAt: [\"$$a_b\", 0] }, b: { $arrayElemAt: [\"$$a_b\", 1] } } } }, _id: 0 }");
+
+            var aResults = result.Value.Result.Select(x => x.a);
+            var bResults = result.Value.Result.Select(x => x.b);
+
+            aResults.Should().BeEquivalentTo(2, 4, 5);
+            bResults.Should().BeEquivalentTo(10L, 20L, 30L);
+        }
+
         [Fact]
         public void Should_translate_array_projection()
         {
