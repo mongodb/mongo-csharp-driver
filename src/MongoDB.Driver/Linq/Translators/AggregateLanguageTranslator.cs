@@ -976,6 +976,46 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                     }
                     break;
+                case "IndexOf":
+                    var args = new BsonArray { field };
+                    if (node.Arguments[0].Type == typeof(char)
+                        && node.Arguments[0].NodeType == ExpressionType.Constant)
+                    {
+                        args.Add(new BsonString(((ConstantExpression)node.Arguments[0]).Value.ToString()));
+                    }
+                    else
+                    {
+                        args.Add(TranslateValue(node.Arguments[0]));
+                    }
+
+                    if (node.Arguments.Count > 1)
+                    {
+                        if (node.Arguments[1].Type != typeof(int))
+                        {
+                            throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
+                        }
+
+                        args.Add(TranslateValue(node.Arguments[1]));
+                    }
+
+                    if (node.Arguments.Count > 2)
+                    {
+                        if (node.Arguments[2].Type != typeof(int))
+                        {
+                            throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
+                        }
+
+                        var count = TranslateValue(node.Arguments[2]);
+                        args.Add(new BsonDocument("$add", new BsonArray { args[2], count }));
+                    }
+
+                    if (node.Arguments.Count > 3)
+                    {
+                        throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
+                    }
+
+                    result = new BsonDocument("$indexOfBytes", args);
+                    return true;
                 case "Split":
                     if (node.Arguments.Count < 1 || node.Arguments.Count > 2)
                     {
