@@ -38,6 +38,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public WorkDays ChangedRepresentationEnum { get; set; }
         }
 
+        private class TestClassNullable
+        {
+            public string NonEnum { get; set; }
+            public WorkDays? DefaultEnum { get; set; }
+            public WorkDays? ChangedRepresentationEnum { get; set; }
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(BsonType.Int32)]
@@ -53,6 +60,23 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             convention.Apply(nonEnumMemberMap);
             convention.Apply(changedEnumMemberMap);
             Assert.Equal(value, ((IRepresentationConfigurable)(changedEnumMemberMap.GetSerializer())).Representation);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void TestConventionNullable(BsonType value)
+        {
+            var convention = new EnumRepresentationConvention(value);
+            var classMap = new BsonClassMap<TestClassNullable>();
+            var nonEnumMemberMap = classMap.MapMember(x => x.NonEnum);
+            classMap.MapMember(x => x.DefaultEnum);
+            var changedEnumMemberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
+            convention.Apply(nonEnumMemberMap);
+            convention.Apply(changedEnumMemberMap);
+            Assert.Equal(value, ((IRepresentationConfigurable)((IChildSerializerConfigurable)(changedEnumMemberMap.GetSerializer())).ChildSerializer).Representation);
         }
 
         [Fact]
