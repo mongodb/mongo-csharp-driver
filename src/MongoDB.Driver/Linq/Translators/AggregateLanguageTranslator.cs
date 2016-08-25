@@ -31,14 +31,18 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal sealed class AggregateLanguageTranslator
     {
-        public static BsonValue Translate(Expression node)
+        public static BsonValue Translate(Expression node, ExpressionTranslationOptions translationOptions)
         {
-            var builder = new AggregateLanguageTranslator();
+            var builder = new AggregateLanguageTranslator(translationOptions);
             return builder.TranslateValue(node);
         }
 
-        private AggregateLanguageTranslator()
+        private readonly AggregateStringTranslationMode _stringTranslationMode;
+
+        private AggregateLanguageTranslator(ExpressionTranslationOptions translationOptions)
         {
+            translationOptions = translationOptions ?? ExpressionTranslationOptions.Default;
+            _stringTranslationMode = translationOptions.StringTranslationMode.GetValueOrDefault(AggregateStringTranslationMode.Bytes);
         }
 
         private BsonValue TranslateValue(Expression node)
@@ -1119,7 +1123,12 @@ namespace MongoDB.Driver.Linq.Translators
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
-                        result = new BsonDocument("$substr", new BsonArray(new[]
+                        var name = "$substr";
+                        if (_stringTranslationMode == AggregateStringTranslationMode.CodePoints)
+                        {
+                            name = "$substrCP";
+                        }
+                        result = new BsonDocument(name, new BsonArray(new[]
                             {
                                 field,
                                 TranslateValue(node.Arguments[0]),

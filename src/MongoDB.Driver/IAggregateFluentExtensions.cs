@@ -66,7 +66,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(id, nameof(id));
             Ensure.IsNotNull(group, nameof(group));
 
-            return aggregate.Group<TNewResult>(new GroupExpressionProjection<TResult, TKey, TNewResult>(id, group));
+            return aggregate.Group<TNewResult>(new GroupExpressionProjection<TResult, TKey, TNewResult>(id, group, aggregate.Options.TranslationOptions));
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(projection, nameof(projection));
 
-            return aggregate.Project<TNewResult>(new ProjectExpressionProjection<TResult, TNewResult>(projection));
+            return aggregate.Project<TNewResult>(new ProjectExpressionProjection<TResult, TNewResult>(projection, aggregate.Options.TranslationOptions));
         }
 
         /// <summary>
@@ -501,10 +501,12 @@ namespace MongoDB.Driver
         private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>
         {
             private readonly Expression<Func<TResult, TNewResult>> _expression;
+            private readonly ExpressionTranslationOptions _translationOptions;
 
-            public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression)
+            public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression, ExpressionTranslationOptions translationOptions)
             {
                 _expression = Ensure.IsNotNull(expression, nameof(expression));
+                _translationOptions = translationOptions;
             }
 
             public Expression<Func<TResult, TNewResult>> Expression
@@ -514,7 +516,7 @@ namespace MongoDB.Driver
 
             public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
-                return AggregateProjectTranslator.Translate<TResult, TNewResult>(_expression, documentSerializer, serializerRegistry);
+                return AggregateProjectTranslator.Translate<TResult, TNewResult>(_expression, documentSerializer, serializerRegistry, _translationOptions);
             }
         }
 
@@ -522,11 +524,13 @@ namespace MongoDB.Driver
         {
             private readonly Expression<Func<TResult, TKey>> _idExpression;
             private readonly Expression<Func<IGrouping<TKey, TResult>, TNewResult>> _groupExpression;
+            private readonly ExpressionTranslationOptions _translationOptions;
 
-            public GroupExpressionProjection(Expression<Func<TResult, TKey>> idExpression, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupExpression)
+            public GroupExpressionProjection(Expression<Func<TResult, TKey>> idExpression, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupExpression, ExpressionTranslationOptions translationOptions)
             {
                 _idExpression = Ensure.IsNotNull(idExpression, nameof(idExpression));
                 _groupExpression = Ensure.IsNotNull(groupExpression, nameof(groupExpression));
+                _translationOptions = translationOptions;
             }
 
             public Expression<Func<TResult, TKey>> IdExpression
@@ -541,7 +545,7 @@ namespace MongoDB.Driver
 
             public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
-                return AggregateGroupTranslator.Translate<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
+                return AggregateGroupTranslator.Translate<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
             }
         }
     }

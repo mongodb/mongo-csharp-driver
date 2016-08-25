@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal static class AggregateGroupTranslator
     {
-        public static RenderedProjectionDefinition<TResult> Translate<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static RenderedProjectionDefinition<TResult> Translate<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             var bindingContext = new PipelineBindingContext(serializerRegistry);
 
@@ -36,12 +36,12 @@ namespace MongoDB.Driver.Linq.Translators
             var boundGroupExpression = BindGroup(bindingContext, groupProjector, parameterSerializer, keySelector);
 
             var projectionSerializer = bindingContext.GetSerializer(boundGroupExpression.Type, boundGroupExpression);
-            var projection = AggregateLanguageTranslator.Translate(boundGroupExpression).AsBsonDocument;
+            var projection = AggregateLanguageTranslator.Translate(boundGroupExpression, translationOptions).AsBsonDocument;
 
             // must have an "_id" in a group document
             if (!projection.Contains("_id"))
             {
-                var idProjection = AggregateLanguageTranslator.Translate(keySelector);
+                var idProjection = AggregateLanguageTranslator.Translate(keySelector, translationOptions);
                 projection.InsertAt(0, new BsonElement("_id", idProjection));
             }
 

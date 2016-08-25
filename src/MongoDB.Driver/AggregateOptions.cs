@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         private int? _batchSize;
         private bool? _bypassDocumentValidation;
         private TimeSpan? _maxTime;
+        private ExpressionTranslationOptions _translationOptions;
         private bool? _useCursor;
 
         // properties
@@ -69,6 +70,15 @@ namespace MongoDB.Driver
         {
             get { return _maxTime; }
             set { _maxTime = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the translation options.
+        /// </summary>
+        public ExpressionTranslationOptions TranslationOptions
+        {
+            get { return _translationOptions; }
+            set { _translationOptions = value; }
         }
 
         /// <summary>

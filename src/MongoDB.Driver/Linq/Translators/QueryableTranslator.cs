@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal sealed class QueryableTranslator
     {
-        public static QueryableTranslation Translate(Expression node, IBsonSerializerRegistry serializerRegistry)
+        public static QueryableTranslation Translate(Expression node, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
-            var translator = new QueryableTranslator(serializerRegistry);
+            var translator = new QueryableTranslator(serializerRegistry, translationOptions);
             translator.Translate(node);
 
             var outputType = translator._outputSerializer.ValueType;
@@ -53,10 +53,12 @@ namespace MongoDB.Driver.Linq.Translators
         private readonly IBsonSerializerRegistry _serializerRegistry;
         private readonly List<BsonDocument> _stages;
         private IResultTransformer _resultTransformer;
+        private ExpressionTranslationOptions _translationOptions;
 
-        public QueryableTranslator(IBsonSerializerRegistry serializerRegistry)
+        public QueryableTranslator(IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             _serializerRegistry = Ensure.IsNotNull(serializerRegistry, nameof(serializerRegistry));
+            _translationOptions = Ensure.IsNotNull(translationOptions, nameof(translationOptions));
             _stages = new List<BsonDocument>();
         }
 
@@ -119,11 +121,11 @@ namespace MongoDB.Driver.Linq.Translators
             Translate(node.Source);
 
             var groupValue = new BsonDocument();
-            var idValue = AggregateLanguageTranslator.Translate(node.KeySelector);
+            var idValue = AggregateLanguageTranslator.Translate(node.KeySelector, _translationOptions);
             groupValue.Add("_id", idValue);
             foreach (var accumulator in node.Accumulators)
             {
-                var accumulatorValue = AggregateLanguageTranslator.Translate(accumulator);
+                var accumulatorValue = AggregateLanguageTranslator.Translate(accumulator, _translationOptions);
                 groupValue.Add(accumulator.FieldName, accumulatorValue);
             }
 
@@ -148,7 +150,7 @@ namespace MongoDB.Driver.Linq.Translators
                 throw new NotSupportedException("Only a collection is allowed to be joined.");
             }
 
-            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector, _translationOptions);
             if (localFieldValue.BsonType != BsonType.String)
             {
                 throw new NotSupportedException("Could not translate the local field.");
@@ -156,7 +158,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var localField = localFieldValue.ToString().Substring(1); // remove '$'
 
-            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.JoinedKeySelector);
+            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.JoinedKeySelector, _translationOptions);
             if (foreignFieldValue.BsonType != BsonType.String)
             {
                 throw new NotSupportedException("Could not translate the foreign field.");
@@ -183,7 +185,7 @@ namespace MongoDB.Driver.Linq.Translators
                 throw new NotSupportedException("Only a collection is allowed to be joined.");
             }
 
-            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector);
+            var localFieldValue = AggregateLanguageTranslator.Translate(node.SourceKeySelector, _translationOptions);
             if (localFieldValue.BsonType != BsonType.String)
             {
                 throw new NotSupportedException("Could not translate the local field.");
@@ -191,7 +193,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var localField = localFieldValue.ToString().Substring(1); // remove '$'
 
-            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.JoinedKeySelector);
+            var foreignFieldValue = AggregateLanguageTranslator.Translate(node.JoinedKeySelector, _translationOptions);
             if (foreignFieldValue.BsonType != BsonType.String)
             {
                 throw new NotSupportedException("Could not translate the foreign field.");
@@ -367,7 +369,7 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonDocument TranslateProjectValue(Expression selector)
         {
             BsonDocument projectValue;
-            var result = AggregateLanguageTranslator.Translate(selector);
+            var result = AggregateLanguageTranslator.Translate(selector, _translationOptions);
             if (result.BsonType == BsonType.String)
             {
                 // this means we got back a field expression prefixed with a $ sign.

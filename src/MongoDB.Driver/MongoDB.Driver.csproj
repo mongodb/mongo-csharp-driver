@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="AggregateLookupOptions.cs" />
+    <Compile Include="AggregateStringTranslationMode.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
     <Compile Include="CreateIndexModel.cs" />
@@ -255,6 +256,7 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\QueryableTranslator.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
+    <Compile Include="ExpressionTranslationOptions.cs" />
     <Compile Include="OfTypeSerializer.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />

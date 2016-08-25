@@ -32,6 +32,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 {
     public class AggregateProjectTranslatorTests : IntegrationTestBase
     {
+        private readonly static ExpressionTranslationOptions __codePointTranslationOptions = new ExpressionTranslationOptions
+        {
+            StringTranslationMode = AggregateStringTranslationMode.CodePoints
+        };
+
         [Fact]
         public void Should_translate_using_non_anonymous_type_with_default_constructor()
         {
@@ -1296,11 +1301,23 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
-        public void Should_translate_substring()
+        public void Should_translate_substr()
         {
             var result = Project(x => new { Result = x.B.Substring(3, 20) });
 
             result.Projection.Should().Be("{ Result: { \"$substr\": [\"$B\",3, 20] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("loon");
+        }
+
+        [SkippableFact]
+        public void Should_translate_substrCP()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = x.B.Substring(3, 20) }, __codePointTranslationOptions);
+
+            result.Projection.Should().Be("{ Result: { \"$substrCP\": [\"$B\",3, 20] }, _id: 0 }");
 
             result.Value.Result.Should().Be("loon");
         }
@@ -1489,8 +1506,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector)
         {
+            return Project(projector, null);
+        }
+
+        private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector, ExpressionTranslationOptions translationOptions)
+        {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry);
+            var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
 
             var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
             var result = __collection.Aggregate()

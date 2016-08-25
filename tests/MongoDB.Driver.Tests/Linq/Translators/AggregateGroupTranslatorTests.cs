@@ -369,8 +369,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)
         {
+            return Group(idProjector, groupProjector, null);
+        }
+
+        private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector, ExpressionTranslationOptions translationOptions)
+        {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = AggregateGroupTranslator.Translate<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry);
+            var projectionInfo = AggregateGroupTranslator.Translate<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
 
             var group = new BsonDocument("$group", projectionInfo.Document);
             var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
