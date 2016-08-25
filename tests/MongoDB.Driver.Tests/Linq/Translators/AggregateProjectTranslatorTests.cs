@@ -1165,11 +1165,23 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
-        public void Should_translate_string_length()
+        public void Should_translate_strLenBytes()
         {
             RequireServer.Where(minimumVersion: "3.3.4");
 
             var result = Project(x => new { Result = x.A.Length });
+
+            result.Projection.Should().Be("{ Result: { \"$strLenBytes\": \"$A\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(7);
+        }
+
+        [SkippableFact]
+        public void Should_translate_strLenCP()
+        {
+            RequireServer.Where(minimumVersion: "3.3.4");
+
+            var result = Project(x => new { Result = x.A.Length }, __codePointTranslationOptions);
 
             result.Projection.Should().Be("{ Result: { \"$strLenCP\": \"$A\" }, _id: 0 }");
 

@@ -814,7 +814,11 @@ namespace MongoDB.Driver.Linq.Translators
             switch (node.Member.Name)
             {
                 case "Length":
-                    result = new BsonDocument("$strLenCP", field);
+                    var name = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                        "$strLenCP" :
+                        "$strLenBytes";
+
+                    result = new BsonDocument(name, field);
                     return true;
             }
 
@@ -1123,11 +1127,9 @@ namespace MongoDB.Driver.Linq.Translators
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
-                        var name = "$substr";
-                        if (_stringTranslationMode == AggregateStringTranslationMode.CodePoints)
-                        {
-                            name = "$substrCP";
-                        }
+                        var name = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                            "$substrCP" :
+                            "$substr";
                         result = new BsonDocument(name, new BsonArray(new[]
                             {
                                 field,
