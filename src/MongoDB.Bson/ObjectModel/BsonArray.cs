@@ -31,7 +31,7 @@ namespace MongoDB.Bson
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue>
     {
         // private fields
-        private List<BsonValue> _values;
+        private readonly List<BsonValue> _values;
 
         // constructors
         /// <summary>

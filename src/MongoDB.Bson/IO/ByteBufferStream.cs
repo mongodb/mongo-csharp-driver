@@ -386,6 +386,17 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
+        public override Decimal128 ReadDecimal128()
+        {
+            ThrowIfDisposed();
+            ThrowIfEndOfStream(16);
+
+            var lowBits = (ulong)ReadInt64();
+            var highBits = (ulong)ReadInt64();
+            return Decimal128.FromIEEEBits(highBits, lowBits);
+        }
+
+        /// <inheritdoc/>
         public override double ReadDouble()
         {
             ThrowIfDisposed();
@@ -531,7 +542,7 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentNullException("value");
             }
             ThrowIfDisposed();
-            
+
             var maxLength = CStringUtf8Encoding.GetMaxByteCount(value.Length) + 1;
             PrepareToWrite(maxLength);
 
@@ -587,10 +598,18 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            ThrowIfDisposed();
+            WriteInt64((long)value.GetIEEELowBits());
+            WriteInt64((long)value.GetIEEEHighBits());
+        }
+
+        /// <inheritdoc/>
         public override void WriteDouble(double value)
         {
             ThrowIfDisposed();
-            
+
             PrepareToWrite(8);
 
             var bytes = BitConverter.GetBytes(value);
@@ -603,7 +622,7 @@ namespace MongoDB.Bson.IO
         public override void WriteInt32(int value)
         {
             ThrowIfDisposed();
-            
+
             PrepareToWrite(4);
 
             var segment = _buffer.AccessBackingBytes(_position);
@@ -630,7 +649,7 @@ namespace MongoDB.Bson.IO
         public override void WriteInt64(long value)
         {
             ThrowIfDisposed();
-            
+
             PrepareToWrite(8);
 
             var bytes = BitConverter.GetBytes(value);
@@ -643,7 +662,7 @@ namespace MongoDB.Bson.IO
         public override void WriteObjectId(ObjectId value)
         {
             ThrowIfDisposed();
-            
+
             PrepareToWrite(12);
 
             var segment = _buffer.AccessBackingBytes(_position);
@@ -664,7 +683,7 @@ namespace MongoDB.Bson.IO
         public override void WriteString(string value, UTF8Encoding encoding)
         {
             ThrowIfDisposed();
-            
+
             var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             PrepareToWrite(maxLength);
 

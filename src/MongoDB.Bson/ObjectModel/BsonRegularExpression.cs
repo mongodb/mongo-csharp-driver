@@ -27,8 +27,8 @@ namespace MongoDB.Bson
     public class BsonRegularExpression : BsonValue, IComparable<BsonRegularExpression>, IEquatable<BsonRegularExpression>
     {
         // private fields
-        private string _pattern;
-        private string _options;
+        private readonly string _pattern;
+        private readonly string _options;
 
         // constructors
         /// <summary>

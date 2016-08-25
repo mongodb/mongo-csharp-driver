@@ -96,6 +96,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         bsonReader.ReturnToBookmark(bookmark);
                         break;
                     case BsonType.DateTime: primitiveType = typeof(DateTime); break;
+                    case BsonType.Decimal128: primitiveType = typeof(Decimal128); break;
                     case BsonType.Double: primitiveType = typeof(double); break;
                     case BsonType.Int32: primitiveType = typeof(int); break;
                     case BsonType.Int64: primitiveType = typeof(long); break;

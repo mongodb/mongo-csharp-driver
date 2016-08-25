@@ -43,7 +43,7 @@ namespace MongoDB.Bson
         #endregion
 
         // private fields
-        private int _value;
+        private readonly int _value;
 
         // constructors
         /// <summary>
@@ -202,21 +202,31 @@ namespace MongoDB.Bson
         public override int CompareTo(BsonValue other)
         {
             if (other == null) { return 1; }
+
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
                 return _value.CompareTo(otherInt32._value);
             }
+
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
                 return ((long)_value).CompareTo(otherInt64.Value);
             }
+
             var otherDouble = other as BsonDouble;
             if (otherDouble != null)
             {
                 return ((double)_value).CompareTo(otherDouble.Value);
             }
+
+            var otherDecimal128 = other as BsonDecimal128;
+            if (otherDecimal128 != null)
+            {
+                return ((Decimal128)_value).CompareTo(otherDecimal128.Value);
+            }
+
             return CompareTypeTo(other);
         }
 
@@ -261,6 +271,18 @@ namespace MongoDB.Bson
         public override bool ToBoolean()
         {
             return _value != 0;
+        }
+
+        /// <inheritdoc/>
+        public override decimal ToDecimal()
+        {
+            return (decimal)_value;
+        }
+
+        /// <inheritdoc/>
+        public override Decimal128 ToDecimal128()
+        {
+            return (Decimal128)_value;
         }
 
         /// <summary>
@@ -421,6 +443,12 @@ namespace MongoDB.Bson
             if (rhsDouble != null)
             {
                 return (double)_value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
+            }
+
+            var rhsDecimal128 = rhs as BsonDecimal128;
+            if (rhsDecimal128 != null)
+            {
+                return _value == (int)rhsDecimal128.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             return this.Equals(rhs);

@@ -24,7 +24,7 @@ namespace MongoDB.Bson
     public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol>
     {
         // private fields
-        private string _name;
+        private readonly string _name;
 
         // constructors
         // internal because only BsonSymbolTable should call this constructor

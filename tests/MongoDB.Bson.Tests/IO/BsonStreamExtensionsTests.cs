@@ -235,7 +235,7 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [InlineData(0x0c)]
-        [InlineData(0x13)]
+        [InlineData(0x14)]
         [InlineData(0xfe)]
         public void ReadBsonType_should_throw_when_value_is_invalid(int n)
         {

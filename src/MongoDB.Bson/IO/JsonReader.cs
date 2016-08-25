@@ -321,6 +321,10 @@ namespace MongoDB.Bson.IO
                             CurrentBsonType = BsonType.MinKey;
                             _currentValue = BsonMinKey.Value;
                             break;
+                        case "NumberDecimal":
+                            CurrentBsonType = BsonType.Decimal128;
+                            _currentValue = ParseNumberDecimalConstructor();
+                            break;
                         case "Number":
                         case "NumberInt":
                             CurrentBsonType = BsonType.Int32;
@@ -430,6 +434,15 @@ namespace MongoDB.Bson.IO
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             State = GetNextState();
             return _currentValue.AsBsonDateTime.MillisecondsSinceEpoch;
+        }
+
+        /// <inheritdoc />
+        public override Decimal128 ReadDecimal128()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType(nameof(ReadDecimal128), BsonType.Decimal128);
+            State = GetNextState();
+            return _currentValue.AsDecimal128;
         }
 
         /// <summary>
@@ -1204,6 +1217,7 @@ namespace MongoDB.Bson.IO
                     case "$date": _currentValue = ParseDateTimeExtendedJson(); return BsonType.DateTime;
                     case "$maxkey": case "$maxKey": _currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
                     case "$minkey": case "$minKey": _currentValue = ParseMinKeyExtendedJson(); return BsonType.MinKey;
+                    case "$numberDecimal": _currentValue = ParseNumberDecimalExtendedJson(); return BsonType.Decimal128;
                     case "$numberLong": _currentValue = ParseNumberLongExtendedJson(); return BsonType.Int64;
                     case "$oid": _currentValue = ParseObjectIdExtendedJson(); return BsonType.ObjectId;
                     case "$regex": _currentValue = ParseRegularExpressionExtendedJson(); return BsonType.RegularExpression;
@@ -1410,6 +1424,9 @@ namespace MongoDB.Bson.IO
                 case "ISODate":
                     value = ParseISODateTimeConstructor();
                     return BsonType.DateTime;
+                case "NumberDecimal":
+                    value = ParseNumberDecimalConstructor();
+                    return BsonType.Decimal128;
                 case "NumberInt":
                     value = ParseNumberConstructor();
                     return BsonType.Int32;
@@ -1463,6 +1480,28 @@ namespace MongoDB.Bson.IO
             return (BsonInt32)value;
         }
 
+        private BsonValue ParseNumberDecimalConstructor()
+        {
+            VerifyToken("(");
+            var valueToken = PopToken();
+            Decimal128 value;
+            if (valueToken.Type == JsonTokenType.String)
+            {
+                value = Decimal128.Parse(valueToken.StringValue);
+            }
+            else if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
+            {
+                value = new Decimal128(valueToken.Int64Value);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer or a string but found '{0}'.", valueToken.Lexeme);
+                throw new FormatException(message);
+            }
+            VerifyToken(")");
+            return (BsonDecimal128)value;
+        }
+
         private BsonValue ParseNumberLongConstructor()
         {
             VerifyToken("(");
@@ -1483,6 +1522,30 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken(")");
             return (BsonInt64)value;
+        }
+
+        private BsonValue ParseNumberDecimalExtendedJson()
+        {
+            VerifyToken(":");
+
+            Decimal128 value;
+            var valueToken = PopToken();
+            if (valueToken.Type == JsonTokenType.String)
+            {
+                value = Decimal128.Parse(valueToken.StringValue);
+            }
+            else if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
+            {
+                value = new Decimal128(valueToken.Int64Value);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected a string or an integer but found '{0}'.", valueToken.Lexeme);
+                throw new FormatException(message);
+            }
+
+            VerifyToken("}");
+            return (BsonDecimal128)value;
         }
 
         private BsonValue ParseNumberLongExtendedJson()

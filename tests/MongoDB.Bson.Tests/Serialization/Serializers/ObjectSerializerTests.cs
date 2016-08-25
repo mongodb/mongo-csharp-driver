@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization
             {
                 Array = new object[]
                 {
+                    (Decimal128)1.5M,
                     1.5,
                     "abc",
                     new object(),
@@ -56,6 +57,7 @@ namespace MongoDB.Bson.Tests.Serialization
             expected = expected.Replace("#A",
                 string.Join(", ", new string[]
                     {
+                        "NumberDecimal('1.5')",
                         "1.5",
                         "'abc'",
                         "{ }",
@@ -92,6 +94,19 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new C { Obj = BsonConstants.UnixEpoch };
             var json = c.ToJson();
             var expected = "{ 'Obj' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestDecimal128()
+        {
+            var c = new C { Obj = (Decimal128)1.5M };
+            var json = c.ToJson();
+            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();

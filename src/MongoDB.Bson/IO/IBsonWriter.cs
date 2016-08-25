@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         BsonWriterSettings Settings { get; }
 
-            // methods
+        // methods
         /// <summary>
         /// Gets the current state of the writer.
         /// </summary>
@@ -85,6 +85,12 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         void WriteDateTime(long value);
+
+        /// <summary>
+        /// Writes a BSON Decimal128 to the writer.
+        /// </summary>
+        /// <param name="value">The <see cref="Decimal128"/> value.</param>
+        void WriteDecimal128(Decimal128 value);
 
         /// <summary>
         /// Writes a BSON Double to the writer.

@@ -130,7 +130,7 @@ namespace MongoDB.Bson.IO
                             break;
 
                         default:
-                        _textWriter.Write("new BinData({0}, \"{1}\")", (int)subType, Convert.ToBase64String(bytes));
+                            _textWriter.Write("new BinData({0}, \"{1}\")", (int)subType, Convert.ToBase64String(bytes));
                             break;
                     }
                     break;
@@ -198,6 +198,30 @@ namespace MongoDB.Bson.IO
                     {
                         _textWriter.Write("new Date({0})", value);
                     }
+                    break;
+            }
+
+            State = GetNextState();
+        }
+
+        /// <inheritdoc />
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            if (Disposed) { throw new ObjectDisposedException("JsonWriter"); }
+            if (State != BsonWriterState.Value && State != BsonWriterState.Initial)
+            {
+                ThrowInvalidState(nameof(WriteDecimal128), BsonWriterState.Value, BsonWriterState.Initial);
+            }
+
+            WriteNameHelper(Name);
+            switch (_jsonWriterSettings.OutputMode)
+            {
+                case JsonOutputMode.Shell:
+                    _textWriter.Write("NumberDecimal(\"{0}\")", value.ToString());
+                    break;
+
+                default:
+                    _textWriter.Write("{{ \"$numberDecimal\" : \"{0}\" }}", value.ToString());
                     break;
             }
 

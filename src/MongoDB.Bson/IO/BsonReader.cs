@@ -173,6 +173,9 @@ namespace MongoDB.Bson.IO
         /// <returns>The number of milliseconds since the Unix epoch.</returns>
         public abstract long ReadDateTime();
 
+        /// <inheritdoc />
+        public abstract Decimal128 ReadDecimal128();
+
         /// <summary>
         /// Reads a BSON Double from the reader.
         /// </summary>

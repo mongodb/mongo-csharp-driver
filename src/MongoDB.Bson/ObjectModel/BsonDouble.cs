@@ -15,12 +15,14 @@
 
 using System;
 using System.Globalization;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Represents a BSON double value.
     /// </summary>
+    /// <seealso cref="MongoDB.Bson.BsonValue" />
 #if NET45
     [Serializable]
 #endif
@@ -43,7 +45,7 @@ namespace MongoDB.Bson
         #endregion
 
         // private fields
-        private double _value;
+        private readonly double _value;
 
         // constructors
         /// <summary>
@@ -56,17 +58,13 @@ namespace MongoDB.Bson
         }
 
         // public properties
-        /// <summary>
-        /// Gets the BsonType of this BsonValue.
-        /// </summary>
+        /// <inheritdoc />
         public override BsonType BsonType
         {
             get { return BsonType.Double; }
         }
 
-        /// <summary>
-        /// Gets the BsonDouble as a double.
-        /// </summary>
+        /// <inheritdoc />
         [Obsolete("Use Value instead.")]
         public override object RawValue
         {
@@ -149,29 +147,35 @@ namespace MongoDB.Bson
             return _value.CompareTo(other._value);
         }
 
-        /// <summary>
-        /// Compares the BsonDouble to another BsonValue.
-        /// </summary>
-        /// <param name="other">The other BsonValue.</param>
-        /// <returns>A 32-bit signed integer that indicates whether this BsonDouble is less than, equal to, or greather than the other BsonValue.</returns>
+        /// <inheritdoc />
         public override int CompareTo(BsonValue other)
         {
             if (other == null) { return 1; }
+
             var otherDouble = other as BsonDouble;
             if (otherDouble != null)
             {
                 return _value.CompareTo(otherDouble._value);
             }
+
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
                 return _value.CompareTo((double)otherInt32.Value);
             }
+
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
                 return _value.CompareTo((double)otherInt64.Value);
             }
+
+            var otherDecimal128 = other as BsonDecimal128;
+            if (otherDecimal128 != null)
+            {
+                return ((Decimal128)_value).CompareTo(otherDecimal128.Value);
+            }
+
             return CompareTypeTo(other);
         }
 
@@ -186,20 +190,13 @@ namespace MongoDB.Bson
             return _value.Equals(rhs._value); // use Equals instead of == so NaN is handled correctly
         }
 
-        /// <summary>
-        /// Compares this BsonDouble to another object.
-        /// </summary>
-        /// <param name="obj">The other object.</param>
-        /// <returns>True if the other object is a BsonDouble and equal to this one.</returns>
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return Equals(obj as BsonDouble); // works even if obj is null or of a different type
         }
 
-        /// <summary>
-        /// Gets the hash code.
-        /// </summary>
-        /// <returns>The hash code.</returns>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             // see Effective Java by Joshua Bloch
@@ -209,49 +206,46 @@ namespace MongoDB.Bson
             return hash;
         }
 
-        /// <summary>
-        /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
-        /// </summary>
-        /// <returns>A Boolean.</returns>
+        /// <inheritdoc />
         public override bool ToBoolean()
         {
             return !(double.IsNaN(_value) || _value == 0.0);
         }
 
-        /// <summary>
-        /// Converts this BsonValue to a Double.
-        /// </summary>
-        /// <returns>A Double.</returns>
+        /// <inheritdoc />
+        public override decimal ToDecimal()
+        {
+            return (decimal)_value;
+        }
+
+        /// <inheritdoc />
+        public override Decimal128 ToDecimal128()
+        {
+            return (Decimal128)_value;
+        }
+
+        /// <inheritdoc />
         public override double ToDouble()
         {
             return _value;
         }
 
-        /// <summary>
-        /// Converts this BsonValue to an Int32.
-        /// </summary>
-        /// <returns>An Int32.</returns>
+        /// <inheritdoc />
         public override int ToInt32()
         {
             return (int)_value;
         }
 
-        /// <summary>
-        /// Converts this BsonValue to an Int64.
-        /// </summary>
-        /// <returns>An Int32.</returns>
+        /// <inheritdoc />
         public override long ToInt64()
         {
             return (long)_value;
         }
 
-        /// <summary>
-        /// Returns a string representation of the value.
-        /// </summary>
-        /// <returns>A string representation of the value.</returns>
+        /// <inheritdoc />
         public override string ToString()
         {
-            return _value.ToString("R", NumberFormatInfo.InvariantInfo);
+            return JsonConvert.ToString(_value);
         }
 
         // protected methods
@@ -347,11 +341,7 @@ namespace MongoDB.Bson
         }
 #pragma warning restore
 
-        /// <summary>
-        /// Compares this BsonDouble against another BsonValue.
-        /// </summary>
-        /// <param name="rhs">The other BsonValue.</param>
-        /// <returns>True if this BsonDouble and the other BsonValue are equal according to ==.</returns>
+        /// <inheritdoc/>
         protected override bool OperatorEqualsImplementation(BsonValue rhs)
         {
             var rhsDouble = rhs as BsonDouble;
@@ -370,6 +360,12 @@ namespace MongoDB.Bson
             if (rhsInt64 != null)
             {
                 return _value == (double)rhsInt64.Value;
+            }
+
+            var rhsDecimal128 = rhs as BsonDecimal128;
+            if (rhsDecimal128 != null)
+            {
+                return _value == (double)rhsDecimal128.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             return this.Equals(rhs);

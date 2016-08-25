@@ -29,7 +29,7 @@ namespace MongoDB.Bson
         private static BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
 
         // private fields
-        private ObjectId _value;
+        private readonly ObjectId _value;
 
         // constructors
         /// <summary>

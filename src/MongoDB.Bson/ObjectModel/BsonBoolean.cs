@@ -31,7 +31,7 @@ namespace MongoDB.Bson
         private static BsonBoolean __trueInstance = new BsonBoolean(true);
 
         // private fields
-        private bool _value;
+        private readonly bool _value;
 
         // constructors
         /// <summary>

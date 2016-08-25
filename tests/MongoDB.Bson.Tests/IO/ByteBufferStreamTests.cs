@@ -549,6 +549,51 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [ParameterAttributeData]
+        public void ReadDecimal18_should_return_expected_result(
+            [Values(1, 2)]
+            int numberOfChunks,
+            [Values("-1.0", "0.0", "1.0", "NaN", "-Infinity", "Infinity")]
+            string valueString)
+        {
+            var value = Decimal128.Parse(valueString);
+            var bytes = new byte[16];
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, bytes, 0, 8);
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, bytes, 8, 8);
+            var subject = CreateSubject(bytes, numberOfChunks);
+
+            var result = subject.ReadDecimal128();
+
+            result.Should().Be(value);
+            subject.Position.Should().Be(16);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ReadDecimal128_should_throw_when_at_end_of_stream(
+            [Values(1, 2)]
+            int numberOfChunks,
+            [Values(0, 1, 7)]
+            int length)
+        {
+            var subject = CreateSubject(length, numberOfChunks);
+
+            Action action = () => subject.ReadDecimal128();
+
+            action.ShouldThrow<EndOfStreamException>();
+        }
+
+        [Fact]
+        public void ReadDecimal128_should_throw_when_subject_is_disposed()
+        {
+            var subject = CreateDisposedSubject();
+
+            Action action = () => subject.ReadDecimal128();
+
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferStream");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ReadDouble_should_return_expected_result(
             [Values(1, 2)]
             int numberOfChunks,
@@ -1322,6 +1367,37 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.WriteCStringBytes(null);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteDecimal128_should_have_expected_effect(
+            [Values("-1.0", "0.0", "1.0", "NaN", "-Infinity", "Infinity")]
+            string valueString)
+        {
+            var value = Decimal128.Parse(valueString);
+            var subject = CreateSubject();
+            var mockBuffer = Mock.Get(subject.Buffer);
+            var expectedBytes = new byte[16];
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, expectedBytes, 0, 8);
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, expectedBytes, 8, 8);
+
+            subject.WriteDecimal128(value);
+
+            subject.Position.Should().Be(16);
+            subject.Length.Should().Be(16);
+            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes.Take(8))), 0, 8), Times.Once);
+            mockBuffer.Verify(b => b.SetBytes(8, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes.Skip(8))), 0, 8), Times.Once);
+        }
+
+        [Fact]
+        public void WriteDecimal128_should_throw_when_subject_is_disposed()
+        {
+            var subject = CreateDisposedSubject();
+
+            Action action = () => subject.WriteDecimal128(Decimal128.Zero);
+
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferStream");
         }
 
         [Theory]

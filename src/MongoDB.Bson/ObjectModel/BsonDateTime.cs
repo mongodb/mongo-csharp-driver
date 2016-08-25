@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime>
     {
         // private fields
-        private long _millisecondsSinceEpoch;
+        private readonly long _millisecondsSinceEpoch;
 
         // constructors
         /// <summary>

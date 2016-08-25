@@ -98,6 +98,10 @@ namespace MongoDB.Bson
         /// </summary>
         Int64 = 0x12,
         /// <summary>
+        /// A BSON 128-bit decimal.
+        /// </summary>
+        Decimal128 = 0x13,
+        /// <summary>
         /// A BSON MinKey value.
         /// </summary>
         MinKey = 0xff,

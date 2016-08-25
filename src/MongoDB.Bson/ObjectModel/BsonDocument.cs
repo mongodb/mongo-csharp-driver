@@ -39,7 +39,7 @@ namespace MongoDB.Bson
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
-        private List<BsonElement> _elements = new List<BsonElement>();
+        private readonly List<BsonElement> _elements = new List<BsonElement>();
         private Dictionary<string, int> _indexes = null; // maps names to indexes into elements list (not created until there are enough elements to justify it)
         private bool _allowDuplicateNames;
 

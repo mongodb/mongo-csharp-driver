@@ -120,6 +120,8 @@
     <Compile Include="Jira\CSharp783Tests.cs" />
     <Compile Include="Jira\CSharp803Tests.cs" />
     <Compile Include="ObjectModel\BsonBooleanTests.cs" />
+    <Compile Include="ObjectModel\BsonDecimal128Tests.cs" />
+    <Compile Include="ObjectModel\Decimal128Tests.cs" />
     <Compile Include="ObjectModel\BsonDoubleTests.cs" />
     <Compile Include="ObjectModel\BsonInt32Tests.cs" />
     <Compile Include="ObjectModel\BsonInt64Tests.cs" />
@@ -270,6 +272,7 @@
     <Compile Include="Serialization\IdGenerators\IdGeneratorsTests.cs" />
     <Compile Include="Serialization\Serializers\VersionSerializerTests.cs" />
     <Compile Include="PowerOf2Tests.cs" />
+    <Compile Include="Specifications\bson\TestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -303,6 +306,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-1.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-2.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-3.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-4.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-5.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-6.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-7.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

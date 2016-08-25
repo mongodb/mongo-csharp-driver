@@ -30,15 +30,15 @@ namespace MongoDB.Bson
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
     {
         // private static fields
-        private static ObjectId __emptyInstance = default(ObjectId);
-        private static int __staticMachine = (GetMachineHash() + GetAppDomainId()) & 0x00ffffff;
-        private static short __staticPid = GetPid();
+        private static readonly ObjectId __emptyInstance = default(ObjectId);
+        private static readonly int __staticMachine = (GetMachineHash() + GetAppDomainId()) & 0x00ffffff;
+        private static readonly short __staticPid = GetPid();
         private static int __staticIncrement = (new Random()).Next();
 
         // private fields
-        private int _a;
-        private int _b;
-        private int _c;
+        private readonly int _a;
+        private readonly int _b;
+        private readonly int _c;
 
         // constructors
         /// <summary>

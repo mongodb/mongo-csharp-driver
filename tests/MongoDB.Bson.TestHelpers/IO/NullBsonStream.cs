@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -80,6 +80,11 @@ namespace MongoDB.Bson.TestHelpers.IO
             throw new NotSupportedException();
         }
 
+        public override Decimal128 ReadDecimal128()
+        {
+            throw new NotSupportedException();
+        }
+
         public override double ReadDouble()
         {
             throw new NotSupportedException();
@@ -151,6 +156,11 @@ namespace MongoDB.Bson.TestHelpers.IO
         public override void WriteCStringBytes(byte[] value)
         {
             Position += value.Length + 1;
+        }
+
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            Position += 16;
         }
 
         public override void WriteDouble(double value)

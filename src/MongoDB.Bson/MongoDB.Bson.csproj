@@ -112,6 +112,8 @@
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
     <Compile Include="IO\Utf8Helper.cs" />
+    <Compile Include="ObjectModel\BsonDecimal128.cs" />
+    <Compile Include="ObjectModel\Decimal128.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="ObjectModel\MaterializedOnDemandBsonDocument.cs" />
     <Compile Include="ObjectModel\RawBsonArray.cs" />
     <Compile Include="ObjectModel\RawBsonDocument.cs" />
+    <Compile Include="ObjectModel\UInt128.cs" />
     <Compile Include="PowerOf2.cs" />
     <Compile Include="Serialization\AttributedSerializationProvider.cs" />
     <Compile Include="Serialization\Attributes\BsonConstructorAttribute.cs" />
@@ -217,8 +220,10 @@
     <Compile Include="Serialization\Serializers\BooleanSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonDecimal128Serializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerExtensions.cs" />
+    <Compile Include="Serialization\Serializers\Decimal128Serializer.cs" />
     <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializer.cs" />
     <Compile Include="Serialization\Serializers\ProjectingDeserializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerHelper.cs" />

@@ -60,5 +60,29 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             result.Value.Should().Be(value);
         }
+
+        [Theory]
+        [InlineData("-1")]
+        [InlineData("1")]
+        public void ToDecimal_should_return_expected_result(string stringValue)
+        {
+            var subject = new BsonString(stringValue);
+
+            var result = subject.ToDecimal();
+
+            result.Should().Be(decimal.Parse(stringValue));
+        }
+
+        [Theory]
+        [InlineData("-1")]
+        [InlineData("1")]
+        public void ToDecimal128_should_return_expected_result(string stringValue)
+        {
+            var subject = new BsonString(stringValue);
+
+            var result = subject.ToDecimal128();
+
+            result.Should().Be(Decimal128.Parse(stringValue));
+        }
     }
 }

@@ -501,6 +501,73 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(expected, json);
         }
 
+        // Decimal128 tests
+        [Fact]
+        public void TestOneDecimal128()
+        {
+            var document = new BsonDocument();
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                writer.WriteStartDocument();
+                writer.WriteDecimal128("a", (Decimal128)1.5M);
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'a' : NumberDecimal('1.5') }".Replace("'", "\""); ;
+            Assert.Equal(expected, json);
+        }
+
+        [Fact]
+        public void TestOneNestedDecimal128()
+        {
+            var document = new BsonDocument();
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartDocument("nested");
+                writer.WriteDecimal128("a", (Decimal128)1.5M);
+                writer.WriteEndDocument();
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : NumberDecimal('1.5') } }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+        }
+
+        [Fact]
+        public void TestTwoDecimal128s()
+        {
+            var document = new BsonDocument();
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                writer.WriteStartDocument();
+                writer.WriteDecimal128("a", (Decimal128)1.5M);
+                writer.WriteDecimal128("b", (Decimal128)2.5M);
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'a' : NumberDecimal('1.5'), 'b' : NumberDecimal('2.5') }".Replace("'", "\""); ;
+            Assert.Equal(expected, json);
+        }
+
+        [Fact]
+        public void TestTwoNestedDecimal128s()
+        {
+            var document = new BsonDocument();
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartDocument("nested");
+                writer.WriteDecimal128("a", (Decimal128)1.5M);
+                writer.WriteDecimal128("b", (Decimal128)2.5M);
+                writer.WriteEndDocument();
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : NumberDecimal('1.5'), 'b' : NumberDecimal('2.5') } }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+        }
+
         // Double tests
         [Fact]
         public void TestOneDouble()

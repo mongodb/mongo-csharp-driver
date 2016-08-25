@@ -767,6 +767,38 @@ namespace MongoDB.Bson.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void ReadDecimal128_should_return_expected_result(
+            [Values("-1.0", "0.0", "1.0", "NaN", "-Infinity", "Infinity")]
+            string valueString
+            )
+        {
+            var value = Decimal128.Parse(valueString);
+            var bytes = new byte[16];
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, bytes, 0, 8);
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, bytes, 8, 8);
+            var stream = new MemoryStream(bytes);
+            var subject = new BsonStreamAdapter(stream);
+
+            var result = subject.ReadDecimal128();
+
+            result.Should().Be(value);
+            subject.Position.Should().Be(16);
+        }
+
+        [Fact]
+        public void ReadDecimal128_should_throw_when_subject_is_disposed()
+        {
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            subject.Dispose();
+
+            Action action = () => subject.ReadDecimal128();
+
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ReadDouble_should_return_expected_result(
             [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
             double value
@@ -1357,8 +1389,38 @@ namespace MongoDB.Bson.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void WriteDecimal128_should_write_expected_bytes(
+            [Values("-1.0", "0.0", "1.0", "NaN", "-Infinity", "Infinity")]
+            string valueString)
+        {
+            var value = Decimal128.Parse(valueString);
+            var stream = new MemoryStream();
+            var subject = new BsonStreamAdapter(stream);
+            var expectedBytes = new byte[16];
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, expectedBytes, 0, 8);
+            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, expectedBytes, 8, 8);
+
+            subject.WriteDecimal128(value);
+
+            stream.ToArray().Should().Equal(expectedBytes);
+        }
+
+        [Fact]
+        public void WriteDecimal128_should_throw_when_subject_is_disposed()
+        {
+            var mockStream = new Mock<Stream>();
+            var subject = new BsonStreamAdapter(mockStream.Object);
+            subject.Dispose();
+
+            Action action = () => subject.WriteDecimal128(Decimal128.Zero);
+
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void WriteDouble_should_write_expected_bytes(
-            [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
+           [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
             double value)
         {
             var stream = new MemoryStream();

@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonTimestamp : BsonValue, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp>
     {
         // private fields
-        private long _value;
+        private readonly long _value;
 
         // constructors
         /// <summary>

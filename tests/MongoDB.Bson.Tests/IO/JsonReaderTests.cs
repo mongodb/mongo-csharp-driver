@@ -355,6 +355,36 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(expected, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
         }
 
+        [Theory]
+        [InlineData("NumberDecimal(1)", "1", "NumberDecimal(\"1\")")]
+        [InlineData("NumberDecimal(2147483648)", "2147483648", "NumberDecimal(\"2147483648\")")]
+        [InlineData("NumberDecimal(\"1.5\")", "1.5", "NumberDecimal(\"1.5\")")]
+        public void TestDecimal128Constructor(string json, string expectedValueString, string expectedJson)
+        {
+            using (_bsonReader = new JsonReader(json))
+            {
+                Assert.Equal(BsonType.Decimal128, _bsonReader.ReadBsonType());
+                Assert.Equal(Decimal128.Parse(expectedValueString), _bsonReader.ReadDecimal128());
+                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
+            }
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson());
+        }
+
+        [Theory]
+        [InlineData("{ $numberDecimal : 1 }", "1", "NumberDecimal(\"1\")")]
+        [InlineData("{ $numberDecimal : 2147483648 })", "2147483648", "NumberDecimal(\"2147483648\")")]
+        [InlineData("{ $numberDecimal : \"1.5\" }", "1.5", "NumberDecimal(\"1.5\")")]
+        public void TestDecimal128ExtendedJson(string json, string expectedValueString, string expectedJson)
+        {
+            using (_bsonReader = new JsonReader(json))
+            {
+                Assert.Equal(BsonType.Decimal128, _bsonReader.ReadBsonType());
+                Assert.Equal(Decimal128.Parse(expectedValueString), _bsonReader.ReadDecimal128());
+                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
+            }
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson());
+        }
+
         [Fact]
         public void TestDocumentEmpty()
         {

@@ -29,6 +29,8 @@ namespace MongoDB.Bson.Tests.Serialization
             public bool N;
             [BsonRepresentation(BsonType.Boolean)]
             public bool B;
+            [BsonRepresentation(BsonType.Decimal128)]
+            public bool D128;
             [BsonRepresentation(BsonType.Double)]
             public bool D;
             [BsonRepresentation(BsonType.Int32)]
@@ -44,10 +46,10 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
-                N = false, B = false, D = false, I = false, L = false, S = false
+                N = false, B = false, D128 = false, D = false, I = false, L = false, S = false
             };
             var json = obj.ToJson();
-            var expected = "{ 'N' : false, 'B' : false, 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : 'false' }".Replace("'", "\"");
+            var expected = "{ 'N' : false, 'B' : false, 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : 'false' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -60,10 +62,10 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
-                N = true, B = true, D = true, I = true, L = true, S = true
+                N = true, B = true, D128 = true, D = true, I = true, L = true, S = true
             };
             var json = obj.ToJson();
-            var expected = "{ 'N' : true, 'B' : true, 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : 'true' }".Replace("'", "\"");
+            var expected = "{ 'N' : true, 'B' : true, 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : 'true' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -795,6 +797,8 @@ namespace MongoDB.Bson.Tests.Serialization
     {
         public class TestClass
         {
+            [BsonRepresentation(BsonType.Decimal128)]
+            public int D128;
             [BsonRepresentation(BsonType.Double)]
             public int D;
             [BsonRepresentation(BsonType.Int32)]
@@ -810,13 +814,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = int.MinValue,
                 D = int.MinValue,
                 I = int.MinValue,
                 L = int.MinValue,
                 S = int.MinValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
+            var expected = "{ 'D128' : NumberDecimal('#'), 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
             expected = expected.Replace("#", int.MinValue.ToString());
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -831,13 +836,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = -1,
                 D = -1,
                 I = -1,
                 L = -1,
                 S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('-1'), 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -850,13 +856,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = 0,
                 D = 0,
                 I = 0,
                 L = 0,
                 S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -869,13 +876,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = 1,
                 D = 1,
                 I = 1,
                 L = 1,
                 S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -888,13 +896,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = int.MaxValue,
                 D = int.MaxValue,
                 I = int.MaxValue,
                 L = int.MaxValue,
                 S = int.MaxValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
+            var expected = "{ 'D128' : NumberDecimal('#'), 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
             expected = expected.Replace("#", int.MaxValue.ToString());
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -909,6 +918,8 @@ namespace MongoDB.Bson.Tests.Serialization
     {
         public class TestClass
         {
+            [BsonRepresentation(BsonType.Decimal128)]
+            public long D128;
             [BsonRepresentation(BsonType.Double)]
             public long D;
             [BsonRepresentation(BsonType.Int32)]
@@ -924,13 +935,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = long.MinValue,
                 D = 0,
                 I = 0,
                 L = long.MinValue,
                 S = long.MinValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
+            var expected = "{ 'D128' : NumberDecimal('#'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
             expected = expected.Replace("#", long.MinValue.ToString());
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -945,13 +957,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = -1,
                 D = -1,
                 I = -1,
                 L = -1,
                 S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('-1'), 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -964,13 +977,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = 0,
                 D = 0,
                 I = 0,
                 L = 0,
                 S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -983,13 +997,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = 1,
                 D = 1,
                 I = 1,
                 L = 1,
                 S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
+            var expected = "{ 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -1002,13 +1017,14 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
+                D128 = long.MaxValue,
                 D = 0,
                 I = 0,
                 L = long.MaxValue,
                 S = long.MaxValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
+            var expected = "{ 'D128' : NumberDecimal('#'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
             expected = expected.Replace("#", long.MaxValue.ToString());
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);

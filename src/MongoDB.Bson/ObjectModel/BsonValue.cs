@@ -33,6 +33,7 @@ namespace MongoDB.Bson
             { BsonType.MinKey, 1 },
             { BsonType.Undefined, 2 },
             { BsonType.Null, 3 },
+            { BsonType.Decimal128, 4 },
             { BsonType.Double, 4 },
             { BsonType.Int32, 4 },
             { BsonType.Int64, 4 },
@@ -190,6 +191,22 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts the BsonValue to a <see cref="decimal"/> (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public decimal AsDecimal
+        {
+            get { return (decimal)((BsonDecimal128)this).Value; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a <see cref="Decimal128"/> (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public Decimal128 AsDecimal128
+        {
+            get { return ((BsonDecimal128)this).Value; }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a Double (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public double AsDouble
@@ -245,6 +262,22 @@ namespace MongoDB.Bson
         public DateTime? AsNullableDateTime
         {
             get { return (BsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a Nullable{Decimal} (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public decimal? AsNullableDecimal
+        {
+            get { return (BsonType == BsonType.Null) ? null : (decimal?)AsDecimal128; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a Nullable{Decimal128} (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public Decimal128? AsNullableDecimal128
+        {
+            get { return (BsonType == BsonType.Null) ? null : (Decimal128?)AsDecimal128; }
         }
 
         /// <summary>
@@ -447,6 +480,14 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Tests whether this BsonValue is a Decimal128.
+        /// </summary>
+        public bool IsDecimal128
+        {
+            get { return BsonType == BsonType.Decimal128; }
+        }
+
+        /// <summary>
         /// Tests whether this BsonValue is a Double.
         /// </summary>
         public bool IsDouble
@@ -497,6 +538,7 @@ namespace MongoDB.Bson
             get
             {
                 return
+                    BsonType == BsonType.Decimal128 ||
                     BsonType == BsonType.Double ||
                     BsonType == BsonType.Int32 ||
                     BsonType == BsonType.Int64;
@@ -543,7 +585,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool.</returns>
-        public static explicit operator bool (BsonValue value)
+        public static explicit operator bool(BsonValue value)
         {
             if (value == null)
             {
@@ -557,7 +599,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool?.</returns>
-        public static explicit operator bool? (BsonValue value)
+        public static explicit operator bool?(BsonValue value)
         {
             return (value == null) ? null : value.AsNullableBoolean;
         }
@@ -610,6 +652,46 @@ namespace MongoDB.Bson
         public static implicit operator BsonValue(DateTime? value)
         {
             return value.HasValue ? (BsonValue)new BsonDateTime(value.Value) : BsonNull.Value;
+        }
+
+        /// <summary>
+        /// Converts a decimal to a BsonValue.
+        /// </summary>
+        /// <param name="value">A decimal.</param>
+        /// <returns>A BsonValue.</returns>
+        public static implicit operator BsonValue(decimal value)
+        {
+            return (BsonDecimal128)(Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a decimal? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A decimal?.</param>
+        /// <returns>A BsonValue.</returns>
+        public static implicit operator BsonValue(decimal? value)
+        {
+            return value.HasValue ? (BsonValue)(BsonDecimal128)(Decimal128)value.Value : BsonNull.Value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Decimal128"/> to a BsonValue.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A BsonValue.</returns>
+        public static implicit operator BsonValue(Decimal128 value)
+        {
+            return (BsonDecimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a nullable <see cref="Decimal128"/> to a BsonValue.
+        /// </summary>
+        /// <param name="value">A Decimal128?.</param>
+        /// <returns>A BsonValue.</returns>
+        public static implicit operator BsonValue(Decimal128? value)
+        {
+            return value.HasValue ? (BsonValue)(BsonDecimal128)value.Value : BsonNull.Value;
         }
 
         /// <summary>
@@ -747,7 +829,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A byte[].</returns>
-        public static explicit operator byte[] (BsonValue value)
+        public static explicit operator byte[](BsonValue value)
         {
             return (value == null) ? null : value.AsByteArray;
         }
@@ -775,7 +857,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A DateTime?.</returns>
-        public static explicit operator DateTime? (BsonValue value)
+        public static explicit operator DateTime?(BsonValue value)
         {
             if (value != null && !((value is BsonDateTime) || (value is BsonNull)))
             {
@@ -785,11 +867,59 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts a BsonValue to a decimal.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A decimal.</returns>
+        public static explicit operator decimal(BsonValue value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            return value.AsDecimal;
+        }
+
+        /// <summary>
+        /// Casts a BsonValue to a decimal?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A decimal?.</returns>
+        public static explicit operator decimal?(BsonValue value)
+        {
+            return (value == null) ? null : value.AsNullableDecimal;
+        }
+
+        /// <summary>
+        /// Casts a BsonValue to a <see cref="Decimal128"/>.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A <see cref="Decimal128"/>.</returns>
+        public static explicit operator Decimal128(BsonValue value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            return value.AsDecimal128;
+        }
+
+        /// <summary>
+        /// Casts a BsonValue to a nullable <see cref="Decimal128"/>?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A nullable <see cref="Decimal128"/>.</returns>
+        public static explicit operator Decimal128?(BsonValue value)
+        {
+            return (value == null) ? null : value.AsNullableDecimal128;
+        }
+
+        /// <summary>
         /// Casts a BsonValue to a double.
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double.</returns>
-        public static explicit operator double (BsonValue value)
+        public static explicit operator double(BsonValue value)
         {
             if (value == null)
             {
@@ -803,7 +933,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double?.</returns>
-        public static explicit operator double? (BsonValue value)
+        public static explicit operator double?(BsonValue value)
         {
             return (value == null) ? null : value.AsNullableDouble;
         }
@@ -827,7 +957,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A Guid?.</returns>
-        public static explicit operator Guid? (BsonValue value)
+        public static explicit operator Guid?(BsonValue value)
         {
             return (value == null) ? null : value.AsNullableGuid;
         }
@@ -837,7 +967,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int.</returns>
-        public static explicit operator int (BsonValue value)
+        public static explicit operator int(BsonValue value)
         {
             if (value == null)
             {
@@ -851,7 +981,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int?.</returns>
-        public static explicit operator int? (BsonValue value)
+        public static explicit operator int?(BsonValue value)
         {
             return value == null ? null : value.AsNullableInt32;
         }
@@ -861,7 +991,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long.</returns>
-        public static explicit operator long (BsonValue value)
+        public static explicit operator long(BsonValue value)
         {
             if (value == null)
             {
@@ -875,7 +1005,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long?.</returns>
-        public static explicit operator long? (BsonValue value)
+        public static explicit operator long?(BsonValue value)
         {
             return (value == null) ? null : value.AsNullableInt64;
         }
@@ -899,7 +1029,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An ObjectId?.</returns>
-        public static explicit operator ObjectId? (BsonValue value)
+        public static explicit operator ObjectId?(BsonValue value)
         {
             return (value == null) ? null : value.AsNullableObjectId;
         }
@@ -919,7 +1049,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A string.</returns>
-        public static explicit operator string (BsonValue value)
+        public static explicit operator string(BsonValue value)
         {
             return (value == null) ? null : value.AsString;
         }
@@ -1152,6 +1282,26 @@ namespace MongoDB.Bson
         {
             // some subclasses override as appropriate
             return true; // everything else is true        
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a Decimal.
+        /// </summary>
+        /// <returns>A Decimal.</returns>
+        public virtual decimal ToDecimal()
+        {
+            var message = string.Format("{0} does not support ToDecimal.", this.GetType().Name);
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a Decimal128.
+        /// </summary>
+        /// <returns>A Decimal128.</returns>
+        public virtual Decimal128 ToDecimal128()
+        {
+            var message = string.Format("{0} does not support ToDecimal128.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
@@ -1479,6 +1629,7 @@ namespace MongoDB.Bson
             {
                 case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
                 case BsonType.DateTime: return Convert.ChangeType(this.ToUniversalTime(), conversionType, provider);
+                case BsonType.Decimal128: return Convert.ChangeType(this.AsDecimal128, conversionType, provider);
                 case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
                 case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
                 case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);

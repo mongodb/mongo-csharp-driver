@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Serialization
                 { typeof(DateTime), typeof(DateTimeSerializer) },
                 { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
                 { typeof(Decimal), typeof(DecimalSerializer) },
+                { typeof(Decimal128), typeof(Decimal128Serializer) },
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
                 { typeof(Int16), typeof(Int16Serializer) },

@@ -35,6 +35,7 @@ namespace MongoDB.Bson.Serialization
                 { typeof(BsonBinaryData), BsonBinaryDataSerializer.Instance },
                 { typeof(BsonBoolean), BsonBooleanSerializer.Instance },
                 { typeof(BsonDateTime), BsonDateTimeSerializer.Instance },
+                { typeof(BsonDecimal128), BsonDecimal128Serializer.Instance },
                 { typeof(BsonDocument), BsonDocumentSerializer.Instance },
                 { typeof(BsonDocumentWrapper), BsonDocumentWrapperSerializer.Instance },
                 { typeof(BsonDouble), BsonDoubleSerializer.Instance },

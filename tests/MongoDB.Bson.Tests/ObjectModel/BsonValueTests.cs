@@ -294,6 +294,26 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
+        public void TestAsDecimal()
+        {
+            BsonValue v = (BsonDecimal128)1.5M;
+            BsonValue s = "";
+            var d = v.AsDecimal;
+            Assert.Equal(1.5M, d);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsDecimal; });
+        }
+
+        [Fact]
+        public void TestAsDecimal128()
+        {
+            BsonValue v = (BsonDecimal128)1.5M;
+            BsonValue s = "";
+            var d = v.AsDecimal128;
+            Assert.Equal((Decimal128)1.5M, d);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsDecimal; });
+        }
+
+        [Fact]
         public void TestAsDouble()
         {
             BsonValue v = 1.5;
@@ -359,6 +379,28 @@ namespace MongoDB.Bson.Tests
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDateTime; });
 #pragma warning restore
             Assert.Throws<NotSupportedException>(() => s.ToNullableUniversalTime());
+        }
+
+        [Fact]
+        public void TestAsNullableDecimal()
+        {
+            BsonValue v = (BsonDecimal128)1.5M;
+            BsonValue n = BsonNull.Value;
+            BsonValue s = "";
+            Assert.Equal(1.5M, v.AsNullableDecimal);
+            Assert.Equal(null, n.AsNullableDecimal);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDecimal; });
+        }
+
+        [Fact]
+        public void TestAsNullableDecimal128()
+        {
+            BsonValue v = (BsonDecimal128)1.5M;
+            BsonValue n = BsonNull.Value;
+            BsonValue s = "";
+            Assert.Equal((Decimal128)1.5M, v.AsNullableDecimal128);
+            Assert.Equal(null, n.AsNullableDecimal128);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDecimal128; });
         }
 
         [Fact]
@@ -611,6 +653,44 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
+        public void TestExplicitConversionToDecimal()
+        {
+            BsonValue v = 1.5M;
+            var r = (decimal)v;
+            Assert.Equal(1.5M, r);
+        }
+
+        [Fact]
+        public void TestExplicitConversionToDecimal128()
+        {
+            BsonValue v = 1.5M;
+            var r = (Decimal128)v;
+            Assert.Equal((Decimal128)1.5M, r);
+        }
+
+        [Theory]
+        [InlineData(1.0)]
+        [InlineData(null)]
+        public void TestExplicitConversionToNullableDecimal(double? nullableDoubleValue)
+        {
+            var nullableDecimalValue = nullableDoubleValue == null ? (decimal?)null : (decimal)nullableDoubleValue;
+            BsonValue v = nullableDecimalValue;
+            var r = (decimal?)v;
+            Assert.Equal(nullableDecimalValue, r);
+        }
+
+        [Theory]
+        [InlineData(1.0)]
+        [InlineData(null)]
+        public void TestExplicitConversionToNullableDecimal128(double? nullableDoubleValue)
+        {
+            var nullableDecimal128Value = nullableDoubleValue == null ? (Decimal128?)null : (Decimal128)(decimal)nullableDoubleValue;
+            BsonValue v = nullableDecimal128Value;
+            var r = (Decimal128?)v;
+            Assert.Equal(nullableDecimal128Value, r);
+        }
+
+        [Fact]
         public void TestImplicitConversionFromBoolean()
         {
             BsonValue v = true;
@@ -641,6 +721,24 @@ namespace MongoDB.Bson.Tests
             Assert.IsType<BsonDateTime>(v);
             var dt = (BsonDateTime)v;
             Assert.Equal(utcNowTruncated, dt.ToUniversalTime());
+        }
+
+        [Fact]
+        public void TestImplicitConversionFromDecimal()
+        {
+            BsonValue v = 1.5M;
+            Assert.IsType<BsonDecimal128>(v);
+            var d = (BsonDecimal128)v;
+            Assert.Equal((Decimal128)1.5M, d.Value);
+        }
+
+        [Fact]
+        public void TestImplicitConversionFromDecimal128()
+        {
+            BsonValue v = (Decimal128)1.5M;
+            Assert.IsType<BsonDecimal128>(v);
+            var d = (BsonDecimal128)v;
+            Assert.Equal((Decimal128)1.5M, d.Value);
         }
 
         [Fact]
@@ -730,6 +828,28 @@ namespace MongoDB.Bson.Tests
             Assert.IsType<BsonNull>(n);
             var dt = (BsonDateTime)v;
             Assert.Equal(utcNowTruncated, dt.ToUniversalTime());
+        }
+
+        [Fact]
+        public void TestImplicitConversionFromNullableDecimal()
+        {
+            BsonValue v = (decimal?)1.5M;
+            BsonValue n = (decimal?)null;
+            Assert.IsType<BsonDecimal128>(v);
+            Assert.IsType<BsonNull>(n);
+            var d = (BsonDecimal128)v;
+            Assert.Equal((Decimal128)1.5M, d.Value);
+        }
+
+        [Fact]
+        public void TestImplicitConversionFromNullableDecimal128()
+        {
+            BsonValue v = (Decimal128?)1.5M;
+            BsonValue n = (Decimal128?)null;
+            Assert.IsType<BsonDecimal128>(v);
+            Assert.IsType<BsonNull>(n);
+            var d = (BsonDecimal128)v;
+            Assert.Equal((Decimal128)1.5M, d.Value);
         }
 
         [Fact]
@@ -881,6 +1001,30 @@ namespace MongoDB.Bson.Tests
             Assert.Null(n);
             var s = (BsonString)v;
             Assert.Equal("xyz", s.Value);
+        }
+
+        [Fact]
+        public void TestIsDecimal128()
+        {
+            BsonValue v = new BsonDecimal128(1.0M);
+            BsonValue s = new BsonString("");
+            Assert.True(v.IsDecimal128);
+            Assert.False(s.IsDecimal128);
+        }
+
+        [Fact]
+        public void TestIsNumeric()
+        {
+            BsonValue d128 = new BsonDecimal128(1.0M);
+            BsonValue d = new BsonDouble(1.0);
+            BsonValue i32 = new BsonInt32(1);
+            BsonValue i64 = new BsonInt64(1L);
+            BsonValue s = new BsonString("");
+            Assert.True(d128.IsNumeric);
+            Assert.True(d.IsNumeric);
+            Assert.True(i32.IsNumeric);
+            Assert.True(i64.IsNumeric);
+            Assert.False(s.IsDecimal128);
         }
 
         // nested types

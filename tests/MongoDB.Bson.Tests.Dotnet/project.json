@@ -11,6 +11,9 @@
   "buildOptions": {
     "compile": {
       "include": [ "../MongoDB.Bson.Tests/**/*.cs" ]
+    },
+    "embed": {
+      "include": [ "./Specifications/**/*.json" ]
     }
   },
   "frameworks": {

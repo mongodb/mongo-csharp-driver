@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (representation)
             {
                 case BsonType.Boolean:
+                case BsonType.Decimal128:
                 case BsonType.Double:
                 case BsonType.Int32:
                 case BsonType.Int64:
@@ -90,6 +91,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Boolean:
                     return bsonReader.ReadBoolean();
 
+                case BsonType.Decimal128:
+                    return bsonReader.ReadDecimal128() != Decimal128.Zero;
+
                 case BsonType.Double:
                     return bsonReader.ReadDouble() != 0.0;
 
@@ -125,6 +129,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(value);
+                    break;
+
+                case BsonType.Decimal128:
+                    bsonWriter.WriteDecimal128(value ? Decimal128.One : Decimal128.Zero);
                     break;
 
                 case BsonType.Double:

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.IO
         /// Reads BSON binary data from the reader.
         /// </summary>
         /// <returns>A BsonBinaryData.</returns>
-         BsonBinaryData ReadBinaryData();
+        BsonBinaryData ReadBinaryData();
 
         /// <summary>
         /// Reads a BSON boolean from the reader.
@@ -88,6 +88,12 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <returns>The number of milliseconds since the Unix epoch.</returns>
         long ReadDateTime();
+
+        /// <summary>
+        /// Reads a BSON Decimal128 from the reader.
+        /// </summary>
+        /// <returns>A <see cref="Decimal128" />.</returns>
+        Decimal128 ReadDecimal128();
 
         /// <summary>
         /// Reads a BSON Double from the reader.

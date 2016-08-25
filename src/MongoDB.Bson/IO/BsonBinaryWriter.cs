@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ namespace MongoDB.Bson.IO
         /// </value>
         public BsonStream BsonStream
         {
-            get { return _bsonStream;  }
+            get { return _bsonStream; }
         }
 
         // public methods
@@ -264,6 +264,22 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteBsonType(BsonType.DateTime);
             WriteNameHelper();
             _bsonStream.WriteInt64(value);
+
+            State = GetNextState();
+        }
+
+        /// <inheritdoc />
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Value)
+            {
+                ThrowInvalidState(nameof(WriteDecimal128), BsonWriterState.Value);
+            }
+
+            _bsonStream.WriteBsonType(BsonType.Decimal128);
+            WriteNameHelper();
+            _bsonStream.WriteDecimal128(value);
 
             State = GetNextState();
         }

@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonJavaScript : BsonValue, IComparable<BsonJavaScript>, IEquatable<BsonJavaScript>
     {
         // private fields
-        private string _code;
+        private readonly string _code;
 
         // constructors
         /// <summary>

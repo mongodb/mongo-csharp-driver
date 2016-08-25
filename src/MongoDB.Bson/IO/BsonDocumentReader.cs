@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -191,6 +191,15 @@ namespace MongoDB.Bson.IO
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             State = GetNextState();
             return _currentValue.AsBsonDateTime.MillisecondsSinceEpoch;
+        }
+
+        /// <inheritdoc />
+        public override Decimal128 ReadDecimal128()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType(nameof(ReadDecimal128), BsonType.Decimal128);
+            State = GetNextState();
+            return _currentValue.AsDecimal128;
         }
 
         /// <summary>

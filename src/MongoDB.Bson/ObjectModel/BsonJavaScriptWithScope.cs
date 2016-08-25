@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonJavaScriptWithScope : BsonJavaScript, IComparable<BsonJavaScriptWithScope>, IEquatable<BsonJavaScriptWithScope>
     {
         // private fields
-        private BsonDocument _scope;
+        private readonly BsonDocument _scope;
 
         // constructors
         /// <summary>

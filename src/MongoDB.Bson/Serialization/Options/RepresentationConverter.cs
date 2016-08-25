@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,6 +58,44 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public methods
         /// <summary>
+        /// Converts a Decimal128 to a Decimal.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A Decimal.</returns>
+        public decimal ToDecimal(Decimal128 value)
+        {
+            if (value == Decimal128.MaxValue)
+            {
+                return decimal.MaxValue;
+            }
+            else if (value == Decimal128.MinValue)
+            {
+                return decimal.MinValue;
+            }
+            else if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
+            decimal decimalValue;
+            if (_allowOverflow)
+            {
+                try { decimalValue = (decimal)value; } catch (OverflowException) { decimalValue = Decimal128.IsNegative(value) ? decimal.MinValue : decimal.MaxValue; }
+            }
+            else
+            {
+                decimalValue = (decimal)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)decimalValue)
+            {
+                throw new TruncationException();
+            }
+
+            return decimalValue;
+        }
+
+        /// <summary>
         /// Converts a Double to a Decimal.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -106,6 +144,93 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a decimal to a Decimal128.
+        /// </summary>
+        /// <param name="value">A decimal.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(decimal value)
+        {
+            if (value == decimal.MaxValue)
+            {
+                return Decimal128.MaxValue;
+            }
+            else if (value == decimal.MinValue)
+            {
+                return Decimal128.MinValue;
+            }
+
+            // conversion from decimal to Decimal128 is lossless so need to check for overflow or truncation
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a Double to a Decimal128.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(double value)
+        {
+            if (value == double.MaxValue)
+            {
+                return Decimal128.MaxValue;
+            }
+            else if (value == double.MinValue)
+            {
+                return Decimal128.MinValue;
+            }
+            else if (double.IsPositiveInfinity(value))
+            {
+                return Decimal128.PositiveInfinity;
+            }
+            else if (double.IsNegativeInfinity(value))
+            {
+                return Decimal128.NegativeInfinity;
+            }
+            else if (double.IsNaN(value))
+            {
+                return Decimal128.QNaN;
+            }
+
+            var decimal128Value = (Decimal128)value;
+            if (!_allowTruncation && value != (double)decimal128Value)
+            {
+                throw new TruncationException();
+            }
+            return decimal128Value;
+        }
+
+        /// <summary>
+        /// Converts an Int32 to a Decimal128.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(int value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts an Int64 to a Decimal128.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(long value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a UInt64 to a Decimal128.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>A Decimal128.</returns>
+        [CLSCompliant(false)]
+        public Decimal128 ToDecimal128(ulong value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
         /// Converts a Decimal to a Double.
         /// </summary>
         /// <param name="value">A Decimal.</param>
@@ -126,6 +251,52 @@ namespace MongoDB.Bson.Serialization.Options
             {
                 if (!_allowTruncation) { throw new TruncationException(); }
             }
+            return doubleValue;
+        }
+
+        /// <summary>
+        /// Converts a Decimal128 to a Double.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(Decimal128 value)
+        {
+            if (value == Decimal128.MaxValue)
+            {
+                return double.MaxValue;
+            }
+            else if (value == Decimal128.MinValue)
+            {
+                return double.MinValue;
+            }
+            else if (Decimal128.IsPositiveInfinity(value))
+            {
+                return double.PositiveInfinity;
+            }
+            else if (Decimal128.IsNegativeInfinity(value))
+            {
+                return double.NegativeInfinity;
+            }
+            else if (Decimal128.IsNaN(value))
+            {
+                return double.NaN;
+            }
+
+            double doubleValue;
+            if (_allowOverflow)
+            {
+                try { doubleValue = (double)value; } catch (OverflowException) { doubleValue = Decimal128.IsNegative(value) ? double.MinValue : double.MaxValue; }
+            }
+            else
+            {
+                doubleValue = (double)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)doubleValue)
+            {
+                throw new TruncationException();
+            }
+
             return doubleValue;
         }
 
@@ -243,6 +414,31 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a Decimal128 to an Int16.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>An Int16.</returns>
+        public short ToInt16(Decimal128 value)
+        {
+            short shortValue;
+            if (_allowOverflow)
+            {
+                try { shortValue = (short)value; } catch (OverflowException) { shortValue = Decimal128.IsNegative(value) ? short.MinValue : short.MaxValue; }
+            }
+            else
+            {
+                shortValue = (short)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)shortValue)
+            {
+                throw new TruncationException();
+            }
+
+            return shortValue;
+        }
+
+        /// <summary>
         /// Converts a Double to an Int16.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -315,6 +511,29 @@ namespace MongoDB.Bson.Serialization.Options
                 if (!_allowTruncation) { throw new TruncationException(); }
             }
             return int32Value;
+        }
+
+        /// <summary>
+        /// Converts a Decimal128 to an Int32.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>An Int32.</returns>
+        public int ToInt32(Decimal128 value)
+        {
+            int intValue;
+            if (_allowOverflow)
+            {
+                try { intValue = (int)value; } catch (OverflowException) { intValue = Decimal128.IsNegative(value) ? int.MinValue : int.MaxValue; }
+            }
+            else
+            {
+                intValue = (int)value;
+            }
+            if (!_allowTruncation && value != (Decimal128)intValue)
+            {
+                throw new TruncationException();
+            }
+            return intValue;
         }
 
         /// <summary>
@@ -459,6 +678,29 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a Decimal128 to an Int64.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>An Int64.</returns>
+        public long ToInt64(Decimal128 value)
+        {
+            long longValue;
+            if (_allowOverflow)
+            {
+                try { longValue = (long)value; } catch (OverflowException) { longValue = Decimal128.IsNegative(value) ? long.MinValue : long.MaxValue; }
+            }
+            else
+            {
+                longValue = (long)value;
+            }
+            if (!_allowTruncation && value != (Decimal128)longValue)
+            {
+                throw new TruncationException();
+            }
+            return longValue;
+        }
+
+        /// <summary>
         /// Converts a Double to an Int64.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -564,6 +806,52 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a Decimal128 to a Single.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A Single.</returns>
+        public float ToSingle(Decimal128 value)
+        {
+            if (value == Decimal128.MaxValue)
+            {
+                return float.MaxValue;
+            }
+            else if (value == Decimal128.MinValue)
+            {
+                return float.MinValue;
+            }
+            else if (Decimal128.IsPositiveInfinity(value))
+            {
+                return float.PositiveInfinity;
+            }
+            else if (Decimal128.IsNegativeInfinity(value))
+            {
+                return float.NegativeInfinity;
+            }
+            else if (Decimal128.IsNaN(value))
+            {
+                return float.NaN;
+            }
+
+            float floatValue;
+            if (_allowOverflow)
+            {
+                try { floatValue = (float)value; } catch (OverflowException) { floatValue = Decimal128.IsNegative(value) ? float.MinValue : float.MaxValue; }
+            }
+            else
+            {
+                floatValue = (float)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)floatValue)
+            {
+                throw new TruncationException();
+            }
+
+            return floatValue;
+        }
+
+        /// <summary>
         /// Converts a Double to a Single.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -634,6 +922,32 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a Decimal128 to a UInt16.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A UInt16.</returns>
+        [CLSCompliant(false)]
+        public ushort ToUInt16(Decimal128 value)
+        {
+            ushort ushortValue;
+            if (_allowOverflow)
+            {
+                try { ushortValue = (ushort)value; } catch (OverflowException) { ushortValue = Decimal128.IsNegative(value) ? ushort.MinValue : ushort.MaxValue; }
+            }
+            else
+            {
+                ushortValue = (ushort)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)ushortValue)
+            {
+                throw new TruncationException();
+            }
+
+            return ushortValue;
+        }
+
+        /// <summary>
         /// Converts a Double to a UInt16.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -684,6 +998,32 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
+        /// Converts a Decimal128 to a UInt32.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A UInt32.</returns>
+        [CLSCompliant(false)]
+        public uint ToUInt32(Decimal128 value)
+        {
+            uint uintValue;
+            if (_allowOverflow)
+            {
+                try { uintValue = (uint)value; } catch (OverflowException) { uintValue = Decimal128.IsNegative(value) ? uint.MinValue : uint.MaxValue; }
+            }
+            else
+            {
+                uintValue = (uint)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)uintValue)
+            {
+                throw new TruncationException();
+            }
+
+            return uintValue;
+        }
+
+        /// <summary>
         /// Converts a Double to a UInt32.
         /// </summary>
         /// <param name="value">A Double.</param>
@@ -731,6 +1071,32 @@ namespace MongoDB.Bson.Serialization.Options
                 if (!_allowOverflow) { throw new OverflowException(); }
             }
             return (uint)value;
+        }
+
+        /// <summary>
+        /// Converts a Decimal128 to a UInt64.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A UInt64.</returns>
+        [CLSCompliant(false)]
+        public ulong ToUInt64(Decimal128 value)
+        {
+            ulong ulongValue;
+            if (_allowOverflow)
+            {
+                try { ulongValue = (ulong)value; } catch (OverflowException) { ulongValue = Decimal128.IsNegative(value) ? ulong.MinValue : ulong.MaxValue; }
+            }
+            else
+            {
+                ulongValue = (ulong)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)ulongValue)
+            {
+                throw new TruncationException();
+            }
+
+            return ulongValue;
         }
 
         /// <summary>

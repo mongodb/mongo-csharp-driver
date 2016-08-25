@@ -27,9 +27,9 @@ namespace MongoDB.Bson
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData>
     {
         // private fields
-        private byte[] _bytes;
-        private BsonBinarySubType _subType;
-        private GuidRepresentation _guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
+        private readonly byte[] _bytes;
+        private readonly BsonBinarySubType _subType;
+        private readonly GuidRepresentation _guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
 
         // constructors
         /// <summary>

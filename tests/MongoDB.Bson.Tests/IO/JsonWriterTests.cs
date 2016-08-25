@@ -117,6 +117,62 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
+        public void TestDecimal128Shell()
+        {
+            var tests = new TestData<Decimal128>[]
+            {
+                new TestData<Decimal128>(Decimal128.Parse("0"), "NumberDecimal(\"0\")"),
+                new TestData<Decimal128>(Decimal128.Parse("0.0"), "NumberDecimal(\"0.0\")"),
+                new TestData<Decimal128>(Decimal128.Parse("0.0005"), "NumberDecimal(\"0.0005\")"),
+                new TestData<Decimal128>(Decimal128.Parse("0.5"), "NumberDecimal(\"0.5\")"),
+                new TestData<Decimal128>(Decimal128.Parse("1.0"), "NumberDecimal(\"1.0\")"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5"), "NumberDecimal(\"1.5\")"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5E+40"), "NumberDecimal(\"1.5E+40\")"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5E-40"), "NumberDecimal(\"1.5E-40\")"),
+                new TestData<Decimal128>(Decimal128.Parse("1234567890.1234568E+123"), "NumberDecimal(\"1.2345678901234568E+132\")"),
+
+
+                new TestData<Decimal128>(Decimal128.Parse("NaN"), "NumberDecimal(\"NaN\")"),
+                new TestData<Decimal128>(Decimal128.Parse("-Infinity"), "NumberDecimal(\"-Infinity\")"),
+                new TestData<Decimal128>(Decimal128.Parse("Infinity"), "NumberDecimal(\"Infinity\")")
+            };
+            foreach (var test in tests)
+            {
+                var json = new BsonDecimal128(test.Value).ToJson();
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<Decimal128>(json));
+            }
+        }
+
+        [Fact]
+        public void TestDecimal128Strict()
+        {
+            var tests = new TestData<Decimal128>[]
+            {
+                new TestData<Decimal128>(Decimal128.Parse("0"), "{ \"$numberDecimal\" : \"0\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("0.0"), "{ \"$numberDecimal\" : \"0.0\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("0.0005"), "{ \"$numberDecimal\" : \"0.0005\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("0.5"), "{ \"$numberDecimal\" : \"0.5\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("1.0"), "{ \"$numberDecimal\" : \"1.0\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5"), "{ \"$numberDecimal\" : \"1.5\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5E+40"), "{ \"$numberDecimal\" : \"1.5E+40\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("1.5E-40"), "{ \"$numberDecimal\" : \"1.5E-40\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("1234567890.1234568E+123"), "{ \"$numberDecimal\" : \"1.2345678901234568E+132\" }"),
+
+
+                new TestData<Decimal128>(Decimal128.Parse("NaN"), "{ \"$numberDecimal\" : \"NaN\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("-Infinity"), "{ \"$numberDecimal\" : \"-Infinity\" }"),
+                new TestData<Decimal128>(Decimal128.Parse("Infinity"), "{ \"$numberDecimal\" : \"Infinity\" }")
+            };
+            foreach (var test in tests)
+            {
+                var json = new BsonDecimal128(test.Value).ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
+                Assert.Equal(test.Expected, json);
+                Assert.Equal(test.Value, BsonSerializer.Deserialize<Decimal128>(json));
+            }
+        }
+
+        [Fact]
         public void TestDouble()
         {
             var tests = new TestData<double>[]

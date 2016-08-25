@@ -30,7 +30,7 @@ namespace MongoDB.Bson
         private static BsonString __emptyInstance = new BsonString("");
 
         // private fields
-        private string _value;
+        private readonly string _value;
 
         // constructors
         /// <summary>
@@ -209,6 +209,18 @@ namespace MongoDB.Bson
         public override bool ToBoolean()
         {
             return _value != "";
+        }
+
+        /// <inheritdoc/>
+        public override decimal ToDecimal()
+        {
+            return JsonConvert.ToDecimal(_value);
+        }
+
+        /// <inheritdoc/>
+        public override Decimal128 ToDecimal128()
+        {
+            return JsonConvert.ToDecimal128(_value);
         }
 
         /// <summary>
