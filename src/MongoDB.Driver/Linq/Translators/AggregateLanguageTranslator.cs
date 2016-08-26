@@ -977,56 +977,47 @@ namespace MongoDB.Driver.Linq.Translators
                     }
                     break;
                 case "Split":
-                    BsonValue separator = null;
-                    var separatorConstant = node.Arguments[0] as ConstantExpression;
-                    if (separatorConstant != null && separatorConstant.Type == typeof(char[]))
+                    if (node.Arguments.Count < 1)
                     {
-                        var chars = (char[])separatorConstant.Value;
-                        if (chars.Length == 1)
+                        return false;
+                    }
+                    if (node.Arguments[0].Type != typeof(char[]) && node.Arguments[0].Type != typeof(string[]))
+                    {
+                        return false;
+                    }
+                    var separatorArray = TranslateValue(node.Arguments[0]) as BsonArray;
+                    if (separatorArray == null || separatorArray.Count != 1)
+                    {
+                        return false;
+                    }
+                    var separator = separatorArray[0];
+                    if (separator.BsonType == BsonType.Int32)
+                    {
+                        separator = new BsonString(new string((char)separator.AsInt32, 1));
+                    }
+                    if (node.Arguments.Count == 2)
+                    {
+                        var constantExpression = node.Arguments[1] as ConstantExpression;
+                        if (constantExpression == null || constantExpression.Type != typeof(StringSplitOptions))
                         {
-                            separator = new BsonString(new string(chars));
+                            return false;
+                        }
+                        var options = (StringSplitOptions)constantExpression.Value;
+                        if (options != StringSplitOptions.None)
+                        {
+                            return false;
                         }
                     }
-                    else
+                    if (node.Arguments.Count > 2)
                     {
-                        separator = TranslateValue(node.Arguments[0]);
-                        var array = separator as BsonArray;
-                        if (array != null && array.Count == 1)
-                        {
-                            separator = array[0];
-                        }
-                        else if (array != null)
-                        {
-                            separator = null;
-                        }
+                        return false;
                     }
-
-                    if (separator != null)
+                    result = new BsonDocument("$split", new BsonArray
                     {
-                        if (node.Arguments.Count == 1)
-                        {
-                            result = new BsonDocument("$split", new BsonArray
-                            {
-                                field,
-                                separator
-                            });
-                            return true;
-                        }
-                        else if (node.Arguments.Count == 2 && node.Arguments[1].Type == typeof(StringSplitOptions))
-                        {
-                            var splitOptions = node.Arguments[1] as ConstantExpression;
-                            if (splitOptions != null && ((StringSplitOptions)splitOptions.Value) == StringSplitOptions.None)
-                            {
-                                result = new BsonDocument("$split", new BsonArray
-                                {
-                                    field,
-                                    separator
-                                });
-                                return true;
-                            }
-                        }
-                    }
-                    break;
+                        field,
+                        separator
+                    });
+                    return true;
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
