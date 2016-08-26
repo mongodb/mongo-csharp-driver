@@ -58,32 +58,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
         }
-
-        // protected methods
-        /// <summary>
-        /// Reconfigures the specified serializer by applying this attribute to it.
-        /// </summary>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns>A reconfigured serializer.</returns>
-        /// <exception cref="System.NotSupportedException"></exception>
-        protected virtual IBsonSerializer ApplyChild(IBsonSerializer serializer)
-        {
-            // if none of the overrides applied the attribute to the serializer see if it can be applied to a child serializer
-            var childSerializerConfigurable = serializer as IChildSerializerConfigurable;
-            if (childSerializerConfigurable != null)
-            {
-                var childSerializer = childSerializerConfigurable.ChildSerializer;
-                var reconfiguredChildSerializer = Apply(childSerializer);
-                return childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
-            }
-
-            var message = string.Format(
-                "A serializer of type '{0}' is not configurable using an attribute of type '{1}'.",
-                BsonUtils.GetFriendlyTypeName(serializer.GetType()),
-                BsonUtils.GetFriendlyTypeName(this.GetType()));
-            throw new NotSupportedException(message);
-        }
-
+        
         private IBsonSerializer Apply(IBsonSerializer serializer)
         {
             var representationConfigurable = serializer as IRepresentationConfigurable;
@@ -112,7 +87,20 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            return ApplyChild(serializer);
+            // if none of the overrides applied the attribute to the serializer see if it can be applied to a child serializer
+            var childSerializerConfigurable = serializer as IChildSerializerConfigurable;
+            if (childSerializerConfigurable != null)
+            {
+                var childSerializer = childSerializerConfigurable.ChildSerializer;
+                var reconfiguredChildSerializer = Apply(childSerializer);
+                return childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
+            }
+
+            var message = string.Format(
+                "A serializer of type '{0}' is not configurable using an attribute of type '{1}'.",
+                BsonUtils.GetFriendlyTypeName(serializer.GetType()),
+                BsonUtils.GetFriendlyTypeName(this.GetType()));
+            throw new NotSupportedException(message);
         }
 
         private bool IsEnumType(Type t)
