@@ -977,7 +977,7 @@ namespace MongoDB.Driver.Linq.Translators
                     }
                     break;
                 case "Split":
-                    if (node.Arguments.Count < 1)
+                    if (node.Arguments.Count < 1 || node.Arguments.Count > 2)
                     {
                         return false;
                     }
@@ -1007,10 +1007,6 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             return false;
                         }
-                    }
-                    if (node.Arguments.Count > 2)
-                    {
-                        return false;
                     }
                     result = new BsonDocument("$split", new BsonArray
                     {
