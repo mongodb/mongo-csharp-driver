@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return node;
         }
 
-        internal Expression VisitInjectedFilter(InjectedFilterExpression node)
+        protected internal virtual Expression VisitInjectedFilter(InjectedFilterExpression node)
         {
             return node;
         }
@@ -195,6 +195,11 @@ namespace MongoDB.Driver.Linq.Expressions
                 Visit(node.Source),
                 Visit(node.CollectionSelector),
                 Visit(node.ResultSelector));
+        }
+
+        protected internal virtual Expression VisitSerializedConstant(SerializedConstantExpression node)
+        {
+            return node;
         }
 
         protected internal virtual Expression VisitSkip(SkipExpression node)

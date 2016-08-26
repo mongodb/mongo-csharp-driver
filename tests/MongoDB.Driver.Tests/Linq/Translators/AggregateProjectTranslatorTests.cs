@@ -855,6 +855,30 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
+        public void Should_translate_reduce()
+        {
+            RequireServer.Where(minimumVersion: "3.3.5");
+
+            var result = Project(x => new { Result = x.M.Aggregate((a, b) => a + b) });
+            result.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: 0, in: { $add: [\"$$value\", \"$$this\"] } } }, _id: 0 }");
+            result.Value.Result.Should().Be(11);
+
+            var arrayResult = Project(x => new { Result = x.M.Aggregate(new int[] { 0, 0 }, (a, b) => new int[] { a[0] + a[1], b }) });
+            arrayResult.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: [0,0], in: [{ $add: [{$arrayElemAt: [\"$$value\", 0]}, {$arrayElemAt: [\"$$value\", 1]}]},\"$$this\"]}}, _id: 0}");
+            arrayResult.Value.Result.Should().BeEquivalentTo(6, 5);
+
+            var arrayResultWithSelector = Project(x => new { Result = x.M.Aggregate(new int[] { 0, 0 }, (a, b) => new int[] { a[0] + a[1], b }, r => new { x = r[0], y = r[1] }) });
+            arrayResultWithSelector.Projection.Should().Be("{ Result: { $let: { vars: { r: { $reduce: { input: \"$M\", initialValue: [0,0], in: [{ $add: [{$arrayElemAt: [\"$$value\", 0]}, {$arrayElemAt: [\"$$value\", 1]}]},\"$$this\"]}}}, in: { x: { $arrayElemAt: [\"$$r\", 0] }, y: { $arrayElemAt: [\"$$r\", 1] } } } }, _id: 0}");
+            arrayResultWithSelector.Value.Result.x.Should().Be(6);
+            arrayResultWithSelector.Value.Result.y.Should().Be(5);
+
+            var typeResult = Project(x => new { Result = x.M.Aggregate(new { x = 0, y = 0 }, (a, b) => new { x = a.x + a.y, y = b }) });
+            typeResult.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: {x: 0, y: 0}, in: { x: { $add: [\"$$value.x\", \"$$value.y\"]}, y: \"$$this\"}}}, _id: 0}");
+            typeResult.Value.Result.x.Should().Be(6);
+            typeResult.Value.Result.y.Should().Be(5);
+        }
+
+        [SkippableFact]
         public void Should_translate_reverse()
         {
             RequireServer.Where(minimumVersion: "3.3.4");

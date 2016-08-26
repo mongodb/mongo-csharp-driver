@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Field,
         GroupingKey,
         InjectedFilter,
+        SerializedConstant,
 
         // Temporary
         Correlated,

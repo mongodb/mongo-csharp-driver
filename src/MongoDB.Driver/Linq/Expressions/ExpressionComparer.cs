@@ -132,6 +132,8 @@ namespace MongoDB.Driver.Linq.Expressions
                             return CompareDocumentWrappedField((FieldAsDocumentExpression)a, (FieldAsDocumentExpression)b);
                         case ExtensionExpressionType.Field:
                             return CompareField((FieldExpression)a, (FieldExpression)b);
+                        case ExtensionExpressionType.SerializedConstant:
+                            return CompareSerializedConstant((SerializedConstantExpression)a, (SerializedConstantExpression)b);
                         default:
                             throw new MongoInternalException(string.Format("Unhandled mongo expression type: '{0}'", extensionA.ExtensionType));
                     }
@@ -164,6 +166,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return a.FieldName == b.FieldName
                 && a.Serializer.GetType() == b.Serializer.GetType()
                 && Compare(a.Original, b.Original);
+        }
+
+        private bool CompareSerializedConstant(SerializedConstantExpression a, SerializedConstantExpression b)
+        {
+            return CompareConstantValues(a.Value, b.Value);
         }
 
         private bool CompareUnary(UnaryExpression a, UnaryExpression b)

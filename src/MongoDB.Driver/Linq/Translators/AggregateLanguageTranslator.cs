@@ -87,6 +87,8 @@ namespace MongoDB.Driver.Linq.Translators
                     return TranslateOperation((BinaryExpression)node, "$multiply", true);
                 case ExpressionType.New:
                     return TranslateNew((NewExpression)node);
+                case ExpressionType.NewArrayInit:
+                    return TranslateNewArrayInit((NewArrayExpression)node);
                 case ExpressionType.Not:
                     return TranslateNot((UnaryExpression)node);
                 case ExpressionType.NotEqual:
@@ -125,6 +127,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateReverse((ReverseExpression)node);
                             case ExtensionExpressionType.Select:
                                 return TranslateSelect((SelectExpression)node);
+                            case ExtensionExpressionType.SerializedConstant:
+                                return TranslateSerializedConstant((SerializedConstantExpression)node);
                             case ExtensionExpressionType.Skip:
                                 return TranslateSkip((SkipExpression)node);
                             case ExtensionExpressionType.Take:
@@ -412,6 +416,16 @@ namespace MongoDB.Driver.Linq.Translators
             return TranslateMapping(mapping);
         }
 
+        private BsonValue TranslateNewArrayInit(NewArrayExpression node)
+        {
+            var bsonArray = new BsonArray();
+            foreach (var item in node.Expressions)
+            {
+                bsonArray.Add(TranslateValue(item));
+            }
+            return bsonArray;
+        }
+
         private BsonValue TranslateMapping(ProjectionMapping mapping)
         {
             BsonDocument doc = new BsonDocument();
@@ -470,9 +484,10 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             BsonValue result;
-            if (TryTranslateAvgResultOperator(node, out result) ||
+            if (TryTranslateAggregateResultOperator(node, out result) ||
                 TryTranslateAllResultOperator(node, out result) ||
                 TryTranslateAnyResultOperator(node, out result) ||
+                TryTranslateAvgResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result) ||
                 TryTranslateFirstResultOperator(node, out result) ||
@@ -482,6 +497,12 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateStdDevResultOperator(node, out result) ||
                 TryTranslateSumResultOperator(node, out result))
             {
+                if (result == null)
+                {
+                    // we successfully translated, but nothing to do.
+                    return TranslateValue(node.Source);
+                }
+
                 return result;
             }
 
@@ -512,6 +533,11 @@ namespace MongoDB.Driver.Linq.Translators
                 { "as", node.ItemName },
                 { "in", inValue}
             });
+        }
+
+        private BsonValue TranslateSerializedConstant(SerializedConstantExpression node)
+        {
+            return node.SerializeValue(node.Value);
         }
 
         private BsonValue TranslateSkip(SkipExpression node)
@@ -568,16 +594,35 @@ namespace MongoDB.Driver.Linq.Translators
             return new BsonDocument("$zip", new BsonDocument("inputs", new BsonArray(inputs)));
         }
 
-        private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)
+        private bool TryTranslateAggregateResultOperator(PipelineExpression node, out BsonValue result)
         {
-            var resultOperator = node.ResultOperator as AverageResultOperator;
+            result = null;
+            var resultOperator = node.ResultOperator as AggregateResultOperator;
             if (resultOperator != null)
             {
-                result = new BsonDocument("$avg", TranslateValue(node.Source));
+                var input = TranslateValue(node.Source);
+                var initialValue = TranslateValue(resultOperator.Seed);
+                var inValue = TranslateValue(resultOperator.Reducer);
+
+                result = new BsonDocument("$reduce", new BsonDocument
+                {
+                    { "input", input },
+                    { "initialValue", initialValue },
+                    { "in", inValue }
+                });
+
+                if (resultOperator.Finalizer != null)
+                {
+                    inValue = TranslateValue(resultOperator.Finalizer);
+                    result = new BsonDocument("$let", new BsonDocument
+                    {
+                        { "vars", new BsonDocument(resultOperator.ItemName, result) },
+                        { "in", inValue }
+                    });
+                }
                 return true;
             }
 
-            result = null;
             return false;
         }
 
@@ -618,10 +663,10 @@ namespace MongoDB.Driver.Linq.Translators
                 if (whereExpression == null)
                 {
                     result = new BsonDocument("$gt", new BsonArray(new BsonValue[]
-                {
-                    new BsonDocument("$size", TranslateValue(node.Source)),
-                    0
-                }));
+                    {
+                        new BsonDocument("$size", TranslateValue(node.Source)),
+                        0
+                    }));
                     return true;
                 }
                 else
@@ -638,6 +683,19 @@ namespace MongoDB.Driver.Linq.Translators
                     result = new BsonDocument("$anyElementTrue", result);
                     return true;
                 }
+            }
+
+            result = null;
+            return false;
+        }
+
+        private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as AverageResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$avg", TranslateValue(node.Source));
+                return true;
             }
 
             result = null;

@@ -176,6 +176,7 @@
     <Compile Include="Serialization\Conventions\MemberNameElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedIdMemberConvention.cs" />
+    <Compile Include="Serialization\Conventions\ImmutableTypeClassMapConvention.cs" />
     <Compile Include="Serialization\Conventions\NoIdMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\ObjectDiscriminatorConvention.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConvention.cs" />

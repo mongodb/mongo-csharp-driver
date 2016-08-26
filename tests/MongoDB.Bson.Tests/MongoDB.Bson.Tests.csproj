@@ -143,6 +143,7 @@
     <Compile Include="Serialization\Conventions\DelegatePostProcessingConventionTests.cs" />
     <Compile Include="Serialization\Conventions\ElementNameConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\EnumRepresentationConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\ImmutableTypeClassMapConventionTests.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IdMemberConventionsTests.cs" />
