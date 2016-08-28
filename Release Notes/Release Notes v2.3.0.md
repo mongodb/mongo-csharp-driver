@@ -1,9 +1,10 @@
-# .NET Driver Version 2.3.0-beta1 Release Notes (PRE-RELEASE)
+# .NET Driver Version 2.3.0-rc1 Release Notes (PRE-RELEASE)
 
 This is a minor release consisting of:
 
 1. Bug fixes since 2.2.4 was released
 2. Support for .NET Core
+3. Bug fixes since 2.3.0-beta1 was released
 
 An online version of these release notes is available at:
 
