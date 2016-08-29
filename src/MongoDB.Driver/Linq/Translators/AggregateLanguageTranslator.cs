@@ -1084,7 +1084,11 @@ namespace MongoDB.Driver.Linq.Translators
                         indexOfArgs.Add(endIndex);
                     }
 
-                    result = new BsonDocument("$indexOfBytes", indexOfArgs);
+                    var indexOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                            "$indexOfCP" :
+                            "$indexOfBytes";
+
+                    result = new BsonDocument(indexOpName, indexOfArgs);
                     return true;
                 case "Split":
                     if (node.Arguments.Count < 1 || node.Arguments.Count > 2)
@@ -1127,10 +1131,10 @@ namespace MongoDB.Driver.Linq.Translators
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
-                        var name = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                        var substrOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
                             "$substrCP" :
                             "$substr";
-                        result = new BsonDocument(name, new BsonArray(new[]
+                        result = new BsonDocument(substrOpName, new BsonArray(new[]
                             {
                                 field,
                                 TranslateValue(node.Arguments[0]),
