@@ -977,44 +977,48 @@ namespace MongoDB.Driver.Linq.Translators
                     }
                     break;
                 case "IndexOf":
-                    var args = new BsonArray { field };
-                    if (node.Arguments[0].Type == typeof(char)
-                        && node.Arguments[0].NodeType == ExpressionType.Constant)
+                    var indexOfArgs = new BsonArray { field };
+
+                    if (node.Arguments.Count < 1 || node.Arguments.Count > 3)
                     {
-                        args.Add(new BsonString(((ConstantExpression)node.Arguments[0]).Value.ToString()));
+                        return false;
                     }
-                    else
+
+                    if (node.Arguments[0].Type != typeof(char) && node.Arguments[0].Type != typeof(string))
                     {
-                        args.Add(TranslateValue(node.Arguments[0]));
+                        return false;
                     }
+                    var value = TranslateValue(node.Arguments[0]);
+                    if (value.BsonType == BsonType.Int32)
+                    {
+                        value = new BsonString(new string((char)value.AsInt32, 1));
+                    }
+                    indexOfArgs.Add(value);
 
                     if (node.Arguments.Count > 1)
                     {
                         if (node.Arguments[1].Type != typeof(int))
                         {
-                            throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
+                            return false;
                         }
 
-                        args.Add(TranslateValue(node.Arguments[1]));
+                        var startIndex = TranslateValue(node.Arguments[1]);
+                        indexOfArgs.Add(startIndex);
                     }
 
                     if (node.Arguments.Count > 2)
                     {
                         if (node.Arguments[2].Type != typeof(int))
                         {
-                            throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
+                            return false;
                         }
 
                         var count = TranslateValue(node.Arguments[2]);
-                        args.Add(new BsonDocument("$add", new BsonArray { args[2], count }));
+                        var endIndex = new BsonDocument("$add", new BsonArray { indexOfArgs[2], count });
+                        indexOfArgs.Add(endIndex);
                     }
 
-                    if (node.Arguments.Count > 3)
-                    {
-                        throw new NotSupportedException("The StringComparison parameter is not supported in IndexOf.");
-                    }
-
-                    result = new BsonDocument("$indexOfBytes", args);
+                    result = new BsonDocument("$indexOfBytes", indexOfArgs);
                     return true;
                 case "Split":
                     if (node.Arguments.Count < 1 || node.Arguments.Count > 2)
