@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,6 +44,10 @@ namespace MongoDB.Driver.Core.Operations
         protected override WriteConcernResult ExecuteProtocol(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var updateRequest = (UpdateRequest)request;
+            if (updateRequest.Collation != null)
+            {
+                throw new NotSupportedException("BulkUpdateOperationEmulator does not support collations.");
+            }
 
             return channel.Update(
                 CollectionNamespace,
@@ -60,6 +64,10 @@ namespace MongoDB.Driver.Core.Operations
         protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var updateRequest = (UpdateRequest)request;
+            if (updateRequest.Collation != null)
+            {
+                throw new NotSupportedException("BulkUpdateOperationEmulator does not support collations.");
+            }
 
             return channel.UpdateAsync(
                 CollectionNamespace,

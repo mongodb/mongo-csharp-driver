@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -58,10 +59,10 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(new SemanticVersion(3, 2, 0)) } }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -78,10 +79,10 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(), requests[1].CreateIndexDocument() } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(new SemanticVersion(3, 2, 0)), requests[1].CreateIndexDocument(new SemanticVersion(3, 2, 0)) } }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }

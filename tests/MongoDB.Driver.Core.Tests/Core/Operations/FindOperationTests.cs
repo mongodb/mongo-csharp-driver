@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -274,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Snapshot = true;
             subject.Sort = new BsonDocument("sort", 1);
 
-            var result = subject.CreateFindOpcodeOperation();
+            var result = subject.CreateFindOpcodeOperation(new SemanticVersion(3, 2, 0));
 
             result.AllowPartialResults.Should().Be(subject.AllowPartialResults);
             result.BatchSize.Should().Be(subject.BatchSize);
@@ -307,7 +308,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit = 1;
             subject.SingleBatch = true;
 
-            var result = subject.CreateFindOpcodeOperation();
+            var result = subject.CreateFindOpcodeOperation(new SemanticVersion(3, 2, 0));
 
             result.Limit.Should().Be(-subject.Limit);
         }

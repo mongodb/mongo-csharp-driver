@@ -57,6 +57,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="value">The collation.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static CollectionOptionsBuilder SetCollation(Collation value)
+        {
+            return new CollectionOptionsBuilder().SetCollation(value);
+        }
+
+        /// <summary>
         /// Sets the index options defaults.
         /// </summary>
         /// <param name="value">The value.</param>
@@ -167,6 +177,17 @@ namespace MongoDB.Driver.Builders
         public CollectionOptionsBuilder SetCapped(bool value)
         {
             _document["capped"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="value">The collation.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetCollation(Collation value)
+        {
+            _document["collation"] = value.ToBsonDocument();
             return this;
         }
 

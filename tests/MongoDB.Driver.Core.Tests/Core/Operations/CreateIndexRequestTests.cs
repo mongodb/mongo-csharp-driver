@@ -17,6 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -88,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "name", "x_1" }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -112,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "x", 123 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -133,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "background", value }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -151,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "bits", 20 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -169,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "bucketSize", 20 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -187,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "default_language", "es" }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -205,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "expireAfterSeconds", 3 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -223,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "language_override", "en" }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -241,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "max", 20 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -259,7 +260,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "min", 20 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -277,7 +278,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "partialFilterExpression", subject.PartialFilterExpression }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -295,7 +296,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "sparse", true }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -313,7 +314,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "2dsphereIndexVersion", 30 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -331,7 +332,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "storageEngine", new BsonDocument("awesome", true) }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -349,7 +350,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "textIndexVersion", 30 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -367,7 +368,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "unique", true }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -385,7 +386,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "v", 11 }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -403,7 +404,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "weights", new BsonDocument("a", 1) }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -420,7 +421,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "name", "a" }
             };
 
-            var result = subject.CreateIndexDocument();
+            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }

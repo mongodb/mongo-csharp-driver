@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "create", _collectionNamespace.CollectionName }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -125,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "autoIndexId", autoIndexId }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -146,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "capped", capped }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -165,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "indexOptionDefaults", value }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -186,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "max", maxDocuments }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -207,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "size", maxSize }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -229,7 +230,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "storageEngine", storageEngineDoc, storageEngine != null }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -250,7 +251,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "flags", usePowerOf2Sizes ? 1 : 0 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -271,7 +272,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "validationAction", value.ToString().ToLowerInvariant() }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -292,7 +293,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "validationLevel", value.ToString().ToLowerInvariant() }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -311,7 +312,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "validator", value }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }

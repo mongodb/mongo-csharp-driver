@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         private bool? _background;
         private int? _bits;
         private double? _bucketSize;
+        private Collation _collation;
         private string _defaultLanguage;
         private TimeSpan? _expireAfter;
         private string _languageOverride;
@@ -67,6 +68,15 @@ namespace MongoDB.Driver
         {
             get { return _bucketSize; }
             set { _bucketSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -209,6 +219,7 @@ namespace MongoDB.Driver
                     Background = options.Background,
                     Bits = options.Bits,
                     BucketSize = options.BucketSize,
+                    Collation = options.Collation,
                     DefaultLanguage = options.DefaultLanguage,
                     ExpireAfter = options.ExpireAfter,
                     LanguageOverride = options.LanguageOverride,

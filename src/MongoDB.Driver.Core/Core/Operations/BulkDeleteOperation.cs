@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,14 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -49,9 +53,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+        protected override BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
         {
-            return new DeleteBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
+            return new DeleteBatchSerializer(connectionDescription, maxBatchCount, maxBatchLength);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
@@ -69,8 +73,8 @@ namespace MongoDB.Driver.Core.Operations
         private class DeleteBatchSerializer : BatchSerializer
         {
             // constructors
-            public DeleteBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
-                : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
+            public DeleteBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
+                : base(connectionDescription, maxBatchCount, maxBatchLength)
             {
             }
 
@@ -78,12 +82,22 @@ namespace MongoDB.Driver.Core.Operations
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var deleteRequest = (DeleteRequest)request;
+                if (deleteRequest.Collation != null && !SupportedFeatures.IsCollationSupported(ConnectionDescription.ServerVersion))
+                {
+                    throw new NotSupportedException($"Server version {ConnectionDescription.ServerVersion} does not support collations.");
+                }
+
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
-                bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
+                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxDocumentSize);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("q");
                 BsonSerializer.Serialize(bsonWriter, deleteRequest.Filter);
                 bsonWriter.WriteInt32("limit", deleteRequest.Limit);
+                if (deleteRequest.Collation != null)
+                {
+                    bsonWriter.WriteName("collation");
+                    BsonDocumentSerializer.Instance.Serialize(context, deleteRequest.Collation.ToBsonDocument());
+                }
                 bsonWriter.WriteEndDocument();
                 bsonWriter.PopMaxDocumentSize();
             }

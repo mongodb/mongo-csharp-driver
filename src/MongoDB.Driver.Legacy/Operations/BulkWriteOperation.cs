@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,8 +85,9 @@ namespace MongoDB.Driver
         /// Creates a builder for a new write request (either a remove or an update).
         /// </summary>
         /// <param name="query">The query.</param>
+        /// <param name="collation">The collation.</param>
         /// <returns>A FluentWriteRequestBuilder.</returns>
-        public BulkWriteRequestBuilder<TDocument> Find(IMongoQuery query)
+        public BulkWriteRequestBuilder<TDocument> Find(IMongoQuery query, Collation collation = null)
         {
             if (query == null)
             {
@@ -96,7 +97,7 @@ namespace MongoDB.Driver
             {
                 throw new InvalidOperationException("The bulk write operation has already been executed.");
             }
-            return new BulkWriteRequestBuilder<TDocument>(AddRequest, query);
+            return new BulkWriteRequestBuilder<TDocument>(AddRequest, query, collation);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,14 +27,16 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly Action<WriteRequest> _addRequest;
+        private readonly Collation _collation;
         private readonly IMongoQuery _query;
         private readonly bool _upsert;
 
         // constructors
-        internal BulkUpdateRequestBuilder(Action<WriteRequest> addRequest, IMongoQuery query, bool upsert)
+        internal BulkUpdateRequestBuilder(Action<WriteRequest> addRequest, IMongoQuery query, Collation collation, bool upsert)
         {
             _addRequest = addRequest;
             _query = query;
+            _collation = collation;
             _upsert = upsert;
         }
 
@@ -84,6 +86,7 @@ namespace MongoDB.Driver
         {
             var request = new UpdateRequest(updateType, new BsonDocumentWrapper(_query), update)
             {
+                Collation = _collation,
                 IsMulti = multi,
                 IsUpsert = _upsert
             };

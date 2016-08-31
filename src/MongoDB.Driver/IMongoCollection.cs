@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -131,11 +131,33 @@ namespace MongoDB.Driver
         /// Deletes multiple documents.
         /// </summary>
         /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        DeleteResult DeleteMany(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
         Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
@@ -151,11 +173,33 @@ namespace MongoDB.Driver
         /// Deletes a single document.
         /// </summary>
         /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        DeleteResult DeleteOne(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes a single document.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
         Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes a single document.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the distinct values for a specified field.

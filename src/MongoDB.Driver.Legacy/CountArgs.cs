@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     public class CountArgs
     {
         // private fields
+        private Collation _collation;
         private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
@@ -32,6 +33,14 @@ namespace MongoDB.Driver
         private long? _skip;
 
         // public properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
         /// <summary>
         /// Gets or sets the hint.
         /// </summary>

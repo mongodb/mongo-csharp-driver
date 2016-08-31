@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,18 +13,29 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for the distinct command.
+    /// Options for the Delete methods.
     /// </summary>
-    public sealed class DistinctOptions
+    public sealed class DeleteOptions
     {
+        #region static
+        // private static fields
+        private static DeleteOptions __defaults = new DeleteOptions();
+
+        // public static properties
+        /// <summary>
+        /// Gets the default DeleteOptions.
+        /// </summary>
+        public static DeleteOptions Defaults
+        {
+            get { return __defaults; }
+        }
+        #endregion
+
         // fields
         private Collation _collation;
-        private TimeSpan? _maxTime;
 
         // properties
         /// <summary>
@@ -34,15 +45,6 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum time.
-        /// </summary>
-        public TimeSpan? MaxTime
-        {
-            get { return _maxTime; }
-            set { _maxTime = value; }
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -163,6 +163,11 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            if (Collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+            }
+
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
@@ -174,7 +179,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "upsert", _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) }
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
+                { "collation", () => Collation.ToBsonDocument(), Collation != null }
             };
         }
 

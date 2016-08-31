@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -32,6 +29,7 @@ namespace MongoDB.Driver
     {
         // fields
         private bool? _bypassDocumentValidation;
+        private Collation _collation;
         private FilterDefinition<TDocument> _filter;
         private BsonJavaScript _finalize;
         private bool? _javaScriptMode;
@@ -51,6 +49,15 @@ namespace MongoDB.Driver
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>

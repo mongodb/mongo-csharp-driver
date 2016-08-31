@@ -108,10 +108,26 @@ namespace MongoDB.Driver
         /// </returns>
         public static DeleteResult DeleteMany<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return collection.DeleteMany<TDocument>(filter, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        public static DeleteResult DeleteMany<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.DeleteMany(new ExpressionFilterDefinition<TDocument>(filter), cancellationToken);
+            return collection.DeleteMany(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -126,10 +142,26 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<DeleteResult> DeleteManyAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return collection.DeleteManyAsync<TDocument>(filter, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        public static Task<DeleteResult> DeleteManyAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.DeleteManyAsync(new ExpressionFilterDefinition<TDocument>(filter), cancellationToken);
+            return collection.DeleteManyAsync(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -144,10 +176,26 @@ namespace MongoDB.Driver
         /// </returns>
         public static DeleteResult DeleteOne<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return collection.DeleteOne<TDocument>(filter, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes a single document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        public static DeleteResult DeleteOne<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.DeleteOne(new ExpressionFilterDefinition<TDocument>(filter), cancellationToken);
+            return collection.DeleteOne(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -162,10 +210,26 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<DeleteResult> DeleteOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return collection.DeleteOneAsync<TDocument>(filter, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes a single document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        public static Task<DeleteResult> DeleteOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.DeleteOneAsync(new ExpressionFilterDefinition<TDocument>(filter), cancellationToken);
+            return collection.DeleteOneAsync(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -347,6 +411,7 @@ namespace MongoDB.Driver
                 {
                     AllowPartialResults = options.AllowPartialResults,
                     BatchSize = options.BatchSize,
+                    Collation = options.Collation,
                     Comment = options.Comment,
                     CursorType = options.CursorType,
                     MaxAwaitTime = options.MaxAwaitTime,

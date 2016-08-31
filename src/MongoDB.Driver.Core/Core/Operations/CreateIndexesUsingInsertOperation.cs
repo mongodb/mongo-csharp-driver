@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,11 +107,14 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 foreach (var createIndexRequest in _requests)
                 {
-                    var operation = CreateOperation(createIndexRequest);
-                    operation.Execute(binding, cancellationToken);
+                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, createIndexRequest);
+                    operation.Execute(channelBinding, cancellationToken);
                 }
 
                 return new BsonDocument("ok", 1);
@@ -122,11 +125,14 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 foreach (var createIndexRequest in _requests)
                 {
-                    var operation = CreateOperation(createIndexRequest);
-                    await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, createIndexRequest);
+                    await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 }
 
                 return new BsonDocument("ok", 1);
@@ -134,10 +140,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private InsertOpcodeOperation<BsonDocument> CreateOperation(CreateIndexRequest createIndexRequest)
+        private InsertOpcodeOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion, CreateIndexRequest createIndexRequest)
         {
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
-            var document = createIndexRequest.CreateIndexDocument();
+            var document = createIndexRequest.CreateIndexDocument(serverVersion);
             document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
             var documentSource = new BatchableSource<BsonDocument>(new[] { document });
             return new InsertOpcodeOperation<BsonDocument>(

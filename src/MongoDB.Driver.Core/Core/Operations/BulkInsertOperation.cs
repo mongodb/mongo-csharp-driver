@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -59,11 +60,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+        protected override BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
         {
             var isSystemIndexesCollection = CollectionNamespace.Equals(CollectionNamespace.DatabaseNamespace.SystemIndexesCollection);
             var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
-            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, elementNameValidator);
+            return new InsertBatchSerializer(connectionDescription, maxBatchCount, maxBatchLength, elementNameValidator);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
@@ -86,8 +87,8 @@ namespace MongoDB.Driver.Core.Operations
             private IElementNameValidator _elementNameValidator;
 
             // constructors
-            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, IElementNameValidator elementNameValidator)
-                : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
+            public InsertBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength, IElementNameValidator elementNameValidator)
+                : base(connectionDescription, maxBatchCount, maxBatchLength)
             {
                 _elementNameValidator = elementNameValidator;
             }
@@ -108,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
                 var serializer = _cachedSerializer;
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
-                bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
+                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxDocumentSize);
                 bsonWriter.PushElementNameValidator(_elementNameValidator);
                 try
                 {

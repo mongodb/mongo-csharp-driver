@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -56,9 +57,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+        protected override BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
         {
-            return new UpdateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
+            return new UpdateBatchSerializer(connectionDescription, maxBatchCount, maxBatchLength);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
@@ -76,8 +77,8 @@ namespace MongoDB.Driver.Core.Operations
         private class UpdateBatchSerializer : BatchSerializer
         {
             // constructors
-            public UpdateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
-                : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
+            public UpdateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
+                : base(connectionDescription, maxBatchCount, maxBatchLength)
             {
             }
 
@@ -91,9 +92,13 @@ namespace MongoDB.Driver.Core.Operations
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var updateRequest = (UpdateRequest)request;
-                var bsonWriter = (BsonBinaryWriter)context.Writer;
+                if (updateRequest.Collation != null && !SupportedFeatures.IsCollationSupported(ConnectionDescription.ServerVersion))
+                {
+                    throw new NotSupportedException($"Server version {ConnectionDescription.ServerVersion} does not support collations.");
+                }
 
-                bsonWriter.PushMaxDocumentSize(MaxWireDocumentSize);
+                var bsonWriter = (BsonBinaryWriter)context.Writer;
+                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxWireDocumentSize);
                 try
                 {
                     bsonWriter.WriteStartDocument();
@@ -108,6 +113,11 @@ namespace MongoDB.Driver.Core.Operations
                     if (updateRequest.IsUpsert)
                     {
                         bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert);
+                    }
+                    if (updateRequest.Collation != null)
+                    {
+                        bsonWriter.WriteName("collation");
+                        BsonDocumentSerializer.Instance.Serialize(context, updateRequest.Collation.ToBsonDocument());
                     }
                     bsonWriter.WriteEndDocument();
                 }

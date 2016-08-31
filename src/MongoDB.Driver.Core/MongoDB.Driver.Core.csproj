@@ -44,6 +44,7 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
+    <Compile Include="Collation.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
     <Compile Include="Core\Authentication\Sspi\AuthIdentity.cs" />

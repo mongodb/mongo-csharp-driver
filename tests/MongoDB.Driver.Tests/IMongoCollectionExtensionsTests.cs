@@ -125,12 +125,12 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
                 subject.DeleteManyAsync(x => x.FirstName == "Jack");
-                mockSubject.Verify(s => s.DeleteManyAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
+                mockSubject.Verify(s => s.DeleteManyAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), It.IsAny<DeleteOptions>(), default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.DeleteMany(x => x.FirstName == "Jack");
-                mockSubject.Verify(s => s.DeleteMany(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
+                mockSubject.Verify(s => s.DeleteMany(It.IsAny<ExpressionFilterDefinition<Person>>(), It.IsAny<DeleteOptions>(), default(CancellationToken)), Times.Once);
             }
         }
 
@@ -145,12 +145,12 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
                 subject.DeleteOneAsync(x => x.FirstName == "Jack");
-                mockSubject.Verify(s => s.DeleteOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
+                mockSubject.Verify(s => s.DeleteOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), It.IsAny<DeleteOptions>(), default(CancellationToken)), Times.Once);
             }
             else
             {
                 subject.DeleteOne(x => x.FirstName == "Jack");
-                mockSubject.Verify(s => s.DeleteOne(It.IsAny<ExpressionFilterDefinition<Person>>(), default(CancellationToken)), Times.Once);
+                mockSubject.Verify(s => s.DeleteOne(It.IsAny<ExpressionFilterDefinition<Person>>(), It.IsAny<DeleteOptions>(), default(CancellationToken)), Times.Once);
             }
         }
 

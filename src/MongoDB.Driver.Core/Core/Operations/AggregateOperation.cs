@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -85,6 +86,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -212,6 +222,7 @@ namespace MongoDB.Driver.Core.Operations
             return new AggregateExplainOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = _allowDiskUse,
+                Collation = _collation,
                 MaxTime = _maxTime
             };
         }
@@ -219,6 +230,10 @@ namespace MongoDB.Driver.Core.Operations
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             _readConcern.ThrowIfNotSupported(serverVersion);
+            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+            }
 
             var command = new BsonDocument
             {
@@ -226,7 +241,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
             if (SupportedFeatures.IsAggregateCursorResultSupported(serverVersion) && _useCursor.GetValueOrDefault(true))

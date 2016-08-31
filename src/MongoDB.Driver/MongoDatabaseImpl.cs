@@ -214,6 +214,7 @@ namespace MongoDB.Driver
             return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
             {
                 AutoIndexId = options.AutoIndexId,
+                Collation = options.Collation,
                 Capped = options.Capped,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
@@ -237,6 +238,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = options.AutoIndexId,
                 Capped = options.Capped,
+                Collation = options.Collation,
                 IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument(),
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,

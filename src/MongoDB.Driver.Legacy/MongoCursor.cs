@@ -36,6 +36,7 @@ namespace MongoDB.Driver
     public abstract class MongoCursor : IEnumerable
     {
         // private fields
+        private Collation _collation;
         private readonly MongoCollection _collection;
         private readonly MongoDatabase _database;
         private readonly IMongoQuery _query;
@@ -99,6 +100,14 @@ namespace MongoDB.Driver
         public virtual MongoDatabase Database
         {
             get { return _database; }
+        }
+
+        /// <summary>
+        /// Gets the collation.
+        /// </summary>
+        public virtual Collation Collation
+        {
+            get { return _collation; }
         }
 
         /// <summary>
@@ -345,13 +354,14 @@ namespace MongoDB.Driver
         public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)
         {
             var clone = Create(documentType, _collection, _query, _readConcern, _readPreference, serializer);
-            clone._options = _options == null ? null : (BsonDocument)_options.Clone();
+            clone._batchSize = _batchSize;
+            clone._collation = _collation;
+            clone._fields = _fields;
             clone._flags = _flags;
-            clone._skip = _skip;
             clone._limit = _limit;
             clone._maxAwaitTime = _maxAwaitTime;
-            clone._batchSize = _batchSize;
-            clone._fields = _fields;
+            clone._options = _options == null ? null : (BsonDocument)_options.Clone();
+            clone._skip = _skip;
             return clone;
         }
 
@@ -364,6 +374,7 @@ namespace MongoDB.Driver
             _isFrozen = true;
             var args = new CountArgs
             {
+                Collation = _collation,
                 Query = _query,
                 ReadPreference = _readPreference
             };
@@ -429,6 +440,18 @@ namespace MongoDB.Driver
                 }
             }
             return explanation;
+        }
+
+        /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="collation">The collation.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetCollation(Collation collation)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            _collation = collation;
+            return this;
         }
 
         /// <summary>
@@ -703,6 +726,7 @@ namespace MongoDB.Driver
             _isFrozen = true;
             var args = new CountArgs
             {
+                Collation = _collation,
                 Query = _query,
                 Limit = (_limit == 0) ? (int?)null : _limit,
                 ReadPreference = _readPreference,
@@ -826,6 +850,7 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = partialOk,
                 BatchSize = BatchSize,
+                Collation = Collation,
                 CursorType = cursorType,
                 Filter = queryDocument,
                 Limit = Limit,
@@ -842,6 +867,16 @@ namespace MongoDB.Driver
                 var cursor = operation.Execute(binding, CancellationToken.None);
                 return cursor.ToEnumerable().GetEnumerator();
             }
+        }
+
+        /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="collation">The collation.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetCollation(Collation collation)
+        {
+            return (MongoCursor<TDocument>)base.SetCollation(collation);
         }
 
         /// <summary>

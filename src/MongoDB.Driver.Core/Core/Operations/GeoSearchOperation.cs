@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _search;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GeoNearOperation{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="GeoSearchOperation{TResult}"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="near">The point for which to find the closest documents.</param>

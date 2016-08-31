@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -160,9 +161,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var maxBatchCount = Math.Min(_maxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxBatchLength = Math.Min(_maxBatchLength ?? int.MaxValue, channel.ConnectionDescription.MaxDocumentSize);
-            var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
-            var maxWireDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
-            var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
+            var batchSerializer = CreateBatchSerializer(channel.ConnectionDescription, maxBatchCount, maxBatchLength);
             return CreateWriteCommand(batchSerializer, requestSource, channel.ConnectionDescription.ServerVersion);
         }
 
@@ -176,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        protected abstract BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize);
+        protected abstract BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength);
 
         protected abstract BulkUnmixedWriteOperationEmulatorBase CreateEmulator();
 
@@ -348,21 +347,24 @@ namespace MongoDB.Driver.Core.Operations
             private int _batchLength;
             private int _batchStartPosition;
             private int _lastRequestPosition;
+            private readonly ConnectionDescription _connectionDescription;
             private readonly int _maxBatchCount;
             private readonly int _maxBatchLength;
-            private readonly int _maxDocumentSize;
-            private readonly int _maxWireDocumentSize;
 
             // constructors
-            public BatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+            public BatchSerializer(ConnectionDescription connectionDescription,  int maxBatchCount, int maxBatchLength)
             {
+                _connectionDescription = connectionDescription;
                 _maxBatchCount = maxBatchCount;
                 _maxBatchLength = maxBatchLength;
-                _maxDocumentSize = maxDocumentSize;
-                _maxWireDocumentSize = maxWireDocumentSize;
             }
 
             // properties
+            protected ConnectionDescription ConnectionDescription
+            {
+                get { return _connectionDescription; }
+            }
+
             protected int MaxBatchCount
             {
                 get { return _maxBatchCount; }
@@ -371,16 +373,6 @@ namespace MongoDB.Driver.Core.Operations
             protected int MaxBatchLength
             {
                 get { return _maxBatchLength; }
-            }
-
-            protected int MaxDocumentSize
-            {
-                get { return _maxDocumentSize; }
-            }
-
-            protected int MaxWireDocumentSize
-            {
-                get { return _maxWireDocumentSize; }
             }
 
             // methods

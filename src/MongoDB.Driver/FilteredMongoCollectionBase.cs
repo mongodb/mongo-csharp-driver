@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -193,21 +193,39 @@ namespace MongoDB.Driver
                 {
                     case WriteModelType.DeleteMany:
                         var deleteManyModel = (DeleteManyModel<TDocument>)x;
-                        return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter));
+                        return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter))
+                        {
+                            Collation = deleteManyModel.Collation
+                        };
                     case WriteModelType.DeleteOne:
                         var deleteOneModel = (DeleteOneModel<TDocument>)x;
-                        return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter));
+                        return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter))
+                        {
+                            Collation = deleteOneModel.Collation
+                        };
                     case WriteModelType.InsertOne:
                         return x; // InsertOneModel has no filter
                     case WriteModelType.ReplaceOne:
                         var replaceOneModel = (ReplaceOneModel<TDocument>)x;
-                        return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement) { IsUpsert = replaceOneModel.IsUpsert };
+                        return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement)
+                        {
+                            Collation = replaceOneModel.Collation,
+                            IsUpsert = replaceOneModel.IsUpsert
+                        };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
-                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update) { IsUpsert = updateManyModel.IsUpsert };
+                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update)
+                        {
+                            Collation = updateManyModel.Collation,
+                            IsUpsert = updateManyModel.IsUpsert
+                        };
                     case WriteModelType.UpdateOne:
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
-                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update) { IsUpsert = updateOneModel.IsUpsert };
+                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update)
+                        {
+                            Collation = updateOneModel.Collation,
+                            IsUpsert = updateOneModel.IsUpsert
+                        };
                     default:
                         throw new MongoInternalException("Request type is invalid.");
                 }

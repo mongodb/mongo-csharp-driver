@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private Collation _collation;
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
@@ -36,6 +37,15 @@ namespace MongoDB.Driver
         private DocumentValidationLevel? _validationLevel;
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to automatically create an index on the _id.
         /// </summary>
@@ -162,6 +172,7 @@ namespace MongoDB.Driver
                 {
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
+                    Collation = options.Collation,
                     IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,

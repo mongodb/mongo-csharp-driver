@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = _options.AllowPartialResults,
                 BatchSize = _options.BatchSize,
+                Collation = _options.Collation,
                 Comment = _options.Comment,
                 CursorType = _options.CursorType,
                 Limit = _options.Limit,
@@ -190,6 +191,7 @@ namespace MongoDB.Driver
             }
             return new CountOptions
             {
+                Collation = _options.Collation,
                 Hint = hint,
                 Limit = _options.Limit,
                 MaxTime = _options.MaxTime,

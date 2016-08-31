@@ -164,6 +164,7 @@
     <Compile Include="ProfilingLevel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryFlags.cs" />
+    <Compile Include="RemoveArgs.cs" />
     <Compile Include="RemoveFlags.cs" />
     <Compile Include="SystemProfileInfo.cs" />
     <Compile Include="UpdateFlags.cs" />

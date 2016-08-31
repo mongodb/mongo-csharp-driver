@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,26 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents options for the FindAndRemove command.
+    /// Represents arguments to the Remove method.
     /// </summary>
-    public class FindAndRemoveArgs
+    public class RemoveArgs
     {
         // private fields
         private Collation _collation;
-        private IMongoFields _fields;
-        private TimeSpan? _maxTime;
+        private RemoveFlags _flags;
         private IMongoQuery _query;
-        private IMongoSortBy _sort;
+        private WriteConcern _writeConcern;
 
         // public properties
         /// <summary>
         /// Gets or sets the collation.
         /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
         public Collation Collation
         {
             get { return _collation; }
@@ -40,40 +40,40 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the fields specification.
+        /// Gets or sets the flags.
         /// </summary>
-        public IMongoFields Fields
+        /// <value>
+        /// The flags.
+        /// </value>
+        public RemoveFlags Flags
         {
-            get { return _fields; }
-            set { _fields = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the max time.
-        /// </summary>
-        public TimeSpan? MaxTime
-        {
-            get { return _maxTime; }
-            set { _maxTime = value; }
+            get { return _flags; }
+            set { _flags = value; }
         }
 
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
             set { _query = value; }
         }
 
-
         /// <summary>
-        /// Gets or sets the sort specification.
+        /// Gets or sets the write concern.
         /// </summary>
-        public IMongoSortBy SortBy
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
         {
-            get { return _sort; }
-            set { _sort = value; }
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
         }
+
     }
 }

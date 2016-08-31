@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly SemanticVersion __versionSupportingAggregateCursorResult = new SemanticVersion(2, 6, 0);
         private static readonly SemanticVersion __versionSupportingAggregateOut = new SemanticVersion(2, 6, 0);
         private static readonly SemanticVersion __versionSupportingBypassDocumentValidation = new SemanticVersion(3, 1, 3);
+        private static readonly SemanticVersion __versionSupportingCollation = new SemanticVersion(3, 3, 11);
         private static readonly SemanticVersion __versionSupportingCreateIndexesCommand = new SemanticVersion(2, 7, 6);
         private static readonly SemanticVersion __versionSupportingCurrentOpCommand = new SemanticVersion(3, 1, 2);
         private static readonly SemanticVersion __versionSupportingFailPoints = new SemanticVersion(2, 4, 0);
@@ -96,6 +97,16 @@ namespace MongoDB.Driver.Core.Misc
         public static bool IsBypassDocumentValidationSupported(SemanticVersion serverVersion)
         {
             return serverVersion >= __versionSupportingBypassDocumentValidation;
+        }
+
+        /// <summary>
+        /// Determines whether Collation is supported.
+        /// </summary>
+        /// <param name="serverVersion">The server version.</param>
+        /// <returns>True if Collation is supported.</returns>
+        public static bool IsCollationSupported(SemanticVersion serverVersion)
+        {
+            return serverVersion >= __versionSupportingCollation;
         }
 
         /// <summary>

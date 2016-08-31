@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,13 +28,15 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly Action<WriteRequest> _addRequest;
+        private readonly Collation _collation;
         private readonly IMongoQuery _query;
 
         // constructors
-        internal BulkWriteRequestBuilder(Action<WriteRequest> addRequest, IMongoQuery query)
+        internal BulkWriteRequestBuilder(Action<WriteRequest> addRequest, IMongoQuery query, Collation collation)
         {
             _addRequest = addRequest;
             _query = query;
+            _collation = collation;
         }
 
         // public methods
@@ -43,7 +45,11 @@ namespace MongoDB.Driver
         /// </summary>
         public void Remove()
         {
-            var request = new DeleteRequest(new BsonDocumentWrapper(_query)) { Limit = 0 };
+            var request = new DeleteRequest(new BsonDocumentWrapper(_query))
+            {
+                Collation = _collation,
+                Limit = 0
+            };
             _addRequest(request);
         }
 
@@ -52,7 +58,11 @@ namespace MongoDB.Driver
         /// </summary>
         public void RemoveOne()
         {
-            var request = new DeleteRequest(new BsonDocumentWrapper(_query)) { Limit = 1 };
+            var request = new DeleteRequest(new BsonDocumentWrapper(_query))
+            {
+                Collation = _collation,
+                Limit = 1
+            };
             _addRequest(request);
         }
 
@@ -66,7 +76,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("document");
             }
-            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).ReplaceOne(document);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, _collation, false).ReplaceOne(document);
         }
 
         /// <summary>
@@ -79,7 +89,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).Update(update);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, _collation, false).Update(update);
         }
 
         /// <summary>
@@ -92,7 +102,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).UpdateOne(update);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, _collation, false).UpdateOne(update);
         }
 
         /// <summary>
@@ -101,7 +111,7 @@ namespace MongoDB.Driver
         /// <returns>A bulk update request builder.</returns>
         public BulkUpdateRequestBuilder<TDocument> Upsert()
         {
-            return new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, true);
+            return new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, _collation, true);
         }
     }
 }

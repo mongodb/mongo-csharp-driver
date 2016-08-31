@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new Misc.SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }

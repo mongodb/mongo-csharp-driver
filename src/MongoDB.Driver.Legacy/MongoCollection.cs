@@ -135,6 +135,7 @@ namespace MongoDB.Driver
                 {
                     AllowDiskUse = args.AllowDiskUse,
                     BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     MaxTime = args.MaxTime
                 };
                 ExecuteWriteOperation(aggregateOperation);
@@ -145,6 +146,7 @@ namespace MongoDB.Driver
                 var findOperation = new FindOperation<BsonDocument>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
                 {
                     BatchSize = args.BatchSize,
+                    Collation = args.Collation,
                     MaxTime = args.MaxTime
                 };
 
@@ -157,6 +159,7 @@ namespace MongoDB.Driver
                 {
                     AllowDiskUse = args.AllowDiskUse,
                     BatchSize = args.BatchSize,
+                    Collation = args.Collation,
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
                     UseCursor = args.OutputMode == AggregateOutputMode.Cursor
@@ -173,7 +176,12 @@ namespace MongoDB.Driver
         public virtual CommandResult AggregateExplain(AggregateArgs args)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings);
+            var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
+            {
+                AllowDiskUse = args.AllowDiskUse,
+                Collation = args.Collation,
+                MaxTime = args.MaxTime
+            };
             var response = ExecuteReadOperation(operation);
             return new CommandResult(response);
         }
@@ -202,6 +210,7 @@ namespace MongoDB.Driver
             var filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 Filter = filter,
                 Hint = args.Hint,
                 Limit = args.Limit,
@@ -282,6 +291,7 @@ namespace MongoDB.Driver
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
             var operation = new DistinctOperation<TValue>(_collectionNamespace, valueSerializer, args.Key, GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 Filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
                 ReadConcern = _settings.ReadConcern
@@ -568,6 +578,7 @@ namespace MongoDB.Driver
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
                     BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
@@ -582,6 +593,7 @@ namespace MongoDB.Driver
                 operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
                     BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
@@ -642,6 +654,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, resultSerializer, messageEncoderSettings)
             {
+                Collation = args.Collation,
                 MaxTime = args.MaxTime,
                 Projection = projection,
                 Sort = sort,
@@ -724,6 +737,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
             {
+                Collation = args.Collation,
                 Filter = queryDocument,
                 Limit = -1,
                 MaxTime = args.MaxTime,
@@ -933,6 +947,7 @@ namespace MongoDB.Driver
                 _settings.SerializerRegistry.GetSerializer<GeoNearResult<TDocument>>(),
                 GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 DistanceMultiplier = args.DistanceMultiplier,
                 Filter = BsonDocumentWrapper.Create(args.Query),
                 IncludeLocs = args.IncludeLocs,
@@ -1130,6 +1145,7 @@ namespace MongoDB.Driver
             {
                 operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
+            operation.Collation = args.Collation;
             operation.FinalizeFunction = args.FinalizeFunction;
             operation.MaxTime = args.MaxTime;
 
@@ -1520,6 +1536,7 @@ namespace MongoDB.Driver
                     args.ReduceFunction,
                     messageEncoderSettings)
                 {
+                    Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1547,6 +1564,7 @@ namespace MongoDB.Driver
                     messageEncoderSettings)
                 {
                     BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1648,7 +1666,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query)
         {
-            return Remove(query, RemoveFlags.None, null);
+            return Remove(new RemoveArgs { Query = query });
         }
 
         /// <summary>
@@ -1659,7 +1677,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, WriteConcern writeConcern)
         {
-            return Remove(query, RemoveFlags.None, writeConcern);
+            return Remove(new RemoveArgs { Query = query, WriteConcern = writeConcern });
         }
 
         /// <summary>
@@ -1670,7 +1688,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags)
         {
-            return Remove(query, flags, null);
+            return Remove(new RemoveArgs { Query = query, Flags = flags });
         }
 
         /// <summary>
@@ -1682,12 +1700,26 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var isMulti = (flags & RemoveFlags.Single) != RemoveFlags.Single;
-            writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
+            return Remove(new RemoveArgs { Query = query, Flags = flags, WriteConcern = writeConcern });
+        }
 
-            var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 0 : 1 };
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(RemoveArgs args)
+        {
+            var queryDocument = args.Query == null ? new BsonDocument() : args.Query.ToBsonDocument();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var isMulti = (args.Flags & RemoveFlags.Single) != RemoveFlags.Single;
+            var writeConcern = args.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
+
+            var request = new DeleteRequest(queryDocument)
+            {
+                Collation = args.Collation,
+                Limit = isMulti ? 0 : 1
+            };
             var operation = new DeleteOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
                 WriteConcern = writeConcern
@@ -1702,7 +1734,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult RemoveAll()
         {
-            return Remove(Query.Null, RemoveFlags.None, null);
+            return Remove(new RemoveArgs { Query = new QueryDocument() });
         }
 
         /// <summary>
@@ -1712,7 +1744,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult RemoveAll(WriteConcern writeConcern)
         {
-            return Remove(Query.Null, RemoveFlags.None, writeConcern);
+            return Remove(new RemoveArgs { Query = new QueryDocument(), WriteConcern = writeConcern });
         }
 
         /// <summary>
@@ -1904,6 +1936,7 @@ namespace MongoDB.Driver
 
             var request = new UpdateRequest(UpdateType.Unknown, queryDocument, updateDocument)
             {
+                Collation = options.Collation,
                 IsMulti = isMulti,
                 IsUpsert = isUpsert
             };

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -78,6 +79,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -156,13 +169,19 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+            }
+
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }
 

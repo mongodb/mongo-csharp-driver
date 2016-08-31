@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowPartialResults;
         private int? _batchSize;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
         private CursorType _cursorType;
@@ -106,6 +107,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -477,6 +490,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 AllowPartialResults = _allowPartialResults,
                 BatchSize = _batchSize,
+                Collation = _collation,
                 Comment = comment,
                 CursorType = _cursorType,
                 Filter = _filter,
@@ -503,8 +517,17 @@ namespace MongoDB.Driver.Core.Operations
             return operation;
         }
 
-        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation()
+        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation(SemanticVersion serverVersion)
         {
+            if (!_readConcern.IsServerDefault)
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support read concern.");
+            }
+            if (_collation != null)
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+            }
+
             var operation = new FindOpcodeOperation<TDocument>(
                 _collectionNamespace,
                 _resultSerializer,
@@ -544,10 +567,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                // this is here because FindOpcodeOperation doesn't support
-                // read concern
-                _readConcern.ThrowIfNotSupported(serverVersion);
-                return CreateFindOpcodeOperation();
+                return CreateFindOpcodeOperation(serverVersion);
             }
         }
     }

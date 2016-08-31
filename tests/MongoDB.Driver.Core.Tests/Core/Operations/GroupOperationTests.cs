@@ -17,6 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
@@ -206,7 +207,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -234,7 +235,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -263,7 +264,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -289,7 +290,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }
@@ -317,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", 1000 }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
 
             result.Should().Be(expectedResult);
         }

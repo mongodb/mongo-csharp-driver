@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowPartialResults;
         private int? _batchSize;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
         private CursorType _cursorType;
@@ -111,6 +112,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -402,6 +415,10 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument CreateCommand(ServerDescription serverDescription)
         {
             _readConcern.ThrowIfNotSupported(serverDescription.Version);
+            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverDescription.Version))
+            {
+                throw new NotSupportedException($"Server version {serverDescription.Version} does not support collations.");
+            }
 
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
             var isShardRouter = serverDescription.Type == ServerType.ShardRouter;
@@ -430,7 +447,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
             return command;

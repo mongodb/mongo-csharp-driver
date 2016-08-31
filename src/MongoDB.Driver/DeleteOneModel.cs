@@ -33,6 +33,7 @@ namespace MongoDB.Driver
     public sealed class DeleteOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
+        private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
 
         // constructors
@@ -46,6 +47,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets the filter.
         /// </summary>

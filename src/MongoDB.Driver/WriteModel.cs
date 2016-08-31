@@ -55,10 +55,16 @@ namespace MongoDB.Driver
         {
             if (request.Limit == 1)
             {
-                return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter));
+                return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter))
+                {
+                    Collation = request.Collation
+                };
             }
 
-            return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter));
+            return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter))
+            {
+                Collation = request.Collation
+            };
         }
 
         private static WriteModel<TDocument> ConvertInsertRequest(InsertRequest request)
@@ -73,6 +79,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -82,6 +89,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -95,6 +103,7 @@ namespace MongoDB.Driver
 
             return new ReplaceOneModel<TDocument>(UnwrapFilter(request.Filter), document)
             {
+                Collation = request.Collation,
                 IsUpsert = request.IsUpsert
             };
         }

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -432,6 +432,7 @@ namespace MongoDB.Driver
                     return new DeleteRequest(deleteManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
+                        Collation = deleteManyModel.Collation,
                         Limit = 0
                     };
                 case WriteModelType.DeleteOne:
@@ -439,6 +440,7 @@ namespace MongoDB.Driver
                     return new DeleteRequest(deleteOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
+                        Collation = deleteOneModel.Collation,
                         Limit = 1
                     };
                 case WriteModelType.ReplaceOne:
@@ -448,6 +450,7 @@ namespace MongoDB.Driver
                         replaceOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer))
                     {
+                        Collation = replaceOneModel.Collation,
                         CorrelationId = index,
                         IsMulti = false,
                         IsUpsert = replaceOneModel.IsUpsert
@@ -459,6 +462,7 @@ namespace MongoDB.Driver
                         updateManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         updateManyModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
+                        Collation = updateManyModel.Collation,
                         CorrelationId = index,
                         IsMulti = true,
                         IsUpsert = updateManyModel.IsUpsert
@@ -470,6 +474,7 @@ namespace MongoDB.Driver
                         updateOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         updateOneModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
+                        Collation = updateOneModel.Collation,
                         CorrelationId = index,
                         IsMulti = false,
                         IsUpsert = updateOneModel.IsUpsert
@@ -489,6 +494,7 @@ namespace MongoDB.Driver
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
+                Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 UseCursor = options.UseCursor
@@ -505,6 +511,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
+                Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
             };
@@ -519,6 +526,7 @@ namespace MongoDB.Driver
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
                 MaxTime = options.MaxTime
             };
         }
@@ -540,6 +548,7 @@ namespace MongoDB.Driver
         {
             return new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
+                Collation = options.Collation,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 Hint = options.Hint,
                 Limit = options.Limit,
@@ -559,6 +568,7 @@ namespace MongoDB.Driver
                 renderedField.FieldName,
                 _messageEncoderSettings)
             {
+                Collation = options.Collation,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
@@ -576,6 +586,7 @@ namespace MongoDB.Driver
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
+                Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
@@ -596,6 +607,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
@@ -618,6 +630,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
@@ -639,6 +652,7 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = options.AllowPartialResults,
                 BatchSize = options.BatchSize,
+                Collation = options.Collation,
                 Comment = options.Comment,
                 CursorType = options.CursorType.ToCore(),
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
@@ -664,6 +678,7 @@ namespace MongoDB.Driver
                 resultSerializer,
                 _messageEncoderSettings)
             {
+                Collation = options.Collation,
                 Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 FinalizeFunction = options.Finalize,
                 JavaScriptMode = options.JavaScriptMode,
@@ -692,6 +707,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
                 Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 FinalizeFunction = options.Finalize,
                 JavaScriptMode = options.JavaScriptMode,
@@ -713,6 +729,7 @@ namespace MongoDB.Driver
                 resultSerializer,
                 _messageEncoderSettings)
             {
+                Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
             };
@@ -893,6 +910,7 @@ namespace MongoDB.Driver
                         Background = options.Background,
                         Bits = options.Bits,
                         BucketSize = options.BucketSize,
+                        Collation = options.Collation,
                         DefaultLanguage = options.DefaultLanguage,
                         ExpireAfter = options.ExpireAfter,
                         LanguageOverride = options.LanguageOverride,

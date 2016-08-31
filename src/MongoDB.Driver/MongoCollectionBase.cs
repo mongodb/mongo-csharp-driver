@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -76,9 +76,19 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(filter, nameof(filter));
+            return DeleteMany(filter, DeleteOptions.Defaults, cancellationToken);
+        }
 
-            var model = new DeleteManyModel<TDocument>(filter);
+        /// <inheritdoc />
+        public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? DeleteOptions.Defaults;
+
+            var model = new DeleteManyModel<TDocument>(filter)
+            {
+                Collation = options.Collation
+            };
             try
             {
                 var result = BulkWrite(new[] { model }, null, cancellationToken);
@@ -91,11 +101,21 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return DeleteManyAsync(filter, null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? DeleteOptions.Defaults;
 
-            var model = new DeleteManyModel<TDocument>(filter);
+            var model = new DeleteManyModel<TDocument>(filter)
+            {
+                Collation = options.Collation
+            };
             try
             {
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
@@ -110,9 +130,19 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(filter, nameof(filter));
+            return DeleteOne(filter, DeleteOptions.Defaults, cancellationToken);
+        }
 
-            var model = new DeleteOneModel<TDocument>(filter);
+        /// <inheritdoc />
+        public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? DeleteOptions.Defaults;
+
+            var model = new DeleteOneModel<TDocument>(filter)
+            {
+                Collation = options.Collation
+            };
             try
             {
                 var result = BulkWrite(new[] { model }, null, cancellationToken);
@@ -125,11 +155,21 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return DeleteOneAsync(filter, DeleteOptions.Defaults, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? DeleteOptions.Defaults;
 
-            var model = new DeleteOneModel<TDocument>(filter);
+            var model = new DeleteOneModel<TDocument>(filter)
+            {
+                Collation = options.Collation
+            };
             try
             {
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
@@ -283,6 +323,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 
@@ -310,6 +351,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 
@@ -337,6 +379,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 
@@ -364,6 +407,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 
@@ -391,6 +435,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 
@@ -418,6 +463,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
+                Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
 

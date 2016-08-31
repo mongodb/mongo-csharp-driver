@@ -207,6 +207,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             bool? autoIndexId = null;
             bool? capped = null;
+            Collation collation = null;
             BsonDocument indexOptionDefaults = null;
             int? maxDocuments = null;
             long? maxSize = null;
@@ -228,6 +229,10 @@ namespace MongoDB.Driver
                 if (optionsDocument.TryGetValue("capped", out value))
                 {
                     capped = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("collation", out value))
+                {
+                    collation = Collation.FromBsonDocument(value.AsBsonDocument);
                 }
                 if (optionsDocument.TryGetValue("indexOptionDefaults", out value))
                 {
@@ -267,6 +272,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = autoIndexId,
                 Capped = capped,
+                Collation = collation,
                 IndexOptionDefaults = indexOptionDefaults,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,

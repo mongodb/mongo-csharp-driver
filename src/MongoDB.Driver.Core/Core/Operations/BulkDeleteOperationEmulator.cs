@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,10 @@ namespace MongoDB.Driver.Core.Operations
         protected override WriteConcernResult ExecuteProtocol(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var deleteRequest = (DeleteRequest)request;
+            if (deleteRequest.Collation != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support collations.");
+            }
             var isMulti = deleteRequest.Limit == 0;
 
             return channel.Delete(
@@ -52,6 +57,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var deleteRequest = (DeleteRequest)request;
             var isMulti = deleteRequest.Limit == 0;
+            if (deleteRequest.Collation != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support collations.");
+            }
 
             return channel.DeleteAsync(
                CollectionNamespace,
