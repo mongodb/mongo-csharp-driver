@@ -225,19 +225,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private void EnsureCollectionExists(CollectionNamespace collectionNamespace, bool async)
         {
-            try
-            {
-                var operation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
-                ExecuteOperation(operation, async);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ex.Message == "Command create failed: collection already exists.")
-                {
-                    return;
-                }
-                throw;
-            }
+            var document = new BsonDocument("_id", ObjectId.GenerateNewId());
+            var insertRequests = new[] { new InsertRequest(document) };
+            var insertOperation = new BulkInsertOperation(collectionNamespace, insertRequests, _messageEncoderSettings);
+            ExecuteOperation(insertOperation, async);
         }
     }
 }
