@@ -105,9 +105,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         private bool IsEnumType(Type t)
         {
-            if (t.IsEnum) return true;
+            if (t.GetTypeInfo().IsEnum) return true;
             Type u = Nullable.GetUnderlyingType(t);
-            return (u != null) && u.IsEnum;
+            return (u != null) && u.GetTypeInfo().IsEnum;
         }
 
     }
