@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq.Translators
         public QueryableTranslator(IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             _serializerRegistry = Ensure.IsNotNull(serializerRegistry, nameof(serializerRegistry));
-            _translationOptions = Ensure.IsNotNull(translationOptions, nameof(translationOptions));
+            _translationOptions = translationOptions; // can be null
             _stages = new List<BsonDocument>();
         }
 

@@ -506,7 +506,7 @@ namespace MongoDB.Driver
             public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression, ExpressionTranslationOptions translationOptions)
             {
                 _expression = Ensure.IsNotNull(expression, nameof(expression));
-                _translationOptions = translationOptions;
+                _translationOptions = translationOptions; // can be null
             }
 
             public Expression<Func<TResult, TNewResult>> Expression
@@ -530,7 +530,7 @@ namespace MongoDB.Driver
             {
                 _idExpression = Ensure.IsNotNull(idExpression, nameof(idExpression));
                 _groupExpression = Ensure.IsNotNull(groupExpression, nameof(groupExpression));
-                _translationOptions = translationOptions;
+                _translationOptions = translationOptions; // can be null
             }
 
             public Expression<Func<TResult, TKey>> IdExpression
