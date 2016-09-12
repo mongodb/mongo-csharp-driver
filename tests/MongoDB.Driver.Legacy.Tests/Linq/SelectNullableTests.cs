@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereEEqualsA()
         {
-            RequireEnvironmentVariable.IsDefined("MONO"); // Does not pass on Mono 3.2.5. Excluding for now.
+            RequireEnvironment.Check().EnvironmentVariable("MONO"); // Does not pass on Mono 3.2.5. Excluding for now.
             var query = from c in __collection.AsQueryable<C>()
                         where c.E == E.A
                         select c;

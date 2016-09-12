@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -63,49 +64,48 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        [Trait("Category", "ReadConcern")]
         public void CreateCommand_should_create_the_correct_command(
-            [Values("3.0.0", "3.2.0")] string serverVersion,
+            [Values("3.0.0", "3.2.0")] string serverVersionString,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
-            var semanticServerVersion = SemanticVersion.Parse(serverVersion);
+            var serverVersion = SemanticVersion.Parse(serverVersionString);
             var filter = new BsonDocument("x", 1);
             var limit = 10;
             var maxDistance = 30;
             var maxTime = TimeSpan.FromMilliseconds(50);
             var near = new BsonArray { 10, 20 };
+            var readConcern = new ReadConcern(readConcernLevel);
             var subject = new GeoSearchOperation<BsonDocument>(_collectionNamespace, near, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Search = filter,
                 Limit = limit,
                 MaxDistance = maxDistance,
                 MaxTime = maxTime,
-                ReadConcern = new ReadConcern(readConcernLevel)
-            };
-            var expectedResult = new BsonDocument
-            {
-                { "geoSearch", _collectionNamespace.CollectionName },
-                { "near", near },
-                { "limit", limit },
-                { "maxDistance", maxDistance },
-                { "search", filter },
-                { "maxTimeMS", maxTime.TotalMilliseconds }
+                ReadConcern = readConcern
             };
 
-            if (!subject.ReadConcern.IsServerDefault)
+            if (!readConcern.IsServerDefault && !Feature.ReadConcern.IsSupported(serverVersion))
             {
-                expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
-            }
+                var exception = Record.Exception(() => subject.CreateCommand(serverVersion));
 
-            if (!subject.ReadConcern.IsSupported(semanticServerVersion))
-            {
-                Action act = () => subject.CreateCommand(semanticServerVersion);
-                act.ShouldThrow<MongoClientException>();
+                exception.Should().BeOfType<MongoClientException>();
             }
             else
             {
-                var result = subject.CreateCommand(semanticServerVersion);
+                var result = subject.CreateCommand(serverVersion);
+
+                var expectedResult = new BsonDocument
+                {
+                    { "geoSearch", _collectionNamespace.CollectionName },
+                    { "near", near },
+                    { "limit", limit },
+                    { "maxDistance", maxDistance },
+                    { "search", filter },
+                    { "maxTimeMS", maxTime.TotalMilliseconds },
+                    { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
+                };
                 result.Should().Be(expectedResult);
+
             }
         }
 
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var subject = new GeoSearchOperation<BsonDocument>(
                 _collectionNamespace,

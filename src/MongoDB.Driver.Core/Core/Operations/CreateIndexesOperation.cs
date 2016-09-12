@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IWriteOperation<BsonDocument> CreateOperation(IChannel channel)
         {
-            if (SupportedFeatures.IsCreateIndexesCommandSupported(channel.ConnectionDescription.ServerVersion))
+            if (Feature.CreateIndexesCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings);
             }

@@ -43,10 +43,12 @@ namespace MongoDB.Driver.Tests
                 BsonDocument.Parse("{ $project : { _id: 1 } }")
             };
 
+            var collation = new Collation("en_US");
             var fluent = subject.Aggregate(new AggregateOptions
                 {
                     AllowDiskUse = true,
                     BatchSize = 10,
+                    Collation = collation,
                     MaxTime = TimeSpan.FromSeconds(3),
                     UseCursor = false
                 })
@@ -90,6 +92,7 @@ namespace MongoDB.Driver.Tests
             actualPipeline.Render(inputSerializer, serializerRegistry).Documents.Should().Equal(expectedPipeline);
             actualOptions.AllowDiskUse.Should().Be(fluent.Options.AllowDiskUse);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.Collation.Should().BeSameAs(collation);
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
             actualOptions.UseCursor.Should().Be(fluent.Options.UseCursor);
         }
@@ -192,6 +195,7 @@ namespace MongoDB.Driver.Tests
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
+                Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
@@ -239,6 +243,7 @@ namespace MongoDB.Driver.Tests
 
             ((BsonDocumentFilterDefinition<Person>)actualFilter).Document.Should().Be(filter);
             actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
+            actualOptions.Collation.Should().BeSameAs(fluent.Options.Collation);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
             actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
@@ -267,6 +272,7 @@ namespace MongoDB.Driver.Tests
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
+                Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
@@ -316,6 +322,7 @@ namespace MongoDB.Driver.Tests
             actualFilter.Render(subject.DocumentSerializer, subject.Settings.SerializerRegistry).Should().Be(filter);
             actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.Collation.Should().BeSameAs(fluent.Options.Collation);
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
             actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
             actualOptions.Limit.Should().Be(fluent.Options.Limit);

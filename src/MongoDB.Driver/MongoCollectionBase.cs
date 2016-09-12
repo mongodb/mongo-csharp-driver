@@ -76,14 +76,14 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return DeleteMany(filter, DeleteOptions.Defaults, cancellationToken);
+            return DeleteMany(filter, null, cancellationToken);
         }
 
         /// <inheritdoc />
         public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? DeleteOptions.Defaults;
+            options = options ?? new DeleteOptions();
 
             var model = new DeleteManyModel<TDocument>(filter)
             {
@@ -110,7 +110,7 @@ namespace MongoDB.Driver
         public virtual async Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? DeleteOptions.Defaults;
+            options = options ?? new DeleteOptions();
 
             var model = new DeleteManyModel<TDocument>(filter)
             {
@@ -130,14 +130,14 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return DeleteOne(filter, DeleteOptions.Defaults, cancellationToken);
+            return DeleteOne(filter, null, cancellationToken);
         }
 
         /// <inheritdoc />
         public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? DeleteOptions.Defaults;
+            options = options ?? new DeleteOptions();
 
             var model = new DeleteOneModel<TDocument>(filter)
             {
@@ -157,14 +157,14 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return DeleteOneAsync(filter, DeleteOptions.Defaults, cancellationToken);
+            return DeleteOneAsync(filter, null, cancellationToken);
         }
 
         /// <inheritdoc />
         public virtual async Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? DeleteOptions.Defaults;
+            options = options ?? new DeleteOptions();
 
             var model = new DeleteOneModel<TDocument>(filter)
             {

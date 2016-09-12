@@ -74,6 +74,5 @@ namespace MongoDB.Driver
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
-
     }
 }

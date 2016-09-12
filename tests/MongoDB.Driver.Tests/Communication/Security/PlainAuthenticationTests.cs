@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestNoCredentials()
         {
-            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
             _settings.Credentials = Enumerable.Empty<MongoCredential>();
             var client = new MongoClient(_settings);
 
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestSuccessfulAuthentication()
         {
-            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
             var client = new MongoClient(_settings);
 
             var result = client
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestBadPassword()
         {
-            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
             var currentCredential = _settings.Credentials.Single();
             _settings.Credentials = new[]
             {

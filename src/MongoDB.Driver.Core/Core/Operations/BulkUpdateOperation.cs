@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var updateRequest = (UpdateRequest)request;
-                if (updateRequest.Collation != null && !SupportedFeatures.IsCollationSupported(ConnectionDescription.ServerVersion))
+                if (updateRequest.Collation != null && !Feature.Collation.IsSupported(ConnectionDescription.ServerVersion))
                 {
                     throw new NotSupportedException($"Server version {ConnectionDescription.ServerVersion} does not support collations.");
                 }

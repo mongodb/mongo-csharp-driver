@@ -94,6 +94,7 @@ namespace MongoDB.Driver
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
+                Collation = new Collation("en_US"),
                 BatchSize = 10,
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
@@ -120,6 +121,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.UseCursor.Should().Be(options.UseCursor);
@@ -140,6 +142,7 @@ namespace MongoDB.Driver
                 AllowDiskUse = true,
                 BatchSize = 10,
                 BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
             };
@@ -161,6 +164,7 @@ namespace MongoDB.Driver
 
             writeCall.Operation.Should().BeOfType<AggregateToCollectionOperation>();
             var writeOperation = (AggregateToCollectionOperation)writeCall.Operation;
+            writeOperation.Collation.Should().BeSameAs(options.Collation);
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
             writeOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             writeOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
@@ -186,6 +190,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.funny");
             operation.AllowPartialResults.Should().NotHaveValue();
             operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.Comment.Should().BeNull();
             operation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
             operation.Filter.Should().BeNull();
@@ -206,17 +211,18 @@ namespace MongoDB.Driver
             [Values(false, true)] bool isOrdered,
             [Values(false, true)] bool async)
         {
+            var collation = new Collation("en_US");
             var requests = new WriteModel<BsonDocument>[]
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("_id", 1).Add("a",1)),
-                new DeleteManyModel<BsonDocument>(new BsonDocument("b", 1)),
-                new DeleteOneModel<BsonDocument>(new BsonDocument("c", 1)),
-                new ReplaceOneModel<BsonDocument>(new BsonDocument("d", 1), new BsonDocument("e", 1)),
-                new ReplaceOneModel<BsonDocument>(new BsonDocument("f", 1), new BsonDocument("g", 1)) { IsUpsert = true },
-                new UpdateManyModel<BsonDocument>(new BsonDocument("h", 1), new BsonDocument("$set", new BsonDocument("i", 1))),
-                new UpdateManyModel<BsonDocument>(new BsonDocument("j", 1), new BsonDocument("$set", new BsonDocument("k", 1))) { IsUpsert = true },
-                new UpdateOneModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))),
-                new UpdateOneModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { IsUpsert = true },
+                new DeleteManyModel<BsonDocument>(new BsonDocument("b", 1)) { Collation = collation },
+                new DeleteOneModel<BsonDocument>(new BsonDocument("c", 1)) { Collation = collation },
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("d", 1), new BsonDocument("e", 1)) { Collation = collation },
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("f", 1), new BsonDocument("g", 1)) { Collation = collation, IsUpsert = true },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("h", 1), new BsonDocument("$set", new BsonDocument("i", 1))) { Collation = collation },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("j", 1), new BsonDocument("$set", new BsonDocument("k", 1))) { Collation = collation, IsUpsert = true },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))) { Collation = collation },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { Collation = collation, IsUpsert = true },
             };
             var bulkOptions = new BulkWriteOptions
             {
@@ -261,6 +267,7 @@ namespace MongoDB.Driver
             convertedRequests[1].Should().BeOfType<DeleteRequest>();
             convertedRequests[1].CorrelationId.Should().Be(1);
             var convertedRequest1 = (DeleteRequest)convertedRequests[1];
+            convertedRequest1.Collation.Should().BeSameAs(collation);
             convertedRequest1.Filter.Should().Be("{b:1}");
             convertedRequest1.Limit.Should().Be(0);
 
@@ -268,6 +275,7 @@ namespace MongoDB.Driver
             convertedRequests[2].Should().BeOfType<DeleteRequest>();
             convertedRequests[2].CorrelationId.Should().Be(2);
             var convertedRequest2 = (DeleteRequest)convertedRequests[2];
+            convertedRequest2.Collation.Should().BeSameAs(collation);
             convertedRequest2.Filter.Should().Be("{c:1}");
             convertedRequest2.Limit.Should().Be(1);
 
@@ -275,6 +283,7 @@ namespace MongoDB.Driver
             convertedRequests[3].Should().BeOfType<UpdateRequest>();
             convertedRequests[3].CorrelationId.Should().Be(3);
             var convertedRequest3 = (UpdateRequest)convertedRequests[3];
+            convertedRequest3.Collation.Should().BeSameAs(collation);
             convertedRequest3.Filter.Should().Be("{d:1}");
             convertedRequest3.Update.Should().Be("{e:1}");
             convertedRequest3.UpdateType.Should().Be(UpdateType.Replacement);
@@ -285,6 +294,7 @@ namespace MongoDB.Driver
             convertedRequests[4].Should().BeOfType<UpdateRequest>();
             convertedRequests[4].CorrelationId.Should().Be(4);
             var convertedRequest4 = (UpdateRequest)convertedRequests[4];
+            convertedRequest4.Collation.Should().BeSameAs(collation);
             convertedRequest4.Filter.Should().Be("{f:1}");
             convertedRequest4.Update.Should().Be("{g:1}");
             convertedRequest4.UpdateType.Should().Be(UpdateType.Replacement);
@@ -295,6 +305,7 @@ namespace MongoDB.Driver
             convertedRequests[5].Should().BeOfType<UpdateRequest>();
             convertedRequests[5].CorrelationId.Should().Be(5);
             var convertedRequest5 = (UpdateRequest)convertedRequests[5];
+            convertedRequest5.Collation.Should().BeSameAs(collation);
             convertedRequest5.Filter.Should().Be("{h:1}");
             convertedRequest5.Update.Should().Be("{$set:{i:1}}");
             convertedRequest5.UpdateType.Should().Be(UpdateType.Update);
@@ -305,6 +316,7 @@ namespace MongoDB.Driver
             convertedRequests[6].Should().BeOfType<UpdateRequest>();
             convertedRequests[6].CorrelationId.Should().Be(6);
             var convertedRequest6 = (UpdateRequest)convertedRequests[6];
+            convertedRequest6.Collation.Should().BeSameAs(collation);
             convertedRequest6.Filter.Should().Be("{j:1}");
             convertedRequest6.Update.Should().Be("{$set:{k:1}}");
             convertedRequest6.UpdateType.Should().Be(UpdateType.Update);
@@ -315,6 +327,7 @@ namespace MongoDB.Driver
             convertedRequests[7].Should().BeOfType<UpdateRequest>();
             convertedRequests[7].CorrelationId.Should().Be(7);
             var convertedRequest7 = (UpdateRequest)convertedRequests[7];
+            convertedRequest7.Collation.Should().BeSameAs(collation);
             convertedRequest7.Filter.Should().Be("{l:1}");
             convertedRequest7.Update.Should().Be("{$set:{m:1}}");
             convertedRequest7.UpdateType.Should().Be(UpdateType.Update);
@@ -325,6 +338,7 @@ namespace MongoDB.Driver
             convertedRequests[8].Should().BeOfType<UpdateRequest>();
             convertedRequests[8].CorrelationId.Should().Be(8);
             var convertedRequest8 = (UpdateRequest)convertedRequests[8];
+            convertedRequest8.Collation.Should().BeSameAs(collation);
             convertedRequest8.Filter.Should().Be("{n:1}");
             convertedRequest8.Update.Should().Be("{$set:{o:1}}");
             convertedRequest8.UpdateType.Should().Be(UpdateType.Update);
@@ -350,6 +364,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("x", 1);
             var options = new CountOptions
             {
+                Collation = new Collation("en_US"),
                 Hint = "funny",
                 Limit = 10,
                 MaxTime = TimeSpan.FromSeconds(20),
@@ -368,10 +383,11 @@ namespace MongoDB.Driver
             }
 
             var call = _operationExecutor.GetReadCall<long>();
-
+            
             call.Operation.Should().BeOfType<CountOperation>();
             var operation = (CountOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.Filter.Should().Be(filter);
             operation.Hint.Should().Be(options.Hint);
             operation.Limit.Should().Be(options.Limit);
@@ -386,19 +402,21 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
-            var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
+            var collation = new Collation("en_US");
+            var expectedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Limit = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
 
+            var options = new DeleteOptions { Collation = collation };
             if (async)
             {
-                subject.DeleteManyAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+                subject.DeleteManyAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                subject.DeleteMany(filter, CancellationToken.None);
+                subject.DeleteMany(filter, options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -450,19 +468,21 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var filter = new BsonDocument("a", 1);
-            var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
+            var collation = new Collation("en_US");
+            var expectedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Limit = 1 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
 
+            var options = new DeleteOptions { Collation = collation };
             if (async)
             {
-                subject.DeleteOneAsync(filter, CancellationToken.None).GetAwaiter().GetResult();
+                subject.DeleteOneAsync(filter, options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                subject.DeleteOne(filter, CancellationToken.None);
+                subject.DeleteOne(filter, options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -517,7 +537,8 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("x", 1);
             var options = new DistinctOptions
             {
-                MaxTime = TimeSpan.FromSeconds(20),
+                Collation = new Collation("en_US"),
+                MaxTime = TimeSpan.FromSeconds(20)
             };
 
             var subject = CreateSubject<BsonDocument>();
@@ -535,6 +556,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<DistinctOperation<int>>();
             var operation = (DistinctOperation<int>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filter);
@@ -554,6 +576,7 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
+                Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 Limit = 30,
@@ -588,6 +611,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
@@ -615,6 +639,7 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
+                Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
                 Limit = 30,
@@ -646,6 +671,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
@@ -704,6 +730,7 @@ namespace MongoDB.Driver
             var sort = BsonDocument.Parse("{a: -1}");
             var options = new FindOneAndDeleteOptions<BsonDocument, BsonDocument>()
             {
+                Collation = new Collation("en_US"),
                 Projection = projection,
                 Sort = sort,
                 MaxTime = TimeSpan.FromSeconds(2)
@@ -724,6 +751,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
             var operation = (FindOneAndDeleteOperation<BsonDocument>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.Projection.Should().Be(projection);
@@ -740,6 +768,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument();
             var options = new FindOneAndDeleteOptions<A, BsonDocument>
             {
+                Collation = new Collation("en_US"),
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
@@ -756,6 +785,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
 
             var operation = (FindOneAndDeleteOperation<BsonDocument>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
@@ -775,6 +805,7 @@ namespace MongoDB.Driver
             var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
+                Collation = new Collation("en_US"),
                 IsUpsert = isUpsert,
                 Projection = projection,
                 ReturnDocument = returnDocument,
@@ -798,6 +829,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
             var operation = (FindOneAndReplaceOperation<BsonDocument>)call.Operation;
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.Replacement.Should().Be(replacement);
@@ -818,6 +850,7 @@ namespace MongoDB.Driver
             var replacement = new A();
             var options = new FindOneAndReplaceOptions<A, BsonDocument>
             {
+                Collation = new Collation("en_US"),
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
 
@@ -834,6 +867,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
 
             var operation = (FindOneAndReplaceOperation<BsonDocument>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
@@ -853,6 +887,7 @@ namespace MongoDB.Driver
             var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
+                Collation = new Collation("en_US"),
                 IsUpsert = isUpsert,
                 Projection = projection,
                 ReturnDocument = returnDocument,
@@ -876,6 +911,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
             var operation = (FindOneAndUpdateOperation<BsonDocument>)call.Operation;
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.Update.Should().Be(update);
@@ -931,6 +967,7 @@ namespace MongoDB.Driver
                 Background = true,
                 Bits = 10,
                 BucketSize = 20,
+                Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
                 LanguageOverride = "es",
@@ -969,6 +1006,7 @@ namespace MongoDB.Driver
             request.Background.Should().Be(options.Background);
             request.Bits.Should().Be(options.Bits);
             request.BucketSize.Should().Be(options.BucketSize);
+            request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
             request.Keys.Should().Be(keys);
@@ -1003,6 +1041,7 @@ namespace MongoDB.Driver
                 Background = true,
                 Bits = 10,
                 BucketSize = 20,
+                Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
                 LanguageOverride = "es",
@@ -1045,6 +1084,7 @@ namespace MongoDB.Driver
             request1.Background.Should().Be(options.Background);
             request1.Bits.Should().Be(options.Bits);
             request1.BucketSize.Should().Be(options.BucketSize);
+            request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
             request1.Keys.Should().Be(keys);
@@ -1067,6 +1107,7 @@ namespace MongoDB.Driver
             request2.Background.Should().NotHaveValue();
             request2.Bits.Should().NotHaveValue();
             request2.BucketSize.Should().NotHaveValue();
+            request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();
             request2.Keys.Should().Be(keys2);
@@ -1347,6 +1388,7 @@ namespace MongoDB.Driver
             var sort = new BsonDocument("sort", 1);
             var options = new MapReduceOptions<BsonDocument, BsonDocument>
             {
+                Collation = new Collation("en_US"),
                 Filter = new BsonDocument("filter", 1),
                 Finalize = "finalizer",
                 JavaScriptMode = true,
@@ -1371,6 +1413,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
             var operation = (MapReduceOperation<BsonDocument>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.FinalizeFunction.Should().Be(options.Finalize);
@@ -1396,6 +1439,7 @@ namespace MongoDB.Driver
             var options = new MapReduceOptions<BsonDocument, BsonDocument>
             {
                 BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
                 Filter = new BsonDocument("filter", 1),
                 Finalize = "finalizer",
                 JavaScriptMode = true,
@@ -1421,6 +1465,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
             var operation = (MapReduceOutputToCollectionOperation)call.Operation;
             operation.BypassDocumentValidation.Should().BeTrue();
+            operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be(filter);
             operation.FinalizeFunction.Should().Be(options.Finalize);
@@ -1447,12 +1492,13 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var replacement = BsonDocument.Parse("{a:2}");
-            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { Collation = collation, BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
 
             if (async)
             {
@@ -1476,7 +1522,8 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var replacement = BsonDocument.Parse("{a:2}");
-            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1494,7 +1541,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { Collation = collation, BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
 
             Action action;
             if (async)
@@ -1518,12 +1565,13 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, Collation = collation, IsUpsert = isUpsert };
 
             if (async)
             {
@@ -1547,7 +1595,8 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = true };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1565,7 +1614,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, Collation = collation, IsUpsert = isUpsert };
 
             Action action;
             if (async)
@@ -1589,12 +1638,13 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, Collation = collation, IsUpsert = isUpsert };
 
             if (async)
             {
@@ -1618,7 +1668,8 @@ namespace MongoDB.Driver
         {
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
-            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
+            var collation = new Collation("en_US");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { Collation = collation, CorrelationId = 0, IsUpsert = isUpsert, IsMulti = false };
             var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
@@ -1636,7 +1687,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             var subject = CreateSubject<BsonDocument>();
-            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, IsUpsert = isUpsert };
+            var updateOptions = new UpdateOptions { BypassDocumentValidation = bypassDocumentValidation, Collation = collation, IsUpsert = isUpsert };
 
             Action action;
             if (async)

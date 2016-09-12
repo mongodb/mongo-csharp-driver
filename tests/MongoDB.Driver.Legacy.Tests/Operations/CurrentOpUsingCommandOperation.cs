@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
@@ -74,7 +75,7 @@ namespace MongoDB.Driver.Tests.Operations
         [SkippableFact]
         public void Execute_should_return_expected_result()
         {
-            RequireServer.Where(minimumVersion: "3.1.2");
+            RequireServer.Check().Supports(Feature.CurrentOpCommand);
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {

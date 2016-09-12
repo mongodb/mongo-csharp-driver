@@ -20,6 +20,8 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -77,7 +79,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0");
+            RequireServer.Check().Supports(Feature.IndexOptionsDefaults);
             var collection = _database.GetCollection("testindexoptiondefaults");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -96,7 +98,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetStorageEngine()
         {
-            RequireServer.Where(minimumVersion: "2.7.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.7.0");
             var collection = _database.GetCollection("storage_engine_collection");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -116,7 +118,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetValidator()
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0");
+            RequireServer.Check().Supports(Feature.DocumentValidation);
             var collection = _database.GetCollection("testvalidation");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -307,7 +309,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestGetCurrentOp()
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var adminDatabase = _server.GetDatabase("admin");
             var currentOp = adminDatabase.GetCurrentOp();
             Assert.Equal("inprog", currentOp.GetElement(0).Name);

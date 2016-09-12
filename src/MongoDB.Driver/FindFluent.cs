@@ -135,6 +135,11 @@ namespace MongoDB.Driver
             }
             sb.Append(")");
 
+            if (_options.Collation != null)
+            {
+                sb.Append(".collation(" + _options.Collation.ToString() + ")");
+            }
+
             if (_options.Sort != null)
             {
                 var renderedSort = Render(_options.Sort.Render);

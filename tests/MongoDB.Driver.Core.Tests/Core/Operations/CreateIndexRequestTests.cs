@@ -27,16 +27,16 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void AdditionalOptions_get_and_set_should_work(
-            [Values(false, true)]
-            bool hasAdditionalOptions)
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
-            var value = hasAdditionalOptions ? new BsonDocument("y", 2) : null;
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
 
             subject.AdditionalOptions = value;
             var result = subject.AdditionalOptions;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -53,6 +53,49 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Bits_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.Bits = value;
+            var result = subject.Bits;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void BucketSize_get_and_set_should_work(
+            [Values(null, 1.0, 2.0)]
+            double? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.BucketSize = value;
+            var result = subject.BucketSize;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Collation_get_and_set_should_work(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+            var value = locale == null ? null : new Collation(locale);
+
+            subject.Collation = value;
+            var result = subject.Collation;
+
+            result.Should().BeSameAs(value);
+        }
+
         [Fact]
         public void constructor_should_initialize_subject()
         {
@@ -61,21 +104,34 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateIndexRequest(keys);
 
             subject.Keys.Should().BeSameAs(keys);
+
             subject.AdditionalOptions.Should().BeNull();
             subject.Background.Should().NotHaveValue();
+            subject.Bits.Should().NotHaveValue();
+            subject.BucketSize.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.DefaultLanguage.Should().BeNull();
+            subject.ExpireAfter.Should().NotHaveValue();
+            subject.LanguageOverride.Should().BeNull();
+            subject.Max.Should().NotHaveValue();
+            subject.Min.Should().NotHaveValue();
             subject.Name.Should().BeNull();
             subject.PartialFilterExpression.Should().BeNull();
             subject.Sparse.Should().NotHaveValue();
-            subject.ExpireAfter.Should().NotHaveValue();
+            subject.SphereIndexVersion.Should().NotHaveValue();
+            subject.TextIndexVersion.Should().NotHaveValue();
             subject.Unique.Should().NotHaveValue();
+            subject.Version.Should().NotHaveValue();
+            subject.Weights.Should().BeNull();
         }
 
         [Fact]
         public void constructor_should_throw_when_keys_is_null()
         {
-            Action action = () => new CreateIndexRequest(null);
+            var exception = Record.Exception(() => new CreateIndexRequest(null));
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("keys");
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("keys");
         }
 
         [Fact]
@@ -83,347 +139,548 @@ namespace MongoDB.Driver.Core.Operations
         {
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys);
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_additionalOptions_has_value()
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Sparse = true;
-            subject.AdditionalOptions = new BsonDocument
-            {
-                { "sparse", false }, // should not overwrite existing element
-                { "x", 123 }
-            };
-            var expectedResult = new BsonDocument
-            {
-                { "key", keys },
-                { "name", "x_1" },
-                { "sparse", true },
-                { "x", 123 }
-            };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateIndexDocument_should_return_expected_result_when_background_has_value(
-            [Values(false, true)]
-            bool value)
+        public void CreateIndexDocument_should_return_expected_result_when_AdditionalOptions_is_set(
+            [Values(null, "{ x : 123 }", "{ x : 123, sparse : false }")]
+            string additionalOptionsString)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Background = value;
+            var additionalOptions = additionalOptionsString == null ? null : BsonDocument.Parse(additionalOptionsString);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Sparse = true,
+                AdditionalOptions = additionalOptions
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "background", value }
+                { "sparse", true }, // should not be overwritten by additionalOptions
+                { "x", 123, additionalOptions != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_bits_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Background_is_set(
+            [Values(null, false, true)]
+            bool? background)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Bits = 20;
+            var subject = new CreateIndexRequest(keys)
+            {
+                Background = background
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "bits", 20 }
+                { "background", () => background.Value, background.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_bucketSize_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Bits_is_set(
+            [Values(null, 1, 2)]
+            int? bits)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.BucketSize = 20;
+            var subject = new CreateIndexRequest(keys)
+            {
+                Bits = bits
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "bucketSize", 20 }
+                { "bits", () => bits.Value, bits.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_defaultLanguage_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_BucketSize_is_set(
+            [Values(null, 1.0, 2.0)]
+            double? bucketSize)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.DefaultLanguage = "es";
+            var subject = new CreateIndexRequest(keys)
+            {
+                BucketSize = bucketSize
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "default_language", "es" }
+                { "bucketSize", () => bucketSize.Value, bucketSize.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_expireAfter_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Collation_is_set(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.ExpireAfter = TimeSpan.FromSeconds(3);
+            var collation = locale == null ? null : new Collation(locale);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Collation = collation
+            };
+
+            var result = subject.CreateIndexDocument(Feature.Collation.FirstSupportedVersion);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "expireAfterSeconds", 3 }
+                { "collation", () => collation.ToBsonDocument(), collation != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_languageOverride_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_DefaultLanguage_is_set(
+            [Values(null, "en", "fr")]
+            string defaultLanguage)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.LanguageOverride = "en";
+            var subject = new CreateIndexRequest(keys)
+            {
+                DefaultLanguage = defaultLanguage
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "language_override", "en" }
+                { "default_language", defaultLanguage, defaultLanguage != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_max_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_ExpireAfter_is_set(
+            [Values(null, 1, 2)]
+            int? seconds)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Max = 20;
+            var expireAfter = seconds == null ? (TimeSpan?)null : TimeSpan.FromSeconds(seconds.Value);
+            var subject = new CreateIndexRequest(keys)
+            {
+                ExpireAfter = expireAfter
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "max", 20 }
+                { "expireAfterSeconds", () => expireAfter.Value.TotalSeconds, expireAfter.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_min_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_LanguageOverride_is_set(
+            [Values(null, "en", "fr")]
+            string languageOverride)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Min = 20;
+            var subject = new CreateIndexRequest(keys)
+            {
+                LanguageOverride = languageOverride
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "min", 20 }
+                { "language_override", () => languageOverride, languageOverride != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_partialFilterExpression_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Max_is_set(
+            [Values(null, 1.0, 2.0)]
+            double? max)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0));
+            var subject = new CreateIndexRequest(keys)
+            {
+                Max = max
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "partialFilterExpression", subject.PartialFilterExpression }
+                { "max", () => max.Value, max.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_sparse_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Min_is_set(
+            [Values(null, 1.0, 2.0)]
+            double? min)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Sparse = true;
+            var subject = new CreateIndexRequest(keys)
+            {
+                Min = min
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "sparse", true }
+                { "min", () => min.Value, min.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_sphereIndexVersion_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Name_is_set(
+            [Values(null, "a", "b")]
+            string name,
+            [Values(null, "{ name : 'x' }", "{ name : 'y' }")]
+            string additionalOptionsString)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.SphereIndexVersion = 30;
+            var additionalOptions = additionalOptionsString == null ? null : BsonDocument.Parse(additionalOptionsString);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Name = name,
+                AdditionalOptions = additionalOptions // secondary source of name
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", name != null ? name : additionalOptions != null ? additionalOptions["name"].AsString : "x_1" },
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_PartialFilterExpression_is_set(
+            [Values(null, "{ x : { $gt : 1 } }", "{ x : { $gt : 2 } }")]
+            string partialFilterExpressionString)
+        {
+            var keys = new BsonDocument("x", 1);
+            var partialFilterExpression = partialFilterExpressionString == null ? null : BsonDocument.Parse(partialFilterExpressionString);
+            var subject = new CreateIndexRequest(keys)
+            {
+                PartialFilterExpression = partialFilterExpression
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "2dsphereIndexVersion", 30 }
+                { "partialFilterExpression", partialFilterExpression, partialFilterExpression != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_StorageEngine_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Sparse_is_set(
+            [Values(null, false, true)]
+            bool? sparse)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.StorageEngine = new BsonDocument("awesome", true);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Sparse = sparse
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "storageEngine", new BsonDocument("awesome", true) }
+                { "sparse", () => sparse.Value, sparse.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_textIndexVersion_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_SphereIndexVersion_is_set(
+            [Values(null, 1, 2)]
+            int? sphereIndexVersion)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.TextIndexVersion = 30;
+            var subject = new CreateIndexRequest(keys)
+            {
+                SphereIndexVersion = sphereIndexVersion
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "textIndexVersion", 30 }
+                { "2dsphereIndexVersion", () => sphereIndexVersion.Value, sphereIndexVersion.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_unique_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_StorageEngine_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string storageEngineString)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Unique = true;
+            var storageEngine = storageEngineString == null ? null : BsonDocument.Parse(storageEngineString);
+            var subject = new CreateIndexRequest(keys)
+            {
+                StorageEngine = storageEngine
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "unique", true }
+                { "storageEngine", storageEngine, storageEngine != null }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_version_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_TextIndexVersion_is_set(
+            [Values(null, 1, 2)]
+            int? textIndexVersion)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Version = 11;
+            var subject = new CreateIndexRequest(keys)
+            {
+                TextIndexVersion = textIndexVersion
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "v", 11 }
+                { "textIndexVersion", () => textIndexVersion.Value, textIndexVersion.HasValue }
             };
-
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_weights_has_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Unique_is_set(
+            [Values(null, false, true)]
+            bool? unique)
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Weights = new BsonDocument("a", 1);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Unique = unique
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "weights", new BsonDocument("a", 1) }
+                { "unique", () => unique.Value, unique.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Version_is_set(
+            [Values(null, 1, 2)]
+            int? version)
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Version = version
             };
 
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
+            var result = subject.CreateIndexDocument(null);
 
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "v", () => version.Value, version.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Weights_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string weightsString)
+        {
+            var keys = new BsonDocument("x", 1);
+            var weights = weightsString == null ? null : BsonDocument.Parse(weightsString);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Weights = weights
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "weights", weights, weights != null }
+            };
             result.Should().Be(expectedResult);
         }
 
         [Fact]
-        public void CreateIndexDocument_should_return_expected_result_when_name_is_in_additionalOptions()
+        public void CreateIndexDocument_should_throw_when_Collation__is_set_and_is_not_supported()
         {
             var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.AdditionalOptions = new BsonDocument("name", "a");
-            var expectedResult = new BsonDocument
+            var subject = new CreateIndexRequest(keys)
             {
-                { "key", keys },
-                { "name", "a" }
+                Collation = new Collation("en_US")
             };
 
-            var result = subject.CreateIndexDocument(new SemanticVersion(3, 2, 0));
+            var exception = Record.Exception(() => subject.CreateIndexDocument(Feature.Collation.LastNotSupportedVersion));
 
-            result.Should().Be(expectedResult);
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void DefaultLanguage_get_and_set_should_work(
+            [Values(null, "x", "y")]
+            string value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.DefaultLanguage = value;
+            var result = subject.DefaultLanguage;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ExpireAfter_get_and_set_should_work(
+            [Values(null, 1L, 2L)]
+            long? milliseconds)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+            var value = milliseconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliseconds.Value);
+
+            subject.ExpireAfter = value;
+            var result = subject.ExpireAfter;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void LanguageOverride_get_and_set_should_work(
+            [Values(null, "en", "fr")]
+            string value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.LanguageOverride = value;
+            var result = subject.LanguageOverride;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Max_get_and_set_should_work(
+            [Values(null, 1.0, 2.0)]
+            double? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.Max = value;
+            var result = subject.Max;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Min_get_and_set_should_work(
+            [Values(null, 1.0, 2.0)]
+            double? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.Min = value;
+            var result = subject.Min;
+
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -437,30 +694,22 @@ namespace MongoDB.Driver.Core.Operations
             subject.Name = value;
             var result = subject.Name;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
-        [Fact]
-        public void Keys_get_should_return_expected_result()
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-
-            var result = subject.Keys;
-
-            result.Should().Be(keys);
-        }
-
-        [Fact]
-        public void PartialFilterExpression_get_and_set_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void PartialFilterExpression_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
-            var value = new BsonDocument("x", new BsonDocument("$gt", 0));
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
 
             subject.PartialFilterExpression = value;
             var result = subject.PartialFilterExpression;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -479,15 +728,43 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void TimeToLive_get_and_set_should_work(
-            [Values(null, 1)]
-            int? seconds)
+        public void SphereIndexVersion_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? value)
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
-            var value = seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
 
-            subject.ExpireAfter = value;
-            var result = subject.ExpireAfter;
+            subject.SphereIndexVersion = value;
+            var result = subject.SphereIndexVersion;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void StorageEngine_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
+
+            subject.StorageEngine = value;
+            var result = subject.StorageEngine;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TextIndexVersion_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.TextIndexVersion = value;
+            var result = subject.TextIndexVersion;
 
             result.Should().Be(value);
         }
@@ -504,6 +781,35 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Unique;
 
             result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Version_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.Version = value;
+            var result = subject.Version;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Weights_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
+
+            subject.Weights = value;
+            var result = subject.Weights;
+
+            result.Should().BeSameAs(value);
         }
     }
 }

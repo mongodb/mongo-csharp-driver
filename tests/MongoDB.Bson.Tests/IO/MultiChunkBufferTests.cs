@@ -435,7 +435,7 @@ namespace MongoDB.Bson.Tests.IO
         [SkippableFact]
         public void ExpandCapacity_should_throw_when_expanded_capacity_exceeds_2GB()
         {
-            RequireProcess.Is64Bit();
+            RequireProcess.Check().Bits(64);
 
             using (var subject = new MultiChunkBuffer(BsonChunkPool.Default))
             {

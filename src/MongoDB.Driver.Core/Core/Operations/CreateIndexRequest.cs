@@ -302,14 +302,27 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>The name of the index.</returns>
         public string GetIndexName()
         {
-            var additionalOptionsName = _additionalOptions == null ? null : (string)_additionalOptions.GetValue("name", null);
-            return _name ?? additionalOptionsName ?? IndexNameHelper.GetIndexName(_keys);
+            if (_name != null)
+            {
+                return _name;
+            }
+            
+            if (_additionalOptions != null)
+            {
+                BsonValue name;
+                if (_additionalOptions.TryGetValue("name", out name))
+                {
+                    return name.AsString;
+                }
+            }
+
+            return IndexNameHelper.GetIndexName(_keys);
         }
 
         // methods
         internal BsonDocument CreateIndexDocument(SemanticVersion serverVersion)
         {
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -321,6 +334,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "background", () => _background.Value, _background.HasValue },
                 { "bits", () => _bits.Value, _bits.HasValue },
                 { "bucketSize", () => _bucketSize.Value, _bucketSize.HasValue },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "default_language", () => _defaultLanguage, _defaultLanguage != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "language_override", () => _languageOverride, _languageOverride != null },
@@ -333,8 +347,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "textIndexVersion", () => _textIndexVersion.Value, _textIndexVersion.HasValue },
                 { "unique", () => _unique.Value, _unique.HasValue },
                 { "v", () => _version.Value, _version.HasValue },
-                { "weights", () => _weights, _weights != null },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null }
+                { "weights", () => _weights, _weights != null }
             };
 
             if (_additionalOptions != null)

@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             try
             {
                 Insert(BsonDocument.Parse("{x:1}")); // ensure database exists
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropDatabase();
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 

@@ -14,364 +14,534 @@
 */
 
 using System;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using Moq;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class GroupOperationTests
+    public class GroupOperationTests : OperationTestBase
     {
+        private readonly BsonDocument _filter = BsonDocument.Parse("{ y : 'a' }");
+        private readonly BsonJavaScript _finalizeFunction = new BsonJavaScript("function(result) { result.count = -result.count; }");
+        private readonly BsonDocument _initial = BsonDocument.Parse("{ count : 0.0 }");
+        private readonly BsonDocument _key = BsonDocument.Parse("{ x : 1 }");
+        private readonly BsonJavaScript _keyFunction = new BsonJavaScript("function(doc) { return { x : doc.x }; }");
+        private readonly BsonJavaScript _reduceFunction = new BsonJavaScript("function(doc, result) { result.count += 1; }");
+
         [Fact]
         public void constructor_with_key_should_initialize_subject()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
 
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.Key.Should().BeSameAs(_key);
+            subject.Initial.Should().BeSameAs(_initial);
+            subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
+            subject.Filter.Should().BeSameAs(_filter);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
-            subject.CollectionNamespace.Should().Be(collectionNamespace);
-            subject.Filter.Should().Be(filter);
+            subject.Collation.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-            subject.Initial.Should().Be(initial);
-            subject.Key.Should().Be(key);
             subject.KeyFunction.Should().BeNull();
-            subject.MaxTime.Should().Be(default(TimeSpan?));
-            Assert.Equal(messageEncoderSettings, subject.MessageEncoderSettings);
-            subject.ReduceFunction.Should().Be(reduceFunction);
+            subject.MaxTime.Should().NotHaveValue();
             subject.ResultSerializer.Should().BeNull();
         }
 
         [Fact]
         public void constructor_with_key_should_throw_when_collectionNamespace_is_null()
         {
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(null, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(null, key, initial, reduceFunction, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void constructor_with_key_should_throw_when_initial_is_null()
-        {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
-
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, null, reduceFunction, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void constructor_with_key_should_throw_when_key_is_null()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, (BsonDocument)null, _initial, _reduceFunction, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonDocument)null, initial, reduceFunction, filter, messageEncoderSettings);
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("key");
+        }
 
-            action.ShouldThrow<ArgumentNullException>();
+        [Fact]
+        public void constructor_with_key_should_throw_when_initial_is_null()
+        {
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, _key, null, _reduceFunction, _filter, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("initial");
         }
 
         [Fact]
         public void constructor_with_key_should_throw_when_reduceFunction_is_null()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, null, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, initial, null, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("reduceFunction");
         }
 
         [Fact]
         public void constructor_with_keyFunction_should_initialize_subject()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var keyFunction = new BsonJavaScript("keyFunction");
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, _reduceFunction, _filter, _messageEncoderSettings);
 
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, reduceFunction, filter, messageEncoderSettings);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
+            subject.KeyFunction.Should().Be(_keyFunction);
+            subject.Initial.Should().Be(_initial);
+            subject.ReduceFunction.Should().Be(_reduceFunction);
+            subject.Filter.Should().Be(_filter);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
-            subject.CollectionNamespace.Should().Be(collectionNamespace);
-            subject.Filter.Should().Be(filter);
+            subject.Collation.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-            subject.Initial.Should().Be(initial);
             subject.Key.Should().BeNull();
-            subject.KeyFunction.Should().Be(keyFunction);
             subject.MaxTime.Should().Be(default(TimeSpan?));
-            Assert.Equal(messageEncoderSettings, subject.MessageEncoderSettings);
-            subject.ReduceFunction.Should().Be(reduceFunction);
             subject.ResultSerializer.Should().BeNull();
         }
 
         [Fact]
         public void constructor_with_keyFunction_should_throw_when_collectionNamespace_is_null()
         {
-            var keyFunction = new BsonJavaScript("keyFunction");
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(null, _keyFunction, _initial, _reduceFunction, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(null, keyFunction, initial, reduceFunction, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void constructor_with_keyFunction_should_throw_when_keyFunction_is_null()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, (BsonJavaScript)null, _initial, _reduceFunction, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonJavaScript)null, initial, reduceFunction, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("keyFunction");
         }
 
         [Fact]
         public void constructor_with_keyFunction_should_throw_when_initial_is_null()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var keyFunction = new BsonJavaScript("keyFunction");
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, null, _reduceFunction, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, null, reduceFunction, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("initial");
         }
 
         [Fact]
         public void constructor_with_keyFunction_should_throw_when_reduceFunction_is_null()
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var keyFunction = new BsonJavaScript("keyFunction");
-            var initial = new BsonDocument("x", 1);
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
+            var exception = Record.Exception(() => new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, null, _filter, _messageEncoderSettings));
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, null, filter, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("reduceFunction");
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void Collation_get_and_set_should_work(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, null, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
+            var value = locale == null ? null : new Collation(locale);
+
+            subject.Collation = value;
+            var result = subject.Collation;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void FinalizeFunction_get_and_set_should_work(
+            [Values(null, "x", "y")]
+            string code)
+        {
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
+            var value = code == null ? null : new BsonJavaScript(code);
+
+            subject.FinalizeFunction = value;
+            var result = subject.FinalizeFunction;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? seconds)
+        {
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
+            var value = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
+
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ResultSerializer_get_and_set_should_work(
+            [Values(false, true)]
+            bool isNull)
+        {
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
+            var value = isNull ? null : new BsonDocumentSerializer();
+
+            subject.ResultSerializer = value;
+            var result = subject.ResultSerializer;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_key_is_used(
+            [Values(false, true)]
+            bool useFilter)
+        {
+            var filter = useFilter ? _filter : null;
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, filter, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", collectionNamespace.CollectionName },
-                        { "key", key },
-                        { "$reduce", reduceFunction },
-                        { "initial", initial }
+                        { "ns", _collectionNamespace.CollectionName },
+                        { "key", _key },
+                        { "$reduce", _reduceFunction },
+                        { "initial", _initial },
+                        { "cond", filter, filter != null }
                     }
                 }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_filter_was_provided()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_keyFunction_is_used(
+            [Values(false, true)]
+            bool isFilterNull)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
+            var filter = isFilterNull ? _filter : null;
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, _reduceFunction, filter, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", collectionNamespace.CollectionName },
-                        { "key", key },
-                        { "$reduce", reduceFunction },
-                        { "initial", initial },
-                        { "cond", filter }
+                        { "ns", _collectionNamespace.CollectionName },
+                        { "$keyf", _keyFunction },
+                        { "$reduce", _reduceFunction },
+                        { "initial", _initial },
+                        { "cond", filter, filter != null }
                     }
                 }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_finalizeFunction_was_provided()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_finalizeFunction_is_set(
+            [Values(false, true)]
+            bool isFinalizeFunctionNull)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var finalizeFunction = new BsonJavaScript("finalizeFunction");
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, null, messageEncoderSettings);
-            subject.FinalizeFunction = finalizeFunction;
+            var finalizeFunction = isFinalizeFunctionNull ? null : _finalizeFunction;
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                FinalizeFunction = finalizeFunction
+            };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", collectionNamespace.CollectionName },
-                        { "key", key },
-                        { "$reduce", reduceFunction },
-                        { "initial", initial },
-                        { "finalize", finalizeFunction }
+                        { "ns", _collectionNamespace.CollectionName },
+                        { "key", _key },
+                        { "$reduce", _reduceFunction },
+                        { "initial", _initial },
+                        { "finalize", finalizeFunction, finalizeFunction != null }
                     }
                 }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_keyFunction_was_provided()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Collation_is_set(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var keyFunction = new BsonJavaScript("keyFunction");
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, reduceFunction, null, messageEncoderSettings);
+            var collation = locale == null ? null : new Collation(locale);
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                Collation = collation
+            };
+
+            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", collectionNamespace.CollectionName },
-                        { "$keyf", keyFunction },
-                        { "$reduce", reduceFunction },
-                        { "initial", initial }
+                        { "ns", _collectionNamespace.CollectionName },
+                        { "key", _key },
+                        { "$reduce", _reduceFunction },
+                        { "initial", _initial },
+                        { "collation", () => collation.ToBsonDocument(), collation != null }
                     }
                 }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_maxTime_was_provided()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_set(
+            [Values(null, 1, 2)]
+            int? seconds)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, null, messageEncoderSettings);
-            subject.MaxTime = TimeSpan.FromSeconds(1);
+            var maxTime = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                MaxTime = maxTime
+            };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", collectionNamespace.CollectionName },
-                        { "key", key },
-                        { "$reduce", reduceFunction },
-                        { "initial", initial }
+                        { "ns", _collectionNamespace.CollectionName },
+                        { "key", _key },
+                        { "$reduce", _reduceFunction },
+                        { "initial", _initial }
                     }
                 },
-                { "maxTimeMS", 1000 }
+                { "maxTimeMS", () => seconds.Value * 1000, seconds.HasValue }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void FinalizeFunction_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_key_is_used(
+            [Values(false, true)]
+            bool async)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
-            var finalizeFunction = new BsonJavaScript("finalizeFunction");
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings);
 
-            subject.FinalizeFunction = finalizeFunction;
+            var result = ExecuteOperation(subject, async);
 
-            subject.FinalizeFunction.Should().Be(finalizeFunction);
+            result.Should().Equal(
+                BsonDocument.Parse("{ x : 1, count : 2 }"),
+                BsonDocument.Parse("{ x : 2, count : 1 }"),
+                BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [Fact]
-        public void MaxTime_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_keyFunction_is_used(
+            [Values(false, true)]
+            bool async)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
-            var maxTime = TimeSpan.FromSeconds(1);
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, _reduceFunction, null, _messageEncoderSettings);
 
-            subject.MaxTime = maxTime;
+            var result = ExecuteOperation(subject, async);
 
-            subject.MaxTime.Should().Be(maxTime);
+            result.Should().Equal(
+                BsonDocument.Parse("{ x : 1, count : 2 }"),
+                BsonDocument.Parse("{ x : 2, count : 1 }"),
+                BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [Fact]
-        public void ResultSerializer_should_work()
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Collation_is_set(
+            [Values(false, true)]
+            bool caseSensitive,
+            [Values(false, true)]
+            bool async)
         {
-            var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
-            var key = new BsonDocument("key", 1);
-            var initial = new BsonDocument("x", 1);
-            var reduceFunction = new BsonJavaScript("reduceFunction");
-            var filter = new BsonDocument("y", 1);
-            var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
-            var resultSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
+            RequireServer.Check().Supports(Feature.Collation);
+            EnsureTestData();
+            var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
+            var filter = BsonDocument.Parse("{ y : 'a' }");
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, filter, _messageEncoderSettings)
+            {
+                Collation = collation
+            };
 
-            subject.ResultSerializer = resultSerializer;
+            var result = ExecuteOperation(subject, async);
 
-            subject.ResultSerializer.Should().BeSameAs(resultSerializer);
+            BsonDocument[] expectedResult;
+            if (caseSensitive)
+            {
+                expectedResult = new[]
+                {
+                    BsonDocument.Parse("{ x : 1, count : 2 }"),
+                    BsonDocument.Parse("{ x : 3, count : 2 }")
+                };
+            }
+            else
+            { 
+                expectedResult = new[]
+                {
+                    BsonDocument.Parse("{ x : 1, count : 2 }"),
+                    BsonDocument.Parse("{ x : 2, count : 1 }"),
+                    BsonDocument.Parse("{ x : 3, count : 3 }")
+                };
+            }
+            result.Should().Equal(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_FinalizeFunction_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                FinalizeFunction = _finalizeFunction
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().Equal(
+                BsonDocument.Parse("{ x : 1, count : -2 }"),
+                BsonDocument.Parse("{ x : 2, count : -1 }"),
+                BsonDocument.Parse("{ x : 3, count : -3 }"));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_MaxTime_is_used(
+            [Values(null, 1000)]
+            int? seconds,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var maxTime = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                MaxTime = maxTime
+            };
+
+            // TODO: force a timeout on the server? for now we're just smoke testing
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().Equal(
+                BsonDocument.Parse("{ x : 1, count : 2 }"),
+                BsonDocument.Parse("{ x : 2, count : 1 }"),
+                BsonDocument.Parse("{ x : 3, count : 3 }"));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_ResultSerializer_is_used(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var resultSerializer = new ElementDeserializer<int>("x", new Int32Serializer());
+            var subject = new GroupOperation<int>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                ResultSerializer = resultSerializer
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().Equal(1, 2, 3);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, _filter, _messageEncoderSettings);
+
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    subject.ExecuteAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Execute(null, CancellationToken.None);
+                }
+            });
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().DoesNotSupport(Feature.Collation);
+            EnsureTestData();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        // helper methods
+        private void EnsureTestData()
+        {
+            RunOncePerFixture(() =>
+            {
+                DropCollection();
+                Insert(
+                    BsonDocument.Parse("{ _id : 1, x : 1, y : 'a' }"),
+                    BsonDocument.Parse("{ _id : 2, x : 1, y : 'a' }"),
+                    BsonDocument.Parse("{ _id : 3, x : 2, y : 'A' }"),
+                    BsonDocument.Parse("{ _id : 4, x : 3, y : 'a' }"),
+                    BsonDocument.Parse("{ _id : 5, x : 3, y : 'a' }"),
+                    BsonDocument.Parse("{ _id : 6, x : 3, y : 'A' }")
+                    );
+                CreateIndexes(new CreateIndexRequest(new BsonDocument("Location", "2d")));
+            });
         }
     }
 }

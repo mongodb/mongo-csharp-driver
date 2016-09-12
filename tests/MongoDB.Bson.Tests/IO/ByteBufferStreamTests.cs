@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Tests.IO
         [SkippableFact]
         public void PrepareToWrite_should_throw_when_stream_would_exceed_2GB()
         {
-            RequireProcess.Is64Bit();
+            RequireProcess.Check().Bits(64);
 
             using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
             using (var subject = new ByteBufferStream(buffer))

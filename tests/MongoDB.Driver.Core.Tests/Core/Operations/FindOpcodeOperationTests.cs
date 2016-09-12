@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
-            subject.ResultSerializer.Should().NotBeNull();
+            subject.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
 
             subject.AllowPartialResults.Should().NotHaveValue();
@@ -120,11 +120,11 @@ namespace MongoDB.Driver.Core.Operations
             subject.Max.Should().BeNull();
             subject.MaxScan.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
+            subject.Modifiers.Should().BeNull();
             subject.Min.Should().BeNull();
             subject.NoCursorTimeout.Should().NotHaveValue();
             subject.OplogReplay.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
-            subject.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             subject.ShowRecordId.Should().NotHaveValue();
             subject.Skip.Should().NotHaveValue();
             subject.Snapshot.Should().NotHaveValue();
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query()
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_limit_is_used(
             [Values(1, 5, 6, 12)] int limit)
         {
-            RequireServer.Where(versionLessThan: "3.2.0");
+            RequireServer.Check().VersionLessThan("3.2.0");
             var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod();
             for (var id = 1; id <= limit + 1; id++)
             {
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_documents_matching_options()
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -451,6 +451,21 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.Min = value;
             var result = subject.Min;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Modifiers_get_and_set_should_work(
+            [Values(null, "{ a : 1 }", "{ b : 2 }")]
+            string json)
+        {
+            var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = json == null ? null : BsonDocument.Parse(json);
+
+            subject.Modifiers = value;
+            var result = subject.Modifiers;
 
             result.Should().Be(value);
         }

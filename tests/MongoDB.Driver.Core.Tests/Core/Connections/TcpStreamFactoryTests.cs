@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var socketConfiguratorWasCalled = false;
             Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var subject = new TcpStreamFactory();
             var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);

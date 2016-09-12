@@ -89,7 +89,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(0.0, 0.5, 1.0)] double countMultiple,
             [Values(false, true)] bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var chunkSize = 4;
             var bucket = CreateBucket(chunkSize);
             var fileLength = (int)(chunkSize * fileLengthMultiple);

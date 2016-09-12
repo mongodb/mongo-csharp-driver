@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -63,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "3.0.0");
+            RequireServer.Check().Supports(Feature.ListIndexesCommand);
             EnsureCollectionExists(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "3.0.0");
+            RequireServer.Check().Supports(Feature.ListIndexesCommand);
             DropCollection(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -95,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "3.0.0");
+            RequireServer.Check().Supports(Feature.ListIndexesCommand);
             DropDatabase(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 

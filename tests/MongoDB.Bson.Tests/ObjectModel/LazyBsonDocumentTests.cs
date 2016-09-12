@@ -856,7 +856,7 @@ namespace MongoDB.Bson.Tests
         [SkippableFact]
         public void TestLargeDocumentDeserialization()
         {
-            RequireProcess.Is64Bit();
+            RequireProcess.Check().Bits(64);
 
             var bsonDocument = new BsonDocument { { "stringfield", "A" } };
             var noOfDoubleFields = 200000;

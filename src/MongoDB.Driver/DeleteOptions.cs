@@ -20,20 +20,6 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class DeleteOptions
     {
-        #region static
-        // private static fields
-        private static DeleteOptions __defaults = new DeleteOptions();
-
-        // public static properties
-        /// <summary>
-        /// Gets the default DeleteOptions.
-        /// </summary>
-        public static DeleteOptions Defaults
-        {
-            get { return __defaults; }
-        }
-        #endregion
-
         // fields
         private Collation _collation;
 

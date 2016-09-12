@@ -22,6 +22,8 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -462,7 +464,7 @@ namespace MongoDB.Driver.Tests.Operations
         [InlineData(true)]
         public void TestNonDefaultWriteConcern(bool ordered)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.Standalone);
+            RequireServer.Check().ClusterType(ClusterType.Standalone);
             _collection.Drop();
 
             var documents = new[]
@@ -1190,8 +1192,8 @@ namespace MongoDB.Driver.Tests.Operations
         [SkippableFact]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
-            RequireEnvironmentVariable.IsDefined("EXPLICIT");
-            RequireServer.Where(minimumVersion: "2.4.0", clusterTypes: ClusterTypes.ReplicaSet);
+            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
+            RequireServer.Check().Supports(Feature.FailPoints).ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
 
             var secondary = LegacyTestConfiguration.Server.Secondaries.First();

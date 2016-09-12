@@ -26,7 +26,6 @@ using Xunit;
 
 namespace MongoDB.Driver
 {
-    [Trait("Category", "ReadConcern")]
     public class ReadConcernTests
     {
         [Fact]
@@ -74,32 +73,32 @@ namespace MongoDB.Driver
         [Fact]
         public void ThrowIfNotSupported_should_not_throw_when_default()
         {
-            var serverVersion = new SemanticVersion(3, 0, 2);
+            var serverVersion = Feature.ReadConcern.LastNotSupportedVersion;
             var subject = ReadConcern.Default;
 
-            Action act = () => subject.ThrowIfNotSupported(serverVersion);
+            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
 
             act.ShouldNotThrow<MongoClientException>();
         }
 
         [Fact]
-        public void ThrowIfNotSupported_should_not_throw_when_the_serverVersion_is_greater_than_317()
+        public void ThrowIfNotSupported_should_not_throw_when_ReadConcern_is_supported()
         {
-            var serverVersion = new SemanticVersion(3, 2, 0);
+            var serverVersion = Feature.ReadConcern.FirstSupportedVersion;
             var subject = ReadConcern.Majority;
 
-            Action act = () => subject.ThrowIfNotSupported(serverVersion);
+            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
 
             act.ShouldNotThrow<MongoClientException>();
         }
 
         [Fact]
-        public void ThrowIfNotSupported_should_throw_when_the_serverVersion_is_less_than_317_and_readConcern_is_majority()
+        public void ThrowIfNotSupported_should_throw_when_readConcern_is_not_supported()
         {
-            var serverVersion = new SemanticVersion(3, 0, 2);
+            var serverVersion = Feature.ReadConcern.LastNotSupportedVersion;
             var subject = ReadConcern.Majority;
 
-            Action act = () => subject.ThrowIfNotSupported(serverVersion);
+            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
 
             act.ShouldThrow<MongoClientException>();
         }

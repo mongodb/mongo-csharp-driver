@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.ExplainCommand);
             EnsureCollectionExists();
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 

@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         [SkippableFact]
         public void Test()
         {
-            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             // make sure collection exists and has exactly one document
             _collection.Drop();
             _collection.Insert(new BsonDocument());

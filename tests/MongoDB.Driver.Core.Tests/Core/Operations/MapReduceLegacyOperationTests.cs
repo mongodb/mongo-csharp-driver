@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
 
             var mapFunction = "function() { emit(this.x, this.v); }";

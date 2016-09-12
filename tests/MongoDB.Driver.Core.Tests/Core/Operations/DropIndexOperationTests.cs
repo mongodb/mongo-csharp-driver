@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var keys = new BsonDocument("x", 1);
             var requests = new[] { new CreateIndexRequest(keys) };

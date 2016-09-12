@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {

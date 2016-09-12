@@ -14,170 +14,152 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 {
-    public enum AuthenticationRequirement
+    public class RequireServer
     {
-        Unspecified,
-        On,
-        Off
-    }
-
-    [Flags]
-    public enum ClusterTypes
-    {
-        Standalone = 1,
-        ReplicaSet = 2,
-        Sharded = 4,
-        StandaloneOrReplicaSet = Standalone | ReplicaSet,
-        StandaloneOrSharded = Standalone | Sharded,
-        ReplicaSetOrSharded = ReplicaSet | Sharded,
-        Any = Standalone | ReplicaSet | Sharded
-    }
-
-    public static class RequireServer
-    {
-        public static void Any()
+        #region static
+        public static RequireServer Check()
         {
             if (Environment.GetEnvironmentVariable("SKIPTESTSTHATREQUIRESERVER") != null)
             {
                 throw new SkipTestException("Test skipped because it requires a server.");
             }
+            return new RequireServer();
+        }
+        #endregion
+
+        private SemanticVersion _serverVersion;
+
+        public RequireServer()
+        {
+            _serverVersion = CoreTestConfiguration.ServerVersion;
         }
 
-        public static void Where(
-            AuthenticationRequirement? authentication = null,
-            ClusterTypes? clusterTypes = null,
-            string minimumVersion = null,
-            string modules = null,
-            string storageEngines = null,
-            string versionLessThan = null
-            )
+        public RequireServer Authentication(bool authentication)
         {
-            Any();
-            if (minimumVersion != null)
+            var actualAuthentication = CoreTestConfiguration.ConnectionString.Username != null;
+            if (actualAuthentication == authentication)
             {
-                CheckMinimumVersion(minimumVersion);
+                return this;
             }
-            if (versionLessThan != null)
-            {
-                CheckVersionLessThan(versionLessThan);
-            }
-            if (clusterTypes != null)
-            {
-                CheckClusterTypes(clusterTypes.Value);
-            }
-            if (modules != null)
-            {
-                CheckModules(modules);
-            }
-            if (storageEngines != null)
-            {
-                CheckStorageEngines(storageEngines);
-            }
-            if (authentication != null)
-            {
-                CheckAuthentication(authentication.Value);
-            }
+            throw new SkipTestException($"Test skipped because authentication is {(actualAuthentication ? "on" : "off")}.");
         }
 
-        private static void CheckAuthentication(AuthenticationRequirement authentication)
+        public RequireServer ClusterType(ClusterType clusterType)
         {
-            switch (authentication)
+            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            if (actualClusterType == clusterType)
             {
-                case AuthenticationRequirement.Off:
-                    if (CoreTestConfiguration.ConnectionString.Username != null)
-                    {
-                        throw new SkipTestException("Test skipped because authentication is on.");
-                    }
-                    return;
-                case AuthenticationRequirement.On:
-                    if (CoreTestConfiguration.ConnectionString.Username == null)
-                    {
-                        throw new SkipTestException("Test skipped because authentication is off.");
-                    }
-                    return;
-                case AuthenticationRequirement.Unspecified:
-                    return;
-                default:
-                    throw new ArgumentException($"Invalid authentication requirement: {authentication}.", nameof(authentication));
+                return this;
             }
+            throw new SkipTestException($"Test skipped because cluster type is {actualClusterType} and not {clusterType}.");
         }
 
-        private static void CheckClusterTypes(ClusterTypes clusterTypes)
+        public RequireServer ClusterTypes(params ClusterType[] clusterTypes)
         {
-            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
-            switch (clusterType)
+            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            if (clusterTypes.Contains(actualClusterType))
             {
-                case ClusterType.ReplicaSet:
-                    if ((clusterTypes & ClusterTypes.ReplicaSet) != 0)
-                    {
-                        return;
-                    }
-                    break;
-                case ClusterType.Sharded:
-                    if ((clusterTypes & ClusterTypes.Sharded) != 0)
-                    {
-                        return;
-                    }
-                    break;
-                case ClusterType.Standalone:
-                    if ((clusterTypes & ClusterTypes.Standalone) != 0)
-                    {
-                        return;
-                    }
-                    break;
+                return this;
             }
-            throw new SkipTestException($"Test skipped because cluster type is {clusterType} and not {clusterTypes}.");
+            var clusterTypesString = string.Join(", ", clusterTypes.Select(t => t.ToString()));
+            throw new SkipTestException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
         }
 
-        private static void CheckMinimumVersion(string minimumVersion)
+        public RequireServer Supports(Feature feature)
         {
-            var minimumSemanticVersion = SemanticVersion.Parse(minimumVersion);
-            var actualVersion = CoreTestConfiguration.ServerVersion;
-            if (actualVersion < minimumSemanticVersion)
+            if (feature.IsSupported(_serverVersion))
             {
-                throw new SkipTestException($"Test skipped because server version {actualVersion} is less than {minimumVersion}.");
+                return this;
             }
+            throw new SkipTestException($"Test skipped because server version {_serverVersion} does not support the {feature.Name} feature.");
         }
 
-        private static void CheckModules(string modules)
+        public RequireServer Supports(params Feature[] features)
         {
-            var requiredModules = modules.Split(',');
-            var actualModules = CoreTestConfiguration.GetModules().ToArray();
-
-            if (requiredModules.Any(requiredModule => !actualModules.Contains(requiredModule)))
+            foreach (var feature in features)
             {
-                var requiredCsv = string.Join(", ", requiredModules);
-                var actualCsv = string.Join(", ", actualModules);
-                throw new SkipTestException($"Test skipped because one or more required modules is missing (required: [{requiredCsv}], actual: [{actualCsv}]).");
+                Supports(feature);
             }
+            return this;
         }
 
-        private static void CheckStorageEngines(string storageEngines)
+        public RequireServer DoesNotSupport(Feature feature)
         {
-            var requiredStorageEngines = storageEngines.Split(',');
+            if (!feature.IsSupported(_serverVersion))
+            {
+                return this;
+            }
+            throw new SkipTestException($"Test skipped because server version {_serverVersion} does support the {feature.Name} feature.");
+        }
+
+        public RequireServer DoesNotSupport(params Feature[] features)
+        {
+            foreach (var feature in features)
+            {
+                DoesNotSupport(feature);
+            }
+            return this;
+        }
+
+        public RequireServer StorageEngine(string storageEngine)
+        {
             var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
-            if (!requiredStorageEngines.Contains(actualStorageEngine))
+            if (actualStorageEngine.Equals(storageEngine, StringComparison.OrdinalIgnoreCase))
             {
-                var requiredCsv = string.Join(", ", requiredStorageEngines.Select(e => "\"" + e + "\"").ToArray());
-                throw new SkipTestException($"Test skipped because \"{actualStorageEngine}\" is not one of the required storage engines: {requiredCsv}.");
+                return this;
             }
+            throw new SkipTestException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not \"{storageEngine}\".");
         }
 
-        private static void CheckVersionLessThan(string versionLessThan)
+        public RequireServer StorageEngines(params string[] storageEngines)
         {
-            var lessThanSemanticVersion = SemanticVersion.Parse(versionLessThan);
-            var actualVersion = CoreTestConfiguration.ServerVersion;
-            if (actualVersion >= lessThanSemanticVersion)
+            var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
+            if (storageEngines.Contains(actualStorageEngine, StringComparer.OrdinalIgnoreCase))
             {
-                throw new SkipTestException($"Test skipped because server version {actualVersion} is not less than {versionLessThan}.");
+                return this;
             }
+            var storageEnginesString = string.Join(", ", storageEngines.Select(e => "\"" + e + "\""));
+            throw new SkipTestException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not one of ({storageEnginesString}).");
+        }
+
+        public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
+        {
+            var actualVersion = CoreTestConfiguration.ServerVersion;
+            if (actualVersion >= version)
+            {
+                return this;
+            }
+            throw new SkipTestException($"Test skipped because server version {actualVersion} is not greater than or equal to {version}.");
+        }
+
+        public RequireServer VersionGreaterThanOrEqualTo(string version)
+        {
+            return VersionGreaterThanOrEqualTo(SemanticVersion.Parse(version));
+        }
+
+        public RequireServer VersionLessThan(SemanticVersion version)
+        {
+            var actualVersion = CoreTestConfiguration.ServerVersion;
+            if (actualVersion < version)
+            {
+                return this;
+            }
+            throw new SkipTestException($"Test skipped because server version {actualVersion} is not less than {version}.");
+        }
+
+        public RequireServer VersionLessThan(string version)
+        {
+            return VersionLessThan(SemanticVersion.Parse(version));
         }
     }
 }

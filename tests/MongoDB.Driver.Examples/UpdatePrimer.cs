@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Examples
         [SkippableFact]
         public async Task UpdateTopLevelFields()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             AltersCollection();
 
             // @begin: update-top-level-fields
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Examples
         [SkippableFact]
         public async Task UpdateMultipleDocuments()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             AltersCollection();
 
             // @begin: update-multiple-documents

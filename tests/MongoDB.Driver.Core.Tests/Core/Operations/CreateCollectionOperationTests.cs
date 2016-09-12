@@ -14,16 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -44,34 +40,47 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // test methods
-        [Fact]
-        public void AutoIndexId_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void AutoIndexId_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.AutoIndexId.Should().NotHaveValue();
 
-            subject.AutoIndexId = true;
+            subject.AutoIndexId = value;
+            var result = subject.AutoIndexId;
 
-            subject.AutoIndexId.Should().BeTrue();
+            result.Should().Be(value);
         }
 
-        [Fact]
-        public void Capped_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void Capped_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.Capped.Should().NotHaveValue();
 
-            subject.Capped = true;
+            subject.Capped = value;
+            var result = subject.Capped;
 
-            subject.Capped.Should().BeTrue();
+            result.Should().Be(value);
         }
 
-        [Fact]
-        public void CollectionNamespace_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void Collation_get_and_set_should_work(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = locale == null ? null : new Collation(locale);
 
-            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.Collation = value;
+            var result = subject.Collation;
+
+            result.Should().BeSameAs(value);
         }
 
         [Fact]
@@ -79,241 +88,290 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+
             subject.AutoIndexId.Should().NotHaveValue();
             subject.Capped.Should().NotHaveValue();
-            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.Collation.Should().BeNull();
+            subject.IndexOptionDefaults.Should().BeNull();
             subject.MaxDocuments.Should().NotHaveValue();
             subject.MaxSize.Should().NotHaveValue();
-            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.StorageEngine.Should().BeNull();
             subject.UsePowerOf2Sizes.Should().NotHaveValue();
+            subject.ValidationAction.Should().BeNull();
+            subject.ValidationLevel.Should().BeNull();
+            subject.Validator.Should().BeNull();
         }
 
         [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
-            Action action = () => { new CreateCollectionOperation(null, _messageEncoderSettings); };
+            var exception = Record.Exception(() => { new CreateCollectionOperation(null, _messageEncoderSettings); });
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Equals("value");
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_AutoIndexId_is_set(
-            [Values(false, true)]
-            bool autoIndexId)
+            [Values(null, false, true)]
+            bool? autoIndexId)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 AutoIndexId = autoIndexId
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "autoIndexId", autoIndexId }
+                { "autoIndexId", () => autoIndexId.Value, autoIndexId != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_Capped_is_set(
-            [Values(false, true)]
-            bool capped)
+            [Values(null, false, true)]
+            bool? capped)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = capped
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "capped", capped }
+                { "capped", () => capped.Value, capped != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Collation_is_set(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
+        {
+            var collation = locale == null ? null : new Collation(locale);
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Collation = collation
             };
 
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
+            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
 
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "collation", () => collation.ToBsonDocument(), collation != null }
+            };
             result.Should().Be(expectedResult);
         }
 
         [Fact]
-        public void CreateCommand_should_return_expected_result_when_IndexOptionDefaults_is_set()
+        public void CreateCommand_should_throw_when_Collation_is_set_and_not_supported()
         {
-            var value = new BsonDocument("storageEngine", new BsonDocument("x", 1));
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                IndexOptionDefaults = value
+                Collation = new Collation("en_US")
             };
+
+            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_IndexOptionDefaults_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string indexOptionDefaultsString)
+        {
+            var indexOptionDefaults = indexOptionDefaultsString == null ? null : BsonDocument.Parse(indexOptionDefaultsString);
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                IndexOptionDefaults = indexOptionDefaults
+            };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "indexOptionDefaults", value }
+                { "indexOptionDefaults", () => indexOptionDefaults, indexOptionDefaults != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_MaxDocuments_is_set(
-            [Values(1, 2)]
-            long maxDocuments)
+            [Values(null, 1L, 2L)]
+            long? maxDocuments)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 MaxDocuments = maxDocuments
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "max", maxDocuments }
+                { "max", () => maxDocuments.Value, maxDocuments != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_MaxSize_is_set(
-            [Values(1, 2)]
-            long maxSize)
+            [Values(null, 1L, 2L)]
+            long? maxSize)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 MaxSize = maxSize
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "size", maxSize }
+                { "size", () => maxSize.Value, maxSize != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_StorageEngine_is_set(
-            [Values(null, "{ awesome: true }")]
-            string storageEngine)
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string storageEngineString)
         {
-            var storageEngineDoc = storageEngine == null ? null : BsonDocument.Parse(storageEngine);
+            var storageEngine = storageEngineString == null ? null : BsonDocument.Parse(storageEngineString);
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                StorageEngine = storageEngineDoc
+                StorageEngine = storageEngine
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "storageEngine", storageEngineDoc, storageEngine != null }
+                { "storageEngine", storageEngine, storageEngineString != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_UsePowerOf2Sizes_is_set(
-            [Values(false, true)]
-            bool usePowerOf2Sizes)
+            [Values(null, false, true)]
+            bool? usePowerOf2Sizes)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 UsePowerOf2Sizes = usePowerOf2Sizes
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "flags", usePowerOf2Sizes ? 1 : 0 }
+                { "flags", () => usePowerOf2Sizes.Value ? 1 : 0, usePowerOf2Sizes != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_ValidationAction_is_set(
-            [Values(DocumentValidationAction.Error, DocumentValidationAction.Warn)]
-            DocumentValidationAction value)
+            [Values(null, DocumentValidationAction.Error, DocumentValidationAction.Warn)]
+            DocumentValidationAction? validationAction)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                ValidationAction = value
+                ValidationAction = validationAction
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "validationAction", value.ToString().ToLowerInvariant() }
+                { "validationAction", () => validationAction.ToString().ToLowerInvariant(), validationAction != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_ValidationLevel_is_set(
-            [Values(DocumentValidationLevel.Moderate, DocumentValidationLevel.Off)]
-            DocumentValidationLevel value)
+            [Values(null, DocumentValidationLevel.Moderate, DocumentValidationLevel.Off)]
+            DocumentValidationLevel? validationLevel)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                ValidationLevel = value
+                ValidationLevel = validationLevel
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "validationLevel", value.ToString().ToLowerInvariant() }
+                { "validationLevel", () => validationLevel.ToString().ToLowerInvariant(), validationLevel != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_Validator_is_set()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Validator_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string validatorString)
         {
-            var value = new BsonDocument("x", 1);
+            var validator = validatorString == null ? null : BsonDocument.Parse(validatorString);
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Validator = value
+                Validator = validator
             };
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "validator", value }
+                { "validator", validator, validator != null }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
@@ -323,19 +381,18 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var stats = GetCollectionStats(binding, async);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["name"].AsString.Should().Be(_collectionNamespace.CollectionName);
         }
 
         [SkippableTheory]
@@ -346,34 +403,21 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 AutoIndexId = autoIndexId
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                List<BsonDocument> indexes;
-                if (async)
-                {
-                    var cursor = listIndexesOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
-                    indexes = cursor.ToListAsync().GetAwaiter().GetResult();
-                }
-                else
-                {
-                    var cursor = listIndexesOperation.Execute(binding, CancellationToken.None);
-                    indexes = cursor.ToList();
-                }
-
-                indexes.Count.Should().Be(autoIndexId ? 1 : 0);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["options"]["autoIndexId"].ToBoolean().Should().Be(autoIndexId);
         }
 
         [SkippableTheory]
@@ -384,60 +428,89 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
-            var maxSize = capped ? (long?)10000 : null;
+            var maxSize = capped ? 10000L : (long?)null;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = capped,
                 MaxSize = maxSize
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var stats = GetCollectionStats(binding, async);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                stats.GetValue("capped", false).ToBoolean().Should().Be(capped);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            // in older versions of the server options might not be present if capped is false
+            if (capped || info.Contains("options"))
+            {
+                info["options"].AsBsonDocument.GetValue("capped", false).ToBoolean().Should().Be(capped);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_create_collection_when_Collation_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Collation);
+            DropCollection();
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            BsonDocument info;
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
+            }
+
+            info["options"]["collation"]["locale"].AsString.Should().Be("en_US");
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_IndexOptionDefaults_is_set(
-           [Values(false, true)] bool async)
+            [Values(false, true)]
+            bool async)
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0");
+            RequireServer.Check().Supports(Feature.IndexOptionsDefaults);
             DropCollection();
-            var storageEngineOptions = new BsonDocument("mmapv1", new BsonDocument());
-            var indexOptionDefaults = new BsonDocument("storageEngine", storageEngineOptions);
+            var indexOptionDefaults = new BsonDocument
+            {
+                {  "storageEngine", new BsonDocument("mmapv1", new BsonDocument()) }
+            };
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 IndexOptionDefaults = indexOptionDefaults
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-                var collectionInfo = GetCollectionInfo(binding, _collectionNamespace.CollectionName);
-                Assert.Equal(indexOptionDefaults, collectionInfo["options"]["indexOptionDefaults"]);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["options"]["indexOptionDefaults"].Should().Be(indexOptionDefaults);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_MaxDocuments_is_set(
+            [Values(1L, 2L)]
+            long maxDocuments,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
-            var maxDocuments = 123L;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = true,
@@ -445,45 +518,69 @@ namespace MongoDB.Driver.Core.Operations
                 MaxDocuments = maxDocuments
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var stats = GetCollectionStats(binding, async);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                stats["capped"].ToBoolean().Should().BeTrue();
-                stats["max"].ToInt64().Should().Be(maxDocuments);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["options"]["max"].ToInt64().Should().Be(maxDocuments);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_MaxSize_is_set(
+            [Values(10000L, 20000L)]
+            long maxSize,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
-            var maxSize = 10000L;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = true,
                 MaxSize = maxSize
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var stats = GetCollectionStats(binding, async);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                stats["capped"].ToBoolean().Should().BeTrue();
-                // TODO: not sure how to verify that the maxSize took effect
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["options"]["size"].ToInt64().Should().BeGreaterOrEqualTo(maxSize); // server rounds maxSize up
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_create_collection_when_StorageEngine_is_set(
+            [Values("abc", "def")]
+            string metadata,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().StorageEngine("wiredTiger");
+            DropCollection();
+            var storageEngine = new BsonDocument
+            {
+                { "wiredTiger", new BsonDocument("configString", "app_metadata=" + metadata) }
+            };
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                StorageEngine = storageEngine
+            };
+
+            BsonDocument info;
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
+            }
+
+            info["options"]["storageEngine"].Should().Be(storageEngine);
         }
 
         [SkippableTheory]
@@ -494,72 +591,100 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 UsePowerOf2Sizes = usePowerOf2Sizes
             };
 
+            BsonDocument info;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-
-                var stats = GetCollectionStats(binding, async);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                stats["userFlags"].ToInt32().Should().Be(usePowerOf2Sizes ? 1 : 0);
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
             }
+
+            info["options"]["flags"].Should().Be(usePowerOf2Sizes ? 1 : 0);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_Validator_is_set(
-            [Values(false, true)] bool async)
+            [Values(false, true)]
+            bool async)
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0");
+            RequireServer.Check().Supports(Feature.DocumentValidation);
+            DropCollection();
+            var validator = new BsonDocument("_id", new BsonDocument("$exists", true));
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Validator = validator,
+                ValidationLevel = DocumentValidationLevel.Strict,
+                ValidationAction = DocumentValidationAction.Error
+            };
+
+            BsonDocument info;
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
+            }
+
+            info["options"]["validator"].Should().Be(validator);
+            info["options"]["validationLevel"].AsString.Should().Be("strict");
+            info["options"]["validationAction"].AsString.Should().Be("error");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_Collation_is_set_and_not_supported(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().DoesNotSupport(Feature.Collation);
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                ValidationAction = DocumentValidationAction.Error,
-                ValidationLevel = DocumentValidationLevel.Strict,
-                Validator = new BsonDocument("_id", new BsonDocument("$exists", true))
+                Collation = new Collation("en_US")
             };
 
+            Exception exception;
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-                var collectionInfo = GetCollectionInfo(binding, _collectionNamespace.CollectionName);
-                Assert.Equal(new BsonDocument("_id", new BsonDocument("$exists", true)), collectionInfo["options"]["validator"]);
-                Assert.Equal("error", collectionInfo["options"]["validationAction"].AsString);
-                Assert.Equal("strict", collectionInfo["options"]["validationLevel"].AsString);
+                exception = Record.Exception(() => ExecuteOperation(subject, binding, async));
             }
+
+            exception.Should().BeOfType<NotSupportedException>();
         }
 
-        [Fact]
-        public void IndexOptionDefaults_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void IndexOptionDefaults_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            var value = new BsonDocument("storageEngine", new BsonDocument("x", 1));
-            subject.IndexOptionDefaults.Should().BeNull();
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
 
             subject.IndexOptionDefaults = value;
+            var result = subject.IndexOptionDefaults;
 
-            subject.IndexOptionDefaults.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
-        [Fact]
-        public void MaxDocuments_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxDocuments_get_and_set_should_work(
+            [Values(null, 1L, 2L)]
+            long? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.MaxDocuments.Should().NotHaveValue();
 
-            subject.MaxDocuments = 1;
+            subject.MaxDocuments = value;
+            var result = subject.MaxDocuments;
 
-            subject.MaxDocuments.Should().Be(1);
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -570,20 +695,24 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Action action = () => { subject.MaxDocuments = maxDocuments; };
+            var exception = Record.Exception(() => { subject.MaxDocuments = maxDocuments; });
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Equals("value");
+            var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            argumentOutOfRangeException.ParamName.Should().Be("value");
         }
 
-        [Fact]
-        public void MaxSize_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxSize_get_and_set_should_work(
+            [Values(null, 1L, 2L)]
+            long? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.MaxSize.Should().NotHaveValue();
 
-            subject.MaxSize = 1;
+            subject.MaxSize = value;
+            var result = subject.MaxSize;
 
-            subject.MaxSize.Should().Be(1);
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -594,71 +723,82 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Action action = () => { subject.MaxSize = maxSize; };
+            var exception = Record.Exception(() => { subject.MaxSize = maxSize; });
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Equals("value");
-        }
-
-        [Fact]
-        public void MessageEncoderSettings_should_work()
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-
-            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-        }
-
-        [Fact]
-        public void UsePowerOf2Sizes_should_work()
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.UsePowerOf2Sizes.Should().NotHaveValue();
-
-            subject.UsePowerOf2Sizes = true;
-
-            subject.UsePowerOf2Sizes.Should().BeTrue();
+            var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            argumentOutOfRangeException.ParamName.Should().Be("value");
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ValidationAction_should_work(
+        public void StorageEngine_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
+
+            subject.StorageEngine = value;
+            var result = subject.StorageEngine;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void UsePowerOf2Sizes_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+
+            subject.UsePowerOf2Sizes = value;
+            var result = subject.UsePowerOf2Sizes;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ValidationAction_get_and_set_should_work(
             [Values(null, DocumentValidationAction.Error, DocumentValidationAction.Warn)]
             DocumentValidationAction? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.ValidationAction.Should().BeNull();
 
             subject.ValidationAction = value;
+            var result = subject.ValidationAction;
 
-            subject.ValidationAction.Should().Be(value);
+            result.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ValidationLevel_should_work(
+        public void ValidationLevel_get_and_set_should_work(
             [Values(null, DocumentValidationLevel.Moderate, DocumentValidationLevel.Off)]
             DocumentValidationLevel? value)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.ValidationLevel.Should().BeNull();
 
             subject.ValidationLevel = value;
+            var result = subject.ValidationLevel;
 
-            subject.ValidationLevel.Should().Be(value);
+            result.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Validator_should_work(
-            [Values(null, "{ x : 1 }")]
-            string json)
+        public void Validator_get_and_set_should_work(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string valueString)
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            var value = json == null ? null : BsonDocument.Parse(json);
-            subject.Validator.Should().BeNull();
+            var value = valueString == null ? null : BsonDocument.Parse(valueString);
 
             subject.Validator = value;
+            var result = subject.Validator;
 
-            subject.Validator.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         // helper methods
@@ -668,19 +808,8 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                operation.Execute(binding, CancellationToken.None);
             }
-        }
-
-        private BsonDocument GetCollectionInfo(IReadBinding binding, string collectionName)
-        {
-            var commandOperation = new ReadCommandOperation<BsonDocument>(
-                _collectionNamespace.DatabaseNamespace,
-                new BsonDocument("listCollections", 1),
-                BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings());
-            var commandResult = commandOperation.Execute(binding, CancellationToken.None);
-            return commandResult["cursor"]["firstBatch"].AsBsonArray.Where(c => c["name"] == _collectionNamespace.CollectionName).Single().AsBsonDocument;
         }
 
         private BsonDocument ExecuteOperation(CreateCollectionOperation subject, IWriteBinding binding, bool async)
@@ -695,22 +824,13 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BsonDocument GetCollectionStats(IReadBinding binding, bool async)
+        private BsonDocument GetCollectionInfo(IReadBinding binding)
         {
-            var command = new BsonDocument
+            var listCollectionsOperation = new ListCollectionsOperation(_collectionNamespace.DatabaseNamespace, _messageEncoderSettings)
             {
-                { "collStats", _collectionNamespace.CollectionName }
+                Filter = new BsonDocument("name", _collectionNamespace.CollectionName)
             };
-            var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            if (async)
-            {
-                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                return operation.Execute(binding, CancellationToken.None);
-            }
+            return listCollectionsOperation.Execute(binding, CancellationToken.None).Single();
         }
     }
 }

@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            if (Collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            if (Collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -172,14 +172,14 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
                 { "query", _filter },
-                { "sort", _sort, _sort != null },
                 { "update", _update },
-                { "new", _returnDocument == ReturnDocument.After },
+                { "new", true, _returnDocument == ReturnDocument.After },
+                { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
-                { "upsert", _isUpsert },
+                { "upsert", true, _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null }
             };
         }

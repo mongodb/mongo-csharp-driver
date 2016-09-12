@@ -14,10 +14,10 @@
 */
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
@@ -28,274 +28,554 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class AggregateOperationTests : OperationTestBase
     {
+        private static BsonDocument[] __pipeline = new[] { BsonDocument.Parse("{ $match : { x : 'x' } }") };
+        private static IBsonSerializer<BsonDocument> __resultSerializer = BsonDocumentSerializer.Instance;
+
         [Fact]
         public void Constructor_should_create_a_valid_instance()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
-            subject.Pipeline.Should().BeEmpty();
-            subject.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
-            subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
+            subject.Pipeline.Should().Equal(__pipeline);
+            subject.ResultSerializer.Should().BeSameAs(__resultSerializer);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+
+            subject.AllowDiskUse.Should().NotHaveValue();
+            subject.BatchSize.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.MaxTime.Should().NotHaveValue();
+            subject.ReadConcern.IsServerDefault.Should().BeTrue();
+            subject.UseCursor.Should().NotHaveValue();
         }
 
         [Fact]
-        public void Constructor_should_throw_when_collection_namespace_is_null()
+        public void Constructor_should_throw_when_collectionNamespace_is_null()
         {
-            Action act = () => new AggregateOperation<BsonDocument>(null, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(null, __pipeline, __resultSerializer, _messageEncoderSettings));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void Constructor_should_throw_when_pipeline_is_null()
         {
-            Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, null, __resultSerializer, _messageEncoderSettings));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
         }
 
         [Fact]
-        public void Constructor_should_throw_when_result_serializer_is_null()
+        public void Constructor_should_throw_when_resultSerializer_is_null()
         {
-            Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), null, _messageEncoderSettings);
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, null, _messageEncoderSettings));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("resultSerializer");
         }
 
         [Fact]
-        public void Constructor_should_throw_when_message_encoder_settings_is_null()
+        public void Constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            Action act = () => new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, null);
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, null));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
         [Fact]
-        public void AllowDiskUse_should_have_the_correct_value()
+        public void AllowDiskUse_get_and_set_should_work()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            subject.AllowDiskUse.Should().Be(null);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
             subject.AllowDiskUse = true;
+            var result = subject.AllowDiskUse;
 
-            subject.AllowDiskUse.Should().Be(true);
+            result.Should().Be(true);
         }
 
         [Fact]
-        public void BatchSize_should_have_the_correct_value()
+        public void BatchSize_get_and_set_should_work()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            subject.BatchSize.Should().Be(null);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
             subject.BatchSize = 23;
+            var result = subject.BatchSize;
 
-            subject.BatchSize.Should().Be(23);
+            result.Should().Be(23);
         }
 
         [Fact]
-        public void MaxTime_should_have_the_correct_value()
+        public void Collation_get_and_set_should_work()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var collation = new Collation("en_US");
 
-            subject.MaxTime.Should().Be(null);
+            subject.Collation = collation;
+            var result = subject.Collation;
 
-            subject.MaxTime = TimeSpan.FromSeconds(2);
-
-            subject.MaxTime.Should().Be(TimeSpan.FromSeconds(2));
+            result.Should().BeSameAs(collation);
         }
 
         [Fact]
-        public void UseCursor_should_have_the_correct_value()
+        public void MaxTime_get_and_set_should_work()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = TimeSpan.FromSeconds(2);
 
-            subject.UseCursor.Should().Be(null);
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void ReadConcern_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = new ReadConcern(ReadConcernLevel.Linearizable);
+
+            subject.ReadConcern = value;
+            var result = subject.ReadConcern;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void UseCursor_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
             subject.UseCursor = true;
+            var result = subject.UseCursor;
 
-            subject.UseCursor.Should().Be(true);
+            result.Should().BeTrue();
         }
 
         [Theory]
         [ParameterAttributeData]
-        [Trait("Category", "ReadConcern")]
-        public void CreateCommand_should_create_the_correct_command(
-            [Values("2.4.0", "2.6.0", "2.8.0", "3.0.0", "3.2.0")] string serverVersion,
-            [Values(null, false, true)] bool? allowDiskUse,
-            [Values(null, 10, 20)] int? batchSize,
-            [Values(null, 2000)] int? maxTime,
-            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel,
-            [Values(null, false, true)] bool? useCursor)
+        public void CreateCommand_should_return_the_expected_result(
+            [Values(false, true)]
+            bool useServerVersionSupportingAggregateCursorResult)
         {
-            var semanticServerVersion = SemanticVersion.Parse(serverVersion);
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                AllowDiskUse = allowDiskUse,
-                BatchSize = batchSize,
-                MaxTime = maxTime.HasValue ? TimeSpan.FromMilliseconds(maxTime.Value) : (TimeSpan?)null,
-                ReadConcern = new ReadConcern(readConcernLevel),
-                UseCursor = useCursor
-            };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
+
+            var result = subject.CreateCommand(serverVersion);
 
             var expectedResult = new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
-                { "pipeline", new BsonArray(subject.Pipeline) },
-                { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse.HasValue },
-                { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
+                { "pipeline", new BsonArray(__pipeline) },
+                { "cursor", () => new BsonDocument(), Feature.AggregateCursorResult.IsSupported(serverVersion) }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_AllowDiskUse_is_set(
+            [Values(null, false, true)]
+            bool? allowDiskUse)
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                AllowDiskUse = allowDiskUse
             };
 
-            if (!subject.ReadConcern.IsServerDefault)
-            {
-                expectedResult["readConcern"] = subject.ReadConcern.ToBsonDocument();
-            }
+            var result = subject.CreateCommand(Feature.AggregateCursorResult.FirstSupportedVersion);
 
-            if (SupportedFeatures.IsAggregateCursorResultSupported(semanticServerVersion) && useCursor.GetValueOrDefault(true))
+            var expectedResult = new BsonDocument
             {
-                expectedResult["cursor"] = new BsonDocument
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_BatchSize_is_set(
+            [Values(null, 1)]
+            int? batchSize,
+            [Values(false, true)]
+            bool useServerVersionSupportingAggregateCursorResult)
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                BatchSize = batchSize
+            };
+            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            BsonDocument cursor = null;
+            if (Feature.AggregateCursorResult.IsSupported(serverVersion))
+            {
+                cursor = new BsonDocument
                 {
-                    { "batchSize", () => batchSize.Value, batchSize.HasValue }
+                    { "batchSize", () => batchSize.Value, batchSize != null }
                 };
             }
-
-            if (!subject.ReadConcern.IsSupported(semanticServerVersion))
+            var expectedResult = new BsonDocument
             {
-                Action act = () => subject.CreateCommand(semanticServerVersion);
-                act.ShouldThrow<MongoClientException>();
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "cursor", () => cursor, cursor != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_Collation_is_set(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
+        {
+            var collation = locale == null ? null : new Collation(locale);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Collation = collation
+            };
+
+            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "collation", () => new BsonDocument("locale", locale), collation != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void CreateCommand_should_throw_when_Collation_is_set()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_MaxTime_is_set(
+            [Values(null, 1)]
+            int? milliSeconds)
+        {
+            var maxTime = milliSeconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliSeconds.Value);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                MaxTime = maxTime
+            };
+
+            var result = subject.CreateCommand(Feature.AggregateCursorResult.FirstSupportedVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "maxTimeMS", () => maxTime.Value.TotalMilliseconds, maxTime != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_ReadConcern_is_set(
+            [Values(null, ReadConcernLevel.Linearizable)]
+            ReadConcernLevel? level)
+        {
+            var readConcern = new ReadConcern(level);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var result = subject.CreateCommand(Feature.ReadConcern.FirstSupportedVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "readConcern", () => readConcern.ToBsonDocument(), level != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void CreateCommand_should_throw_when_ReadConcern_is_set_but_not_supported()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                ReadConcern = new ReadConcern(ReadConcernLevel.Linearizable)
+            };
+
+            var exception = Record.Exception(() => subject.CreateCommand(Feature.ReadConcern.LastNotSupportedVersion));
+
+            exception.Should().BeOfType<MongoClientException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_UseCursor_is_set(
+            [Values(null, false, true)]
+            bool? useCursor,
+            [Values(false, true)]
+            bool useServerVersionSupportingAggregateCursorResult)
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                UseCursor = useCursor
+            };
+            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "cursor", () => new BsonDocument(), useCursor.GetValueOrDefault(true) && Feature.AggregateCursorResult.IsSupported(serverVersion) }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate);
+            EnsureTestData();
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_binding_is_null(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => subject.ExecuteAsync(null, CancellationToken.None).GetAwaiter().GetResult());
             }
             else
             {
-                var result = subject.CreateCommand(semanticServerVersion);
-                result.Should().Be(expectedResult);
+                exception = Record.Exception(() => subject.Execute(null, CancellationToken.None));
             }
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("binding");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_pipeline_ends_with_out(
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new [] { BsonDocument.Parse("{ $out : \"xyz\" }") };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings);
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("pipeline");
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Executing_with_matching_documents_using_no_options(
+        public void Execute_should_return_expected_result_when_AllowDiskUse_is_set(
+            [Values(null, false, true)]
+            bool? allowDiskUse,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.4.0");
+            RequireServer.Check().Supports(Feature.Aggregate, Feature.AggregateAllowDiskUse);
             EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
-
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Executing_with_matching_documents_using_all_options(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Where(minimumVersion: "2.6.0");
-            EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                AllowDiskUse = true,
-                BatchSize = 2,
-                MaxTime = TimeSpan.FromSeconds(20)
+                AllowDiskUse = allowDiskUse
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
-            result.Should().HaveCount(2);
+            result.Should().HaveCount(1);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Executing_with_matching_documents_using_a_cursor(
+        public void Execute_should_return_expected_result_when_BatchSize_is_set(
+            [Values(null, 1, 10)]
+            int? batchSize,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().Supports(Feature.Aggregate);
             EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                UseCursor = true
+                BatchSize = batchSize
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
-            result.Should().HaveCount(2);
+            result.Should().HaveCount(1);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Executing_with_matching_documents_without_a_cursor(
+        public void Execute_should_return_expected_result_when_Collation_is_set(
+            [Values(false, true)]
+            bool caseSensitive,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.4.0");
+            RequireServer.Check().Supports(Feature.Aggregate, Feature.Collation);
             EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                UseCursor = false
+                Collation = collation
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
-            result.Should().HaveCount(2);
+            result.Should().HaveCount(caseSensitive ? 1 : 2);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Executing_with_no_matching_documents_without_a_cursor(
+        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.4.0");
-            EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 5}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            RequireServer.Check().Supports(Feature.Aggregate).DoesNotSupport(Feature.Collation);
+            var collation = new Collation("en_US");
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                UseCursor = false
+                Collation = collation
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_MaxTime_is_set(
+            [Values(null, 1000)]
+            int? milliseconds,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate, Feature.MaxTime);
+            EnsureTestData();
+            var maxTime = milliseconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliseconds.Value);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                MaxTime = maxTime
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            result.Should().HaveCount(1);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Executing_with_no_matching_documents_using_a_cursor(
+        public void Execute_should_return_expected_result_when_ReadConcern_is_set(
+            [Values(null, ReadConcernLevel.Local)]
+            ReadConcernLevel? level,
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().Supports(Feature.Aggregate, Feature.ReadConcern);
             EnsureTestData();
-            var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 5}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var readConcern = new ReadConcern(level);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                UseCursor = true
+                ReadConcern = readConcern
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            result.Should().HaveCount(1);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_ReadConcern_is_set_but_not_supported(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate).DoesNotSupport(Feature.ReadConcern);
+            var readConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoClientException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_UseCursor_is_set(
+            [Values(null, false, true)]
+            bool? useCursor,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate);
+            EnsureTestData();
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                UseCursor = useCursor
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
         }
 
         private void EnsureTestData()
@@ -303,7 +583,8 @@ namespace MongoDB.Driver.Core.Operations
             RunOncePerFixture(() =>
             {
                 DropCollection();
-                Insert(Enumerable.Range(1, 5).Select(id => new BsonDocument("_id", id)));
+                Insert(new BsonDocument { { "_id", 1 }, { "x", "x" } });
+                Insert(new BsonDocument { { "_id", 2 }, { "x", "X" } });
             });
         }
     }

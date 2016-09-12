@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(authentication: AuthenticationRequirement.Off);
+            RequireServer.Check().Authentication(false);
             var function = "return 1";
             var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
 
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(authentication: AuthenticationRequirement.Off);
+            RequireServer.Check().Authentication(false);
             var function = "function(x) { return x; }";
             var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.Args = new BsonValue[] { 1 };
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            if (SupportedFeatures.IsMaxTimeSupported(CoreTestConfiguration.ServerVersion))
+            if (Feature.MaxTime.IsSupported(CoreTestConfiguration.ServerVersion))
             {
                 // TODO: implement EvalOperation MaxTime test
             }
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(authentication: AuthenticationRequirement.Off);
+            RequireServer.Check().Authentication(false);
             var function = "return 1";
             var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
             subject.NoLock = true;

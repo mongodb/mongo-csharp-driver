@@ -61,18 +61,6 @@ namespace MongoDB.Driver.Core.Operations
 
         // properties
         /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether an index on _id should be created automatically.
         /// </summary>
         /// <value>
@@ -94,6 +82,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "autoIndexId", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
-                { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue},
+                { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue },
                 { "storageEngine", () => _storageEngine, _storageEngine != null },
                 { "indexOptionDefaults", _indexOptionDefaults, _indexOptionDefaults != null },
                 { "validator", _validator, _validator != null },

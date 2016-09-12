@@ -412,16 +412,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private BsonDocument CreateCommand(ServerDescription serverDescription)
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion, ServerType serverType)
         {
-            _readConcern.ThrowIfNotSupported(serverDescription.Version);
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverDescription.Version))
+            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
-                throw new NotSupportedException($"Server version {serverDescription.Version} does not support collations.");
+                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
 
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
-            var isShardRouter = serverDescription.Type == ServerType.ShardRouter;
+            var isShardRouter = serverType == ServerType.ShardRouter;
 
             var command = new BsonDocument
             {
@@ -454,15 +454,17 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, CursorBatch<TDocument> batch, bool slaveOk)
+        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument commandResult, bool slaveOk)
         {
             var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
+            var firstBatch = CreateCursorBatch(commandResult);
+
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
                 _collectionNamespace,
                 _filter ?? new BsonDocument(),
-                batch.Documents,
-                batch.CursorId,
+                firstBatch.Documents,
+                firstBatch.CursorId,
                 _batchSize,
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
@@ -470,9 +472,9 @@ namespace MongoDB.Driver.Core.Operations
                 _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
         }
 
-        private CursorBatch<TDocument> CreateCursorBatch(BsonDocument result)
+        private CursorBatch<TDocument> CreateCursorBatch(BsonDocument commandResult)
         {
-            var cursorDocument = result["cursor"].AsBsonDocument;
+            var cursorDocument = commandResult["cursor"].AsBsonDocument;
             var cursorId = cursorDocument["id"].ToInt64();
             var batch = (RawBsonArray)cursorDocument["firstBatch"];
 
@@ -496,13 +498,12 @@ namespace MongoDB.Driver.Core.Operations
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
-                CursorBatch<TDocument> batch;
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    batch = ExecuteCommand(channelBinding, channelSource.ServerDescription, cancellationToken);
+                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
+                    var commandResult = operation.Execute(binding, cancellationToken);
+                    return CreateCursor(channelSource, commandResult, slaveOk);
                 }
-
-                return CreateCursor(channelSource, batch, slaveOk);
             }
         }
 
@@ -519,40 +520,24 @@ namespace MongoDB.Driver.Core.Operations
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
-                CursorBatch<TDocument> batch;
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    batch = await ExecuteCommandAsync(channelBinding, channelSource.ServerDescription, cancellationToken).ConfigureAwait(false);
+                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
+                    var commandResult = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                    return CreateCursor(channelSource, commandResult, slaveOk);
                 }
-
-                return CreateCursor(channelSource, batch, slaveOk);
             }
         }
 
-        private ReadCommandOperation<BsonDocument> CreateCommandOperation(BsonDocument command)
+        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion, ServerType serverType)
         {
+            var command = CreateCommand(serverVersion, serverType);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 __findCommandResultSerializer,
                 _messageEncoderSettings);
             return operation;
-        }
-
-        private CursorBatch<TDocument> ExecuteCommand(IReadBinding binding, ServerDescription serverDescription, CancellationToken cancellationToken)
-        {
-            var command = CreateCommand(serverDescription);
-            var operation = CreateCommandOperation(command);
-            var result = operation.Execute(binding, cancellationToken);
-            return CreateCursorBatch(result);
-        }
-
-        private async Task<CursorBatch<TDocument>> ExecuteCommandAsync(IReadBinding binding, ServerDescription serverDescription, CancellationToken cancellationToken)
-        {
-            var command = CreateCommand(serverDescription);
-            var operation = CreateCommandOperation(command);
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return CreateCursorBatch(result);
         }
     }
 }

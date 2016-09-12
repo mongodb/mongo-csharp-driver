@@ -70,6 +70,7 @@
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
     <Compile Include="Core\Misc\DefaultRandomStringGenerator.cs" />
+    <Compile Include="Core\Misc\Feature.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerable.cs" />
     <Compile Include="Core\Misc\TaskExtensions.cs" />
     <Compile Include="Core\Servers\IServerMonitor.cs" />
@@ -147,7 +148,6 @@
     <Compile Include="Core\Events\SingleEventSubscriber.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequest.cs" />
-    <Compile Include="Core\Misc\SupportedFeatures.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumerator.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingCommandOperation.cs" />
     <Compile Include="Core\Operations\CreateIndexesUsingInsertOperation.cs" />

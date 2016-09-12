@@ -14,18 +14,12 @@
 */
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -517,15 +511,15 @@ namespace MongoDB.Driver.Core.Operations
             return operation;
         }
 
-        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation(SemanticVersion serverVersion)
+        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation()
         {
             if (!_readConcern.IsServerDefault)
             {
-                throw new NotSupportedException($"Server version {serverVersion} does not support read concern.");
+                throw new MongoClientException($"ReadConcern {_readConcern} is not supported by FindOpcodeOperation.");
             }
             if (_collation != null)
             {
-                throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+                throw new NotSupportedException($"OP_QUERY does not support collations.");
             }
 
             var operation = new FindOpcodeOperation<TDocument>(
@@ -561,13 +555,13 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (SupportedFeatures.IsFindCommandSupported(serverVersion) && !hasExplainModifier)
+            if (Feature.FindCommand.IsSupported(serverVersion) && !hasExplainModifier)
             {
                 return CreateFindCommandOperation();
             }
             else
             {
-                return CreateFindOpcodeOperation(serverVersion);
+                return CreateFindOpcodeOperation();
             }
         }
     }

@@ -86,7 +86,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnicodeHelper.cs" />
     <Compile Include="XunitExtensions\AssertionException.cs" />
-    <Compile Include="XunitExtensions\RequireEnvironmentVariable.cs" />
+    <Compile Include="XunitExtensions\RequireEnvironment.cs" />
     <Compile Include="XunitExtensions\RequireProcess.cs" />
     <Compile Include="XunitExtensions\IValueGeneratorAttribute.cs" />
     <Compile Include="XunitExtensions\ParameterAttributeDataAttribute.cs" />

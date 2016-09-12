@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -168,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -196,7 +197,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{x: 1}")) { Limit = 0 } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -224,7 +225,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{_id: 20}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -252,7 +253,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -284,7 +285,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -320,7 +321,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -356,7 +357,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[] { new InsertRequest(BsonDocument.Parse("{_id: 1, x: 3}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -384,7 +385,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -419,7 +420,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -456,7 +457,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
@@ -487,7 +488,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{x: 1}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -515,7 +516,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{_id: 20}"), BsonDocument.Parse("{$set: {a: 1}}")) { IsMulti = true } };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -543,7 +544,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -578,7 +579,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -615,7 +616,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().Supports(Feature.WriteCommands);
             EnsureTestData();
             var smallDocument = new BsonDocument { { "_id", 7 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
@@ -649,7 +650,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -680,7 +681,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -711,7 +712,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new[]
             {
@@ -742,7 +743,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new WriteRequest[]
             {
@@ -779,7 +780,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new WriteRequest[]
             {
@@ -816,7 +817,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new WriteRequest[]
             {
@@ -853,7 +854,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureTestData();
             var requests = new WriteRequest[]
             {
@@ -890,7 +891,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -931,7 +932,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var keys = new BsonDocument("x", 1);
             var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
@@ -978,7 +979,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -1020,7 +1021,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -1064,7 +1065,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -1102,7 +1103,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var keys = new BsonDocument("x", 1);
             var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
@@ -1145,7 +1146,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {
@@ -1183,7 +1184,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection();
             var requests = new[]
             {

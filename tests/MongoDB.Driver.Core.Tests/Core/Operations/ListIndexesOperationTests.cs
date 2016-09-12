@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureCollectionExists(async);
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropCollection(async);
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             DropDatabase(async);
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 

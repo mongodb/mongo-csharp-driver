@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -29,17 +28,6 @@ namespace MongoDB.Driver.Core.Operations
     public class CreateIndexesUsingCommandOperationTests : OperationTestBase
     {
         [Fact]
-        public void CollectionNamespace_get_should_return_expected_value()
-        {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-            var result = subject.CollectionNamespace;
-
-            result.Should().BeSameAs(_collectionNamespace);
-        }
-
-        [Fact]
         public void constructor_should_initialize_subject()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -47,8 +35,36 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Requests.Should().ContainInOrder(requests);
-            subject.WriteConcern.Should().Be(WriteConcern.Acknowledged);
+            subject.Requests.Should().Equal(requests);
+
+            subject.WriteConcern.Should().BeSameAs(WriteConcern.Acknowledged);
+        }
+
+        [Fact]
+        public void constructor_should_throw_when_collectionNamespace_is_null()
+        {
+            var exception = Record.Exception(() => new CreateIndexesUsingCommandOperation(null, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
+        }
+
+        [Fact]
+        public void constructor_should_throw_when_requests_is_null()
+        {
+            var exception = Record.Exception(() => new CreateIndexesUsingCommandOperation(_collectionNamespace, null, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("requests");
+        }
+
+        [Fact]
+        public void constructor_should_throw_when_messageEncoderSettings_is_null()
+        {
+            var exception = Record.Exception(() => new CreateIndexesUsingCommandOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), null));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
         [Fact]
@@ -56,14 +72,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(new SemanticVersion(3, 2, 0)) } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
@@ -76,14 +92,14 @@ namespace MongoDB.Driver.Core.Operations
                 new CreateIndexRequest(new BsonDocument("y", 1))
             };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
+
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(new SemanticVersion(3, 2, 0)), requests[1].CreateIndexDocument(new SemanticVersion(3, 2, 0)) } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null), requests[1].CreateIndexDocument(null) } }
             };
-
-            var result = subject.CreateCommand(new SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
@@ -93,16 +109,14 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Background = true } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["background"].ToBoolean().Should().BeTrue();
         }
@@ -113,16 +127,14 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
@@ -132,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
             var requests = new[]
             {
@@ -141,11 +153,9 @@ namespace MongoDB.Driver.Core.Operations
             };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1", "y_1" });
         }
 
@@ -155,16 +165,14 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "3.1.1");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.PartialIndexes);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0)) } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["partialFilterExpression"].AsBsonDocument.Should().Be(requests[0].PartialFilterExpression);
         }
@@ -175,18 +183,37 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Sparse = true } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["sparse"].ToBoolean().Should().BeTrue();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_work_when_Collation_has_value(
+            [Values("en_US", "fr_CA")]
+            string locale,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.Collation);
+            DropCollection();
+            var collation = new Collation(locale);
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Collation = collation } };
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            ExecuteOperation(subject, async);
+
+            var indexes = ListIndexes();
+            var index = indexes.Single(i => i["name"].AsString == "x_1");
+            index["collation"]["locale"].AsString.Should().Be(locale);
         }
 
         [SkippableTheory]
@@ -195,19 +222,17 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
-            var expireAfterSeconds = 1.5;
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = TimeSpan.FromSeconds(expireAfterSeconds) } };
+            var expireAfter = TimeSpan.FromSeconds(1.5);
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = expireAfter } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
-            index["expireAfterSeconds"].ToDouble().Should().Be(expireAfterSeconds);
+            index["expireAfterSeconds"].ToDouble().Should().Be(expireAfter.TotalSeconds);
         }
 
         [SkippableTheory]
@@ -216,48 +241,26 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.7.6");
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Unique = true } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-            var result = ExecuteOperation(subject, async);
+            ExecuteOperation(subject, async);
 
-            result["ok"].ToBoolean().Should().BeTrue();
-
-            var indexes = ListIndexes(async);
+            var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
         }
 
-        [Fact]
-        public void MessageEncoderSettings_get_should_return_expected_value()
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(1, 2)]
+            int w)
         {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-            var result = subject.MessageEncoderSettings;
-
-            result.Should().BeSameAs(_messageEncoderSettings);
-        }
-
-        [Fact]
-        public void Requests_get_should_return_expected_value()
-        {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-            var result = subject.Requests;
-
-            result.Should().ContainInOrder(requests);
-        }
-
-        [Fact]
-        public void WriteConcern_get_and_set_should_work()
-        {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            var value = WriteConcern.WMajority;
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings);
+            var value = new WriteConcern(w);
 
             subject.WriteConcern = value;
             var result = subject.WriteConcern;
@@ -268,19 +271,19 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void WriteConcern_set_should_throw_when_value_is_null()
         {
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings);
 
-            Action action = () => { subject.WriteConcern = null; };
+            var exception = Record.Exception(() => { subject.WriteConcern = null; });
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("value");
         }
 
-        private List<BsonDocument> ListIndexes(bool async)
+        private List<BsonDocument> ListIndexes()
         {
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var cursor = ExecuteOperation(listIndexesOperation, async);
-            return ReadCursorToEnd(cursor, async);
+            var cursor = ExecuteOperation(listIndexesOperation);
+            return ReadCursorToEnd(cursor);
         }
     }
 }

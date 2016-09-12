@@ -161,8 +161,8 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }

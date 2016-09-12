@@ -229,8 +229,8 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
-            if (SupportedFeatures.IsAggregateCursorResultSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
+            if (Feature.AggregateCursorResult.IsSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
             {
                 command["cursor"] = new BsonDocument
                 {
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
-            if (SupportedFeatures.IsAggregateCursorResultSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
+            if (Feature.AggregateCursorResult.IsSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (Pipeline.Any(s => s.GetElement(0).Name == "$out"))
             {
-                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.");
+                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.", "pipeline");
             }
         }
 

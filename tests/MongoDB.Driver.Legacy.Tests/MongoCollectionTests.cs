@@ -29,6 +29,8 @@ using FluentAssertions;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests
 {
@@ -438,7 +440,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithMaxTimeFromFind()
         {
-            RequireServer.Any();
+            RequireServer.Check();
             if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
@@ -466,7 +468,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithReadPreferenceFromFind()
         {
-            RequireServer.Any();
+            RequireServer.Check();
             _collection.Drop();
             var all = LegacyTestConfiguration.Server.Secondaries.Length + 1;
             var options = new MongoInsertOptions { WriteConcern = new WriteConcern(w: all) };
@@ -479,7 +481,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithHint()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
@@ -496,7 +498,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithHintFromFind()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
@@ -508,7 +510,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithHintAndLimitFromFind()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
@@ -548,7 +550,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
-            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -565,7 +567,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
-            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -584,7 +586,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool usePowerOf2Sizes)
         {
-            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             var userFlags = usePowerOf2Sizes ? CollectionUserFlags.UsePowerOf2Sizes : CollectionUserFlags.None;
@@ -677,7 +679,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateIndexWithStorageEngine()
         {
-            RequireServer.Where(storageEngines: "wiredTiger");
+            RequireServer.Check().StorageEngine("wiredTiger");
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.DropAllIndexes(); // doesn't drop the index on _id
@@ -974,7 +976,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndModifyReplaceWithWriteConcernError()
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -1011,7 +1013,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndModifyUpdateWithWriteConcernError()
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -1144,7 +1146,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndRemoveWithWriteConcernError()
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -2418,7 +2420,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestInsertWithWriteConcernError()
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0", clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             var document = new BsonDocument { { "_id", 1 }, { "x", 1 } };
             var collectionSettings = new MongoCollectionSettings
@@ -2883,7 +2885,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestRemoveWithWriteConcernError()
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0", clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -2966,7 +2968,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestGetStatsUsePowerOf2Sizes()
         {
-            RequireServer.Where(storageEngines: "mmapv1", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
             if ((_server.BuildInfo.Version >= new Version(2, 2, 0) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
                 || _server.BuildInfo.Version >= new Version(2, 4, 0))
@@ -3144,7 +3146,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestUpdateWithWriteConcernError()
         {
-            RequireServer.Where(minimumVersion: "3.2.0-rc0", clusterTypes: ClusterTypes.ReplicaSet);
+            RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -3218,7 +3220,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestValidate()
         {
-            RequireServer.Where(storageEngines: "mmapv1");
+            RequireServer.Check().StorageEngine("mmapv1");
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 // ensure collection exists

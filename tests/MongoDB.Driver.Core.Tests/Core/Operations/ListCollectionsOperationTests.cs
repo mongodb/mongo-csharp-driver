@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureCollectionsExist();
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData("{ \"options.capped\" : true }", "capped", true)]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             EnsureCollectionsExist();
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-not");
             var subject = new ListCollectionsOperation(databaseNamespace, _messageEncoderSettings);
 
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(versionLessThan: "2.7.0");
+            RequireServer.Check().VersionLessThan("2.7.0");
             var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
             {

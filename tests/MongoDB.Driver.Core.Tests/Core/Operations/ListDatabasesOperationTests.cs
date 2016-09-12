@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
             EnsureDatabaseExists(async);
 

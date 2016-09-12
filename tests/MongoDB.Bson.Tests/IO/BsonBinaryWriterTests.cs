@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.IO
         [SkippableFact]
         public void BsonBinaryWriter_should_support_writing_more_than_2GB()
         {
-            RequireProcess.Is64Bit();
+            RequireProcess.Check().Bits(64);
 
             using (var stream = new NullBsonStream())
             using (var binaryWriter = new BsonBinaryWriter(stream))
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests.IO
         [SkippableFact]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
-            RequireProcess.Is64Bit();
+            RequireProcess.Check().Bits(64);
 
             using (var stream = new NullBsonStream())
             using (var binaryWriter = new BsonBinaryWriter(stream))

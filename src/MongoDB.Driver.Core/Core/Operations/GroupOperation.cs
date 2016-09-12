@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             _key = Ensure.IsNotNull(key, nameof(key));
             _initial = Ensure.IsNotNull(initial, nameof(initial));
             _reduceFunction = Ensure.IsNotNull(reduceFunction, nameof(reduceFunction));
-            _filter = filter;
+            _filter = filter; // can be null
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -241,7 +240,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -256,11 +255,11 @@ namespace MongoDB.Driver.Core.Operations
                         { "$reduce", _reduceFunction },
                         { "initial", _initial },
                         { "cond", _filter, _filter != null },
-                        { "finalize", _finalizeFunction, _finalizeFunction != null }
+                        { "finalize", _finalizeFunction, _finalizeFunction != null },
+                        { "collation", () => _collation.ToBsonDocument(), _collation != null }
                     }
                 },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
            };
         }
 

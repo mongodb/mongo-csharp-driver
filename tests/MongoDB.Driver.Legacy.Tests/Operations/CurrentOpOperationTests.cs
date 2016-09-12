@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
 
-            var result = subject.CreateOperation(new SemanticVersion(3, 1, 1));
+            var result = subject.CreateOperation(Feature.CurrentOpCommand.LastNotSupportedVersion);
 
             result.Should().BeOfType<CurrentOpUsingFindOperation>();
             result.As<CurrentOpUsingFindOperation>().DatabaseNamespace.Should().Be(_adminDatabaseNamespace);
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
 
-            var result = subject.CreateOperation(new SemanticVersion(3, 1, 2));
+            var result = subject.CreateOperation(Feature.CurrentOpCommand.FirstSupportedVersion);
 
             result.Should().BeOfType<CurrentOpUsingCommandOperation>();
             result.As<CurrentOpUsingCommandOperation>().DatabaseNamespace.Should().Be(_adminDatabaseNamespace);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Operations
         [SkippableFact]
         public void Execute_should_return_expected_result()
         {
-            RequireServer.Where(minimumVersion: "3.1.2");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.2");
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
             {

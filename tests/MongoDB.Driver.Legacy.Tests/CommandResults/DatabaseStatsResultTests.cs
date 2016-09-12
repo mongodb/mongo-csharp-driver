@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         [SkippableFact]
         public void Test()
         {
-            RequireServer.Where(storageEngines: "mmapv1");
+            RequireServer.Check().StorageEngine("mmapv1");
             if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 // make sure collection and database exist

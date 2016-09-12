@@ -122,49 +122,38 @@ namespace MongoDB.Driver
         /// <returns>A Collation instance.</returns>
         public static Collation FromBsonDocument(BsonDocument document)
         {
-            var locale = document["locale"].AsString;
-
-            bool? caseLevel = null;
-            CollationCaseFirst? caseFirst = null;
-            CollationStrength? strength = null;
-            bool? numericOrdering = null;
             CollationAlternate? alternate = null;
+            bool? backwards = null;
+            CollationCaseFirst? caseFirst = null;
+            bool? caseLevel = null;
+            string locale = null;
             CollationMaxVariable? maxVariable = null;
             bool? normalization = null;
-            bool? backwards = null;
+            bool? numericOrdering = null;
+            CollationStrength? strength = null;
 
-            BsonValue value;
-            if (document.TryGetValue("caseLevel", out value))
+            foreach (var element in document)
             {
-                caseLevel = value.ToBoolean();
+                var value = element.Value;
+                switch (element.Name)
+                {
+                    case "alternate": alternate = ToCollationAlternate(value.AsString); break;
+                    case "backwards": backwards = value.ToBoolean(); break;
+                    case "caseFirst": caseFirst = ToCollationCaseFirst(value.AsString); break;
+                    case "caseLevel": caseLevel = value.ToBoolean(); break;
+                    case "locale": locale = value.AsString; break;
+                    case "maxVariable": maxVariable = ToCollationMaxVariable(value.AsString); break;
+                    case "normalization": normalization = value.ToBoolean(); break;
+                    case "numericOrdering": numericOrdering = value.ToBoolean(); break;
+                    case "strength": strength = ToCollationStrength(value.ToInt32()); break;
+                    default:
+                        throw new ArgumentException($"Unrecognized element '{element.Name}' when constructing a Collation object from a BsonDocument.");
+                }
             }
-            if (document.TryGetValue("caseFirst", out value))
+
+            if (locale == null)
             {
-                caseFirst = ToCollationCaseFirst(value.AsString);
-            }
-            if (document.TryGetValue("strength", out value))
-            {
-                strength = ToCollationStrength(value.ToInt32());
-            }
-            if (document.TryGetValue("numericOrdering", out value))
-            {
-                numericOrdering = value.ToBoolean();
-            }
-            if (document.TryGetValue("alternate", out value))
-            {
-                alternate = ToCollationAlternate(value.AsString);
-            }
-            if (document.TryGetValue("maxVariable", out value))
-            {
-                maxVariable = ToCollationMaxVariable(value.AsString);
-            }
-            if (document.TryGetValue("normalization", out value))
-            {
-                normalization = value.ToBoolean();
-            }
-            if (document.TryGetValue("backwards", out value))
-            {
-                backwards = value.ToBoolean();
+                throw new ArgumentException($"Element 'locale' missing when constructing a Collation object from a BsonDocument.");
             }
 
             return new Collation(
@@ -179,8 +168,8 @@ namespace MongoDB.Driver
                 backwards);
         }
 
-        // private static methods
-        private static CollationAlternate ToCollationAlternate(string value)
+        // internal static methods
+        internal static CollationAlternate ToCollationAlternate(string value)
         {
             switch (value)
             {
@@ -190,7 +179,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static CollationCaseFirst ToCollationCaseFirst(string value)
+        internal static CollationCaseFirst ToCollationCaseFirst(string value)
         {
             switch (value)
             {
@@ -201,7 +190,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static CollationMaxVariable ToCollationMaxVariable(string value)
+        internal static CollationMaxVariable ToCollationMaxVariable(string value)
         {
             switch (value)
             {
@@ -211,7 +200,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static CollationStrength ToCollationStrength(int value)
+        internal static CollationStrength ToCollationStrength(int value)
         {
             switch (value)
             {
@@ -220,7 +209,51 @@ namespace MongoDB.Driver
                 case 3: return CollationStrength.Tertiary;
                 case 4: return CollationStrength.Quaternary;
                 case 5: return CollationStrength.Identical;
-                default: throw new ArgumentException($"Invalid CollationStrength value: {value}.");
+                default: throw new ArgumentOutOfRangeException($"Invalid CollationStrength value: {value}.");
+            }
+        }
+
+        internal static int ToInt32(CollationStrength strength)
+        {
+            switch (strength)
+            {
+                case CollationStrength.Primary: return 1;
+                case CollationStrength.Secondary: return 2;
+                case CollationStrength.Tertiary: return 3;
+                case CollationStrength.Quaternary: return 4;
+                case CollationStrength.Identical: return 5;
+                default: throw new ArgumentException($"Invalid strength: {strength}.", nameof(strength));
+            }
+        }
+
+        internal static string ToString(CollationAlternate alternate)
+        {
+            switch (alternate)
+            {
+                case CollationAlternate.NonIgnorable: return "non-ignorable";
+                case CollationAlternate.Shifted: return "shifted";
+                default: throw new ArgumentException($"Invalid alternate: {alternate}.", nameof(alternate));
+            }
+        }
+
+        internal static string ToString(CollationCaseFirst caseFirst)
+        {
+            switch (caseFirst)
+            {
+                case CollationCaseFirst.Lower: return "lower";
+                case CollationCaseFirst.Off: return "off";
+                case CollationCaseFirst.Upper: return "upper";
+                default: throw new ArgumentException($"Invalid caseFirst: {caseFirst}.", nameof(caseFirst));
+            }
+        }
+
+        internal static string ToString(CollationMaxVariable maxVariable)
+        {
+            switch (maxVariable)
+            {
+                case CollationMaxVariable.Punctuation: return "punct";
+                case CollationMaxVariable.Space: return "space";
+                default: throw new ArgumentException($"Invalid maxVariable: {maxVariable}.", nameof(maxVariable));
             }
         }
         #endregion
@@ -360,20 +393,21 @@ namespace MongoDB.Driver
             }
 
             return
-                _alternate == other._alternate &&
-                _backwards == other._backwards &&
-                _caseFirst == other._caseFirst &&
-                _caseLevel == other._caseLevel &&
-                _locale == other._locale &&
-                _maxVariable == other._maxVariable &&
-                _numericOrdering == other._numericOrdering &&
-                _strength == other._strength;
+                _alternate.Equals(other._alternate) &&
+                _backwards.Equals(other._backwards) &&
+                _caseFirst.Equals(other._caseFirst) &&
+                _caseLevel.Equals(other._caseLevel) &&
+                _locale.Equals(other._locale) &&
+                _maxVariable.Equals(other._maxVariable) &&
+                _normalization.Equals(other._normalization) &&
+                _numericOrdering.Equals(other._numericOrdering) &&
+                _strength.Equals(other._strength);
         }
 
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
+            return Equals(obj as Collation);
         }
 
         /// <inheritdoc/>
@@ -386,6 +420,7 @@ namespace MongoDB.Driver
                 .Hash(_caseLevel)
                 .Hash(_locale)
                 .Hash(_maxVariable)
+                .Hash(_normalization)
                 .Hash(_numericOrdering)
                 .Hash(_strength)
                 .GetHashCode();
@@ -397,14 +432,14 @@ namespace MongoDB.Driver
             return new BsonDocument
             {
                 { "locale", _locale },
-                { "caseLevel", () => _caseLevel.Value, _caseLevel != null },
-                { "caseFirst", () => ToString(_caseFirst.Value), _caseFirst != null },
-                { "strength", () => ToString(_strength.Value), _strength != null },
-                { "numericOrdering", () => _numericOrdering.Value, _numericOrdering != null },
-                { "alternate", () => ToString(_alternate.Value), _alternate != null },
-                { "maxVariable", () => ToString(_maxVariable.Value), _maxVariable != null },
-                { "normalization", () => _normalization.Value, _normalization != null },
-                { "backwards", () => _backwards.Value, _backwards != null }
+                { "caseLevel", () => _caseLevel.Value, _caseLevel.HasValue },
+                { "caseFirst", () => ToString(_caseFirst.Value), _caseFirst.HasValue },
+                { "strength", () => ToInt32(_strength.Value), _strength.HasValue },
+                { "numericOrdering", () => _numericOrdering.Value, _numericOrdering.HasValue },
+                { "alternate", () => ToString(_alternate.Value), _alternate.HasValue },
+                { "maxVariable", () => ToString(_maxVariable.Value), _maxVariable.HasValue },
+                { "normalization", () => _normalization.Value, _normalization.HasValue },
+                { "backwards", () => _backwards.Value, _backwards.HasValue }
             };
         }
 
@@ -448,51 +483,6 @@ namespace MongoDB.Driver
                 maxVariable.WithDefault(_maxVariable),
                 normalization.WithDefault(_normalization),
                 backwards.WithDefault(_backwards));
-        }
-
-        // private methods
-        private string ToString(CollationAlternate alternate)
-        {
-            switch (alternate)
-            {
-                case CollationAlternate.NonIgnorable: return "non-ignorable";
-                case CollationAlternate.Shifted: return "shifted";
-                default: throw new ArgumentException($"Invalid alternate: {alternate}.", nameof(alternate));
-            }
-        }
-
-        private string ToString(CollationMaxVariable maxVariable)
-        {
-            switch (maxVariable)
-            {
-                case CollationMaxVariable.Punctuation: return "punct";
-                case CollationMaxVariable.Space: return "space";
-                default: throw new ArgumentException($"Invalid maxVariable: {maxVariable}.", nameof(maxVariable));
-            }
-        }
-
-        private string ToString(CollationCaseFirst caseFirst)
-        {
-            switch (caseFirst)
-            {
-                case CollationCaseFirst.Lower: return "lower";
-                case CollationCaseFirst.Off: return "off";
-                case CollationCaseFirst.Upper: return "upper";
-                default: throw new ArgumentException($"Invalid caseFirst: {caseFirst}.", nameof(caseFirst));
-            }
-        }
-
-        private int ToString(CollationStrength strength)
-        {
-            switch (strength)
-            {
-                case CollationStrength.Primary: return 1;
-                case CollationStrength.Secondary: return 2;
-                case CollationStrength.Tertiary: return 3;
-                case CollationStrength.Quaternary: return 4;
-                case CollationStrength.Identical: return 5;
-                default: throw new ArgumentException($"Invalid strength: {strength}.", nameof(strength));
-            }
         }
     }
 }

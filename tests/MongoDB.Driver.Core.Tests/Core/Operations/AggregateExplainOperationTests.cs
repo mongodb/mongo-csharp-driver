@@ -14,113 +14,202 @@
 */
 
 using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class AggregateExplainOperationTests : OperationTestBase
     {
+        private static BsonDocument[] __pipeline = new[] { BsonDocument.Parse("{ $match : { x : 1 } }") };
+
         [Fact]
         public void Constructor_should_create_a_valid_instance()
         {
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
-            subject.CollectionNamespace.Should().Be(_collectionNamespace);
-            subject.Pipeline.Should().BeEmpty();
-            subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.Pipeline.Should().Equal(__pipeline);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+
+            subject.AllowDiskUse.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.MaxTime.Should().NotHaveValue();
         }
 
         [Fact]
-        public void Constructor_should_throw_when_collection_namespace_is_null()
+        public void Constructor_should_throw_when_collectionNamespace_is_null()
         {
-            Action act = () => new AggregateExplainOperation(null, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
+            var exception = Record.Exception(() => new AggregateExplainOperation(null, __pipeline, _messageEncoderSettings));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void Constructor_should_throw_when_pipeline_is_null()
         {
-            Action act = () => new AggregateExplainOperation(_collectionNamespace, null, _messageEncoderSettings);
+            var exception = Record.Exception(() => new AggregateExplainOperation(_collectionNamespace, null, _messageEncoderSettings));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
         }
 
         [Fact]
-        public void Constructor_should_throw_when_message_encoder_settings_is_null()
+        public void Constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            Action act = () => new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), null);
+            var exception = Record.Exception(() => new AggregateExplainOperation(_collectionNamespace, __pipeline, null));
 
-            act.ShouldThrow<ArgumentNullException>();
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
         [Fact]
-        public void AllowDiskUse_should_have_the_correct_value()
+        public void AllowDiskUse_get_and_set_should_work()
         {
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
-
-            subject.AllowDiskUse.Should().Be(null);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
             subject.AllowDiskUse = true;
+            var result = subject.AllowDiskUse;
 
-            subject.AllowDiskUse.Should().Be(true);
+            result.Should().Be(true);
         }
 
         [Fact]
-        public void MaxTime_should_have_the_correct_value()
+        public void Collation_get_and_set_should_work()
         {
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new Collation("en_US");
 
-            subject.MaxTime.Should().Be(null);
+            subject.Collation = value;
+            var result = subject.Collation;
 
-            subject.MaxTime = TimeSpan.FromSeconds(2);
-
-            subject.MaxTime.Should().Be(TimeSpan.FromSeconds(2));
+            result.Should().BeSameAs(value);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_create_the_correct_command(
-            [Values(null, false, true)] bool? allowDiskUse,
-            [Values(null, 2000)] int? maxTime)
+        [Fact]
+        public void MaxTime_get_and_set_should_work()
         {
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
-            {
-                AllowDiskUse = allowDiskUse,
-                MaxTime = maxTime.HasValue ? TimeSpan.FromMilliseconds(maxTime.Value) : (TimeSpan?)null
-            };
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = TimeSpan.FromSeconds(2);
+
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void CreateCommand_should_return_expected_result()
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+
+            var result = subject.CreateCommand(null);
 
             var expectedResult = new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "explain", true },
-                { "pipeline", new BsonArray(subject.Pipeline) },
-                { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse.HasValue },
-                { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
+                { "pipeline", new BsonArray(__pipeline) }
             };
-
-            var result = subject.CreateCommand(new Misc.SemanticVersion(3, 2, 0));
-
             result.Should().Be(expectedResult);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_return_the_result_without_any_options(
+        public void CreateCommand_should_return_expected_result_when_AllowDiskUse_is_set(
+            [Values(false, true)]
+            bool allowDiskUse)
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                AllowDiskUse = allowDiskUse
+            };
+
+            var result = subject.CreateCommand(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "explain", true },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "allowDiskUse", allowDiskUse }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Collation_is_set(
+            [Values("en_US", "fr_CA")]
+            string locale)
+        {
+            var collation = new Collation(locale);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Collation = collation
+            };
+
+            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "explain", true },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "collation", collation.ToBsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_set(
+            [Values(1, 2)]
+            int milliseconds)
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromMilliseconds(milliseconds)
+            };
+
+            var result = subject.CreateCommand(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "explain", true },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "maxTimeMS", milliseconds }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void CreateCommand_should_throw_when_Collation_is_set_but_not_supported()
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.4.0");
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
+            RequireServer.Check().Supports(Feature.AggregateExplain);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
 
@@ -129,15 +218,66 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_return_the_result_with_allow_disk_use(
+        public void Execute_should_return_expected_result_when_AllowDiskUse_is_set(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
-            var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
+            RequireServer.Check().Supports(Feature.AggregateExplain);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
-                AllowDiskUse = true,
-                MaxTime = TimeSpan.FromSeconds(20)
+                AllowDiskUse = true
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().NotBeNull();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Collation_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateExplain, Feature.Collation);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().NotBeNull();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateExplain).DoesNotSupport(Feature.Collation);
+
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Collation = new Collation("en_US")
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_MaxTime_is_set(
+           [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateExplain);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromSeconds(1)
             };
 
             var result = ExecuteOperation(subject, async);

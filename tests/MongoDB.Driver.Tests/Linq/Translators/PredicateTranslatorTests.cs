@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void Any_with_a_predicate_on_scalars()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
 
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllClear_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             Assert(
                 x => (x.C.E.F & 20) == 0,
@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllSet_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             Assert(
                 x => (x.C.E.F & 7) == 7,
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAllSet_with_HasFlag()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             Assert(
                 x => x.Q.HasFlag(Q.One),
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAnyClear_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             Assert(
                 x => (x.C.E.F & 7) != 7,
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [SkippableFact]
         public void BitsAnySet_with_bitwise_operators()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             Assert(
                 x => (x.C.E.F & 20) != 0,

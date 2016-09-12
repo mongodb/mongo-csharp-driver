@@ -210,8 +210,8 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "geoNear", _collectionNamespace.CollectionName },
-                { "near", _near, _near != null },
+                { "near", _near },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "maxDistance", () => _maxDistance.Value, _maxDistance.HasValue },
                 { "query", _filter, _filter != null },

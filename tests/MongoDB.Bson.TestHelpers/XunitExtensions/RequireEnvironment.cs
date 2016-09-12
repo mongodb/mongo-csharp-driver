@@ -17,14 +17,23 @@ using System;
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
 {
-    public static class RequireEnvironmentVariable
+    public class RequireEnvironment
     {
-        public static void IsDefined(string name)
+        #region static
+        public static RequireEnvironment Check()
         {
-            if (Environment.GetEnvironmentVariable(name) == null)
+            return new RequireEnvironment();
+        }
+        #endregion
+
+        public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true)
+        {
+            var actualIsDefined = Environment.GetEnvironmentVariable(name) != null;
+            if (actualIsDefined == isDefined)
             {
-                throw new SkipTestException($"Test skipped because environment variable '{name}' is not defined.");
+                return this;
             }
+            throw new SkipTestException($"Test skipped because environment variable '{name}' {(actualIsDefined ? "is" : "is not")} defined.");
         }
     }
 }

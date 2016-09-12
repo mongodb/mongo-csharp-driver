@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
         protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             var command = base.CreateCommand(serverVersion);
-            if (_bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion))
+            if (_bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion))
             {
                 command["bypassDocumentValidation"] = _bypassDocumentValidation.Value;
             }

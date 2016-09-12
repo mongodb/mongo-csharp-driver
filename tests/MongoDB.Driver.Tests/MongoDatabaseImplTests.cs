@@ -77,6 +77,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = false,
                 Capped = true,
+                Collation = new Collation("en_US"),
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
@@ -103,6 +104,7 @@ namespace MongoDB.Driver
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
             op.AutoIndexId.Should().Be(options.AutoIndexId);
             op.Capped.Should().Be(options.Capped);
+            op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
@@ -126,6 +128,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = false,
                 Capped = true,
+                Collation = new Collation("en_US"),
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
@@ -151,6 +154,7 @@ namespace MongoDB.Driver
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
             op.AutoIndexId.Should().Be(options.AutoIndexId);
             op.Capped.Should().Be(options.Capped);
+            op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);

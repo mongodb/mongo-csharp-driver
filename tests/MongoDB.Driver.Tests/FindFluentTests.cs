@@ -77,6 +77,7 @@ namespace MongoDB.Driver.Tests
         {
             var findOptions = new FindOptions<Person, Person>
             {
+                Collation = new Collation("en_US"),
                 Limit = 1,
                 MaxTime = TimeSpan.FromSeconds(1),
                 Modifiers = new BsonDocument("$hint", "hint"),
@@ -87,6 +88,7 @@ namespace MongoDB.Driver.Tests
             Predicate<CountOptions> countOptionsPredicate = countOptions =>
             {
                 return
+                    countOptions.Collation == findOptions.Collation &&
                     countOptions.Hint == findOptions.Modifiers["$hint"].AsString &&
                     countOptions.Limit == findOptions.Limit &&
                     countOptions.MaxTime == findOptions.MaxTime &&
@@ -122,6 +124,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             subject.Filter = new BsonDocument("Age", 20);
+            subject.Options.Collation = new Collation("en_US");
             subject.Options.Comment = "awesome";
             subject.Options.MaxTime = TimeSpan.FromSeconds(2);
             subject.Options.Modifiers = new BsonDocument
@@ -141,6 +144,7 @@ namespace MongoDB.Driver.Tests
 
             str.Should().Be(
                 "find({ \"Age\" : 20 }, { \"FirstName\" : 1, \"LastName\" : 1, \"_id\" : 0 })" +
+                ".collation({ \"locale\" : \"en_US\" })" +
                 ".sort({ \"LastName\" : 1, \"FirstName\" : -1 })" +
                 ".skip(2)" +
                 ".limit(10)" +

@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestReconnect()
         {
-            RequireEnvironmentVariable.IsDefined("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
             __server.Reconnect();
             Assert.True(__server.State == MongoServerState.Connected || __server.State == MongoServerState.ConnectedToSubset);
         }

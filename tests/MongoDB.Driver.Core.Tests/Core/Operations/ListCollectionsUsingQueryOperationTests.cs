@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -77,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             EnsureCollectionsExist();
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
@@ -96,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData("{ \"options.capped\" : true }", "capped", true)]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             EnsureCollectionsExist();
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
@@ -117,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(clusterTypes: ClusterTypes.StandaloneOrReplicaSet, storageEngines: "mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-not");
             var subject = new ListCollectionsUsingQueryOperation(databaseNamespace, _messageEncoderSettings);
 
@@ -133,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Where(versionLessThan: "2.7.0", clusterTypes: ClusterTypes.StandaloneOrReplicaSet);
+            RequireServer.Check().VersionLessThan("2.7.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
             {

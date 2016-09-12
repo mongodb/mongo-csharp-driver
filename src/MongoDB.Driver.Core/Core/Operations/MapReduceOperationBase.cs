@@ -227,15 +227,14 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>The command.</returns>
         protected internal virtual BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            if (_collation != null && !SupportedFeatures.IsCollationSupported(serverVersion))
+            if (_collation != null && !Feature.Collation.IsSupported(serverVersion))
             {
                 throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
             }
 
             return new BsonDocument
             {
-                // all lowercase command name for backwards compatibility
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapreduce", _collectionNamespace.CollectionName }, // all lowercase command name for backwards compatibility
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out" , CreateOutputOptions() },

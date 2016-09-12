@@ -182,7 +182,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Distinct_document_followed_by_where()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Distinct()
                 .Where(x => x.A == "Awesome");
@@ -196,7 +196,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Distinct_document_preceded_by_select_where()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Select(x => new { x.A, x.B })
                 .Where(x => x.A == "Awesome")
@@ -212,7 +212,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Distinct_document_preceded_by_where_select()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => new { x.A, x.B })
@@ -227,7 +227,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Distinct_field_preceded_by_where_select()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => x.A)
@@ -242,7 +242,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Distinct_field_preceded_by_select_where()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Select(x => x.A)
                 .Where(x => x == "Awesome")
@@ -476,7 +476,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoin_method()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -492,7 +492,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoinForeignField_method()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -508,7 +508,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoin_syntax()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         select new { A = p.A, SumCEF = joined.Sum(x => x.CEF) };
@@ -522,7 +522,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoin_syntax_with_a_transparent_identifier()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         orderby p.B
@@ -538,7 +538,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoin_syntax_with_select_many()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in __otherCollection on p.Id equals o.Id into joined
                         from subo in joined
@@ -554,7 +554,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in __otherCollection on p.Id equals o.Id into joined
                         from subo in joined.DefaultIfEmpty()
@@ -570,7 +570,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Join_method()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -587,7 +587,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void JoinForeignField_method()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -604,7 +604,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Join_syntax()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         select new { A = p.A, CEF = o.CEF };
@@ -619,7 +619,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Join_syntax_with_a_transparent_identifier()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         orderby p.B, o.Id
@@ -868,7 +868,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Sample()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery().Sample(100);
 
             Assert(query,
@@ -924,7 +924,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_method_with_predicated_any()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Select(x => x.G.Any(g => g.D == "Don't"));
 
@@ -1046,7 +1046,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_method_array_index()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery().Select(x => x.M[0]);
 
             Assert(query,
@@ -1057,7 +1057,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_syntax_array_index()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from x in CreateQuery()
                         select x.M[0];
 
@@ -1069,7 +1069,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_method_embedded_pipeline()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = CreateQuery().Select(x => x.M.First());
 
             Assert(query,
@@ -1080,7 +1080,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_method_computed_array()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = CreateQuery()
                 .Select(x => x.M.Select(i => i + 1));
 
@@ -1092,7 +1092,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void Select_syntax_computed_array()
         {
-            RequireServer.Where(minimumVersion: "2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
             var query = from x in CreateQuery()
                         select x.M.Select(i => i + 1);
 
@@ -1310,7 +1310,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void StandardDeviationPopulation()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulation();
 
@@ -1320,7 +1320,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void StandardDeviationPopulation_with_selector()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = CreateQuery().StandardDeviationPopulation(x => x.C.E.F);
 
@@ -1330,7 +1330,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public async Task StandardDeviationPopulationAsync()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulationAsync();
 
@@ -1340,7 +1340,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public async Task StandardDeviationPopulationAsync_with_selector()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = await CreateQuery().StandardDeviationPopulationAsync(x => x.C.E.F);
 
@@ -1350,7 +1350,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void StandardDeviationSample()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationSample();
 
@@ -1360,7 +1360,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public void StandardDeviationSample_with_selector()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = CreateQuery().StandardDeviationSample(x => x.C.E.F);
 
@@ -1370,7 +1370,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public async Task StandardDeviationSampleAsync()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationSampleAsync();
 
@@ -1380,7 +1380,7 @@ namespace Tests.MongoDB.Driver.Linq
         [SkippableFact]
         public async Task StandardDeviationSampleAsync_with_selector()
         {
-            RequireServer.Where(minimumVersion: "3.2.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
 
             var result = await CreateQuery().StandardDeviationSampleAsync(x => x.C.E.F);
 

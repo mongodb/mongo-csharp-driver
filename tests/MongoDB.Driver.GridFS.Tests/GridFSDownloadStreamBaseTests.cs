@@ -152,7 +152,7 @@ namespace MongoDB.Driver.GridFS.Tests
             [Values(null, 128)] int? bufferSize,
             [Values(false, true)] bool async)
         {
-            RequireServer.Any();
+            RequireServer.Check();
             var bucket = CreateBucket(128);
             var contentSize = (int)(bucket.Options.ChunkSizeBytes * contentSizeMultiple);
             var content = CreateContent(contentSize);

@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (SupportedFeatures.IsListIndexesCommandSupported(channel.ConnectionDescription.ServerVersion))
+            if (Feature.ListIndexesCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
             }

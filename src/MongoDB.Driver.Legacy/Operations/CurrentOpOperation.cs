@@ -26,11 +26,6 @@ namespace MongoDB.Driver.Operations
 {
     internal class CurrentOpOperation : IReadOperation<BsonDocument>
     {
-        #region static
-        // private static fields
-        private static readonly SemanticVersion __serverVersionSupportingCurrentOpCommand = new SemanticVersion(3, 1, 2);
-        #endregion
-
         // private fields
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -67,7 +62,7 @@ namespace MongoDB.Driver.Operations
         // private methods
         internal IReadOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            if (serverVersion >= __serverVersionSupportingCurrentOpCommand)
+            if (Feature.CurrentOpCommand.IsSupported(serverVersion))
             {
                 return new CurrentOpUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
             }

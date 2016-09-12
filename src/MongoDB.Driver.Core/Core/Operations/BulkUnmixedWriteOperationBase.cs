@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return ExecuteBatches(channel, cancellationToken);
                 }
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion))
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
                 { CommandName, _collectionNamespace.CollectionName },
                 { "writeConcern", () => effectiveWriteConcern.ToBsonDocument(), !effectiveWriteConcern.IsServerDefault },
                 { "ordered", _isOrdered },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
                 { RequestsElementName, new BsonArray { batchWrapper } } // should be last
             };
         }

@@ -17,14 +17,23 @@ using System;
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
 {
-    public static class RequireProcess
+    public class RequireProcess
     {
-        public static void Is64Bit()
+        #region static
+        public static RequireProcess Check()
         {
-            if (IntPtr.Size < 8)
+            return new RequireProcess();
+        }
+        #endregion
+
+        public RequireProcess Bits(int bits)
+        {
+            var actualBits = IntPtr.Size < 8 ? 32 : 64;
+            if (actualBits == bits)
             {
-                throw new SkipTestException("Test skipped because process is not a 64 bit process.");
+                return this;
             }
+            throw new SkipTestException("Test skipped because process is a {actualBits}-bit process and not a {bits}-bit process.");
         }
     }
 }
