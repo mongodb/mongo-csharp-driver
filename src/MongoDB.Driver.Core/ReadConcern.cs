@@ -195,13 +195,5 @@ namespace MongoDB.Driver
                 return this;
             }
         }
-
-        internal void ThrowIfNotServerDefaultAndNotSupported(SemanticVersion serverVersion)
-        {
-            if (!IsServerDefault && !Feature.ReadConcern.IsSupported(serverVersion))
-            {
-                throw new MongoClientException($"ReadConcern {ToString()} is not supported by server {serverVersion}.");
-            }
-        }
     }
 }

@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
 
             return new BsonDocument
             {

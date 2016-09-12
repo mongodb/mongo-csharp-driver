@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
 
             var command = base.CreateCommand(serverVersion);
             if (!_readConcern.IsServerDefault)

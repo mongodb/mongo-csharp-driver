@@ -99,7 +99,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB collation.
     /// </summary>
-    public class Collation : IEquatable<Collation>, IConvertibleToBsonDocument
+    public sealed class Collation : IEquatable<Collation>, IConvertibleToBsonDocument
     {
         #region static
         // private static fields

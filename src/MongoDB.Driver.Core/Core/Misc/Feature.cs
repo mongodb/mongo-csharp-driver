@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __collation = new Feature("Collation", new SemanticVersion(3, 3, 11));
+        private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
         private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __readConcern = new Feature("ReadConcern", new SemanticVersion(3, 2, 0));
+        private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the collation feature.
         /// </summary>
-        public static Feature Collation => __collation;
+        public static CollationFeature Collation => __collation;
 
         /// <summary>
         /// Gets the create indexes command feature.
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the read concern feature.
         /// </summary>
-        public static Feature ReadConcern => __readConcern;
+        public static ReadConcernFeature ReadConcern => __readConcern;
 
         /// <summary>
         /// Gets the scram sha1 authentication feature.

@@ -70,39 +70,6 @@ namespace MongoDB.Driver
             new ReadConcern(ReadConcernLevel.Majority).Should().Be(ReadConcern.Majority);
         }
 
-        [Fact]
-        public void ThrowIfNotSupported_should_not_throw_when_default()
-        {
-            var serverVersion = Feature.ReadConcern.LastNotSupportedVersion;
-            var subject = ReadConcern.Default;
-
-            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
-
-            act.ShouldNotThrow<MongoClientException>();
-        }
-
-        [Fact]
-        public void ThrowIfNotSupported_should_not_throw_when_ReadConcern_is_supported()
-        {
-            var serverVersion = Feature.ReadConcern.FirstSupportedVersion;
-            var subject = ReadConcern.Majority;
-
-            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
-
-            act.ShouldNotThrow<MongoClientException>();
-        }
-
-        [Fact]
-        public void ThrowIfNotSupported_should_throw_when_readConcern_is_not_supported()
-        {
-            var serverVersion = Feature.ReadConcern.LastNotSupportedVersion;
-            var subject = ReadConcern.Majority;
-
-            Action act = () => subject.ThrowIfNotServerDefaultAndNotSupported(serverVersion);
-
-            act.ShouldThrow<MongoClientException>();
-        }
-
         [Theory]
         [InlineData(ReadConcernLevel.Linearizable, "{ level: 'linearizable' }")]
         [InlineData(ReadConcernLevel.Local, "{ level: 'local' }")]

@@ -82,10 +82,7 @@ namespace MongoDB.Driver.Core.Operations
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var deleteRequest = (DeleteRequest)request;
-                if (deleteRequest.Collation != null && !Feature.Collation.IsSupported(ConnectionDescription.ServerVersion))
-                {
-                    throw new NotSupportedException($"Server version {ConnectionDescription.ServerVersion} does not support collations.");
-                }
+                Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, deleteRequest.Collation);
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
                 bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxDocumentSize);
