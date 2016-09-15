@@ -50,6 +50,11 @@ namespace MongoDB.Driver.Core.Helpers
             }
         }
 
+        public object Lock
+        {
+            get { return _lock; }
+        }
+
         public override long Position
         {
             get
