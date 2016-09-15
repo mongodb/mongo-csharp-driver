@@ -68,6 +68,7 @@
     <Compile Include="BsonDocumentAssertions.cs" />
     <Compile Include="BsonValueAssertions.cs" />
     <Compile Include="BsonValueEquivalencyComparer.cs" />
+    <Compile Include="CustomEquatable.cs" />
     <Compile Include="EqualityComparers\EnumerableEqualityComparer.cs" />
     <Compile Include="EqualityComparers\EnumerableEqualityComparerFactory.cs" />
     <Compile Include="EqualityComparers\EqualityComparerRegistry.cs" />

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestAll()
         {
-            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
             var authMechanismProperties = new Dictionary<string, string>
             {
                 { "SERVICE_NAME", "other" },
@@ -44,6 +44,8 @@ namespace MongoDB.Driver.Tests
                 DatabaseName = "database",
                 FSync = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                HeartbeatInterval = TimeSpan.FromSeconds(11),
+                HeartbeatTimeout = TimeSpan.FromSeconds(12),
                 IPv6 = true,
                 Journal = true,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
@@ -77,12 +79,14 @@ namespace MongoDB.Driver.Tests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
-                "readPreference=secondary;readPreferenceTags=dc:1",
+                "readPreference=secondary;readPreferenceTags=dc:1;maxStaleness=11s",
                 "fsync=true",
                 "journal=true",
                 "w=2",
                 "wtimeout=9s",
                 "connectTimeout=1s",
+                "heartbeatInterval=11s",
+                "heartbeatTimeout=12s",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
@@ -106,6 +110,8 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("database", url.DatabaseName);
                 Assert.Equal(true, url.FSync);
                 Assert.Equal(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
+                Assert.Equal(TimeSpan.FromSeconds(11), url.HeartbeatInterval);
+                Assert.Equal(TimeSpan.FromSeconds(12), url.HeartbeatTimeout);
                 Assert.Equal(true, url.IPv6);
                 Assert.Equal(true, url.Journal);
                 Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);

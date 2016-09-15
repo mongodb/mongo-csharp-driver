@@ -197,13 +197,16 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             {
 #if NET45
                 const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
+                const string monitoringPrefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.monitoring.";
 #else
                 const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.";
+                const string monitoringPrefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.monitoring.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
+                    .Where(path => !path.StartsWith(monitoringPrefix))
                     .Select(path =>
                     {
                         var definition = ReadDefinition(path);

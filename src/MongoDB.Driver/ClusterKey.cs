@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,12 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
-        private static readonly TimeSpan __defaultHeartbeatInterval;
-        private static readonly TimeSpan __defaultHeartbeatTimeout;
         private static readonly int __defaultReceiveBufferSize;
         private static readonly int __defaultSendBufferSize;
 
         // static constructor
         static ClusterKey()
         {
-            var defaultServerSettings = new ServerSettings();
-            __defaultHeartbeatInterval = defaultServerSettings.HeartbeatInterval;
-            __defaultHeartbeatTimeout = defaultServerSettings.HeartbeatTimeout;
-
             var defaultTcpStreamSettings = new TcpStreamSettings();
             __defaultReceiveBufferSize = defaultTcpStreamSettings.ReceiveBufferSize;
             __defaultSendBufferSize = defaultTcpStreamSettings.SendBufferSize;
@@ -75,6 +69,8 @@ namespace MongoDB.Driver
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
             IReadOnlyList<MongoCredential> credentials,
+            TimeSpan heartbeatInterval,
+            TimeSpan heartbeatTimeout,
             bool ipv6,
             TimeSpan localThreshold,
             TimeSpan maxConnectionIdleTime,
@@ -95,8 +91,8 @@ namespace MongoDB.Driver
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;
             _credentials = credentials;
-            _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoServerSettings?
-            _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoServerSettings?
+            _heartbeatInterval = heartbeatInterval;
+            _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
             _localThreshold = localThreshold;
             _maxConnectionIdleTime = maxConnectionIdleTime;

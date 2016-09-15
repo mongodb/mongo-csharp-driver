@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         #endregion
 
         // fields
+        private readonly TimeSpan? _maxStaleness; // with Zero and InfiniteTimespan converted to null
         private readonly ReadPreference _readPreference;
 
         // constructors
@@ -55,12 +57,28 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         public ReadPreferenceServerSelector(ReadPreference readPreference)
         {
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
+            if (readPreference.MaxStaleness == TimeSpan.Zero || readPreference.MaxStaleness == Timeout.InfiniteTimeSpan)
+            {
+                _maxStaleness = null;
+            }
+            else
+            {
+                _maxStaleness = readPreference.MaxStaleness;
+            }
         }
 
         // methods
         /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
+            if (_maxStaleness.HasValue)
+            {
+                if (cluster.Servers.Any(s => s.Type != ServerType.Unknown && !Feature.MaxStaleness.IsSupported(s.Version)))
+                {
+                    throw new NotSupportedException("All servers must be version 3.4 or newer to use max staleness.");
+                }
+            }
+
             if (cluster.ConnectionMode == ClusterConnectionMode.Direct)
             {
                 return servers;
@@ -68,7 +86,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
             switch (cluster.Type)
             {
-                case ClusterType.ReplicaSet: return SelectForReplicaSet(servers);
+                case ClusterType.ReplicaSet: return SelectForReplicaSet(cluster, servers);
                 case ClusterType.Sharded: return SelectForShardedCluster(servers);
                 case ClusterType.Standalone: return SelectForStandaloneCluster(servers);
                 case ClusterType.Unknown: return __noServers;
@@ -112,42 +130,55 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             return __noServers;
         }
 
-        private IEnumerable<ServerDescription> SelectForReplicaSet(IEnumerable<ServerDescription> servers)
+        private IEnumerable<ServerDescription> SelectForReplicaSet(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
-            var materializedList = servers as IReadOnlyList<ServerDescription> ?? servers.ToList();
+            if (_maxStaleness.HasValue)
+            {
+                var minHeartBeatIntervalTicks = servers.Select(s => s.HeartbeatInterval.Ticks).Min();
+                if (_maxStaleness.Value.Ticks < 2 * minHeartBeatIntervalTicks)
+                {
+                    throw new MongoClientException("MaxStaleness must be at least twice the heartbeat frequency.");
+                }
+
+                servers = new CachedEnumerable<ServerDescription>(SelectFreshServers(cluster, servers)); // prevent multiple enumeration
+            }
+            else
+            {
+                servers = new CachedEnumerable<ServerDescription>(servers); // prevent multiple enumeration
+            }
 
             switch (_readPreference.ReadPreferenceMode)
             {
                 case ReadPreferenceMode.Primary:
-                    return materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary);
+                    return servers.Where(n => n.Type == ServerType.ReplicaSetPrimary);
 
                 case ReadPreferenceMode.PrimaryPreferred:
-                    var primary = materializedList.FirstOrDefault(n => n.Type == ServerType.ReplicaSetPrimary);
+                    var primary = servers.FirstOrDefault(n => n.Type == ServerType.ReplicaSetPrimary);
                     if (primary != null)
                     {
                         return new[] { primary };
                     }
                     else
                     {
-                        return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
+                        return SelectByTagSets(servers.Where(n => n.Type == ServerType.ReplicaSetSecondary));
                     }
 
                 case ReadPreferenceMode.Secondary:
-                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
+                    return SelectByTagSets(servers.Where(n => n.Type == ServerType.ReplicaSetSecondary));
 
                 case ReadPreferenceMode.SecondaryPreferred:
-                    var matchingSecondaries = SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary)).ToList();
+                    var matchingSecondaries = SelectByTagSets(servers.Where(n => n.Type == ServerType.ReplicaSetSecondary)).ToList();
                     if (matchingSecondaries.Count != 0)
                     {
                         return matchingSecondaries;
                     }
                     else
                     {
-                        return materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary);
+                        return servers.Where(n => n.Type == ServerType.ReplicaSetPrimary);
                     }
 
                 case ReadPreferenceMode.Nearest:
-                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary || n.Type == ServerType.ReplicaSetSecondary));
+                    return SelectByTagSets(servers.Where(n => n.Type == ServerType.ReplicaSetPrimary || n.Type == ServerType.ReplicaSetSecondary));
 
                 default:
                     throw new ArgumentException("Invalid ReadPreferenceMode.");
@@ -162,6 +193,46 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private IEnumerable<ServerDescription> SelectForStandaloneCluster(IEnumerable<ServerDescription> servers)
         {
             return servers.Where(n => n.Type == ServerType.Standalone); // standalone servers match any ReadPreference (to facilitate testing)
+        }
+
+        private IReadOnlyList<ServerDescription> SelectFreshServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
+        {
+            var primary = cluster.Servers.SingleOrDefault(s => s.Type == ServerType.ReplicaSetPrimary);
+            if (primary == null)
+            {
+                return SelectFreshServersWithNoPrimary(cluster, servers);
+            }
+            else
+            {
+                return SelectFreshServersWithPrimary(cluster, primary, servers);
+            }
+        }
+
+        private IReadOnlyList<ServerDescription> SelectFreshServersWithNoPrimary(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
+        {
+            var smax = servers
+                .Where(s => s.Type == ServerType.ReplicaSetSecondary)
+                .OrderByDescending(s => s.LastWriteTimestamp)
+                .FirstOrDefault();
+            return servers
+                .Where(s =>
+                {
+                    var estimatedStaleness = smax.LastWriteTimestamp.Value - s.LastWriteTimestamp.Value + s.HeartbeatInterval;
+                    return estimatedStaleness <= _maxStaleness;
+                })
+                .ToList();
+        }
+
+        private IReadOnlyList<ServerDescription> SelectFreshServersWithPrimary(ClusterDescription cluster, ServerDescription primary, IEnumerable<ServerDescription> servers)
+        {
+            var p = primary;
+            return servers
+                .Where(s =>
+                {   
+                    var estimatedStaleness = (s.LastUpdateTimestamp - s.LastWriteTimestamp.Value) - (p.LastUpdateTimestamp - p.LastWriteTimestamp.Value) + s.HeartbeatInterval;
+                    return estimatedStaleness <= _maxStaleness;
+                })
+                .ToList();
         }
     }
 }

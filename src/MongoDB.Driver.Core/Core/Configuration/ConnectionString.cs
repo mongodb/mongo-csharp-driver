@@ -47,6 +47,8 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
+        private TimeSpan? _heartbeatInterval;
+        private TimeSpan? _heartbeatTimeout;
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
@@ -54,6 +56,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
         private int? _maxPoolSize;
+        private TimeSpan? _maxStaleness;
         private int? _minPoolSize;
         private string _password;
         private ReadConcernLevel? _readConcernLevel;
@@ -161,6 +164,22 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        public TimeSpan? HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan? HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
+        }
+
+        /// <summary>
         /// Gets the hosts.
         /// </summary>
         public IReadOnlyList<EndPoint> Hosts
@@ -214,6 +233,14 @@ namespace MongoDB.Driver.Core.Configuration
         public int? MaxPoolSize
         {
             get { return _maxPoolSize; }
+        }
+
+        /// <summary>
+        /// Gets the max staleness.
+        /// </summary>
+        public TimeSpan? MaxStaleness
+        {
+            get { return _maxStaleness; }
         }
 
         /// <summary>
@@ -480,6 +507,16 @@ namespace MongoDB.Driver.Core.Configuration
                 case "gssapiservicename":
                     _authMechanismProperties.Add("SERVICE_NAME", value);
                     break;
+                case "heartbeatfrequency":
+                case "heartbeatfrequencyms":
+                case "heartbeatinterval":
+                case "heartbeatintervalms":
+                    _heartbeatInterval = ParseTimeSpan(name, value);
+                    break;
+                case "heartbeattimeout":
+                case "heartbeattimeoutms":
+                    _heartbeatTimeout = ParseTimeSpan(name, value);
+                    break;
                 case "ipv6":
                     _ipv6 = ParseBoolean(name, value);
                     break;
@@ -497,6 +534,10 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "maxpoolsize":
                     _maxPoolSize = ParseInt32(name, value);
+                    break;
+                case "maxstaleness":
+                case "maxstalenessms":
+                    _maxStaleness = ParseTimeSpan(name, value);
                     break;
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);

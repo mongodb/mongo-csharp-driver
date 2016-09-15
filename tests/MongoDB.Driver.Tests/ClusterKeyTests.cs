@@ -40,6 +40,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("ConnectionMode", true)]
         [InlineData("ConnectTimeout", true)]
         [InlineData("Credentials", false)]
+        [InlineData("HeartbeatInterval", true)]
+        [InlineData("HeartbeatTimeout", true)]
         [InlineData("IPv6", true)]
         [InlineData("MaxConnectionIdleTime", true)]
         [InlineData("MaxConnectionLifeTime", true)]
@@ -70,6 +72,8 @@ namespace MongoDB.Driver.Tests
             var connectTimeout = TimeSpan.FromSeconds(1);
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
             var guidRepresentation = GuidRepresentation.Standard;
+            var heartbeatInterval = TimeSpan.FromSeconds(7);
+            var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
             var localThreshold = TimeSpan.FromMilliseconds(20);
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
@@ -95,6 +99,8 @@ namespace MongoDB.Driver.Tests
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
                 case "Credentials": credentials = new[] { MongoCredential.CreateMongoCRCredential("different", "different", "different") }; break;
+                case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
+                case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
                 case "IPv6": ipv6 = !ipv6; break;
                 case "LocalThreshold": localThreshold = TimeSpan.FromMilliseconds(99); break;
                 case "MaxConnectionIdleTime": maxConnectionIdleTime = TimeSpan.FromSeconds(99); break;
@@ -118,6 +124,8 @@ namespace MongoDB.Driver.Tests
                 ConnectTimeout = connectTimeout,
                 Credentials = credentials,
                 GuidRepresentation = guidRepresentation,
+                HeartbeatInterval = heartbeatInterval,
+                HeartbeatTimeout = heartbeatTimeout,
                 IPv6 = ipv6,
                 MaxConnectionIdleTime = maxConnectionIdleTime,
                 MaxConnectionLifeTime = maxConnectionLifeTime,

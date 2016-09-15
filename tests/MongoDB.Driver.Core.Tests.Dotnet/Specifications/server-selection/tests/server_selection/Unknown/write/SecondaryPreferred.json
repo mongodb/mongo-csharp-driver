@@ -1,6 +1,4 @@
 {
-    "candidate_servers": [], 
-    "eligible_servers": [], 
     "in_latency_window": [], 
     "operation": "write", 
     "read_preference": {

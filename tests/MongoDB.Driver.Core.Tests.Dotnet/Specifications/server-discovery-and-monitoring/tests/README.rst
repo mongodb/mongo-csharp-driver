@@ -20,7 +20,7 @@ One method to convert to JSON is with
     pip install PyYAML urwid jsonwidget
     make
 
-Or instead of "make":
+Or instead of "make"::
 
     for i in `find . -iname '*.yml'`; do
         echo "${i%.*}"

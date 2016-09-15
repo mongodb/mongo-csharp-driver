@@ -394,6 +394,20 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
+        /// Ensures that an assertion is true.
+        /// </summary>
+        /// <param name="assertion">The assertion.</param>
+        /// <param name="message">The message to use with the exception that is thrown if the assertion is false.</param>
+        /// <param name="paramName">The parameter name.</param>
+        public static void That(bool assertion, string message, string paramName)
+        {
+            if (!assertion)
+            {
+                throw new ArgumentException(message, paramName);
+            }
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter meets an assertion.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>

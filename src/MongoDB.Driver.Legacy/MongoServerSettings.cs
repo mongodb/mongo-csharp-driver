@@ -37,6 +37,8 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
         private GuidRepresentation _guidRepresentation;
+        private TimeSpan _heartbeatInterval;
+        private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
@@ -74,6 +76,8 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _guidRepresentation = MongoDefaults.GuidRepresentation;
+            _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
+            _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -173,6 +177,32 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _guidRepresentation = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the heartbeat interval.
+        /// </summary>
+        public TimeSpan HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _heartbeatInterval = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _heartbeatTimeout = value;
             }
         }
 
@@ -528,6 +558,8 @@ namespace MongoDB.Driver
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
             serverSettings.Credentials = clientSettings.Credentials;
             serverSettings.GuidRepresentation = clientSettings.GuidRepresentation;
+            serverSettings.HeartbeatInterval = clientSettings.HeartbeatInterval;
+            serverSettings.HeartbeatTimeout = clientSettings.HeartbeatTimeout;
             serverSettings.IPv6 = clientSettings.IPv6;
             serverSettings.MaxConnectionIdleTime = clientSettings.MaxConnectionIdleTime;
             serverSettings.MaxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
@@ -583,6 +615,8 @@ namespace MongoDB.Driver
                 serverSettings.Credentials = new[] { credential };
             }
             serverSettings.GuidRepresentation = url.GuidRepresentation;
+            serverSettings.HeartbeatInterval = url.HeartbeatInterval;
+            serverSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             serverSettings.IPv6 = url.IPv6;
             serverSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             serverSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
@@ -619,6 +653,8 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._guidRepresentation = _guidRepresentation;
+            clone._heartbeatInterval = _heartbeatInterval;
+            clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
@@ -672,6 +708,8 @@ namespace MongoDB.Driver
                _connectTimeout == rhs._connectTimeout &&
                _credentials == rhs._credentials &&
                _guidRepresentation == rhs._guidRepresentation &&
+               _heartbeatInterval == rhs._heartbeatInterval &&
+               _heartbeatTimeout == rhs._heartbeatTimeout &&
                _ipv6 == rhs._ipv6 &&
                _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -743,6 +781,8 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
                 .Hash(_guidRepresentation)
+                .Hash(_heartbeatInterval)
+                .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
@@ -783,6 +823,8 @@ namespace MongoDB.Driver
             parts.Add(string.Format("ConnectTimeout={0}", _connectTimeout));
             parts.Add(string.Format("Credentials={{{0}}}", _credentials));
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation));
+            parts.Add(string.Format("HeartbeatInterval={0}", _heartbeatInterval));
+            parts.Add(string.Format("HeartbeatTimeout={0}", _heartbeatTimeout));
             parts.Add(string.Format("IPv6={0}", _ipv6));
             parts.Add(string.Format("MaxConnectionIdleTime={0}", _maxConnectionIdleTime));
             parts.Add(string.Format("MaxConnectionLifeTime={0}", _maxConnectionLifeTime));
@@ -824,6 +866,8 @@ namespace MongoDB.Driver
                 _connectionMode,
                 _connectTimeout,
                 _credentials.ToList(),
+                _heartbeatInterval,
+                _heartbeatTimeout,
                 _ipv6,
                 _localThreshold,
                 _maxConnectionIdleTime,

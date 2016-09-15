@@ -75,6 +75,20 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Theory]
+        [InlineData("{ lastWrite : { lastWriteDate : ISODate(\"2015-01-01T00:00:00Z\") } }", 2015)]
+        [InlineData("{ lastWrite : { lastWriteDate : ISODate(\"2016-01-01T00:00:00Z\") } }", 2016)]
+        [InlineData("{ }", null)]
+        public void LastWriteTimestamp_should_parse_document_correctly(string json, int? expectedYear)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            var result = subject.LastWriteTimestamp;
+
+            var expectedResult = expectedYear.HasValue ? new DateTime(expectedYear.Value, 1, 1, 0, 0, 0, DateTimeKind.Utc) : (DateTime?)null;
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
         [InlineData("{ maxWriteBatchSize: 100 }", 100)]
         [InlineData("{ maxWriteBatchSize: 0 }", 0)]
         [InlineData("{ }", 1000)]

@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ServerSettings();
 
-            subject.HeartbeatInterval.Should().Be(TimeSpan.FromSeconds(10));
-            subject.HeartbeatTimeout.Should().Be(TimeSpan.FromSeconds(10));
+            subject.HeartbeatInterval.Should().Be(ServerSettings.DefaultHeartbeatInterval);
+            subject.HeartbeatTimeout.Should().Be(ServerSettings.DefaultHeartbeatTimeout);
         }
 
         [Fact]

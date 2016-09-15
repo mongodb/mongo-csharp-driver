@@ -148,6 +148,8 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
             subject.FSync.Should().Be(null);
+            subject.HeartbeatInterval.Should().NotHaveValue();
+            subject.HeartbeatTimeout.Should().NotHaveValue();
             subject.Ipv6.Should().Be(null);
             subject.Journal.Should().Be(null);
             subject.MaxIdleTime.Should().Be(null);
@@ -182,6 +184,8 @@ namespace MongoDB.Driver.Core.Configuration
                 "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
                 "fsync=true;" +
+                "heartbeatInterval=1m;" +
+                "heartbeatTimeout=2m;" +
                 "ipv6=false;" +
                 "j=true;" +
                 "maxIdleTime=10ms;" +
@@ -213,6 +217,8 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
             subject.FSync.Should().BeTrue();
+            subject.HeartbeatInterval.Should().Be(TimeSpan.FromMinutes(1));
+            subject.HeartbeatTimeout.Should().Be(TimeSpan.FromMinutes(2));
             subject.Ipv6.Should().BeFalse();
             subject.Journal.Should().BeTrue();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMilliseconds(10));
@@ -330,6 +336,34 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost?heartbeatInterval=15ms", 15)]
+        [InlineData("mongodb://localhost?heartbeatIntervalMS=15", 15)]
+        [InlineData("mongodb://localhost?heartbeatInterval=15", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatInterval=15s", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatInterval=15m", 1000 * 60 * 15)]
+        [InlineData("mongodb://localhost?heartbeatInterval=15h", 1000 * 60 * 60 * 15)]
+        public void When_heartbeat_interval_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.HeartbeatInterval.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?heartbeatTimeout=15ms", 15)]
+        [InlineData("mongodb://localhost?heartbeatTimeoutMS=15", 15)]
+        [InlineData("mongodb://localhost?heartbeatTimeout=15", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatTimeout=15s", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatTimeout=15m", 1000 * 60 * 15)]
+        [InlineData("mongodb://localhost?heartbeatTimeout=15h", 1000 * 60 * 60 * 15)]
+        public void When_heartbeat_timeout_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.HeartbeatTimeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+        }
+
+        [Theory]
         [InlineData("mongodb://localhost?ipv6=true", true)]
         [InlineData("mongodb://localhost?ipv6=false", false)]
         public void When_ipv6_is_specified(string connectionString, bool ipv6)
@@ -387,6 +421,20 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.MaxPoolSize.Should().Be(maxPoolSize);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?maxStaleness=15ms", 15)]
+        [InlineData("mongodb://localhost?maxStalenessMS=15", 15)]
+        [InlineData("mongodb://localhost?maxStaleness=15", 1000 * 15)]
+        [InlineData("mongodb://localhost?maxStaleness=15s", 1000 * 15)]
+        [InlineData("mongodb://localhost?maxStaleness=15m", 1000 * 60 * 15)]
+        [InlineData("mongodb://localhost?maxStaleness=15h", 1000 * 60 * 60 * 15)]
+        public void When_maxStaleness_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.MaxStaleness.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
 
         [Theory]

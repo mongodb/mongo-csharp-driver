@@ -32,27 +32,64 @@ namespace MongoDB.Driver.Specifications.server_selection
     public class ServerSelectionTestRunner
     {
         private ClusterId _clusterId = new ClusterId();
+        private DateTime _utcNow = DateTime.UtcNow;
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
-            var clusterDescription = BuildClusterDescription((BsonDocument)definition["topology_description"]);
+            var error = definition.GetValue("error", false).ToBoolean();
+            var heartbeatInterval = TimeSpan.FromMilliseconds(definition.GetValue("heartbeatFrequencyMS", 10000).ToInt64());
+            var clusterDescription = BuildClusterDescription((BsonDocument)definition["topology_description"], heartbeatInterval);
             IServerSelector selector;
-            if (definition["operation"].ToString() == "write")
+            if (definition.GetValue("operation", "read").AsString == "write")
             {
                 selector = WritableServerSelector.Instance;
             }
             else
             {
-                selector = BuildServerSelector((BsonDocument)definition["read_preference"]);
+                ReadPreference readPreference;
+                try
+                {
+                    readPreference = BuildReadPreference(definition["read_preference"].AsBsonDocument);
+                }
+                catch
+                {
+                    if (error)
+                    {
+                        return;
+                    }
+                    throw;
+                }
+
+                selector = new ReadPreferenceServerSelector(readPreference);
             }
-            var suitableServers = BuildServerDescriptions((BsonArray)definition["suitable_servers"]).ToList();
+
+            if (error)
+            {
+                RunErrorTest(clusterDescription, selector);
+            }
+            else
+            {
+                RunNonErrorTest(definition, clusterDescription, selector, heartbeatInterval);
+            }
+        }
+
+        private void RunErrorTest(ClusterDescription clusterDescription, IServerSelector selector)
+        {
+            var exception = Record.Exception(() => selector.SelectServers(clusterDescription, clusterDescription.Servers));
+
+            exception.Should().NotBeNull();
+        }
+
+        private void RunNonErrorTest(BsonDocument definition, ClusterDescription clusterDescription, IServerSelector selector, TimeSpan heartbeatInterval)
+        {
+            var suitableServers = BuildServerDescriptions((BsonArray)definition["suitable_servers"], heartbeatInterval).ToList();
             var selectedServers = selector.SelectServers(clusterDescription, clusterDescription.Servers).ToList();
             AssertServers(suitableServers, selectedServers);
 
             selector = new CompositeServerSelector(new[] { selector, new LatencyLimitingServerSelector(TimeSpan.FromMilliseconds(15)) });
-            var inLatencyWindowServers = BuildServerDescriptions((BsonArray)definition["in_latency_window"]).ToList();
+            var inLatencyWindowServers = BuildServerDescriptions((BsonArray)definition["in_latency_window"], heartbeatInterval).ToList();
             selectedServers = selector.SelectServers(clusterDescription, clusterDescription.Servers).ToList();
             AssertServers(inLatencyWindowServers, selectedServers);
         }
@@ -69,51 +106,45 @@ namespace MongoDB.Driver.Specifications.server_selection
             }
         }
 
-        private IServerSelector BuildServerSelector(BsonDocument readPreference)
-        {
-            return new ReadPreferenceServerSelector(BuildReadPreference(readPreference));
-        }
-
         private ReadPreference BuildReadPreference(BsonDocument readPreferenceDescription)
         {
-            var tagSets = ((BsonArray)readPreferenceDescription["tag_sets"]).Select(x => BuildTagSet((BsonDocument)x));
+            var mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), readPreferenceDescription["mode"].AsString);
 
-            ReadPreference readPreference;
-            switch (readPreferenceDescription["mode"].ToString())
+            IEnumerable<TagSet> tagSets = null;
+            if (readPreferenceDescription.Contains("tag_sets"))
             {
-                case "Nearest":
-                    readPreference = ReadPreference.Nearest;
-                    break;
-                case "Primary":
-                    // tag sets can't be used with Primary
-                    return ReadPreference.Primary;
-                case "PrimaryPreferred":
-                    readPreference = ReadPreference.PrimaryPreferred;
-                    break;
-                case "Secondary":
-                    readPreference = ReadPreference.Secondary;
-                    break;
-                case "SecondaryPreferred":
-                    readPreference = ReadPreference.SecondaryPreferred;
-                    break;
-                default:
-                    throw new NotSupportedException("Unknown read preference mode: " + readPreferenceDescription["mode"]);
+                tagSets = ((BsonArray)readPreferenceDescription["tag_sets"]).Select(x => BuildTagSet((BsonDocument)x));
             }
 
-            return readPreference.With(tagSets: tagSets);
+            TimeSpan? maxStaleness = null;
+            if (readPreferenceDescription.Contains("maxStalenessMS"))
+            {
+                maxStaleness = TimeSpan.FromMilliseconds(readPreferenceDescription["maxStalenessMS"].ToDouble());
+            }
+
+            // work around minor issue in test files
+            if (mode == ReadPreferenceMode.Primary && tagSets != null)
+            {
+                if (tagSets.Count() == 1 && tagSets.First().Tags.Count == 0)
+                {
+                    tagSets = null;
+                }
+            }
+
+            return new ReadPreference(mode, tagSets, maxStaleness);
         }
 
-        private ClusterDescription BuildClusterDescription(BsonDocument topologyDescription)
+        private ClusterDescription BuildClusterDescription(BsonDocument topologyDescription, TimeSpan heartbeatInterval)
         {
             var clusterType = GetClusterType(topologyDescription["type"].ToString());
-            var servers = BuildServerDescriptions((BsonArray)topologyDescription["servers"]);
+            var servers = BuildServerDescriptions((BsonArray)topologyDescription["servers"], heartbeatInterval);
 
             return new ClusterDescription(_clusterId, ClusterConnectionMode.Automatic, clusterType, servers);
         }
 
-        private IEnumerable<ServerDescription> BuildServerDescriptions(BsonArray serverDescriptions)
+        private IEnumerable<ServerDescription> BuildServerDescriptions(BsonArray serverDescriptions, TimeSpan heartbeatInterval)
         {
-            return serverDescriptions.Select(x => BuildServerDescription((BsonDocument)x));
+            return serverDescriptions.Select(x => BuildServerDescription((BsonDocument)x, heartbeatInterval));
         }
 
         private ClusterType GetClusterType(string type)
@@ -141,17 +172,49 @@ namespace MongoDB.Driver.Specifications.server_selection
             throw new NotSupportedException("Unknown topology type: " + type);
         }
 
-        private ServerDescription BuildServerDescription(BsonDocument serverDescription)
+        private ServerDescription BuildServerDescription(BsonDocument serverDescription, TimeSpan heartbeatInterval)
         {
             var endPoint = EndPointHelper.Parse(serverDescription["address"].ToString());
-            var averageRoundTripTime = TimeSpan.FromMilliseconds(serverDescription["avg_rtt_ms"].ToDouble());
+            var averageRoundTripTime = TimeSpan.FromMilliseconds(serverDescription.GetValue("avg_rtt_ms", 0.0).ToDouble());
             var type = GetServerType(serverDescription["type"].ToString());
-            var tagSet = BuildTagSet((BsonDocument)serverDescription["tag_sets"][0]);
+            TagSet tagSet = null;
+            if (serverDescription.Contains("tags"))
+            {
+                tagSet = BuildTagSet((BsonDocument)serverDescription["tags"]);
+            }
+            DateTime lastWriteTimestamp;
+            if (serverDescription.Contains("lastWrite"))
+            {
+                lastWriteTimestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverDescription["lastWrite"]["lastWriteDate"].ToInt64());
+            }
+            else
+            {
+                lastWriteTimestamp = _utcNow;
+            }
+            var maxWireVersion = serverDescription.GetValue("maxWireVersion", 5).ToInt32();
+            var wireVersionRange = new Range<int>(0, maxWireVersion);
+            var serverVersion = maxWireVersion == 5 ? new SemanticVersion(3, 4, 0) : new SemanticVersion(3, 2, 0);
+            DateTime lastUpdateTimestamp;
+            if (serverDescription.Contains("lastUpdateTime"))
+            {
+                lastUpdateTimestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverDescription.GetValue("lastUpdateTime", 0).ToInt64());
+            }
+            else
+            {
+                lastUpdateTimestamp = _utcNow;
+            }
 
             var serverId = new ServerId(_clusterId, endPoint);
-            return new ServerDescription(serverId, endPoint,
+            return new ServerDescription(
+                serverId,
+                endPoint,
                 averageRoundTripTime: averageRoundTripTime,
                 type: type,
+                lastUpdateTimestamp: lastUpdateTimestamp,
+                lastWriteTimestamp: lastWriteTimestamp,
+                heartbeatInterval: heartbeatInterval,
+                wireVersionRange: wireVersionRange,
+                version: serverVersion,
                 tags: tagSet,
                 state: ServerState.Connected);
         }
@@ -190,16 +253,19 @@ namespace MongoDB.Driver.Specifications.server_selection
             {
 #if NET45
                 const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.server_selection.";
+                const string maxStalenessPrefix = "MongoDB.Driver.Specifications.max_staleness.tests.";
 #else
                 const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_selection.tests.server_selection.";
+                const string maxStalenessPrefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.max_staleness.tests.";
 #endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
+                    .Where(path => (path.StartsWith(prefix) || path.StartsWith(maxStalenessPrefix)) && path.EndsWith(".json"))
                     .Select(path =>
                     {
                         var definition = ReadDefinition(path);
+                        definition.InsertAt(0, new BsonElement("path", path));
                         //var data = new TestCaseData(definition);
                         //data.SetCategory("Specifications");
                         //data.SetCategory("server-selection");

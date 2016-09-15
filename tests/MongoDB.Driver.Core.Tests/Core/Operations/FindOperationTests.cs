@@ -19,6 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -411,6 +412,23 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as slaveOk = true
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().HaveCount(5);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_find_all_the_documents_matching_the_query_when_max_staleness_is_used(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.MaxStaleness);
+            EnsureTestData();
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, maxStaleness: TimeSpan.FromSeconds(30));
+
+            var cursor = ExecuteOperation(subject, readPreference, async);
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);

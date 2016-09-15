@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -30,7 +32,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestAll()
         {
-            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
             var authMechanismProperties = new Dictionary<string, string>
             {
                 { "SERVICE_NAME", "other" },
@@ -46,6 +48,8 @@ namespace MongoDB.Driver.Tests
                 DatabaseName = "database",
                 FSync = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                HeartbeatInterval = TimeSpan.FromMinutes(1),
+                HeartbeatTimeout = TimeSpan.FromMinutes(2),
                 IPv6 = true,
                 Journal = true,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
@@ -79,12 +83,14 @@ namespace MongoDB.Driver.Tests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
-                "readPreference=secondary;readPreferenceTags=dc:1",
+                "readPreference=secondary;readPreferenceTags=dc:1;maxStaleness=11s",
                 "fsync=true",
                 "journal=true",
                 "w=2",
                 "wtimeout=9s",
                 "connectTimeout=1s",
+                "heartbeatInterval=1m",
+                "heartbeatTimeout=2m",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
@@ -108,6 +114,8 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("database", builder.DatabaseName);
                 Assert.Equal(true, builder.FSync);
                 Assert.Equal(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
+                Assert.Equal(TimeSpan.FromMinutes(1), builder.HeartbeatInterval);
+                Assert.Equal(TimeSpan.FromMinutes(2), builder.HeartbeatTimeout);
                 Assert.Equal(true, builder.IPv6);
                 Assert.Equal(true, builder.Journal);
                 Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
@@ -295,6 +303,8 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.DatabaseName);
                 Assert.Equal(null, builder.FSync);
                 Assert.Equal(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                Assert.Equal(ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);
+                Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
                 Assert.Equal(false, builder.IPv6);
                 Assert.Equal(null, builder.Journal);
                 Assert.Equal(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
@@ -436,6 +446,66 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?heartbeatInterval{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?heartbeatInterval{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?heartbeatInterval{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?heartbeatInterval{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?heartbeatInterval{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestHeartbeatInterval(int? ms, string formatString, string[] values)
+        {
+            var heartbeatInterval = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (heartbeatInterval != null) { built.HeartbeatInterval = heartbeatInterval.Value; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?heartbeatFrequency=10s", "");
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.Equal(heartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Fact]
+        public void TestHeartbeatInterval_Range()
+        {
+            var builder = new MongoUrlBuilder();
+            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.HeartbeatInterval = TimeSpan.FromMilliseconds(-1); });
+            builder.HeartbeatInterval = TimeSpan.FromMilliseconds(0);
+            builder.HeartbeatInterval = TimeSpan.FromMilliseconds(1);
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?heartbeatTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?heartbeatTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?heartbeatTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?heartbeatTimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?heartbeatTimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestHeartbeatTimeout(int? ms, string formatString, string[] values)
+        {
+            var heartbeatTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (heartbeatTimeout != null) { built.HeartbeatTimeout = heartbeatTimeout.Value; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?heartbeatTimeout=10s", "");
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.Equal(heartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Fact]
+        public void TestHeartbeatTimeout_Range()
+        {
+            var builder = new MongoUrlBuilder();
+            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(-2); });
+            builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(0);
+            builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(1);
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(false, "mongodb://localhost/?ipv6={0}", new[] { "false", "False" })]
         [InlineData(true, "mongodb://localhost/?ipv6={0}", new[] { "true", "True" })]
         public void TestIPv6(bool? ipv6, string formatString, string[] values)
@@ -549,6 +619,28 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionPoolSize = -1; });
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionPoolSize = 0; });
             builder.MaxConnectionPoolSize = 1;
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(500, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(20000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
+        [InlineData(1800000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestMaxStaleness(int? ms, string formatString, string[] values)
+        {
+            var maxStaleness = ms.HasValue ? TimeSpan.FromMilliseconds(ms.Value) : (TimeSpan?)null;
+            var readPreference = maxStaleness.HasValue ? new ReadPreference(ReadPreferenceMode.Secondary, maxStaleness: maxStaleness) : null;
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (readPreference != null) { built.ReadPreference = readPreference; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]);
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.Equal(readPreference, builder.ReadPreference);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
         }
 
         [Theory]

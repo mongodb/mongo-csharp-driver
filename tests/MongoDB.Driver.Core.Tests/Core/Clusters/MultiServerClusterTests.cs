@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -41,6 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
         private EndPoint _firstEndPoint = new DnsEndPoint("localhost", 27017);
         private EndPoint _secondEndPoint = new DnsEndPoint("localhost", 27018);
         private EndPoint _thirdEndPoint = new DnsEndPoint("localhost", 27019);
+        private IEqualityComparer<ServerDescription> _serverDescriptionComparer = ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.Instance;
 
         public MultiServerClusterTests()
         {
@@ -82,7 +84,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.Unknown);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterOpeningEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
@@ -118,7 +120,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
@@ -142,7 +144,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
@@ -167,7 +169,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
@@ -193,7 +195,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
@@ -218,7 +220,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
@@ -239,7 +241,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
@@ -264,7 +266,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
@@ -293,7 +295,7 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, wrongType);
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
@@ -314,7 +316,7 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, wrongType);
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
@@ -338,7 +340,7 @@ namespace MongoDB.Driver.Core.Clusters
                 hosts: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
@@ -360,7 +362,7 @@ namespace MongoDB.Driver.Core.Clusters
                 setName: "funny");
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_secondEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_secondEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
@@ -381,7 +383,7 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, alternateEndPoint, ServerType.ReplicaSetPrimary);
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
@@ -408,9 +410,9 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary);
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_firstEndPoint) }
-                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }.Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -433,9 +435,9 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_firstEndPoint) }
-                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }.Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -458,9 +460,9 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 2, electionId: new ElectionId(ObjectId.Empty));
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_firstEndPoint) }
-                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }.Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -483,9 +485,10 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_firstEndPoint) }
-                .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
+
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_firstEndPoint) }.Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -508,9 +511,9 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.GenerateNewId()));
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_secondEndPoint) }
-                .Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)));
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_secondEndPoint) }.Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_secondEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -533,9 +536,9 @@ namespace MongoDB.Driver.Core.Clusters
             PublishDescription(subject, _secondEndPoint, ServerType.ReplicaSetPrimary, setVersion: 1, electionId: new ElectionId(ObjectId.Empty));
 
             var description = subject.Description;
-            description.Servers.Should().BeEquivalentTo(
-                new[] { GetDisconnectedDescription(_secondEndPoint) }
-                .Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)));
+            description.Servers.Should().BeEquivalentToWithComparer(
+                new[] { GetDisconnectedDescription(_secondEndPoint) }.Concat(GetDescriptions(_firstEndPoint, _thirdEndPoint)),
+                _serverDescriptionComparer);
 
             var mockServer = Mock.Get(_serverFactory.GetServer(_secondEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
@@ -562,7 +565,7 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.State.Should().Be(ClusterState.Connected);
             description.Type.Should().Be(ClusterType.ReplicaSet);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint, _secondEndPoint));
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();

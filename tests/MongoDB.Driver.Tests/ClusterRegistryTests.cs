@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Tests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credentials = credentials,
                 GuidRepresentation = GuidRepresentation.Standard,
+                HeartbeatInterval = TimeSpan.FromSeconds(7),
+                HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
@@ -69,7 +71,7 @@ namespace MongoDB.Driver.Tests
                 UseSsl = true,
                 VerifySslCertificate = true,
                 WaitQueueSize = 20,
-                WaitQueueTimeout = TimeSpan.FromSeconds(5)
+                WaitQueueTimeout = TimeSpan.FromSeconds(6)
             };
 
             var subject = new ClusterRegistry();

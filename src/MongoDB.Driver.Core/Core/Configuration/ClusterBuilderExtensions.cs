@@ -65,6 +65,14 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureTcp(s => s.With(connectTimeout: connectionString.ConnectTimeout.Value));
             }
+            if (connectionString.HeartbeatInterval.HasValue)
+            {
+                builder = builder.ConfigureServer(s => s.With(heartbeatInterval: connectionString.HeartbeatInterval.Value));
+            }
+            if (connectionString.HeartbeatTimeout.HasValue)
+            {
+                builder = builder.ConfigureServer(s => s.With(heartbeatTimeout: connectionString.HeartbeatTimeout.Value));
+            }
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {
                 builder = builder.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));

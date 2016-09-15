@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -28,6 +29,7 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
+        private static readonly TagSet[] __emptyTagSetsArray = new TagSet[0];
         private static readonly ReadPreference __nearest = new ReadPreference(ReadPreferenceMode.Nearest);
         private static readonly ReadPreference __primary = new ReadPreference(ReadPreferenceMode.Primary);
         private static readonly ReadPreference __primaryPreferred = new ReadPreference(ReadPreferenceMode.PrimaryPreferred);
@@ -92,29 +94,51 @@ namespace MongoDB.Driver
         #endregion
 
         // fields
+        private readonly TimeSpan? _maxStaleness;
         private readonly ReadPreferenceMode _mode;
         private readonly IReadOnlyList<TagSet> _tagSets;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReadPreference"/> class.
+        /// Initializes a new instance of the <see cref="ReadPreference" /> class.
         /// </summary>
         /// <param name="mode">The read preference mode.</param>
         /// <param name="tagSets">The tag sets.</param>
+        /// <param name="maxStaleness">The maximum staleness.</param>
         public ReadPreference(
             ReadPreferenceMode mode,
-            IEnumerable<TagSet> tagSets = null)
+            IEnumerable<TagSet> tagSets = null,
+            TimeSpan? maxStaleness = null)
         {
-            _mode = mode;
-            _tagSets = (tagSets ?? Enumerable.Empty<TagSet>()).ToList();
-
-            if (_mode == ReadPreferenceMode.Primary && _tagSets.Count() > 0)
+            var tagSetsArray = tagSets == null ? __emptyTagSetsArray : tagSets.ToArray();
+            if (tagSetsArray.Length > 0)
             {
-                throw new ArgumentException("TagSets cannot be used with ReadPreferenceMode Primary.", "tagSets");
+                Ensure.That(mode != ReadPreferenceMode.Primary, "TagSets cannot be used with ReadPreferenceMode Primary.", nameof(tagSets));
             }
+
+            if (maxStaleness.HasValue)
+            {
+                Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maxStaleness.Value, nameof(maxStaleness));
+                Ensure.That(mode != ReadPreferenceMode.Primary, "MaxStaleness cannot be used with ReadPreferenceMode Primary.", nameof(maxStaleness));
+            }
+
+            _mode = mode;
+            _tagSets = tagSetsArray;
+            _maxStaleness = maxStaleness;
         }
 
         // properties
+        /// <summary>
+        /// Gets the maximum staleness.
+        /// </summary>
+        /// <value>
+        /// The maximum staleness.
+        /// </value>
+        public TimeSpan? MaxStaleness
+        {
+            get { return _maxStaleness; }
+        }
+
         /// <summary>
         /// Gets the read preference mode.
         /// </summary>
@@ -147,7 +171,8 @@ namespace MongoDB.Driver
             }
 
             return
-                _mode == other._mode &&
+                _maxStaleness.Equals(other._maxStaleness) &&
+                _mode.Equals(other._mode) &&
                 _tagSets.SequenceEqual(other.TagSets);
         }
 
@@ -161,6 +186,7 @@ namespace MongoDB.Driver
         public override int GetHashCode()
         {
             return new Hasher()
+                .Hash(_maxStaleness)
                 .Hash(_mode)
                 .HashElements(_tagSets)
                 .GetHashCode();
@@ -169,7 +195,22 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString()
         {
-            return string.Format("{{ Mode = {0}, TagSets = [{1}] }}", _mode, string.Join(", ", _tagSets));
+            var sb = new StringBuilder();
+            sb.Append("{ Mode : ");
+            sb.Append(_mode.ToString());
+            if (_tagSets.Count > 0)
+            {
+                sb.Append(", TagSets : [");
+                sb.Append(string.Join(", ", _tagSets));
+                sb.Append("]");
+            }
+            if (_maxStaleness.HasValue)
+            {
+                sb.Append(", MaxStaleness : ");
+                sb.Append(TimeSpanParser.ToString(_maxStaleness.Value));
+            }
+            sb.Append(" }");
+            return sb.ToString();
         }
 
         /// <summary>
@@ -179,7 +220,7 @@ namespace MongoDB.Driver
         /// <returns>A new instance of ReadPreference.</returns>
         public ReadPreference With(ReadPreferenceMode mode)
         {
-            return new ReadPreference(mode, _tagSets);
+            return new ReadPreference(mode, _tagSets, _maxStaleness);
         }
 
         /// <summary>
@@ -189,7 +230,16 @@ namespace MongoDB.Driver
         /// <returns>A new instance of ReadPreference.</returns>
         public ReadPreference With(IEnumerable<TagSet> tagSets)
         {
-            return new ReadPreference(_mode, tagSets);
+            return new ReadPreference(_mode, tagSets, _maxStaleness);
+        }
+
+        /// <summary>
+        /// Returns a new instance of ReadPreference with some values changed.
+        /// </summary>
+        /// <returns>A new instance of ReadPreference.</returns>
+        public ReadPreference With(TimeSpan? maxStaleness)
+        {
+            return new ReadPreference(_mode, _tagSets, maxStaleness);
         }
     }
 }

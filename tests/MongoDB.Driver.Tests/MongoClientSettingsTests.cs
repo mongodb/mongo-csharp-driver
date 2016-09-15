@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -35,7 +36,7 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are cloned
             var connectionString =
                 "mongodb://user1:password1@somehost/?" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
+                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -97,6 +98,8 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.Equal(0, settings.Credentials.Count());
             Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
+            Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(false, settings.IPv6);
             Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
@@ -143,6 +146,14 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.HeartbeatInterval = new TimeSpan(1, 2, 3);
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.HeartbeatTimeout = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -239,7 +250,7 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are converted
             var connectionString =
                 "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
+                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -258,6 +269,8 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.Equal(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
             Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+            Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
+            Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
@@ -318,6 +331,36 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(guidRepresentation, settings.GuidRepresentation);
             Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
+        }
+
+        [Fact]
+        public void TestHeartbeatInterval()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
+
+            var heartbeatInterval = new TimeSpan(1, 2, 3);
+            settings.HeartbeatInterval = heartbeatInterval;
+            Assert.Equal(heartbeatInterval, settings.HeartbeatInterval);
+
+            settings.Freeze();
+            Assert.Equal(heartbeatInterval, settings.HeartbeatInterval);
+            Assert.Throws<InvalidOperationException>(() => { settings.HeartbeatInterval = heartbeatInterval; });
+        }
+
+        [Fact]
+        public void TestHeartbeatTimeout()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
+
+            var heartbeatTimeout = new TimeSpan(1, 2, 3);
+            settings.HeartbeatTimeout = heartbeatTimeout;
+            Assert.Equal(heartbeatTimeout, settings.HeartbeatTimeout);
+
+            settings.Freeze();
+            Assert.Equal(heartbeatTimeout, settings.HeartbeatTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.HeartbeatTimeout = heartbeatTimeout; });
         }
 
         [Fact]
@@ -666,6 +709,8 @@ namespace MongoDB.Driver.Tests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credentials = credentials,
                 GuidRepresentation = GuidRepresentation.Standard,
+                HeartbeatInterval = TimeSpan.FromSeconds(7),
+                HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
@@ -688,6 +733,8 @@ namespace MongoDB.Driver.Tests
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
             result.Credentials.Should().Equal(subject.Credentials);
+            result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
+            result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
             result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
             result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);

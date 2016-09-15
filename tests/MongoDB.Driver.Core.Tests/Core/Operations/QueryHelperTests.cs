@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_Primary_with_no_tag_sets()
+        public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_Primary_with_no_additional_options()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, ReadPreference.Primary);
 
@@ -52,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_SecondaryPreferred_with_no_tag_sets()
+        public void CreateReadPreferenceDocument_should_return_null_when_the_readPreference_is_SecondaryPreferred_with_no_additional_options()
         {
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, ReadPreference.SecondaryPreferred);
 
@@ -67,6 +68,16 @@ namespace MongoDB.Driver.Core.Operations
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, rp);
 
             result.Should().Be("{mode: \"secondary\", tags: [{dc: \"tx\"}]}");
+        }
+
+        [Fact]
+        public void CreateReadPreferenceDocument_should_return_a_document_when_maxStaleness_is_used()
+        {
+            var readPreference = ReadPreference.Secondary.With(maxStaleness: TimeSpan.FromSeconds(1));
+
+            var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, readPreference);
+
+            result.Should().Be("{ mode : \"secondary\", maxStalenessMS : 1000 }");
         }
 
         [Fact]

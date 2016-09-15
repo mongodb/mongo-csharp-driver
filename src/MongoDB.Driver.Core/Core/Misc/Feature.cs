@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listIndexesCommand = new Feature("ListIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 3, 12));
         private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
@@ -131,6 +132,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the list indexes command feature.
         /// </summary>
         public static Feature ListIndexesCommand => __listIndexesCommand;
+
+        /// <summary>
+        /// Gets the maximum staleness feature.
+        /// </summary>
+        public static Feature MaxStaleness => __maxStaleness;
 
         /// <summary>
         /// Gets the maximum time feature.

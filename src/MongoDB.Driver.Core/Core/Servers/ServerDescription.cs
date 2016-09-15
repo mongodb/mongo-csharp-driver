@@ -39,6 +39,9 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ElectionId _electionId;
         private readonly EndPoint _endPoint;
         private readonly Exception _heartbeatException;
+        private readonly TimeSpan _heartbeatInterval;
+        private readonly DateTime _lastUpdateTimestamp;
+        private readonly DateTime? _lastWriteTimestamp;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
@@ -61,6 +64,9 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="canonicalEndPoint">The canonical end point.</param>
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
+        /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
+        /// <param name="lastWriteTimestamp">The last write timestamp.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
         /// <param name="maxMessageSize">The maximum size of a message.</param>
@@ -79,6 +85,9 @@ namespace MongoDB.Driver.Core.Servers
             Optional<EndPoint> canonicalEndPoint = default(Optional<EndPoint>),
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
+            Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
+            Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -102,6 +111,9 @@ namespace MongoDB.Driver.Core.Servers
             _electionId = electionId.WithDefault(null);
             _endPoint = endPoint;
             _heartbeatException = heartbeatException.WithDefault(null);
+            _heartbeatInterval = heartbeatInterval.WithDefault(TimeSpan.Zero);
+            _lastUpdateTimestamp = lastUpdateTimestamp.WithDefault(DateTime.UtcNow);
+            _lastWriteTimestamp = lastWriteTimestamp.WithDefault(null);
             _maxBatchCount = maxBatchCount.WithDefault(1000);
             _maxDocumentSize = maxDocumentSize.WithDefault(4 * 1024 * 1024);
             _maxMessageSize = maxMessageSize.WithDefault(Math.Max(_maxDocumentSize + 1024, 16000000));
@@ -165,6 +177,39 @@ namespace MongoDB.Driver.Core.Servers
         public Exception HeartbeatException
         {
             get { return _heartbeatException; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        /// <value>
+        /// The heartbeat interval.
+        /// </value>
+        public TimeSpan HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the last update timestamp (when the ServerDescription itself was last updated).
+        /// </summary>
+        /// <value>
+        /// The last update timestamp.
+        /// </value>
+        public DateTime LastUpdateTimestamp
+        {
+            get { return _lastUpdateTimestamp; }
+        }
+
+        /// <summary>
+        /// Gets the last write timestamp (from the lastWrite field of the isMaster result).
+        /// </summary>
+        /// <value>
+        /// The last write timestamp.
+        /// </value>
+        public DateTime? LastWriteTimestamp
+        {
+            get { return _lastWriteTimestamp; }
         }
 
         /// <summary>
@@ -309,6 +354,9 @@ namespace MongoDB.Driver.Core.Servers
                 object.Equals(_electionId, other._electionId) &&
                 EndPointHelper.Equals(_endPoint, other._endPoint) &&
                 object.Equals(_heartbeatException, other._heartbeatException) &&
+                _heartbeatInterval == other._heartbeatInterval &&
+                _lastUpdateTimestamp == other._lastUpdateTimestamp &&
+                _lastWriteTimestamp == other._lastWriteTimestamp &&
                 _maxBatchCount == other._maxBatchCount &&
                 _maxDocumentSize == other._maxDocumentSize &&
                 _maxMessageSize == other._maxMessageSize &&
@@ -332,6 +380,9 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_electionId)
                 .Hash(_endPoint)
                 .Hash(_heartbeatException)
+                .Hash(_heartbeatInterval)
+                .Hash(_lastUpdateTimestamp)
+                .Hash(_lastWriteTimestamp)
                 .Hash(_maxBatchCount)
                 .Hash(_maxDocumentSize)
                 .Hash(_maxMessageSize)
@@ -370,6 +421,9 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="canonicalEndPoint">The canonical end point.</param>
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
+        /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
+        /// <param name="lastWriteTimestamp">The last write timestamp.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
         /// <param name="maxMessageSize">The maximum size of a message.</param>
@@ -388,6 +442,9 @@ namespace MongoDB.Driver.Core.Servers
             Optional<EndPoint> canonicalEndPoint = default(Optional<EndPoint>),
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
+            Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
+            Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -399,11 +456,19 @@ namespace MongoDB.Driver.Core.Servers
             Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
+            if (!lastUpdateTimestamp.HasValue)
+            {
+                lastUpdateTimestamp = DateTime.UtcNow;
+            }
+
             if (
                 averageRoundTripTime.Replaces(_averageRoundTripTime) ||
                 canonicalEndPoint.Replaces(_canonicalEndPoint) ||
                 electionId.Replaces(_electionId) ||
                 heartbeatException.Replaces(_heartbeatException) ||
+                heartbeatInterval.Replaces(_heartbeatInterval) ||
+                lastUpdateTimestamp.Replaces(_lastUpdateTimestamp) ||
+                lastWriteTimestamp.Replaces(_lastWriteTimestamp) ||
                 maxBatchCount.Replaces(_maxBatchCount) ||
                 maxDocumentSize.Replaces(_maxDocumentSize) ||
                 maxMessageSize.Replaces(_maxMessageSize) ||
@@ -422,6 +487,9 @@ namespace MongoDB.Driver.Core.Servers
                     canonicalEndPoint: canonicalEndPoint.WithDefault(_canonicalEndPoint),
                     electionId: electionId.WithDefault(_electionId),
                     heartbeatException: heartbeatException.WithDefault(_heartbeatException),
+                    heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                    lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(_lastUpdateTimestamp),
+                    lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),
                     maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
                     maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
                     maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),

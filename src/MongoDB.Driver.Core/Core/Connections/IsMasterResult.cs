@@ -86,6 +86,26 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets the last write timestamp.
+        /// </summary>
+        /// <value>
+        /// The last write timestamp.
+        /// </value>
+        public DateTime? LastWriteTimestamp
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("lastWrite", out value))
+                {
+                    return value["lastWriteDate"].ToUniversalTime();
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the maximum number of documents in a batch.
         /// </summary>
         /// <value>

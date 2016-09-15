@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Servers
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
         private HeartbeatDelay _heartbeatDelay;
-        private readonly TimeSpan _interval;
+        private readonly TimeSpan _heartbeatInterval;
         private readonly ServerId _serverId;
         private readonly InterlockedInt32 _state;
         private readonly TimeSpan _timeout;
@@ -50,15 +50,15 @@ namespace MongoDB.Driver.Core.Servers
 
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
-        public ServerMonitor(ServerId serverId, EndPoint endPoint, IConnectionFactory connectionFactory, TimeSpan interval, TimeSpan timeout, IEventSubscriber eventSubscriber)
+        public ServerMonitor(ServerId serverId, EndPoint endPoint, IConnectionFactory connectionFactory, TimeSpan heartbeatInterval, TimeSpan timeout, IEventSubscriber eventSubscriber)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _baseDescription = _currentDescription = new ServerDescription(_serverId, endPoint);
-            _interval = interval;
+            _baseDescription = _currentDescription = new ServerDescription(_serverId, endPoint, heartbeatInterval: heartbeatInterval);
+            _heartbeatInterval = heartbeatInterval;
             _timeout = timeout;
             _state = new InterlockedInt32(State.Initial);
             eventSubscriber.TryGetEventHandler(out _heartbeatStartedEventHandler);
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private async Task MonitorServerAsync()
         {
-            var metronome = new Metronome(_interval);
+            var metronome = new Metronome(_heartbeatInterval);
             var heartbeatCancellationToken = _cancellationTokenSource.Token;
             while (!heartbeatCancellationToken.IsCancellationRequested)
             {
@@ -176,6 +176,7 @@ namespace MongoDB.Driver.Core.Servers
                     averageRoundTripTime: averageRoundTripTimeRounded,
                     canonicalEndPoint: isMasterResult.Me,
                     electionId: isMasterResult.ElectionId,
+                    lastWriteTimestamp: isMasterResult.LastWriteTimestamp,
                     maxBatchCount: isMasterResult.MaxBatchCount,
                     maxDocumentSize: isMasterResult.MaxDocumentSize,
                     maxMessageSize: isMasterResult.MaxMessageSize,

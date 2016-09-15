@@ -41,6 +41,8 @@ namespace MongoDB.Driver
         private readonly string _databaseName;
         private readonly bool? _fsync;
         private readonly GuidRepresentation _guidRepresentation;
+        private readonly TimeSpan _heartbeatInterval;
+        private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
         private readonly bool? _journal;
         private readonly TimeSpan _maxConnectionIdleTime;
@@ -81,6 +83,8 @@ namespace MongoDB.Driver
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
             _guidRepresentation = builder.GuidRepresentation;
+            _heartbeatInterval = builder.HeartbeatInterval;
+            _heartbeatTimeout = builder.HeartbeatTimeout;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
             _localThreshold = builder.LocalThreshold;
@@ -187,6 +191,22 @@ namespace MongoDB.Driver
         public GuidRepresentation GuidRepresentation
         {
             get { return _guidRepresentation; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        public TimeSpan HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
         }
 
         /// <summary>
