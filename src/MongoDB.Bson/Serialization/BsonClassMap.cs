@@ -295,7 +295,15 @@ namespace MongoDB.Bson.Serialization
         /// <returns>All registered class maps.</returns>
         public static IEnumerable<BsonClassMap> GetRegisteredClassMaps()
         {
-            return __classMaps.Values;
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try
+            {
+                return __classMaps.Values.ToList(); // return a copy for thread safety
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
         }
 
         /// <summary>
