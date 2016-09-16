@@ -21,7 +21,21 @@ namespace MongoDB.Driver.Core.Configuration
 {
     public class ServerSettingsTests
     {
-        private static readonly ServerSettings __defaults = new ServerSettings();
+        [Fact]
+        public void DefaultHeartbeatInterval_should_return_expected_result()
+        {
+            var result = ServerSettings.DefaultHeartbeatInterval;
+
+            result.Should().Be(TimeSpan.FromSeconds(10));
+        }
+
+        [Fact]
+        public void DefaultHeartbeatTimeout_should_return_expected_result()
+        {
+            var result = ServerSettings.DefaultHeartbeatTimeout;
+
+            result.Should().Be(TimeSpan.FromSeconds(10));
+        }
 
         [Fact]
         public void constructor_should_initialize_instance()
@@ -56,7 +70,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ServerSettings(heartbeatInterval: heartbeatInterval);
 
             subject.HeartbeatInterval.Should().Be(heartbeatInterval);
-            subject.HeartbeatTimeout.Should().Be(__defaults.HeartbeatTimeout);
+            subject.HeartbeatTimeout.Should().Be(ServerSettings.DefaultHeartbeatTimeout);
         }
 
         [Fact]
@@ -66,7 +80,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ServerSettings(heartbeatTimeout: heartbeatTimeout);
 
-            subject.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
+            subject.HeartbeatInterval.Should().Be(ServerSettings.DefaultHeartbeatInterval);
             subject.HeartbeatTimeout.Should().Be(heartbeatTimeout);
         }
 

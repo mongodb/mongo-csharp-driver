@@ -457,7 +457,7 @@ namespace MongoDB.Driver.Tests
             var built = new MongoUrlBuilder { Server = _localhost };
             if (heartbeatInterval != null) { built.HeartbeatInterval = heartbeatInterval.Value; }
 
-            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?heartbeatFrequency=10s", "");
+            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?heartbeatInterval=10s", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(heartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);

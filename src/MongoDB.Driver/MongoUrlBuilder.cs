@@ -256,7 +256,7 @@ namespace MongoDB.Driver
             {
                 if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
                 {
-                    throw new ArgumentOutOfRangeException("value", "HeartbeatInterval must be greater than or equal to zero.");
+                    throw new ArgumentOutOfRangeException("value", "HeartbeatTimeout must be greater than or equal to zero.");
                 }
                 _heartbeatTimeout = value;
             }

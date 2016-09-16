@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 var minHeartBeatIntervalTicks = servers.Select(s => s.HeartbeatInterval.Ticks).Min();
                 if (_maxStaleness.Value.Ticks < 2 * minHeartBeatIntervalTicks)
                 {
-                    throw new MongoClientException("MaxStaleness must be at least twice the heartbeat frequency.");
+                    throw new MongoClientException("MaxStaleness must be at least twice the heartbeat interval.");
                 }
 
                 servers = new CachedEnumerable<ServerDescription>(SelectFreshServers(cluster, servers)); // prevent multiple enumeration

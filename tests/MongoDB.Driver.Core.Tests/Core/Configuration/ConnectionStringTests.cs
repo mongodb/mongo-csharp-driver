@@ -342,6 +342,12 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("mongodb://localhost?heartbeatInterval=15s", 1000 * 15)]
         [InlineData("mongodb://localhost?heartbeatInterval=15m", 1000 * 60 * 15)]
         [InlineData("mongodb://localhost?heartbeatInterval=15h", 1000 * 60 * 60 * 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequency=15ms", 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequencyMS=15", 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequency=15", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequency=15s", 1000 * 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequency=15m", 1000 * 60 * 15)]
+        [InlineData("mongodb://localhost?heartbeatFrequency=15h", 1000 * 60 * 60 * 15)]
         public void When_heartbeat_interval_is_specified(string connectionString, int milliseconds)
         {
             var subject = new ConnectionString(connectionString);
