@@ -25,7 +25,7 @@ let version = baseVersion + "." + buildNumber
 let versionSuffix = 
     match preRelease with
     | "build" | "local" -> preRelease + "-" + buildNumber.PadLeft(4, '0')
-    | "#release#" -> ""
+    | "#release#" -> "\"\""
     | _ -> preRelease
 let semVersion = 
     match preRelease with
