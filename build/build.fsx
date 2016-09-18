@@ -196,7 +196,11 @@ Target "TestNet45" (fun _ ->
 Target "TestNetStandard15" (fun _ ->
     for project in dotNetTestProjects do
         DotnetRestore id project
-        let args = sprintf "test %s" project
+        let traitArg =
+            match getBuildParamOrDefault "Category" "" with
+            | "" -> ""
+            | category -> sprintf "-trait \"Category=%s\"" category
+        let args = sprintf "test %s %s" project traitArg
         let result = Dotnet DotnetOptions.Default args
         if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
 )
