@@ -110,6 +110,26 @@ namespace MongoDB.Driver
             return (Task)methodInfo.Invoke(this, new object[] { name, options, cancellationToken });
         }
 
+        public override void CreateView<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(viewName, nameof(viewName));
+            Ensure.IsNotNull(viewOn, nameof(viewOn));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            options = options ?? new CreateViewOptions<TDocument>();
+            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options);
+            ExecuteWriteOperation(operation, cancellationToken);
+        }
+
+        public override Task CreateViewAsync<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(viewName, nameof(viewName));
+            Ensure.IsNotNull(viewOn, nameof(viewOn));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            options = options ?? new CreateViewOptions<TDocument>();
+            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options);
+            return ExecuteWriteOperationAsync(operation, cancellationToken);
+        }
+
         public override void DropCollection(string name, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(name, nameof(name));
@@ -247,6 +267,18 @@ namespace MongoDB.Driver
                 ValidationAction = options.ValidationAction,
                 ValidationLevel = options.ValidationLevel,
                 Validator = validator
+            };
+        }
+
+        private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options)
+        {
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+            var pipelineDocuments = pipeline.Render(documentSerializer, serializerRegistry).Documents;
+            return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
+            {
+                Collation = options.Collation,
+                WriteConcern = _settings.WriteConcern
             };
         }
 

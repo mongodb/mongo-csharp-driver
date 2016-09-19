@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -197,6 +199,271 @@ namespace MongoDB.Driver
             op.ValidationAction.Should().BeNull();
             op.ValidationLevel.Should().BeNull();
             op.Validator.Should().BeNull();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_ViewName(
+            [Values("a", "b")]
+            string viewName,
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>(viewName, "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>(viewName, "viewOn", pipeline, null, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.ViewName.Should().Be(viewName);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_ViewOn(
+            [Values("a", "b")]
+            string viewOn,
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", viewOn, pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", viewOn, pipeline, null, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.ViewOn.Should().Be(viewOn);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_Pipeline(
+            [Values(1, 2)]
+            int x,
+            [Values(false, true)]
+            bool async)
+        {
+            var stages = new[] { new BsonDocument("$match", new BsonDocument("x", x)) };
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.Pipeline.Should().Equal(stages);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_Collation(
+            [Values(null, "en_US", "fr_CA")]
+            string locale,
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+            var collation = locale == null ? null : new Collation(locale);
+            var options = new CreateViewOptions<BsonDocument>
+            {
+                Collation = collation
+            };
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.Collation.Should().BeSameAs(collation);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_DocumentSerializer(
+            [Values(false, true)]
+            bool isDocumentSerializerNull,
+            [Values(false, true)]
+            bool async)
+        {
+            var mockPipeline = new Mock<PipelineDefinition<BsonDocument, BsonDocument>>();
+            var documentSerializer = isDocumentSerializerNull ? null : new BsonDocumentSerializer();
+            var stages = new [] { new BsonDocument("$match", new BsonDocument("x", 1)) };
+            var renderedPipeline = new RenderedPipelineDefinition<BsonDocument>(stages, BsonDocumentSerializer.Instance);
+            mockPipeline.Setup(p => p.Render(documentSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry)).Returns(renderedPipeline);
+
+            var options = new CreateViewOptions<BsonDocument>
+            {
+                DocumentSerializer = documentSerializer
+            };
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.Pipeline.Should().Equal(stages); // test output of call to Render to see if DocumentSerializer was used
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_SerializerRegistry(
+            [Values(false, true)]
+            bool isSerializerRegistryNull,
+            [Values(false, true)]
+            bool async)
+        {
+            var mockPipeline = new Mock<PipelineDefinition<BsonDocument, BsonDocument>>();
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>();
+            var mockSerializerRegistry = new Mock<IBsonSerializerRegistry>();
+            mockSerializerRegistry.Setup(r => r.GetSerializer(typeof(BsonDocument))).Returns(BsonDocumentSerializer.Instance);
+            mockSerializerRegistry.Setup(r => r.GetSerializer<BsonDocument>()).Returns(BsonDocumentSerializer.Instance);
+            var serializerRegistry = isSerializerRegistryNull ? null : mockSerializerRegistry.Object;
+            var stages = new[] { new BsonDocument("$match", new BsonDocument("x", 1)) };
+            var renderedPipeline = new RenderedPipelineDefinition<BsonDocument>(stages, BsonDocumentSerializer.Instance);
+            mockPipeline.Setup(p => p.Render(documentSerializer, serializerRegistry ?? BsonSerializer.SerializerRegistry)).Returns(renderedPipeline);
+
+            var options = new CreateViewOptions<BsonDocument>
+            {
+                SerializerRegistry = serializerRegistry
+            };
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.Pipeline.Should().Equal(stages); // test output of call to Render
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_CancellationToken(
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, cancellationToken);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            call.CancellationToken.Should().Be(cancellationToken);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_throw_when_viewName_is_null(
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    _subject.CreateViewAsync<BsonDocument, BsonDocument>(null, "viewOn", pipeline).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.CreateView<BsonDocument, BsonDocument>(null, "viewOn", pipeline);
+                }
+            });
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("viewName");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_throw_when_viewOn_is_null(
+            [Values(false, true)]
+            bool async)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", null, pipeline).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.CreateView<BsonDocument, BsonDocument>("viewName", null, pipeline);
+                }
+            });
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("viewOn");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_throw_when_pipeline_is_null(
+            [Values(false, true)]
+            bool async)
+        {
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", null).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", null);
+                }
+            });
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
         }
 
         [Theory]

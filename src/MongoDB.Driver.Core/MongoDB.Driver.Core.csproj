@@ -76,6 +76,7 @@
     <Compile Include="Core\Misc\ReadAheadEnumerable.cs" />
     <Compile Include="Core\Misc\ReadConcernFeature.cs" />
     <Compile Include="Core\Misc\TaskExtensions.cs" />
+    <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Servers\IServerMonitor.cs" />
     <Compile Include="Core\Servers\IServerMonitorFactory.cs" />
     <Compile Include="Core\Servers\ServerMonitorFactory.cs" />

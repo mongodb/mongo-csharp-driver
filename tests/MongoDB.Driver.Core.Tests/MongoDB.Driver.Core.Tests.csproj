@@ -86,6 +86,7 @@
     <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
+    <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
     <Compile Include="Core\Operations\UpdateRequestTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />

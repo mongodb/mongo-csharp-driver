@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __commandsWriteConcern = new CollationFeature("CommandsWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
+        private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
         private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
 
         /// <summary>
@@ -82,6 +84,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the collation feature.
         /// </summary>
         public static CollationFeature Collation => __collation;
+
+        /// <summary>
+        /// Gets the commands write concern feature.
+        /// </summary>
+        public static Feature CommandsWriteConcern => __commandsWriteConcern;
 
         /// <summary>
         /// Gets the create indexes command feature.
@@ -164,6 +171,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature UserManagementCommands => __userManagementCommands;
 
         /// <summary>
+        /// Gets the views feature.
+        /// </summary>
+        public static Feature Views => __views;
+
+        /// <summary>
         /// Gets the write commands feature.
         /// </summary>
         public static Feature WriteCommands => __writeCommands;
@@ -216,6 +228,18 @@ namespace MongoDB.Driver.Core.Misc
         public SemanticVersion SupportedOrNotSupportedVersion(bool isSupported)
         {
             return isSupported ? _firstSupportedVersion : VersionBefore(_firstSupportedVersion);
+        }
+
+        /// <summary>
+        /// Throws if the feature is not supported by a version of the server.
+        /// </summary>
+        /// <param name="serverVersion">The server version.</param>
+        public void ThrowIfNotSupported(SemanticVersion serverVersion)
+        {
+            if (!IsSupported(serverVersion))
+            {
+                throw new NotSupportedException($"Server version {serverVersion} does not support the {_name} feature.");
+            }
         }
 
         private SemanticVersion VersionBefore(SemanticVersion version)

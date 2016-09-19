@@ -54,6 +54,7 @@
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
+    <Compile Include="Builders\CreateViewOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
     <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="GroupArgs.cs" />
     <Compile Include="IMongoCollectionOptions.cs" />
     <Compile Include="IMongoCommand.cs" />
+    <Compile Include="IMongoCreateViewOptions.cs" />
     <Compile Include="IMongoFields.cs" />
     <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
     <Compile Include="IMongoGeoNearOptions.cs" />
@@ -174,6 +176,8 @@
     <Compile Include="Wrappers\CollectionOptionsWrapper.cs" />
     <Compile Include="Wrappers\CommandDocument.cs" />
     <Compile Include="Wrappers\CommandWrapper.cs" />
+    <Compile Include="Wrappers\CreateViewOptionsDocument.cs" />
+    <Compile Include="Wrappers\CreateViewOptionsWrapper.cs" />
     <Compile Include="Wrappers\FieldsDocument.cs" />
     <Compile Include="Wrappers\FieldsWrapper.cs" />
     <Compile Include="Wrappers\GeoHaystackSearchOptionsDocument.cs" />

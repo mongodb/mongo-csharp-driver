@@ -288,6 +288,51 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates the view.
+        /// </summary>
+        /// <param name="viewName">Name of the view.</param>
+        /// <param name="viewOn">The view on.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public virtual CommandResult CreateView(string viewName, string viewOn, IEnumerable<BsonDocument> pipeline, IMongoCreateViewOptions options)
+        {
+            if (viewName == null)
+            {
+                throw new ArgumentNullException(nameof(viewName));
+            }
+            if (viewOn == null)
+            {
+                throw new ArgumentNullException(nameof(viewOn));
+            }
+            if (pipeline == null)
+            {
+                throw new ArgumentNullException(nameof(pipeline));
+            }
+
+            Collation collation = null;
+
+            if (options != null)
+            {
+                var optionsDocument = options.ToBsonDocument();
+
+                BsonValue value;
+                if (optionsDocument.TryGetValue("collation", out value))
+                {
+                    collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                }
+            }
+
+            var operation = new CreateViewOperation(_namespace, viewName, viewOn, pipeline, GetMessageEncoderSettings())
+            {
+                Collation = collation
+            };
+
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
+        }
+
+        /// <summary>
         /// Drops a database.
         /// </summary>
         public virtual void Drop()

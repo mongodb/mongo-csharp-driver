@@ -80,6 +80,7 @@
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
     <Compile Include="CreateIndexModel.cs" />
+    <Compile Include="CreateViewOptions.cs" />
     <Compile Include="DeleteOptions.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />

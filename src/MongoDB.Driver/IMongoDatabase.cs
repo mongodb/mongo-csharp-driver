@@ -63,6 +63,31 @@ namespace MongoDB.Driver
         Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Creates the view.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the input documents.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline result documents.</typeparam>
+        /// <param name="viewName">Name of the view.</param>
+        /// <param name="viewOn">The view on.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void CreateView<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Creates the view.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the input documents.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline result documents.</typeparam>
+        /// <param name="viewName">Name of the view.</param>
+        /// <param name="viewOn">The view on.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task CreateViewAsync<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
         /// <param name="name">The name of the collection to drop.</param>
