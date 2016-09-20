@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateCollectionOperation" /> class.
         /// </summary>
-        /// <param name="databaseNamespace">Name of the database.</param>
-        /// <param name="viewName">Name of the view.</param>
-        /// <param name="viewOn">The view on.</param>
+        /// <param name="databaseNamespace">The name of the database.</param>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="viewOn">The name of the collection that the view is on.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateViewOperation(
@@ -120,10 +120,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the collection namespace.
+        /// Gets the name of the collection that the view is on.
         /// </summary>
         /// <value>
-        /// The collection namespace.
+        /// The name of the collection that the view is on.
         /// </value>
         public string ViewOn
         {

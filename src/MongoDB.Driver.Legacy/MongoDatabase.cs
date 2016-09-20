@@ -288,10 +288,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates the view.
+        /// Creates a view.
         /// </summary>
-        /// <param name="viewName">Name of the view.</param>
-        /// <param name="viewOn">The view on.</param>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="viewOn">The name of the collection that the view is on.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>

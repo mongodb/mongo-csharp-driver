@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
-        private static readonly Feature __commandsWriteConcern = new CollationFeature("CommandsWriteConcern", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __commandsWriteConcern = new Feature("CommandsWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
