@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -46,12 +47,8 @@ namespace MongoDB.Driver.Tests.Linq
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
 
             // millis could be different, so we'll ignore that difference.
-            RemoveKey(linqExplain, "millis");
-            RemoveKey(queryExplain, "millis");
-            RemoveKey(linqExplain, "executionTimeMillis");
-            RemoveKey(queryExplain, "executionTimeMillis");
-            RemoveKey(linqExplain, "executionTimeMillisEstimate");
-            RemoveKey(queryExplain, "executionTimeMillisEstimate");
+            RemoveMatchingElements(linqExplain, new Regex("millis", RegexOptions.IgnoreCase));
+            RemoveMatchingElements(queryExplain, new Regex("millis", RegexOptions.IgnoreCase));
 
             Assert.Equal(linqExplain, queryExplain);
         }
@@ -63,12 +60,8 @@ namespace MongoDB.Driver.Tests.Linq
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
 
             // millis could be different, so we'll ignore that difference.
-            RemoveKey(linqExplain, "millis");
-            RemoveKey(queryExplain, "millis");
-            RemoveKey(linqExplain, "executionTimeMillis");
-            RemoveKey(queryExplain, "executionTimeMillis");
-            RemoveKey(linqExplain, "executionTimeMillisEstimate");
-            RemoveKey(queryExplain, "executionTimeMillisEstimate");
+            RemoveMatchingElements(linqExplain, new Regex("millis", RegexOptions.IgnoreCase));
+            RemoveMatchingElements(queryExplain, new Regex("millis", RegexOptions.IgnoreCase));
 
             Assert.Equal(linqExplain, queryExplain);
         }
@@ -85,21 +78,28 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Take(0).Explain());
         }
 
-        private void RemoveKey(BsonValue value, string key)
+        private void RemoveMatchingElements(BsonValue value, Regex regex)
         {
-            if(value.IsBsonDocument)
+            if (value.BsonType == BsonType.Document)
             {
-                value.AsBsonDocument.Remove(key);
-                foreach (var element in value.AsBsonDocument)
+                var document = value.AsBsonDocument;
+                foreach (var name in document.Names.ToList())
                 {
-                    RemoveKey(element.Value, key);
+                    if (regex.IsMatch(name))
+                    {
+                        document.Remove(name);
+                    }
+                    else
+                    {
+                        RemoveMatchingElements(document[name], regex);
+                    }
                 }
             }
-            else if (value.IsBsonArray)
+            else if (value.BsonType == BsonType.Array)
             {
-                foreach(var item in value.AsBsonArray)
+                foreach (var item in value.AsBsonArray)
                 {
-                    RemoveKey(item, key);
+                    RemoveMatchingElements(item, regex);
                 }
             }
         }
