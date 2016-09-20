@@ -628,7 +628,6 @@ namespace MongoDB.Bson.Tests
             }
             bsonDocument.Add("arrayfield", bsonArray);
             var bson = bsonDocument.ToBson();
-            BsonDefaults.MaxDocumentSize = 4 * 1024 * 1024;
             using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
             {
                 Assert.Equal(2, lazyBsonDocument.ElementCount);

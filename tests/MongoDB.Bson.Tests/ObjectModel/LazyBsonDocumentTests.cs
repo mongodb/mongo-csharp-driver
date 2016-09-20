@@ -865,7 +865,6 @@ namespace MongoDB.Bson.Tests
                 bsonDocument.Add("doublefield_"+i, i*1.0);
             }
             var bson = bsonDocument.ToBson();
-            BsonDefaults.MaxDocumentSize = 4 * 1024 * 1024;
             using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
             {
                 Assert.Equal(noOfDoubleFields + 1, lazyBsonDocument.ElementCount);
