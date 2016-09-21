@@ -32,6 +32,7 @@ namespace MongoDB.Driver
     public class MongoServerSettings : IEquatable<MongoServerSettings>, IInheritableMongoClientSettings
     {
         // private fields
+        private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
@@ -72,6 +73,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerSettings()
         {
+            _applicationName = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
@@ -109,6 +111,19 @@ namespace MongoDB.Driver
         public AddressFamily AddressFamily
         {
             get { return _ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }
+        }
+
+        /// <summary>
+        /// Gets or sets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _applicationName = value;
+            }
         }
 
         /// <summary>
@@ -553,6 +568,7 @@ namespace MongoDB.Driver
         public static MongoServerSettings FromClientSettings(MongoClientSettings clientSettings)
         {
             var serverSettings = new MongoServerSettings();
+            serverSettings.ApplicationName = clientSettings.ApplicationName;
             serverSettings.ClusterConfigurator = clientSettings.ClusterConfigurator;
             serverSettings.ConnectionMode = clientSettings.ConnectionMode;
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
@@ -597,6 +613,7 @@ namespace MongoDB.Driver
                 url.Password);
 
             var serverSettings = new MongoServerSettings();
+            serverSettings.ApplicationName = url.ApplicationName;
             serverSettings.ConnectionMode = url.ConnectionMode;
             serverSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
@@ -648,6 +665,7 @@ namespace MongoDB.Driver
         public MongoServerSettings Clone()
         {
             var clone = new MongoServerSettings();
+            clone._applicationName = _applicationName;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
@@ -703,6 +721,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoServerSettings)obj;
             return
+                _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                _connectionMode == rhs._connectionMode &&
                _connectTimeout == rhs._connectTimeout &&
@@ -776,6 +795,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_applicationName)
                 .Hash(_clusterConfigurator)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
@@ -819,6 +839,10 @@ namespace MongoDB.Driver
             }
 
             var parts = new List<string>();
+            if (_applicationName != null)
+            {
+                parts.Add(string.Format("ApplicationName={0}", _applicationName));
+            }
             parts.Add(string.Format("ConnectionMode={0}", _connectionMode));
             parts.Add(string.Format("ConnectTimeout={0}", _connectTimeout));
             parts.Add(string.Format("Credentials={{{0}}}", _credentials));
@@ -862,6 +886,7 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
+                _applicationName,
                 _clusterConfigurator,
                 _connectionMode,
                 _connectTimeout,

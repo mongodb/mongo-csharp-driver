@@ -105,7 +105,10 @@ namespace MongoDB.Driver.Core.Configuration
                 var authenticator = CreateAuthenticator(connectionString);
                 builder = builder.ConfigureConnection(s => s.With(authenticators: new[] { authenticator }));
             }
-
+            if (connectionString.ApplicationName != null)
+            {
+                builder = builder.ConfigureConnection(s => s.With(applicationName: connectionString.ApplicationName));
+            }
             if (connectionString.MaxIdleTime != null)
             {
                 builder = builder.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));

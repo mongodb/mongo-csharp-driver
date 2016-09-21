@@ -142,6 +142,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
+            subject.ApplicationName.Should().BeNull();
             subject.AuthMechanism.Should().BeNull();
             subject.AuthSource.Should().BeNull();
             subject.Connect.Should().Be(ClusterConnectionMode.Automatic);
@@ -178,6 +179,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void When_everything_is_specified()
         {
             var connectionString = @"mongodb://user:pass@localhost1,localhost2:30000/test?" +
+                "appname=app;" +
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
@@ -209,6 +211,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionString(connectionString);
 
+            subject.ApplicationName.Should().Be("app");
             subject.AuthMechanism.Should().Be("GSSAPI");
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
@@ -241,6 +244,16 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMilliseconds(60));
             subject.W.Should().Be(WriteConcern.WValue.Parse("4"));
             subject.WTimeout.Should().Be(TimeSpan.FromMilliseconds(20));
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?appname=app1", "app1")]
+        [InlineData("mongodb://localhost?appname=app2", "app2")]
+        public void When_appname_is_specified(string connectionString, string applicationName)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.ApplicationName.Should().Be(applicationName);
         }
 
         [Theory]

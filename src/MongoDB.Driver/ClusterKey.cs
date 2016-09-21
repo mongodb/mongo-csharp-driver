@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         #endregion
 
         // fields
+        private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
@@ -65,6 +66,7 @@ namespace MongoDB.Driver
 
         // constructors
         public ClusterKey(
+            string applicationName,
             Action<ClusterBuilder> clusterConfigurator,
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
@@ -87,6 +89,7 @@ namespace MongoDB.Driver
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
+            _applicationName = applicationName;
             _clusterConfigurator = clusterConfigurator;
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;
@@ -115,6 +118,7 @@ namespace MongoDB.Driver
         }
 
         // properties
+        public string ApplicationName { get { return _applicationName; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
         public ConnectionMode ConnectionMode { get { return _connectionMode; } }
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
@@ -158,6 +162,7 @@ namespace MongoDB.Driver
             var rhs = (ClusterKey)obj;
             return
                 _hashCode == rhs._hashCode && // fail fast
+                _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&

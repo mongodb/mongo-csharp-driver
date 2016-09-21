@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
+        [InlineData("ApplicationName", true)]
         [InlineData("ConnectionMode", true)]
         [InlineData("ConnectTimeout", true)]
         [InlineData("Credentials", false)]
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Tests
 
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
+            var applicationName = "app1";
             var connectionMode = ConnectionMode.Direct;
             var connectTimeout = TimeSpan.FromSeconds(1);
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
@@ -96,6 +98,7 @@ namespace MongoDB.Driver.Tests
 
             switch (notEqualFieldName)
             {
+                case "ApplicationName": applicationName = "app2"; break;
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
                 case "Credentials": credentials = new[] { MongoCredential.CreateMongoCRCredential("different", "different", "different") }; break;
@@ -120,6 +123,7 @@ namespace MongoDB.Driver.Tests
 
             var clientSettings = new MongoClientSettings
             {
+                ApplicationName = applicationName,
                 ConnectionMode = connectionMode,
                 ConnectTimeout = connectTimeout,
                 Credentials = credentials,

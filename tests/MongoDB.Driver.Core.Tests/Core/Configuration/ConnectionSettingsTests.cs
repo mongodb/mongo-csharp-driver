@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionSettings();
 
+            subject.ApplicationName.Should().BeNull();
             subject.Authenticators.Should().BeEmpty();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMinutes(10));
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMinutes(30));
@@ -66,12 +67,24 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void constructor_with_applicationName_should_initialize_instance()
+        {
+            var subject = new ConnectionSettings(applicationName: "app");
+
+            subject.ApplicationName.Should().Be("app");
+            subject.Authenticators.Should().Equal(__defaults.Authenticators);
+            subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
+            subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
+        }
+
+        [Fact]
         public void constructor_with_authenticators_should_initialize_instance()
         {
             var authenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username", "password")) };
 
             var subject = new ConnectionSettings(authenticators: authenticators);
 
+            subject.ApplicationName.Should().BeNull();
             subject.Authenticators.Should().Equal(authenticators);
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -84,6 +97,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionSettings(maxIdleTime: maxIdleTime);
 
+            subject.ApplicationName.Should().BeNull();
             subject.Authenticators.Should().Equal(__defaults.Authenticators);
             subject.MaxIdleTime.Should().Be(maxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -96,9 +110,25 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionSettings(maxLifeTime: maxLifeTime);
 
+            subject.ApplicationName.Should().BeNull();
             subject.Authenticators.Should().Equal(__defaults.Authenticators);
-            subject.MaxIdleTime.Should().Be(subject.MaxIdleTime);
+            subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(maxLifeTime);
+        }
+
+        [Fact]
+        public void With_applicationName_should_return_expected_result()
+        {
+            var oldApplicationName = "app1";
+            var newApplicationName = "app2";
+            var subject = new ConnectionSettings(applicationName: oldApplicationName);
+
+            var result = subject.With(applicationName: newApplicationName);
+
+            result.ApplicationName.Should().Be(newApplicationName);
+            result.Authenticators.Should().Equal(subject.Authenticators);
+            result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
+            result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
 
         [Fact]
@@ -110,6 +140,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var result = subject.With(authenticators: newAuthenticators);
 
+            result.ApplicationName.Should().Be(subject.ApplicationName);
             result.Authenticators.Should().Equal(newAuthenticators);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -124,6 +155,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var result = subject.With(maxIdleTime: newMaxIdleTime);
 
+            result.ApplicationName.Should().Be(subject.ApplicationName);
             result.Authenticators.Should().Equal(subject.Authenticators);
             result.MaxIdleTime.Should().Be(newMaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -138,6 +170,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var result = subject.With(maxLifeTime: newMaxLifeTime);
 
+            result.ApplicationName.Should().Be(subject.ApplicationName);
             result.Authenticators.Should().Equal(subject.Authenticators);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(newMaxLifeTime);

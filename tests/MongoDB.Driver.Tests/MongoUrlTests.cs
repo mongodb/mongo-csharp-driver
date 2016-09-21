@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Tests
             };
             var built = new MongoUrlBuilder()
             {
+                ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
@@ -73,6 +74,7 @@ namespace MongoDB.Driver.Tests
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
+                "appname=app",
                 "ipv6=true",
                 "ssl=true", // UseSsl
                 "sslVerifyCertificate=false", // VerifySslCertificate
@@ -101,6 +103,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
+                Assert.Equal("app", url.ApplicationName);
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.Equal("db", url.AuthenticationSource);

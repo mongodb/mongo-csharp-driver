@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
+        private readonly string _applicationName;
         private readonly string _authenticationMechanism;
         private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
         private readonly string _authenticationSource;
@@ -75,6 +76,7 @@ namespace MongoDB.Driver
         public MongoUrl(string url)
         {
             var builder = new MongoUrlBuilder(url); // parses url
+            _applicationName = builder.ApplicationName;
             _authenticationMechanism = builder.AuthenticationMechanism;
             _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
             _authenticationSource = builder.AuthenticationSource;
@@ -111,6 +113,14 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+        }
+
         /// <summary>
         /// Gets the authentication mechanism.
         /// </summary>

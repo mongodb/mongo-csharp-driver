@@ -38,6 +38,7 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
+        private string _applicationName;
         private string _authenticationMechanism;
         private Dictionary<string, string> _authenticationMechanismProperties;
         private string _authenticationSource;
@@ -77,6 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
+            _applicationName = null;
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _authenticationSource = null;
@@ -122,6 +124,15 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+            set { _applicationName = value; }
+        }
+
         /// <summary>
         /// Gets or sets the authentication mechanism.
         /// </summary>
@@ -587,6 +598,7 @@ namespace MongoDB.Driver
         public void Parse(string url)
         {
             var connectionString = new ConnectionString(url);
+            _applicationName = connectionString.ApplicationName;
             _authenticationMechanism = connectionString.AuthMechanism;
             _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             _authenticationSource = connectionString.AuthSource;
@@ -742,6 +754,10 @@ namespace MongoDB.Driver
             if (_authenticationSource != null)
             {
                 query.AppendFormat("authSource={0};", _authenticationSource);
+            }
+            if (_applicationName != null)
+            {
+                query.AppendFormat("appname={0};", _applicationName);
             }
             if (_ipv6)
             {

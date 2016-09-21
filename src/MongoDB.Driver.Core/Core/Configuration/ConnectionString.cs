@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         // these are all readonly, but since they are not assigned 
         // from the ctor, they cannot be marked as such.
+        private string _applicationName;
         private string _authMechanism;
         private string _authSource;
         private ClusterConnectionMode _connect;
@@ -105,6 +106,14 @@ namespace MongoDB.Driver.Core.Configuration
         public IEnumerable<string> AllUnknownOptionNames
         {
             get { return _unknownOptions.AllKeys; }
+        }
+
+        /// <summary>
+        /// Gets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
         }
 
         /// <summary>
@@ -482,6 +491,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             switch (name.ToLower())
             {
+                case "appname":
+                    _applicationName = value;
+                    break;
                 case "authmechanism":
                     _authMechanism = value;
                     break;

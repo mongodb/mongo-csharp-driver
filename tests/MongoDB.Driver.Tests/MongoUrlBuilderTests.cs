@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Tests
             };
             var built = new MongoUrlBuilder()
             {
+                ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
@@ -77,6 +78,7 @@ namespace MongoDB.Driver.Tests
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
+                "appname=app",
                 "ipv6=true",
                 "ssl=true", // UseSsl
                 "sslVerifyCertificate=false", // VerifySslCertificate
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.Equal("app", builder.ApplicationName);
                 Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, builder.AuthenticationMechanismProperties);
                 Assert.Equal("db", builder.AuthenticationSource);
@@ -138,6 +141,20 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(123, builder.WaitQueueSize);
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
+                Assert.Equal(connectionString, builder.ToString());
+            }
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData("app", "mongodb://localhost/?appname=app")]
+        public void TestApplicationName(string applicationName, string connectionString)
+        {
+            var built = new MongoUrlBuilder { Server = _localhost, ApplicationName = applicationName };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.Equal(applicationName, builder.ApplicationName);
                 Assert.Equal(connectionString, builder.ToString());
             }
         }
@@ -294,6 +311,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.Equal(null, builder.ApplicationName);
                 Assert.Equal(null, builder.AuthenticationMechanism);
                 Assert.Equal(0, builder.AuthenticationMechanismProperties.Count());
                 Assert.Equal(null, builder.AuthenticationSource);
@@ -593,8 +611,8 @@ namespace MongoDB.Driver.Tests
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionLifeTime = TimeSpan.FromSeconds(-1); });
-            builder.MaxConnectionIdleTime = TimeSpan.Zero;
-            builder.MaxConnectionIdleTime = TimeSpan.FromSeconds(1);
+            builder.MaxConnectionLifeTime = TimeSpan.Zero;
+            builder.MaxConnectionLifeTime = TimeSpan.FromSeconds(1);
         }
 
         [Theory]

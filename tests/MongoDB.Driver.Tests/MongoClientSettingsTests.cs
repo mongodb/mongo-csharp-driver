@@ -31,11 +31,26 @@ namespace MongoDB.Driver.Tests
         private readonly MongoServerAddress _localHost = new MongoServerAddress("localhost");
 
         [Fact]
+        public void TestApplicationName()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(null, settings.ApplicationName);
+
+            var applicationName = "app";
+            settings.ApplicationName = applicationName;
+            Assert.Equal(applicationName, settings.ApplicationName);
+
+            settings.Freeze();
+            Assert.Equal(applicationName, settings.ApplicationName);
+            Assert.Throws<InvalidOperationException>(() => { settings.ApplicationName = applicationName; });
+        }
+
+        [Fact]
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned
             var connectionString =
-                "mongodb://user1:password1@somehost/?" +
+                "mongodb://user1:password1@somehost/?appname=app;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
@@ -94,6 +109,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
+            Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.Equal(0, settings.Credentials.Count());
@@ -127,6 +143,10 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             var clone = settings.Clone();
             Assert.True(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.ApplicationName = "app2";
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ConnectionMode = ConnectionMode.Direct;
@@ -249,7 +269,7 @@ namespace MongoDB.Driver.Tests
         {
             // set everything to non default values to test that all settings are converted
             var connectionString =
-                "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
+                "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
@@ -259,6 +279,7 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
+            Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
             Assert.Equal(1, settings.Credentials.Count());
@@ -705,6 +726,7 @@ namespace MongoDB.Driver.Tests
 
             var subject = new MongoClientSettings
             {
+                ApplicationName = "app",
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credentials = credentials,
@@ -730,6 +752,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ToClusterKey();
 
+            result.ApplicationName.Should().Be(subject.ApplicationName);
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
             result.Credentials.Should().Equal(subject.Credentials);
