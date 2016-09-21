@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -130,7 +131,7 @@ namespace MongoDB.Driver
         public string ApplicationName
         {
             get { return _applicationName; }
-            set { _applicationName = value; }
+            set { _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value)); }
         }
 
         /// <summary>

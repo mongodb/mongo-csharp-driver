@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
@@ -157,6 +158,18 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(applicationName, builder.ApplicationName);
                 Assert.Equal(connectionString, builder.ToString());
             }
+        }
+
+        [Fact]
+        public void TestApplicationName_too_long()
+        {
+            var subject = new MongoUrlBuilder();
+            var value = new string('x', 129);
+
+            var exception = Record.Exception(() => subject.ApplicationName = value);
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("value");
         }
 
         [Theory]

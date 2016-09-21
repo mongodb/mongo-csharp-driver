@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _applicationName = value;
+                _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value));
             }
         }
 

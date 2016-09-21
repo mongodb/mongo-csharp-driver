@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -492,7 +493,14 @@ namespace MongoDB.Driver.Core.Configuration
             switch (name.ToLower())
             {
                 case "appname":
-                    _applicationName = value;
+                    try
+                    {
+                        _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MongoConfigurationException(ex.Message, ex);
+                    }
                     break;
                 case "authmechanism":
                     _authMechanism = value;

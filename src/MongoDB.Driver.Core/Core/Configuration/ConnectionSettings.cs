@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Configuration
             _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
-            _applicationName = applicationName.WithDefault(null);
+            _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }
 
         // properties

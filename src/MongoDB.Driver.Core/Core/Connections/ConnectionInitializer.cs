@@ -13,10 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -32,99 +28,11 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        #region static
-        // private static fields
-        private static readonly Lazy<BsonDocument> __driverDocument = new Lazy<BsonDocument>(CreateDriverDocument);
-        private static readonly Lazy<BsonDocument> __osDocument = new Lazy<BsonDocument>(CreateOSDocument);
-        private static readonly Lazy<string> __platformString = new Lazy<string>(GetPlatformString);
-
-        // private static methods
-        internal static BsonDocument CreateDriverDocument()
-        {
-            var assembly = typeof(ConnectionInitializer).GetTypeInfo().Assembly;
-            var fileVersionAttribute = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-            var driverVersion = fileVersionAttribute.Version;
-
-            return CreateDriverDocument(driverVersion);
-        }
-
-        internal static BsonDocument CreateDriverDocument(string driverVersion)
-        {
-            return new BsonDocument
-            {
-                { "name", "dotnet" },
-                { "version", driverVersion }
-            };
-        }
-
-        internal static BsonDocument CreateOSDocument()
-        {
-            string osType;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                osType = "Windows";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                osType = "Linux";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                osType = "macOS";
-            }
-            else
-            {
-                osType = "unknown";
-            }
-
-            var osName = RuntimeInformation.OSDescription.Trim();
-
-            string architecture;
-            switch (RuntimeInformation.ProcessArchitecture)
-            {
-                case Architecture.Arm: architecture = "arm"; break;
-                case Architecture.Arm64: architecture = "arm64"; break;
-                case Architecture.X64: architecture = "x86_64"; break;
-                case Architecture.X86: architecture = "x86_32"; break;
-                default: architecture = null; break;
-            }
-
-            string osVersion;
-            var match = Regex.Match(osName, @" (?<version>\d+\.\d[^ ]*)");
-            if (match.Success)
-            {
-                osVersion = match.Groups["version"].Value;
-            }
-            else
-            {
-                osVersion = null;
-            }
-
-            return CreateOSDocument(osType, osName, architecture, osVersion);
-        }
-
-        internal static BsonDocument CreateOSDocument(string osType, string osName, string architecture, string osVersion)
-        {
-            return new BsonDocument
-            {
-                { "type", osType },
-                { "name", osName },
-                { "architecture", architecture, architecture != null },
-                { "version", osVersion, osVersion != null }
-            };
-        }
-
-        internal static string GetPlatformString()
-        {
-            return RuntimeInformation.FrameworkDescription;
-        }
-        #endregion
-
         private readonly BsonDocument _clientDocument;
 
         public ConnectionInitializer(string applicationName)
         {
-            _clientDocument = CreateClientDocument(applicationName);
+            _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName);
         }
 
         public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
@@ -198,22 +106,6 @@ namespace MongoDB.Driver.Core.Connections
             return buildInfoProtocol;
         }
 
-        internal BsonDocument CreateClientDocument(string applicationName)
-        {
-            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value);
-        }
-
-        internal BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString)
-        {
-            return new BsonDocument
-            {
-                { "application", () => new BsonDocument("name", applicationName), applicationName != null },
-                { "driver", driverDocument },
-                { "os", osDocument },
-                { "platform", platformString }
-            };
-        }
-
         private CommandWireProtocol<BsonDocument> CreateGetLastErrorProtocol()
         {
             var getLastErrorCommand = new BsonDocument("getLastError", 1);
@@ -236,7 +128,7 @@ namespace MongoDB.Driver.Core.Connections
             return new BsonDocument
             {
                 { "isMaster", 1 },
-                { "client", clientDocument }
+                { "client", clientDocument, clientDocument != null }
             };
         }
 

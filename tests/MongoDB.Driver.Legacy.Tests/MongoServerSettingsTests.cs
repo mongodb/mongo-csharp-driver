@@ -56,6 +56,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestApplicationName_too_long()
+        {
+            var subject = new MongoServerSettings();
+            var value = new string('x', 129);
+
+            var exception = Record.Exception(() => subject.ApplicationName = value);
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("value");
+        }
+
+        [Fact]
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned

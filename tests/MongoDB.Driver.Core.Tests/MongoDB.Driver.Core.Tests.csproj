@@ -71,6 +71,7 @@
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
     <Compile Include="Core\Connections\BinaryConnection_CommandEventTests.cs" />
+    <Compile Include="Core\Connections\ClientDocumentHelperTests.cs" />
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />

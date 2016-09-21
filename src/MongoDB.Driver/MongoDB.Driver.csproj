@@ -68,6 +68,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs">
+      <Link>ApplicationNameHelper.cs</Link>
+    </Compile>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>

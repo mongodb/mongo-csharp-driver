@@ -98,96 +98,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void CreateClientDocument_should_return_expected_result()
-        {
-            var result = _subject.CreateClientDocument(null);
-
-            var names = result.Names.ToList();
-            names.Count.Should().Be(3);
-            names[0].Should().Be("driver");
-            names[1].Should().Be("os");
-            names[2].Should().Be("platform");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateClientDocument_with_args_should_return_expected_result(
-            [Values(null, "app1", "app2")]
-            string applicationName,
-            [Values("{ name : 'dotnet', version : '2.4.0' }", "{ name : 'dotnet', version : '2.4.1' }")]
-            string driverDocumentString,
-            [Values(
-                "{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.0' }",
-                "{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.1' }")]
-            string osDocumentString,
-            [Values("net45", "net46")]
-            string platformString)
-        {
-            var driverDocument = BsonDocument.Parse(driverDocumentString);
-            var osDocument = BsonDocument.Parse(osDocumentString);
-
-            var result = _subject.CreateClientDocument(applicationName, driverDocument, osDocument, platformString);
-
-            var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
-            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}' }}";
-            result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateDriverDocument_should_return_expected_result()
-        {
-            var result = ConnectionInitializer.CreateDriverDocument();
-
-            result["name"].AsString.Should().Be("dotnet");
-            result["version"].BsonType.Should().Be(BsonType.String);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateDriverDocument_with_args_should_return_expected_result(
-            [Values("2.4.0", "2.4.1")]
-            string driverVersion)
-        {
-            var result = ConnectionInitializer.CreateDriverDocument(driverVersion);
-
-            result.Should().Be($"{{ name : 'dotnet', version : '{driverVersion}' }}");
-        }
-
-        [Fact]
-        public void CreateOSDocument_should_return_expected_result()
-        {
-            var result = ConnectionInitializer.CreateOSDocument();
-
-            var names = result.Names.ToList();
-            names.Should().Contain("type");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateOSDocument_with_args_should_return_expected_result(
-            [Values("Windows", "Linux")]
-            string osType,
-            [Values("Windows 10", "macOS")]
-            string osName,
-            [Values("x86_32", "x86_64")]
-            string architecture,
-            [Values("8.1", "10.0")]
-            string osVersion)
-        {
-            var result = ConnectionInitializer.CreateOSDocument(osType, osName, architecture, osVersion);
-
-            result.Should().Be($"{{ type : '{osType}', name : '{osName}', architecture : '{architecture}', version : '{osVersion}' }}");
-        }
-
-        [Fact]
-        public void GetPlatformString_should_return_expected_result()
-        {
-            var result = ConnectionInitializer.GetPlatformString();
-
-            result.Should().NotBeNull();
-        }
-
-        [Fact]
         public void CreateIsMasterCommand_should_return_expected_result()
         {
             var result = _subject.CreateIsMasterCommand();
@@ -205,7 +115,7 @@ namespace MongoDB.Driver.Core.Connections
             clientDocumentNames[2].Should().Be("os");
             clientDocumentNames[3].Should().Be("platform");
             clientDocument["application"]["name"].AsString.Should().Be("test");
-            clientDocument["driver"]["name"].AsString.Should().Be("dotnet");
+            clientDocument["driver"]["name"].AsString.Should().Be("mongo-csharp-driver");
             clientDocument["driver"]["version"].BsonType.Should().Be(BsonType.String);
         }
 

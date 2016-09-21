@@ -256,6 +256,16 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().Be(applicationName);
         }
 
+        [Fact]
+        public void When_appname_is_too_long()
+        {
+            var connectionString = $"mongodb://localhost?appname={new string('x', 129)}";
+
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
         [Theory]
         [InlineData("mongodb://localhost?authMechanism=GSSAPI", "GSSAPI")]
         [InlineData("mongodb://localhost?authMechanism=MONGODB-CR", "MONGODB-CR")]

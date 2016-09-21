@@ -6,7 +6,7 @@
   },
   "buildOptions": {
     "compile": {
-      "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
+      "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/ApplicationNameHelper.cs", "../MongoDB.Shared/Hasher.cs" ]
     },
     "warningsAsErrors": true,
     "outputName" : "MongoDB.Driver",

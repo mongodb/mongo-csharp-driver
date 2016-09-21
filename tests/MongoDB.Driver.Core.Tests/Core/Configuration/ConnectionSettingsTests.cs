@@ -37,6 +37,17 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void constructor_should_throw_when_applicationName_is_too_long()
+        {
+            var applicationName = new string('x', 129);
+
+            var exception = Record.Exception(() => new ConnectionSettings(applicationName: applicationName));
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("applicationName");
+        }
+
+        [Fact]
         public void constructor_should_throw_when_authenticators_is_null()
         {
             Action action = () => new ConnectionSettings(authenticators: null);

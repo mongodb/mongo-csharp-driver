@@ -42,6 +42,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs">
+      <Link>Core\Configuration\ApplicationNameHelper.cs</Link>
+    </Compile>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
@@ -73,6 +76,7 @@
     <Compile Include="Core\Bindings\ChannelReadBinding.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
+    <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
     <Compile Include="Core\Misc\CachedEnumerable.cs" />
     <Compile Include="Core\Misc\CollationFeature.cs" />
     <Compile Include="Core\Misc\DefaultRandomStringGenerator.cs" />
