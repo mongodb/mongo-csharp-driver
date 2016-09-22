@@ -493,14 +493,12 @@ namespace MongoDB.Driver.Core.Configuration
             switch (name.ToLower())
             {
                 case "appname":
-                    try
+                    string invalidApplicationNameMessage;
+                    if (!ApplicationNameHelper.IsApplicationNameValid(value, out invalidApplicationNameMessage))
                     {
-                        _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value));
+                        throw new MongoConfigurationException(invalidApplicationNameMessage);
                     }
-                    catch (Exception ex)
-                    {
-                        throw new MongoConfigurationException(ex.Message, ex);
-                    }
+                    _applicationName = value;
                     break;
                 case "authmechanism":
                     _authMechanism = value;

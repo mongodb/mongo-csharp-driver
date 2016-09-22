@@ -22,16 +22,29 @@ namespace MongoDB.Shared
     {
         public static string EnsureApplicationNameIsValid(string applicationName, string paramName)
         {
+            string message;
+            if (!IsApplicationNameValid(applicationName, out message))
+            { 
+                throw new ArgumentException(message, paramName);
+            }
+
+            return applicationName;
+        }
+
+        public static bool IsApplicationNameValid(string applicationName, out string message)
+        {
             if (applicationName != null)
             {
                 var utf8 = Utf8Encodings.Strict.GetBytes(applicationName);
                 if (utf8.Length > 128)
                 {
-                    throw new ArgumentException("Application name exceeds 128 bytes after encoding to UTF8.", paramName);
+                    message = "Application name exceeds 128 bytes after encoding to UTF8.";
+                    return false;
                 }
             }
 
-            return applicationName;
+            message = null;
+            return true;
         }
     }
 }
