@@ -1,4 +1,4 @@
-baseurl = "/mongo-csharp-driver/2.2"
+baseurl = "/mongo-csharp-driver/2.3"
 languageCode = "en-us"
 title = "MongoDB .NET Driver"
 theme = "mongodb"
@@ -12,7 +12,7 @@ canonifyurls = false
     pre = "<i class='fa fa-file-text-o'></i>"
     weight = 800
     identifier = "apiDocs"
-    url = "http://api.mongodb.org/csharp/2.2"
+    url = "http://api.mongodb.org/csharp/2.3"
 
 [[menu.main]]
     name = "Source Code"

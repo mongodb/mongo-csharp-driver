@@ -8,20 +8,13 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
-## What's New in the MongoDB .NET 2.2 Driver
+## What's new in 2.3
 
-The 2.2 driver ships with a number of new features. The most notable are discussed below.
+The 2.3.0 driver is a minor release with few new features. The most notable is discussed below.
 
+## Support for .NET Core
 
-## Sync API
+You can now use the .NET driver with .NET Core.
 
-The 2.0 and 2.1 versions of the .NET driver featured a new async-only API. Version 2.2 introduces sync versions of every async method.
-
-
-## Support for server 3.2
-
-* Support for bypassing document validation for write operations on collections where document validation has been enabled
-* Support for write concern for FindAndModify methods
-* Support for read concern
-* Builder support for new aggregation stages and new accumulators in $group stage
-* Support for version 3 text indexes
+The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework 
+version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.
