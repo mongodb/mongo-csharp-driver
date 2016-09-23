@@ -10,7 +10,7 @@ title = "Reference"
 
 ## Reference Page index
 
-The reference documentation is not an API reference. You can review those [here](./2.3/). Instead, the reference documentation will focus on high-level documentation and use-cases.
+The reference documentation is not an API reference. You can review those [here]({{< apiref "">}}). Instead, the reference documentation will focus on high-level documentation and use-cases.
 
 - [BSON]({{< relref "reference\bson\index.md" >}})
 - [Driver]({{< relref "reference\driver\index.md" >}})
