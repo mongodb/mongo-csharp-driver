@@ -1,0 +1,22 @@
+tasks:
+  - name: compile
+    commands:
+      - command: git.get_project
+        params: 
+          directory: src
+      - command: shell.exec
+        params: 
+          script: |
+            echo "hello world!"
+            echo "${test_flags}"
+
+
+buildvariants:
+- name: linux-64
+  display_name: Linux-64
+  run_on:
+  - ubuntu1404-test
+  expansions:
+    test_flags: "blah blah"
+  tasks:
+  - name: compile
