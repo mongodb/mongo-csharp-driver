@@ -2,31 +2,31 @@ current = "2.3.0"
 [[versions]]
   version = "2.3.0"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/2.3/"
-  api = "http://api.mongodb.org/csharp/2.3"
+  docs = "./2.3/"
+  api = "./2.3/apidocs"
 
 [[versions]]
   version = "2.2.4"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/2.2/"
+  docs = "./2.2/"
   api = "http://api.mongodb.org/csharp/2.2"
 
 [[versions]]
   version = "2.1.1"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/2.1/"
+  docs = "./2.1/"
   api = "http://api.mongodb.org/csharp/2.1"
 
 [[versions]]
   version = "2.0.2"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/2.0/"
+  docs = "./2.0/"
   api = "http://api.mongodb.org/csharp/2.0"
 
 [[versions]]
   version = "1.11"
   status = "current"
-  docs = "http://mongodb.github.io/mongo-csharp-driver/1.11"
+  docs = "./1.11"
   api = "http://api.mongodb.org/csharp/1.11"
 
 [[drivers]]

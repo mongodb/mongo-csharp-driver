@@ -12,7 +12,7 @@ canonifyurls = false
     pre = "<i class='fa fa-file-text-o'></i>"
     weight = 800
     identifier = "apiDocs"
-    url = "http://api.mongodb.org/csharp/2.3"
+    url = "/apidocs"
 
 [[menu.main]]
     name = "Source Code"
