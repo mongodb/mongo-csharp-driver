@@ -24,6 +24,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a Stream used by the application to write data to a GridFS file.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public abstract class GridFSUploadStream<TFileId> : Stream
     {
         // constructors

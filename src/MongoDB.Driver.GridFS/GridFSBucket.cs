@@ -34,6 +34,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFS bucket.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public class GridFSBucket<TFileId> : IGridFSBucket<TFileId>
     {
         // fields

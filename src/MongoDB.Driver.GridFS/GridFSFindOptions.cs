@@ -21,6 +21,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents options for a GridFS Find operation.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public class GridFSFindOptions<TFileId>
     {
         // fields

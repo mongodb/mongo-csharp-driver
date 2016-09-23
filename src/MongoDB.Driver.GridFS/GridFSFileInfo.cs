@@ -27,6 +27,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents information about a stored GridFS file (backed by a files collection document).
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     [BsonSerializer(typeof(GridFSFileInfoSerializer<>))]
     public sealed class GridFSFileInfo<TFileId> : BsonDocumentBackedClass
     {

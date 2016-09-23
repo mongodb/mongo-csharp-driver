@@ -27,14 +27,14 @@ namespace MongoDB.Driver.Linq
     public static class LinqExtensions
     {
         /// <summary>
-        /// Injects a low level FilterDefinition{T} into a LINQ where clause. Can only be used in LINQ queries.
+        /// Injects a low level FilterDefinition{TDocument} into a LINQ where clause. Can only be used in LINQ queries.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// Throws an InvalidOperationException if called.
         /// </returns>
-        public static bool Inject<T>(this FilterDefinition<T> filter)
+        public static bool Inject<TDocument>(this FilterDefinition<TDocument> filter)
         {
             throw new InvalidOperationException("The LinqExtensions.Inject method is only intended to be used in LINQ Where clauses.");
         }

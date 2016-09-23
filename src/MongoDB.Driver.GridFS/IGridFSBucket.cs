@@ -24,6 +24,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFS system bucket.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public interface IGridFSBucket<TFileId>
     {
         // properties

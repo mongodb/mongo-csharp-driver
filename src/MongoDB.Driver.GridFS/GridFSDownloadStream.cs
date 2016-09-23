@@ -23,6 +23,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a Stream used by the application to read data from a GridFS file.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public abstract class GridFSDownloadStream<TFileId> : Stream
     {
         // constructors

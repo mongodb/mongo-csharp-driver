@@ -23,6 +23,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a serializer for GridFSFileInfo.
     /// </summary>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public class GridFSFileInfoSerializer<TFileId> : BsonDocumentBackedClassSerializer<GridFSFileInfo<TFileId>>, IGridFSFileInfoSerializer<TFileId>
     {
         // constructors
