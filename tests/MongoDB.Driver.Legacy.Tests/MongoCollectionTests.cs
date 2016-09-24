@@ -604,8 +604,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCreateIndex()
         {
-            var expectedIndexVersion = (_server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
-
             _collection.Insert(new BsonDocument("x", 1));
             _collection.DropAllIndexes(); // doesn't drop the index on _id
 
@@ -618,7 +616,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
             Assert.Equal(_collection.FullName, indexes[0].Namespace);
-            Assert.Equal(expectedIndexVersion, indexes[0].Version);
+            Assert.True(indexes[0].Version >= 0);
 
             _collection.DropAllIndexes();
             var result = _collection.CreateIndex("x");
@@ -635,7 +633,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
             Assert.Equal(_collection.FullName, indexes[0].Namespace);
-            Assert.Equal(expectedIndexVersion, indexes[0].Version);
+            Assert.True(indexes[0].Version >= 0);
             Assert.Equal(false, indexes[1].DroppedDups);
             Assert.Equal(false, indexes[1].IsBackground);
             Assert.Equal(false, indexes[1].IsSparse);
@@ -643,7 +641,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(new IndexKeysDocument("x", 1), indexes[1].Key);
             Assert.Equal("x_1", indexes[1].Name);
             Assert.Equal(_collection.FullName, indexes[1].Namespace);
-            Assert.Equal(expectedIndexVersion, indexes[1].Version);
+            Assert.True(indexes[1].Version >= 0);
 
             // note: DropDups is silently ignored in server 2.8
             if (_primary.BuildInfo.Version < new Version(2, 7, 0))
@@ -664,7 +662,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
                 Assert.Equal("_id_", indexes[0].Name);
                 Assert.Equal(_collection.FullName, indexes[0].Namespace);
-                Assert.Equal(expectedIndexVersion, indexes[0].Version);
+                Assert.True(indexes[0].Version >= 0);
                 Assert.Equal(true, indexes[1].DroppedDups);
                 Assert.Equal(true, indexes[1].IsBackground);
                 Assert.Equal(true, indexes[1].IsSparse);
@@ -672,7 +670,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new IndexKeysDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
                 Assert.Equal("x_1_y_-1", indexes[1].Name);
                 Assert.Equal(_collection.FullName, indexes[1].Namespace);
-                Assert.Equal(expectedIndexVersion, indexes[1].Version);
+                Assert.True(indexes[1].Version >= 0);
             }
         }
 
