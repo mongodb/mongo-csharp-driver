@@ -485,10 +485,10 @@ namespace MongoDB.Driver
         IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
         /// <summary>
-        /// Returns a new collection with a different write concern.
+        /// Returns a new IMongoCollection instance with a different write concern setting.
         /// </summary>
         /// <param name="writeConcern">The write concern.</param>
-        /// <returns>A new collection.</returns>
+        /// <returns>A new IMongoCollection instance with a different write concern setting.</returns>
         IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
     }
 }

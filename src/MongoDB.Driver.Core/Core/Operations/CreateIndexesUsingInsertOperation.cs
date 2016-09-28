@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
+        /// Initializes a new instance of the <see cref="CreateIndexesUsingInsertOperation"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="requests">The requests.</param>
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private InsertOpcodeOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion, CreateIndexRequest createIndexRequest)
+        internal InsertOpcodeOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion, CreateIndexRequest createIndexRequest)
         {
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
             var document = createIndexRequest.CreateIndexDocument(serverVersion);
@@ -150,7 +150,10 @@ namespace MongoDB.Driver.Core.Operations
                 systemIndexesCollection,
                 documentSource,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
+                _messageEncoderSettings)
+            {
+                WriteConcern = _writeConcern
+            };
         }
     }
 }

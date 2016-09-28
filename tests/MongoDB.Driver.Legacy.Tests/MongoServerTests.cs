@@ -15,9 +15,13 @@
 
 using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -123,6 +127,18 @@ namespace MongoDB.Driver.Tests
                 databaseNames = __server.GetDatabaseNames();
                 Assert.False(databaseNames.Contains(database.Name));
             }
+        }
+
+        [SkippableFact]
+        public void TestDropDatabaseWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = __server;
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropDatabase("database"));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Fact]
@@ -285,6 +301,20 @@ namespace MongoDB.Driver.Tests
         {
             var versionZero = new Version(0, 0, 0);
             Assert.NotEqual(versionZero, __server.BuildInfo.Version);
+        }
+
+        [Fact]
+        public void TestWithWriteConcern()
+        {
+            var originalWriteConcern = new WriteConcern(2);
+            var newWriteConcern = new WriteConcern(3);
+            var subject = __server.WithWriteConcern(originalWriteConcern);
+
+            var result = subject.WithWriteConcern(newWriteConcern);
+
+            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
+            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
     }
 }

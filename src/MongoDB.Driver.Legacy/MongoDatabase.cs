@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
@@ -280,7 +281,8 @@ namespace MongoDB.Driver
                 UsePowerOf2Sizes = usePowerOf2Sizes,
                 ValidationAction = validationAction,
                 ValidationLevel = validationLevel,
-                Validator = validator
+                Validator = validator,
+                WriteConcern = _settings.WriteConcern
             };
 
             var response = ExecuteWriteOperation(operation);
@@ -325,7 +327,8 @@ namespace MongoDB.Driver
 
             var operation = new CreateViewOperation(_namespace, viewName, viewOn, pipeline, GetMessageEncoderSettings())
             {
-                Collation = collation
+                Collation = collation,
+                WriteConcern = _settings.WriteConcern
             };
 
             var response = ExecuteWriteOperation(operation);
@@ -350,7 +353,10 @@ namespace MongoDB.Driver
             var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
         }
@@ -774,7 +780,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new RenameCollectionOperation(oldCollectionNamespace, newCollectionNamespace, messageEncoderSettings)
             {
-                DropTarget = dropTarget
+                DropTarget = dropTarget,
+                WriteConcern = _settings.WriteConcern
             };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
@@ -901,6 +908,19 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return _namespace.DatabaseName;
+        }
+
+        /// <summary>
+        /// Returns a new MongoDatabase instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new MongoDatabase instance with a different write concern setting.</returns>
+        public virtual MongoDatabase WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
         }
 
         // private methods

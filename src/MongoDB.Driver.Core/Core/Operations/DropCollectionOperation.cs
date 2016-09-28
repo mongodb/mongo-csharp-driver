@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -70,23 +71,41 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // public methods
         /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            try
+
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                return operation.Execute(binding, cancellationToken);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ShouldIgnoreException(ex))
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                try
                 {
-                    return ex.Result;
+                    return operation.Execute(binding, cancellationToken);
                 }
-                throw;
+                catch (MongoCommandException ex)
+                {
+                    if (ShouldIgnoreException(ex))
+                    {
+                        return ex.Result;
+                    }
+                    throw;
+                }
             }
         }
 
@@ -94,30 +113,40 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            try
+
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ShouldIgnoreException(ex))
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                try
                 {
-                    return ex.Result;
+                    return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
                 }
-                throw;
+                catch (MongoCommandException ex)
+                {
+                    if (ShouldIgnoreException(ex))
+                    {
+                        return ex.Result;
+                    }
+                    throw;
+                }
             }
         }
 
         // private methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            return new BsonDocument { { "drop", _collectionNamespace.CollectionName } };
+            return new BsonDocument
+            {
+                { "drop", _collectionNamespace.CollectionName },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
+            };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation()
+        private WriteCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 

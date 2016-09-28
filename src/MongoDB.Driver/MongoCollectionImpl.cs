@@ -527,7 +527,8 @@ namespace MongoDB.Driver
                 AllowDiskUse = options.AllowDiskUse,
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
-                MaxTime = options.MaxTime
+                MaxTime = options.MaxTime,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -718,7 +719,8 @@ namespace MongoDB.Driver
                 OutputMode = collectionOutputOptions.OutputMode,
                 ShardedOutput = collectionOutputOptions.Sharded,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
-                Verbose = options.Verbose
+                Verbose = options.Verbose,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -893,7 +895,10 @@ namespace MongoDB.Driver
             // private methods
             private CreateIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateIndexRequest> requests)
             {
-                return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings);
+                return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
+                {
+                    WriteConcern = _collection.Settings.WriteConcern
+                };
             }
 
             private IEnumerable<CreateIndexRequest> CreateCreateIndexRequests(IEnumerable<CreateIndexModel<TDocument>> models)
@@ -930,12 +935,18 @@ namespace MongoDB.Driver
 
             private DropIndexOperation CreateDropAllOperation()
             {
-                return new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings);
+                return new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings)
+                {
+                    WriteConcern = _collection.Settings.WriteConcern
+                };
             }
 
             private DropIndexOperation CreateDropOneOperation(string name)
             {
-                return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings);
+                return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings)
+                {
+                    WriteConcern = _collection.Settings.WriteConcern
+                };
             }
 
             private ListIndexesOperation CreateListIndexesOperation()

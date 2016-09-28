@@ -136,7 +136,8 @@ namespace MongoDB.Driver
                     AllowDiskUse = args.AllowDiskUse,
                     BypassDocumentValidation = args.BypassDocumentValidation,
                     Collation = args.Collation,
-                    MaxTime = args.MaxTime
+                    MaxTime = args.MaxTime,
+                    WriteConcern = _settings.WriteConcern
                 };
                 ExecuteWriteOperation(aggregateOperation);
 
@@ -246,7 +247,10 @@ namespace MongoDB.Driver
                 var keysDocument = keys.ToBsonDocument();
                 var optionsDocument = options.ToBsonDocument();
                 var requests = new[] { new CreateIndexRequest(keysDocument) { AdditionalOptions = optionsDocument } };
-                var operation = new CreateIndexesOperation(_collectionNamespace, requests, GetMessageEncoderSettings());
+                var operation = new CreateIndexesOperation(_collectionNamespace, requests, GetMessageEncoderSettings())
+                {
+                    WriteConcern = _settings.WriteConcern
+                };
                 ExecuteWriteOperation(operation);
                 return new WriteConcernResult(new BsonDocument("ok", 1));
             }
@@ -407,7 +411,10 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(string indexName)
         {
-            var operation = new DropIndexOperation(_collectionNamespace, indexName, GetMessageEncoderSettings());
+            var operation = new DropIndexOperation(_collectionNamespace, indexName, GetMessageEncoderSettings())
+            {
+                WriteConcern = _settings.WriteConcern
+            };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
         }
@@ -1575,7 +1582,8 @@ namespace MongoDB.Driver
                     Scope = scope,
                     ShardedOutput = args.OutputIsSharded,
                     Sort = sort,
-                    Verbose = args.Verbose
+                    Verbose = args.Verbose,
+                    WriteConcern = _settings.WriteConcern
                 };
 
                 response = ExecuteWriteOperation(operation);
@@ -1655,7 +1663,14 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex()
         {
-            var command = new CommandDocument("reIndex", _collectionNamespace.CollectionName);
+            var writeConcern = _settings.WriteConcern;
+            var buildInfoVersion = _server.BuildInfo.Version;
+            var serverVersion = new SemanticVersion(buildInfoVersion.Major, buildInfoVersion.Minor, buildInfoVersion.Build);
+            var command = new CommandDocument
+            {
+                { "reIndex", _collectionNamespace.CollectionName },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, writeConcern) }
+            };
             return _database.RunCommandAs<CommandResult>(command, ReadPreference.Primary);
         }
 
@@ -2372,6 +2387,19 @@ namespace MongoDB.Driver
         public virtual WriteConcernResult Save(TDefaultDocument document, WriteConcern writeConcern)
         {
             return Save<TDefaultDocument>(document, writeConcern);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new MongoCollection instance with a different write concern setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
         }
     }
 }

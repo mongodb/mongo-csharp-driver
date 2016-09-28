@@ -102,6 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ValidationAction.Should().BeNull();
             subject.ValidationLevel.Should().BeNull();
             subject.Validator.Should().BeNull();
+            subject.WriteConcern.Should().BeNull();
         }
 
         [Fact]
@@ -371,6 +372,31 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "validator", validator, validator != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
             };
             result.Should().Be(expectedResult);
         }
@@ -658,6 +684,30 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<NotSupportedException>();
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            DropCollection();
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() =>
+            {
+                using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+                {
+                    ExecuteOperation(subject, binding, false);
+                }
+            });
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void IndexOptionDefaults_get_and_set_should_work(
@@ -797,6 +847,21 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.Validator = value;
             var result = subject.Validator;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? w)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = w.HasValue ? new WriteConcern(w.Value) : null;
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
 
             result.Should().BeSameAs(value);
         }

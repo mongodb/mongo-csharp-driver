@@ -231,10 +231,10 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
             {
-                var filesCollectionDropOperation = new DropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
+                var filesCollectionDropOperation = CreateDropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
                 filesCollectionDropOperation.Execute(binding, cancellationToken);
 
-                var chunksCollectionDropOperation = new DropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
+                var chunksCollectionDropOperation = CreateDropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
                 chunksCollectionDropOperation.Execute(binding, cancellationToken);
             }
         }
@@ -248,10 +248,10 @@ namespace MongoDB.Driver.GridFS
 
             using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
             {
-                var filesCollectionDropOperation = new DropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
+                var filesCollectionDropOperation = CreateDropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
                 await filesCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
 
-                var chunksCollectionDropOperation = new DropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
+                var chunksCollectionDropOperation = CreateDropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
                 await chunksCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -527,20 +527,26 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        private CreateIndexesOperation CreateCreateChunksCollectionIndexesOperation()
+        internal CreateIndexesOperation CreateCreateChunksCollectionIndexesOperation()
         {
             var collectionNamespace = this.GetChunksCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "files_id", 1 }, { "n", 1 } }) { Unique = true } };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings);
+            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
+            {
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+            };
         }
 
-        private CreateIndexesOperation CreateCreateFilesCollectionIndexesOperation()
+        internal CreateIndexesOperation CreateCreateFilesCollectionIndexesOperation()
         {
             var collectionNamespace = this.GetFilesCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "filename", 1 }, { "uploadDate", 1 } }) };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings);
+            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
+            {
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+            };
         }
 
         private BulkMixedWriteOperation CreateDeleteChunksOperation(TFileId id)
@@ -569,6 +575,14 @@ namespace MongoDB.Driver.GridFS
             {
                 return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo, checkMD5);
             }
+        }
+
+        internal DropCollectionOperation CreateDropCollectionOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
+        {
+            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+            };
         }
 
         private BulkMixedWriteOperation CreateDeleteFileOperation(TFileId id)

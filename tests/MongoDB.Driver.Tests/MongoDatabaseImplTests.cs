@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,15 +40,8 @@ namespace MongoDB.Driver
 
         public MongoDatabaseImplTests()
         {
-            var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
-            _subject = new MongoDatabaseImpl(
-                new Mock<IMongoClient>().Object,
-                new DatabaseNamespace("foo"),
-                settings,
-                new Mock<ICluster>().Object,
-                _operationExecutor);
+            _subject = CreateSubject(_operationExecutor);
         }
 
         [Fact]
@@ -89,14 +82,16 @@ namespace MongoDB.Driver
                 ValidationLevel = DocumentValidationLevel.Off,
                 Validator = new BsonDocument("x", 1)
             };
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
 
             if (async)
             {
-                _subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _subject.CreateCollection("bar", options, CancellationToken.None);
+                subject.CreateCollection("bar", options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -118,6 +113,7 @@ namespace MongoDB.Driver
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<BsonDocument>();
             var renderedValidator = options.Validator.Render(documentSerializer, serializerRegistry);
             op.Validator.Should().Be(renderedValidator);
+            op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -139,14 +135,16 @@ namespace MongoDB.Driver
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off
             };
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
 
             if (async)
             {
-                _subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _subject.CreateCollection("bar", options, CancellationToken.None);
+                subject.CreateCollection("bar", options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -172,16 +170,17 @@ namespace MongoDB.Driver
         public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_null(
             [Values(false, true)] bool async)
         {
-            var storageEngine = new BsonDocument("awesome", true);
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
             CreateCollectionOptions options = null;
 
             if (async)
             {
-                _subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _subject.CreateCollection("bar", options, CancellationToken.None);
+                subject.CreateCollection("bar", options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -199,6 +198,7 @@ namespace MongoDB.Driver
             op.ValidationAction.Should().BeNull();
             op.ValidationLevel.Should().BeNull();
             op.Validator.Should().BeNull();
+            op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -247,6 +247,32 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
             operation.ViewOn.Should().Be(viewOn);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_WriteConcern(
+            [Values(1, 2)]
+            int w,
+            [Values(false, true)]
+            bool async)
+        {
+            var writeConcern = new WriteConcern(w);
+            var subject = _subject.WithWriteConcern(writeConcern);
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+
+            if (async)
+            {
+                subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -471,13 +497,16 @@ namespace MongoDB.Driver
         public void DropCollection_should_execute_the_DropCollectionOperation(
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
+
             if (async)
             {
-                _subject.DropCollectionAsync("bar", CancellationToken.None).GetAwaiter().GetResult();
+                subject.DropCollectionAsync("bar", CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _subject.DropCollection("bar", CancellationToken.None);
+                subject.DropCollection("bar", CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -485,6 +514,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<DropCollectionOperation>();
             var op = (DropCollectionOperation)call.Operation;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -517,6 +547,8 @@ namespace MongoDB.Driver
         public void RenameCollection_should_execute_the_RenameCollectionOperation(
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
             var options = new RenameCollectionOptions
             {
                 DropTarget = false,
@@ -524,11 +556,11 @@ namespace MongoDB.Driver
 
             if (async)
             {
-                _subject.RenameCollectionAsync("bar", "baz", options, CancellationToken.None).GetAwaiter().GetResult();
+                subject.RenameCollectionAsync("bar", "baz", options, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _subject.RenameCollection("bar", "baz", options, CancellationToken.None);
+                subject.RenameCollection("bar", "baz", options, CancellationToken.None);
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -538,6 +570,7 @@ namespace MongoDB.Driver
             op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
             op.NewCollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "baz"));
             op.DropTarget.Should().Be(options.DropTarget);
+            op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -676,6 +709,38 @@ namespace MongoDB.Driver
             var op = (ReadCommandOperation<BsonDocument>)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
+        }
+
+        [Fact]
+        public void WithWriteConcern_should_return_expected_result()
+        {
+            var originalWriteConcern = new WriteConcern(1);
+            var originalSettings = new MongoDatabaseSettings
+            {
+                WriteConcern = originalWriteConcern
+            };
+            var subject = CreateSubject(_operationExecutor, originalSettings);
+            var newWriteConcern = new WriteConcern(2);
+
+            var result = subject.WithWriteConcern(newWriteConcern);
+
+            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
+            result.Should().NotBeSameAs(subject);
+            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(originalSettings);
+        }
+
+        // private methods
+        private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor, MongoDatabaseSettings settings = null)
+        {
+            settings = settings ?? new MongoDatabaseSettings();
+            settings.ApplyDefaultValues(new MongoClientSettings());
+            return new MongoDatabaseImpl(
+                new Mock<IMongoClient>().Object,
+                new DatabaseNamespace("foo"),
+                settings,
+                new Mock<ICluster>().Object,
+                _operationExecutor);
         }
 
         private class CountCommand

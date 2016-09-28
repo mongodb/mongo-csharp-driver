@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
@@ -136,6 +137,31 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("strict", collectionInfo["options"]["validationLevel"].AsString);
         }
 
+        [SkippableFact]
+        public void TestCreateCollectionWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = _database;
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateCollection("collection"));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
+        [SkippableFact]
+        public void TestCreateViewWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = _database;
+            var writeConcern = new WriteConcern(2);
+            var pipeline = new BsonDocument[0];
+
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateView("viewName", "viewOn", pipeline, null));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void TestDropCollection()
         {
@@ -147,6 +173,18 @@ namespace MongoDB.Driver.Tests
 
             _database.DropCollection(collectionName);
             Assert.False(_database.CollectionExists(collectionName));
+        }
+
+        [SkippableFact]
+        public void TestDropCollectionWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = _database;
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropCollection("collection"));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Fact]
@@ -386,6 +424,18 @@ namespace MongoDB.Driver.Tests
             Assert.True(_database.CollectionExists(collectionName2));
         }
 
+        [SkippableFact]
+        public void TestRenameCollectionWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = _database;
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).RenameCollection("oldName", "newName"));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void TestSetProfilingLevel()
         {
@@ -475,6 +525,20 @@ namespace MongoDB.Driver.Tests
             user = _database.FindUser(username);
             Assert.Null(user);
 #pragma warning restore
+        }
+
+        [Fact]
+        public void TestWithWriteConcern()
+        {
+            var originalWriteConcern = new WriteConcern(2);
+            var subject = _database.WithWriteConcern(originalWriteConcern);
+            var newWriteConcern = new WriteConcern(3);
+
+            var result = subject.WithWriteConcern(newWriteConcern);
+
+            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
+            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
     }
 }

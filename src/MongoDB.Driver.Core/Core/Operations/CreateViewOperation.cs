@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "viewOn", _viewOn },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "writeConcern", () => _writeConcern.ToBsonDocument(), _writeConcern != null && !_writeConcern.IsServerDefault && Feature.CommandsWriteConcern.IsSupported(serverVersion) }
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 

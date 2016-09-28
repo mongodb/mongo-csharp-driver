@@ -67,6 +67,42 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateOperation_should_return_expected_result(
+            [Values(false, true)]
+            bool isCommandSupported)
+        {
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var writeConcern = new WriteConcern(1);
+            var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CreateIndexesCommand.SupportedOrNotSupportedVersion(isCommandSupported);
+
+            var result = subject.CreateOperation(serverVersion);
+
+            if (isCommandSupported)
+            {
+                result.Should().BeOfType<CreateIndexesUsingCommandOperation>();
+                var operation = (CreateIndexesUsingCommandOperation)result;
+                operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+                operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+                operation.Requests.Should().Equal(requests);
+                operation.WriteConcern.Should().BeSameAs(writeConcern);
+            }
+            else
+            {
+                result.Should().BeOfType<CreateIndexesUsingInsertOperation>();
+                var operation = (CreateIndexesUsingInsertOperation)result;
+                operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+                operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+                operation.Requests.Should().Equal(requests);
+                operation.WriteConcern.Should().BeSameAs(writeConcern);
+            }
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_work_when_background_is_true(
@@ -257,6 +293,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("value");
         }
 
+        // private methods
         private List<BsonDocument> ListIndexes()
         {
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);

@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -132,8 +134,35 @@ namespace MongoDB.Driver.Core.Operations
                 { "index", indexName }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(null);
 
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expectedResult_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var indexName = "x_1";
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "dropIndexes", _collectionNamespace.CollectionName },
+                { "index", indexName },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+            };
             result.Should().Be(expectedResult);
         }
 
@@ -189,6 +218,24 @@ namespace MongoDB.Driver.Core.Operations
             ex.ParamName.Should().Be("binding");
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void IndexName_get_should_return_expected_result()
         {
@@ -209,6 +256,22 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.MessageEncoderSettings;
 
             result.Should().BeSameAs(_messageEncoderSettings);
+        }
+        
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? w)
+        {
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            var value = w.HasValue ? new WriteConcern(w.Value) : null;
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
+
+            result.Should().BeSameAs(value);
         }
     }
 }

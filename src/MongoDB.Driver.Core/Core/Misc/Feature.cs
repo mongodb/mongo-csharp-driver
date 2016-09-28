@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
-        private static readonly Feature __commandsWriteConcern = new Feature("CommandsWriteConcern", new SemanticVersion(3, 3, 11));
+        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
@@ -86,9 +86,9 @@ namespace MongoDB.Driver.Core.Misc
         public static CollationFeature Collation => __collation;
 
         /// <summary>
-        /// Gets the commands write concern feature.
+        /// Gets the commands that write accept write concern feature.
         /// </summary>
-        public static Feature CommandsWriteConcern => __commandsWriteConcern;
+        public static CommandsThatWriteAcceptWriteConcernFeature CommandsThatWriteAcceptWriteConcern => __commandsThatWriteAcceptWriteConcern;
 
         /// <summary>
         /// Gets the create indexes command feature.

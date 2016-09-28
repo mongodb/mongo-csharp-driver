@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
         private BsonDocument _validator;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -214,6 +215,18 @@ namespace MongoDB.Driver.Core.Operations
             set { _validator = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
@@ -232,7 +245,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "validator", _validator, _validator != null },
                 { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null }
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 

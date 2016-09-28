@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
+        /// Initializes a new instance of the <see cref="CreateIndexesUsingCommandOperation"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="requests">The requests.</param>
@@ -135,7 +135,8 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument(serverVersion))) }
+                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument(serverVersion))) },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 

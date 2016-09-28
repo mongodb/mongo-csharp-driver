@@ -18,7 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -64,6 +67,31 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
+        }
+
+        [Fact]
+        public void CreateOperation_should_return_expected_result()
+        {
+            var request = new CreateIndexRequest(new BsonDocument("x", 1));
+            var requests = new[] { request };
+            var writeConcern = new WriteConcern(1);
+            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+
+            var result = subject.CreateOperation(null, request);
+
+            result.BypassDocumentValidation.Should().NotHaveValue();
+            result.CollectionNamespace.CollectionName.Should().Be("system.indexes");
+            result.ContinueOnError.Should().BeFalse();
+            result.DocumentSource.Batch.Should().NotBeNull();
+            result.MaxBatchCount.Should().NotHaveValue();
+            result.MaxDocumentSize.Should().NotHaveValue();
+            result.MaxMessageSize.Should().NotHaveValue();
+            result.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            result.Serializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
+            result.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [SkippableTheory]
@@ -175,6 +203,25 @@ namespace MongoDB.Driver.Core.Operations
             var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            DropCollection();
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Theory]

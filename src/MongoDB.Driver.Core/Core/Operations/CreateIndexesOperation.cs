@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(channel);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -124,21 +124,27 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(channel);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
 
         // private methods
-        private IWriteOperation<BsonDocument> CreateOperation(IChannel channel)
+        internal IWriteOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            if (Feature.CreateIndexesCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+            if (Feature.CreateIndexesCommand.IsSupported(serverVersion))
             {
-                return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings);
+                return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
+                {
+                    WriteConcern = _writeConcern
+                };
             }
             else
             {
-                return new CreateIndexesUsingInsertOperation(_collectionNamespace, _requests, _messageEncoderSettings);
+                return new CreateIndexesUsingInsertOperation(_collectionNamespace, _requests, _messageEncoderSettings)
+                {
+                    WriteConcern = _writeConcern
+                };
             }
         }
    }

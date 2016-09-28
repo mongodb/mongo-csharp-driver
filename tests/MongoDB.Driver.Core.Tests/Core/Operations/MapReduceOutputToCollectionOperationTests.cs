@@ -162,6 +162,21 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? w)
+        {
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+            var value = w.HasValue ? new WriteConcern(w.Value) : null;
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_BypassDocumentValidation_is_set(
             [Values(null, false, true)]
             bool? bypassDocumentValidation,
@@ -184,6 +199,35 @@ namespace MongoDB.Driver.Core.Operations
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
                 { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var subjectReflector = new Reflector(subject);
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subjectReflector.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "mapreduce", _collectionNamespace.CollectionName },
+                { "map", _mapFunction },
+                { "reduce", _reduceFunction },
+                { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
             };
             result.Should().Be(expectedResult);
         }
@@ -495,6 +539,23 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         // helper methods

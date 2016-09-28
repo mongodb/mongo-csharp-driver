@@ -20,6 +20,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.WriteConcern.Should().BeNull();
         }
 
         [Fact]
@@ -77,8 +80,33 @@ namespace MongoDB.Driver.Core.Operations
                 { "drop", _collectionNamespace.CollectionName }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(null);
 
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "drop", _collectionNamespace.CollectionName },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+            };
             result.Should().Be(expectedResult);
         }
 
@@ -120,6 +148,29 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() =>
+            {
+                using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+                {
+                    ExecuteOperation(subject, binding, async);
+                }
+            });
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
@@ -130,6 +181,22 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(_messageEncoderSettings);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? w)
+        {
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = w.HasValue ? new WriteConcern(w.Value) : null;
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
+
+            result.Should().BeSameAs(value);
+        }
+
+        // private methods
         private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
         {
             if (async)

@@ -230,6 +230,21 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [SkippableFact]
+        public void TestAggregateWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var writeConcern = new WriteConcern(2);
+            var args = new AggregateArgs
+            {
+                Pipeline = new[] { BsonDocument.Parse("{ $out : 'out' }") }
+            };
+
+            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).Aggregate(args));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void TestBulkDelete()
         {
@@ -691,6 +706,18 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, result.Count);
         }
 
+        [SkippableFact]
+        public void TestCreateIndexWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var writeConcern = new WriteConcern(2);
+            var keys = IndexKeys.Ascending("x");
+
+            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).CreateIndex(keys));
+
+            exception.Should().BeOfType<MongoWriteConcernException>();
+        }
+
         [Fact]
         public void TestCreateIndexWithPartialFilterExpression()
         {
@@ -816,6 +843,17 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, _collection.GetIndexes().Count());
             _collection.DropIndex("x");
             Assert.Equal(1, _collection.GetIndexes().Count());
+        }
+
+        [SkippableFact]
+        public void TestDropIndexWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).DropIndex("x"));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Fact]
@@ -2775,6 +2813,24 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [SkippableFact]
+        public void TestMapReduceWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var writeConcern = new WriteConcern(2);
+            var args = new MapReduceArgs
+            {
+                MapFunction = "map",
+                OutputCollectionName = "out",
+                OutputMode = MapReduceOutputMode.Replace,
+                ReduceFunction = "reduce"
+            };
+
+            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).MapReduce(args));
+
+            exception.Should().BeOfType<MongoCommandException>();
+        }
+
         [Fact]
         public void TestParallelScan()
         {
@@ -2833,6 +2889,17 @@ namespace MongoDB.Driver.Tests
                     Assert.Equal("Duplicate element name 'ok'.", ex.Message);
                 }
             }
+        }
+
+        [SkippableFact]
+        public void TestReIndexWriteConcern()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var writeConcern = new WriteConcern(2);
+
+            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).ReIndex());
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Fact]
@@ -3312,6 +3379,19 @@ namespace MongoDB.Driver.Tests
 
                 Assert.Equal(_collection.FullName, result.Namespace);
             }
+        }
+
+        [Fact]
+        public void TestWithWriteConcern()
+        {
+            var originalWriteConcern = new WriteConcern(2);
+            var subject = _collection.WithWriteConcern(originalWriteConcern);
+            var newWriteConcern = new WriteConcern(3);
+
+            var result = subject.WithWriteConcern(newWriteConcern);
+
+            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
 
         // private methods

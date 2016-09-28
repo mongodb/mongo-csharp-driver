@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -56,7 +57,8 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
-            var client = new MongoClient(operationExecutor);
+            var writeConcern = new WriteConcern(1);
+            var client = new MongoClient(operationExecutor).WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -69,8 +71,9 @@ namespace MongoDB.Driver.Tests
 
             var call = operationExecutor.GetWriteCall<BsonDocument>();
 
-            call.Operation.Should().BeOfType<DropDatabaseOperation>();
-            ((DropDatabaseOperation)call.Operation).DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
+            var dropDatabaseOperation = call.Operation.Should().BeOfType<DropDatabaseOperation>().Subject;
+            dropDatabaseOperation.DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
+            dropDatabaseOperation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -93,6 +96,24 @@ namespace MongoDB.Driver.Tests
             var call = operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
             call.Operation.Should().BeOfType<ListDatabasesOperation>();
+        }
+
+        [Fact]
+        public void WithWriteConcern_should_return_expected_result()
+        {
+            var originalWriteConcern = new WriteConcern(1);
+            var originalSettings = new MongoClientSettings
+            {
+                WriteConcern = originalWriteConcern
+            };
+            var subject = new MongoClient(originalSettings);
+            var newWriteConcern = new WriteConcern(2);
+
+            var result = subject.WithWriteConcern(newWriteConcern);
+
+            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
+            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(originalSettings);
         }
     }
 }

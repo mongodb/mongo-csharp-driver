@@ -209,6 +209,14 @@ namespace MongoDB.Driver
             return ExecuteReadOperationAsync(operation, readPreference, cancellationToken);
         }
 
+        public override IMongoDatabase WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = _settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoDatabaseImpl(_client, _databaseNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
         // private methods
         private void CreateCollectionHelper<TDocument>(string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
         {
@@ -239,7 +247,8 @@ namespace MongoDB.Driver
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
                 StorageEngine = options.StorageEngine,
-                UsePowerOf2Sizes = options.UsePowerOf2Sizes
+                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -266,7 +275,8 @@ namespace MongoDB.Driver
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                 ValidationAction = options.ValidationAction,
                 ValidationLevel = options.ValidationLevel,
-                Validator = validator
+                Validator = validator,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -286,7 +296,10 @@ namespace MongoDB.Driver
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
             var messageEncoderSettings = GetMessageEncoderSettings();
-            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
         }
 
         private ListCollectionsOperation CreateListCollectionsOperation(ListCollectionsOptions options)
@@ -306,7 +319,8 @@ namespace MongoDB.Driver
                 new CollectionNamespace(_databaseNamespace, newName),
                 messageEncoderSettings)
             {
-                DropTarget = options.DropTarget
+                DropTarget = options.DropTarget,
+                WriteConcern = _settings.WriteConcern
             };
         }
 

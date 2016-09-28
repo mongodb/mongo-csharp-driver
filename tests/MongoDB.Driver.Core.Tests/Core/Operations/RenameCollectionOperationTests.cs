@@ -20,6 +20,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -88,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "to", _newCollectionNamespace.FullName }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(null);
 
             result.Should().Be(expectedResult);
         }
@@ -110,8 +112,34 @@ namespace MongoDB.Driver.Core.Operations
                 { "dropTarget", dropTarget }
             };
 
-            var result = subject.CreateCommand();
+            var result = subject.CreateCommand(null);
 
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "renameCollection", _collectionNamespace.FullName },
+                { "to", _newCollectionNamespace.FullName },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+            };
             result.Should().Be(expectedResult);
         }
 
@@ -185,7 +213,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execyte_should_throw_when_binding_is_null(
+        public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
         {
@@ -194,6 +222,23 @@ namespace MongoDB.Driver.Core.Operations
             Action action = () => ExecuteOperation(subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Fact]
@@ -214,6 +259,21 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.NewCollectionNamespace;
 
             result.Should().BeSameAs(_newCollectionNamespace);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(null, 1, 2)]
+            int? w)
+        {
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var value = w.HasValue ? new WriteConcern(w.Value) : null;
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
+
+            result.Should().BeSameAs(value);
         }
 
         // helper methods

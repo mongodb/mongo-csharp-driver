@@ -19,6 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -99,6 +100,33 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
                 { "indexes", new BsonArray { requests[0].CreateIndexDocument(null), requests[1].CreateIndexDocument(null) } }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(1, 2)]
+            int w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var writeConcern = new WriteConcern(w);
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "createIndexes", _collectionNamespace.CollectionName },
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), isWriteConcernSupported }
             };
             result.Should().Be(expectedResult);
         }
@@ -251,6 +279,25 @@ namespace MongoDB.Driver.Core.Operations
             var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+           [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            DropCollection();
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Theory]

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -71,8 +71,8 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(IOperationExecutor operationExecutor)
-            : this()
+        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings = null)
+            : this(settings ?? new MongoClientSettings())
         {
             _operationExecutor = operationExecutor;
         }
@@ -104,7 +104,10 @@ namespace MongoDB.Driver
         public sealed override void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
 
             using (var binding = new WritableServerBinding(_cluster))
             {
@@ -116,7 +119,10 @@ namespace MongoDB.Driver
         public sealed override async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
 
             using (var binding = new WritableServerBinding(_cluster))
             {
@@ -158,6 +164,15 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         // private methods

@@ -18,6 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
             subject.MaxTime.Should().NotHaveValue();
+            subject.WriteConcern.Should().BeNull();
         }
 
         [Fact]
@@ -139,6 +141,21 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.MaxTime;
 
             result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteConcern_get_and_set_should_work(
+            [Values(1, 2)]
+            int w)
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new WriteConcern(w);
+
+            subject.WriteConcern = value;
+            var result = subject.WriteConcern;
+
+            result.Should().BeSameAs(value);
         }
 
         [Fact]
@@ -258,6 +275,32 @@ namespace MongoDB.Driver.Core.Operations
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
                 { "maxTimeMS", () => milliseconds.Value, milliseconds != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
+            [Values(null, 1, 2)]
+            int? w,
+            [Values(false, true)]
+            bool isWriteConcernSupported)
+        {
+            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
+            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+
+            var result = subject.CreateCommand(serverVersion);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
             };
             result.Should().Be(expectedResult);
         }
@@ -389,6 +432,24 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            EnsureTestData();
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                WriteConcern = new WriteConcern(2)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         private void EnsureTestData()

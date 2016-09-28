@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -144,10 +144,10 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = true,
                 Collation = new Collation("en_US"),
                 MaxTime = TimeSpan.FromSeconds(3),
-                UseCursor = false
+                UseCursor = false,
             };
-
-            var subject = CreateSubject<BsonDocument>();
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
 
             IAsyncCursor<BsonDocument> result;
             if (async)
@@ -170,6 +170,7 @@ namespace MongoDB.Driver
             writeOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
             writeOperation.MaxTime.Should().Be(options.MaxTime);
             writeOperation.Pipeline.Should().HaveCount(2);
+            writeOperation.WriteConcern.Should().BeSameAs(writeConcern);
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(mockCursor.Object);
@@ -983,8 +984,9 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
+            var writeConcern = new WriteConcern(1);
 
-            var subject = CreateSubject<BsonDocument>();
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -1001,6 +1003,7 @@ namespace MongoDB.Driver
             var operation = (CreateIndexesOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Requests.Count().Should().Be(1);
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
             var request = operation.Requests.Single();
             request.AdditionalOptions.Should().BeNull();
             request.Background.Should().Be(options.Background);
@@ -1030,6 +1033,8 @@ namespace MongoDB.Driver
         public void Indexes_CreateMany_should_execute_the_CreateIndexesOperation(
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var keys = new BsonDocument("x", 1);
             var keys2 = new BsonDocument("z", 1);
             var partialFilterExpression = Builders<BsonDocument>.Filter.Gt("x", 0);
@@ -1057,11 +1062,8 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
-
             var first = new CreateIndexModel<BsonDocument>(keys, options);
             var second = new CreateIndexModel<BsonDocument>(keys2);
-
-            var subject = CreateSubject<BsonDocument>();
 
             if (async)
             {
@@ -1078,6 +1080,7 @@ namespace MongoDB.Driver
             var operation = (CreateIndexesOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Requests.Count().Should().Be(2);
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
 
             var request1 = operation.Requests.ElementAt(0);
             request1.AdditionalOptions.Should().BeNull();
@@ -1131,7 +1134,8 @@ namespace MongoDB.Driver
         public void Indexes_DropAll_should_execute_the_DropIndexOperation(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject<BsonDocument>();
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -1148,6 +1152,7 @@ namespace MongoDB.Driver
             var operation = (DropIndexOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IndexName.Should().Be("*");
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -1155,7 +1160,8 @@ namespace MongoDB.Driver
         public void Indexes_DropOne_should_execute_the_DropIndexOperation(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject<BsonDocument>();
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -1172,6 +1178,7 @@ namespace MongoDB.Driver
             var operation = (DropIndexOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IndexName.Should().Be("name");
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
@@ -1450,7 +1457,8 @@ namespace MongoDB.Driver
                 Sort = sort,
                 Verbose = true
             };
-            var subject = CreateSubject<BsonDocument>();
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -1481,6 +1489,7 @@ namespace MongoDB.Driver
             operation.ShardedOutput.Should().Be(true);
             operation.Sort.Should().Be(sort);
             operation.Verbose.Should().Be(options.Verbose);
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]

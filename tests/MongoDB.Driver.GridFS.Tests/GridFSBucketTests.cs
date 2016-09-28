@@ -23,6 +23,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Tests;
 using Moq;
 using Xunit;
@@ -64,6 +67,79 @@ namespace MongoDB.Driver.GridFS.Tests
             var result = new GridFSBucket(database, null);
 
             result.Options.Should().BeSameAs(ImmutableGridFSBucketOptions.Defaults);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCreateChunksCollectionIndexesOperation_should_return_expected_result(
+            [Values(1, 2)]
+            int databaseW,
+            [Values(null, 1, 2)]
+            int? bucketW)
+        {
+            var bucketWriteConcern = bucketW.HasValue ? new WriteConcern(bucketW.Value) : null;
+            var options = new GridFSBucketOptions { WriteConcern = bucketWriteConcern };
+            var subject = CreateSubject(options);
+            var databaseWriteConcern = new WriteConcern(databaseW);
+            var mockDatabase = Mock.Get(subject.Database);
+            var databaseSettings = new MongoDatabaseSettings { WriteConcern = databaseWriteConcern };
+            mockDatabase.SetupGet(d => d.Settings).Returns(databaseSettings);
+
+            var result = subject.CreateCreateChunksCollectionIndexesOperation();
+
+            result.CollectionNamespace.CollectionName.Should().Be("fs.chunks");
+            result.MessageEncoderSettings.Should().NotBeNull();
+            result.Requests.Should().NotBeNull();
+            result.WriteConcern.Should().BeSameAs(bucketWriteConcern ?? databaseWriteConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCreateFilesCollectionIndexesOperation_should_return_expected_result(
+            [Values(1, 2)]
+            int databaseW,
+            [Values(null, 1, 2)]
+            int? bucketW)
+        {
+            var bucketWriteConcern = bucketW.HasValue ? new WriteConcern(bucketW.Value) : null;
+            var options = new GridFSBucketOptions { WriteConcern = bucketWriteConcern };
+            var subject = CreateSubject(options);
+            var databaseWriteConcern = new WriteConcern(databaseW);
+            var mockDatabase = Mock.Get(subject.Database);
+            var databaseSettings = new MongoDatabaseSettings { WriteConcern = databaseWriteConcern };
+            mockDatabase.SetupGet(d => d.Settings).Returns(databaseSettings);
+
+            var result = subject.CreateCreateFilesCollectionIndexesOperation();
+
+            result.CollectionNamespace.CollectionName.Should().Be("fs.files");
+            result.MessageEncoderSettings.Should().NotBeNull();
+            result.Requests.Should().NotBeNull();
+            result.WriteConcern.Should().BeSameAs(bucketWriteConcern ?? databaseWriteConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateDropCollectionOperation_should_return_expected_result(
+            [Values(1, 2)]
+            int databaseW,
+            [Values(null, 1, 2)]
+            int? bucketW)
+        {
+            var bucketWriteConcern = bucketW.HasValue ? new WriteConcern(bucketW.Value) : null;
+            var options = new GridFSBucketOptions { WriteConcern = bucketWriteConcern };
+            var subject = CreateSubject(options);
+            var databaseWriteConcern = new WriteConcern(databaseW);
+            var mockDatabase = Mock.Get(subject.Database);
+            var databaseSettings = new MongoDatabaseSettings { WriteConcern = databaseWriteConcern };
+            mockDatabase.SetupGet(d => d.Settings).Returns(databaseSettings);
+            var collectionNamespace = new CollectionNamespace(subject.Database.DatabaseNamespace, "collection");
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+            var result = subject.CreateDropCollectionOperation(collectionNamespace, messageEncoderSettings);
+
+            result.CollectionNamespace.Should().BeSameAs(collectionNamespace);
+            result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
+            result.WriteConcern.Should().BeSameAs(bucketWriteConcern ?? databaseWriteConcern);
         }
 
         [Fact]
@@ -250,11 +326,12 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Drop_should_drop_the_files_and_chunks_collections(
             [Values(false, true)] bool async)
         {
+            RequireServer.Check();
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var subject = new GridFSBucket(database);
@@ -273,6 +350,33 @@ namespace MongoDB.Driver.GridFS.Tests
             var collectionNames = collections.Select(c => c["name"].AsString);
             collectionNames.Should().NotContain("fs.files");
             collectionNames.Should().NotContain("fs.chunks");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Drop_should_throw_when_WriteConcern_is_invalid(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var options = new GridFSBucketOptions { WriteConcern = new WriteConcern(2) };
+            var subject = new GridFSBucket(database, options);
+
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    subject.DropAsync().GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Drop();
+                }
+            });
+
+            exception.Should().BeOfType<MongoCommandException>();
         }
 
         [Theory]
@@ -534,6 +638,7 @@ namespace MongoDB.Driver.GridFS.Tests
 
             var mockDatabase = new Mock<IMongoDatabase>();
             mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
+            mockDatabase.SetupGet(d => d.DatabaseNamespace).Returns(new DatabaseNamespace("database"));
 
             return new GridFSBucket(mockDatabase.Object, options);
         }
