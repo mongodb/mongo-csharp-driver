@@ -99,7 +99,6 @@ namespace MongoDB.Driver.Core.Operations
                 operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
                 operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
                 operation.Requests.Should().Equal(requests);
-                operation.WriteConcern.Should().BeSameAs(writeConcern);
             }
         }
 

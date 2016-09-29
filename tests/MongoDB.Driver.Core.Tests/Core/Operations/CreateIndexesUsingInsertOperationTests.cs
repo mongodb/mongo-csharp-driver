@@ -38,8 +38,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.Requests.Should().Equal(requests);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-
-            subject.WriteConcern.Should().BeSameAs(WriteConcern.Acknowledged);
         }
 
         [Fact]
@@ -75,10 +73,7 @@ namespace MongoDB.Driver.Core.Operations
             var request = new CreateIndexRequest(new BsonDocument("x", 1));
             var requests = new[] { request };
             var writeConcern = new WriteConcern(1);
-            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
+            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
             var result = subject.CreateOperation(null, request);
 
@@ -91,7 +86,6 @@ namespace MongoDB.Driver.Core.Operations
             result.MaxMessageSize.Should().NotHaveValue();
             result.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             result.Serializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
-            result.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [SkippableTheory]
@@ -203,51 +197,6 @@ namespace MongoDB.Driver.Core.Operations
             var indexes = ListIndexes();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_a_write_concern_error_occurs(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            DropCollection();
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = new WriteConcern(9)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoWriteConcernException>();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void WriteConcern_get_and_set_should_work(
-            [Values(1, 2)]
-            int w)
-        {
-            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings);
-            var value = new WriteConcern(w);
-
-            subject.WriteConcern = value;
-            var result = subject.WriteConcern;
-
-            result.Should().BeSameAs(value);
-        }
-
-        [Fact]
-        public void WriteConcern_set_should_throw_when_value_is_null()
-        {
-            var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings);
-
-            var exception = Record.Exception(() => { subject.WriteConcern = null; });
-
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("value");
         }
 
         private List<BsonDocument> ListIndexes()

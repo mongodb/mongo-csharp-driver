@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
-        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         /// <summary>
@@ -90,18 +89,6 @@ namespace MongoDB.Driver.Core.Operations
             get { return _requests; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
-        public WriteConcern WriteConcern
-        {
-            get { return _writeConcern; }
-            set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
-        }
-
         // public methods
         /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
@@ -150,10 +137,7 @@ namespace MongoDB.Driver.Core.Operations
                 systemIndexesCollection,
                 documentSource,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings)
-            {
-                WriteConcern = _writeConcern
-            };
+                _messageEncoderSettings);
         }
     }
 }

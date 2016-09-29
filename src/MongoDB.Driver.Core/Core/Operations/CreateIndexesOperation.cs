@@ -141,10 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                return new CreateIndexesUsingInsertOperation(_collectionNamespace, _requests, _messageEncoderSettings)
-                {
-                    WriteConcern = _writeConcern
-                };
+                return new CreateIndexesUsingInsertOperation(_collectionNamespace, _requests, _messageEncoderSettings);
             }
         }
    }
