@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
         {
-            _settings = settings.FrozenCopy();
+            _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor();
         }
@@ -71,8 +71,8 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings = null)
-            : this(settings ?? new MongoClientSettings())
+        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)
+            : this(settings)
         {
             _operationExecutor = operationExecutor;
         }
@@ -164,6 +164,24 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoClient(_operationExecutor, newSettings);
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         /// <inheritdoc/>

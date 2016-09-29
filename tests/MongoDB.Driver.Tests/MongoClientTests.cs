@@ -28,6 +28,15 @@ namespace MongoDB.Driver.Tests
     public class MongoClientTests
     {
         [Fact]
+        public void constructor_with_settings_should_throw_when_settings_is_null()
+        {
+            var exception = Record.Exception(() => new MongoClient((MongoClientSettings)null));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("settings");
+        }
+
+        [Fact]
         public void UsesSameClusterForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
@@ -58,7 +67,7 @@ namespace MongoDB.Driver.Tests
         {
             var operationExecutor = new MockOperationExecutor();
             var writeConcern = new WriteConcern(1);
-            var client = new MongoClient(operationExecutor).WithWriteConcern(writeConcern);
+            var client = new MongoClient(operationExecutor, new MongoClientSettings()).WithWriteConcern(writeConcern);
 
             if (async)
             {
@@ -82,7 +91,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
-            var client = new MongoClient(operationExecutor);
+            var client = new MongoClient(operationExecutor, new MongoClientSettings());
 
             if (async)
             {
@@ -99,21 +108,45 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void WithReadConcern_should_return_expected_result()
+        {
+            var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = new MongoClient().WithReadConcern(originalReadConcern);
+            var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
+
+            var result = subject.WithReadConcern(newReadConcern);
+
+            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
+        public void WithReadPreference_should_return_expected_result()
+        {
+            var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
+            var subject = new MongoClient().WithReadPreference(originalReadPreference);
+            var newReadPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
+
+            var result = subject.WithReadPreference(newReadPreference);
+
+            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.Should().BeSameAs(newReadPreference);
+            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
         public void WithWriteConcern_should_return_expected_result()
         {
-            var originalWriteConcern = new WriteConcern(1);
-            var originalSettings = new MongoClientSettings
-            {
-                WriteConcern = originalWriteConcern
-            };
-            var subject = new MongoClient(originalSettings);
-            var newWriteConcern = new WriteConcern(2);
+            var originalWriteConcern = new WriteConcern(2);
+            var subject = new MongoClient().WithWriteConcern(originalWriteConcern);
+            var newWriteConcern = new WriteConcern(3);
 
             var result = subject.WithWriteConcern(newWriteConcern);
 
             subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
-            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(originalSettings);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
     }
 }

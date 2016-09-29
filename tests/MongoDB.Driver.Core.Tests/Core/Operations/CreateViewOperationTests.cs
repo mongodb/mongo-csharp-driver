@@ -216,16 +216,15 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_a_write_concern_error_occurss(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
             RequireServer.Check().Supports(Feature.Views).ClusterType(ClusterType.ReplicaSet);
             DropView(_viewName);
-            var writeConcern = new WriteConcern(5);
             var subject = new CreateViewOperation(_databaseNamespace, _viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings)
             {
-                WriteConcern = writeConcern
+                WriteConcern = new WriteConcern(9)
             };
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));

@@ -376,11 +376,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
             EnsureTestData();
-            var subject = new FindOneAndDeleteOperation<BsonDocument>(
-                _collectionNamespace,
-                BsonDocument.Parse("{ x : 1 }"),
-                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
-                _messageEncoderSettings)
+            var filter = BsonDocument.Parse("{ x : 1 }");
+            var resultSerializer = new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, resultSerializer, _messageEncoderSettings)
             {
                 WriteConcern = new WriteConcern(9)
             };
@@ -390,8 +388,8 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcernException = exception.Should().BeOfType<MongoWriteConcernException>().Subject;
             var commandResult = writeConcernException.Result;
             var result = commandResult["value"].AsBsonDocument;
-            result.Should().Be("{ _id : 10, x : 1 }");
-            ReadAllFromCollection().Should().BeEmpty();
+            result.Should().Be("{ _id : 10, x : 1, y : 'a' }");
+            ReadAllFromCollection().Should().HaveCount(1);
         }
 
         [SkippableTheory]

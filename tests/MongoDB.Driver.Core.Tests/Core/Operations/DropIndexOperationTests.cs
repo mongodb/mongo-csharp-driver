@@ -190,11 +190,7 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check();
-            DropCollection();
-            var keys = new BsonDocument("x", 1);
-            var requests = new[] { new CreateIndexRequest(keys) };
-            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            ExecuteOperation(createIndexOperation, async);
+            EnsureIndexExists();
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
@@ -220,20 +216,21 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_WriteConcern_is_invalid(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            EnsureIndexExists();
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings)
             {
-                WriteConcern = new WriteConcern(2)
+                WriteConcern = new WriteConcern(9)
             };
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -272,6 +269,16 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.WriteConcern;
 
             result.Should().BeSameAs(value);
+        }
+
+        // private methods
+        private void EnsureIndexExists()
+        {
+            DropCollection();
+            var keys = new BsonDocument("x", 1);
+            var requests = new[] { new CreateIndexRequest(keys) };
+            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            ExecuteOperation(createIndexOperation);
         }
     }
 }

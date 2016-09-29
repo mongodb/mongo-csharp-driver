@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -428,8 +429,15 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, maxStaleness: TimeSpan.FromSeconds(30));
 
-            var cursor = ExecuteOperation(subject, readPreference, async);
-            var result = ReadCursorToEnd(cursor, async);
+            // the count could be short temporarily until replication catches up
+            List<BsonDocument> result = null;
+            SpinWait.SpinUntil(() =>
+            {
+                var cursor = ExecuteOperation(subject, readPreference, async);
+                result = ReadCursorToEnd(cursor, async);
+                return result.Count >= 5;
+            },
+            TimeSpan.FromSeconds(10));
 
             result.Should().HaveCount(5);
         }

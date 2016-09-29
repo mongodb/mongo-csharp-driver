@@ -129,14 +129,14 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_WriteConcern_is_invalid(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings)
             {
-                WriteConcern = new WriteConcern(2)
+                WriteConcern = new WriteConcern(9)
             };
 
             var exception = Record.Exception(() =>
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             });
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]

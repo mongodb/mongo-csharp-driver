@@ -140,26 +140,26 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
-            var writeConcern = new WriteConcern(2);
+            var writeConcern = new WriteConcern(9);
 
             var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateCollection("collection"));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [SkippableFact]
         public void TestCreateViewWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
-            var writeConcern = new WriteConcern(2);
+            var writeConcern = new WriteConcern(9);
             var pipeline = new BsonDocument[0];
 
             var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateView("viewName", "viewOn", pipeline, null));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -178,13 +178,13 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
-            var writeConcern = new WriteConcern(2);
+            var writeConcern = new WriteConcern(9);
 
             var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropCollection("collection"));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -427,13 +427,17 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestRenameCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            var oldCollectionName = "oldcollectioname";
+            var newCollectionName = "newcollectioname";
+            EnsureCollectionExists(oldCollectionName);
+            EnsureCollectionDoesNotExist(newCollectionName);
             var subject = _database;
-            var writeConcern = new WriteConcern(2);
+            var writeConcern = new WriteConcern(9);
 
-            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).RenameCollection("oldName", "newName"));
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).RenameCollection(oldCollectionName, newCollectionName));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -528,6 +532,34 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestWithReadConcern()
+        {
+            var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = _database.WithReadConcern(originalReadConcern);
+            var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
+
+            var result = subject.WithReadConcern(newReadConcern);
+
+            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
+        public void TestWithReadPreference()
+        {
+            var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
+            var subject = _database.WithReadPreference(originalReadPreference);
+            var newReadPReference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
+
+            var result = subject.WithReadPreference(newReadPReference);
+
+            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.Should().BeSameAs(newReadPReference);
+            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
         public void TestWithWriteConcern()
         {
             var originalWriteConcern = new WriteConcern(2);
@@ -539,6 +571,18 @@ namespace MongoDB.Driver.Tests
             subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
             result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        // private methods
+        private void EnsureCollectionDoesNotExist(string collectionName)
+        {
+            _database.DropCollection(collectionName);
+        }
+
+        private void EnsureCollectionExists(string collectionName)
+        {
+            _database.DropCollection(collectionName);
+            _database.CreateCollection(collectionName);
         }
     }
 }

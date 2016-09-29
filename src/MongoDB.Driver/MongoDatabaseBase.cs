@@ -97,6 +97,18 @@ namespace MongoDB.Driver
         public abstract Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
+        public virtual IMongoDatabase WithReadConcern(ReadConcern readConcern)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IMongoDatabase WithReadPreference(ReadPreference readPreference)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IMongoDatabase WithWriteConcern(WriteConcern writeConcern)
         {
             throw new NotImplementedException();

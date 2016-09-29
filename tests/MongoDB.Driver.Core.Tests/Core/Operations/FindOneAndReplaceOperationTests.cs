@@ -606,7 +606,7 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcernException = exception.Should().BeOfType<MongoWriteConcernException>().Subject;
             var commandResult = writeConcernException.Result;
             var result = commandResult["value"].AsBsonDocument;
-            result.Should().Be("{ _id : 10, x : 1 }");
+            result.Should().Be("{ _id : 10, x : 1, y : 'a' }");
             ReadAllFromCollection().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 10, a : 1 }"),
                 BsonDocument.Parse("{ _id : 11, x : 2, y : 'A' }")

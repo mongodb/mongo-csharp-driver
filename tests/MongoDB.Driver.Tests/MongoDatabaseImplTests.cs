@@ -712,28 +712,51 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        public void WithReadConcern_should_return_expected_result()
+        {
+            var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = CreateSubject(_operationExecutor).WithReadConcern(originalReadConcern);
+            var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
+
+            var result = subject.WithReadConcern(newReadConcern);
+
+            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
+        public void WithReadPreference_should_return_expected_result()
+        {
+            var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
+            var subject = CreateSubject(_operationExecutor).WithReadPreference(originalReadPreference);
+            var newReadPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
+
+            var result = subject.WithReadPreference(newReadPreference);
+
+            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.Should().BeSameAs(newReadPreference);
+            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
         public void WithWriteConcern_should_return_expected_result()
         {
-            var originalWriteConcern = new WriteConcern(1);
-            var originalSettings = new MongoDatabaseSettings
-            {
-                WriteConcern = originalWriteConcern
-            };
-            var subject = CreateSubject(_operationExecutor, originalSettings);
-            var newWriteConcern = new WriteConcern(2);
+            var originalWriteConcern = new WriteConcern(2);
+            var subject = CreateSubject(_operationExecutor).WithWriteConcern(originalWriteConcern);
+            var newWriteConcern = new WriteConcern(3);
 
             var result = subject.WithWriteConcern(newWriteConcern);
 
             subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
-            result.Should().NotBeSameAs(subject);
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
-            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(originalSettings);
+            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
 
         // private methods
-        private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor, MongoDatabaseSettings settings = null)
+        private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor)
         {
-            settings = settings ?? new MongoDatabaseSettings();
+            var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
             return new MongoDatabaseImpl(
                 new Mock<IMongoClient>().Object,

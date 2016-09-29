@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -25,39 +24,39 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a drop database operation.
+    /// Represents a reindex operation.
     /// </summary>
-    public class DropDatabaseOperation : IWriteOperation<BsonDocument>
+    public class ReIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly DatabaseNamespace _databaseNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DropDatabaseOperation"/> class.
+        /// Initializes a new instance of the <see cref="ReIndexOperation"/> class.
         /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public DropDatabaseOperation(
-            DatabaseNamespace databaseNamespace,
+        public ReIndexOperation(
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _messageEncoderSettings = messageEncoderSettings;
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
         // properties
         /// <summary>
-        /// Gets the database namespace.
+        /// Gets the collection namespace.
         /// </summary>
         /// <value>
-        /// The database namespace.
+        /// The collection namespace.
         /// </value>
-        public DatabaseNamespace DatabaseNamespace
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _databaseNamespace; }
+            get { return _collectionNamespace; }
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                var result = operation.Execute(channelBinding, cancellationToken);
+                var result = operation.Execute(binding, cancellationToken);
                 WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
             }
@@ -110,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
                 WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
             }
@@ -121,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "dropDatabase", 1 },
+                { "reIndex", _collectionNamespace.CollectionName },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
@@ -129,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
             var command = CreateCommand(serverVersion);
-            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

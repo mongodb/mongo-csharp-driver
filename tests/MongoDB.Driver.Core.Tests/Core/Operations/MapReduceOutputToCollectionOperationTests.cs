@@ -543,19 +543,19 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_WriteConcern_is_invalid(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
-                WriteConcern = new WriteConcern(2)
+                WriteConcern = new WriteConcern(9)
             };
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         // helper methods

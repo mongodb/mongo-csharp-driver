@@ -471,17 +471,17 @@ namespace MongoDB.Driver
         Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Returns a new collection with a different read concern.
+        /// Returns a new IMongoCollection instance with a different read concern setting.
         /// </summary>
         /// <param name="readConcern">The read concern.</param>
-        /// <returns>A new collection.</returns>
+        /// <returns>A new IMongoCollection instance with a different read concern setting.</returns>
         IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern);
 
         /// <summary>
-        /// Returns a new collection with a different read preference.
+        /// Returns a new IMongoCollection instance with a different read preference setting.
         /// </summary>
         /// <param name="readPreference">The read preference.</param>
-        /// <returns>A new collection.</returns>
+        /// <returns>A new IMongoCollection instance with a different read preference setting.</returns>
         IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
         /// <summary>

@@ -54,6 +54,18 @@ namespace MongoDB.Driver
         public abstract Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
+        public virtual IMongoClient WithReadConcern(ReadConcern readConcern)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IMongoClient WithReadPreference(ReadPreference readPreference)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
             throw new NotImplementedException();

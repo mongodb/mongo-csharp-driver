@@ -335,7 +335,7 @@ namespace MongoDB.Driver.GridFS.Tests
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var subject = new GridFSBucket(database);
-            subject.UploadFromBytes("test", new byte[] { 0 }); // causes the collections to be created
+            EnsureBucketExists(subject);
 
             if (async)
             {
@@ -354,14 +354,15 @@ namespace MongoDB.Driver.GridFS.Tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Drop_should_throw_when_WriteConcern_is_invalid(
+        public void Drop_should_throw_when_a_write_concern_error_occurss(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            var options = new GridFSBucketOptions { WriteConcern = new WriteConcern(2) };
+            EnsureBucketExists(new GridFSBucket(database)); // with default WriteConcern
+            var options = new GridFSBucketOptions { WriteConcern = new WriteConcern(9) };
             var subject = new GridFSBucket(database, options);
 
             var exception = Record.Exception(() =>
@@ -376,7 +377,7 @@ namespace MongoDB.Driver.GridFS.Tests
                 }
             });
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Theory]
@@ -641,6 +642,16 @@ namespace MongoDB.Driver.GridFS.Tests
             mockDatabase.SetupGet(d => d.DatabaseNamespace).Returns(new DatabaseNamespace("database"));
 
             return new GridFSBucket(mockDatabase.Object, options);
+        }
+
+        private void DropBucket(IGridFSBucket bucket)
+        {
+            bucket.Drop();
+        }
+
+        private void EnsureBucketExists(IGridFSBucket bucket)
+        {
+            bucket.UploadFromBytes("filename", new byte[0]);
         }
     }
 }

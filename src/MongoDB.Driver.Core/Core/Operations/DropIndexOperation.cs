@@ -138,19 +138,22 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                BsonDocument result;
                 try
                 {
-                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                    return operation.Execute(channelBinding, cancellationToken);
+                    result = operation.Execute(channelBinding, cancellationToken);
                 }
                 catch (MongoCommandException ex)
                 {
-                    if (ShouldIgnoreException(ex))
+                    if (!ShouldIgnoreException(ex))
                     {
-                        return ex.Result;
+                        throw;
                     }
-                    throw;
+                    result = ex.Result;
                 }
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
@@ -163,19 +166,22 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                BsonDocument result;
                 try
                 {
-                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                    return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                    result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex)
                 {
-                    if (ShouldIgnoreException(ex))
+                    if (!ShouldIgnoreException(ex))
                     {
-                        return ex.Result;
+                        throw;
                     }
-                    throw;
+                    result = ex.Result;
                 }
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 

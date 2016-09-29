@@ -117,14 +117,10 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check();
+            DropCollection();
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                ExecuteOperation(dropCollectionOperation, binding, async);
-                ExecuteOperation(subject, binding, async); // this will throw if we have a problem...
-            }
+            ExecuteOperation(subject, async); // this will throw if we have a problem...
         }
 
         [SkippableTheory]
@@ -134,41 +130,31 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check();
+            EnsureCollectionExists();
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                var createCollectionOperation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                ExecuteOperation(createCollectionOperation, binding, async);
+            var result = ExecuteOperation(subject, async);
 
-                var result = ExecuteOperation(subject, binding, async);
-
-                result["ok"].ToBoolean().Should().BeTrue();
-                result["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-            }
+            result["ok"].ToBoolean().Should().BeTrue();
+            result["ns"].ToString().Should().Be(_collectionNamespace.FullName);
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_WriteConcern_is_invalid(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            EnsureCollectionExists();
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                WriteConcern = new WriteConcern(2)
+                WriteConcern = new WriteConcern(9)
             };
 
-            var exception = Record.Exception(() =>
-            {
-                using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-                {
-                    ExecuteOperation(subject, binding, async);
-                }
-            });
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -197,15 +183,31 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
+        private void DropCollection()
         {
-            if (async)
+            var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            ExecuteOperation(operation, false);
+        }
+
+        private void EnsureCollectionExists()
+        {
+            DropCollection();
+            var operation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            ExecuteOperation(operation, false);
+        }
+
+        private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async)
+        {
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
-                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                return operation.Execute(binding, CancellationToken.None);
+                if (async)
+                {
+                    return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    return operation.Execute(binding, CancellationToken.None);
+                }
             }
         }
     }

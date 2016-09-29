@@ -80,6 +80,20 @@ namespace MongoDB.Driver
         Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Returns a new IMongoClient instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new IMongoClient instance with a different read concern setting.</returns>
+        IMongoClient WithReadConcern(ReadConcern readConcern);
+
+        /// <summary>
+        /// Returns a new IMongoClient instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new IMongoClient instance with a different read preference setting.</returns>
+        IMongoClient WithReadPreference(ReadPreference readPreference);
+
+        /// <summary>
         /// Returns a new IMongoClient instance with a different write concern setting.
         /// </summary>
         /// <param name="writeConcern">The write concern.</param>

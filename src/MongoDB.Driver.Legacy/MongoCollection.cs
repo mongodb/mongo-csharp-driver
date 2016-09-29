@@ -1663,15 +1663,12 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex()
         {
-            var writeConcern = _settings.WriteConcern;
-            var buildInfoVersion = _server.BuildInfo.Version;
-            var serverVersion = new SemanticVersion(buildInfoVersion.Major, buildInfoVersion.Minor, buildInfoVersion.Build);
-            var command = new CommandDocument
+            var operation = new ReIndexOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
-                { "reIndex", _collectionNamespace.CollectionName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, writeConcern) }
+                WriteConcern = _settings.WriteConcern
             };
-            return _database.RunCommandAs<CommandResult>(command, ReadPreference.Primary);
+            var result = ExecuteWriteOperation(operation);
+            return new CommandResult(result);
         }
 
         /// <summary>
@@ -2387,6 +2384,32 @@ namespace MongoDB.Driver
         public virtual WriteConcernResult Save(TDefaultDocument document, WriteConcern writeConcern)
         {
             return Save<TDefaultDocument>(document, writeConcern);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoCollection instance with a different read concern setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoCollection instance with a different read preference setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
         }
 
         /// <summary>

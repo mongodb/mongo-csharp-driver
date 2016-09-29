@@ -233,8 +233,8 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestAggregateWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
-            var writeConcern = new WriteConcern(2);
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            var writeConcern = new WriteConcern(9);
             var args = new AggregateArgs
             {
                 Pipeline = new[] { BsonDocument.Parse("{ $out : 'out' }") }
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).Aggregate(args));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -709,8 +709,8 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateIndexWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
-            var writeConcern = new WriteConcern(2);
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            var writeConcern = new WriteConcern(9);
             var keys = IndexKeys.Ascending("x");
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).CreateIndex(keys));
@@ -848,12 +848,12 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropIndexWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
-            var writeConcern = new WriteConcern(2);
+            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            var writeConcern = new WriteConcern(9);
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).DropIndex("x"));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -2816,19 +2816,38 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestMapReduceWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
-            var writeConcern = new WriteConcern(2);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            _collection.Drop();
+            _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            var writeConcern = new WriteConcern(9);
+            var map =
+                "function() {\n" +
+                "    for (var key in this) {\n" +
+                "        emit(key, {count : 1});\n" +
+                "    }\n" +
+                "}\n";
+            var reduce =
+                "function(key, emits) {\n" +
+                "    total = 0;\n" +
+                "    for (var i in emits) {\n" +
+                "        total += emits[i].count;\n" +
+                "    }\n" +
+                "    return {count : total};\n" +
+                "}\n";
             var args = new MapReduceArgs
             {
-                MapFunction = "map",
-                OutputCollectionName = "out",
+                BypassDocumentValidation = true,
+                MapFunction = map,
+                ReduceFunction = reduce,
                 OutputMode = MapReduceOutputMode.Replace,
-                ReduceFunction = "reduce"
+                OutputCollectionName = "mrout"
             };
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).MapReduce(args));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -2894,12 +2913,13 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestReIndexWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
-            var writeConcern = new WriteConcern(2);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            EnsureCollectionExists(_collection.Name);
+            var writeConcern = new WriteConcern(9);
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).ReIndex());
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -3382,6 +3402,34 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestWithReadConcern()
+        {
+            var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = _collection.WithReadConcern(originalReadConcern);
+            var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
+
+            var result = subject.WithReadConcern(newReadConcern);
+
+            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
+        public void TestWithReadPreference()
+        {
+            var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
+            var subject = _collection.WithReadPreference(originalReadPreference);
+            var newReadPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
+
+            var result = subject.WithReadPreference(newReadPreference);
+
+            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.Should().BeSameAs(newReadPreference);
+            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
         public void TestWithWriteConcern()
         {
             var originalWriteConcern = new WriteConcern(2);
@@ -3390,6 +3438,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WithWriteConcern(newWriteConcern);
 
+            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
             result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
@@ -3405,6 +3454,17 @@ namespace MongoDB.Driver.Tests
             }
             Assert.Equal(expectedResult.Upserted, result.Upserted);
             Assert.Equal(expectedResult.UpdatedExisting ?? false, result.UpdatedExisting);
+        }
+
+        private void DropCollection(string collectionName)
+        {
+            _database.DropCollection(collectionName);
+        }
+
+        private void EnsureCollectionExists(string collectionName)
+        {
+            _database.DropCollection(collectionName);
+            _database.CreateCollection(collectionName);
         }
 
         // nested types

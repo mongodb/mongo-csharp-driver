@@ -207,21 +207,21 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_WriteConcern_is_invalid(
+        public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CreateIndexesCommand, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
-                WriteConcern = new WriteConcern(2)
+                WriteConcern = new WriteConcern(9)
             };
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Theory]

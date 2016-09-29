@@ -209,6 +209,22 @@ namespace MongoDB.Driver
             return ExecuteReadOperationAsync(operation, readPreference, cancellationToken);
         }
 
+        public override IMongoDatabase WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = _settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoDatabaseImpl(_client, _databaseNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
+        public override IMongoDatabase WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = _settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoDatabaseImpl(_client, _databaseNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
         public override IMongoDatabase WithWriteConcern(WriteConcern writeConcern)
         {
             Ensure.IsNotNull(writeConcern, nameof(writeConcern));

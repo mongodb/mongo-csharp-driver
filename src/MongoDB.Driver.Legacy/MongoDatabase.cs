@@ -911,6 +911,32 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Returns a new MongoDatabase instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoDatabase instance with a different read concern setting.</returns>
+        public virtual MongoDatabase WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoDatabase instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoDatabase instance with a different read preference setting.</returns>
+        public virtual MongoDatabase WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
+        }
+
+        /// <summary>
         /// Returns a new MongoDatabase instance with a different write concern setting.
         /// </summary>
         /// <param name="writeConcern">The write concern.</param>

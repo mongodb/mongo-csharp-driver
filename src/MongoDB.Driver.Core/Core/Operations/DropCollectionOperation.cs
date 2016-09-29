@@ -94,18 +94,21 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                BsonDocument result;
                 try
                 {
-                    return operation.Execute(binding, cancellationToken);
+                     result = operation.Execute(binding, cancellationToken);
                 }
                 catch (MongoCommandException ex)
                 {
-                    if (ShouldIgnoreException(ex))
+                    if (!ShouldIgnoreException(ex))
                     {
-                        return ex.Result;
+                        throw;
                     }
-                    throw;
+                    result = ex.Result;
                 }
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
@@ -119,18 +122,21 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                BsonDocument result;
                 try
                 {
-                    return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                    result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex)
                 {
-                    if (ShouldIgnoreException(ex))
+                    if (!ShouldIgnoreException(ex))
                     {
-                        return ex.Result;
+                        throw;
                     }
-                    throw;
+                    result = ex.Result;
                 }
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 

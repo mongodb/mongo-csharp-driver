@@ -88,6 +88,7 @@
     <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
+    <Compile Include="Core\Operations\ReIndexOperationTests.cs" />
     <Compile Include="Core\Operations\UpdateRequestTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\WriteConcernErrorHelperTests.cs" />
     <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />
     <Compile Include="Core\Servers\ServerMonitorTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />

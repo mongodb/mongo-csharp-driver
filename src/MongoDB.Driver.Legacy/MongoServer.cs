@@ -774,6 +774,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Returns a new MongoServer instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoServer instance with a different read concern setting.</returns>
+        public virtual MongoServer WithReadConcern(ReadConcern readConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoServer(newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoServer instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoServer instance with a different read preference setting.</returns>
+        public virtual MongoServer WithReadPreference(ReadPreference readPreference)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoServer(newSettings);
+        }
+
+        /// <summary>
         /// Returns a new MongoServer instance with a different write concern setting.
         /// </summary>
         /// <param name="writeConcern">The write concern.</param>

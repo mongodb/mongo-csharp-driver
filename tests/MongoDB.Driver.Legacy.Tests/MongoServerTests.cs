@@ -132,13 +132,13 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropDatabaseWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = __server;
-            var writeConcern = new WriteConcern(2);
+            var writeConcern = new WriteConcern(9);
 
             var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropDatabase("database"));
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
         [Fact]
@@ -304,11 +304,39 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestWithReadConcern()
+        {
+            var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
+            var subject = __server.WithReadConcern(originalReadConcern);
+            var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
+
+            var result = subject.WithReadConcern(newReadConcern);
+
+            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
+        public void TestWithReadPreference()
+        {
+            var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
+            var subject = __server.WithReadPreference(originalReadPreference);
+            var newReadPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
+
+            var result = subject.WithReadPreference(newReadPreference);
+
+            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.Should().BeSameAs(newReadPreference);
+            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+        }
+
+        [Fact]
         public void TestWithWriteConcern()
         {
             var originalWriteConcern = new WriteConcern(2);
-            var newWriteConcern = new WriteConcern(3);
             var subject = __server.WithWriteConcern(originalWriteConcern);
+            var newWriteConcern = new WriteConcern(3);
 
             var result = subject.WithWriteConcern(newWriteConcern);
 
