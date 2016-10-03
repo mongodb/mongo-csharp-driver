@@ -200,20 +200,23 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            var pairs = _state.ToList();
-            _state.Clear();
-            foreach (var pair in pairs)
+            var requestIds = _state.Keys;
+            foreach (var requestId in requestIds)
             {
-                pair.Value.Stopwatch.Stop();
-                var @event = new CommandFailedEvent(
-                    pair.Value.CommandName,
-                    exception,
-                    pair.Value.OperationId,
-                    pair.Key,
-                    connectionId,
-                    pair.Value.Stopwatch.Elapsed);
+                CommandState state;
+                if (_state.TryRemove(requestId, out state))
+                {
+                    state.Stopwatch.Stop();
+                    var @event = new CommandFailedEvent(
+                        state.CommandName,
+                        exception,
+                        state.OperationId,
+                        requestId,
+                        connectionId,
+                        state.Stopwatch.Elapsed);
 
-                _failedEvent(@event);
+                    _failedEvent(@event);
+                }
             }
         }
 
