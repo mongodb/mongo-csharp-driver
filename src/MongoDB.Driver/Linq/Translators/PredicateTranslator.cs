@@ -439,6 +439,21 @@ namespace MongoDB.Driver.Linq.Translators
                 return isTrueComparison ? query : __builder.Not(query);
             }
 
+            if (variableExpression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)variableExpression;
+                var targetTypeInfo = convertExpression.Type.GetTypeInfo();
+                if (targetTypeInfo.IsGenericType && targetTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    var underlyingValueType = targetTypeInfo.GetGenericArguments()[0];
+                    var convertOperand = convertExpression.Operand as FieldExpression;
+                    if (convertOperand != null && convertOperand.Type == underlyingValueType)
+                    {
+                        return null;
+                    }
+                }
+            }
+
             var fieldExpression = GetFieldExpression(variableExpression);
             var serializedValue = fieldExpression.SerializeValue(value);
             switch (operatorType)

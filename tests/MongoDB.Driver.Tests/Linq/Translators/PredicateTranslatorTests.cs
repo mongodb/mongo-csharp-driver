@@ -616,6 +616,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Equals_with_non_nullable_field_and_nullable_value()
+        {
+            var value = (int?)null;
+            Expression<Func<Root, bool>> filter = d => d.Id == value;
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
+
+            var exception = Record.Exception(() => PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry));
+
+            exception.Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
         public void HashSetCount()
         {
             Assert(
