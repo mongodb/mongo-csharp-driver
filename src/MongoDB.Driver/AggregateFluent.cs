@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,6 +65,22 @@ namespace MongoDB.Driver
         {
             var projection = Builders<TResult>.Projection.As<TNewResult>(newResultSerializer);
             return Project(projection);
+        }
+
+        public override IAggregateFluent<AggregateCountResult> Count()
+        {
+            const string operatorName = "$count";
+            var stage = new DelegatedPipelineStageDefinition<TResult, AggregateCountResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    return new RenderedPipelineStageDefinition<AggregateCountResult>(
+                        operatorName,
+                        new BsonDocument(operatorName, "count"),
+                        sr.GetSerializer<AggregateCountResult>());
+                });
+
+            return AppendStage<AggregateCountResult>(stage);
         }
 
         public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)

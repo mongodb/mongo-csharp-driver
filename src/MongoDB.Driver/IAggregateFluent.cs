@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,6 +57,12 @@ namespace MongoDB.Driver
         /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null);
+
+        /// <summary>
+        /// Appends a count stage to the pipeline.
+        /// </summary>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateCountResult> Count();
 
         /// <summary>
         /// Appends a group stage to the pipeline.

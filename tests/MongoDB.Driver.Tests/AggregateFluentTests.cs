@@ -16,10 +16,13 @@
 using System;
 using System.Linq;
 using System.Threading;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -70,7 +73,79 @@ namespace MongoDB.Driver.Tests
                         It.IsAny<AggregateOptions>(),
                         CancellationToken.None),
                     Times.Once);
-                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Count_should_add_the_expected_stage(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = CreateSubject();
+
+            var result = subject.Count();
+
+            Predicate<PipelineDefinition<C, AggregateCountResult>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 1 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $count : 'count' }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(AggregateCountResult);
+            };
+
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<AggregateCountResult>(
+                        It.Is<PipelineDefinition<C, AggregateCountResult>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _mockCollection.Verify(
+                    c => c.Aggregate<AggregateCountResult>(
+                        It.Is<PipelineDefinition<C, AggregateCountResult>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Count_should_return_the_expected_result(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateCountStage);
+            var client = DriverTestConfiguration.Client;
+            var databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod();
+            var database = client.GetDatabase(databaseNamespace.DatabaseName);
+            database.DropCollection(collectionNamespace.CollectionName);
+            var collection = database.GetCollection<BsonDocument>(collectionNamespace.CollectionName);
+            collection.InsertOne(new BsonDocument());
+            var subject = collection.Aggregate();
+
+            long result;
+            if (async)
+            {
+                result = subject.Count().SingleAsync().GetAwaiter().GetResult().Count;
+            }
+            else
+            {
+                result = subject.Count().Single().Count;
+            }
+
+            result.Should().Be(1);
         }
 
         [Theory]
