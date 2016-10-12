@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Tests.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -1019,6 +1022,448 @@ namespace MongoDB.Driver.Tests
         {
             Auto,
             Home
+        }
+    }
+
+    public class FieldDefinitionBuilderUInt32Tests
+    {
+        #region static
+        private static readonly IMongoCollection<DocumentWithUInt32Field> __collection;
+        private static readonly IMongoDatabase __database;
+        private static readonly Lazy<bool> __ensureTestData = new Lazy<bool>(CreateTestData);
+
+        static FieldDefinitionBuilderUInt32Tests()
+        {
+            var client = DriverTestConfiguration.Client;
+            __database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            __collection = __database.GetCollection<DocumentWithUInt32Field>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+        }
+
+        private static bool CreateTestData()
+        {
+            __database.DropCollection(__collection.CollectionNamespace.CollectionName);
+            __collection.InsertMany(new[]
+            {
+                new DocumentWithUInt32Field { Id = 1, X = 0U },
+                new DocumentWithUInt32Field { Id = 2, X = 1U },
+                new DocumentWithUInt32Field { Id = 3, X = 0x7fffffffU },
+                new DocumentWithUInt32Field { Id = 4, X = 0x80000000U },
+                new DocumentWithUInt32Field { Id = 5, X = 0x80000001U },
+                new DocumentWithUInt32Field { Id = 6, X = 0xfffffffeU },
+                new DocumentWithUInt32Field { Id = 7, X = 0xffffffffU }
+            });
+            return true;
+        }
+        #endregion
+
+        [SkippableTheory]
+        [InlineData(0U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 1 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 2147483647  } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000000U, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gt : -2147483648 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000001U, new[] { 6, 7 }, "{ $and : [ { X : { $gt : -2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 7 }, "{ $and : [ { X : { $gt : -2 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffU, new int[0], "{ $and : [ { X : { $gt : -1 } }, { X : { $lt : 0 } } ] }")]
+        public void Gt_UInt32(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Gt("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 1 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 2147483647  } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000000U, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gt : -2147483648 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000001U, new[] { 6, 7 }, "{ $and : [ { X : { $gt : -2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 7 }, "{ $and : [ { X : { $gt : -2 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffU, new int[0], "{ $and : [ { X : { $gt : -1 } }, { X : { $lt : 0 } } ] }")]
+        public void Gt_UInt32_typed(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Gt(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 1 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000000U, new[] { 4, 5, 6, 7 }, "{ $and : [ { X : { $gte : -2147483648 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000001U, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gte : -2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 6, 7 }, "{ $and : [ { X : { $gte : -2 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 7 }, "{ $and : [ { X : { $gte : -1 } }, { X : { $lt : 0 } } ] }")]
+        public void Gte_UInt32(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Gte("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 1 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000000U, new[] { 4, 5, 6, 7 }, "{ $and : [ { X : { $gte : -2147483648 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x80000001U, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gte : -2147483647 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 6, 7 }, "{ $and : [ { X : { $gte : -2 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 7 }, "{ $and : [ { X : { $gte : -1 } }, { X : { $lt : 0 } } ] }")]
+        public void Gte_UInt32_typed(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Gte(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 1 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 2147483647 } } ] }")]
+        [InlineData(0x80000000U, new[] { 1, 2, 3 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2147483648 } } ] }")]
+        [InlineData(0x80000001U, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2147483647 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -1 } } ] }")]
+        public void Lt_UInt32(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Lt("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1U, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 1 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 2147483647 } } ] }")]
+        [InlineData(0x80000000U, new[] { 1, 2, 3 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2147483648 } } ] }")]
+        [InlineData(0x80000001U, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2147483647 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -2 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : -1 } } ] }")]
+        public void Lt_UInt32_typed(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Lt(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new int[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 0 } } ] }")]
+        [InlineData(1U, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 1 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 2147483647 } } ] }")]
+        [InlineData(0x80000000U, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2147483648 } } ] }")]
+        [InlineData(0x80000001U, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2147483647 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -1 } } ] }")]
+        public void Lte_UInt32(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Lte("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0U, new int[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 0 } } ] }")]
+        [InlineData(1U, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 1 } } ] }")]
+        [InlineData(0x7fffffffU, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 2147483647 } } ] }")]
+        [InlineData(0x80000000U, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2147483648 } } ] }")]
+        [InlineData(0x80000001U, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2147483647 } } ] }")]
+        [InlineData(0xfffffffeU, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -2 } } ] }")]
+        [InlineData(0xffffffffU, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : -1 } } ] }")]
+        public void Lte_UInt32_typed(uint value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt32Field>.Filter.Lte(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        // private methods
+        private void EnsureTestData()
+        {
+            var _ = __ensureTestData.Value;
+        }
+
+        private BsonDocument Render(FilterDefinition<DocumentWithUInt32Field> filter)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var documentSerializer = serializerRegistry.GetSerializer<DocumentWithUInt32Field>();
+            return filter.Render(documentSerializer, serializerRegistry);
+        }
+
+        // nested types
+        private class DocumentWithUInt32Field
+        {
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.Int32, AllowOverflow = true)]
+            public uint X { get; set; }
+        }
+    }
+
+    public class FieldDefinitionBuilderUInt64Tests
+    {
+        #region static
+        private static readonly IMongoCollection<DocumentWithUInt64Field> __collection;
+        private static readonly IMongoDatabase __database;
+        private static readonly Lazy<bool> __ensureTestData = new Lazy<bool>(CreateTestData);
+
+        static FieldDefinitionBuilderUInt64Tests()
+        {
+            var client = DriverTestConfiguration.Client;
+            __database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            __collection = __database.GetCollection<DocumentWithUInt64Field>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+        }
+
+        private static bool CreateTestData()
+        {
+            __database.DropCollection(__collection.CollectionNamespace.CollectionName);
+            __collection.InsertMany(new[]
+            {
+                new DocumentWithUInt64Field { Id = 1, X = 0UL },
+                new DocumentWithUInt64Field { Id = 2, X = 1UL },
+                new DocumentWithUInt64Field { Id = 3, X = 0x7fffffffffffffffUL },
+                new DocumentWithUInt64Field { Id = 4, X = 0x8000000000000000UL },
+                new DocumentWithUInt64Field { Id = 5, X = 0x8000000000000001UL },
+                new DocumentWithUInt64Field { Id = 6, X = 0xfffffffffffffffeUL },
+                new DocumentWithUInt64Field { Id = 7, X = 0xffffffffffffffffUL }
+            });
+            return true;
+        }
+        #endregion
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1UL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gt : NumberLong(-9223372036854775808) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 6, 7 }, "{ $and : [ { X : { $gt : NumberLong(-9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 7 }, "{ $and : [ { X : { $gt : NumberLong(-2) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new int[0], "{ $and : [ { X : { $gt : NumberLong(-1) } }, { X : { $lt : 0 } } ] }")]
+        public void Gt_UInt64(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Gt("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1UL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gt : NumberLong(-9223372036854775808) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 6, 7 }, "{ $and : [ { X : { $gt : NumberLong(-9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 7 }, "{ $and : [ { X : { $gt : NumberLong(-2) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new int[0], "{ $and : [ { X : { $gt : NumberLong(-1) } }, { X : { $lt : 0 } } ] }")]
+        public void Gt_UInt64_typed(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Gt(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 4, 5, 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-9223372036854775808) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-2) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 7 }, "{ $and : [ { X : { $gte : NumberLong(-1) } }, { X : { $lt : 0 } } ] }")]
+        public void Gte_UInt64(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Gte("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(1UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 4, 5, 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-9223372036854775808) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 5, 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 6, 7 }, "{ $and : [ { X : { $gte : NumberLong(-2) } }, { X : { $lt : 0 } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 7 }, "{ $and : [ { X : { $gte : NumberLong(-1) } }, { X : { $lt : 0 } } ] }")]
+        public void Gte_UInt64_typed(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Gte(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(0) } } ] }")]
+        [InlineData(1UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(1) } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(9223372036854775807) } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 1, 2, 3 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-9223372036854775808) } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-9223372036854775807) } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-2) } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-1) } } ] }")]
+        public void Lt_UInt64(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Lt("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(0) } } ] }")]
+        [InlineData(1UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(1) } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(9223372036854775807) } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 1, 2, 3 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-9223372036854775808) } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-9223372036854775807) } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-2) } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(-1) } } ] }")]
+        public void Lt_UInt64_typed(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Lt(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(0) } } ] }")]
+        [InlineData(1UL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(1) } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(9223372036854775807) } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-9223372036854775808) } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-9223372036854775807) } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-2) } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-1) } } ] }")]
+        public void Lte_UInt64(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Lte("X", value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        [SkippableTheory]
+        [InlineData(0UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(0) } } ] }")]
+        [InlineData(1UL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(1) } } ] }")]
+        [InlineData(0x7fffffffffffffffUL, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(9223372036854775807) } } ] }")]
+        [InlineData(0x8000000000000000UL, new[] { 1, 2, 3, 4 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-9223372036854775808) } } ] }")]
+        [InlineData(0x8000000000000001UL, new[] { 1, 2, 3, 4, 5 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-9223372036854775807) } } ] }")]
+        [InlineData(0xfffffffffffffffeUL, new[] { 1, 2, 3, 4, 5, 6 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-2) } } ] }")]
+        [InlineData(0xffffffffffffffffUL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(-1) } } ] }")]
+        public void Lte_UInt64_typed(ulong value, int[] expectedIds, string expectedFilter)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var filter = Builders<DocumentWithUInt64Field>.Filter.Lte(d => d.X, value);
+
+            var renderedFilter = Render(filter);
+            var ids = __collection.Find(filter).ToList().Select(d => d.Id);
+
+            renderedFilter.Should().Be(expectedFilter);
+            ids.Should().Equal(expectedIds);
+        }
+
+        // private methods
+        private void EnsureTestData()
+        {
+            var _ = __ensureTestData.Value;
+        }
+
+        private BsonDocument Render(FilterDefinition<DocumentWithUInt64Field> filter)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var documentSerializer = serializerRegistry.GetSerializer<DocumentWithUInt64Field>();
+            return filter.Render(documentSerializer, serializerRegistry);
+        }
+
+        // nested types
+        private class DocumentWithUInt64Field
+        {
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.Int64, AllowOverflow = true)]
+            public ulong X { get; set; }
         }
     }
 }

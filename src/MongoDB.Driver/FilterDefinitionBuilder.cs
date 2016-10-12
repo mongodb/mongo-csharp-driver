@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -629,6 +629,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a greater than filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gt(FieldDefinition<TDocument, uint> field, uint value)
+        {
+            return new UInt32GreaterThanFilterDefinition<TDocument>("$gt", field, value);
+        }
+
+        /// <summary>
+        /// Creates a greater than filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gt(FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            return new UInt64GreaterThanFilterDefinition<TDocument>("$gt", field, value);
+        }
+
+        /// <summary>
         /// Creates a greater than filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -638,6 +662,30 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Gt<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
             return new OperatorFilterDefinition<TDocument, TField>("$gt", field, value);
+        }
+
+        /// <summary>
+        /// Creates a greater than filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gt(Expression<Func<TDocument, uint>> field, uint value)
+        {
+            return Gt(new ExpressionFieldDefinition<TDocument, uint>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a greater than filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gt(Expression<Func<TDocument, ulong>> field, ulong value)
+        {
+            return Gt(new ExpressionFieldDefinition<TDocument, ulong>(field), value);
         }
 
         /// <summary>
@@ -653,6 +701,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a greater than or equal filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gte(FieldDefinition<TDocument, uint> field, uint value)
+        {
+            return new UInt32GreaterThanFilterDefinition<TDocument>("$gte", field, value);
+        }
+
+        /// <summary>
+        /// Creates a greater than or equal filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gte(FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            return new UInt64GreaterThanFilterDefinition<TDocument>("$gte", field, value);
+        }
+
+        /// <summary>
         /// Creates a greater than or equal filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -662,6 +734,30 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Gte<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
             return new OperatorFilterDefinition<TDocument, TField>("$gte", field, value);
+        }
+
+        /// <summary>
+        /// Creates a greater than or equal filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gte(Expression<Func<TDocument, uint>> field, uint value)
+        {
+            return Gte(new ExpressionFieldDefinition<TDocument, uint>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a greater than or equal filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Gte(Expression<Func<TDocument, ulong>> field, ulong value)
+        {
+            return Gte(new ExpressionFieldDefinition<TDocument, ulong>(field), value);
         }
 
         /// <summary>
@@ -701,6 +797,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a less than filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lt(FieldDefinition<TDocument, uint> field, uint value)
+        {
+            return new UInt32LessThanFilterDefinition<TDocument>("$lt", field, value);
+        }
+
+        /// <summary>
+        /// Creates a less than filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lt(FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            return new UInt64LessThanFilterDefinition<TDocument>("$lt", field, value);
+        }
+
+        /// <summary>
         /// Creates a less than filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -710,6 +830,30 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Lt<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
             return new OperatorFilterDefinition<TDocument, TField>("$lt", field, value);
+        }
+
+        /// <summary>
+        /// Creates a less than filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lt(Expression<Func<TDocument, uint>> field, uint value)
+        {
+            return Lt(new ExpressionFieldDefinition<TDocument, uint>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a less than filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lt(Expression<Func<TDocument, ulong>> field, ulong value)
+        {
+            return Lt(new ExpressionFieldDefinition<TDocument, ulong>(field), value);
         }
 
         /// <summary>
@@ -725,6 +869,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a less than or equal filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lte(FieldDefinition<TDocument, uint> field, uint value)
+        {
+            return new UInt32LessThanFilterDefinition<TDocument>("$lte", field, value);
+        }
+
+        /// <summary>
+        /// Creates a less than or equal filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lte(FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            return new UInt64LessThanFilterDefinition<TDocument>("$lte", field, value);
+        }
+
+        /// <summary>
         /// Creates a less than or equal filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -734,6 +902,30 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Lte<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
             return new OperatorFilterDefinition<TDocument, TField>("$lte", field, value);
+        }
+
+        /// <summary>
+        /// Creates a less than or equal filter for a UInt32 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lte(Expression<Func<TDocument, uint>> field, uint value)
+        {
+            return Lte(new ExpressionFieldDefinition<TDocument, uint>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a less than or equal filter for a UInt64 field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        [CLSCompliant(false)]
+        public FilterDefinition<TDocument> Lte(Expression<Func<TDocument, ulong>> field, ulong value)
+        {
+            return Lte(new ExpressionFieldDefinition<TDocument, ulong>(field), value);
         }
 
         /// <summary>
@@ -2080,6 +2272,214 @@ namespace MongoDB.Driver
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
             var fieldName = renderedField.FieldName + "." + _index;
             return new BsonDocument(fieldName, new BsonDocument("$exists", _exists));
+        }
+    }
+
+    internal sealed class UInt32GreaterThanFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument, uint> _field;
+        private readonly uint _value;
+
+        public UInt32GreaterThanFilterDefinition(string operatorName, FieldDefinition<TDocument, uint> field, uint value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+
+            if (serializedValue.BsonType != BsonType.Int32)
+            {
+                return new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue));
+            }
+
+            if (serializedValue.AsInt32 >= 0)
+            {
+                return new BsonDocument
+                {
+                    { "$or",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$lt", 0))
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return new BsonDocument
+                {
+                    { "$and",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$lt", 0))
+                        }
+                    }
+                };
+            }
+        }
+    }
+
+    internal sealed class UInt32LessThanFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument, uint> _field;
+        private readonly uint _value;
+
+        public UInt32LessThanFilterDefinition(string operatorName, FieldDefinition<TDocument, uint> field, uint value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+
+            if (serializedValue.BsonType != BsonType.Int32)
+            {
+                return new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue));
+            }
+
+            if (serializedValue.AsInt32 >= 0)
+            {
+                return new BsonDocument
+                {
+                    { "$and",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$gte", 0)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue))
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return new BsonDocument
+                {
+                    { "$or",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$gte", 0)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue))
+                        }
+                    }
+                };
+            }
+        }
+    }
+
+    internal sealed class UInt64GreaterThanFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument, ulong> _field;
+        private readonly ulong _value;
+
+        public UInt64GreaterThanFilterDefinition(string operatorName, FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+
+            if (serializedValue.BsonType != BsonType.Int64)
+            {
+                return new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue));
+            }
+
+            if (serializedValue.AsInt64 >= 0)
+            {
+                return new BsonDocument
+                {
+                    { "$or",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$lt", 0))
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return new BsonDocument
+                {
+                    { "$and",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$lt", 0))
+                        }
+                    }
+                };
+            }
+        }
+    }
+
+    internal sealed class UInt64LessThanFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument, ulong> _field;
+        private readonly ulong _value;
+
+        public UInt64LessThanFilterDefinition(string operatorName, FieldDefinition<TDocument, ulong> field, ulong value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+
+            if (serializedValue.BsonType != BsonType.Int64)
+            {
+                return new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue));
+            }
+
+            if (serializedValue.AsInt64 >= 0)
+            {
+                return new BsonDocument
+                {
+                    { "$and",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$gte", 0)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue))
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return new BsonDocument
+                {
+                    { "$or",
+                        new BsonArray
+                        {
+                            new BsonDocument(renderedField.FieldName, new BsonDocument("$gte", 0)),
+                            new BsonDocument(renderedField.FieldName, new BsonDocument(_operatorName, serializedValue))
+                        }
+                    }
+                };
+            }
         }
     }
 }
