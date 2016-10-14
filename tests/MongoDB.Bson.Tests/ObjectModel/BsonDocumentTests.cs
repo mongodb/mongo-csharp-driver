@@ -1373,6 +1373,30 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(1, value.AsInt32);
         }
 
+        [Fact]
+        public void TestTryParse_success()
+        {
+            var s = "{ x : 1 }";
+            BsonDocument result;
+
+            var success = BsonDocument.TryParse(s, out result);
+
+            success.Should().BeTrue();
+            result.Should().Be(new BsonDocument("x", 1));
+        }
+
+        [Fact]
+        public void TestTryParse_failure()
+        {
+            var s = "{ ...";
+            BsonDocument result;
+
+            var success = BsonDocument.TryParse(s, out result);
+
+            success.Should().BeFalse();
+            result.Should().BeNull();
+        }
+
         private void AssertAreEqual(string expected, byte[] actual)
         {
             StringBuilder sb = new StringBuilder();

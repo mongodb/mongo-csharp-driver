@@ -386,6 +386,26 @@ namespace MongoDB.Bson
             }
         }
 
+        /// <summary>
+        /// Tries to parse a JSON string and returns a value indicating whether it succeeded or failed.
+        /// </summary>
+        /// <param name="s">The JSON string.</param>
+        /// <param name="result">The result.</param>
+        /// <returns>Whether it succeeded or failed.</returns>
+        public static bool TryParse(string s, out BsonDocument result)
+        {
+            try
+            {
+                result = Parse(s);
+                return true;
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
+
         // public methods
         /// <summary>
         /// Adds an element to the document.
