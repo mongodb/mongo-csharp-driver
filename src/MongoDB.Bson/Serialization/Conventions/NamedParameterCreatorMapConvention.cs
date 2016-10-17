@@ -45,8 +45,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                             var argument = FindMatchingArgument(creatorMap.ClassMap.ClassType, parameter);
                             if (argument == null)
                             {
-                                var message = string.Format("Unable to find a matching member to provide the value for parameter '{0}'.", parameter.Name);
-                                throw new BsonException(message);
+                                return;
                             }
                             arguments.Add(argument);
                         }
