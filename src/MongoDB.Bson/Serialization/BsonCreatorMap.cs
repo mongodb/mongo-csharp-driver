@@ -122,7 +122,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     if (_arguments.Count != expectedArgumentsCount)
                     {
-                        throw new BsonSerializationException("Creator map must have the right number of arguments configured.");
+                        throw new BsonSerializationException($"Creator map for class {_classMap.ClassType.FullName} has {expectedArgumentsCount} arguments, not {_arguments.Count}.");
                     }
 
                     foreach (var argument in _arguments)
@@ -144,7 +144,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     if (expectedArgumentsCount != 0)
                     {
-                        throw new BsonSerializationException("Creator map must have arguments configured.");
+                        throw new BsonSerializationException($"Creator map for class {_classMap.ClassType.FullName} has {expectedArgumentsCount} arguments, but none are configured.");
                     }
                 }
 
@@ -182,7 +182,7 @@ namespace MongoDB.Bson.Serialization
             var expectedArgumentsCount = GetExpectedArgumentsCount();
             if (argumentsList.Count != expectedArgumentsCount)
             {
-                throw new ArgumentException("Wrong number of arguments provided", nameof(arguments));
+                throw new ArgumentException($"Creator map for class {_classMap.ClassType.FullName} has {expectedArgumentsCount} arguments, not {argumentsList.Count}.", nameof(arguments));
             }
 
             _arguments = argumentsList;

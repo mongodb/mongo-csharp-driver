@@ -157,6 +157,7 @@
     <Compile Include="Serialization\Conventions\MemberNameElementNameConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\NamedIdConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\NamedParameterCreatorMapConventionTests.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\StandardDiscriminatorConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />

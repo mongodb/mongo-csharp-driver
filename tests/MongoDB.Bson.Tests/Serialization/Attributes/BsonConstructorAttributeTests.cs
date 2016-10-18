@@ -26,7 +26,72 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Attributes
 {
-    public class BsonConstructorWithNoNamesProvidedTests
+    public class BsonConstructorAttributeWhenArgumentNamesProvidedTests
+    {
+        [Fact]
+        public void constructor_with_int_should_be_mapped_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(C));
+
+            var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int) });
+            var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
+            creatorMap.Should().NotBeNull();
+            var expectedArguments = new[]
+            {
+                typeof(C).GetTypeInfo().GetProperty("X")
+            };
+            creatorMap.Arguments.Should().Equal(expectedArguments);
+        }
+
+        [Fact]
+        public void constructor_with_int_and_string_should_be_mapped_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(C));
+
+            var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int), typeof(string) });
+            var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
+            creatorMap.Should().NotBeNull();
+            var expectedArguments = new[]
+            {
+                typeof(C).GetTypeInfo().GetProperty("X"),
+                typeof(C).GetTypeInfo().GetProperty("Y")
+            };
+            creatorMap.Arguments.Should().Equal(expectedArguments);
+        }
+
+        [Fact]
+        public void constructor_with_string_should_be_mapped_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(C));
+
+            var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(string) });
+            var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
+            creatorMap.Should().NotBeNull();
+            var expectedArguments = new[]
+            {
+                typeof(C).GetTypeInfo().GetProperty("Y")
+            };
+            creatorMap.Arguments.Should().Equal(expectedArguments);
+        }
+
+        // nested types
+        private class C
+        {
+            [BsonConstructor("X")]
+            public C(int a) { }
+
+            [BsonConstructor("Y")]
+            public C(string b) { }
+
+            [BsonConstructor("X", "Y")]
+            public C(int a, string b) { }
+
+            public int X { get; private set; }
+            public string Y { get; private set; }
+        }
+    }
+
+    public class BsonConstructorAttributeWhenArgumentNamesNotProvidedTests
     {
         [Fact]
         public void constructor_with_int_should_be_mapped_correctly()
@@ -91,7 +156,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         }
     }
 
-    public class BsonConstructorAttributeWhenArgumentNameDoesNotExistTests
+    public class BsonConstructorAttributeWhenArgumentNameDoesNotMatchAnyMemberTests
     {
         [Fact]
         public void Apply_should_throw()
@@ -113,7 +178,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         }
     }
 
-    public class BsonConstructorAttributeWhenParameterNameDoesNotExistTests
+    public class BsonConstructorAttributeWhenArgumentNamesNotProvidedAndConstructorParameterNameDoesNotMatchAnyMemberTests
     {
         [Fact]
         public void Apply_should_throw()
@@ -135,7 +200,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         }
     }
 
-    public class BsonConstructorAttributeWhenArgumentsCountIsWrongTests
+    public class BsonConstructorAttributeWhenArgumentNamesCountIsWrongTests
     {
         [Fact]
         public void Apply_should_throw()
