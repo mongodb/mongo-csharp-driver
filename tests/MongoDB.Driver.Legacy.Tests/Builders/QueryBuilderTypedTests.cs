@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -654,48 +654,48 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNear()
         {
-            var query = Query<A>.Near(a => a.S, 1.1, 2.2);
-            var expected = "{ \"s\" : { \"$near\" : [1.1, 2.2] } }";
+            var query = Query<A>.Near(a => a.S, 1.5, 2.5);
+            var expected = "{ \"s\" : { \"$near\" : [1.5, 2.5] } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestNear_Not()
         {
-            var query = Query.Not(Query<A>.Near(a => a.S, 1.1, 2.2));
-            var expected = "{ \"s\" : { \"$not\" : { \"$near\" : [1.1, 2.2] } } }";
+            var query = Query.Not(Query<A>.Near(a => a.S, 1.5, 2.5));
+            var expected = "{ \"s\" : { \"$not\" : { \"$near\" : [1.5, 2.5] } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestNearWithMaxDistance()
         {
-            var query = Query<A>.Near(a => a.S, 1.1, 2.2, 3.3);
-            var expected = "{ \"s\" : { \"$near\" : [1.1, 2.2], \"$maxDistance\" : 3.3 } }";
+            var query = Query<A>.Near(a => a.S, 1.5, 2.5, 3.5);
+            var expected = "{ \"s\" : { \"$near\" : [1.5, 2.5], \"$maxDistance\" : 3.5 } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestNearWithMaxDistance_Not()
         {
-            var query = Query.Not(Query<A>.Near(a => a.S, 1.1, 2.2, 3.3));
-            var expected = "{ \"$nor\" : [{ \"s\" : { \"$near\" : [1.1, 2.2], \"$maxDistance\" : 3.3 } }] }";
+            var query = Query.Not(Query<A>.Near(a => a.S, 1.5, 2.5, 3.5));
+            var expected = "{ \"$nor\" : [{ \"s\" : { \"$near\" : [1.5, 2.5], \"$maxDistance\" : 3.5 } }] }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestNearWithSphericalTrue()
         {
-            var query = Query.Not(Query<A>.Near(a => a.S, 1.1, 2.2, 3.3, true));
-            var expected = "{ \"$nor\" : [{ \"s\" : { \"$nearSphere\" : [1.1, 2.2], \"$maxDistance\" : 3.3 } }] }";
+            var query = Query.Not(Query<A>.Near(a => a.S, 1.5, 2.5, 3.5, true));
+            var expected = "{ \"$nor\" : [{ \"s\" : { \"$nearSphere\" : [1.5, 2.5], \"$maxDistance\" : 3.5 } }] }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestNearWithSphericalTrue_Not()
         {
-            var query = Query.Not(Query<A>.Near(a => a.S, 1.1, 2.2, 3.3, true));
-            var expected = "{ \"$nor\" : [{ \"s\" : { \"$nearSphere\" : [1.1, 2.2], \"$maxDistance\" : 3.3 } }] }";
+            var query = Query.Not(Query<A>.Near(a => a.S, 1.5, 2.5, 3.5, true));
+            var expected = "{ \"$nor\" : [{ \"s\" : { \"$nearSphere\" : [1.5, 2.5], \"$maxDistance\" : 3.5 } }] }";
             Assert.Equal(expected, query.ToJson());
         }
 
@@ -1024,66 +1024,66 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestWithinCircle()
         {
-            var query = Query<A>.WithinCircle(a => a.X, 1.1, 2.2, 3.3);
-            var expected = "{ \"x\" : { \"$within\" : { \"$center\" : [[1.1, 2.2], 3.3] } } }";
+            var query = Query<A>.WithinCircle(a => a.X, 1.5, 2.5, 3.5);
+            var expected = "{ \"x\" : { \"$within\" : { \"$center\" : [[1.5, 2.5], 3.5] } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinCircle_Not()
         {
-            var query = Query.Not(Query<A>.WithinCircle(a => a.X, 1.1, 2.2, 3.3));
-            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$center\" : [[1.1, 2.2], 3.3] } } } }";
+            var query = Query.Not(Query<A>.WithinCircle(a => a.X, 1.5, 2.5, 3.5));
+            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$center\" : [[1.5, 2.5], 3.5] } } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinCircleSpherical()
         {
-            var query = Query<A>.WithinCircle(a => a.X, 1.1, 2.2, 3.3, true);
-            var expected = "{ \"x\" : { \"$within\" : { \"$centerSphere\" : [[1.1, 2.2], 3.3] } } }";
+            var query = Query<A>.WithinCircle(a => a.X, 1.5, 2.5, 3.5, true);
+            var expected = "{ \"x\" : { \"$within\" : { \"$centerSphere\" : [[1.5, 2.5], 3.5] } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinCircleSpherical_Not()
         {
-            var query = Query.Not(Query<A>.WithinCircle(a => a.X, 1.1, 2.2, 3.3, true));
-            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$centerSphere\" : [[1.1, 2.2], 3.3] } } } }";
+            var query = Query.Not(Query<A>.WithinCircle(a => a.X, 1.5, 2.5, 3.5, true));
+            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$centerSphere\" : [[1.5, 2.5], 3.5] } } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinPolygon()
         {
-            var points = new double[,] { { 1.1, 2.2 }, { 3.3, 4.4 } };
+            var points = new double[,] { { 1.5, 2.5 }, { 3.5, 4.5 } };
             var query = Query<A>.WithinPolygon(a => a.X, points);
-            var expected = "{ \"x\" : { \"$within\" : { \"$polygon\" : [[1.1, 2.2], [3.3, 4.4]] } } }";
+            var expected = "{ \"x\" : { \"$within\" : { \"$polygon\" : [[1.5, 2.5], [3.5, 4.5]] } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinPolygon_Not()
         {
-            var points = new double[,] { { 1.1, 2.2 }, { 3.3, 4.4 } };
+            var points = new double[,] { { 1.5, 2.5 }, { 3.5, 4.5 } };
             var query = Query.Not(Query<A>.WithinPolygon(a => a.X, points));
-            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$polygon\" : [[1.1, 2.2], [3.3, 4.4]] } } } }";
+            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$polygon\" : [[1.5, 2.5], [3.5, 4.5]] } } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinRectangle()
         {
-            var query = Query<A>.WithinRectangle(a => a.X, 1.1, 2.2, 3.3, 4.4);
-            var expected = "{ \"x\" : { \"$within\" : { \"$box\" : [[1.1, 2.2], [3.3, 4.4]] } } }";
+            var query = Query<A>.WithinRectangle(a => a.X, 1.5, 2.5, 3.5, 4.5);
+            var expected = "{ \"x\" : { \"$within\" : { \"$box\" : [[1.5, 2.5], [3.5, 4.5]] } } }";
             Assert.Equal(expected, query.ToJson());
         }
 
         [Fact]
         public void TestWithinRectangle_Not()
         {
-            var query = Query.Not(Query<A>.WithinRectangle(a => a.X, 1.1, 2.2, 3.3, 4.4));
-            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$box\" : [[1.1, 2.2], [3.3, 4.4]] } } } }";
+            var query = Query.Not(Query<A>.WithinRectangle(a => a.X, 1.5, 2.5, 3.5, 4.5));
+            var expected = "{ \"x\" : { \"$not\" : { \"$within\" : { \"$box\" : [[1.5, 2.5], [3.5, 4.5]] } } } }";
             Assert.Equal(expected, query.ToJson());
         }
     }

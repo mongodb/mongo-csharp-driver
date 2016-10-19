@@ -178,25 +178,25 @@ namespace MongoDB.Bson.Tests.IO
             var tests = new TestData<double>[]
             {
                 new TestData<double>(0.0, "0.0"),
-                new TestData<double>(0.0005, "0.0005"),
+                new TestData<double>(0.0005, "0.00050000000000000001"),
                 new TestData<double>(0.5, "0.5"),
                 new TestData<double>(1.0, "1.0"),
                 new TestData<double>(1.5, "1.5"),
-                new TestData<double>(1.5E+40, "1.5E+40"),
-                new TestData<double>(1.5E-40, "1.5E-40"),
+                new TestData<double>(1.5E+40, "1.5000000000000001E+40"),
+                new TestData<double>(1.5E-40, "1.5000000000000001E-40"),
                 new TestData<double>(1234567890.1234568E+123, "1.2345678901234568E+132"),
-                new TestData<double>(double.Epsilon, "4.94065645841247E-324"),
+                new TestData<double>(double.Epsilon, "4.9406564584124654E-324"),
                 new TestData<double>(double.MaxValue, "1.7976931348623157E+308"),
                 new TestData<double>(double.MinValue, "-1.7976931348623157E+308"),
 
-                new TestData<double>(-0.0005, "-0.0005"),
+                new TestData<double>(-0.0005, "-0.00050000000000000001"),
                 new TestData<double>(-0.5, "-0.5"),
                 new TestData<double>(-1.0, "-1.0"),
                 new TestData<double>(-1.5, "-1.5"),
-                new TestData<double>(-1.5E+40, "-1.5E+40"),
-                new TestData<double>(-1.5E-40, "-1.5E-40"),
+                new TestData<double>(-1.5E+40, "-1.5000000000000001E+40"),
+                new TestData<double>(-1.5E-40, "-1.5000000000000001E-40"),
                 new TestData<double>(-1234567890.1234568E+123, "-1.2345678901234568E+132"),
-                new TestData<double>(-double.Epsilon, "-4.94065645841247E-324"),
+                new TestData<double>(-double.Epsilon, "-4.9406564584124654E-324"),
 
                 new TestData<double>(double.NaN, "NaN"),
                 new TestData<double>(double.NegativeInfinity, "-Infinity"),
@@ -208,6 +208,18 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<double>(json));
             }
+        }
+
+        [SkippableFact]
+        public void TestDoubleRoundTripOn64BitProcess()
+        {
+            RequireProcess.Check().Bits(64);
+            var value = 0.6822871999174; // see: https://msdn.microsoft.com/en-us/library/dwhawy9k(v=vs.110).aspx#RFormatString
+
+            var json = value.ToJson();
+            var rehydrated = BsonSerializer.Deserialize<double>(json);
+
+            rehydrated.Should().Be(value);
         }
 
         [Fact]

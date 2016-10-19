@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -34,7 +35,7 @@ namespace MongoDB.Bson.Tests.Serialization
     {
         public static void TestValue(long ticks, double value)
         {
-            var jsonValue = value.ToString("R", NumberFormatInfo.InvariantInfo);
+            var jsonValue = JsonConvert.ToString(value);
             if (Regex.IsMatch(jsonValue, @"^-?\d+$")) { jsonValue += ".0"; } // if string looks like an integer add ".0" to match JsonWriter format
             TestValue(ticks, jsonValue);
         }
@@ -203,10 +204,10 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(0.0, "0.0")]
         [InlineData(100.0, "100.0")] // 1 Tick
         [InlineData(1100.0, "1100.0")] // only multiples of 100 can be round tripped
-        [InlineData(92233720368547700.0, "9.22337203685477E+16")] // almost Int64.MaxValue
+        [InlineData(92233720368547700.0, "92233720368547696.0")] // almost Int64.MaxValue
         [InlineData(-100.0, "-100.0")]
         [InlineData(-1100.0, "-1100.0")]
-        [InlineData(-92233720368547700.0, "-9.22337203685477E+16")] // almost Int64.MinValue
+        [InlineData(-92233720368547700.0, "-92233720368547696.0")] // almost Int64.MinValue
         public void TestNanoseconds(double nanoseconds, string jsonValue)
         {
             var ticks = (long)(nanoseconds / __nanosecondsPerTick);

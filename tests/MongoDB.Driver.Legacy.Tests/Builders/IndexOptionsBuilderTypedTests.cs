@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestGeoSpatialRange()
         {
-            var options = IndexOptions<TestClass>.SetGeoSpatialRange(1.1, 2.2);
-            string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
+            var options = IndexOptions<TestClass>.SetGeoSpatialRange(1.5, 2.5);
+            string expected = "{ \"min\" : 1.5, \"max\" : 2.5 }";
             Assert.Equal(expected, options.ToJson());
         }
 
@@ -121,8 +121,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNameGeoSpatialRange()
         {
-            var options = IndexOptions<TestClass>.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
-            string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
+            var options = IndexOptions<TestClass>.SetName("custom").SetGeoSpatialRange(1.5, 2.5);
+            string expected = "{ \"name\" : \"custom\", \"min\" : 1.5, \"max\" : 2.5 }";
             Assert.Equal(expected, options.ToJson());
         }
 

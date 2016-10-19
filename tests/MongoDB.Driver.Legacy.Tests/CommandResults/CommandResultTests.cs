@@ -129,9 +129,9 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Fact]
         public void TestErrorMessageNotString()
         {
-            var document = new BsonDocument("errmsg", 3.14159);
+            var document = new BsonDocument("errmsg", 123);
             var result = new CommandResult(document);
-            Assert.Equal("3.14159", result.ErrorMessage);
+            Assert.Equal("123", result.ErrorMessage);
         }
 
         [Fact]

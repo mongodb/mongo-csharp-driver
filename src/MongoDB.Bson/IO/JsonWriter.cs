@@ -241,7 +241,7 @@ namespace MongoDB.Bson.IO
             }
 
             // if string representation looks like an integer add ".0" so that it looks like a double
-            var stringRepresentation = value.ToString("R", NumberFormatInfo.InvariantInfo);
+            var stringRepresentation = JsonConvert.ToString(value);
             if (Regex.IsMatch(stringRepresentation, @"^[+-]?\d+$"))
             {
                 stringRepresentation += ".0";

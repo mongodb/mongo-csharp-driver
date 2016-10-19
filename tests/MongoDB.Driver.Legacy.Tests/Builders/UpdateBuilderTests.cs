@@ -389,8 +389,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestIncDouble()
         {
-            var update = Update.Inc("name", 1.1);
-            var expected = "{ \"$inc\" : { \"name\" : 1.1 } }";
+            var update = Update.Inc("name", 1.5);
+            var expected = "{ \"$inc\" : { \"name\" : 1.5 } }";
             Assert.Equal(expected, update.ToJson());
         }
 
@@ -469,16 +469,16 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestMulDouble()
         {
-            var update = Update.Mul("name", 1.1);
-            var expected = "{ \"$mul\" : { \"name\" : 1.1 } }";
+            var update = Update.Mul("name", 1.5);
+            var expected = "{ \"$mul\" : { \"name\" : 1.5 } }";
             Assert.Equal(expected, update.ToJson());
         }
 
         [Fact]
         public void TestMulDouble_Typed()
         {
-            var update = Update<Test>.Mul(x => x.XD, 1.1);
-            var expected = "{ \"$mul\" : { \"xd\" : 1.1 } }";
+            var update = Update<Test>.Mul(x => x.XD, 1.5);
+            var expected = "{ \"$mul\" : { \"xd\" : 1.5 } }";
             Assert.Equal(expected, update.ToJson());
         }
 
@@ -945,8 +945,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestIncDoubleTwice()
         {
-            var update = Update.Inc("x", 1.1).Inc("y", 2.2);
-            var expected = "{ \"$inc\" : { \"x\" : 1.1, \"y\" : 2.2 } }";
+            var update = Update.Inc("x", 1.5).Inc("y", 2.5);
+            var expected = "{ \"$inc\" : { \"x\" : 1.5, \"y\" : 2.5 } }";
             Assert.Equal(expected, update.ToJson());
         }
 
@@ -1059,8 +1059,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestSetThenIncDouble()
         {
-            var update = Update.Set("x", 1).Inc("name", 1.1);
-            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1.1 } }";
+            var update = Update.Set("x", 1).Inc("name", 1.5);
+            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1.5 } }";
             Assert.Equal(expected, update.ToJson());
         }
 

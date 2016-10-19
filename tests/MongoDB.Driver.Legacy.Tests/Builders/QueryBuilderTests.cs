@@ -819,8 +819,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestWithinCircle()
         {
-            var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3);
-            var selector = "{ '$within' : { '$center' : [[1.1, 2.2], 3.3] } }";
+            var query = Query.WithinCircle("loc", 1.5, 2.5, 3.5);
+            var selector = "{ '$within' : { '$center' : [[1.5, 2.5], 3.5] } }";
             Assert.Equal(PositiveTest("loc", selector), query.ToJson());
             Assert.Equal(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
@@ -828,8 +828,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestWithinCircleSpherical()
         {
-            var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3, true);
-            var selector = "{ '$within' : { '$centerSphere' : [[1.1, 2.2], 3.3] } }";
+            var query = Query.WithinCircle("loc", 1.5, 2.5, 3.5, true);
+            var selector = "{ '$within' : { '$centerSphere' : [[1.5, 2.5], 3.5] } }";
             Assert.Equal(PositiveTest("loc", selector), query.ToJson());
             Assert.Equal(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
@@ -837,9 +837,9 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestWithinPolygon()
         {
-            var points = new double[,] { { 1.1, 2.2 }, { 3.3, 4.4 } };
+            var points = new double[,] { { 1.5, 2.5 }, { 3.5, 4.5 } };
             var query = Query.WithinPolygon("loc", points);
-            var selector = "{ '$within' : { '$polygon' : [[1.1, 2.2], [3.3, 4.4]] } }";
+            var selector = "{ '$within' : { '$polygon' : [[1.5, 2.5], [3.5, 4.5]] } }";
             Assert.Equal(PositiveTest("loc", selector), query.ToJson());
             Assert.Equal(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
@@ -854,8 +854,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestWithinRectangle()
         {
-            var query = Query.WithinRectangle("loc", 1.1, 2.2, 3.3, 4.4);
-            var selector = "{ '$within' : { '$box' : [[1.1, 2.2], [3.3, 4.4]] } }";
+            var query = Query.WithinRectangle("loc", 1.5, 2.5, 3.5, 4.5);
+            var selector = "{ '$within' : { '$box' : [[1.5, 2.5], [3.5, 4.5]] } }";
             Assert.Equal(PositiveTest("loc", selector), query.ToJson());
             Assert.Equal(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
@@ -878,8 +878,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNear()
         {
-            var query = Query.Near("loc", 1.1, 2.2);
-            var selector = "{ '$near' : [1.1, 2.2] }";
+            var query = Query.Near("loc", 1.5, 2.5);
+            var selector = "{ '$near' : [1.5, 2.5] }";
             Assert.Equal(PositiveTest("loc", selector), query.ToJson());
 
             var collection = LegacyTestConfiguration.Collection;
@@ -898,8 +898,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNearWithMaxDistance()
         {
-            var query = Query.Near("loc", 1.1, 2.2, 3.3);
-            var expected = "{ 'loc' : { '$near' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
+            var query = Query.Near("loc", 1.5, 2.5, 3.5);
+            var expected = "{ 'loc' : { '$near' : [1.5, 2.5], '$maxDistance' : 3.5 } }".Replace("'", "\"");
             Assert.Equal(expected, query.ToJson());
 
             var collection = LegacyTestConfiguration.Collection;
@@ -917,8 +917,8 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNearWithSphericalTrue()
         {
-            var query = Query.Near("loc", 1.1, 2.2, 3.3, true);
-            var expected = "{ 'loc' : { '$nearSphere' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
+            var query = Query.Near("loc", 1.5, 2.5, 3.5, true);
+            var expected = "{ 'loc' : { '$nearSphere' : [1.5, 2.5], '$maxDistance' : 3.5 } }".Replace("'", "\"");
             Assert.Equal(expected, query.ToJson());
 
             var collection = LegacyTestConfiguration.Collection;

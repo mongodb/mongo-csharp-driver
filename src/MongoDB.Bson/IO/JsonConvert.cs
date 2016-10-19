@@ -187,7 +187,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A string.</returns>
         public static string ToString(double value)
         {
-            return value.ToString("R", NumberFormatInfo.InvariantInfo);
+            return value.ToString("G17", NumberFormatInfo.InvariantInfo);
         }
 
         /// <summary>

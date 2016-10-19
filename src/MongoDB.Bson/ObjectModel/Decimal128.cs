@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
@@ -1414,7 +1415,7 @@ namespace MongoDB.Bson
         public Decimal128(double value)
         {
             // TODO: implement this more efficiently
-            var stringValue = value.ToString("G17");
+            var stringValue = JsonConvert.ToString(value);
             var decimal128Value = Decimal128.Parse(stringValue);
             _highBits = MapIEEEHighBitsToDecimal128HighBits(decimal128Value.GetIEEEHighBits());
             _lowBits = decimal128Value.GetIEEELowBits();
@@ -1428,7 +1429,7 @@ namespace MongoDB.Bson
         public Decimal128(float value)
         {
             // TODO: implement this more efficiently
-            var stringValue = value.ToString("G17");
+            var stringValue = JsonConvert.ToString(value);
             var decimal128Value = Decimal128.Parse(stringValue);
             _highBits = MapIEEEHighBitsToDecimal128HighBits(decimal128Value.GetIEEEHighBits());
             _lowBits = decimal128Value.GetIEEELowBits();

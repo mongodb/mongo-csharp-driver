@@ -50,17 +50,17 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
                     ),
                     // holes
                     GeoJson.LinearRingCoordinates(
-                        GeoJson.Position(100.2, 0.2),
-                        GeoJson.Position(100.8, 0.2),
-                        GeoJson.Position(100.8, 0.8),
-                        GeoJson.Position(100.2, 0.8),
-                        GeoJson.Position(100.2, 0.2)
+                        GeoJson.Position(100.25, 0.25),
+                        GeoJson.Position(100.75, 0.25),
+                        GeoJson.Position(100.75, 0.75),
+                        GeoJson.Position(100.25, 0.75),
+                        GeoJson.Position(100.25, 0.25)
                     )
                 )
             );
 
             var exterior = "[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]";
-            var hole = "[[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]";
+            var hole = "[[100.25, 0.25], [100.75, 0.25], [100.75, 0.75], [100.25, 0.75], [100.25, 0.25]]";
             var expected = "{ 'type' : 'Polygon', 'coordinates' : [#exterior, #hole] }".Replace("#exterior", exterior).Replace("#hole", hole).Replace("'", "\"");
             TestRoundTrip(expected, polygon);
         }
