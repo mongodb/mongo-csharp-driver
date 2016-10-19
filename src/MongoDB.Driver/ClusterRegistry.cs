@@ -35,13 +35,19 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a registry of already created clusters.
     /// </summary>
-    internal class ClusterRegistry
+    public class ClusterRegistry
     {
         #region static
         // static fields
         private static readonly ClusterRegistry __instance = new ClusterRegistry();
 
         // static properties
+        /// <summary>
+        /// Gets the default cluster registry.
+        /// </summary>
+        /// <value>
+        /// The default cluster registry.
+        /// </value>
         public static ClusterRegistry Instance
         {
             get { return __instance; }
@@ -155,7 +161,7 @@ namespace MongoDB.Driver
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        public ICluster GetOrCreateCluster(ClusterKey clusterKey)
+        internal ICluster GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
@@ -177,6 +183,35 @@ namespace MongoDB.Driver
         )
         {
             return true;
+        }
+
+        /// <summary>
+        /// Unregisters and disposes the cluster.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        public void UnregisterAndDisposeCluster(ICluster cluster)
+        {
+            Ensure.IsNotNull(cluster, nameof(cluster));
+
+            lock (_lock)
+            {
+                ClusterKey clusterKey = null;
+                foreach (var keyValuePair in _registry)
+                {
+                    if (object.ReferenceEquals(keyValuePair.Value, cluster))
+                    {
+                        clusterKey = keyValuePair.Key;
+                        break;
+                    }
+                }
+
+                if (clusterKey != null)
+                {
+                    _registry.Remove(clusterKey);
+                }
+            }
+
+            cluster.Dispose();
         }
     }
 }

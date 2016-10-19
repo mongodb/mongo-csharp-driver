@@ -34,4 +34,6 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.Tests")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.Tests.Dotnet")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Tests.Dotnet")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

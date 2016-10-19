@@ -14,8 +14,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
@@ -23,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -126,6 +129,36 @@ namespace MongoDB.Driver.Tests
             {
                 cluster2.Should().BeSameAs(cluster1);
             }
+        }
+
+        [Fact]
+        public void UnregisterAndDisposeCluster_should_unregister_and_dispose_the_cluster()
+        {
+            var subject = new ClusterRegistry();
+            var settings = new MongoClientSettings();
+            var clusterKey = settings.ToClusterKey();
+            var cluster = subject.GetOrCreateCluster(clusterKey);
+
+            subject.UnregisterAndDisposeCluster(cluster);
+
+            subject._registry().Count.Should().Be(0);
+            cluster._state().Should().Be(2);
+        }
+    }
+
+    internal static class ClusterRegistryTestsReflector
+    {
+        public static Dictionary<ClusterKey, ICluster> _registry(this ClusterRegistry clusterRegistry)
+        {
+            var fieldInfo = typeof(ClusterRegistry).GetField("_registry", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (Dictionary<ClusterKey, ICluster>)fieldInfo.GetValue(clusterRegistry);
+        }
+
+        public static int _state(this ICluster cluster)
+        {
+            var fieldInfo = typeof(SingleServerCluster).GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance);
+            var interlockedInt32 = (InterlockedInt32)fieldInfo.GetValue(cluster);
+            return interlockedInt32.Value;
         }
     }
 }
