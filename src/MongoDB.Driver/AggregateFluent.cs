@@ -197,6 +197,21 @@ namespace MongoDB.Driver
             return AppendStage<TNewResult>(stage);
         }
 
+        public override IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
+        {
+            const string operatorName = "$replaceRoot";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var document = new BsonDocument(operatorName, new BsonDocument("newRoot", newRoot.Render(s, sr)));
+                    var outputSerializer = sr.GetSerializer<TNewResult>();
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, document, outputSerializer);
+                });
+
+            return AppendStage(stage);
+        }
+
         public override IAggregateFluent<TResult> Skip(int skip)
         {
             return AppendStage<TResult>(new BsonDocument("$skip", skip));

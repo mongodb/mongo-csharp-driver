@@ -192,6 +192,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $replaceRoot stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> ReplaceRoot<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TNewResult>> newRoot)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(newRoot, nameof(newRoot));
+
+            return aggregate.ReplaceRoot<TNewResult>(new ExpressionAggregateExpressionDefinition<TResult, TNewResult>(newRoot, aggregate.Options.TranslationOptions));
+        }
+
+        /// <summary>
         /// Appends an ascending sort stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

@@ -77,6 +77,12 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Skip(int skip);
 
         /// <inheritdoc />

@@ -231,6 +231,28 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedProject);
         }
 
+        [Fact]
+        public void ReplaceRoot_should_generate_the_correct_stage()
+        {
+            var subject = CreateSubject()
+                .ReplaceRoot(x => x.PhoneNumber);
+
+            var expectedStage = BsonDocument.Parse("{ $replaceRoot : { newRoot:  '$PhoneNumber' } }");
+
+            AssertLast(subject, expectedStage);
+        }
+
+        [Fact]
+        public void ReplaceRoot_should_generate_the_correct_stage_with_anonymous_class()
+        {
+            var subject = CreateSubject()
+                .ReplaceRoot(x => new { Name = x.FirstName + " " + x.LastName });
+
+            var expectedStage = BsonDocument.Parse("{ $replaceRoot : { newRoot:  { Name : { $concat : [ '$FirstName', ' ', '$LastName' ] } } } }");
+
+            AssertLast(subject, expectedStage);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(
@@ -579,6 +601,13 @@ namespace MongoDB.Driver.Tests
             public string FirstName;
             public string LastName;
             public int Age;
+            public PhoneNumber PhoneNumber;
+        }
+
+        public class PhoneNumber
+        {
+            public int AreaCode;
+            public int Number;
         }
 
         public class NameMeaning

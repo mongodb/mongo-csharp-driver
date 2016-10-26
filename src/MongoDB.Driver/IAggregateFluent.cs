@@ -134,6 +134,14 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <summary>
+        /// Appends a $replaceRoot stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot);
+
+        /// <summary>
         /// Appends a skip stage to the pipeline.
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
