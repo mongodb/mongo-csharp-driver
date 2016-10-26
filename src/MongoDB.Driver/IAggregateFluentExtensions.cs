@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -207,6 +207,26 @@ namespace MongoDB.Driver
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
                 new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending));
+        }
+
+        /// <summary>
+        /// Appends a sortByCount stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="id">The id.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<AggregateSortByCountResult<TKey>> SortByCount<TResult, TKey>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TKey>> id)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(id, nameof(id));
+
+            return aggregate.SortByCount<TKey>(new ExpressionAggregateExpressionDefinition<TResult, TKey>(id, aggregate.Options.TranslationOptions));
         }
 
         /// <summary>

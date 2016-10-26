@@ -111,6 +111,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             case ExtensionExpressionType.Accumulator:
                                 return TranslateAccumulator((AccumulatorExpression)node);
+                            case ExtensionExpressionType.AggregateExpression:
+                                return TranslateAggregateExpression((AggregateExpressionExpression)node);
                             case ExtensionExpressionType.ArrayIndex:
                                 return TranslateArrayIndex((ArrayIndexExpression)node);
                             case ExtensionExpressionType.Concat:
@@ -194,6 +196,11 @@ namespace MongoDB.Driver.Linq.Translators
             var message = string.Format("Unrecognized aggregation type in the expression tree {0}.",
                 node.ToString());
             throw new MongoInternalException(message);
+        }
+
+        private BsonValue TranslateAggregateExpression(AggregateExpressionExpression node)
+        {
+            return TranslateValue(node.Expression);
         }
 
         private BsonValue TranslateArrayIndex(ArrayIndexExpression node)

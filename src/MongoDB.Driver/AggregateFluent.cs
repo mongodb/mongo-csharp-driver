@@ -209,6 +209,19 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr) => new RenderedPipelineStageDefinition<TResult>(operatorName, new BsonDocument(operatorName, sort.Render(s, sr)), s));
 
+            return AppendStage(stage);
+        }
+
+        public override IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id)
+        {
+            const string operatorName = "$sortByCount";
+            var stage = new DelegatedPipelineStageDefinition<TResult, AggregateSortByCountResult<TId>>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var outputSerializer = sr.GetSerializer<AggregateSortByCountResult<TId>>();
+                    return new RenderedPipelineStageDefinition<AggregateSortByCountResult<TId>>(operatorName, new BsonDocument(operatorName, id.Render(s, sr)), outputSerializer);
+                });
 
             return AppendStage(stage);
         }

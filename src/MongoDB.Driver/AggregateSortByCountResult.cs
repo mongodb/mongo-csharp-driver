@@ -13,24 +13,26 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Result type for the aggregate $count stage.
+    /// Result type for the aggregate $sortByCount stage.
     /// </summary>
-    public sealed class AggregateCountResult
+    public sealed class AggregateSortByCountResult<TId>
     {
         private long _count;
+        private TId _id;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateCountResult"/> class.
+        /// Initializes a new instance of the <see cref="AggregateCountResult" /> class.
         /// </summary>
+        /// <param name="id">The identifier.</param>
         /// <param name="count">The count.</param>
-        public AggregateCountResult(long count)
+        public AggregateSortByCountResult(TId id, long count)
         {
+            _id = id;
             _count = count;
         }
 
@@ -44,6 +46,18 @@ namespace MongoDB.Driver
         public long Count
         {
             get { return _count; }
+        }
+
+        /// <summary>
+        /// Gets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        [BsonElement("_id")]
+        public TId Id
+        {
+            get { return _id; }
         }
     }
 }

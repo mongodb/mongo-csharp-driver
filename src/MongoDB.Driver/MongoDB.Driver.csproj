@@ -78,8 +78,10 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateCountResult.cs" />
+    <Compile Include="AggregateExpressionDefinition.cs" />
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="AggregateLookupOptions.cs" />
+    <Compile Include="AggregateSortByCountResult.cs" />
     <Compile Include="AggregateStringTranslationMode.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Linq\ExpressionHelper.cs" />
     <Compile Include="Linq\Expressions\AccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\AccumulatorType.cs" />
+    <Compile Include="Linq\Expressions\AggregateExpressionExpression.cs" />
     <Compile Include="Linq\Expressions\SerializedValueExpression.cs" />
     <Compile Include="Linq\Expressions\InjectedFilterExpression.cs" />
     <Compile Include="Linq\Expressions\CollectionExpression.cs" />
@@ -251,6 +254,7 @@
     <Compile Include="Linq\Processors\Transformers\VBStringIndexComparisonTransformer.cs" />
     <Compile Include="Linq\QueryableExecutionModel.cs" />
     <Compile Include="Linq\SerializerHelper.cs" />
+    <Compile Include="Linq\Translators\AggregateExpressionTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateGroupTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslator.cs" />

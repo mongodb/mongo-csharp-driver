@@ -242,6 +242,50 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void SortByCount_should_add_the_expected_stage(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = CreateSubject();
+
+            var result = subject
+                .SortByCount<int>("$X");
+
+            Predicate<PipelineDefinition<C, AggregateSortByCountResult<int>>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 1 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $sortByCount : '$X' }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(AggregateSortByCountResult<int>);
+            };
+
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<AggregateSortByCountResult<int>>(
+                        It.Is<PipelineDefinition<C, AggregateSortByCountResult<int>>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _mockCollection.Verify(
+                    c => c.Aggregate<AggregateSortByCountResult<int>>(
+                        It.Is<PipelineDefinition<C, AggregateSortByCountResult<int>>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ToCursor_should_call_Aggregate(
             [Values(false, true)] bool async)
         {

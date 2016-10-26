@@ -148,6 +148,14 @@ namespace MongoDB.Driver
         IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <summary>
+        /// Appends a sortByCount stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TId">The type of the identifier.</typeparam>
+        /// <param name="id">The identifier.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id);
+
+        /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>

@@ -83,6 +83,12 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer);
 
         /// <inheritdoc />

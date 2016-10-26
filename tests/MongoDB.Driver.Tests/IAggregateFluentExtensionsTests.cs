@@ -393,6 +393,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void SortByCount_should_generate_the_correct_stage()
+        {
+            var subject = CreateSubject()
+                .SortByCount(x => x.Age);
+
+            var expectedStage = BsonDocument.Parse("{ $sortByCount : '$Age' }");
+
+            AssertLast(subject, expectedStage);
+        }
+
+        [Fact]
         public void SortByDescending_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
