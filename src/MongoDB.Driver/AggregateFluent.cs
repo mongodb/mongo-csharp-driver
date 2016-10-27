@@ -67,6 +67,76 @@ namespace MongoDB.Driver
             return Project(projection);
         }
 
+        public override IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TValue>(
+           AggregateExpressionDefinition<TResult, TValue> groupBy,
+           IEnumerable<TValue> boundaries,
+           Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            const string operatorName = "$bucket";
+            var stage = new DelegatedPipelineStageDefinition<TResult, AggregateBucketResult<TValue>>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var valueSerializer = sr.GetSerializer<TValue>();
+                    var renderedGroupBy = groupBy.Render(s, sr);
+                    var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
+                    var serializedDefaultBucket = defaultBucket.HasValue ? valueSerializer.ToBsonValue(defaultBucket.Value) : null;
+                    var document = new BsonDocument
+                    {
+                        { operatorName, new BsonDocument
+                            {
+                                { "groupBy", renderedGroupBy },
+                                { "boundaries", new BsonArray(serializedBoundaries) },
+                                { "default", serializedDefaultBucket, serializedDefaultBucket != null }
+                            }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<AggregateBucketResult<TValue>>(
+                        operatorName,
+                        document,
+                        sr.GetSerializer<AggregateBucketResult<TValue>>());
+                });
+
+            return AppendStage(stage);
+        }
+
+        public override IAggregateFluent<TNewResult> Bucket<TValue, TNewResult>(
+           AggregateExpressionDefinition<TResult, TValue> groupBy,
+           IEnumerable<TValue> boundaries,
+           ProjectionDefinition<TResult, TNewResult> output,
+           Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            const string operatorName = "$bucket";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var valueSerializer = sr.GetSerializer<TValue>();
+                    var newResultSerializer = sr.GetSerializer<TNewResult>();
+                    var renderedGroupBy = groupBy.Render(s, sr);
+                    var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
+                    var serializedDefaultBucket = defaultBucket.HasValue ? valueSerializer.ToBsonValue(defaultBucket.Value) : null;
+                    var renderedOutput = output.Render(s, sr);
+                    var document = new BsonDocument
+                    {
+                        { operatorName, new BsonDocument
+                            {
+                                { "groupBy", renderedGroupBy },
+                                { "boundaries", new BsonArray(serializedBoundaries) },
+                                { "default", serializedDefaultBucket, serializedDefaultBucket != null },
+                                { "output", renderedOutput.Document }
+                            }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<TNewResult>(
+                        operatorName,
+                        document,
+                        newResultSerializer);
+                });
+
+            return AppendStage(stage);
+        }
+
         public override IAggregateFluent<AggregateCountResult> Count()
         {
             const string operatorName = "$count";

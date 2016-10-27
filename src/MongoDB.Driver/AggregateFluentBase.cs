@@ -41,6 +41,25 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer);
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TValue>(
+           AggregateExpressionDefinition<TResult, TValue> groupBy,
+           IEnumerable<TValue> boundaries,
+           Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> Bucket<TValue, TNewResult>(
+           AggregateExpressionDefinition<TResult, TValue> groupBy,
+           IEnumerable<TValue> boundaries,
+           ProjectionDefinition<TResult, TNewResult> output,
+           Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<AggregateCountResult> Count()
         {
             throw new NotImplementedException();

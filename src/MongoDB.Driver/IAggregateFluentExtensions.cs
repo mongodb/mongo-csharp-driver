@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -31,6 +32,58 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IAggregateFluentExtensions
     {
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="defaultBucket">The default bucket (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TResult, TValue>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            IEnumerable<TValue> boundaries,
+            Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsNotNull(boundaries, nameof(boundaries));
+
+            var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
+            return aggregate.Bucket(groupByDefinition, boundaries, defaultBucket);
+        }
+
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="defaultBucket">The default bucket (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Bucket<TResult, TValue, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            IEnumerable<TValue> boundaries,
+            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
+            Optional<TValue> defaultBucket = default(Optional<TValue>))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsNotNull(boundaries, nameof(boundaries));
+
+            var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
+            var outputDefinition = new ExpressionBucketOutputProjection<TResult, TValue, TNewResult>(x => default(TValue), output, aggregate.Options.TranslationOptions);
+            return aggregate.Bucket(groupByDefinition, boundaries, outputDefinition, defaultBucket);
+        }
+
         /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
@@ -586,6 +639,37 @@ namespace MongoDB.Driver
             public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
                 return AggregateGroupTranslator.Translate<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
+            }
+        }
+
+        private sealed class ExpressionBucketOutputProjection<TResult, TValue, TNewResult> : ProjectionDefinition<TResult, TNewResult>
+        {
+            private readonly Expression<Func<IGrouping<TValue, TResult>, TNewResult>> _outputExpression;
+            private readonly ExpressionTranslationOptions _translationOptions;
+            private readonly Expression<Func<TResult, TValue>> _valueExpression;
+
+            public ExpressionBucketOutputProjection(
+                Expression<Func<TResult, TValue>> valueExpression,
+                Expression<Func<IGrouping<TValue, TResult>, TNewResult>> outputExpression,
+                ExpressionTranslationOptions translationOptions)
+            {
+                _valueExpression = Ensure.IsNotNull(valueExpression, nameof(valueExpression));
+                _outputExpression = Ensure.IsNotNull(outputExpression, nameof(outputExpression));
+                _translationOptions = translationOptions; // can be null
+
+            }
+
+            public Expression<Func<IGrouping<TValue, TResult>, TNewResult>> OutputExpression
+            {
+                get { return _outputExpression; }
+            }
+
+            public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            {
+                var renderedOutput = AggregateGroupTranslator.Translate<TValue, TResult, TNewResult>(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
+                var document = renderedOutput.Document;
+                document.Remove("_id");
+                return new RenderedProjectionDefinition<TNewResult>(document, renderedOutput.ProjectionSerializer);
             }
         }
     }
