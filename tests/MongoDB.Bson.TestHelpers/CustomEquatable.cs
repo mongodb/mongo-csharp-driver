@@ -33,13 +33,21 @@ namespace MongoDB.Bson.TestHelpers
 
         public override bool Equals(object obj)
         {
-            var other = obj as CustomEquatable<T>;
-            if (object.ReferenceEquals(other, null))
+            T other;
+            if (obj is T)
+            {
+                other = (T)obj;
+            }
+            else if (obj is CustomEquatable<T>)
+            {
+                other = ((CustomEquatable<T>)obj)._value;
+            }
+            else
             {
                 return false;
             }
 
-            return _comparer.Equals(_value, other._value);
+            return _comparer.Equals(_value, other);
         }
 
         public override int GetHashCode()

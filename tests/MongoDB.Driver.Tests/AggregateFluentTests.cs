@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -485,7 +486,8 @@ namespace MongoDB.Driver.Tests
                 new AggregateBucketResult<BsonValue>(1920, 2),
                 new AggregateBucketResult<BsonValue>("Unknown", 1),
             };
-            buckets.Should().Equal(expectedBuckets);
+            var comparer = AggregateBucketResultEqualityComparer<BsonValue>.Instance;
+            buckets.WithComparer(comparer).Should().Equal(expectedBuckets);
         }
 
         [Fact]
@@ -567,7 +569,8 @@ namespace MongoDB.Driver.Tests
                 new AggregateBucketResult<BsonValue>(1920, 2),
                 new AggregateBucketResult<BsonValue>("Unknown", 1),
             };
-            buckets.Should().Equal(expectedBuckets);
+            var comparer = AggregateBucketResultEqualityComparer<BsonValue>.Instance;
+            buckets.WithComparer(comparer).Should().Equal(expectedBuckets);
         }
 
         [Fact]

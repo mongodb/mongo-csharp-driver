@@ -58,26 +58,5 @@ namespace MongoDB.Driver
         /// </value>
         [BsonElement("count")]
         public long Count { get; private set; }
-
-        // public methods        
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
-        {
-            var other = obj as AggregateBucketResult<TValue>;
-            if (object.ReferenceEquals(other, null))
-            {
-                return false;
-            }
-
-            return
-                Id.Equals(other.Id) &&
-                Count == other.Count;
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            return 0;
-        }
     }
 }
