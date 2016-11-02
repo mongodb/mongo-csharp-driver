@@ -876,6 +876,18 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $sample: { size: 100 } }");
         }
 
+        [SkippableFact]
+        public void Sample_after_another_function()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            var query = CreateQuery().Select(x => x.A).Sample(100);
+
+            Assert(query,
+                2,
+                "{ $project: { A: '$A', _id: 0 } }",
+                "{ $sample: { size: 100 } }");
+        }
+
         [Fact]
         public void Select_identity()
         {

@@ -843,7 +843,7 @@ namespace MongoDB.Driver.Linq
                 Expression.Call(
                     null,
                     GetMethodInfo(Sample, source, count),
-                    source.Expression,
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
                     Expression.Constant(count)));
         }
 
