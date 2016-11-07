@@ -618,8 +618,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var key = DeserializeKeyString(bsonReader.ReadName());
-                var value = _lazyValueSerializer.Value.Deserialize(context);
-                dictionary.Add(key, value);
+                try
+                {
+                    var value = _lazyValueSerializer.Value.Deserialize(context);
+                    dictionary.Add(key, value);
+                }
+                catch (FormatException e)
+                {
+                    Exception wrapper = new FormatException("Error while deserializing key " + key, e);
+                    wrapper.Data["Document"] = dictionary;
+                    throw wrapper;
+                }
             }
             bsonReader.ReadEndDocument();
 
