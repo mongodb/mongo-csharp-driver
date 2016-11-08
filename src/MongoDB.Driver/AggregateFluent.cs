@@ -68,10 +68,13 @@ namespace MongoDB.Driver
         }
 
         public override IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TValue>(
-           AggregateExpressionDefinition<TResult, TValue> groupBy,
-           IEnumerable<TValue> boundaries,
-           Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            AggregateBucketOptions<TValue> options = null)
         {
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsNotNull(boundaries, nameof(boundaries));
+
             const string operatorName = "$bucket";
             var stage = new DelegatedPipelineStageDefinition<TResult, AggregateBucketResult<TValue>>(
                 operatorName,
@@ -80,7 +83,7 @@ namespace MongoDB.Driver
                     var valueSerializer = sr.GetSerializer<TValue>();
                     var renderedGroupBy = groupBy.Render(s, sr);
                     var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
-                    var serializedDefaultBucket = defaultBucket.HasValue ? valueSerializer.ToBsonValue(defaultBucket.Value) : null;
+                    var serializedDefaultBucket = options != null && options.DefaultBucket.HasValue ? valueSerializer.ToBsonValue(options.DefaultBucket.Value) : null;
                     var document = new BsonDocument
                     {
                         { operatorName, new BsonDocument
@@ -101,11 +104,15 @@ namespace MongoDB.Driver
         }
 
         public override IAggregateFluent<TNewResult> Bucket<TValue, TNewResult>(
-           AggregateExpressionDefinition<TResult, TValue> groupBy,
-           IEnumerable<TValue> boundaries,
-           ProjectionDefinition<TResult, TNewResult> output,
-           Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketOptions<TValue> options = null)
         {
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsNotNull(boundaries, nameof(boundaries));
+            Ensure.IsNotNull(output, nameof(output));
+
             const string operatorName = "$bucket";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
@@ -115,7 +122,7 @@ namespace MongoDB.Driver
                     var newResultSerializer = sr.GetSerializer<TNewResult>();
                     var renderedGroupBy = groupBy.Render(s, sr);
                     var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
-                    var serializedDefaultBucket = defaultBucket.HasValue ? valueSerializer.ToBsonValue(defaultBucket.Value) : null;
+                    var serializedDefaultBucket = options != null && options.DefaultBucket.HasValue ? valueSerializer.ToBsonValue(options.DefaultBucket.Value) : null;
                     var renderedOutput = output.Render(s, sr);
                     var document = new BsonDocument
                     {
@@ -126,6 +133,77 @@ namespace MongoDB.Driver
                                 { "default", serializedDefaultBucket, serializedDefaultBucket != null },
                                 { "output", renderedOutput.Document }
                             }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<TNewResult>(
+                        operatorName,
+                        document,
+                        newResultSerializer);
+                });
+
+            return AppendStage(stage);
+        }
+
+        public override IAggregateFluent<AggregateBucketAutoResult<TValue>> BucketAuto<TValue>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsGreaterThanZero(buckets, nameof(buckets));
+
+            const string operatorName = "$bucketAuto";
+            var stage = new DelegatedPipelineStageDefinition<TResult, AggregateBucketAutoResult<TValue>>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var renderedGroupBy = groupBy.Render(s, sr);
+                    var document = new BsonDocument
+                    {
+                        { operatorName, new BsonDocument
+                            {
+                                { "groupBy", renderedGroupBy },
+                                { "buckets", buckets },
+                                { "granularity", () => options.Granularity.Value.Value, options != null && options.Granularity.HasValue }
+                            }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<AggregateBucketAutoResult<TValue>>(
+                        operatorName,
+                        document,
+                        sr.GetSerializer<AggregateBucketAutoResult<TValue>>());
+                });
+
+            return AppendStage(stage);
+        }
+
+        public override IAggregateFluent<TNewResult> BucketAuto<TValue, TNewResult>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsGreaterThanZero(buckets, nameof(buckets));
+            Ensure.IsNotNull(output, nameof(output));
+
+            const string operatorName = "$bucketAuto";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var newResultSerializer = sr.GetSerializer<TNewResult>();
+                    var renderedGroupBy = groupBy.Render(s, sr);
+                    var renderedOutput = output.Render(s, sr);
+                    var document = new BsonDocument
+                    {
+                        { operatorName, new BsonDocument
+                            {
+                                { "groupBy", renderedGroupBy },
+                                { "buckets", buckets },
+                                { "output", renderedOutput.Document },
+                                { "granularity", () => options.Granularity.Value.Value, options != null && options.Granularity.HasValue }
+                           }
                         }
                     };
                     return new RenderedPipelineStageDefinition<TNewResult>(

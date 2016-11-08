@@ -40,20 +40,20 @@ namespace MongoDB.Driver
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="groupBy">The expression providing the value to group by.</param>
         /// <param name="boundaries">The bucket boundaries.</param>
-        /// <param name="defaultBucket">The default bucket (optional).</param>
+        /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
         public static IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TResult, TValue>(
             this IAggregateFluent<TResult> aggregate,
             Expression<Func<TResult, TValue>> groupBy,
             IEnumerable<TValue> boundaries,
-            Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateBucketOptions<TValue> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(groupBy, nameof(groupBy));
             Ensure.IsNotNull(boundaries, nameof(boundaries));
 
             var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
-            return aggregate.Bucket(groupByDefinition, boundaries, defaultBucket);
+            return aggregate.Bucket(groupByDefinition, boundaries, options);
         }
 
         /// <summary>
@@ -66,22 +66,74 @@ namespace MongoDB.Driver
         /// <param name="groupBy">The expression providing the value to group by.</param>
         /// <param name="boundaries">The bucket boundaries.</param>
         /// <param name="output">The output projection.</param>
-        /// <param name="defaultBucket">The default bucket (optional).</param>
+        /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
         public static IAggregateFluent<TNewResult> Bucket<TResult, TValue, TNewResult>(
             this IAggregateFluent<TResult> aggregate,
             Expression<Func<TResult, TValue>> groupBy,
             IEnumerable<TValue> boundaries,
             Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
-            Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateBucketOptions<TValue> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(groupBy, nameof(groupBy));
             Ensure.IsNotNull(boundaries, nameof(boundaries));
+            Ensure.IsNotNull(output, nameof(output));
 
             var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
             var outputDefinition = new ExpressionBucketOutputProjection<TResult, TValue, TNewResult>(x => default(TValue), output, aggregate.Options.TranslationOptions);
-            return aggregate.Bucket(groupByDefinition, boundaries, outputDefinition, defaultBucket);
+            return aggregate.Bucket(groupByDefinition, boundaries, outputDefinition, options);
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateBucketAutoResult<TValue>> BucketAuto<TResult, TValue>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            int buckets,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+
+            var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
+            return aggregate.BucketAuto(groupByDefinition, buckets, options);
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> BucketAuto<TResult, TValue, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            int buckets,
+            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(groupBy, nameof(groupBy));
+            Ensure.IsNotNull(output, nameof(output));
+
+            var groupByDefinition = new ExpressionAggregateExpressionDefinition<TResult, TValue>(groupBy, aggregate.Options.TranslationOptions);
+            var outputDefinition = new ExpressionBucketOutputProjection<TResult, TValue, TNewResult>(x => default(TValue), output, aggregate.Options.TranslationOptions);
+            return aggregate.BucketAuto(groupByDefinition, buckets, outputDefinition, options);
         }
 
         /// <summary>

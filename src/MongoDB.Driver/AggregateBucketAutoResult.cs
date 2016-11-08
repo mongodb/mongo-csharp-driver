@@ -18,10 +18,10 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the result of the $bucket stage.
+    /// Represents the result of the $bucketAuto stage.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class AggregateBucketResult<TValue>
+    public class AggregateBucketAutoResult<TValue>
     {
         // constructors
         /// <summary>
@@ -29,9 +29,21 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="id">The inclusive lower boundary of the bucket.</param>
         /// <param name="count">The count.</param>
-        public AggregateBucketResult(TValue id, long count)
+        public AggregateBucketAutoResult(AggregateBucketAutoResultId<TValue> id, long count)
         {
             Id = id;
+            Count = count;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateBucketResult{TValue}" /> class.
+        /// </summary>
+        /// <param name="min">The minimum.</param>
+        /// <param name="max">The maximum.</param>
+        /// <param name="count">The count.</param>
+        public AggregateBucketAutoResult(TValue min, TValue max, long count)
+        {
+            Id = new AggregateBucketAutoResultId<TValue>(min, max);
             Count = count;
         }
 
@@ -43,7 +55,7 @@ namespace MongoDB.Driver
         /// The inclusive lower boundary of the bucket.
         /// </value>
         [BsonId]
-        public TValue Id { get; private set; }
+        public AggregateBucketAutoResultId<TValue> Id { get; private set; }
 
         /// <summary>
         /// Gets the count.
@@ -53,5 +65,15 @@ namespace MongoDB.Driver
         /// </value>
         [BsonElement("count")]
         public long Count { get; private set; }
+
+        /// <summary>
+        /// Gets the maximum.
+        /// </summary>
+        public TValue Max => Id.Max;
+
+        /// <summary>
+        /// Gets the minimum.
+        /// </summary>
+        public TValue Min => Id.Min;
     }
 }

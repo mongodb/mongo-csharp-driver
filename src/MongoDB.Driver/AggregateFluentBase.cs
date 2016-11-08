@@ -42,19 +42,38 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TValue>(
-           AggregateExpressionDefinition<TResult, TValue> groupBy,
-           IEnumerable<TValue> boundaries,
-           Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            AggregateBucketOptions<TValue> options = null)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> Bucket<TValue, TNewResult>(
-           AggregateExpressionDefinition<TResult, TValue> groupBy,
-           IEnumerable<TValue> boundaries,
-           ProjectionDefinition<TResult, TNewResult> output,
-           Optional<TValue> defaultBucket = default(Optional<TValue>))
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketOptions<TValue> options = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<AggregateBucketAutoResult<TValue>> BucketAuto<TValue>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            AggregateBucketAutoOptions options = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> BucketAuto<TValue, TNewResult>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketAutoOptions options = null)
         {
             throw new NotImplementedException();
         }

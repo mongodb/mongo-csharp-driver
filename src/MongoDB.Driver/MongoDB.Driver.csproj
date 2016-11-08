@@ -77,6 +77,11 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Support\Hasher.cs</Link>
     </Compile>
+    <Compile Include="AggregateBucketAutoGranularity.cs" />
+    <Compile Include="AggregateBucketAutoOptions.cs" />
+    <Compile Include="AggregateBucketAutoResult.cs" />
+    <Compile Include="AggregateBucketAutoResultId.cs" />
+    <Compile Include="AggregateBucketOptions.cs" />
     <Compile Include="AggregateBucketResult.cs" />
     <Compile Include="AggregateCountResult.cs" />
     <Compile Include="AggregateExpressionDefinition.cs" />
