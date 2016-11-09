@@ -123,6 +123,19 @@ namespace MongoDB.Driver
         IAggregateFluent<AggregateCountResult> Count();
 
         /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="facets">The facets.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TNewResult> Facet<TNewResult>(
+            IEnumerable<AggregateFacet<TResult>> facets,
+            AggregateFacetOptions<TNewResult> options = null);
+
+        /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
@@ -242,7 +255,6 @@ namespace MongoDB.Driver
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
     }
-
 
     /// <summary>
     /// Fluent interface for aggregate.

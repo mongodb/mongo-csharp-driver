@@ -231,6 +231,30 @@ namespace MongoDB.Driver
             return AppendStage<AggregateCountResult>(stage);
         }
 
+        public override IAggregateFluent<TNewResult> Facet<TNewResult>(
+            IEnumerable<AggregateFacet<TResult>> facets,
+            AggregateFacetOptions<TNewResult> options = null)
+        {
+            const string operatorName = "$facet";
+            var materializedFacets = facets.ToArray();
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var facetsDocument = new BsonDocument();
+                    foreach (var facet in materializedFacets)
+                    {
+                        var renderedPipeline = facet.RenderPipeline(s, sr);
+                        facetsDocument.Add(facet.Name, renderedPipeline);
+                    }
+                    var document = new BsonDocument("$facet", facetsDocument);
+                    var resultSerializer = options?.NewResultSerializer ?? sr.GetSerializer<TNewResult>();
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, document, resultSerializer);
+                });
+
+            return AppendStage<TNewResult>(stage);
+        }
+
         public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)
         {
             const string operatorName = "$group";

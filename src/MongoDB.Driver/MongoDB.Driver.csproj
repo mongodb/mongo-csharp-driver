@@ -85,6 +85,10 @@
     <Compile Include="AggregateBucketResult.cs" />
     <Compile Include="AggregateCountResult.cs" />
     <Compile Include="AggregateExpressionDefinition.cs" />
+    <Compile Include="AggregateFacet.cs" />
+    <Compile Include="AggregateFacetOptions.cs" />
+    <Compile Include="AggregateFacetResult.cs" />
+    <Compile Include="AggregateFacetResults.cs" />
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="AggregateLookupOptions.cs" />
     <Compile Include="AggregateSortByCountResult.cs" />

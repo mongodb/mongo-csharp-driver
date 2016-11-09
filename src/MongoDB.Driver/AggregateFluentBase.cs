@@ -85,6 +85,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> Facet<TNewResult>(
+            IEnumerable<AggregateFacet<TResult>> facets,
+            AggregateFacetOptions<TNewResult> options = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group);
 
         /// <inheritdoc />

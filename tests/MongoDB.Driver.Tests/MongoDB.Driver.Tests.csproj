@@ -101,6 +101,7 @@
     <Compile Include="AggregateBucketResultEqualityComparer.cs" />
     <Compile Include="AggregateFluentBucketAutoTests.cs" />
     <Compile Include="AggregateFluentBucketTests.cs" />
+    <Compile Include="AggregateFluentFacetTests.cs" />
     <Compile Include="AggregateFluentTests.cs" />
     <Compile Include="AsyncCursorHelperTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />

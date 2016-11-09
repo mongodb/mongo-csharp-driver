@@ -137,6 +137,55 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateFacetResults> Facet<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IEnumerable<AggregateFacet<TResult>> facets)
+        {
+            var newResultSerializer = new AggregateFacetResultsSerializer(
+                facets.Select(f => f.Name),
+                facets.Select(f => f.OutputSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer(f.OutputType)));
+            var options = new AggregateFacetOptions<AggregateFacetResults> { NewResultSerializer = newResultSerializer };
+            return aggregate.Facet(facets, options);
+        }
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateFacetResults> Facet<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            params AggregateFacet<TResult>[] facets)
+        {
+            return aggregate.Facet((IEnumerable<AggregateFacet<TResult>>)facets);
+        }
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> Facet<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            params AggregateFacet<TResult>[] facets)
+        {
+            return aggregate.Facet<TNewResult>((IEnumerable<AggregateFacet<TResult>>)facets);
+        }
+
+        /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

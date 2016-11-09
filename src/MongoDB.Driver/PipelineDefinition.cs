@@ -68,12 +68,88 @@ namespace MongoDB.Driver
     public abstract class PipelineDefinition<TInput, TOutput>
     {
         /// <summary>
+        /// Gets the output serializer.
+        /// </summary>
+        public abstract IBsonSerializer<TOutput> OutputSerializer { get; }
+
+        /// <summary>
         /// Renders the pipeline.
         /// </summary>
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
         public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
+
+        /// <summary>
+        /// Creates a pipeline.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <param name="outputSerializer">The output serializer.</param>
+        /// <returns>A <see cref="PipelineDefinition{TInput, TOutput}"/>.</returns>
+        public static PipelineDefinition<TInput, TOutput> Create(
+            IEnumerable<IPipelineStageDefinition> stages,
+            IBsonSerializer<TOutput> outputSerializer = null)
+        {
+            if (stages == null)
+            {
+                return null;
+            }
+
+            return new PipelineStagePipelineDefinition<TInput, TOutput>(stages, outputSerializer);
+        }
+
+        /// <summary>
+        /// Creates a pipeline.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <param name="outputSerializer">The output serializer.</param>
+        /// <returns>A <see cref="PipelineDefinition{TInput, TOutput}"/>.</returns>
+        public static PipelineDefinition<TInput, TOutput> Create(
+            IEnumerable<BsonDocument> stages,
+            IBsonSerializer<TOutput> outputSerializer = null)
+        {
+            if (stages == null)
+            {
+                return null;
+            }
+
+            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages, outputSerializer);
+        }
+
+        /// <summary>
+        /// Creates a pipeline.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <param name="outputSerializer">The output serializer.</param>
+        /// <returns>A <see cref="PipelineDefinition{TInput, TOutput}"/>.</returns>
+        public static PipelineDefinition<TInput, TOutput> Create(
+            IEnumerable<string> stages,
+            IBsonSerializer<TOutput> outputSerializer = null)
+        {
+            return Create(stages?.Select(s => BsonDocument.Parse(s)), outputSerializer);
+        }
+
+        /// <summary>
+        /// Creates a pipeline.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <returns>A <see cref="PipelineDefinition{TInput, TOutput}"/>.</returns>
+        public static PipelineDefinition<TInput, TOutput> Create(
+            params BsonDocument[] stages)
+        {
+            return Create((IEnumerable<BsonDocument>)stages);
+        }
+
+        /// <summary>
+        /// Creates a pipeline.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <returns>A <see cref="PipelineDefinition{TInput, TOutput}"/>.</returns>
+        public static PipelineDefinition<TInput, TOutput> Create(
+            params string[] stages)
+        {
+            return Create((IEnumerable<string>)stages);
+        }
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="IPipelineStageDefinition"/>[] to <see cref="PipelineDefinition{TInput, TOutput}"/>.
@@ -84,12 +160,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineDefinition<TInput, TOutput>(IPipelineStageDefinition[] stages)
         {
-            if (stages == null)
-            {
-                return null;
-            }
-
-            return new PipelineStagePipelineDefinition<TInput, TOutput>(stages);
+            return Create(stages);
         }
 
         /// <summary>
@@ -101,12 +172,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineDefinition<TInput, TOutput>(List<IPipelineStageDefinition> stages)
         {
-            if (stages == null)
-            {
-                return null;
-            }
-
-            return new PipelineStagePipelineDefinition<TInput, TOutput>(stages);
+            return Create(stages);
         }
 
         /// <summary>
@@ -118,12 +184,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineDefinition<TInput, TOutput>(BsonDocument[] stages)
         {
-            if (stages == null)
-            {
-                return null;
-            }
-
-            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages);
+            return Create(stages);
         }
 
         /// <summary>
@@ -135,12 +196,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineDefinition<TInput, TOutput>(List<BsonDocument> stages)
         {
-            if (stages == null)
-            {
-                return null;
-            }
-
-            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages);
+            return Create(stages);
         }
     }
 
@@ -173,6 +229,9 @@ namespace MongoDB.Driver
         {
             get { return _first; }
         }
+
+        /// <inheritdoc />
+        public override IBsonSerializer<TOutput> OutputSerializer => _second.OutputSerializer;
 
         /// <summary>
         /// Gets the second pipeline.
@@ -215,6 +274,9 @@ namespace MongoDB.Driver
             _outputSerializer = outputSerializer;
         }
 
+        /// <inheritdoc />
+        public override IBsonSerializer<TOutput> OutputSerializer => _outputSerializer;
+
         /// <summary>
         /// Gets the stages.
         /// </summary>
@@ -253,9 +315,13 @@ namespace MongoDB.Driver
             _outputSerializer = outputSerializer;
         }
 
+        /// <inheritdoc />
+        public override IBsonSerializer<TOutput> OutputSerializer => _outputSerializer;
+
         /// <summary>
         /// Gets the serializer.
         /// </summary>
+        [Obsolete("Use OutputSerializer instead.")]
         public IBsonSerializer<TOutput> Serializer
         {
             get { return _outputSerializer; }
@@ -329,6 +395,9 @@ namespace MongoDB.Driver
         {
             _wrapped = wrapped;
         }
+
+        /// <inheritdoc />
+        public override IBsonSerializer<TOutput> OutputSerializer => _wrapped.OutputSerializer;
 
         public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
