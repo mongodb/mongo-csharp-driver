@@ -64,6 +64,25 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets the idle write period.
+        /// </summary>
+        public TimeSpan IdleWritePeriod
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("idleWritePeriodMS", out value))
+                {
+                    return TimeSpan.FromMilliseconds(value.ToDouble());
+                }
+                else
+                {
+                    return TimeSpan.FromSeconds(10);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is an arbiter.
         /// </summary>
         /// <value>

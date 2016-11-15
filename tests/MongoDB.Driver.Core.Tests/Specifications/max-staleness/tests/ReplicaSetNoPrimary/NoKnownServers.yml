@@ -1,0 +1,16 @@
+# A too-short maxStalenessSeconds isn't enforced until there are known servers.
+---
+topology_description:
+  type: ReplicaSetNoPrimary
+  servers:
+  - &1
+    address: a:27017
+    type: Unknown
+  - &2
+    address: b:27017
+    type: Unknown
+read_preference:
+  mode: Nearest
+  maxStalenessSeconds: 1
+suitable_servers: []
+in_latency_window: []

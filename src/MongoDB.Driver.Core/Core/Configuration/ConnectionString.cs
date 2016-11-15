@@ -490,7 +490,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value)
         {
-            switch (name.ToLower())
+            switch (name.ToLowerInvariant())
             {
                 case "appname":
                     string invalidApplicationNameMessage;
@@ -554,8 +554,12 @@ namespace MongoDB.Driver.Core.Configuration
                     _maxPoolSize = ParseInt32(name, value);
                     break;
                 case "maxstaleness":
-                case "maxstalenessms":
+                case "maxstalenessseconds":
                     _maxStaleness = ParseTimeSpan(name, value);
+                    if (_maxStaleness.Value == TimeSpan.FromSeconds(-1))
+                    {
+                        _maxStaleness = null;
+                    }
                     break;
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);
@@ -762,6 +766,10 @@ namespace MongoDB.Driver.Core.Configuration
             if (lowerName.EndsWith("ms", StringComparison.Ordinal))
             {
                 multiplier = 1;
+            }
+            else if (lowerName.EndsWith("seconds", StringComparison.Ordinal))
+            {
+                multiplier = 1000;
             }
             else if (lowerValue.EndsWith("ms", StringComparison.Ordinal))
             {

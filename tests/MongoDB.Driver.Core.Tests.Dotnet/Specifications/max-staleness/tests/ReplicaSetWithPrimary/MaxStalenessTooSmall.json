@@ -1,7 +1,8 @@
 {
     "error": true,
+    "heartbeatFrequencyMS": 500,
     "read_preference": {
-        "maxStalenessMS": 1,
+        "maxStalenessSeconds": 10.4,
         "mode": "Nearest"
     },
     "topology_description": {

@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, readPreference);
 
-            result.Should().Be("{ mode : \"secondary\", maxStalenessMS : 1000 }");
+            result.Should().Be("{ mode : \"secondary\", maxStalenessSeconds : 1.0 }");
         }
 
         [Fact]

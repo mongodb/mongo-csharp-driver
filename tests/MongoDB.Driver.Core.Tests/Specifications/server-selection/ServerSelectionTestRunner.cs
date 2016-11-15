@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private void RunErrorTest(ClusterDescription clusterDescription, IServerSelector selector)
         {
-            var exception = Record.Exception(() => selector.SelectServers(clusterDescription, clusterDescription.Servers));
+            var exception = Record.Exception(() => selector.SelectServers(clusterDescription, clusterDescription.Servers).ToList());
 
             exception.Should().NotBeNull();
         }
@@ -117,9 +117,9 @@ namespace MongoDB.Driver.Specifications.server_selection
             }
 
             TimeSpan? maxStaleness = null;
-            if (readPreferenceDescription.Contains("maxStalenessMS"))
+            if (readPreferenceDescription.Contains("maxStalenessSeconds"))
             {
-                maxStaleness = TimeSpan.FromMilliseconds(readPreferenceDescription["maxStalenessMS"].ToDouble());
+                maxStaleness = TimeSpan.FromSeconds(readPreferenceDescription["maxStalenessSeconds"].ToDouble());
             }
 
             // work around minor issue in test files
@@ -203,12 +203,14 @@ namespace MongoDB.Driver.Specifications.server_selection
             {
                 lastUpdateTimestamp = _utcNow;
             }
+            var idleWritePeriod = TimeSpan.FromMilliseconds(serverDescription.GetValue("idleWritePeriodMillis", 10000).ToDouble());
 
             var serverId = new ServerId(_clusterId, endPoint);
             return new ServerDescription(
                 serverId,
                 endPoint,
                 averageRoundTripTime: averageRoundTripTime,
+                idleWritePeriod: idleWritePeriod,
                 type: type,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 lastWriteTimestamp: lastWriteTimestamp,

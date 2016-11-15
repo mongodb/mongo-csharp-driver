@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "mode", modeString },
                 { "tags", tagSets, tagSets != null },
-                { "maxStalenessMS", () => (long)readPreference.MaxStaleness.Value.TotalMilliseconds, readPreference.MaxStaleness.HasValue }
+                { "maxStalenessSeconds", () => readPreference.MaxStaleness.Value.TotalSeconds, readPreference.MaxStaleness.HasValue }
             };
         }
     }

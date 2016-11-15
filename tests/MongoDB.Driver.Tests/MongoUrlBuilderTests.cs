@@ -654,11 +654,11 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(500, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [InlineData(20000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
-        [InlineData(1800000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [InlineData(3600000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [InlineData(3723000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [InlineData(500, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "Seconds=0.5" })]
+        [InlineData(20000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "Seconds=20.0" })]
+        [InlineData(1800000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "Seconds=1800.0" })]
+        [InlineData(3600000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "Seconds=3600.0" })]
+        [InlineData(3723000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "Seconds=3723.0" })]
         public void TestMaxStaleness(int? ms, string formatString, string[] values)
         {
             var maxStaleness = ms.HasValue ? TimeSpan.FromMilliseconds(ms.Value) : (TimeSpan?)null;
@@ -672,6 +672,20 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(readPreference, builder.ReadPreference);
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/?readPreference=secondary")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1s")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1000ms")]
+        public void TestNoMaxStaleness(string value)
+        {
+            var builder = new MongoUrlBuilder(value);
+
+            builder.ReadPreference.MaxStaleness.Should().NotHaveValue();
+            builder.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
         }
 
         [Theory]

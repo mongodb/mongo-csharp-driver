@@ -25,7 +25,7 @@ topology_description:
     maxWireVersion: 5
 read_preference:
   mode: Nearest
-  maxStalenessMS: 50000
+  maxStalenessSeconds: 50
 suitable_servers:
 - *1
 - *2

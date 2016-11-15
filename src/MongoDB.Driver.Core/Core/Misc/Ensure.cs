@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -190,6 +190,22 @@ namespace MongoDB.Driver.Core.Misc
                 throw new ArgumentOutOfRangeException(paramName, message);
             }
             return value;
+        }
+
+        /// <summary>
+        /// Ensures that the value of a parameter is infinite or greater than zero.
+        /// </summary>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static TimeSpan IsInfiniteOrGreaterThanZero(TimeSpan value, string paramName)
+        {
+            if (value == Timeout.InfiniteTimeSpan || value > TimeSpan.Zero)
+            {
+                return value;
+            }
+            var message = string.Format("Value is not infinite or greater than zero: {0}.", TimeSpanParser.ToString(value));
+            throw new ArgumentOutOfRangeException(paramName, message);
         }
 
         /// <summary>

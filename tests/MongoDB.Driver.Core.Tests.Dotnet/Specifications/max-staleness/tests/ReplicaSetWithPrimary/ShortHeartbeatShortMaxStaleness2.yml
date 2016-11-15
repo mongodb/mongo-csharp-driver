@@ -1,7 +1,7 @@
 # Users can configure a shorter ``heartbeatFrequencyMS`` than the default to
-# allow a smaller ``maxStalenessMS`` with replica sets.
+# allow a smaller ``maxStalenessSeconds`` with replica sets.
 ---
-heartbeatFrequencyMS: 1000  # 1 second.
+heartbeatFrequencyMS: 1100  # 1.1 seconds.
 topology_description:
   type: ReplicaSetWithPrimary
   servers:
@@ -21,7 +21,7 @@ topology_description:
     lastWrite: {lastWriteDate: {$numberLong: "1"}}
 read_preference:
   mode: Nearest
-  maxStalenessMS: 2000  # 2 seconds, permitted.
+  maxStalenessSeconds: 11.11  # heartbeatFrequencyMS + idleWritePeriodMillis ok
 suitable_servers:
 - *1
 - *2

@@ -1,4 +1,4 @@
-# maxStalenessMS is applied before tag sets. With tag sets
+# maxStalenessSeconds is applied before tag sets. With tag sets
 # [{data_center: nyc}, {data_center: tokyo}], if the only secondary in NYC is
 # stale then use Tokyo.
 ---
@@ -33,7 +33,7 @@ topology_description:
       data_center: nyc
 read_preference:
   mode: SecondaryPreferred
-  maxStalenessMS: 50000
+  maxStalenessSeconds: 50
   tag_sets:
   - data_center: nyc
   - data_center: tokyo

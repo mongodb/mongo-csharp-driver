@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly EndPoint _endPoint;
         private readonly Exception _heartbeatException;
         private readonly TimeSpan _heartbeatInterval;
+        private readonly TimeSpan _idleWritePeriod;
         private readonly DateTime _lastUpdateTimestamp;
         private readonly DateTime? _lastWriteTimestamp;
         private readonly int _maxBatchCount;
@@ -65,6 +66,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="idleWritePeriod">The idle write period.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
@@ -77,7 +79,6 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
-        /// <exception cref="System.ArgumentException">EndPoint and ServerId.EndPoint must match.</exception>
         public ServerDescription(
             ServerId serverId,
             EndPoint endPoint,
@@ -86,6 +87,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<TimeSpan> idleWritePeriod = default(Optional<TimeSpan>),
             Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
             Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
             Optional<int> maxBatchCount = default(Optional<int>),
@@ -112,6 +114,7 @@ namespace MongoDB.Driver.Core.Servers
             _endPoint = endPoint;
             _heartbeatException = heartbeatException.WithDefault(null);
             _heartbeatInterval = heartbeatInterval.WithDefault(TimeSpan.Zero);
+            _idleWritePeriod = idleWritePeriod.WithDefault(TimeSpan.FromSeconds(10));
             _lastUpdateTimestamp = lastUpdateTimestamp.WithDefault(DateTime.UtcNow);
             _lastWriteTimestamp = lastWriteTimestamp.WithDefault(null);
             _maxBatchCount = maxBatchCount.WithDefault(1000);
@@ -188,6 +191,17 @@ namespace MongoDB.Driver.Core.Servers
         public TimeSpan HeartbeatInterval
         {
             get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the idle write period.
+        /// </summary>
+        /// <value>
+        /// The idle write period.
+        /// </value>
+        public TimeSpan IdleWritePeriod
+        {
+            get { return _idleWritePeriod; }
         }
 
         /// <summary>
@@ -355,6 +369,7 @@ namespace MongoDB.Driver.Core.Servers
                 EndPointHelper.Equals(_endPoint, other._endPoint) &&
                 object.Equals(_heartbeatException, other._heartbeatException) &&
                 _heartbeatInterval == other._heartbeatInterval &&
+                _idleWritePeriod == other._idleWritePeriod &&
                 _lastUpdateTimestamp == other._lastUpdateTimestamp &&
                 _lastWriteTimestamp == other._lastWriteTimestamp &&
                 _maxBatchCount == other._maxBatchCount &&
@@ -381,6 +396,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_endPoint)
                 .Hash(_heartbeatException)
                 .Hash(_heartbeatInterval)
+                .Hash(_idleWritePeriod)
                 .Hash(_lastUpdateTimestamp)
                 .Hash(_lastWriteTimestamp)
                 .Hash(_maxBatchCount)
@@ -422,6 +438,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="idleWritePeriod">The idle write period.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
@@ -443,6 +460,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<TimeSpan> idleWritePeriod = default(Optional<TimeSpan>),
             Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
             Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
             Optional<int> maxBatchCount = default(Optional<int>),
@@ -467,6 +485,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId.Replaces(_electionId) ||
                 heartbeatException.Replaces(_heartbeatException) ||
                 heartbeatInterval.Replaces(_heartbeatInterval) ||
+                idleWritePeriod.Replaces(_idleWritePeriod) ||
                 lastUpdateTimestamp.Replaces(_lastUpdateTimestamp) ||
                 lastWriteTimestamp.Replaces(_lastWriteTimestamp) ||
                 maxBatchCount.Replaces(_maxBatchCount) ||
@@ -488,6 +507,7 @@ namespace MongoDB.Driver.Core.Servers
                     electionId: electionId.WithDefault(_electionId),
                     heartbeatException: heartbeatException.WithDefault(_heartbeatException),
                     heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                    idleWritePeriod: idleWritePeriod.WithDefault(_idleWritePeriod),
                     lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(_lastUpdateTimestamp),
                     lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),
                     maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),

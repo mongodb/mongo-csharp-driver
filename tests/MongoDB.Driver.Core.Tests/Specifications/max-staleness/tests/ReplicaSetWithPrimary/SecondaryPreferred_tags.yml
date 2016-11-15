@@ -49,7 +49,7 @@ topology_description:
       data_center: tokyo  # No match.
 read_preference:
   mode: SecondaryPreferred
-  maxStalenessMS: 50000
+  maxStalenessSeconds: 50
   tag_sets:
   - data_center: nyc
 suitable_servers:

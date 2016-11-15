@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Xunit;
@@ -139,6 +140,20 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
                 Assert.Equal(connectionString, url.ToString());
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/?readPreference=secondary")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1s")]
+        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1000ms")]
+        public void TestNoMaxStaleness(string value)
+        {
+            var url = new MongoUrl(value);
+
+            url.ReadPreference.MaxStaleness.Should().NotHaveValue();
+            url.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
         }
 
         // private methods

@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost?maxStaleness=15ms", 15)]
-        [InlineData("mongodb://localhost?maxStalenessMS=15", 15)]
+        [InlineData("mongodb://localhost?maxStalenessSeconds=0.015", 15)]
         [InlineData("mongodb://localhost?maxStaleness=15", 1000 * 15)]
         [InlineData("mongodb://localhost?maxStaleness=15s", 1000 * 15)]
         [InlineData("mongodb://localhost?maxStaleness=15m", 1000 * 60 * 15)]
@@ -464,6 +464,19 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.MaxStaleness.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost")]
+        [InlineData("mongodb://localhost?maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost?maxStaleness=-1")]
+        [InlineData("mongodb://localhost?maxStaleness=-1s")]
+        [InlineData("mongodb://localhost?maxStaleness=-1000ms")]
+        public void When_no_maxStaleness_is_specified(string connectionString)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.MaxStaleness.Should().NotHaveValue();
         }
 
         [Theory]
