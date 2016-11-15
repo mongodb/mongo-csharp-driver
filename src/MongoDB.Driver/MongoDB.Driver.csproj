@@ -90,6 +90,7 @@
     <Compile Include="AggregateFacetResult.cs" />
     <Compile Include="AggregateFacetResults.cs" />
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateGraphLookupOptions.cs" />
     <Compile Include="AggregateLookupOptions.cs" />
     <Compile Include="AggregateSortByCountResult.cs" />
     <Compile Include="AggregateStringTranslationMode.cs" />

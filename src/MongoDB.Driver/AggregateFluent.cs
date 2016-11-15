@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -255,6 +256,60 @@ namespace MongoDB.Driver
             return AppendStage<TNewResult>(stage);
         }
 
+        public override IAggregateFluent<TNewResult> GraphLookup<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>(
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, TConnectFrom> connectFromField,
+            FieldDefinition<TFrom, TConnect> connectToField,
+            AggregateExpressionDefinition<TResult, TStartWith> startWith,
+            FieldDefinition<TNewResult, TAsEnumerable> @as,
+            FieldDefinition<TAs, int> depthField,
+            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable> options = null)
+        {
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(connectFromField, nameof(connectFromField));
+            Ensure.IsNotNull(connectToField, nameof(connectToField));
+            Ensure.IsNotNull(startWith, nameof(startWith));
+            Ensure.IsNotNull(@as, nameof(@as));
+            Ensure.That(from.Database.DatabaseNamespace.Equals(_collection.Database.DatabaseNamespace), "From collection must be from the same database.", nameof(from));
+            Ensure.That(IsTConnectOrEnumerableTConnect<TConnectFrom, TConnect>(), "TConnectFrom must be either TConnect or a type that implements IEnumerable<TConnect>.", nameof(TConnectFrom));
+            Ensure.That(IsTConnectOrEnumerableTConnect<TStartWith, TConnect>(), "TStartWith must be either TConnect or a type that implements IEnumerable<TConnect>.", nameof(TStartWith));
+
+            const string operatorName = "$graphLookup";
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var resultSerializer = s;
+                    var newResultSerializer = options?.NewResultSerializer ?? sr.GetSerializer<TNewResult>();
+                    var fromSerializer = options?.FromSerializer ?? sr.GetSerializer<TFrom>();
+                    var asSerializer = options?.AsSerializer ?? sr.GetSerializer<TAs>();
+                    var renderedConnectToField = connectToField.Render(fromSerializer, sr);
+                    var renderedStartWith = startWith.Render(resultSerializer, sr);
+                    var renderedConnectFromField = connectFromField.Render(fromSerializer, sr);
+                    var renderedAs = @as.Render(newResultSerializer, sr);
+                    var renderedDepthField = depthField?.Render(asSerializer, sr);
+                    var renderedRestrictSearchWithMatch = options?.RestrictSearchWithMatch?.Render(fromSerializer, sr);
+                    var document = new BsonDocument
+                    {
+                        { operatorName, new BsonDocument
+                            {
+                                { "from", from.CollectionNamespace.CollectionName },
+                                { "connectFromField", renderedConnectFromField.FieldName },
+                                { "connectToField", renderedConnectToField.FieldName },
+                                { "startWith", renderedStartWith },
+                                { "as", renderedAs.FieldName },
+                                { "depthField", () => renderedDepthField.FieldName, renderedDepthField != null },
+                                { "maxDepth", () => options.MaxDepth.Value, options != null && options.MaxDepth.HasValue },
+                                { "restrictSearchWithMatch", renderedRestrictSearchWithMatch, renderedRestrictSearchWithMatch != null }
+                            }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, document, newResultSerializer);
+                });
+
+            return AppendStage<TNewResult>(stage);
+        }
+
         public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)
         {
             const string operatorName = "$group";
@@ -478,6 +533,23 @@ namespace MongoDB.Driver
             }
             sb.Append("])");
             return sb.ToString();
+        }
+
+        // private methods
+        private bool IsTConnectOrEnumerableTConnect<TConnectFrom, TConnect>()
+        {
+            if (typeof(TConnect) == typeof(TConnectFrom))
+            {
+                return true;
+            }
+
+            var ienumerableTConnect = typeof(IEnumerable<>).MakeGenericType(typeof(TConnect));
+            if (typeof(TConnectFrom).GetTypeInfo().GetInterfaces().Contains(ienumerableTConnect))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

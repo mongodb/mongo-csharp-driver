@@ -136,6 +136,34 @@ namespace MongoDB.Driver
             AggregateFacetOptions<TNewResult> options = null);
 
         /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnect">The type of the connect field.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TAs">The type of the documents in the as field.</typeparam>
+        /// <typeparam name="TAsEnumerable">The type of the enumerable as field.</typeparam>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> GraphLookup<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>(
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, TConnectFrom> connectFromField,
+            FieldDefinition<TFrom, TConnect> connectToField,
+            AggregateExpressionDefinition<TResult, TStartWith> startWith,
+            FieldDefinition<TNewResult, TAsEnumerable> @as,
+            FieldDefinition<TAs, int> depthField,
+            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable> options = null)
+                where TAsEnumerable : IEnumerable<TAs>;
+
+        /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>

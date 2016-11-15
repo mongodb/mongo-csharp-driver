@@ -184,6 +184,155 @@ namespace MongoDB.Driver
         {
             return aggregate.Facet<TNewResult>((IEnumerable<AggregateFacet<TResult>>)facets);
         }
+        
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnect">The type of the connect field.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TAsEnumerable">The type of the enumerable as field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAsEnumerable>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, TConnectFrom> connectFromField,
+            FieldDefinition<TFrom, TConnect> connectToField,
+            AggregateExpressionDefinition<TResult, TStartWith> startWith,
+            FieldDefinition<TNewResult, TAsEnumerable> @as,
+            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TFrom, TAsEnumerable> options = null)
+                where TAsEnumerable : IEnumerable<TFrom>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(connectFromField, nameof(connectFromField));
+            Ensure.IsNotNull(connectToField, nameof(connectToField));
+            Ensure.IsNotNull(startWith, nameof(startWith));
+            Ensure.IsNotNull(@as, nameof(@as));
+            var depthField = (FieldDefinition<TFrom, int>)null;
+            return aggregate.GraphLookup(from, connectFromField, connectToField, startWith, @as, depthField, options);
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> GraphLookup<TResult, TFrom>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, BsonValue> connectFromField,
+            FieldDefinition<TFrom, BsonValue> connectToField,
+            AggregateExpressionDefinition<TResult, BsonValue> startWith,
+            FieldDefinition<BsonDocument, IEnumerable<BsonDocument>> @as,
+            FieldDefinition<BsonDocument, int> depthField = null)
+        {
+            return aggregate.GraphLookup<BsonDocument, TFrom, BsonValue, BsonValue, BsonValue, BsonDocument, IEnumerable<BsonDocument>>(
+                from, connectFromField, connectToField, startWith, @as, depthField, null);
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnect">The type of the connect field.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TAsEnumerable">The type of the enumerable as field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAsEnumerable>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            Expression<Func<TFrom, TConnectFrom>> connectFromField,
+            Expression<Func<TFrom, TConnect>> connectToField,
+            Expression<Func<TResult, TStartWith>> startWith,
+            Expression<Func<TNewResult, TAsEnumerable>> @as,
+            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TFrom, TAsEnumerable> options = null)
+                where TAsEnumerable : IEnumerable<TFrom>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(connectFromField, nameof(connectFromField));
+            Ensure.IsNotNull(connectToField, nameof(connectToField));
+            Ensure.IsNotNull(startWith, nameof(startWith));
+            Ensure.IsNotNull(@as, nameof(@as));
+            var connectFromFieldDefinition = new ExpressionFieldDefinition<TFrom, TConnectFrom>(connectFromField);
+            var connectToFieldDefinition = new ExpressionFieldDefinition<TFrom, TConnect>(connectToField);
+            var startWithDefinition = new ExpressionAggregateExpressionDefinition<TResult, TStartWith>(startWith, aggregate.Options.TranslationOptions);
+            var asDefinition = new ExpressionFieldDefinition<TNewResult, TAsEnumerable>(@as);
+            return aggregate.GraphLookup(from, connectFromFieldDefinition, connectToFieldDefinition, startWithDefinition, asDefinition, options);
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnect">The type of the connect field.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
+        /// <typeparam name="TAs">The type of the documents in the as field.</typeparam>
+        /// <typeparam name="TAsEnumerable">The type of the enumerable as field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            Expression<Func<TFrom, TConnectFrom>> connectFromField,
+            Expression<Func<TFrom, TConnect>> connectToField,
+            Expression<Func<TResult, TStartWith>> startWith,
+            Expression<Func<TNewResult, TAsEnumerable>> @as,
+            Expression<Func<TAs, int>> depthField,
+            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable> options = null)
+                where TAsEnumerable : IEnumerable<TAs>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(connectFromField, nameof(connectFromField));
+            Ensure.IsNotNull(connectToField, nameof(connectToField));
+            Ensure.IsNotNull(@as, nameof(@as));
+            var connectFromFieldDefinition = new ExpressionFieldDefinition<TFrom, TConnectFrom>(connectFromField);
+            var connectToFieldDefinition = new ExpressionFieldDefinition<TFrom, TConnect>(connectToField);
+            var startWithDefinition = new ExpressionAggregateExpressionDefinition<TResult, TStartWith>(startWith, aggregate.Options.TranslationOptions);
+            var asDefinition = new ExpressionFieldDefinition<TNewResult, TAsEnumerable>(@as);
+            var depthFieldDefinition = depthField == null ? null : new ExpressionFieldDefinition<TAs, int>(depthField);
+            return aggregate.GraphLookup(from, connectFromFieldDefinition, connectToFieldDefinition, startWithDefinition, asDefinition, depthFieldDefinition, options);
+        }
 
         /// <summary>
         /// Appends a group stage to the pipeline.
