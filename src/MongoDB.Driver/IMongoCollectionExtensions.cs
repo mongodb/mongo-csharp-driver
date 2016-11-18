@@ -39,7 +39,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
-            return new AggregateFluent<TDocument, TDocument>(collection, Enumerable.Empty<IPipelineStageDefinition>(), options ?? new AggregateOptions());
+            var emptyPipeline = new EmptyPipelineDefinition<TDocument>(collection.DocumentSerializer);
+            return new AggregateFluent<TDocument, TDocument>(collection, emptyPipeline, options ?? new AggregateOptions());
         }
 
         /// <summary>

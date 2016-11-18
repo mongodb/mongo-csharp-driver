@@ -21,17 +21,15 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents options for the GraphLookup method.
     /// </summary>
-    public class AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>
-        where TAsEnumerable : IEnumerable<TAs>
+    /// <typeparam name="TFrom">The type of from documents.</typeparam>
+    /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+    /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+    public class AggregateGraphLookupOptions<TFrom, TAsElement, TOutput>
     {
-        internal AggregateGraphLookupOptions()
-        {
-        }
-
         /// <summary>
-        /// Gets or sets the TAs serialzier.
+        /// Gets or sets the TAsElement serialzier.
         /// </summary>
-        public IBsonSerializer<TAs> AsSerializer { get; set; }
+        public IBsonSerializer<TAsElement> AsElementSerializer { get; set; }
 
         /// <summary>
         /// Gets or sets the TFrom serializer.
@@ -44,9 +42,9 @@ namespace MongoDB.Driver
         public int? MaxDepth { get; set; }
 
         /// <summary>
-        /// Gets or sets the TNewResult serializer.
+        /// Gets or sets the output serializer.
         /// </summary>
-        public IBsonSerializer<TNewResult> NewResultSerializer { get; set; }
+        public IBsonSerializer<TOutput> OutputSerializer { get; set; }
 
         /// <summary>
         /// Gets the filter to restrict the search with.

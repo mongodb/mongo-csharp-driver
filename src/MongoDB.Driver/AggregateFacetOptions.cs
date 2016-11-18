@@ -20,18 +20,18 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for the aggregate $facet stage.
     /// </summary>
-    /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-    public sealed class AggregateFacetOptions<TNewResult>
+    /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+    public sealed class AggregateFacetOptions<TOutput>
     {
-        private IBsonSerializer<TNewResult> _newResultSerializer;
+        private IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Gets or sets the new result serializer.
+        /// Gets or sets the output serializer.
         /// </summary>
-        public IBsonSerializer<TNewResult> NewResultSerializer
+        public IBsonSerializer<TOutput> OutputSerializer
         {
-            get { return _newResultSerializer; }
-            set { _newResultSerializer = value; }
+            get { return _outputSerializer; }
+            set { _outputSerializer = value; }
         }
     }
 }

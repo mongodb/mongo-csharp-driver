@@ -279,12 +279,14 @@
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
     <Compile Include="ExpressionTranslationOptions.cs" />
     <Compile Include="OfTypeSerializer.cs" />
+    <Compile Include="PipelineDefinitionBuilder.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="FilterDefinition.cs" />
     <Compile Include="AggregateFluentBase.cs" />
+    <Compile Include="PipelineStageDefinitionBuilder.cs" />
     <Compile Include="ProjectionDefinitionBuilder.cs" />
     <Compile Include="IndexKeysDefinitionBuilder.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />

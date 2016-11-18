@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests
             var startWith = (AggregateExpressionDefinition<Traveler, string>)"$nearestAirport";
             var @as = (FieldDefinition<TravelerDestinations, Destination[]>)"Destinations";
             var depthField = (FieldDefinition<Destination, int>)"NumConnections";
-            var options = new AggregateGraphLookupOptions<TravelerDestinations, Airport, string, string[], string, Destination, Destination[]>
+            var options = new AggregateGraphLookupOptions<Airport, Destination, TravelerDestinations>
             {
                 MaxDepth = 2
             };
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests
             var startWith = (AggregateExpressionDefinition<Traveler, string>)"$nearestAirport";
             var @as = (FieldDefinition<TravelerDestinations, Destination[]>)"Destinations";
             var depthField = (FieldDefinition<Destination, int>)"NumConnections";
-            var options = new AggregateGraphLookupOptions<TravelerDestinations, Airport, string, string[], string, Destination, Destination[]>
+            var options = new AggregateGraphLookupOptions<Airport, Destination, TravelerDestinations>
             {
                 MaxDepth = 2
             };
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Tests
         public void GraphLookup_typed_should_add_expected_stage()
         {
             var subject = __travelersCollection.Aggregate();
-            var options = new AggregateGraphLookupOptions<TravelerDestinations, Airport, string, string[], string, Destination, Destination[]>
+            var options = new AggregateGraphLookupOptions<Airport, Destination, TravelerDestinations>
             {
                 MaxDepth = 2
             };
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Tests
             var startWith = (AggregateExpressionDefinition<Traveler, string>)"$nearestAirport";
             var @as = (FieldDefinition<TravelerDestinations, Destination[]>)"Destinations";
             var depthField = (FieldDefinition<Destination, int>)"NumConnections";
-            var options = new AggregateGraphLookupOptions<TravelerDestinations, Airport, string, string[], string, Destination, Destination[]>
+            var options = new AggregateGraphLookupOptions<Airport, Destination, TravelerDestinations>
             {
                 MaxDepth = 2
             };
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Tests
         public void GraphLookup_typed_with_array_valued_start_with_should_add_expected_stage()
         {
             var subject = __airportsCollection.Aggregate();
-            var options = new AggregateGraphLookupOptions<AirportDestinationsIncludingStops, Airport, string, string[], string[], Airport, Airport[]>
+            var options = new AggregateGraphLookupOptions<Airport, Airport, AirportDestinationsIncludingStops>
             {
                 MaxDepth = 2
             };
@@ -278,7 +278,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
             EnsureTestData();
             var subject = __airportsCollection.Aggregate();
-            var options = new AggregateGraphLookupOptions<AirportDestinationsIncludingStops, Airport, string, string[], string[], Airport, Airport[]>
+            var options = new AggregateGraphLookupOptions<Airport, Airport, AirportDestinationsIncludingStops>
             {
                 MaxDepth = 2
             };

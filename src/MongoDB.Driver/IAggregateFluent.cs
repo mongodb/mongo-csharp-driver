@@ -33,6 +33,11 @@ namespace MongoDB.Driver
     public interface IAggregateFluent<TResult> : IAsyncCursorSource<TResult>
     {
         /// <summary>
+        /// Gets the database.
+        /// </summary>
+        IMongoDatabase Database { get; }
+
+        /// <summary>
         /// Gets the options.
         /// </summary>
         AggregateOptions Options { get; }
@@ -51,7 +56,7 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
-        /// Appends a project stage to the pipeline.
+        /// Changes the result type of the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="newResultSerializer">The new result serializer.</param>
@@ -138,13 +143,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a $graphLookup stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
         /// <typeparam name="TFrom">The type of the from documents.</typeparam>
-        /// <typeparam name="TConnect">The type of the connect field.</typeparam>
-        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
-        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnect or a type that implements IEnumerable{TConnect}).</typeparam>
-        /// <typeparam name="TAs">The type of the documents in the as field.</typeparam>
-        /// <typeparam name="TAsEnumerable">The type of the enumerable as field.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TConnectTo">The type of the connect to field.</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
         /// <param name="from">The from collection.</param>
         /// <param name="connectFromField">The connect from field.</param>
         /// <param name="connectToField">The connect to field.</param>
@@ -153,15 +158,15 @@ namespace MongoDB.Driver
         /// <param name="depthField">The depth field.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TNewResult> GraphLookup<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>(
+        IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
             IMongoCollection<TFrom> from,
             FieldDefinition<TFrom, TConnectFrom> connectFromField,
-            FieldDefinition<TFrom, TConnect> connectToField,
+            FieldDefinition<TFrom, TConnectTo> connectToField,
             AggregateExpressionDefinition<TResult, TStartWith> startWith,
-            FieldDefinition<TNewResult, TAsEnumerable> @as,
-            FieldDefinition<TAs, int> depthField,
-            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable> options = null)
-                where TAsEnumerable : IEnumerable<TAs>;
+            FieldDefinition<TNewResult, TAs> @as,
+            FieldDefinition<TAsElement, int> depthField,
+            AggregateGraphLookupOptions<TFrom, TAsElement, TNewResult> options = null)
+                where TAs : IEnumerable<TAsElement>;
 
         /// <summary>
         /// Appends a group stage to the pipeline.
@@ -290,5 +295,11 @@ namespace MongoDB.Driver
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public interface IOrderedAggregateFluent<TResult> : IAggregateFluent<TResult>
     {
+        /// <summary>
+        /// Combines the current sort definition with an additional sort definition.
+        /// </summary>
+        /// <param name="newSort">The new sort.</param>
+        /// The fluent aggregate interface.
+        IOrderedAggregateFluent<TResult> ThenBy(SortDefinition<TResult> newSort);
     }
 }

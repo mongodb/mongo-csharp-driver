@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests
             var connectToField = (FieldDefinition<Employee, string>)"Name";
             var startWith = (AggregateExpressionDefinition<Employee, string>)"$reportsTo";
             var @as = (FieldDefinition<EmployeeWithReportingHierarchy, Employee[]>)"ReportingHierarchy";
-            var options = new AggregateGraphLookupOptions<EmployeeWithReportingHierarchy, Employee, string, string, string, Employee, Employee[]>
+            var options = new AggregateGraphLookupOptions<Employee, Employee, EmployeeWithReportingHierarchy>
             {
                 RestrictSearchWithMatch = Builders<Employee>.Filter.Ne("Id", 1)
             };
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests
             var connectToField = (FieldDefinition<Employee, string>)"Name";
             var startWith = (AggregateExpressionDefinition<Employee, string>)"$reportsTo";
             var @as = (FieldDefinition<EmployeeWithReportingHierarchy, Employee[]>)"ReportingHierarchy";
-            var options = new AggregateGraphLookupOptions<EmployeeWithReportingHierarchy, Employee, string, string, string, Employee, Employee[]>
+            var options = new AggregateGraphLookupOptions<Employee, Employee, EmployeeWithReportingHierarchy>
             {
                 RestrictSearchWithMatch = Builders<Employee>.Filter.Ne("Id", 1)
             };

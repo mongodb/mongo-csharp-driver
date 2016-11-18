@@ -73,12 +73,32 @@ namespace MongoDB.Driver
         public abstract IBsonSerializer<TOutput> OutputSerializer { get; }
 
         /// <summary>
+        /// Gets the stages.
+        /// </summary>
+        public abstract IEnumerable<IPipelineStageDefinition> Stages { get; }
+
+        /// <summary>
         /// Renders the pipeline.
         /// </summary>
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
         public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<TInput>();
+            return ToString(inputSerializer, serializerRegistry);
+        }
+
+        /// <inheritdoc/>
+        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedPipeline = Render(inputSerializer, serializerRegistry);
+            return $"[{string.Join(", ", renderedPipeline.Documents.Select(stage => stage.ToJson()))}]";
+        }
 
         /// <summary>
         /// Creates a pipeline.
@@ -201,59 +221,6 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A pipeline defined by combining two pipeline definitions.
-    /// </summary>
-    /// <typeparam name="TInput">The type of the input.</typeparam>
-    /// <typeparam name="TIntermediateOutput">The type of the intermediate output.</typeparam>
-    /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public sealed class CombinedPipelineDefinition<TInput, TIntermediateOutput, TOutput> : PipelineDefinition<TInput, TOutput>
-    {
-        private PipelineDefinition<TInput, TIntermediateOutput> _first;
-        private PipelineDefinition<TIntermediateOutput, TOutput> _second;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CombinedPipelineDefinition{TInput, TIntermediateOutput, TOutput}"/> class.
-        /// </summary>
-        /// <param name="first">The first pipeline.</param>
-        /// <param name="second">The second pipeline.</param>
-        public CombinedPipelineDefinition(PipelineDefinition<TInput, TIntermediateOutput> first, PipelineDefinition<TIntermediateOutput, TOutput> second)
-        {
-            _first = Ensure.IsNotNull(first, nameof(first));
-            _second = Ensure.IsNotNull(second, nameof(second));
-        }
-
-        /// <summary>
-        /// Gets the first pipeline.
-        /// </summary>
-        public PipelineDefinition<TInput, TIntermediateOutput> First
-        {
-            get { return _first; }
-        }
-
-        /// <inheritdoc />
-        public override IBsonSerializer<TOutput> OutputSerializer => _second.OutputSerializer;
-
-        /// <summary>
-        /// Gets the second pipeline.
-        /// </summary>
-        public PipelineDefinition<TIntermediateOutput, TOutput> Second
-        {
-            get { return _second; }
-        }
-
-        /// <inheritdoc />
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            var renderedFirst = _first.Render(inputSerializer, serializerRegistry);
-            var renderedSecond = _second.Render(renderedFirst.OutputSerializer, serializerRegistry);
-
-            return new RenderedPipelineDefinition<TOutput>(
-                renderedFirst.Documents.Concat(renderedSecond.Documents),
-                renderedSecond.OutputSerializer);
-        }
-    }
-
-    /// <summary>
     /// A pipeline composed of instances of <see cref="BsonDocument"/>.
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
@@ -280,10 +247,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the stages.
         /// </summary>
-        public IList<BsonDocument> Stages
+        public IList<BsonDocument> Documents
         {
             get { return _stages; }
         }
+
+        /// <inheritdoc />
+        public override IEnumerable<IPipelineStageDefinition> Stages => _stages.Select(s => new BsonDocumentPipelineStageDefinition<TInput, TOutput>(s, _outputSerializer));
 
         /// <inheritdoc />
         public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -330,10 +300,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the stages.
         /// </summary>
-        public IList<IPipelineStageDefinition> Stages
-        {
-            get { return _stages; }
-        }
+        public override IEnumerable<IPipelineStageDefinition> Stages => _stages;
 
         /// <inheritdoc />
         public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
@@ -398,6 +365,9 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public override IBsonSerializer<TOutput> OutputSerializer => _wrapped.OutputSerializer;
+
+        /// <inheritdoc />
+        public override IEnumerable<IPipelineStageDefinition> Stages => _wrapped.Stages;
 
         public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {

@@ -374,14 +374,30 @@ namespace MongoDB.Driver.Tests
         // private methods
         private IAggregateFluent<C> CreateSubject()
         {
+            var mockDatabase = new Mock<IMongoDatabase>();
+            SetupDatabaseGetCollectionMethod<C>(mockDatabase);
+
             var settings = new MongoCollectionSettings();
             _mockCollection = new Mock<IMongoCollection<C>>();
-            _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<C>());
+            _mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
+            _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<C>());
             _mockCollection.SetupGet(c => c.Settings).Returns(settings);
             var options = new AggregateOptions();
-            var subject = new AggregateFluent<C, C>(_mockCollection.Object, Enumerable.Empty<IPipelineStageDefinition>(), options);
+            var subject = new AggregateFluent<C, C>(_mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
 
             return subject;
+        }
+
+        private void SetupDatabaseGetCollectionMethod<TDocument>(Mock<IMongoDatabase> mockDatabase)
+        {
+            mockDatabase
+                .Setup(d => d.GetCollection<TDocument>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+                .Returns((string collectionName, MongoCollectionSettings settings) =>
+                {
+                    var mockCollection = new Mock<IMongoCollection<TDocument>>();
+                    mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName));
+                    return mockCollection.Object;
+                });
         }
 
         private RenderedPipelineDefinition<TOutput> RenderPipeline<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline)

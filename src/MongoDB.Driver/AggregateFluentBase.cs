@@ -29,6 +29,13 @@ namespace MongoDB.Driver
     public abstract class AggregateFluentBase<TResult> : IOrderedAggregateFluent<TResult>
     {
         /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+        public virtual IMongoDatabase Database
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <inheritdoc />
         public abstract AggregateOptions Options { get; }
 
         /// <inheritdoc />
@@ -93,15 +100,15 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TNewResult> GraphLookup<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable>(
+        public virtual IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
             IMongoCollection<TFrom> from,
             FieldDefinition<TFrom, TConnectFrom> connectFromField,
-            FieldDefinition<TFrom, TConnect> connectToField,
+            FieldDefinition<TFrom, TConnectTo> connectToField,
             AggregateExpressionDefinition<TResult, TStartWith> startWith,
-            FieldDefinition<TNewResult, TAsEnumerable> @as,
-            FieldDefinition<TAs, int> depthField,
-            AggregateGraphLookupOptions<TNewResult, TFrom, TConnect, TConnectFrom, TStartWith, TAs, TAsEnumerable> options = null)
-                where TAsEnumerable : IEnumerable<TAs>
+            FieldDefinition<TNewResult, TAs> @as,
+            FieldDefinition<TAsElement, int> depthField,
+            AggregateGraphLookupOptions<TFrom, TAsElement, TNewResult> options = null)
+                where TAs : IEnumerable<TAsElement>
         {
             throw new NotImplementedException();
         }
@@ -150,6 +157,12 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IOrderedAggregateFluent<TResult> ThenBy(SortDefinition<TResult> newSort)
         {
             throw new NotImplementedException();
         }

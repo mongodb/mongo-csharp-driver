@@ -234,22 +234,9 @@ namespace MongoDB.Driver
 
         private PipelineDefinition<TDocument, TResult> CreateFilteredPipeline<TResult>(PipelineDefinition<TDocument, TResult> pipeline)
         {
-            const string matchOperatorName = "$match";
-
-            var filterStage = new DelegatedPipelineStageDefinition<TDocument, TDocument>(
-                matchOperatorName,
-                (s, sr) =>
-                {
-                    var renderedFilter = _filter.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TDocument>(matchOperatorName, new BsonDocument(matchOperatorName, renderedFilter), s);
-                });
-
-            var filterPipeline = new PipelineStagePipelineDefinition<TDocument, TDocument>(new[] { filterStage });
-            var combinedPipeline = new CombinedPipelineDefinition<TDocument, TDocument, TResult>(
-                filterPipeline,
-                pipeline);
-
-            return new OptimizingPipelineDefinition<TDocument, TResult>(combinedPipeline);
+            var filterStage = PipelineStageDefinitionBuilder.Match(_filter);
+            var filteredPipeline = new PrependedStagePipelineDefinition<TDocument, TDocument, TResult>(filterStage, pipeline);
+            return new OptimizingPipelineDefinition<TDocument, TResult>(filteredPipeline);
         }
     }
 }
