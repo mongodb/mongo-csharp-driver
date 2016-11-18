@@ -36,7 +36,7 @@
         {
             "address": "b:27017",
             "avg_rtt_ms": 50,
-            "idleWritePeriodMillis": 9000,
+            "idleWritePeriodMillis": 11000,
             "lastUpdateTime": 0,
             "lastWrite": {
                 "lastWriteDate": {
@@ -65,7 +65,7 @@
             {
                 "address": "b:27017",
                 "avg_rtt_ms": 50,
-                "idleWritePeriodMillis": 9000,
+                "idleWritePeriodMillis": 11000,
                 "lastUpdateTime": 0,
                 "lastWrite": {
                     "lastWriteDate": {
