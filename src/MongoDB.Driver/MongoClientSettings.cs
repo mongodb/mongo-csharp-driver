@@ -542,11 +542,7 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
-            var credential = MongoCredential.FromComponents(
-                url.AuthenticationMechanism,
-                url.AuthenticationSource ?? url.DatabaseName,
-                url.Username,
-                url.Password);
+            var credential = url.GetCredential();
 
             var clientSettings = new MongoClientSettings();
             clientSettings.ApplicationName = url.ApplicationName;

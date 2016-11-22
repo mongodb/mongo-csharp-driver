@@ -26,6 +26,7 @@ using Xunit;
 using MongoDB.Driver.Core.Connections;
 using System.Threading.Tasks;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -39,9 +40,8 @@ namespace MongoDB.Driver.Core.Authentication
             new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Theory]
-        [InlineData(null)]
         [InlineData("")]
-        public void Constructor_should_throw_an_ArgumentException_when_username_is_null_or_empty(string username)
+        public void Constructor_should_throw_an_ArgumentException_when_username_is_empty(string username)
         {
             Action act = () => new MongoDBX509Authenticator(username);
 
@@ -58,6 +58,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
             var connection = new MockConnection(__serverId);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
             connection.EnqueueReplyMessage(reply);
 
             Action act;
@@ -85,6 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
             connection.EnqueueReplyMessage(reply);
 
             Action act;
@@ -98,6 +100,76 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             act.ShouldNotThrow();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_throw_when_username_is_null_and_server_does_not_support_null_username(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new MongoDBX509Authenticator(null);
+
+            var reply = MessageHelper.BuildReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{ok: 1}"));
+
+            var connection = new MockConnection(__serverId);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
+            connection.EnqueueReplyMessage(reply);
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception = Record.Exception(() => subject.Authenticate(connection, __description, CancellationToken.None));
+            }
+
+            exception.Should().BeOfType<MongoConnectionException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_not_throw_when_username_is_null_and_server_support_null_username(
+            [Values(false, true)]
+            bool async)
+        {
+            var subject = new MongoDBX509Authenticator(null);
+
+            var reply = MessageHelper.BuildReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{ok: 1}"));
+
+            var connection = new MockConnection(__serverId);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 4, 0));
+            connection.EnqueueReplyMessage(reply);
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception = Record.Exception(() => subject.Authenticate(connection, __description, CancellationToken.None));
+            }
+
+            exception.Should().BeNull();
+        }
+
+        // private methods
+        private ConnectionDescription CreateConnectionDescription(SemanticVersion serverVersion)
+        {
+            var clusterId = new ClusterId(1);
+            var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
+            var connectionId = new ConnectionId(serverId, 1);
+            var isMasterResult = new IsMasterResult(new BsonDocument());
+            var buildInfoResult = new BuildInfoResult(new BsonDocument
+            {
+                { "version", serverVersion.ToString() }
+            });
+            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
         }
     }
 }

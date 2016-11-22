@@ -38,13 +38,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="username">The username.</param>
-        internal MongoIdentity(string source, string username)
+        /// <param name="allowNullUsername">Whether to allow null usernames.</param>
+        internal MongoIdentity(string source, string username, bool allowNullUsername = false)
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (username == null)
+            if (username == null && !allowNullUsername)
             {
                 throw new ArgumentNullException("username");
             }

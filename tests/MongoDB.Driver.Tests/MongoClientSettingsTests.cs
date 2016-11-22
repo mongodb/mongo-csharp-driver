@@ -337,6 +337,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestFromUrlWithMongoDBX509_without_username()
+        {
+            var url = new MongoUrl("mongodb://localhost/?authMechanism=MONGODB-X509");
+            var settings = MongoClientSettings.FromUrl(url);
+
+            var credential = settings.Credentials.Single();
+            Assert.Equal("MONGODB-X509", credential.Mechanism);
+            Assert.Equal(null, credential.Username);
+            Assert.IsType<ExternalEvidence>(credential.Evidence);
+        }
+
+        [Fact]
         public void TestFrozenCopy()
         {
             var settings = new MongoClientSettings();

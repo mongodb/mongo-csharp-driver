@@ -204,6 +204,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance has authentication settings.
+        /// </summary>
+        public bool HasAuthenticationSettings
+        {
+            get
+            {
+                return
+                    _username != null ||
+                    _password != null ||
+                    _authenticationMechanism != null ||
+                    _authenticationSource != null;
+            }              
+        }
+
+        /// <summary>
         /// Gets the heartbeat interval.
         /// </summary>
         public TimeSpan HeartbeatInterval
@@ -496,6 +511,26 @@ namespace MongoDB.Driver
         public override bool Equals(object obj)
         {
             return Equals(obj as MongoUrl); // works even if obj is null or of a different type
+        }
+
+        /// <summary>
+        /// Gets the credential.
+        /// </summary>
+        /// <returns>The credential (or null if the URL has not authentication settings).</returns>
+        public MongoCredential GetCredential()
+        {
+            if (HasAuthenticationSettings)
+            {
+                return MongoCredential.FromComponents(
+                    _authenticationMechanism,
+                    _authenticationSource ?? _databaseName,
+                    _username,
+                    _password);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

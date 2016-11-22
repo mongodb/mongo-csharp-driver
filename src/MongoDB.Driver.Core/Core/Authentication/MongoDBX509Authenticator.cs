@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="username">The username.</param>
         public MongoDBX509Authenticator(string username)
         {
-            _username = Ensure.IsNotNullOrEmpty(username, nameof(username));
+            _username = Ensure.IsNullOrNotEmpty(username, nameof(username));
         }
 
         // properties
@@ -67,6 +67,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
+            EnsureUsernameIsNotNullOrNullIsSupported(connection);
 
             try
             {
@@ -84,6 +85,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
+            EnsureUsernameIsNotNullOrNullIsSupported(connection);
 
             try
             {
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 { "authenticate", 1 },
                 { "mechanism", Name },
-                { "user", _username }
+                { "user", _username, _username != null }
             };
 
             var protocol = new CommandWireProtocol<BsonDocument>(
@@ -120,6 +122,16 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
+        }
+
+        private void EnsureUsernameIsNotNullOrNullIsSupported(IConnection connection)
+        {
+            var serverVersion = connection.Description.ServerVersion;
+            if (_username == null && !Feature.ServerExtractsUsernameFromX509Certificate.IsSupported(serverVersion))
+            {
+                var message = $"Username cannot be null for server version {serverVersion}.";
+                throw new MongoConnectionException(connection.ConnectionId, message);
+            }
         }
     }
 }

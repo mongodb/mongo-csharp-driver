@@ -447,11 +447,6 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(string mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            if (string.IsNullOrEmpty(username))
-            {
-                return null;
-            }
-
             var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
             switch (defaultedMechanism)
             {
@@ -480,7 +475,7 @@ namespace MongoDB.Driver
 
                     return new MongoCredential(
                         mechanism,
-                        new MongoExternalIdentity(username),
+                        new MongoX509Identity(username),
                         evidence);
                 case "GSSAPI":
                     // always $external for GSSAPI.  
