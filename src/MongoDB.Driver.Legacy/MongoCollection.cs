@@ -574,7 +574,7 @@ namespace MongoDB.Driver
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
-            var returnDocument = args.VersionReturned == FindAndModifyDocumentVersion.Original
+            var returnDocument = !args.VersionReturned.HasValue || args.VersionReturned.Value == FindAndModifyDocumentVersion.Original
                 ? Core.Operations.ReturnDocument.Before
                 : Core.Operations.ReturnDocument.After;
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);

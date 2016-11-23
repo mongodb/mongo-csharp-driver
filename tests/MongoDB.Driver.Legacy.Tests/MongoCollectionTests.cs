@@ -908,6 +908,7 @@ namespace MongoDB.Driver.Tests
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
+            _collection.Insert(new BsonDocument { { "_id", 3 }, { "priority", 3 }, { "inprogress", false }, { "name", "ghi" } });
 
 
             var started = DateTime.UtcNow;
@@ -917,10 +918,28 @@ namespace MongoDB.Driver.Tests
                 BypassDocumentValidation = true,
                 Query = Query.EQ("inprogress", false),
                 SortBy = SortBy.Descending("priority"),
+                Update = Update.Set("inprogress", true).Set("started", started)
+            };
+            var result = _collection.FindAndModify(args);
+
+            Assert.True(result.Ok);
+            Assert.Equal(3, result.ModifiedDocument["_id"].AsInt32);
+            Assert.Equal(3, result.ModifiedDocument["priority"].AsInt32);
+            Assert.Equal(false, result.ModifiedDocument["inprogress"].AsBoolean);
+            Assert.Equal("ghi", result.ModifiedDocument["name"].AsString);
+            Assert.False(result.ModifiedDocument.Contains("started"));
+
+            started = DateTime.UtcNow;
+            started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
+            args = new FindAndModifyArgs
+            {
+                BypassDocumentValidation = true,
+                Query = Query.EQ("inprogress", false),
+                SortBy = SortBy.Descending("priority"),
                 Update = Update.Set("inprogress", true).Set("started", started),
                 VersionReturned = FindAndModifyDocumentVersion.Original
             };
-            var result = _collection.FindAndModify(args);
+            result = _collection.FindAndModify(args);
 
             Assert.True(result.Ok);
             Assert.Equal(2, result.ModifiedDocument["_id"].AsInt32);
