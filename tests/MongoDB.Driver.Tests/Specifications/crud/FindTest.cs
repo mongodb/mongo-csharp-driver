@@ -45,6 +45,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "batchSize":
                     _options.BatchSize = value.ToInt32();
                     return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
             }
 
             return false;

@@ -21,7 +21,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
-    public class DistinctTest : CrudOperationWithResultTestBase<List<int>>
+    public class DistinctTest : CrudOperationWithResultTestBase<List<BsonValue>>
     {
         private string _fieldName;
         private BsonDocument _filter;
@@ -37,30 +37,34 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "filter":
                     _filter = (BsonDocument)value;
                     return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
             }
 
             return false;
         }
 
-        protected override List<int> ConvertExpectedResult(BsonValue expectedResult)
+        protected override List<BsonValue> ConvertExpectedResult(BsonValue expectedResult)
         {
-            return ((BsonArray)expectedResult).Select(x => x.ToInt32()).ToList();
+            return ((BsonArray)expectedResult).ToList();
         }
 
-        protected override List<int> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override List<BsonValue> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
+            var filter = _filter ?? new BsonDocument();
             if (async)
             {
-                var cursor = collection.DistinctAsync<int>(_fieldName, _filter, _options).GetAwaiter().GetResult();
+                var cursor = collection.DistinctAsync<BsonValue>(_fieldName, filter, _options).GetAwaiter().GetResult();
                 return cursor.ToListAsync().GetAwaiter().GetResult();
             }
             else
             {
-                return collection.Distinct<int>(_fieldName, _filter, _options).ToList();
+                return collection.Distinct<BsonValue>(_fieldName, filter, _options).ToList();
             }
         }
 
-        protected override void VerifyResult(List<int> actualResult, List<int> expectedResult)
+        protected override void VerifyResult(List<BsonValue> actualResult, List<BsonValue> expectedResult)
         {
             actualResult.Should().Equal(expectedResult);
         }

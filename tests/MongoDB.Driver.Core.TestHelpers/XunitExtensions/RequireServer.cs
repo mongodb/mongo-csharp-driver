@@ -161,5 +161,20 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         {
             return VersionLessThan(SemanticVersion.Parse(version));
         }
+
+        public RequireServer VersionLessThanOrEqualTo(SemanticVersion version)
+        {
+            var actualVersion = CoreTestConfiguration.ServerVersion;
+            if (actualVersion <= version)
+            {
+                return this;
+            }
+            throw new SkipTestException($"Test skipped because server version {actualVersion} is not less than or equal to {version}.");
+        }
+
+        public RequireServer VersionLessThanOrEqualTo(string version)
+        {
+            return VersionLessThanOrEqualTo(SemanticVersion.Parse(version));
+        }
     }
 }

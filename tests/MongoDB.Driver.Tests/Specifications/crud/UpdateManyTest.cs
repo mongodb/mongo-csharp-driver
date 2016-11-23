@@ -38,6 +38,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "upsert":
                     _options.IsUpsert = value.ToBoolean();
                     return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
             }
 
             return false;

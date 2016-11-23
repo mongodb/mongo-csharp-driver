@@ -23,6 +23,8 @@ using MongoDB.Bson;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using System.Collections;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
@@ -67,6 +69,18 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(IEnumerable<BsonDocument> data, BsonDocument definition, bool async)
         {
+            BsonValue minServerVersion;
+            if (definition.TryGetValue("minServerVersion", out minServerVersion))
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo(minServerVersion.AsString);
+            }
+
+            BsonValue maxServerVersion;
+            if (definition.TryGetValue("maxServerVersion", out maxServerVersion))
+            {
+                RequireServer.Check().VersionLessThanOrEqualTo(maxServerVersion.AsString);
+            }
+
             var database = DriverTestConfiguration.Client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database

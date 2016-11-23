@@ -50,6 +50,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "returnDocument":
                     _options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), value.ToString());
                     return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
             }
 
             return false;

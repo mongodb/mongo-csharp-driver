@@ -16,7 +16,7 @@ tests:
 
         outcome:
             result:
-                matchedCount: 2
+                matchedCount: 1
                 modifiedCount: 1
             # can't verify collection because we don't have a way
             # of knowing which document gets updated.

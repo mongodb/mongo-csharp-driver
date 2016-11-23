@@ -37,6 +37,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "limit":
                     _options.Limit = value.ToInt64();
                     return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
             }
 
             return false;

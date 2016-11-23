@@ -15,7 +15,7 @@ tests:
 
         outcome:
             result:
-                matchedCount: 2
+                matchedCount: 1
                 modifiedCount: 1
             # can't verify collection because we don't have a way
             # of knowing which document gets updated.
@@ -67,12 +67,8 @@ tests:
                 matchedCount: 0
                 modifiedCount: 0
                 upsertedId: 4
-            collection:
-                data:
-                    - {_id: 1, x: 11}
-                    - {_id: 2, x: 23}
-                    - {_id: 3, x: 33}
-                    - {_id: 4, x: 1}
+            # See SERVER-5289 for why the collection data is not checked for server versions < 2.6
+
     -
         description: "ReplaceOne with upsert when no documents match with an id specified"
         operation:
@@ -87,9 +83,4 @@ tests:
                 matchedCount: 0
                 modifiedCount: 0
                 upsertedId: 4
-            collection:
-                data:
-                    - {_id: 1, x: 11}
-                    - {_id: 2, x: 22}
-                    - {_id: 3, x: 33}
-                    - {_id: 4, x: 1}
+            # See SERVER-5289 for why the collection data is not checked for server versions < 2.6

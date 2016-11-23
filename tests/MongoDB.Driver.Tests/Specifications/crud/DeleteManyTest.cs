@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     public class DeleteManyTest : CrudOperationWithResultTestBase<DeleteResult>
     {
         private BsonDocument _filter;
+        private DeleteOptions _options = new DeleteOptions();
 
         protected override bool TrySetArgument(string name, BsonValue value)
         {
@@ -29,6 +30,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             {
                 case "filter":
                     _filter = (BsonDocument)value;
+                    return true;
+                case "collation":
+                    _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
                     return true;
             }
 
@@ -44,11 +48,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             if (async)
             {
-                return collection.DeleteManyAsync(_filter).GetAwaiter().GetResult();
+                return collection.DeleteManyAsync(_filter, _options).GetAwaiter().GetResult();
             }
             else
             {
-                return collection.DeleteMany(_filter);
+                return collection.DeleteMany(_filter, _options);
             }
         }
 

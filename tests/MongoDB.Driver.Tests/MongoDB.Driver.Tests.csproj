@@ -279,6 +279,21 @@
     <EmbeddedResource Include="Specifications\command-monitoring\tests\insertMany.yml" />
     <EmbeddedResource Include="Specifications\command-monitoring\tests\updateMany.json" />
     <EmbeddedResource Include="Specifications\command-monitoring\tests\updateMany.yml" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\aggregate-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\aggregate-out.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\count-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\distinct-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\find-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteMany-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteOne-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndDelete-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-upsert.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-upsert.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-collation.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
