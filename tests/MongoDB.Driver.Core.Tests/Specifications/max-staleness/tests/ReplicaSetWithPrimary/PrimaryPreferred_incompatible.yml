@@ -22,6 +22,6 @@ topology_description:
     lastWrite: {lastWriteDate: {$numberLong: "1"}}
 read_preference:
   mode: PrimaryPreferred
-  maxStalenessSeconds: 50
+  maxStalenessSeconds: 150
 error: true
 

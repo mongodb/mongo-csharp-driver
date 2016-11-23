@@ -255,42 +255,30 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             if (_maxStaleness.HasValue)
             {
-                TimeSpan heartbeatInterval;
-                TimeSpan idleWritePeriod;
-
-                var primary = SelectPrimary(cluster.Servers).SingleOrDefault();
-                if (primary != null)
+                if (_maxStaleness.Value < TimeSpan.FromSeconds(90))
                 {
-                    heartbeatInterval = primary.HeartbeatInterval;
-                    idleWritePeriod = primary.IdleWritePeriod;
+                    var message = string.Format(
+                        "Max staleness ({0} seconds) must greater than or equal to 90 seconds.",
+                        (int)_maxStaleness.Value.TotalSeconds);
+                    throw new Exception(message);
                 }
-                else
+
+                var anyServer = cluster.Servers.FirstOrDefault();
+                if (anyServer == null)
                 {
-                    ServerDescription secondaryWithGreatestLastUpdateTime = null;
-                    foreach (var secondary in SelectSecondaries(cluster.Servers))
-                    {
-                        if (secondaryWithGreatestLastUpdateTime == null || secondary.LastUpdateTimestamp > secondaryWithGreatestLastUpdateTime.LastUpdateTimestamp)
-                        {
-                            secondaryWithGreatestLastUpdateTime = secondary;
-                        }
-                    }
-
-                    if (secondaryWithGreatestLastUpdateTime == null)
-                    {
-                        return;
-                    }
-
-                    heartbeatInterval = secondaryWithGreatestLastUpdateTime.HeartbeatInterval;
-                    idleWritePeriod = secondaryWithGreatestLastUpdateTime.IdleWritePeriod;
+                    return;
                 }
+
+                var heartbeatInterval = anyServer.HeartbeatInterval; // all servers have the same HeartbeatInterval
+                var idleWritePeriod = TimeSpan.FromSeconds(10);
 
                 if (_maxStaleness.Value < heartbeatInterval + idleWritePeriod)
                 {
                     var message = string.Format(
-                        "Max staleness ({0} ms) must greater than or equal to heartbeat interval ({1} ms) plus idle write period ({2} ms).",
-                        (int)_maxStaleness.Value.TotalMilliseconds,
-                        (int)heartbeatInterval.TotalMilliseconds,
-                        (int)idleWritePeriod.TotalMilliseconds);
+                        "Max staleness ({0} seconds) must greater than or equal to heartbeat interval ({1} seconds) plus idle write period ({2} seconds).",
+                        (int)_maxStaleness.Value.TotalSeconds,
+                        (int)heartbeatInterval.TotalSeconds,
+                        (int)idleWritePeriod.TotalSeconds);
                     throw new Exception(message);
                 }
             }

@@ -177,7 +177,6 @@ namespace MongoDB.Driver.Core.Servers
                     canonicalEndPoint: isMasterResult.Me,
                     electionId: isMasterResult.ElectionId,
                     lastWriteTimestamp: isMasterResult.LastWriteTimestamp,
-                    idleWritePeriod: isMasterResult.IdleWritePeriod,
                     maxBatchCount: isMasterResult.MaxBatchCount,
                     maxDocumentSize: isMasterResult.MaxDocumentSize,
                     maxMessageSize: isMasterResult.MaxMessageSize,

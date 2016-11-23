@@ -1,4 +1,4 @@
-# Drivers MUST raise an error if ``maxStalenessSeconds`` is not zero or null
+# Drivers MUST raise an error if maxStalenessSeconds is defined and not -1
 # and the ``mode`` field is 'primary'.
 ---
 topology_description:

@@ -119,6 +119,10 @@ namespace MongoDB.Driver
             if (maxStaleness.HasValue)
             {
                 Ensure.IsInfiniteOrGreaterThanZero(maxStaleness.Value, nameof(maxStaleness));
+                if (maxStaleness.Value > TimeSpan.Zero)
+                {
+                    Ensure.That(maxStaleness.Value.Ticks % TimeSpan.TicksPerMillisecond == 0, "MaxStaleness must not have fractional seconds.", nameof(maxStaleness));
+                }
                 Ensure.That(mode != ReadPreferenceMode.Primary, "MaxStaleness cannot be used with ReadPreferenceMode Primary.", nameof(maxStaleness));
             }
 

@@ -203,14 +203,12 @@ namespace MongoDB.Driver.Specifications.server_selection
             {
                 lastUpdateTimestamp = _utcNow;
             }
-            var idleWritePeriod = TimeSpan.FromMilliseconds(serverDescription.GetValue("idleWritePeriodMillis", 10000).ToDouble());
 
             var serverId = new ServerId(_clusterId, endPoint);
             return new ServerDescription(
                 serverId,
                 endPoint,
                 averageRoundTripTime: averageRoundTripTime,
-                idleWritePeriod: idleWritePeriod,
                 type: type,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 lastWriteTimestamp: lastWriteTimestamp,

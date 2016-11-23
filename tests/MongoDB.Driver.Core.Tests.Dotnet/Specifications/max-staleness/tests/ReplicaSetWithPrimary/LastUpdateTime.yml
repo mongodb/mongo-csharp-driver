@@ -13,21 +13,21 @@ topology_description:
     address: b:27017
     type: RSSecondary
     avg_rtt_ms: 5
-    lastUpdateTime: 25001
-    # Updated 25 sec after primary, so 25 sec stale.
-    # 25 sec stale + 25 sec heartbeat <= 50 sec maxStaleness.
+    lastUpdateTime: 125001
+    # Updated 125 sec after primary, so 125 sec stale.
+    # 125 sec stale + 25 sec heartbeat <= 150 sec maxStaleness.
     lastWrite: {lastWriteDate: {$numberLong: "2"}}
     maxWireVersion: 5
   - &3
     address: c:27017
     type: RSSecondary
     avg_rtt_ms: 5
-    lastUpdateTime: 25001
+    lastUpdateTime: 125001
     lastWrite: {lastWriteDate: {$numberLong: "1"}}  # Too stale.
     maxWireVersion: 5
 read_preference:
   mode: Nearest
-  maxStalenessSeconds: 50
+  maxStalenessSeconds: 150
 suitable_servers:
 - *1
 - *2

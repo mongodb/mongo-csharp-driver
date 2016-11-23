@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "mode", modeString },
                 { "tags", tagSets, tagSets != null },
-                { "maxStalenessSeconds", () => readPreference.MaxStaleness.Value.TotalSeconds, readPreference.MaxStaleness.HasValue }
+                { "maxStalenessSeconds", () => (int)readPreference.MaxStaleness.Value.TotalSeconds, readPreference.MaxStaleness.HasValue }
             };
         }
     }

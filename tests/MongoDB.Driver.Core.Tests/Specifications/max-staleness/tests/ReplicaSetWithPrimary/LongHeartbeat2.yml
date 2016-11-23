@@ -1,14 +1,14 @@
-# Users can configure a shorter ``heartbeatFrequencyMS`` than the default to
-# allow a smaller ``maxStalenessSeconds`` with replica sets.
+# If users configure a longer ``heartbeatFrequencyMS`` than the default,
+# ``maxStalenessSeconds`` might have a larger minimum.
 ---
-heartbeatFrequencyMS: 1000  # 1 second.
+heartbeatFrequencyMS: 120000  # 120 seconds.
 topology_description:
   type: ReplicaSetWithPrimary
   servers:
   - &1
     address: a:27017
     type: RSPrimary
-    avg_rtt_ms: 50  # Too far.
+    avg_rtt_ms: 5
     lastUpdateTime: 0
     maxWireVersion: 5
     lastWrite: {lastWriteDate: {$numberLong: "1"}}
@@ -21,9 +21,5 @@ topology_description:
     lastWrite: {lastWriteDate: {$numberLong: "1"}}
 read_preference:
   mode: Nearest
-  maxStalenessSeconds: 11  # heartbeatFrequencyMS + idleWritePeriodMillis ok
-suitable_servers:
-- *1
-- *2
-in_latency_window:
-- *2
+  maxStalenessSeconds: 129  # Too small, must be 120 + 10 = 130 seconds.
+error: true
