@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(IEnumerable<BsonDocument> data, BsonDocument definition, bool async)
+        public void RunTestDefinition(BsonDocument definition, BsonDocument test, bool async)
         {
             BsonValue minServerVersion;
             if (definition.TryGetValue("minServerVersion", out minServerVersion))
@@ -87,9 +87,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             database.DropCollection(collection.CollectionNamespace.CollectionName);
-            collection.InsertMany(data);
+            collection.InsertMany(definition["data"].AsBsonArray.Cast<BsonDocument>());
 
-            ExecuteOperation(database, collection, (BsonDocument)definition["operation"], (BsonDocument)definition["outcome"], async);
+            ExecuteOperation(database, collection, (BsonDocument)test["operation"], (BsonDocument)test["outcome"], async);
         }
 
         private void ExecuteOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)
@@ -117,25 +117,23 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Driver.Tests.Specifications.crud.tests.";
-                var testDocuments = typeof(TestCaseFactory).GetTypeInfo().Assembly
+                var definitions = typeof(TestCaseFactory).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Select(path => ReadDocument(path));
+                    .Select(path => ReadDefinition(path));
 
                 var testCases = new List<object[]>();
-                foreach (var testDocument in testDocuments)
+                foreach (var definition in definitions)
                 {
-                    var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
-
-                    foreach (BsonDocument definition in testDocument["tests"].AsBsonArray)
+                    foreach (BsonDocument test in definition["tests"].AsBsonArray)
                     {
                         foreach (var async in new[] { false, true})
                         {
-                            //var testCase = new TestCaseData(data, definition, async);
+                            //var testCase = new TestCaseData(definition, test, async);
                             //testCase.SetCategory("Specifications");
                             //testCase.SetCategory("crud");
-                            //testCase.SetName($"{definition["description"]}({async})");
-                            var testCase = new object[] { data, definition, async };
+                            //testCase.SetName($"{test["description"]}({async})");
+                            var testCase = new object[] { definition, test, async };
                             testCases.Add(testCase);
                         }
                     }
@@ -149,13 +147,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 return GetEnumerator();
             }
 
-            private static BsonDocument ReadDocument(string path)
+            private static BsonDocument ReadDefinition(string path)
             {
                 using (var definitionStream = typeof(TestCaseFactory).GetTypeInfo().Assembly.GetManifestResourceStream(path))
                 using (var definitionStringReader = new StreamReader(definitionStream))
                 {
                     var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
+                    var definition = BsonDocument.Parse(definitionString);
+                    definition.InsertAt(0, new BsonElement("path", path));
+                    return definition;
                 }
             }
         }
