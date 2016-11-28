@@ -23,6 +23,24 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// </summary>
     public class CamelCaseElementNameConvention : ConventionBase, IMemberMapConvention
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="skipWhenAllCaps">
+        /// When set to true, this convention will skip members in capital letters (for example: "ALLCAPS")
+        /// in order to preserve acronyms or member names designed to be in upper-case.
+        /// </param>
+        public CamelCaseElementNameConvention(bool skipWhenAllCaps = false)
+        {
+            SkipWhenAllCaps = skipWhenAllCaps;
+        }
+
+        /// <summary>
+        /// Gets if this convention will skip members in capital letters (for example: "ALLCAPS")
+        /// in order to preserve acronyms or member names designed to be in upper-case.
+        /// </summary>
+        private bool SkipWhenAllCaps { get; }
+
         // public methods
         /// <summary>
         /// Applies a modification to the member map.
@@ -42,11 +60,15 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return "";
             }
+            else if (SkipWhenAllCaps && memberName == memberName.ToUpper())
+            {
+                return memberName;
+            }
             else if(memberName.Length == 1)
             {
                 return Char.ToLowerInvariant(memberName[0]).ToString();
             }
-            else 
+            else
             {
                 return Char.ToLowerInvariant(memberName[0]) + memberName.Substring(1);
             }

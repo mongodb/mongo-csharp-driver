@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public int Age { get; set; }
             public string _DumbName { get; set; }
             public string lowerCase { get; set; }
+            public string ALLCAPS { get; set; }
         }
 
         [Fact]
@@ -38,16 +39,43 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var age = classMap.MapMember(x => x.Age);
             var _dumbName = classMap.MapMember(x => x._DumbName);
             var lowerCase = classMap.MapMember(x => x.lowerCase);
+            var allCaps = classMap.MapMember(x => x.ALLCAPS);
 
             convention.Apply(firstName);
             convention.Apply(age);
             convention.Apply(_dumbName);
             convention.Apply(lowerCase);
+            convention.Apply(allCaps);
 
             Assert.Equal("firstName", firstName.ElementName);
             Assert.Equal("age", age.ElementName);
             Assert.Equal("_DumbName", _dumbName.ElementName);
             Assert.Equal("lowerCase", lowerCase.ElementName);
+            Assert.Equal("aLLCAPS", allCaps.ElementName);
+        }
+
+        [Fact]
+        public void TestCamelCaseElementNameConventionWithSkipAllCaps()
+        {
+            var convention = new CamelCaseElementNameConvention(skipWhenAllCaps: true);
+            var classMap = new BsonClassMap<TestClass>();
+            var firstName = classMap.MapMember(x => x.FirstName);
+            var age = classMap.MapMember(x => x.Age);
+            var _dumbName = classMap.MapMember(x => x._DumbName);
+            var lowerCase = classMap.MapMember(x => x.lowerCase);
+            var allCaps = classMap.MapMember(x => x.ALLCAPS);
+
+            convention.Apply(firstName);
+            convention.Apply(age);
+            convention.Apply(_dumbName);
+            convention.Apply(lowerCase);
+            convention.Apply(allCaps);
+
+            Assert.Equal("firstName", firstName.ElementName);
+            Assert.Equal("age", age.ElementName);
+            Assert.Equal("_DumbName", _dumbName.ElementName);
+            Assert.Equal("lowerCase", lowerCase.ElementName);
+            Assert.Equal("ALLCAPS", allCaps.ElementName);
         }
     }
 }
