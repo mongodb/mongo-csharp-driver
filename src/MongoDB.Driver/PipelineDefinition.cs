@@ -93,7 +93,14 @@ namespace MongoDB.Driver
             return ToString(inputSerializer, serializerRegistry);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedPipeline = Render(inputSerializer, serializerRegistry);

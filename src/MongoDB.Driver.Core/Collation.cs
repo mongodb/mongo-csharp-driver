@@ -461,7 +461,7 @@ namespace MongoDB.Driver
         /// <param name="maxVariable">The new maximum variable.</param>
         /// <param name="normalization">The new normalization.</param>
         /// <param name="backwards">The new backwards.</param>
-        /// <returns></returns>
+        /// <returns>A new Collation instance.</returns>
         public Collation With(
             Optional<string> locale = default(Optional<string>),
             Optional<bool?> caseLevel = default(Optional<bool?>),

@@ -299,7 +299,7 @@ namespace MongoDB.Driver
         /// Combines the current sort definition with an additional sort definition.
         /// </summary>
         /// <param name="newSort">The new sort.</param>
-        /// The fluent aggregate interface.
+        /// <returns>The fluent aggregate interface.</returns>
         IOrderedAggregateFluent<TResult> ThenBy(SortDefinition<TResult> newSort);
     }
 }

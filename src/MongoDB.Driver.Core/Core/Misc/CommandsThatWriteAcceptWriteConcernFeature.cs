@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="serverVersion">The server version.</param>
         /// <param name="value">The write concern value.</param>
+        /// <returns>Whether the write concern should be sent to the server.</returns>
         public bool ShouldSendWriteConcern(SemanticVersion serverVersion, WriteConcern value)
         {
             return value != null && !value.IsServerDefault && base.IsSupported(serverVersion);

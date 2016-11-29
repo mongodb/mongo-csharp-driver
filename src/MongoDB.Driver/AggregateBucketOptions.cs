@@ -18,6 +18,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents options for the Bucket method.
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     public class AggregateBucketOptions<TValue>
     {
         /// <summary>

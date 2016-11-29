@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A task.</returns>
         Task CreateViewAsync<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>

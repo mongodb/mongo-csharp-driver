@@ -296,7 +296,7 @@ namespace MongoDB.Driver
         /// <param name="viewOn">The name of the collection that the view is on.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
-        /// <returns></returns>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateView(string viewName, string viewOn, IEnumerable<BsonDocument> pipeline, IMongoCreateViewOptions options)
         {
             if (viewName == null)

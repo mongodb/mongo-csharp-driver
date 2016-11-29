@@ -627,9 +627,9 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets a value indicating whether this instance is zero.
         /// </summary>
-        /// <value>
+        /// <returns>
         ///   <c>true</c> if this instance is zero; otherwise, <c>false</c>.
-        /// </value>
+        /// </returns>
         public static bool IsZero(Decimal128 d)
         {
             if (Flags.IsFirstForm(d._highBits) && GetSignificand(d).Equals(UInt128.Zero))

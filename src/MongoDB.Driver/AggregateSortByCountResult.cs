@@ -20,6 +20,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Result type for the aggregate $sortByCount stage.
     /// </summary>
+    /// <typeparam name="TId">The type of the identifier.</typeparam>
     public sealed class AggregateSortByCountResult<TId>
     {
         private long _count;

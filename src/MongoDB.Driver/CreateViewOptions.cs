@@ -20,6 +20,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating a view.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
     public class CreateViewOptions<TDocument>
     {
         // fields

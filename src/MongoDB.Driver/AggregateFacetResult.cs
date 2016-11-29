@@ -41,6 +41,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the output of the facet.
         /// </summary>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <returns>The output of the facet.</returns>
         public IReadOnlyList<TOutput> Output<TOutput>()
         {
             return ((AggregateFacetResult<TOutput>)this).Output;

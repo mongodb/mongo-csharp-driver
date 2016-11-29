@@ -240,6 +240,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns a new instance of ReadPreference with some values changed.
         /// </summary>
+        /// <param name="maxStaleness">The maximum staleness.</param>
         /// <returns>A new instance of ReadPreference.</returns>
         public ReadPreference With(TimeSpan? maxStaleness)
         {
