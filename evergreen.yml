@@ -7,7 +7,7 @@ tasks:
       - command: shell.exec
         params: 
           script: |
-            echo "hello world!"
+            echo "hello world from evergreen.yml!"
             echo "${test_flags}"
 
 
