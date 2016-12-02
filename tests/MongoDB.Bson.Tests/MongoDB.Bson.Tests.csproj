@@ -134,6 +134,7 @@
     <Compile Include="Serialization\Attributes\BsonConstructorAttributeTests.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttributeTests.cs" />
     <Compile Include="Serialization\BsonClassMapAutoMappingTests.cs" />
+    <Compile Include="Serialization\BsonClassMapSetOrderTests.cs" />
     <Compile Include="Serialization\BsonClassMapTests.cs" />
     <Compile Include="Serialization\BsonMemberMapDefaultValueCreatorTests.cs" />
     <Compile Include="Serialization\BsonMemberMapTests.cs" />
