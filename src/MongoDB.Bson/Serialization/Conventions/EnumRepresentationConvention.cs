@@ -51,17 +51,64 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var memberTypeInfo = memberMap.MemberType.GetTypeInfo();
-            if (memberTypeInfo.IsEnum)
+            if (IsEnumType(memberMap.MemberType))
             {
                 var serializer = memberMap.GetSerializer();
-                var representationConfigurableSerializer = serializer as IRepresentationConfigurable;
-                if (representationConfigurableSerializer != null)
-                {
-                    var reconfiguredSerializer = representationConfigurableSerializer.WithRepresentation(_representation);
-                    memberMap.SetSerializer(reconfiguredSerializer);
-                }
+                var reconfiguredSerializer = Apply(serializer);
+                memberMap.SetSerializer(reconfiguredSerializer);
             }
         }
+        
+        private IBsonSerializer Apply(IBsonSerializer serializer)
+        {
+            var representationConfigurable = serializer as IRepresentationConfigurable;
+            if (representationConfigurable != null)
+            {
+                var reconfiguredSerializer = representationConfigurable.WithRepresentation(_representation);
+
+                var converterConfigurable = reconfiguredSerializer as IRepresentationConverterConfigurable;
+                if (converterConfigurable != null)
+                {
+                    var converter = new RepresentationConverter(false, false);
+                    reconfiguredSerializer = converterConfigurable.WithConverter(converter);
+                }
+
+                return reconfiguredSerializer;
+            }
+
+            // for backward compatibility representations of Array and Document are mapped to DictionaryRepresentations if possible
+            var dictionaryRepresentationConfigurable = serializer as IDictionaryRepresentationConfigurable;
+            if (dictionaryRepresentationConfigurable != null)
+            {
+                if (_representation == BsonType.Array || _representation == BsonType.Document)
+                {
+                    var dictionaryRepresentation = (_representation == BsonType.Array) ? DictionaryRepresentation.ArrayOfArrays : DictionaryRepresentation.Document;
+                    return dictionaryRepresentationConfigurable.WithDictionaryRepresentation(dictionaryRepresentation);
+                }
+            }
+
+            // if none of the overrides applied the attribute to the serializer see if it can be applied to a child serializer
+            var childSerializerConfigurable = serializer as IChildSerializerConfigurable;
+            if (childSerializerConfigurable != null)
+            {
+                var childSerializer = childSerializerConfigurable.ChildSerializer;
+                var reconfiguredChildSerializer = Apply(childSerializer);
+                return childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
+            }
+
+            var message = string.Format(
+                "A serializer of type '{0}' is not configurable using an attribute of type '{1}'.",
+                BsonUtils.GetFriendlyTypeName(serializer.GetType()),
+                BsonUtils.GetFriendlyTypeName(this.GetType()));
+            throw new NotSupportedException(message);
+        }
+
+        private bool IsEnumType(Type t)
+        {
+            if (t.GetTypeInfo().IsEnum) return true;
+            Type u = Nullable.GetUnderlyingType(t);
+            return (u != null) && u.GetTypeInfo().IsEnum;
+        }
+
     }
 }
