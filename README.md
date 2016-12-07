@@ -85,6 +85,8 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Craig Wilson              craig.wilson@mongodb.com
 
 ### Contributors:
+* Alexander Aramov          https://github.com/alex687
+* Bar Arnon                 https://github.com/I3arnon
 * Bit Diffusion Limited     code@bitdiff.com
 * Alex Brown                https://github.com/alexjamesbrown
 * Justin Dearing            zippy1981@gmail.com
@@ -94,26 +96,25 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Ken Egozi                 mail@kenegozi.com
 * Daniel Goldman            daniel@stackwave.com
 * Simon Green               simon@captaincodeman.com
+* James Hadwen              james.hadwen@sociustec.com
+* Jacob Jewell              jacobjewell@eflexsystems.com
+* Danny Kendrick            https://github.com/dkendrick
+* Brian Knight              brianknight10@gmail.com  
 * Nik Kolev                 nkolev@gmail.com
 * Oleg Kosmakov             kosmakoff@gmail.com
-* Brian Knight              brianknight10@gmail.com  
+* Maksim Krautsou           https://github.com/MaKCbIMKo
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
 * Alex Lyman                mail.alex.lyman@gmail.com
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn
+* Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Alexey Skalozub           pieceofsummer@gmail.com
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
 * Testo                     test1@doramail.com   
-* Bar Arnon                 https://github.com/I3arnon
-* Rich Quackenbush          rich.quackenbush@captiveaire.com
-* James Hadwen              james.hadwen@sociustec.com
-* Jacob Jewell              jacobjewell@eflexsystems.com
-* Danny Kendrick            https://github.com/dkendrick
-* Alexander Aramov          https://github.com/alex687
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
