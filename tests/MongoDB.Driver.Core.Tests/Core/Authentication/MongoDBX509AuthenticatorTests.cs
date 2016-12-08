@@ -142,17 +142,17 @@ namespace MongoDB.Driver.Core.Authentication
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 4, 0));
             connection.EnqueueReplyMessage(reply);
+            var description = CreateConnectionDescription(new SemanticVersion(3, 4, 0));
 
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.Authenticate(connection, __description, CancellationToken.None));
+                exception = Record.Exception(() => subject.Authenticate(connection, description, CancellationToken.None));
             }
 
             exception.Should().BeNull();

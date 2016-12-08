@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            EnsureUsernameIsNotNullOrNullIsSupported(connection);
+            EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
             try
             {
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            EnsureUsernameIsNotNullOrNullIsSupported(connection);
+            EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
             try
             {
@@ -124,9 +124,9 @@ namespace MongoDB.Driver.Core.Authentication
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
 
-        private void EnsureUsernameIsNotNullOrNullIsSupported(IConnection connection)
+        private void EnsureUsernameIsNotNullOrNullIsSupported(IConnection connection, ConnectionDescription description)
         {
-            var serverVersion = connection.Description.ServerVersion;
+            var serverVersion = description.ServerVersion;
             if (_username == null && !Feature.ServerExtractsUsernameFromX509Certificate.IsSupported(serverVersion))
             {
                 var message = $"Username cannot be null for server version {serverVersion}.";
