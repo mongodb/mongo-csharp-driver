@@ -50,7 +50,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// User power of 2 size.
         /// </summary>
-        UsePowerOf2Sizes = 1
+        UsePowerOf2Sizes = 1,
+        /// <summary>
+        /// Whether padding should not be used.
+        /// </summary>
+        NoPadding = 2
     }
 
     /// <summary>

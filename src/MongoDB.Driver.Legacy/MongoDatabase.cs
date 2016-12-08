@@ -212,6 +212,7 @@ namespace MongoDB.Driver
             BsonDocument indexOptionDefaults = null;
             int? maxDocuments = null;
             long? maxSize = null;
+            bool? noPadding = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
             DocumentValidationAction? validationAction = null;
@@ -243,6 +244,10 @@ namespace MongoDB.Driver
                 {
                     maxDocuments = value.ToInt32();
                 }
+                if (optionsDocument.TryGetValue("flags", out value))
+                {
+                    noPadding = ((CollectionUserFlags)value.ToInt32() & CollectionUserFlags.NoPadding) != 0;
+                }
                 if (optionsDocument.TryGetValue("size", out value))
                 {
                     maxSize = value.ToInt64();
@@ -253,7 +258,7 @@ namespace MongoDB.Driver
                 }
                 if (optionsDocument.TryGetValue("flags", out value))
                 {
-                    usePowerOf2Sizes = value.ToInt32() == 1;
+                    usePowerOf2Sizes = ((CollectionUserFlags)value.ToInt32() & CollectionUserFlags.UsePowerOf2Sizes) != 0;
                 }
                 if (optionsDocument.TryGetValue("validationAction", out value))
                 {
@@ -277,6 +282,7 @@ namespace MongoDB.Driver
                 IndexOptionDefaults = indexOptionDefaults,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
+                NoPadding = noPadding,
                 StorageEngine = storageEngine,
                 UsePowerOf2Sizes = usePowerOf2Sizes,
                 ValidationAction = validationAction,

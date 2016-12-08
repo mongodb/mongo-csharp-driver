@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
+        private bool? _noPadding;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
@@ -92,6 +93,15 @@ namespace MongoDB.Driver
         {
             get { return _maxSize; }
             set { _maxSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether padding should not be used.
+        /// </summary>
+        public bool? NoPadding
+        {
+            get { return _noPadding; }
+            set { _noPadding = value; }
         }
 
         /// <summary>
@@ -176,6 +186,7 @@ namespace MongoDB.Driver
                     IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
+                    NoPadding = options.NoPadding,
                     SerializerRegistry = options.SerializerRegistry,
                     StorageEngine = options.StorageEngine,
                     UsePowerOf2Sizes = options.UsePowerOf2Sizes,

@@ -597,6 +597,27 @@ namespace MongoDB.Driver.Tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void TestCreateCollectionSetNoPadding(
+            [Values(false, true)]
+            bool noPadding)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            var collection = _database.GetCollection("cappedcollection");
+            collection.Drop();
+            var userFlags = noPadding ? CollectionUserFlags.NoPadding : CollectionUserFlags.None;
+            var options = new CollectionOptionsDocument
+            {
+                { "flags", (int)userFlags }
+            };
+
+            _database.CreateCollection(collection.Name, options);
+
+            var stats = collection.GetStats();
+            Assert.Equal(userFlags, stats.UserFlags);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -3067,6 +3088,24 @@ namespace MongoDB.Driver.Tests
         public void TestGetStats()
         {
             _collection.GetStats();
+        }
+
+        [SkippableFact]
+        public void TestGetStatsNoPadding()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            _collection.Drop();
+            _database.CreateCollection(_collection.Name); // collMod command only works if collection exists
+
+            var command = new CommandDocument
+            {
+                { "collMod", _collection.Name },
+                { "noPadding", true }
+            };
+            _database.RunCommand(command);
+
+            var stats = _collection.GetStats();
+            Assert.True((stats.UserFlags & CollectionUserFlags.NoPadding) != 0);
         }
 
         [SkippableFact]

@@ -97,6 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.IndexOptionDefaults.Should().BeNull();
             subject.MaxDocuments.Should().NotHaveValue();
             subject.MaxSize.Should().NotHaveValue();
+            subject.NoPadding.Should().NotHaveValue();
             subject.StorageEngine.Should().BeNull();
             subject.UsePowerOf2Sizes.Should().NotHaveValue();
             subject.ValidationAction.Should().BeNull();
@@ -265,6 +266,27 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "size", () => maxSize.Value, maxSize != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_NoPadding_is_set(
+            [Values(null, false, true)]
+            bool? noPadding)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                NoPadding = noPadding
+            };
+
+            var result = subject.CreateCommand(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "flags", () => noPadding.Value ? 2 : 0, noPadding != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -582,6 +604,31 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void Execute_should_create_collection_when_NoPadding_is_set(
+            [Values(false, true)]
+            bool noPadding,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            DropCollection();
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                NoPadding = noPadding
+            };
+
+            BsonDocument info;
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            {
+                ExecuteOperation(subject, binding, async);
+                info = GetCollectionInfo(binding);
+            }
+
+            info["options"]["flags"].Should().Be(noPadding ? 2 : 0);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_create_collection_when_StorageEngine_is_set(
             [Values("abc", "def")]
             string metadata,
@@ -777,6 +824,20 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             argumentOutOfRangeException.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void NoPadding_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+
+            subject.NoPadding = value;
+            var result = subject.NoPadding;
+
+            result.Should().Be(value);
         }
 
         [Theory]

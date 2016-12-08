@@ -262,6 +262,7 @@ namespace MongoDB.Driver
                 Capped = options.Capped,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
+                NoPadding = options.NoPadding,
                 StorageEngine = options.StorageEngine,
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                 WriteConcern = _settings.WriteConcern
@@ -287,6 +288,7 @@ namespace MongoDB.Driver
                 IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument(),
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
+                NoPadding = options.NoPadding,
                 StorageEngine = options.StorageEngine,
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                 ValidationAction = options.ValidationAction,

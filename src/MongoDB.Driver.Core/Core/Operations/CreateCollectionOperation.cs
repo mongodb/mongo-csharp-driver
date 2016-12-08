@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool? _noPadding;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
@@ -156,6 +157,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets whether padding should not be used.
+        /// </summary>
+        public bool? NoPadding
+        {
+            get { return _noPadding; }
+            set { _noPadding = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the storage engine options.
         /// </summary>
         /// <value>
@@ -232,6 +242,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
+            var flags = GetFlags();
             return new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
@@ -239,7 +250,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "autoIndexId", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
-                { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue },
+                { "flags", () => (int)flags.Value, flags.HasValue },
                 { "storageEngine", () => _storageEngine, _storageEngine != null },
                 { "indexOptionDefaults", _indexOptionDefaults, _indexOptionDefaults != null },
                 { "validator", _validator, _validator != null },
@@ -248,6 +259,27 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
+        }
+
+        private CreateCollectionFlags? GetFlags()
+        {
+            if (_usePowerOf2Sizes.HasValue || _noPadding.HasValue)
+            {
+                var flags = CreateCollectionFlags.None;
+                if (_usePowerOf2Sizes.HasValue && _usePowerOf2Sizes.Value)
+                {
+                    flags |= CreateCollectionFlags.UsePowerOf2Sizes;
+                }
+                if (_noPadding.HasValue && _noPadding.Value)
+                {
+                    flags |= CreateCollectionFlags.NoPadding;
+                }
+                return flags;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <inheritdoc/>
@@ -286,6 +318,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = CreateCommand(serverVersion);
             return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        }
+
+        [Flags]
+        private enum CreateCollectionFlags
+        {
+            None = 0,
+            UsePowerOf2Sizes = 1,
+            NoPadding = 2
         }
     }
 }
