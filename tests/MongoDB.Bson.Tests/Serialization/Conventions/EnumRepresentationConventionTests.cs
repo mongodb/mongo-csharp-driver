@@ -1,4 +1,4 @@
-/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,28 +14,66 @@
 */
 
 using System;
-
-using MongoDB.Bson;
+using System.Linq.Expressions;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class EnumRepresentationConventionTests
     {
-        private enum WorkDays {
-            Monday, 
-            Wednesday, 
-            Friday
-        };
+        public enum E { A, B };
 
-        private class TestClass
+        public class C
         {
-            public string NonEnum { get; set; }
-            public WorkDays DefaultEnum { get; set; }
-            public WorkDays ChangedRepresentationEnum { get; set; }
+            public E E { get; set; }
+            public E? NE { get; set; }
+            public int I { get; set; }
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_an_enum(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.E);
+
+            subject.Apply(memberMap);
+
+            var serializer = (EnumSerializer<E>)memberMap.GetSerializer();
+            serializer.Representation.Should().Be(representation);
+        }
+
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_a_nullable_enum(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.NE);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Fact]
+        public void Apply_should_do_nothing_when_member_is_not_an_enum()
+        {
+            var subject = new EnumRepresentationConvention(BsonType.String);
+            var memberMap = CreateMemberMap(c => c.I);
+            var serializer = memberMap.GetSerializer();
+
+            subject.Apply(memberMap);
+
+            memberMap.GetSerializer().Should().BeSameAs(serializer);
         }
 
         [Theory]
@@ -43,47 +81,29 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]
-        public void TestConvention(BsonType value)
+        public void constructor_should_initialize_instance_when_representation_is_valid(BsonType representation)
         {
-            var convention = new EnumRepresentationConvention(value);
-            var classMap = new BsonClassMap<TestClass>();
-            var nonEnumMemberMap = classMap.MapMember(x => x.NonEnum);
-            classMap.MapMember(x => x.DefaultEnum);
-            var changedEnumMemberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
-            convention.Apply(nonEnumMemberMap);
-            convention.Apply(changedEnumMemberMap);
-            Assert.Equal(value, ((IRepresentationConfigurable)(changedEnumMemberMap.GetSerializer())).Representation);
+            var subject = new EnumRepresentationConvention(representation);
+
+            subject.Representation.Should().Be(representation);
         }
 
-        [Fact]
-        public void TestConventionOverride()
+        [Theory]
+        [InlineData(BsonType.Decimal128)]
+        [InlineData(BsonType.Double)]
+        public void constructor_should_throw_when_representation_is_not_valid(BsonType representation)
         {
-            var int64Convention = new EnumRepresentationConvention(BsonType.Int64);
-            var strConvention = new EnumRepresentationConvention(BsonType.String);
-            var classMap = new BsonClassMap<TestClass>();
-            var memberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
-            int64Convention.Apply(memberMap);
-            strConvention.Apply(memberMap);
-            Assert.Equal(BsonType.String, ((IRepresentationConfigurable)(memberMap.GetSerializer())).Representation);
+            var exception = Record.Exception(() => new EnumRepresentationConvention(representation));
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("representation");
         }
 
-        [Fact]
-        public void TestConventionConstruction()
+        // private methods
+        private BsonMemberMap CreateMemberMap<TMember>(Expression<Func<C, TMember>> member)
         {
-            foreach (BsonType val in Enum.GetValues(typeof(BsonType)))
-            {
-                if ((val == 0) || 
-                    (val == BsonType.String) ||
-                    (val == BsonType.Int32) ||
-                    (val == BsonType.Int64))
-                {
-                    new EnumRepresentationConvention(val);
-                }
-                else
-                {
-                    Assert.Throws<ArgumentException>(() => { new EnumRepresentationConvention(val); });
-                }
-            }
+            var classMap = new BsonClassMap<C>();
+            return classMap.MapMember(member);
         }
     }
 }
