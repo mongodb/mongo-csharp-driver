@@ -341,7 +341,7 @@ The update methods return an [`UpdateResult`]({{< apiref "T_MongoDB_Driver_Updat
 To delete at most 1 document (may be 0 if none match the filter) use the [`DeleteOne`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteOne" >}}) or [`DeleteOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync" >}}) methods:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Eq("i", 110));
+var filter = Builders<BsonDocument>.Filter.Eq("i", 110);
 ```
 ```csharp
 collection.DeleteOne(filter);
@@ -353,7 +353,7 @@ await collection.DeleteOneAsync(filter);
 To delete all documents matching the filter use the [`DeleteMany`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteMany" >}}) or [`DeleteManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync" >}}) methods. Here we delete all documents where `i >= 100`:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Gte("i", 100));
+var filter = Builders<BsonDocument>.Filter.Gte("i", 100);
 ```
 ```csharp
 var result = collection.DeleteMany(filter);
