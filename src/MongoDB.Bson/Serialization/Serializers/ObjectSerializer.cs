@@ -108,6 +108,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonReader.ReadDecimal128();
 
                 case BsonType.Document:
+                    if (context.DynamicDocumentSerializer != null)
+                    {
+                        return context.DynamicDocumentSerializer.Deserialize(context, args);
+                    }
+
                     return DeserializeDiscriminatedValue(context, args);
 
                 case BsonType.Double:
