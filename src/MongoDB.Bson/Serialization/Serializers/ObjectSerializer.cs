@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Dynamic;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -250,6 +251,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                if (context.RootType != null
+                    && context.RootType == typeof(ExpandoObject)
+                    && context.DynamicDocumentSerializer != null)
+                {
+                    return context.DynamicDocumentSerializer.Deserialize(context, args);
+                }
+
                 var serializer = BsonSerializer.LookupSerializer(actualType);
                 var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
                 if (polymorphicSerializer != null && polymorphicSerializer.IsDiscriminatorCompatibleWithObjectSerializer)

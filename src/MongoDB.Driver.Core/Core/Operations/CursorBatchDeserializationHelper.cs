@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
                 while (reader.ReadBsonType() != 0)
                 {
                     reader.SkipName(); // skip over the index pseudo names
-                    var context = BsonDeserializationContext.CreateRoot(reader);
+                    var context = BsonDeserializationContext.CreateRoot(reader, rootType:typeof(TDocument));
                     var document = documentSerializer.Deserialize<TDocument>(context);
                     documents.Add(document);
                 }

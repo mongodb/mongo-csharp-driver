@@ -335,6 +335,8 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadStartDocument();
                 while (reader.ReadBsonType() != 0)
                 {
+                    context = context.With(x => x.RootType = _resultSerializer.ValueType);
+
                     var elementName = reader.ReadName();
                     if (elementName == "cursor")
                     {

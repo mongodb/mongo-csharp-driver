@@ -16,18 +16,32 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.IO;
-using System.Text;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
     public class ExpandoSerializerTests
     {
+        public abstract class Shape
+        {
+        }
+
+        public class Circle : Shape
+        {
+            public int Radius { get; set; }
+        }
+
+        public class Square : Shape
+        {
+            public int Side { get; set; }
+        }
+
+        public class TestClass
+        {
+            public List<Shape> Shapes { get; set; }
+        }
+
         [Fact]
         public void TestRoundTrip()
         {
@@ -58,10 +72,32 @@ namespace MongoDB.Bson.Tests.Serialization
             var oldJson = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : [{ '_t' : 'System.Dynamic.ExpandoObject', '_v' : { 'Name' : 'hiking' } }, 10] }, 'Spouse' : { '_t' : 'System.Dynamic.ExpandoObject', '_v' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } } }".Replace("'", "\"");
             var rehydrated = BsonSerializer.Deserialize<ExpandoObject>(oldJson);
 
-            var json = ((ExpandoObject)rehydrated).ToJson();
-            var expected = "{ 'FirstName' : 'Jack', 'LastName' : 'McJack', 'Hobbies' : [{ 'Name' : 'hiking' }, 10], 'Spouse' : { 'FirstName' : 'Jane', 'LastName' : 'McJane' } }".Replace("'", "\"");
-            Assert.Equal(expected, json);
+            var json = rehydrated.ToJson();
+            Assert.Equal(oldJson, json);
         }
 #endif
+
+        [Fact]
+        public void TestDiscriminatedObjectShouldBeDeserializedAsDynamic()
+        {
+            var data = new TestClass
+            {
+                Shapes = new List<Shape>
+                {
+                    new Circle {Radius = 5},
+                    new Square {Side = 3}
+                }
+            };
+
+            var bson = data.ToBson();
+
+            dynamic rehydrated = BsonSerializer.Deserialize<ExpandoObject>(bson);
+
+            Assert.IsNotType<Circle>(rehydrated.Shapes[0]);
+            Assert.IsNotType<Square>(rehydrated.Shapes[1]);
+
+            Assert.IsType<ExpandoObject>(rehydrated.Shapes[0]);
+            Assert.IsType<ExpandoObject>(rehydrated.Shapes[1]);
+        }
     }
 }

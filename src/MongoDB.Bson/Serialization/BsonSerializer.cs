@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization
         public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer<TNominalType>();
-            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator, typeof(TNominalType));
             return serializer.Deserialize(context);
         }
 

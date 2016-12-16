@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader, rootType:typeof(TResult));
                 return _resultSerializer.Deserialize(context);
             }
         }

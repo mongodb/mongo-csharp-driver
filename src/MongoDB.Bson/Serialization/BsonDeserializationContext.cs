@@ -28,18 +28,21 @@ namespace MongoDB.Bson.Serialization
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
         private readonly IBsonReader _reader;
+        private readonly Type _rootType;
 
         // constructors
         private BsonDeserializationContext(
             IBsonReader reader,
             bool allowDuplicateElementNames,
             IBsonSerializer dynamicArraySerializer,
-            IBsonSerializer dynamicDocumentSerializer)
+            IBsonSerializer dynamicDocumentSerializer,
+            Type rootType)
         {
             _reader = reader;
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
+            _rootType = rootType;
         }
 
         // public properties
@@ -52,6 +55,14 @@ namespace MongoDB.Bson.Serialization
         public bool AllowDuplicateElementNames
         {
             get { return _allowDuplicateElementNames; }
+        }
+
+        /// <summary>
+        /// Gets the type of the root object
+        /// </summary>
+        public Type RootType
+        {
+            get { return _rootType; }
         }
 
         /// <summary>
@@ -93,18 +104,21 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="rootType">The type of the root object</param>
         /// <returns>
         /// A root context.
         /// </returns>
         public static BsonDeserializationContext CreateRoot(
             IBsonReader reader, 
-            Action<Builder> configurator = null)
+            Action<Builder> configurator = null, Type rootType = null)
         {
-            var builder = new Builder(null, reader);
+            var builder = new Builder(null, reader, rootType);
             if (configurator != null)
             {
                 configurator(builder);
             }
+            
+
             return builder.Build();
         }
 
@@ -119,7 +133,7 @@ namespace MongoDB.Bson.Serialization
         public BsonDeserializationContext With(
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(this, _reader);
+            var builder = new Builder(this, _reader, null);
             if (configurator != null)
             {
                 configurator(builder);
@@ -138,9 +152,10 @@ namespace MongoDB.Bson.Serialization
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
             private IBsonReader _reader;
+            private Type _rootType;
 
             // constructors
-            internal Builder(BsonDeserializationContext other, IBsonReader reader)
+            internal Builder(BsonDeserializationContext other, IBsonReader reader, Type rootType)
             {
                 if (reader == null)
                 {
@@ -153,11 +168,13 @@ namespace MongoDB.Bson.Serialization
                     _allowDuplicateElementNames = other.AllowDuplicateElementNames;
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
+                    _rootType = other.RootType;
                 }
                 else
                 {
                     _dynamicArraySerializer = BsonDefaults.DynamicArraySerializer;
                     _dynamicDocumentSerializer = BsonDefaults.DynamicDocumentSerializer;
+                    _rootType = rootType;
                 }
             }
 
@@ -209,6 +226,15 @@ namespace MongoDB.Bson.Serialization
                 get { return _reader; }
             }
 
+            /// <summary>
+            /// Gets the type of the root object
+            /// </summary>
+            public Type RootType
+            {
+                get { return _rootType; }
+                set { _rootType = value; }
+            }
+
             // public methods
             /// <summary>
             /// Builds the BsonDeserializationContext instance.
@@ -216,7 +242,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonDeserializationContext.</returns>
             internal BsonDeserializationContext Build()
             {
-                return new BsonDeserializationContext(_reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
+                return new BsonDeserializationContext(_reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer, _rootType);
             }
         }
     }
