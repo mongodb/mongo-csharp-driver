@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -57,6 +58,43 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 A = a;
                 B = b;
             }
+        }
+
+        [Fact]
+        public void Anonymous_class_should_map_correctly()
+        {
+            var c = new { A = 1, B = 2 };
+            var classMap = BsonClassMap.LookupClassMap(c.GetType());
+
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
+            classMap.CreatorMaps.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public void TestClassA_should_map_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(TestClassA));
+
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
+            classMap.CreatorMaps.Count().Should().Be(0);
+        }
+
+        [Fact]
+        public void TestClassB_should_map_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(TestClassB));
+
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
+            classMap.CreatorMaps.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public void TestClassC_should_map_correctly()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(TestClassC));
+
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
+            classMap.CreatorMaps.Count().Should().Be(1);
         }
 
         [Fact]

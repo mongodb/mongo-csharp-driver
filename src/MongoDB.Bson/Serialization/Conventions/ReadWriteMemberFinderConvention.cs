@@ -104,9 +104,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         private void MapProperty(BsonClassMap classMap, PropertyInfo propertyInfo)
         {
-            if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && classMap.ClassType.Namespace != null))
+            if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
             {
-                // we can't write or it is anonymous...
+                // only read and write properties are mapped
                 return;
             }
 
