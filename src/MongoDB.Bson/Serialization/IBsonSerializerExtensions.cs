@@ -77,6 +77,26 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Converts a value to a BsonValue by serializing it.
         /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>The serialized value.</returns>
+        public static BsonValue ToBsonValue(this IBsonSerializer serializer, object value)
+        {
+            var document = new BsonDocument();
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(writer);
+                writer.WriteStartDocument();
+                writer.WriteName("x");
+                serializer.Serialize(context, value);
+                writer.WriteEndDocument();
+            }
+            return document[0];
+        }
+
+        /// <summary>
+        /// Converts a value to a BsonValue by serializing it.
+        /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="serializer">The serializer.</param>
         /// <param name="value">The value.</param>

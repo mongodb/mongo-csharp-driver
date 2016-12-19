@@ -619,12 +619,10 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Equals_with_non_nullable_field_and_nullable_value()
         {
             var value = (int?)null;
-            Expression<Func<Root, bool>> filter = d => d.Id == value;
-            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-
-            var exception = Record.Exception(() => PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry));
-
-            exception.Should().BeOfType<ArgumentException>();
+            Assert(
+                x => x.Id == value,
+                0,
+                "{ _id : null }");
         }
 
         [Fact]

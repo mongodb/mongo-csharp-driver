@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -273,7 +273,9 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException(message);
             }
 
-            return new RenderedFieldDefinition<TField>(field.FieldName, (IBsonSerializer<TField>)field.Serializer);
+            var fieldSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, typeof(TField));
+
+            return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer);
         }
     }
 
@@ -333,9 +335,17 @@ namespace MongoDB.Driver
             IBsonSerializer resolvedSerializer;
             StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, documentSerializer, out resolvedName, out resolvedSerializer);
 
-            return new RenderedFieldDefinition<TField>(
-                resolvedName,
-                _fieldSerializer ?? (resolvedSerializer as IBsonSerializer<TField>) ?? serializerRegistry.GetSerializer<TField>());
+            var fieldSerializer = _fieldSerializer;
+            if (fieldSerializer == null && resolvedSerializer != null)
+            {
+                fieldSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(resolvedSerializer, typeof(TField));
+            }
+            if (fieldSerializer == null)
+            {
+                fieldSerializer = serializerRegistry.GetSerializer<TField>();
+            }
+
+            return new RenderedFieldDefinition<TField>(resolvedName, fieldSerializer);
         }
     }
 

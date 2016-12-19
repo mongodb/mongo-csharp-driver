@@ -548,7 +548,7 @@ namespace MongoDB.Driver.Linq.Translators
 
         private BsonValue TranslateSerializedConstant(SerializedConstantExpression node)
         {
-            return node.SerializeValue(node.Value);
+            return node.SerializeValue(node.Type, node.Value);
         }
 
         private BsonValue TranslateSkip(SkipExpression node)

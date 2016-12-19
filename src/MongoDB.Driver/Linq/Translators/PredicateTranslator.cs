@@ -24,6 +24,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Linq.Processors;
@@ -275,7 +276,8 @@ namespace MongoDB.Driver.Linq.Translators
 
             var field = GetFieldExpression(binaryExpression.Left);
 
-            var value = field.SerializeValue(((ConstantExpression)binaryExpression.Right).Value).ToInt64();
+            var maskExpression = (ConstantExpression)binaryExpression.Right;
+            var value = field.SerializeValue(maskExpression.Type, maskExpression.Value).ToInt64();
             var comparison = Convert.ToInt64(constantExpression.Value);
 
             if (value == comparison)
@@ -439,23 +441,11 @@ namespace MongoDB.Driver.Linq.Translators
                 return isTrueComparison ? query : __builder.Not(query);
             }
 
-            if (variableExpression.NodeType == ExpressionType.Convert)
-            {
-                var convertExpression = (UnaryExpression)variableExpression;
-                var targetTypeInfo = convertExpression.Type.GetTypeInfo();
-                if (targetTypeInfo.IsGenericType && targetTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    var underlyingValueType = targetTypeInfo.GetGenericArguments()[0];
-                    var convertOperand = convertExpression.Operand as FieldExpression;
-                    if (convertOperand != null && convertOperand.Type == underlyingValueType)
-                    {
-                        return null;
-                    }
-                }
-            }
-
             var fieldExpression = GetFieldExpression(variableExpression);
-            var serializedValue = fieldExpression.SerializeValue(value);
+
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, constantExpression.Type);
+            var serializedValue = valueSerializer.ToBsonValue(value);
+
             switch (operatorType)
             {
                 case ExpressionType.Equal: return __builder.Eq(fieldExpression.FieldName, serializedValue);
@@ -636,7 +626,8 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var field = GetFieldExpression(methodCallExpression.Object);
-            var value = field.SerializeValue(((ConstantExpression)methodCallExpression.Arguments[0]).Value).ToInt64();
+            var flagExpression = (ConstantExpression)methodCallExpression.Arguments[0];
+            var value = field.SerializeValue(flagExpression.Type, flagExpression.Value).ToInt64();
 
             return __builder.BitsAllSet(field.FieldName, value);
         }
@@ -674,9 +665,12 @@ namespace MongoDB.Driver.Linq.Translators
 
             if (fieldExpression != null && valuesExpression != null)
             {
-                var serializedValues = fieldExpression.SerializeValues((IEnumerable)valuesExpression.Value);
+                var ienumerableInterfaceType = valuesExpression.Type.FindIEnumerable();
+                var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                var serializedValues = fieldExpression.SerializeValues(itemType, (IEnumerable)valuesExpression.Value);
                 return __builder.In(fieldExpression.FieldName, serializedValues);
             }
+
             return null;
         }
 
@@ -974,28 +968,30 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslatePipelineContains(PipelineExpression node)
         {
             var value = ((ContainsResultOperator)node.ResultOperator).Value;
-            var constant = node.Source as ConstantExpression;
+            var constantExpression = node.Source as ConstantExpression;
             IFieldExpression field;
-            if (constant != null)
+            if (constantExpression != null)
             {
                 field = value as IFieldExpression;
                 if (field != null)
                 {
-                    var serializedValues = field.SerializeValues((IEnumerable)constant.Value);
+                    var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
+                    var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                    var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
                     return __builder.In(field.FieldName, serializedValues);
                 }
             }
             else
             {
-                constant = value as ConstantExpression;
+                constantExpression = value as ConstantExpression;
                 field = node.Source as IFieldExpression;
-                if (constant != null && field != null)
+                if (constantExpression != null && field != null)
                 {
                     var arraySerializer = field.Serializer as IBsonArraySerializer;
                     BsonSerializationInfo itemSerializationInfo;
                     if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
-                        var serializedValue = itemSerializationInfo.SerializeValue(constant.Value);
+                        var serializedValue = itemSerializationInfo.SerializeValue(constantExpression.Value);
                         return __builder.Eq(field.FieldName, serializedValue);
                     }
                 }
@@ -1303,7 +1299,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var fieldExpression = GetFieldExpression(methodExpression.Object);
-            var serializedValue = fieldExpression.SerializeValue(constantExpression.Value);
+            var serializedValue = fieldExpression.SerializeValue(constantExpression.Type, constantExpression.Value);
 
             if (serializedValue.IsString)
             {

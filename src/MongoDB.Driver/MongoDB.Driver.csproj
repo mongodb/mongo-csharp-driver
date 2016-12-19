@@ -99,6 +99,7 @@
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="CreateViewOptions.cs" />
     <Compile Include="DeleteOptions.cs" />
+    <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />

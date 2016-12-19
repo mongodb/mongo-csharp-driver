@@ -45,11 +45,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return CombineFieldNames(prefix, field == null ? null : field.FieldName);
         }
 
-        public static BsonValue SerializeValue(this ISerializationExpression field, object value)
+        public static BsonValue SerializeValue(this ISerializationExpression field, Type valueType, object value)
         {
             Ensure.IsNotNull(field, nameof(field));
 
-            value = ConvertIfNecessary(field.Serializer.ValueType, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, valueType);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -57,14 +57,20 @@ namespace MongoDB.Driver.Linq.Expressions
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("value");
-                field.Serializer.Serialize(context, value);
+                valueSerializer.Serialize(context, value);
                 bsonWriter.WriteEndDocument();
                 return tempDocument[0];
             }
         }
 
-        public static BsonArray SerializeValues(this ISerializationExpression field, IEnumerable values)
+        public static BsonArray SerializeValues(this ISerializationExpression field, Type itemType, IEnumerable values)
         {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(itemType, nameof(itemType));
+            Ensure.IsNotNull(values, nameof(values));
+
+            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, itemType);
+
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
@@ -74,7 +80,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    field.Serializer.Serialize(context, ConvertIfNecessary(field.Serializer.ValueType, value));
+                    itemSerializer.Serialize(context, value);
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -95,31 +101,6 @@ namespace MongoDB.Driver.Linq.Expressions
             }
 
             return prefix + "." + suffix;
-        }
-
-        private static object ConvertIfNecessary(Type targetType, object value)
-        {
-            if (targetType.GetTypeInfo().IsEnum || targetType.IsNullableEnum())
-            {
-                if (value != null)
-                {
-                    if (targetType.IsNullableEnum())
-                    {
-                        targetType = targetType.GetNullableUnderlyingType();
-                    }
-
-                    value = Enum.ToObject(targetType, value);
-                }
-            }
-            else if (targetType != typeof(BsonValue) && !targetType.IsNullable())
-            {
-                if (value != null && targetType != value.GetType())
-                {
-                    value = Convert.ChangeType(value, targetType);
-                }
-            }
-
-            return value;
         }
     }
 }

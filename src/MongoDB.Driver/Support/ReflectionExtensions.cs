@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Support
 {
@@ -63,6 +64,16 @@ namespace MongoDB.Driver.Support
             return GetNullableUnderlyingType(type).GetTypeInfo().IsEnum;
         }
 
+        public static bool IsNumeric(this Type type)
+        {
+            return
+                type == typeof(int) ||
+                type == typeof(long) ||
+                type == typeof(double) ||
+                type == typeof(decimal) ||
+                type == typeof(Decimal128);
+        }
+
         public static Type GetNullableUnderlyingType(this Type type)
         {
             if (!IsNullable(type))
@@ -80,7 +91,7 @@ namespace MongoDB.Driver.Support
             return ienum.GetTypeInfo().GetGenericArguments()[0];
         }
 
-        private static Type FindIEnumerable(Type seqType)
+        public static Type FindIEnumerable(this Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
             {
@@ -88,6 +99,11 @@ namespace MongoDB.Driver.Support
             }
 
             var seqTypeInfo = seqType.GetTypeInfo();
+            if (seqTypeInfo.IsGenericType && seqTypeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return seqType;
+            }
+
             if (seqTypeInfo.IsArray)
             {
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
