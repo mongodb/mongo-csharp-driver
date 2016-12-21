@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Tests
         public void TestAggregateWriteConcern()
         {
             RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            var writeConcern = new WriteConcern(9);
+            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
             var args = new AggregateArgs
             {
                 Pipeline = new[] { BsonDocument.Parse("{ $out : 'out' }") }
@@ -731,7 +731,7 @@ namespace MongoDB.Driver.Tests
         public void TestCreateIndexWriteConcern()
         {
             RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            var writeConcern = new WriteConcern(9);
+            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
             var keys = IndexKeys.Ascending("x");
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).CreateIndex(keys));
@@ -870,7 +870,7 @@ namespace MongoDB.Driver.Tests
         public void TestDropIndexWriteConcern()
         {
             RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            var writeConcern = new WriteConcern(9);
+            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).DropIndex("x"));
 
@@ -1057,7 +1057,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var args = new FindAndModifyArgs
@@ -1094,7 +1094,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var args = new FindAndModifyArgs
@@ -1227,7 +1227,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var args = new FindAndRemoveArgs
@@ -2501,7 +2501,7 @@ namespace MongoDB.Driver.Tests
             var document = new BsonDocument { { "_id", 1 }, { "x", 1 } };
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
 
@@ -2861,7 +2861,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
             _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
             _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
-            var writeConcern = new WriteConcern(9);
+            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
             var map =
                 "function() {\n" +
                 "    for (var key in this) {\n" +
@@ -2955,7 +2955,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             EnsureCollectionExists(_collection.Name);
-            var writeConcern = new WriteConcern(9);
+            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).ReIndex());
 
@@ -3015,7 +3015,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var query = Query.EQ("x", 1);
@@ -3294,7 +3294,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
-                WriteConcern = new WriteConcern(9)
+                WriteConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1))
             };
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var query = Query.EQ("x", 1);

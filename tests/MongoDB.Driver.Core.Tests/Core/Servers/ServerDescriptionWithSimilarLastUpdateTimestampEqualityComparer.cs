@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Servers
         public bool Equals(ServerDescription x, ServerDescription y)
         {
             var lastUpdateTimestampDelta = Math.Abs((x.LastUpdateTimestamp - y.LastUpdateTimestamp).TotalMilliseconds);
-            var tolerance = 10.0;
+            var tolerance = 1000.0; // 1 second
             return
                 x.AverageRoundTripTime.Equals(y.AverageRoundTripTime) &&
                 object.Equals(x.CanonicalEndPoint, y.CanonicalEndPoint) &&

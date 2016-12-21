@@ -46,9 +46,9 @@ namespace MongoDB.Driver.Tests.Linq
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
 
-            // millis could be different, so we'll ignore that difference.
-            RemoveMatchingElements(linqExplain, new Regex("millis", RegexOptions.IgnoreCase));
-            RemoveMatchingElements(queryExplain, new Regex("millis", RegexOptions.IgnoreCase));
+            // executionStats could be different, so we'll ignore that difference.
+            RemoveMatchingElements(linqExplain, new Regex("executionStats", RegexOptions.IgnoreCase));
+            RemoveMatchingElements(queryExplain, new Regex("executionStats", RegexOptions.IgnoreCase));
 
             Assert.Equal(linqExplain, queryExplain);
         }
