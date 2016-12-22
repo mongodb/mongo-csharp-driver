@@ -47,13 +47,16 @@ namespace MongoDB.Driver.Tests.Linq
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
 
-            // prior to 3.0.0 this is just a smoke test because the explain output did not have much that could be compared
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(3, 0, 0))
+            // not all versions and/or topologies of the server return a queryPlanner.parsedQuery element in the explain result
+            if (linqExplain.Contains("queryPlanner"))
             {
-                var linqQuery = linqExplain["queryPlanner"]["parsedQuery"];
-                var findQuery = queryExplain["queryPlanner"]["parsedQuery"];
+                if (linqExplain["queryPlanner"].AsBsonDocument.Contains("parsedQuery"))
+                {
+                    var linqQuery = linqExplain["queryPlanner"]["parsedQuery"];
+                    var findQuery = queryExplain["queryPlanner"]["parsedQuery"];
 
-                Assert.Equal(linqQuery, findQuery);
+                    Assert.Equal(linqQuery, findQuery);
+                }
             }
         }
 
@@ -63,13 +66,16 @@ namespace MongoDB.Driver.Tests.Linq
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain(true);
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
 
-            // prior to 3.0.0 this is just a smoke test because the explain output did not have much that could be compared
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(3, 0, 0))
+            // not all versions and/or topologies of the server return a queryPlanner.parsedQuery element in the explain result
+            if (linqExplain.Contains("queryPlanner"))
             {
-                var linqQuery = linqExplain["queryPlanner"]["parsedQuery"];
-                var findQuery = queryExplain["queryPlanner"]["parsedQuery"];
+                if (linqExplain["queryPlanner"].AsBsonDocument.Contains("parsedQuery"))
+                {
+                    var linqQuery = linqExplain["queryPlanner"]["parsedQuery"];
+                    var findQuery = queryExplain["queryPlanner"]["parsedQuery"];
 
-                Assert.Equal(linqQuery, findQuery);
+                    Assert.Equal(linqQuery, findQuery);
+                }
             }
         }
 
