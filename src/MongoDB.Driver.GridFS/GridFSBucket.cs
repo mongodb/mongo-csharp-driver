@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -515,6 +516,24 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+        private bool ChunksCollectionIndexesExist(List<BsonDocument> indexes)
+        {
+            var key = new BsonDocument { { "files_id", 1 }, { "n", 1 } };
+            return IndexExists(indexes, key);
+        }
+
+        private bool ChunksCollectionIndexesExist(IReadBindingHandle binding, CancellationToken cancellationToken)
+        {
+            var indexes = ListIndexes(binding, this.GetChunksCollectionNamespace(), cancellationToken);
+            return ChunksCollectionIndexesExist(indexes);
+        }
+
+        private async Task<bool> ChunksCollectionIndexesExistAsync(IReadBindingHandle binding, CancellationToken cancellationToken)
+        {
+            var indexes = await ListIndexesAsync(binding, this.GetChunksCollectionNamespace(), cancellationToken).ConfigureAwait(false);
+            return ChunksCollectionIndexesExist(indexes);
+        }
+
         private void CreateChunksCollectionIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
         {
             var operation = CreateCreateChunksCollectionIndexesOperation();
@@ -682,6 +701,12 @@ namespace MongoDB.Driver.GridFS
             };
         }
 
+        private ListIndexesOperation CreateListIndexesOperation(CollectionNamespace collectionNamespace)
+        {
+            var messageEncoderSettings = this.GetMessageEncoderSettings();
+            return new ListIndexesOperation(collectionNamespace, messageEncoderSettings);
+        }
+
         private BulkMixedWriteOperation CreateRenameOperation(TFileId id, string newFilename)
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
@@ -792,8 +817,14 @@ namespace MongoDB.Driver.GridFS
                     var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
                     if (isFilesCollectionEmpty)
                     {
-                        CreateFilesCollectionIndexes(binding, cancellationToken);
-                        CreateChunksCollectionIndexes(binding, cancellationToken);
+                        if (!FilesCollectionIndexesExist(binding, cancellationToken))
+                        {
+                            CreateFilesCollectionIndexes(binding, cancellationToken);
+                        }
+                        if (!ChunksCollectionIndexesExist(binding, cancellationToken))
+                        {
+                            CreateChunksCollectionIndexes(binding, cancellationToken);
+                        }
                     }
 
                     _ensureIndexesDone = true;
@@ -815,8 +846,14 @@ namespace MongoDB.Driver.GridFS
                     var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
                     if (isFilesCollectionEmpty)
                     {
-                        await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
-                        await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                        if (!(await FilesCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                        {
+                            await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                        }
+                        if (!(await ChunksCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                        {
+                            await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                        }
                     }
 
                     _ensureIndexesDone = true;
@@ -826,6 +863,24 @@ namespace MongoDB.Driver.GridFS
             {
                 _ensureIndexesSemaphore.Release();
             }
+        }
+
+        private bool FilesCollectionIndexesExist(List<BsonDocument> indexes)
+        {
+            var key = new BsonDocument { { "filename", 1 }, { "uploadDate", 1 } };
+            return IndexExists(indexes, key);
+        }
+
+        private bool FilesCollectionIndexesExist(IReadBindingHandle binding, CancellationToken cancellationToken)
+        {
+            var indexes = ListIndexes(binding, this.GetFilesCollectionNamespace(), cancellationToken);
+            return FilesCollectionIndexesExist(indexes);
+        }
+
+        private async Task<bool> FilesCollectionIndexesExistAsync(IReadBindingHandle binding, CancellationToken cancellationToken)
+        {
+            var indexes = await ListIndexesAsync(binding, this.GetFilesCollectionNamespace(), cancellationToken).ConfigureAwait(false);
+            return FilesCollectionIndexesExist(indexes);
         }
 
         private GridFSFileInfo<TFileId> GetFileInfo(IReadBindingHandle binding, TFileId id, CancellationToken cancellationToken)
@@ -923,6 +978,18 @@ namespace MongoDB.Driver.GridFS
             return new ReadWriteBindingHandle(binding);
         }
 
+        private bool IndexExists(List<BsonDocument> indexes, BsonDocument key)
+        {
+            foreach (var index in indexes)
+            {
+                if (index["key"].Equals(key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool IsFilesCollectionEmpty(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
         {
             var operation = CreateIsFilesCollectionEmptyOperation();
@@ -941,6 +1008,19 @@ namespace MongoDB.Driver.GridFS
                 var firstOrDefault = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
                 return firstOrDefault == null;
             }
+        }
+
+        private List<BsonDocument> ListIndexes(IReadBinding binding, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        {
+            var operation = CreateListIndexesOperation(collectionNamespace);
+            return operation.Execute(binding, cancellationToken).ToList();
+        }
+
+        private async Task<List<BsonDocument>> ListIndexesAsync(IReadBinding binding, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        {
+            var operation = CreateListIndexesOperation(collectionNamespace);
+            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }
