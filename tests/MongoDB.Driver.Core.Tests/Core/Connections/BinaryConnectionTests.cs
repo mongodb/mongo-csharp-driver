@@ -458,9 +458,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var task1IsRunning = 0;
-                    task1 = Task.Run(() => { Interlocked.Exchange(ref task1IsRunning, 1); return _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task1IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                    task1 = Task.Run(() => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 }
 
                 Task task2;
@@ -470,10 +468,10 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var task2IsRunning = 0;
-                    task2 = Task.Run(() => { Interlocked.Exchange(ref task2IsRunning, 1); return _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref task2IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                    task2 = Task.Run(() => _subject.ReceiveMessage(2, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 }
+
+                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
                 readTcs.SetException(new SocketException());
 
