@@ -75,6 +75,37 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Determines if a serializer is registered for the specified <paramref name="type" />.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        /// true if the serializer is registered; otherwise false.
+        /// </returns>
+        public bool IsSerializerRegistered(Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            var result = _cache.ContainsKey(type);
+            return result;
+        }
+
+        /// <summary>
+        /// Determines if a serializer is registered for the specified <typeparamref name="T" />.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>
+        /// true if the serializer is registered; otherwise false.
+        /// </returns>
+        public bool IsSerializerRegistered<T>()
+        {
+            var result = IsSerializerRegistered(typeof(T));
+            return result;
+        }
+
+        /// <summary>
         /// Registers the serializer.
         /// </summary>
         /// <param name="type">The type.</param>

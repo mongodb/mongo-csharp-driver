@@ -35,5 +35,23 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="T"></typeparam>
         /// <returns>The serializer.</returns>
         IBsonSerializer<T> GetSerializer<T>();
+
+        /// <summary>
+        /// Determines if a serializer is registered for the specified <paramref name="type" />.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        /// true if the serializer is registered; otherwise false.
+        /// </returns>
+        bool IsSerializerRegistered(Type type);
+
+        /// <summary>
+        /// Determines if a serializer is registered for the specified <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>
+        /// true if the serializer is registered; otherwise false.
+        /// </returns>
+        bool IsSerializerRegistered<T>();
     }
 }
