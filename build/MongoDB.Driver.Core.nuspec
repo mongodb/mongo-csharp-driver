@@ -14,8 +14,8 @@
     <language>en-US</language>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
         <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="[4.0.0, )" />
+        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
       </group>
       <group targetFramework=".NETStandard1.5">
         <dependency id="NETStandard.Library" version="[1.6.0, )" />
