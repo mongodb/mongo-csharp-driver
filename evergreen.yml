@@ -1,22 +1,18 @@
 tasks:
-  - name: compile
-    commands:
-      - command: git.get_project
-        params: 
-          directory: src
-      - command: shell.exec
-        params: 
-          script: |
-            echo "hello world from evergreen.yml!"
-            echo "${test_flags}"
-
+- name: compile
+  commands:
+  - command: git.get_project
+    params: 
+      directory: mongo-csharp-driver
+  - command: shell.exec
+    params: 
+      working_dir: mongo-csharp-driver
+      script: |
+        powershell.exe .\\build.ps1 -target BuildNet45
 
 buildvariants:
-- name: linux-64
-  display_name: Linux-64
-  run_on:
-  - ubuntu1404-test
-  expansions:
-    test_flags: "blah blah"
+- name: windows-64-compile
+  display_name: windows-64-compile
+  run_on: windows-64-vs2015-small
   tasks:
   - name: compile

@@ -1,0 +1,6 @@
+Addins/
+Cake/
+GitVersion.CommandLine/
+packages/
+nuget.exe
+packages.config.md5sum
