@@ -76,7 +76,11 @@ namespace MongoDB.Driver.Core.Helpers
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            SpinWait.SpinUntil(() => Length - Position >= count, _spinWaitTimeout);
+            if (!SpinWait.SpinUntil(() => Length - Position >= count, _spinWaitTimeout))
+            {
+                throw new TimeoutException();
+            }
+
             lock (_lock)
             {
                 return base.Read(buffer, offset, count);
@@ -85,7 +89,10 @@ namespace MongoDB.Driver.Core.Helpers
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            await Task.Run(() => { SpinWait.SpinUntil(() => Length - Position >= count, _spinWaitTimeout); });
+            if (!(await Task.Run(() => SpinWait.SpinUntil(() => Length - Position >= count, _spinWaitTimeout))))
+            {
+                throw new TimeoutException();
+            }
 
             lock (_lock)
             {
