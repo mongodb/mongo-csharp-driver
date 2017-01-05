@@ -62,8 +62,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(2, 2, 0))
             {
-                _collection.RemoveAll();
-                _collection.DropAllIndexes();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
                 _collection.Insert(new BsonDocument("x", 2));
                 _collection.Insert(new BsonDocument("x", 3));
@@ -91,8 +90,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.Supports(FeatureId.AggregateAllowDiskUse))
             {
-                _collection.RemoveAll();
-                _collection.DropAllIndexes();
+                _collection.Drop();
 
                 var query = _collection.Aggregate(new AggregateArgs
                 {
@@ -113,8 +111,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.Supports(FeatureId.AggregateCursor))
             {
-                _collection.RemoveAll();
-                _collection.DropAllIndexes();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
                 _collection.Insert(new BsonDocument("x", 2));
                 _collection.Insert(new BsonDocument("x", 3));
@@ -174,8 +171,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        _collection.RemoveAll();
-                        _collection.DropAllIndexes();
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument("x", 1));
 
                         failpoint.SetAlwaysOn();
@@ -198,8 +194,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.Supports(FeatureId.AggregateOutputToCollection))
             {
-                _collection.RemoveAll();
-                _collection.DropAllIndexes();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
                 _collection.Insert(new BsonDocument("x", 2));
                 _collection.Insert(new BsonDocument("x", 3));
@@ -421,7 +416,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCountZero()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var count = _collection.Count();
             Assert.Equal(0, count);
         }
@@ -429,7 +424,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCountOne()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument());
             var count = _collection.Count();
             Assert.Equal(1, count);
@@ -472,7 +467,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCountWithQuery()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             var query = Query.EQ("x", 1);
@@ -497,7 +492,7 @@ namespace MongoDB.Driver.Tests
         public void TestCountWithHint()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.CreateIndex(IndexKeys.Ascending("x"));
@@ -514,7 +509,7 @@ namespace MongoDB.Driver.Tests
         public void TestCountWithHintFromFind()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.CreateIndex(IndexKeys.Ascending("x"));
@@ -526,7 +521,7 @@ namespace MongoDB.Driver.Tests
         public void TestCountWithHintAndLimitFromFind()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.CreateIndex(IndexKeys.Ascending("x"));
@@ -542,7 +537,6 @@ namespace MongoDB.Driver.Tests
             Assert.False(collection.Exists());
             _database.CreateCollection(collection.Name);
             Assert.True(collection.Exists());
-            collection.Drop();
         }
 
         [Theory]
@@ -576,7 +570,6 @@ namespace MongoDB.Driver.Tests
             Assert.True(stats.IsCapped);
             Assert.True(stats.StorageSize >= 10000);
             Assert.True(stats.MaxDocuments == 1000);
-            collection.Drop();
         }
 
         [SkippableFact]
@@ -592,7 +585,6 @@ namespace MongoDB.Driver.Tests
             var stats = collection.GetStats();
             Assert.True(stats.IsCapped);
             Assert.True(stats.StorageSize >= 10000);
-            collection.Drop();
         }
 
         [SkippableTheory]
@@ -640,8 +632,8 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCreateIndex()
         {
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            _collection.DropAllIndexes(); // doesn't drop the index on _id
 
             var indexes = _collection.GetIndexes().ToList();
             Assert.Equal(1, indexes.Count);
@@ -654,7 +646,6 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(_collection.FullName, indexes[0].Namespace);
             Assert.True(indexes[0].Version >= 0);
 
-            _collection.DropAllIndexes();
             var result = _collection.CreateIndex("x");
 
             var expectedResult = new ExpectedWriteConcernResult();
@@ -716,7 +707,6 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().StorageEngine("wiredTiger");
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            _collection.DropAllIndexes(); // doesn't drop the index on _id
 
             _collection.CreateIndex(
                IndexKeys.Ascending("x"),
@@ -756,8 +746,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDistinct()
         {
-            _collection.RemoveAll();
-            _collection.DropAllIndexes();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
@@ -773,8 +762,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDistinct_Typed()
         {
-            _collection.RemoveAll();
-            _collection.DropAllIndexes();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
@@ -814,8 +802,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDistinctWithQuery()
         {
-            _collection.RemoveAll();
-            _collection.DropAllIndexes();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
@@ -832,8 +819,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDistinctWithQuery_Typed()
         {
-            _collection.RemoveAll();
-            _collection.DropAllIndexes();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
@@ -850,20 +836,25 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDropAllIndexes()
         {
+            _collection.Drop();
+            _collection.CreateIndex("x");
+
             _collection.DropAllIndexes();
+
+            _collection.IndexExistsByName("_id_").Should().BeTrue();
+            _collection.IndexExistsByName("x_1").Should().BeFalse();
         }
 
         [Fact]
         public void TestDropIndex()
         {
-            _collection.DropAllIndexes();
-            Assert.Equal(1, _collection.GetIndexes().Count());
-            Assert.Throws<MongoCommandException>(() => _collection.DropIndex("x"));
-
+            _collection.Drop();
             _collection.CreateIndex("x");
-            Assert.Equal(2, _collection.GetIndexes().Count());
+
             _collection.DropIndex("x");
-            Assert.Equal(1, _collection.GetIndexes().Count());
+
+            _collection.IndexExistsByName("_id_").Should().BeTrue();
+            _collection.IndexExistsByName("x_1").Should().BeFalse();
         }
 
         [SkippableFact]
@@ -882,8 +873,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(2, 2, 0))
             {
-                _collection.DropAllIndexes();
-                Assert.Equal(1, _collection.GetIndexes().Count());
+                _collection.Drop();
 
                 var keys = IndexKeys.Ascending("ts");
                 var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
@@ -902,7 +892,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestExplain()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
@@ -913,7 +903,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFind()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
@@ -926,7 +916,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndModify()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
             _collection.Insert(new BsonDocument { { "_id", 3 }, { "priority", 3 }, { "inprogress", false }, { "name", "ghi" } });
@@ -1012,7 +1002,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndModifyNoMatchingDocument()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
 
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
@@ -1034,7 +1024,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndModifyUpsert()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
 
             var args = new FindAndModifyArgs
             {
@@ -1053,7 +1043,7 @@ namespace MongoDB.Driver.Tests
         public void TestFindAndModifyReplaceWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
@@ -1090,7 +1080,7 @@ namespace MongoDB.Driver.Tests
         public void TestFindAndModifyUpdateWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
@@ -1132,7 +1122,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndModifyTyped()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var obj = new FindAndModifyClass { Id = ObjectId.GenerateNewId(), Value = 1 };
             _collection.Insert(obj);
 
@@ -1152,7 +1142,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndRemove()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 1 } });
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
 
@@ -1169,7 +1159,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndRemoveNoMatchingDocument()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
 
             var args = new FindAndRemoveArgs
             {
@@ -1187,7 +1177,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndRemoveWithFields()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 1 } });
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
 
@@ -1223,7 +1213,7 @@ namespace MongoDB.Driver.Tests
         public void TestFindAndRemoveWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
@@ -1258,7 +1248,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindNearSphericalFalse()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1307,7 +1297,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1355,7 +1345,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOne()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             var result = _collection.FindOne();
             Assert.Equal(1, result["x"].AsInt32);
@@ -1365,7 +1355,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneAs()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "X", 1 } });
             var result = (TestClass)_collection.FindOneAs(typeof(TestClass));
             Assert.Equal(1, result.X);
@@ -1374,7 +1364,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneAsGeneric()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "X", 1 } });
             var result = _collection.FindOneAs<TestClass>();
             Assert.Equal(1, result.X);
@@ -1389,7 +1379,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        _collection.RemoveAll();
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument { { "X", 1 } });
 
                         failpoint.SetAlwaysOn();
@@ -1403,7 +1393,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneAsGenericWithSkipAndSortyBy()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "X", 2 } });
             _collection.Insert(new BsonDocument { { "X", 1 } });
             var sortBy = SortBy.Ascending("X");
@@ -1421,7 +1411,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        _collection.RemoveAll();
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument { { "X", 1 } });
 
                         failpoint.SetAlwaysOn();
@@ -1435,7 +1425,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneAsWithSkipAndSortyBy()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "X", 2 } });
             _collection.Insert(new BsonDocument { { "X", 1 } });
             var sortBy = SortBy.Ascending("X");
@@ -1447,7 +1437,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneById()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var id = ObjectId.GenerateNewId();
             _collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
             var result = _collection.FindOneById(id);
@@ -1458,7 +1448,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneByIdAs()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var id = ObjectId.GenerateNewId();
             _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
             var result = (TestClass)_collection.FindOneByIdAs(typeof(TestClass), id);
@@ -1469,7 +1459,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindOneByIdAsGeneric()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var id = ObjectId.GenerateNewId();
             _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
             var result = _collection.FindOneByIdAs<TestClass>(id);
@@ -1480,7 +1470,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindWithinCircleSphericalFalse()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1505,7 +1495,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1529,7 +1519,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindWithinRectangle()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1544,7 +1534,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindWithMaxScan()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             var docs = Enumerable.Range(0, 10).Select(x => new BsonDocument("_id", x));
             _collection.InsertBatch(docs);
 
@@ -1561,7 +1551,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        if (_collection.Exists()) { _collection.Drop(); }
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument("x", 1));
 
                         failpoint.SetAlwaysOn();
@@ -1587,7 +1577,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
@@ -1627,7 +1617,7 @@ namespace MongoDB.Driver.Tests
                     {
                         if (failpoint.IsSupported())
                         {
-                            if (_collection.Exists()) { _collection.Drop(); }
+                            _collection.Drop();
                             _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                             _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                             _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
@@ -1655,7 +1645,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
@@ -1686,7 +1676,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGeoNear()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
@@ -1732,7 +1722,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGeoNearGeneric()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
@@ -1778,7 +1768,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGeoNearSphericalFalse()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Drop();
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1835,7 +1825,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
@@ -1893,7 +1883,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
@@ -1937,7 +1927,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        if (_collection.Exists()) { _collection.Drop(); }
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument("loc", new BsonArray { 0, 0 }));
                         _collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
 
@@ -1966,7 +1956,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
@@ -2002,8 +1992,11 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGetIndexes()
         {
-            _collection.DropAllIndexes();
+            _collection.Drop();
+            EnsureCollectionExists(_collection.Name);
+
             var indexes = _collection.GetIndexes();
+
             Assert.Equal(1, indexes.Count);
             Assert.Equal("_id_", indexes[0].Name);
             // see additional tests in TestEnsureIndex
@@ -2012,7 +2005,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGetMore()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             var count = _primary.MaxMessageLength / 1000000;
             for (int i = 0; i < count; i++)
             {
@@ -2161,7 +2154,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
-                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Drop();
                 var expectedName = "x_hashed";
                 var expectedKey = "{ x : \"hashed\" }";
 
@@ -2176,7 +2169,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestIndexExists()
         {
-            _collection.DropAllIndexes();
+            _collection.Drop();
             Assert.Equal(false, _collection.IndexExists("x"));
 
             _collection.CreateIndex("x");
@@ -2249,7 +2242,7 @@ namespace MongoDB.Driver.Tests
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
             var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
-            if (collection.Exists()) { collection.Drop(); }
+            collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
 
@@ -2284,7 +2277,7 @@ namespace MongoDB.Driver.Tests
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
             var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
-            if (collection.Exists()) { collection.Drop(); }
+            collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
 
@@ -2321,7 +2314,7 @@ namespace MongoDB.Driver.Tests
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged };
             var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
-            if (collection.Exists()) { collection.Drop(); }
+            collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
 
@@ -2376,7 +2369,7 @@ namespace MongoDB.Driver.Tests
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged };
             var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
-            if (collection.Exists()) { collection.Drop(); }
+            collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
 
@@ -2431,7 +2424,7 @@ namespace MongoDB.Driver.Tests
         {
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName);
-            if (collection.Exists()) { collection.Drop(); }
+            collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
             var documentCount = maxMessageLength / (1024 * 1024) + 1; // 1 document will overflow to second sub batch
@@ -2497,7 +2490,7 @@ namespace MongoDB.Driver.Tests
         public void TestInsertWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             var document = new BsonDocument { { "_id", 1 }, { "x", 1 } };
             var collectionSettings = new MongoCollectionSettings
             {
@@ -2667,7 +2660,7 @@ namespace MongoDB.Driver.Tests
 
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
-                _collection.RemoveAll();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
                 _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
                 _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
@@ -2751,7 +2744,7 @@ namespace MongoDB.Driver.Tests
                 {
                     if (failpoint.IsSupported())
                     {
-                        _collection.RemoveAll();
+                        _collection.Drop();
                         _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
 
                         failpoint.SetAlwaysOn();
@@ -2931,10 +2924,9 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                _collection.RemoveAll();
+                _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
                 _collection.Insert(new BsonDocument("x", 2));
-                _collection.DropAllIndexes();
                 _collection.CreateIndex("x");
                 // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
                 try
@@ -2979,6 +2971,24 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestRemoveAll()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+
+            var result = _collection.RemoveAll();
+
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 2
+            };
+            CheckExpectedResult(expectedResult, result);
+
+            Assert.Equal(0, _collection.Count());
+        }
+
+        [Fact]
         public void TestRemoveNoMatchingDocument()
         {
             _collection.Drop();
@@ -3011,7 +3021,7 @@ namespace MongoDB.Driver.Tests
         public void TestRemoveWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
@@ -3029,7 +3039,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestSetFields()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             var result = _collection.FindAll().SetFields("x").FirstOrDefault();
             Assert.Equal(2, result.ElementCount);
@@ -3040,8 +3050,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestSetHint()
         {
-            _collection.DropAllIndexes();
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             _collection.CreateIndex(IndexKeys.Ascending("x"));
             var query = Query.EQ("x", 1);
@@ -3057,8 +3066,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestSetHintByIndexName()
         {
-            _collection.DropAllIndexes();
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             _collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
             var query = Query.EQ("x", 1);
@@ -3074,7 +3082,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestSortAndLimit()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
@@ -3087,6 +3095,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGetStats()
         {
+            EnsureCollectionExists(_collection.Name);
             _collection.GetStats();
         }
 
@@ -3290,7 +3299,7 @@ namespace MongoDB.Driver.Tests
         public void TestUpdateWithWriteConcernError()
         {
             RequireServer.Check().Supports(Feature.WriteCommands).ClusterType(ClusterType.ReplicaSet);
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
             {
