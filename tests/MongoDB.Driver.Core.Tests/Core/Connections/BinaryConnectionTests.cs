@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -391,9 +391,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var receivedTask10IsRunning = 0;
-                    receivedTask10 = Task.Run(() => { Interlocked.Exchange(ref receivedTask10IsRunning, 1); return _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask10IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                    receivedTask10 = Task.Run(() => _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 }
 
                 Task<ResponseMessage> receivedTask11;
@@ -403,10 +401,10 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    var receivedTask11IsRunning = 0;
-                    receivedTask11 = Task.Run(() => { Interlocked.Exchange(ref receivedTask11IsRunning, 1); return _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None); });
-                    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref receivedTask11IsRunning, 0, 0) == 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                    receivedTask11 = Task.Run(() => _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 }
+
+                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
                 var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
                 var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
