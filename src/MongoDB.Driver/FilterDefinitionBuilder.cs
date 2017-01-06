@@ -1503,6 +1503,11 @@ namespace MongoDB.Driver
                 }
             }
 
+            if (document.ElementCount == 0)
+            {
+                document = new BsonDocument("$and", new BsonArray(0));
+            }
+
             return document;
         }
 

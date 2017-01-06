@@ -132,6 +132,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void And_with_no_clauses()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var filter = subject.And();
+
+            Assert(filter, "{ $and : [] }");
+        }
+
+        [Fact]
         public void BitsAllClear()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -828,6 +838,26 @@ namespace MongoDB.Driver.Tests
             var filter = subject.Eq("a", 1) | "{b: 2}" | new BsonDocument("c", 3);
 
             Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
+        }
+
+        [Fact]
+        public void Or_with_no_clauses()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var filter = subject.Or();
+
+            Assert(filter, "{ $or : [] }");
+        }
+
+        [Fact]
+        public void Nor_with_no_clauses()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var filter = subject.Not(subject.Or());
+
+            Assert(filter, "{ $nor : [] }");
         }
 
         [Fact]
