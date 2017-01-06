@@ -41,7 +41,7 @@ class Pet
 
 ## Filters
 
-We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/PredicateTranslatorTests.cs" >}}) are also a good reference.
+We'll walk through the supported expressions below. The [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/PredicateTranslatorTests.cs" >}}) are also a good reference.
 
 ### Comparison
 
@@ -373,7 +373,7 @@ Find(x => x.FavoriteNumbers.Count() == 3);
 
 ## Aggregation Projections
 
-We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs" >}}) are also a good reference.
+We'll walk through the supported expressions below. The [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs" >}}) are also a good reference.
 
 ### Boolean Expressions
 
@@ -1070,7 +1070,7 @@ p => p.Name ?? "awesome";
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#accumulators" >}}) for more information on each operator.
 
-Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs" >}}) are a good reference.
+Also, the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs" >}}) are a good reference.
 
 {{% note %}}These are only supported in a grouping expression.{{% /note %}}
 

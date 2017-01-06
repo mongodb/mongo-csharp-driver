@@ -203,7 +203,7 @@ This will result in the following aggregation pipeline getting sent to the serve
 
 {{% note %}}You can call `ToString` on the pipeline to see what would be sent to the server.{{% /note %}}
 
-More samples are located in the [source]({{< srcref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}).
+More samples are located in the [source]({{< testref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}).
 
 ### Stage Operators
 

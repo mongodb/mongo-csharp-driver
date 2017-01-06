@@ -67,7 +67,7 @@ Both of these will render the filter `{ x: 1 }`.
 
 ### Filter Definition Builder 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`FilterDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_FilterDefinitionBuilder_1" >}}) provides a type-safe API for building up both simple and complex [MongoDB queries]({{< docsref "reference/operator/query/" >}}).
 
@@ -172,7 +172,7 @@ Both of these will render the projection `{ x: 1 }`.
 
 ### Projection Definition Builder 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`ProjectionDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinitionBuilder_1" >}}) exists to make it easier to build up projections in MongoDB's syntax. For the projection `{ x: 1, y: 1, _id: 0 }`:
 
@@ -223,7 +223,7 @@ The driver supports using expression trees to render projections. The same expre
 
 ##### Find 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs" >}}) for examples._
 
 When a Find projection is defined using a lambda expression, it is run client-side. The driver inspects the lambda expression to determine which fields are referenced and automatically constructs a server-side projection to return only those fields.
 
@@ -259,14 +259,14 @@ The `_id` field is excluded automatically when we know for certain that it isn't
 
 ##### Aggregate 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs" >}}) for examples._
 
 When an aggregate projection is defined using a lambda expression, a majority of the [aggregation expression operators]({{< docsref "reference/operator/aggregation/#expression-operators" >}}) are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the [Aggregation Framework]({{< docsref "core/aggregation-pipeline/" >}}) must be expressible on the server.
 
 
 ##### Grouping 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) for examples._
 
 A projection is also used when performing grouping in the [Aggregation Framework]({{< docsref "core/aggregation-pipeline/" >}}). In addition to the expression operators used in an aggregate projection, the [aggregation accumulator operators]({{< docsref "reference/operator/aggregation/group/#accumulator-operator" >}}) are also supported. 
 
@@ -287,7 +287,7 @@ Both of these will render the sort `{ x: 1 }`.
 
 ### Sort Definition Builder 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`SortDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_SortDefinitionBuilder_1" >}}) provides a type-safe API for building up [MongoDB sort syntax]({{< docsref "reference/method/cursor.sort/" >}}).
 
@@ -345,7 +345,7 @@ Both of these will render the update `{ $set: { x: 1 } }`.
 
 ### Update Definition Builder 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`UpdateDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinitionBuilder_1" >}}) provides a type-safe API for building the [MongoDB update specification]({{< docsref "reference/operator/update/" >}}).
 
@@ -405,7 +405,7 @@ Both of these will render the keys `{ x: 1 }`.
 
 ### Index Keys Definition Builder 
 
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`IndexKeysDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_IndexKeysDefinitionBuilder_1" >}}) provides a type-safe API to build an index keys definition.
 
