@@ -11,4 +11,4 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-2.3.0 is a minor revision that comes with new features. There should not be any backwards breaking changes.
+There should be no breaking changes in version 2.4.0 of the driver.

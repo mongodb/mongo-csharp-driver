@@ -10,14 +10,11 @@ type = "index"
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
 
-## What's new in 2.3
+## What's new in 2.4
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
 
-The main new feature is support for .NET Core.
-
-The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework 
-version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.
+The main new feature is support for version 3.4 of the server.
 
 
 ## Upgrading
