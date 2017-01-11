@@ -1,0 +1,26 @@
+/* Support XLinks in Help 2 files */
+MSHelp\:link
+{
+ 	text-decoration: underline;
+	color: #0000ff;
+	hoverColor: #3366ff;
+	filterString: ;
+}
+
+/* Style adjustments for Help 2 */
+th p {
+	padding-bottom: 0px;
+}
+td p {
+	padding-bottom: 5px;
+}
+.codeSnippetContainerTabs {
+    top: 1px;
+}
+.codeSnippetToolBarText {
+	top: -13px;
+}
+.codeSnippetContainerTabSingle {
+	padding: 2px 15px 0px 15px;
+	height: 22px;
+}
