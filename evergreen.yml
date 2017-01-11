@@ -8,7 +8,7 @@ tasks:
     params: 
       working_dir: mongo-csharp-driver
       script: |
-        powershell.exe .\\build.ps1 -target BuildNet45
+        powershell.exe .\\build.ps1 -target Build
 
 buildvariants:
 - name: windows-64-compile
