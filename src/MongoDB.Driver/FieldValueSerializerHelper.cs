@@ -59,7 +59,7 @@ namespace MongoDB.Driver
             }
 
             // synthesize an EnumConvertingSerializer using the field serializer
-            if (fieldTypeInfo.IsEnum)
+            if (fieldTypeInfo.IsEnum && valueType.IsConvertibleToEnum())
             {
                 var enumConvertingSerializerType = typeof(EnumConvertingSerializer<,>).MakeGenericType(valueType, fieldType);
                 var enumConvertingSerializerConstructor = enumConvertingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
@@ -95,17 +95,15 @@ namespace MongoDB.Driver
                 return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
             }
 
-            // use the item serializer if fieldSerializer is an IBsonArraySerializer of valueType items
+            // if the fieldSerializer is an array serializer try to adapt its itemSerializer for valueType
             IBsonArraySerializer arraySerializer;
             if ((arraySerializer = fieldSerializer as IBsonArraySerializer) != null)
             {
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    if (itemSerializationInfo.Serializer.ValueType == valueType)
-                    {
-                        return itemSerializationInfo.Serializer;
-                    }
+                    var itemSerializer = itemSerializationInfo.Serializer;
+                    return GetSerializerForValueType(itemSerializer, valueType);
                 }
             }
 

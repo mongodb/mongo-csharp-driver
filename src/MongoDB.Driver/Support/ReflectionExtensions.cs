@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,6 +72,20 @@ namespace MongoDB.Driver.Support
                 type == typeof(double) ||
                 type == typeof(decimal) ||
                 type == typeof(Decimal128);
+        }
+
+        public static bool IsConvertibleToEnum(this Type type)
+        {
+            return
+                type == typeof(sbyte) ||
+                type == typeof(short) ||
+                type == typeof(int) ||
+                type == typeof(long) ||
+                type == typeof(byte) ||
+                type == typeof(ushort) ||
+                type == typeof(uint) ||
+                type == typeof(ulong) ||
+                type == typeof(Enum);
         }
 
         public static Type GetNullableUnderlyingType(this Type type)

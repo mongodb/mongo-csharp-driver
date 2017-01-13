@@ -492,6 +492,33 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void In_with_enum()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.In("E", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ E : { $in : [ 0, 1 ] } }");
+            Assert(subject.AnyIn("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ 0, 1 ] } }");
+        }
+
+        [Fact]
+        public void In_typed_with_enum()
+        {
+            var subject = CreateSubject<ClassWithEnums>();
+
+            Assert(subject.In("E", new[] { 0, 1 }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+
+            Assert(subject.In("E", new[] { "A", "B" }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+
+            Assert(subject.In("E", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+        }
+
+        [Fact]
         public void Lt()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -983,6 +1010,17 @@ namespace MongoDB.Driver.Tests
         private FilterDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
             return new FilterDefinitionBuilder<TDocument>();
+        }
+
+        private enum EnumForClassWithEnums { A, B }
+
+        private class ClassWithEnums
+        {
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public EnumForClassWithEnums E { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public EnumForClassWithEnums[] A { get; set; }
         }
 
         private class Person
