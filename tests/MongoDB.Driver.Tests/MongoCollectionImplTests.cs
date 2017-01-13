@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
@@ -563,6 +564,96 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filter);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.ReadConcern.Should().Be(_readConcern);
+        }
+
+        private enum EnumForDistinctWithArrayField { A, B }
+
+        private class ClassForDistinctWithArrayField
+        {
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public EnumForDistinctWithArrayField[] A { get; set; }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Distinct_should_execute_the_DistinctOperation_when_type_parameter_is_array_field_item_type(
+            [Values(false, true)] bool async)
+        {
+            var fieldName = "A";
+            var filter = new BsonDocument("x", 1);
+            var options = new DistinctOptions
+            {
+                Collation = new Collation("en_US"),
+                MaxTime = TimeSpan.FromSeconds(20)
+            };
+
+            var subject = CreateSubject<ClassForDistinctWithArrayField>();
+
+            if (async)
+            {
+                subject.DistinctAsync<EnumForDistinctWithArrayField>(fieldName, filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Distinct<EnumForDistinctWithArrayField>(fieldName, filter, options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<EnumForDistinctWithArrayField>>();
+
+            call.Operation.Should().BeOfType<DistinctOperation<EnumForDistinctWithArrayField>>();
+            var operation = (DistinctOperation<EnumForDistinctWithArrayField>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.FieldName.Should().Be(fieldName);
+            operation.Filter.Should().Be(filter);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
+
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<ClassForDistinctWithArrayField>();
+            BsonSerializationInfo fieldSerializationInfo;
+            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out fieldSerializationInfo).Should().BeTrue();
+            var fieldSerializer = (ArraySerializer<EnumForDistinctWithArrayField>)fieldSerializationInfo.Serializer;
+            operation.ValueSerializer.Should().BeSameAs(fieldSerializer.ItemSerializer);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Distinct_should_execute_the_DistinctOperation_when_type_parameter_is_string_instead_of_ennum(
+            [Values(false, true)] bool async)
+        {
+            var fieldName = "A";
+            var filter = new BsonDocument("x", 1);
+            var options = new DistinctOptions
+            {
+                Collation = new Collation("en_US"),
+                MaxTime = TimeSpan.FromSeconds(20)
+            };
+
+            var subject = CreateSubject<ClassForDistinctWithArrayField>();
+
+            if (async)
+            {
+                subject.DistinctAsync<string>(fieldName, filter, options, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Distinct<string>(fieldName, filter, options, CancellationToken.None);
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<string>>();
+
+            call.Operation.Should().BeOfType<DistinctOperation<string>>();
+            var operation = (DistinctOperation<string>)call.Operation;
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.FieldName.Should().Be(fieldName);
+            operation.Filter.Should().Be(filter);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
+
+            var stringSerializer = BsonSerializer.SerializerRegistry.GetSerializer<string>();
+            operation.ValueSerializer.Should().BeSameAs(stringSerializer);
         }
 
         [Theory]

@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -95,15 +95,34 @@ namespace MongoDB.Driver
                 return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
             }
 
-            // otherwise assume that the value can be cast to the right type for the field serializer
-            var castingSerializerType = typeof(CastingSerializer<,>).MakeGenericType(valueType, fieldType);
-            var castingSerializerConstructor = castingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
-            return (IBsonSerializer)castingSerializerConstructor.Invoke(new object[] { fieldSerializer });
+            // use the item serializer if fieldSerializer is an IBsonArraySerializer of valueType items
+            IBsonArraySerializer arraySerializer;
+            if ((arraySerializer = fieldSerializer as IBsonArraySerializer) != null)
+            {
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                {
+                    if (itemSerializationInfo.Serializer.ValueType == valueType)
+                    {
+                        return itemSerializationInfo.Serializer;
+                    }
+                }
+            }
+
+            // if we can't return a valid value serializer based on the field serializer return null
+            return null;
         }
 
-        public static IBsonSerializer<TValue> GetSerializerForValueType<TField, TValue>(IBsonSerializer<TField> fieldSerializer)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, object value)
         {
-            return (IBsonSerializer<TValue>)GetSerializerForValueType(fieldSerializer, typeof(TValue));
+            if (!valueType.GetTypeInfo().IsValueType && value == null)
+            {
+                return fieldSerializer;
+            }
+            else
+            {
+                return GetSerializerForValueType(fieldSerializer, valueType);
+            }
         }
 
         // private static methods
@@ -134,21 +153,6 @@ namespace MongoDB.Driver
         }
 
         // nested types
-        private class CastingSerializer<TFrom, TTo> : SerializerBase<TFrom>
-        {
-            private readonly IBsonSerializer<TTo> _serializer;
-
-            public CastingSerializer(IBsonSerializer<TTo> serializer)
-            {
-                _serializer = serializer;
-            }
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
-            {
-                _serializer.Serialize(context, args, (TTo)(object)value);
-            }
-        }
-
         private class EnumConvertingSerializer<TFrom, TTo> : SerializerBase<TFrom>
         {
             private readonly IBsonSerializer<TTo> _serializer;

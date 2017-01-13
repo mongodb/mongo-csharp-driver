@@ -17,8 +17,8 @@ using System.Reflection;
 
 [assembly: AssemblyCompany("MongoDB Inc.")]
 [assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
-[assembly: AssemblyVersion("0.0.*")]
-[assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("0.0.0.0")]
-[assembly: AssemblyMetadata("githash", "none")]
-[assembly: AssemblyConfiguration("Debug")]
+[assembly: AssemblyVersion("2.4.2.11")]
+[assembly: AssemblyInformationalVersion("2.4.2-local-0011")]
+[assembly: AssemblyFileVersion("2.4.2.11")]
+[assembly: AssemblyMetadata("githash", "cf7accd4bd504d33adb74fc49a4ef9cfec499836")]
+[assembly: AssemblyConfiguration("Release")]
