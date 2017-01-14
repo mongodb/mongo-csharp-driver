@@ -272,6 +272,33 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Eq_with_enums()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Eq("E", EnumForClassWithEnums.A), "{ E : 0 }");
+            Assert(subject.AnyEq("A", EnumForClassWithEnums.A), "{ A : 0 }");
+        }
+
+        [Fact]
+        public void Eq_with_enums_typed()
+        {
+            var subject = CreateSubject<ClassWithEnums>();
+
+            Assert(subject.Eq("E", 0), "{ E : \"A\" }");
+            Assert(subject.Eq("A", 0), "{ A : \"A\" }");
+            Assert(subject.AnyEq("A", 0), "{ A : \"A\" }");
+
+            Assert(subject.Eq("E", "X"), "{ E : \"X\" }");
+            Assert(subject.Eq("A", "X"), "{ A : \"X\" }");
+            Assert(subject.AnyEq("A", "X"), "{ A : \"X\" }");
+
+            Assert(subject.Eq("E", EnumForClassWithEnums.A), "{ E : \"A\" }");
+            Assert(subject.Eq("A", EnumForClassWithEnums.A), "{ A : \"A\" }");
+            Assert(subject.AnyEq("A", EnumForClassWithEnums.A), "{ A : \"A\" }");
+        }
+
+        [Fact]
         public void Exists()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -501,7 +528,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void In_typed_with_enum()
+        public void In_with_enum_typed()
         {
             var subject = CreateSubject<ClassWithEnums>();
 
@@ -509,9 +536,9 @@ namespace MongoDB.Driver.Tests
             Assert(subject.In("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
             Assert(subject.AnyIn("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
 
-            Assert(subject.In("E", new[] { "A", "B" }), "{ E : { $in : [ \"A\", \"B\" ] } }");
-            Assert(subject.In("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
-            Assert(subject.AnyIn("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("E", new[] { "X", "Y" }), "{ E : { $in : [ \"X\", \"Y\" ] } }");
+            Assert(subject.In("A", new[] { "X", "Y" }), "{ A : { $in : [ \"X\", \"Y\" ] } }");
+            Assert(subject.AnyIn("A", new[] { "X", "Y" }), "{ A : { $in : [ \"X\", \"Y\" ] } }");
 
             Assert(subject.In("E", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ E : { $in : [ \"A\", \"B\" ] } }");
             Assert(subject.In("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ \"A\", \"B\" ] } }");
