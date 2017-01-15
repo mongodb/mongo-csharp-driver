@@ -133,6 +133,7 @@
     <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\Processors\PartialEvaluatorTests.cs" />
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\PredicateImplicitTypeCastTests.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
     <Compile Include="OfTypeMongoCollectionTests.cs" />

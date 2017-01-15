@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Support;
+using System.ComponentModel;
 
 namespace MongoDB.Driver
 {
@@ -145,7 +146,29 @@ namespace MongoDB.Driver
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
             {
-                _serializer.Serialize(context, args, (TTo)(object)value);
+                _serializer.Serialize(context, args, CastValue(value));
+            }
+
+            private TTo CastValue(TFrom value)
+            {
+                if (ReferenceEquals(value, null) || typeof(TTo).IsAssignableFrom(value.GetType()))
+                {
+                    //direct cast with boxing
+                    return (TTo)(object)value;
+                }
+                //cast using TypeDescriptor
+                var converter = TypeDescriptor.GetConverter(value.GetType());
+                if (converter.CanConvertTo(typeof(TTo)))
+                {
+                    return (TTo)converter.ConvertTo(value, typeof(TTo));
+                }
+                converter = TypeDescriptor.GetConverter(typeof(TTo));
+                if (converter.CanConvertFrom(value.GetType()))
+                {
+                    return (TTo)converter.ConvertFrom(value);
+                }
+                //cast with Convert.ChangeType() - last chance
+                return (TTo)Convert.ChangeType(value, typeof(TTo));
             }
         }
 
