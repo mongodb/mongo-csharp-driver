@@ -580,6 +580,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void DictionaryIndexerWithCasting()
+        {
+            Assert(
+                x => (int) x.W["one"] == 1,
+                1,
+                "{'W.one': 1}");
+        }
+
+        [Fact]
         public void EnumerableCount()
         {
             Assert(
@@ -618,7 +627,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Fact]
         public void Equals_with_non_nullable_field_and_nullable_value()
         {
-            var value = (int?)null;
+            var value = (int?) null;
             Assert(
                 x => x.Id == value,
                 0,

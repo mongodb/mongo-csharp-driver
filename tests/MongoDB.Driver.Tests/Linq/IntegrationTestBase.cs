@@ -103,7 +103,8 @@ namespace MongoDB.Driver.Tests.Linq
                 Q = Q.One,
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
-                U = 1.23456571661743267789m
+                U = 1.23456571661743267789m,
+                W = new Dictionary<string, object> { { "one", 1 }, { "two", 2 } }
             };
             __collection.InsertOne(root);
         }
@@ -219,6 +220,8 @@ namespace MongoDB.Driver.Tests.Linq
 
             [BsonRepresentation(Bson.BsonType.Double, AllowTruncation = true)]
             public decimal U { get; set; }
+
+            public Dictionary<string, object> W { get; set; }
         }
 
         public class RootDescended : Root
