@@ -218,6 +218,7 @@ namespace MongoDB.Driver.Linq.Processors
                                 return new DocumentExpression(serializer);
                             case ExtensionExpressionType.Field:
                                 return new FieldExpression(
+                                    ((FieldExpression) serializationExpression).Document,
                                     ((FieldExpression)serializationExpression).FieldName,
                                     serializer);
                             case ExtensionExpressionType.FieldAsDocument:
