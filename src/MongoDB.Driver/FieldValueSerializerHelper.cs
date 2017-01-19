@@ -151,7 +151,11 @@ namespace MongoDB.Driver
 
             private TTo CastValue(TFrom value)
             {
+#if NETSTANDARD1_5
+                if (ReferenceEquals(value, null) || typeof(TTo).GetTypeInfo().IsAssignableFrom(value.GetType()))                
+#else
                 if (ReferenceEquals(value, null) || typeof(TTo).IsAssignableFrom(value.GetType()))
+#endif
                 {
                     //direct cast with boxing
                     return (TTo)(object)value;

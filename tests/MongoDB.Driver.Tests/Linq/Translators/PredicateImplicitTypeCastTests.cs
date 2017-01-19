@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using System.Globalization;
+using System.Reflection;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
@@ -65,12 +66,20 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
+#if NETSTANDARD1_5
+                return (typeof(C).GetTypeInfo().IsAssignableFrom(destinationType));
+#else
                 return (typeof(C).IsAssignableFrom(destinationType));
+#endif
             }
 
             public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             {
+#if NETSTANDARD1_5
+                if (typeof(C).GetTypeInfo().IsAssignableFrom(destinationType))
+#else
                 if (typeof(C).IsAssignableFrom(destinationType))
+#endif
                 {
                     if (value is string)
                     {
