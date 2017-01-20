@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,19 +15,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal class GridFSForwardOnlyUploadStream : GridFSUploadStream
+    internal class GridFSForwardOnlyUploadStream<TFileId> : GridFSUploadStream<TFileId>
     {
+        #region static
+        // private static fields
+        private static readonly Task __completedTask = Task.FromResult(true);
+        #endregion
+
         // fields
         private bool _aborted;
         private readonly List<string> _aliases;
@@ -35,22 +41,23 @@ namespace MongoDB.Driver.GridFS
         private long _batchPosition;
         private int _batchSize;
         private readonly IWriteBinding _binding;
-        private readonly GridFSBucket _bucket;
+        private readonly GridFSBucket<TFileId> _bucket;
         private readonly int _chunkSizeBytes;
         private bool _closed;
         private readonly string _contentType;
         private bool _disposed;
         private readonly string _filename;
-        private readonly ObjectId _id;
+        private readonly TFileId _id;
+        private readonly BsonValue _idAsBsonValue;
         private long _length;
-        private readonly MD5 _md5;
+        private readonly IncrementalMD5 _md5;
         private readonly BsonDocument _metadata;
 
         // constructors
         public GridFSForwardOnlyUploadStream(
-            GridFSBucket bucket,
+            GridFSBucket<TFileId> bucket,
             IWriteBinding binding,
-            ObjectId id,
+            TFileId id,
             string filename,
             BsonDocument metadata,
             IEnumerable<string> aliases,
@@ -69,7 +76,11 @@ namespace MongoDB.Driver.GridFS
             _batchSize = batchSize;
 
             _batch = new List<byte[]>();
-            _md5 = MD5.Create();
+            _md5 = IncrementalMD5.Create();
+
+            var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
+            var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
+            _idAsBsonValue = idSerializationInfo.SerializeValue(id);
         }
 
         // properties
@@ -88,7 +99,7 @@ namespace MongoDB.Driver.GridFS
             get { return true; }
         }
 
-        public override ObjectId Id
+        public override TFileId Id
         {
             get { return _id; }
         }
@@ -111,6 +122,19 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
+        public override void Abort(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (_aborted)
+            {
+                return;
+            }
+            ThrowIfClosedOrDisposed();
+            _aborted = true;
+
+            var operation = CreateAbortOperation();
+            operation.Execute(_binding, cancellationToken);
+        }
+
         public override async Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_aborted)
@@ -120,17 +144,31 @@ namespace MongoDB.Driver.GridFS
             ThrowIfClosedOrDisposed();
             _aborted = true;
 
-            var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
-            var filter = new BsonDocument("files_id", _id);
-            var deleteRequest = new DeleteRequest(filter) { Limit = 0 };
-            var requests = new WriteRequest[] { deleteRequest };
-            var messageEncoderSettings = _bucket.GetMessageEncoderSettings();
-            var operation = new BulkMixedWriteOperation(chunksCollectionNamespace, requests, messageEncoderSettings)
-            {
-                WriteConcern = _bucket.Options.WriteConcern
-            };
-
+            var operation = CreateAbortOperation();
             await operation.ExecuteAsync(_binding, cancellationToken).ConfigureAwait(false);
+        }
+
+        public override void Close()
+        {
+            Close(CancellationToken.None);
+        }
+
+        public override void Close(CancellationToken cancellationToken)
+        {
+            if (_closed)
+            {
+                return;
+            }
+            ThrowIfDisposed();
+            _closed = true;
+
+            if (!_aborted)
+            {
+                WriteFinalBatch(cancellationToken);
+                WriteFilesCollectionDocument(cancellationToken);
+            }
+
+            base.Close();
         }
 
         public override async Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -147,21 +185,19 @@ namespace MongoDB.Driver.GridFS
                 await WriteFinalBatchAsync(cancellationToken).ConfigureAwait(false);
                 await WriteFilesCollectionDocumentAsync(cancellationToken).ConfigureAwait(false);
             }
-        }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
+            base.Close();
         }
 
         public override void Flush()
         {
-            throw new NotSupportedException();
+            // do nothing
         }
 
         public override Task FlushAsync(CancellationToken cancellationToken)
         {
-            throw new NotSupportedException();
+            // do nothing
+            return __completedTask;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -186,7 +222,16 @@ namespace MongoDB.Driver.GridFS
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException();
+            ThrowIfAbortedClosedOrDisposed();
+            while (count > 0)
+            {
+                var chunk = GetCurrentChunk(CancellationToken.None);
+                var partialCount = Math.Min(count, chunk.Count);
+                Buffer.BlockCopy(buffer, offset, chunk.Array, chunk.Offset, partialCount);
+                offset += partialCount;
+                count -= partialCount;
+                _length += partialCount;
+            }
         }
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -204,6 +249,60 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+        private BulkMixedWriteOperation CreateAbortOperation()
+        {
+            var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
+            var filter = new BsonDocument("files_id", _idAsBsonValue);
+            var deleteRequest = new DeleteRequest(filter) { Limit = 0 };
+            var requests = new WriteRequest[] { deleteRequest };
+            var messageEncoderSettings = _bucket.GetMessageEncoderSettings();
+            return new BulkMixedWriteOperation(chunksCollectionNamespace, requests, messageEncoderSettings)
+            {
+                WriteConcern = _bucket.Options.WriteConcern
+            };
+        }
+
+        private BsonDocument CreateFilesCollectionDocument()
+        {
+            var uploadDateTime = DateTime.UtcNow;
+
+            return new BsonDocument
+            {
+                { "_id", _idAsBsonValue },
+                { "length", _length },
+                { "chunkSize", _chunkSizeBytes },
+                { "uploadDate", uploadDateTime },
+                { "md5", BsonUtils.ToHexString(_md5.GetHashAndReset()) },
+                { "filename", _filename },
+                { "contentType", _contentType, _contentType != null },
+                { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },
+                { "metadata", _metadata, _metadata != null }
+            };
+        }
+
+        private IEnumerable<BsonDocument> CreateWriteBatchChunkDocuments()
+        {
+            var chunkDocuments = new List<BsonDocument>();
+
+            var n = (int)(_batchPosition / _chunkSizeBytes);
+            foreach (var chunk in _batch)
+            {
+                var chunkDocument = new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "files_id", _idAsBsonValue },
+                    { "n", n++ },
+                    { "data", new BsonBinaryData(chunk, BsonBinarySubType.Binary) }
+                };
+                chunkDocuments.Add(chunkDocument);
+
+                _batchPosition += chunk.Length;
+                _md5.AppendData(chunk, 0, chunk.Length);
+            }
+
+            return chunkDocuments;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -212,15 +311,6 @@ namespace MongoDB.Driver.GridFS
 
                 if (disposing)
                 {
-                    try
-                    {
-                        CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-
                     if (_md5 != null)
                     {
                         _md5.Dispose();
@@ -247,6 +337,20 @@ namespace MongoDB.Driver.GridFS
             return database.GetCollection<BsonDocument>(collectionName, settings);
         }
 
+        private ArraySegment<byte> GetCurrentChunk(CancellationToken cancellationToken)
+        {
+            var batchIndex = (int)((_length - _batchPosition) / _chunkSizeBytes);
+
+            if (batchIndex == _batchSize)
+            {
+                WriteBatch(cancellationToken);
+                _batch.Clear();
+                batchIndex = 0;
+            }
+
+            return GetCurrentChunkSegment(batchIndex);
+        }
+
         private async Task<ArraySegment<byte>> GetCurrentChunkAsync(CancellationToken cancellationToken)
         {
             var batchIndex = (int)((_length - _batchPosition) / _chunkSizeBytes);
@@ -258,6 +362,11 @@ namespace MongoDB.Driver.GridFS
                 batchIndex = 0;
             }
 
+            return GetCurrentChunkSegment(batchIndex);
+        }
+
+        private ArraySegment<byte> GetCurrentChunkSegment(int batchIndex)
+        {
             if (_batch.Count <= batchIndex)
             {
                 _batch.Add(new byte[_chunkSizeBytes]);
@@ -315,51 +424,43 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        private void WriteBatch(CancellationToken cancellationToken)
+        {
+            var chunksCollection = GetChunksCollection();
+            var chunkDocuments = CreateWriteBatchChunkDocuments();
+            chunksCollection.InsertMany(chunkDocuments, cancellationToken: cancellationToken);
+            _batch.Clear();
+        }
+
         private async Task WriteBatchAsync(CancellationToken cancellationToken)
         {
-            var chunkDocuments = new List<BsonDocument>();
-
-            var n = (int)(_batchPosition / _chunkSizeBytes);
-            foreach (var chunk in _batch)
-            {
-                var chunkDocument = new BsonDocument
-                {
-                    { "_id", ObjectId.GenerateNewId() },
-                    { "files_id", _id },
-                    { "n", n++ },
-                    { "data", new BsonBinaryData(chunk, BsonBinarySubType.Binary) }
-                };
-                chunkDocuments.Add(chunkDocument);
-
-                _batchPosition += chunk.Length;
-                _md5.TransformBlock(chunk, 0, chunk.Length, null, 0);
-            }
-
             var chunksCollection = GetChunksCollection();
+            var chunkDocuments = CreateWriteBatchChunkDocuments();
             await chunksCollection.InsertManyAsync(chunkDocuments, cancellationToken: cancellationToken).ConfigureAwait(false);
-
             _batch.Clear();
+        }
+
+        private void WriteFilesCollectionDocument(CancellationToken cancellationToken)
+        {
+            var filesCollection = GetFilesCollection();
+            var filesCollectionDocument = CreateFilesCollectionDocument();
+            filesCollection.InsertOne(filesCollectionDocument, cancellationToken: cancellationToken);
         }
 
         private async Task WriteFilesCollectionDocumentAsync(CancellationToken cancellationToken)
         {
-            var uploadDateTime = DateTime.UtcNow;
-
-            var filesCollectionDocument = new BsonDocument
-            {
-                { "_id", _id },
-                { "length", _length },
-                { "chunkSize", _chunkSizeBytes },
-                { "uploadDate", uploadDateTime },
-                { "md5", BsonUtils.ToHexString(_md5.Hash) },
-                { "filename", _filename },
-                { "contentType", _contentType, _contentType != null },
-                { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },
-                { "metadata", _metadata, _metadata != null }
-            };
-
             var filesCollection = GetFilesCollection();
+            var filesCollectionDocument = CreateFilesCollectionDocument();
             await filesCollection.InsertOneAsync(filesCollectionDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
+        private void WriteFinalBatch(CancellationToken cancellationToken)
+        {
+            if (_batch.Count > 0)
+            {
+                TruncateFinalChunk();
+                WriteBatch(cancellationToken);
+            }
         }
 
         private async Task WriteFinalBatchAsync(CancellationToken cancellationToken)
@@ -369,7 +470,6 @@ namespace MongoDB.Driver.GridFS
                 TruncateFinalChunk();
                 await WriteBatchAsync(cancellationToken).ConfigureAwait(false);
             }
-            _md5.TransformFinalBlock(new byte[0], 0, 0);
         }
     }
 }

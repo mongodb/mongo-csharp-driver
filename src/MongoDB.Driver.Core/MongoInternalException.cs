@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,18 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a MongoDB internal exception (almost surely the result of a bug).
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoInternalException : MongoException
     {
         // constructors
@@ -44,6 +48,7 @@ namespace MongoDB.Driver
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoInternalException"/> class.
         /// </summary>
@@ -53,5 +58,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
+#endif
     }
 }

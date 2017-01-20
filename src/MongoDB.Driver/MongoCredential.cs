@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Credential to access a MongoDB database.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields
@@ -377,10 +379,11 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
+                var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
                 var credential = new UsernamePasswordCredential(
                     _identity.Source,
                     _identity.Username,
-                    MongoUtils.ToInsecureString(passwordEvidence.SecurePassword));
+                    insecurePassword);
                 if (_mechanism == null)
                 {
                     return new DefaultAuthenticator(credential);
@@ -444,11 +447,6 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(string mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            if (string.IsNullOrEmpty(username))
-            {
-                return null;
-            }
-
             var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
             switch (defaultedMechanism)
             {
@@ -477,7 +475,7 @@ namespace MongoDB.Driver
 
                     return new MongoCredential(
                         mechanism,
-                        new MongoExternalIdentity(username),
+                        new MongoX509Identity(username),
                         evidence);
                 case "GSSAPI":
                     // always $external for GSSAPI.  

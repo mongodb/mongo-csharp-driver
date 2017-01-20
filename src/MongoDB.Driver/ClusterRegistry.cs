@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -34,13 +35,19 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a registry of already created clusters.
     /// </summary>
-    internal class ClusterRegistry
+    public class ClusterRegistry
     {
         #region static
         // static fields
         private static readonly ClusterRegistry __instance = new ClusterRegistry();
 
         // static properties
+        /// <summary>
+        /// Gets the default cluster registry.
+        /// </summary>
+        /// <value>
+        /// The default cluster registry.
+        /// </value>
         public static ClusterRegistry Instance
         {
             get { return __instance; }
@@ -79,7 +86,7 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-            var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
+            var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
             return settings.With(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Enumerable(endPoints),
@@ -105,7 +112,8 @@ namespace MongoDB.Driver
             return settings.With(
                 authenticators: Optional.Enumerable(authenticators),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
-                maxLifeTime: clusterKey.MaxConnectionLifeTime);
+                maxLifeTime: clusterKey.MaxConnectionLifeTime,
+                applicationName: clusterKey.ApplicationName);
         }
 
         private ServerSettings ConfigureServer(ServerSettings settings, ClusterKey clusterKey)
@@ -140,6 +148,11 @@ namespace MongoDB.Driver
 
         private TcpStreamSettings ConfigureTcp(TcpStreamSettings settings, ClusterKey clusterKey)
         {
+            if (clusterKey.IPv6)
+            {
+                settings = settings.With(addressFamily: AddressFamily.InterNetworkV6);
+            }
+
             return settings.With(
                 connectTimeout: clusterKey.ConnectTimeout,
                 readTimeout: clusterKey.SocketTimeout,
@@ -148,7 +161,7 @@ namespace MongoDB.Driver
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        public ICluster GetOrCreateCluster(ClusterKey clusterKey)
+        internal ICluster GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
@@ -170,6 +183,35 @@ namespace MongoDB.Driver
         )
         {
             return true;
+        }
+
+        /// <summary>
+        /// Unregisters and disposes the cluster.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        public void UnregisterAndDisposeCluster(ICluster cluster)
+        {
+            Ensure.IsNotNull(cluster, nameof(cluster));
+
+            lock (_lock)
+            {
+                ClusterKey clusterKey = null;
+                foreach (var keyValuePair in _registry)
+                {
+                    if (object.ReferenceEquals(keyValuePair.Value, cluster))
+                    {
+                        clusterKey = keyValuePair.Key;
+                        break;
+                    }
+                }
+
+                if (clusterKey != null)
+                {
+                    _registry.Remove(clusterKey);
+                }
+            }
+
+            cluster.Dispose();
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
 */
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -39,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowPartialResults;
         private int? _batchSize;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
         private CursorType _cursorType;
@@ -48,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _limit;
         private BsonDocument _max;
         private int? _maxScan;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _min;
@@ -105,6 +101,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -200,6 +208,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _max; }
             set { _max = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>
@@ -464,6 +484,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 AllowPartialResults = _allowPartialResults,
                 BatchSize = _batchSize,
+                Collation = _collation,
                 Comment = comment,
                 CursorType = _cursorType,
                 Filter = _filter,
@@ -471,6 +492,7 @@ namespace MongoDB.Driver.Core.Operations
                 FirstBatchSize = _firstBatchSize,
                 Limit = _limit,
                 Max = max,
+                MaxAwaitTime = _maxAwaitTime,
                 MaxScan = maxScan,
                 MaxTime = maxTime,
                 Min = min,
@@ -491,6 +513,15 @@ namespace MongoDB.Driver.Core.Operations
 
         internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation()
         {
+            if (!_readConcern.IsServerDefault)
+            {
+                throw new MongoClientException($"ReadConcern {_readConcern} is not supported by FindOpcodeOperation.");
+            }
+            if (_collation != null)
+            {
+                throw new NotSupportedException($"OP_QUERY does not support collations.");
+            }
+
             var operation = new FindOpcodeOperation<TDocument>(
                 _collectionNamespace,
                 _resultSerializer,
@@ -524,15 +555,12 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (SupportedFeatures.IsFindCommandSupported(serverVersion) && !hasExplainModifier)
+            if (Feature.FindCommand.IsSupported(serverVersion) && !hasExplainModifier)
             {
                 return CreateFindCommandOperation();
             }
             else
             {
-                // this is here because FindOpcodeOperation doesn't support
-                // read concern
-                _readConcern.ThrowIfNotSupported(serverVersion);
                 return CreateFindOpcodeOperation();
             }
         }

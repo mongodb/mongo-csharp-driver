@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,8 +23,14 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a Stream used by the application to read data from a GridFS file.
     /// </summary>
-    public abstract class GridFSDownloadStream : Stream
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
+    public abstract class GridFSDownloadStream<TFileId> : Stream
     {
+        // constructors
+        internal GridFSDownloadStream()
+        {
+        }
+
         // public properties
         /// <summary>
         /// Gets the files collection document.
@@ -31,9 +38,26 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The files collection document.
         /// </value>
-        public abstract GridFSFileInfo FileInfo { get; }
+        public abstract GridFSFileInfo<TFileId> FileInfo { get; }
 
         // public methods
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        public virtual void Close()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+#endif
+
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Close(CancellationToken cancellationToken);
+
         /// <summary>
         /// Closes the GridFS stream.
         /// </summary>

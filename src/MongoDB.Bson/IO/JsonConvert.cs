@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,6 +68,16 @@ namespace MongoDB.Bson.IO
         public static decimal ToDecimal(string value)
         {
             return decimal.Parse(value, NumberFormatInfo.InvariantInfo);
+        }
+
+        /// <summary>
+        /// Converts a string to a <see cref="Decimal128"/>.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A <see cref="Decimal128"/>.</returns>
+        public static Decimal128 ToDecimal128(string value)
+        {
+            return Decimal128.Parse(value);
         }
 
         /// <summary>
@@ -161,13 +171,23 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Converts a <see cref="Decimal128"/> to a string.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
+        public static string ToString(Decimal128 value)
+        {
+            return value.ToString();
+        }
+
+        /// <summary>
         /// Converts a Double to a string.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>A string.</returns>
         public static string ToString(double value)
         {
-            return value.ToString("R", NumberFormatInfo.InvariantInfo);
+            return value.ToString("G17", NumberFormatInfo.InvariantInfo);
         }
 
         /// <summary>

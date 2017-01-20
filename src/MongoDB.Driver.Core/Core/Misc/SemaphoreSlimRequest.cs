@@ -63,9 +63,18 @@ namespace MongoDB.Driver.Core.Misc
         public void Dispose()
         {
             _disposeCancellationTokenSource.Cancel(); // does nothing if we have the lock, otherwise cancels the request
+            SpinWait.SpinUntil(() => _task.IsCompleted);
+
             if (_task.Status == TaskStatus.RanToCompletion)
             {
-                _semaphore.Release();
+                try
+                {
+                    _semaphore.Release();
+                }
+                catch
+                {
+                    // ignore...
+                }
             }
 
             _disposeCancellationTokenSource.Dispose();

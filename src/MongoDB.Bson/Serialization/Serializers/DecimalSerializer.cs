@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -58,6 +56,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (representation)
             {
                 case BsonType.Array:
+                case BsonType.Decimal128:
                 case BsonType.Double:
                 case BsonType.Int32:
                 case BsonType.Int64:
@@ -119,6 +118,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bits[3] = array[3].AsInt32;
                     return new decimal(bits);
 
+                case BsonType.Decimal128:
+                    return _converter.ToDecimal(bsonReader.ReadDecimal128());
+
                 case BsonType.Double:
                     return _converter.ToDecimal(bsonReader.ReadDouble());
 
@@ -156,6 +158,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteInt32(bits[2]);
                     bsonWriter.WriteInt32(bits[3]);
                     bsonWriter.WriteEndArray();
+                    break;
+
+                case BsonType.Decimal128:
+                    bsonWriter.WriteDecimal128(_converter.ToDecimal128(value));
                     break;
 
                 case BsonType.Double:

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{02AB2E44-785A-4D39-99C0-29F93A02EF84}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Driver.Legacy.TestHelpers</RootNamespace>
+    <AssemblyName>MongoDB.Driver.Legacy.TestHelpers</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExpectedErrorMessage.cs" />
+    <Compile Include="LegacyTestConfiguration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+      <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
+      <Name>MongoDB.Driver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Legacy\MongoDB.Driver.Legacy.csproj">
+      <Project>{97962946-aa1e-4308-b7a7-6ad92bdbc358}</Project>
+      <Name>MongoDB.Driver.Legacy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
+      <Project>{89b92fff-4126-4d9a-93c8-2bd7e0cd82ff}</Project>
+      <Name>MongoDB.Driver.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj">
+      <Project>{ae5166cd-76b0-4911-bd80-ced9521f37a1}</Project>
+      <Name>MongoDB.Driver</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

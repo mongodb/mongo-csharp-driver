@@ -38,6 +38,11 @@ namespace MongoDB.Driver.Linq.Processors
             _memberMapping = new Dictionary<MemberInfo, Expression>();
         }
 
+        public IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return _serializerRegistry; }
+        }
+
         public void AddCorrelatingId(Expression node, Guid correlatingId)
         {
             Ensure.IsNotNull(node, nameof(node));
@@ -84,10 +89,23 @@ namespace MongoDB.Driver.Linq.Processors
             }
             else if (node == null || type != node.Type)
             {
-                return _serializerRegistry.GetSerializer(type);
+                serializer = _serializerRegistry.GetSerializer(type);
+                if (node != null)
+                {
+                    var childConfigurable = serializer as IChildSerializerConfigurable;
+                    if (childConfigurable != null)
+                    {
+                        var childSerializer = GetSerializer(node.Type, node);
+                        serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
+                    }
+                }
+            }
+            else
+            {
+                serializer = SerializerBuilder.Build(node, _serializerRegistry);
             }
 
-            return SerializerBuilder.Build(node, _serializerRegistry);
+            return serializer;
         }
 
         public SerializationExpression BindProjector(ref Expression selector)
@@ -95,7 +113,8 @@ namespace MongoDB.Driver.Linq.Processors
             var projector = selector as SerializationExpression;
             if (selector.NodeType == ExpressionType.MemberInit || selector.NodeType == ExpressionType.New)
             {
-                var serializer = GetSerializer(selector.Type, selector);
+                var serializer = SerializerBuilder.Build(selector, _serializerRegistry);
+
                 projector = new DocumentExpression(serializer);
             }
             else if (projector == null || projector is PipelineExpression || projector is IFieldExpression || projector is ArrayIndexExpression)

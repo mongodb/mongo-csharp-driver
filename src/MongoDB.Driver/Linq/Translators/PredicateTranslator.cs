@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Linq.Processors;
@@ -116,6 +118,8 @@ namespace MongoDB.Driver.Linq.Translators
                                     filter = TranslateBoolean(mongoExpression);
                                 }
                                 break;
+                            case ExtensionExpressionType.InjectedFilter:
+                                return TranslateInjectedFilter((InjectedFilterExpression)node);
                             case ExtensionExpressionType.Pipeline:
                                 filter = TranslatePipeline((PipelineExpression)node);
                                 break;
@@ -272,7 +276,8 @@ namespace MongoDB.Driver.Linq.Translators
 
             var field = GetFieldExpression(binaryExpression.Left);
 
-            var value = field.SerializeValue(((ConstantExpression)binaryExpression.Right).Value).ToInt64();
+            var maskExpression = (ConstantExpression)binaryExpression.Right;
+            var value = field.SerializeValue(maskExpression.Type, maskExpression.Value).ToInt64();
             var comparison = Convert.ToInt64(constantExpression.Value);
 
             if (value == comparison)
@@ -437,7 +442,10 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var fieldExpression = GetFieldExpression(variableExpression);
-            var serializedValue = fieldExpression.SerializeValue(value);
+
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, constantExpression.Type);
+            var serializedValue = valueSerializer.ToBsonValue(value);
+
             switch (operatorType)
             {
                 case ExpressionType.Equal: return __builder.Eq(fieldExpression.FieldName, serializedValue);
@@ -465,8 +473,8 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateContainsKey(MethodCallExpression methodCallExpression)
         {
             var dictionaryType = methodCallExpression.Object.Type;
-            var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
-            if (dictionaryType.IsInterface)
+            var implementedInterfaces = new List<Type>(dictionaryType.GetTypeInfo().GetInterfaces());
+            if (dictionaryType.GetTypeInfo().IsInterface)
             {
                 implementedInterfaces.Add(dictionaryType);
             }
@@ -475,7 +483,7 @@ namespace MongoDB.Driver.Linq.Translators
             Type dictionaryInterface = null;
             foreach (var implementedInterface in implementedInterfaces)
             {
-                if (implementedInterface.IsGenericType)
+                if (implementedInterface.GetTypeInfo().IsGenericType)
                 {
                     if (implementedInterface.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                     {
@@ -544,7 +552,7 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateContains(MethodCallExpression methodCallExpression)
         {
             // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
-            if (methodCallExpression.Object != null && typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
+            if (methodCallExpression.Object != null && typeof(IDictionary).GetTypeInfo().IsAssignableFrom(methodCallExpression.Object.Type))
             {
                 return TranslateContainsKey(methodCallExpression);
             }
@@ -618,7 +626,8 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var field = GetFieldExpression(methodCallExpression.Object);
-            var value = field.SerializeValue(((ConstantExpression)methodCallExpression.Arguments[0]).Value).ToInt64();
+            var flagExpression = (ConstantExpression)methodCallExpression.Arguments[0];
+            var value = field.SerializeValue(flagExpression.Type, flagExpression.Value).ToInt64();
 
             return __builder.BitsAllSet(field.FieldName, value);
         }
@@ -626,6 +635,7 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateIn(MethodCallExpression methodCallExpression)
         {
             var methodDeclaringType = methodCallExpression.Method.DeclaringType;
+            var methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
             var arguments = methodCallExpression.Arguments.ToArray();
             IFieldExpression fieldExpression = null;
             ConstantExpression valuesExpression = null;
@@ -639,12 +649,13 @@ namespace MongoDB.Driver.Linq.Translators
             }
             else
             {
-                if (methodDeclaringType.IsGenericType)
+                if (methodDeclaringTypeInfo.IsGenericType)
                 {
                     methodDeclaringType = methodDeclaringType.GetGenericTypeDefinition();
+                    methodDeclaringTypeInfo = methodDeclaringType.GetTypeInfo();
                 }
 
-                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringType.GetInterface("ICollection`1") != null;
+                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringTypeInfo.GetInterface("ICollection`1") != null;
                 if (contains && arguments.Length == 1)
                 {
                     fieldExpression = GetFieldExpression(arguments[0]);
@@ -654,10 +665,18 @@ namespace MongoDB.Driver.Linq.Translators
 
             if (fieldExpression != null && valuesExpression != null)
             {
-                var serializedValues = fieldExpression.SerializeValues((IEnumerable)valuesExpression.Value);
+                var ienumerableInterfaceType = valuesExpression.Type.FindIEnumerable();
+                var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                var serializedValues = fieldExpression.SerializeValues(itemType, (IEnumerable)valuesExpression.Value);
                 return __builder.In(fieldExpression.FieldName, serializedValues);
             }
+
             return null;
+        }
+
+        private FilterDefinition<BsonDocument> TranslateInjectedFilter(InjectedFilterExpression node)
+        {
+            return new BsonDocumentFilterDefinition<BsonDocument>(node.Filter);
         }
 
         private FilterDefinition<BsonDocument> TranslateIsMatch(MethodCallExpression methodCallExpression)
@@ -949,28 +968,30 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslatePipelineContains(PipelineExpression node)
         {
             var value = ((ContainsResultOperator)node.ResultOperator).Value;
-            var constant = node.Source as ConstantExpression;
+            var constantExpression = node.Source as ConstantExpression;
             IFieldExpression field;
-            if (constant != null)
+            if (constantExpression != null)
             {
                 field = value as IFieldExpression;
                 if (field != null)
                 {
-                    var serializedValues = field.SerializeValues((IEnumerable)constant.Value);
+                    var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
+                    var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                    var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
                     return __builder.In(field.FieldName, serializedValues);
                 }
             }
             else
             {
-                constant = value as ConstantExpression;
+                constantExpression = value as ConstantExpression;
                 field = node.Source as IFieldExpression;
-                if (constant != null && field != null)
+                if (constantExpression != null && field != null)
                 {
                     var arraySerializer = field.Serializer as IBsonArraySerializer;
                     BsonSerializationInfo itemSerializationInfo;
                     if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
-                        var serializedValue = itemSerializationInfo.SerializeValue(constant.Value);
+                        var serializedValue = itemSerializationInfo.SerializeValue(constantExpression.Value);
                         return __builder.Eq(field.FieldName, serializedValue);
                     }
                 }
@@ -1278,16 +1299,16 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var fieldExpression = GetFieldExpression(methodExpression.Object);
-            var serializedValue = fieldExpression.SerializeValue(constantExpression.Value);
+            var serializedValue = fieldExpression.SerializeValue(constantExpression.Type, constantExpression.Value);
 
             if (serializedValue.IsString)
             {
                 var stringValue = serializedValue.AsString;
                 var stringValueCaseMatches =
-                    methodName == "ToLower" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLower(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpper" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture) ||
-                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpper(CultureInfo.InvariantCulture);
+                    methodName == "ToLower" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToLowerInvariant" && stringValue == stringValue.ToLowerInvariant() ||
+                    methodName == "ToUpper" && stringValue == stringValue.ToUpperInvariant() ||
+                    methodName == "ToUpperInvariant" && stringValue == stringValue.ToUpperInvariant();
 
                 if (stringValueCaseMatches)
                 {
@@ -1514,7 +1535,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var elementName = discriminatorConvention.ElementName;
             IFieldExpression fieldExpression;
-            if (TryGetFieldExpression(typeBinaryExpression.Expression, out fieldExpression))
+            if (TryGetFieldExpression(typeBinaryExpression.Expression, out fieldExpression) && !string.IsNullOrEmpty(fieldExpression.FieldName))
             {
                 elementName = string.Format("{0}.{1}", fieldExpression.FieldName, elementName);
             }
@@ -1617,6 +1638,11 @@ namespace MongoDB.Driver.Linq.Translators
             protected internal override Expression VisitDocument(DocumentExpression node)
             {
                 return new FieldExpression("", node.Serializer);
+            }
+
+            protected internal override Expression VisitPipeline(PipelineExpression node)
+            {
+                return node;
             }
         }
     }

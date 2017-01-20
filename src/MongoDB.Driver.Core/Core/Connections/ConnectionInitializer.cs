@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -29,6 +28,13 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
+        private readonly BsonDocument _clientDocument;
+
+        public ConnectionInitializer(string applicationName)
+        {
+            _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName);
+        }
+
         public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
@@ -112,9 +118,23 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
+        internal BsonDocument CreateIsMasterCommand()
+        {
+            return CreateIsMasterCommand(_clientDocument);
+        }
+
+        internal BsonDocument CreateIsMasterCommand(BsonDocument clientDocument)
+        {
+            return new BsonDocument
+            {
+                { "isMaster", 1 },
+                { "client", clientDocument, clientDocument != null }
+            };
+        }
+
         private CommandWireProtocol<BsonDocument> CreateIsMasterProtocol()
         {
-            var isMasterCommand = new BsonDocument("isMaster", 1);
+            var isMasterCommand = CreateIsMasterCommand();
             var isMasterProtocol = new CommandWireProtocol<BsonDocument>(
                 DatabaseNamespace.Admin,
                 isMasterCommand,

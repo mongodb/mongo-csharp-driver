@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Processors
                     serializer = BuildMemberInit((MemberInitExpression)node);
                     break;
                 case ExpressionType.New:
-                    if (!typeof(IEnumerable).IsAssignableFrom(node.Type))
+                    if (!typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(node.Type))
                     {
                         serializer = BuildNew((NewExpression)node);
                     }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Processors
                         IBsonSerializer itemSerializer;
                         if (PreviouslyUsedSerializerFinder.TryFindSerializer(node, itemSerializationInfo.Serializer.ValueType, out itemSerializer))
                         {
-                            serializer = RecursiveConfigureChildSerializer(childConfigurable, itemSerializer);
+                            serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurable, itemSerializer);
                         }
                     }
                     else
@@ -89,16 +89,7 @@ namespace MongoDB.Driver.Linq.Processors
             return serializer;
         }
 
-        private IBsonSerializer RecursiveConfigureChildSerializer(IChildSerializerConfigurable configurable, IBsonSerializer childSerializer)
-        {
-            var childConfigurable = configurable.ChildSerializer as IChildSerializerConfigurable;
-            if (childConfigurable != null)
-            {
-                childSerializer = RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
-            }
 
-            return configurable.WithChildSerializer(childSerializer);
-        }
 
         private IBsonSerializer BuildMemberInit(MemberInitExpression node)
         {
@@ -145,7 +136,7 @@ namespace MongoDB.Driver.Linq.Processors
                 return null;
             }
 
-            var baseClassMap = BuildClassMap(type.BaseType, mapping);
+            var baseClassMap = BuildClassMap(type.GetTypeInfo().BaseType, mapping);
             if (baseClassMap != null)
             {
                 baseClassMap.Freeze();
@@ -177,17 +168,21 @@ namespace MongoDB.Driver.Linq.Processors
             return classMap;
         }
 
-        private static Type GetMemberType(MemberInfo member)
+        private static Type GetMemberType(MemberInfo memberInfo)
         {
-            switch (member.MemberType)
+            FieldInfo fieldInfo;
+            if ((fieldInfo = memberInfo as FieldInfo) != null)
             {
-                case MemberTypes.Field:
-                    return ((FieldInfo)member).FieldType;
-                case MemberTypes.Property:
-                    return ((PropertyInfo)member).PropertyType;
-                default:
-                    throw new MongoInternalException("Can't get member type.");
+                return fieldInfo.FieldType;
             }
+
+            PropertyInfo propertyInfo;
+            if ((propertyInfo = memberInfo as PropertyInfo) != null)
+            {
+                return propertyInfo.PropertyType;
+            }
+
+            throw new MongoInternalException("Can't get member type.");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,10 +66,10 @@ namespace MongoDB.Driver.Linq
         public static IEnumerable<MethodInfo> GetEnumerableAndQueryableMethodDefinitions(string name)
         {
             return typeof(Enumerable)
-                .GetMethods()
-                .Concat(typeof(Queryable).GetMethods())
-                .Concat(typeof(MongoEnumerable).GetMethods())
-                .Concat(typeof(MongoQueryable).GetMethods())
+                .GetTypeInfo().GetMethods()
+                .Concat(typeof(Queryable).GetTypeInfo().GetMethods())
+                .Concat(typeof(MongoEnumerable).GetTypeInfo().GetMethods())
+                .Concat(typeof(MongoQueryable).GetTypeInfo().GetMethods())
                 .Where(x => x.Name == name)
                 .Select(x => GetMethodDefinition(x));
         }
@@ -83,13 +83,21 @@ namespace MongoDB.Driver.Linq
 
             methodInfo = methodInfo.GetBaseDefinition();
 
-            if (!methodInfo.DeclaringType.IsGenericType)
+            if (!methodInfo.DeclaringType.GetTypeInfo().IsGenericType)
             {
                 return methodInfo;
             }
 
             var declaringTypeDefinition = methodInfo.DeclaringType.GetGenericTypeDefinition();
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public;
+            var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            return declaringTypeDefinition.GetTypeInfo().GetMethods(bindingFlags)
+                .Where(m => m.Name == methodInfo.Name && m.GetParameters().Count() == parameterTypes.Length) // TODO: need better matching
+                .Single();
+#else
             return (MethodInfo)MethodBase.GetMethodFromHandle(methodInfo.MethodHandle, declaringTypeDefinition.TypeHandle);
+#endif
         }
     }
 }

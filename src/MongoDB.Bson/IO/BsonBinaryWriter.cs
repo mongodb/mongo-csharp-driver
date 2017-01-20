@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ namespace MongoDB.Bson.IO
         /// </value>
         public BsonStream BsonStream
         {
-            get { return _bsonStream;  }
+            get { return _bsonStream; }
         }
 
         // public methods
@@ -268,6 +268,22 @@ namespace MongoDB.Bson.IO
             State = GetNextState();
         }
 
+        /// <inheritdoc />
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Value)
+            {
+                ThrowInvalidState(nameof(WriteDecimal128), BsonWriterState.Value);
+            }
+
+            _bsonStream.WriteBsonType(BsonType.Decimal128);
+            WriteNameHelper();
+            _bsonStream.WriteDecimal128(value);
+
+            State = GetNextState();
+        }
+
         /// <summary>
         /// Writes a BSON Double to the writer.
         /// </summary>
@@ -416,7 +432,7 @@ namespace MongoDB.Bson.IO
 
             _bsonStream.WriteBsonType(BsonType.JavaScriptWithScope);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.JavaScriptWithScope, (int)_bsonStream.Position);
+            _context = new BsonBinaryWriterContext(_context, ContextType.JavaScriptWithScope, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size of JavaScript with scope value
             _bsonStream.WriteString(code, _settings.Encoding);
 
@@ -580,7 +596,7 @@ namespace MongoDB.Bson.IO
             base.WriteStartArray();
             _bsonStream.WriteBsonType(BsonType.Array);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.Array, (int)_bsonStream.Position);
+            _context = new BsonBinaryWriterContext(_context, ContextType.Array, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Value;
@@ -604,7 +620,7 @@ namespace MongoDB.Bson.IO
                 WriteNameHelper();
             }
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new BsonBinaryWriterContext(_context, contextType, (int)_bsonStream.Position);
+            _context = new BsonBinaryWriterContext(_context, contextType, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Name;

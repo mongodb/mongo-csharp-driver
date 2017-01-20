@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -40,6 +41,7 @@ namespace MongoDB.Bson.Serialization
                 { typeof(DateTime), typeof(DateTimeSerializer) },
                 { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
                 { typeof(Decimal), typeof(DecimalSerializer) },
+                { typeof(Decimal128), typeof(Decimal128Serializer) },
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
                 { typeof(Int16), typeof(Int16Serializer) },
@@ -78,7 +80,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
-            if (type.IsGenericType && type.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
@@ -90,16 +93,16 @@ namespace MongoDB.Bson.Serialization
                 return CreateSerializer(serializerType, serializerRegistry);
             }
 
-            if (type.IsGenericType && !type.ContainsGenericParameters)
+            if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
             {
                 Type serializerTypeDefinition;
                 if (__serializersTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments(), serializerRegistry);
+                    return CreateGenericSerializer(serializerTypeDefinition, type.GetTypeInfo().GetGenericArguments(), serializerRegistry);
                 }
             }
 
-            if (type.IsEnum)
+            if (typeInfo.IsEnum)
             {
                 return CreateGenericSerializer(typeof(EnumSerializer<>), new[] { type }, serializerRegistry);
             }

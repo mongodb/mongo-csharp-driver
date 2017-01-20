@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -135,7 +134,10 @@ namespace MongoDB.Driver
                 var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
                 {
                     AllowDiskUse = args.AllowDiskUse,
-                    MaxTime = args.MaxTime
+                    BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
+                    MaxTime = args.MaxTime,
+                    WriteConcern = _settings.WriteConcern
                 };
                 ExecuteWriteOperation(aggregateOperation);
 
@@ -145,6 +147,7 @@ namespace MongoDB.Driver
                 var findOperation = new FindOperation<BsonDocument>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
                 {
                     BatchSize = args.BatchSize,
+                    Collation = args.Collation,
                     MaxTime = args.MaxTime
                 };
 
@@ -157,6 +160,7 @@ namespace MongoDB.Driver
                 {
                     AllowDiskUse = args.AllowDiskUse,
                     BatchSize = args.BatchSize,
+                    Collation = args.Collation,
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
                     UseCursor = args.OutputMode == AggregateOutputMode.Cursor
@@ -173,7 +177,12 @@ namespace MongoDB.Driver
         public virtual CommandResult AggregateExplain(AggregateArgs args)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings);
+            var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
+            {
+                AllowDiskUse = args.AllowDiskUse,
+                Collation = args.Collation,
+                MaxTime = args.MaxTime
+            };
             var response = ExecuteReadOperation(operation);
             return new CommandResult(response);
         }
@@ -202,6 +211,7 @@ namespace MongoDB.Driver
             var filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 Filter = filter,
                 Hint = args.Hint,
                 Limit = args.Limit,
@@ -237,7 +247,10 @@ namespace MongoDB.Driver
                 var keysDocument = keys.ToBsonDocument();
                 var optionsDocument = options.ToBsonDocument();
                 var requests = new[] { new CreateIndexRequest(keysDocument) { AdditionalOptions = optionsDocument } };
-                var operation = new CreateIndexesOperation(_collectionNamespace, requests, GetMessageEncoderSettings());
+                var operation = new CreateIndexesOperation(_collectionNamespace, requests, GetMessageEncoderSettings())
+                {
+                    WriteConcern = _settings.WriteConcern
+                };
                 ExecuteWriteOperation(operation);
                 return new WriteConcernResult(new BsonDocument("ok", 1));
             }
@@ -282,6 +295,7 @@ namespace MongoDB.Driver
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
             var operation = new DistinctOperation<TValue>(_collectionNamespace, valueSerializer, args.Key, GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 Filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
                 ReadConcern = _settings.ReadConcern
@@ -397,7 +411,10 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(string indexName)
         {
-            var operation = new DropIndexOperation(_collectionNamespace, indexName, GetMessageEncoderSettings());
+            var operation = new DropIndexOperation(_collectionNamespace, indexName, GetMessageEncoderSettings())
+            {
+                WriteConcern = _settings.WriteConcern
+            };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
         }
@@ -557,7 +574,7 @@ namespace MongoDB.Driver
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
-            var returnDocument = args.VersionReturned == FindAndModifyDocumentVersion.Original
+            var returnDocument = !args.VersionReturned.HasValue || args.VersionReturned.Value == FindAndModifyDocumentVersion.Original
                 ? Core.Operations.ReturnDocument.Before
                 : Core.Operations.ReturnDocument.After;
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
@@ -567,11 +584,14 @@ namespace MongoDB.Driver
             {
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
             else
@@ -579,11 +599,14 @@ namespace MongoDB.Driver
                 var replacement = updateDocument;
                 operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
                     ReturnDocument = returnDocument,
-                    Sort = sort
+                    Sort = sort,
+                    WriteConcern = _settings.WriteConcern
                 };
             }
 
@@ -638,10 +661,11 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, resultSerializer, messageEncoderSettings)
             {
+                Collation = args.Collation,
                 MaxTime = args.MaxTime,
                 Projection = projection,
-                Sort = sort
-
+                Sort = sort,
+                WriteConcern = _settings.WriteConcern
             };
 
             try
@@ -720,6 +744,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
             {
+                Collation = args.Collation,
                 Filter = queryDocument,
                 Limit = -1,
                 MaxTime = args.MaxTime,
@@ -770,7 +795,7 @@ namespace MongoDB.Driver
         /// <returns>A document (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType, FindOneArgs args)
         {
-            var methodDefinition = GetType().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
@@ -894,7 +919,7 @@ namespace MongoDB.Driver
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
-            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(double), typeof(double), typeof(IMongoGeoHaystackSearchOptions) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(double), typeof(double), typeof(IMongoGeoHaystackSearchOptions) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { x, y, options });
         }
@@ -907,7 +932,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
         public virtual GeoHaystackSearchResult GeoHaystackSearchAs(Type documentType, GeoHaystackSearchArgs args)
         {
-            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { args });
         }
@@ -929,6 +954,7 @@ namespace MongoDB.Driver
                 _settings.SerializerRegistry.GetSerializer<GeoNearResult<TDocument>>(),
                 GetMessageEncoderSettings())
             {
+                Collation = args.Collation,
                 DistanceMultiplier = args.DistanceMultiplier,
                 Filter = BsonDocumentWrapper.Create(args.Query),
                 IncludeLocs = args.IncludeLocs,
@@ -1005,7 +1031,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
         public virtual GeoNearResult GeoNearAs(Type documentType, GeoNearArgs args)
         {
-            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(GeoNearArgs) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoNearAs", new Type[] { typeof(GeoNearArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoNearResult)methodInfo.Invoke(this, new object[] { args });
         }
@@ -1044,7 +1070,7 @@ namespace MongoDB.Driver
             int limit,
             IMongoGeoNearOptions options)
         {
-            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(IMongoQuery), typeof(double), typeof(double), typeof(int), typeof(IMongoGeoNearOptions) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoNearAs", new Type[] { typeof(IMongoQuery), typeof(double), typeof(double), typeof(int), typeof(IMongoGeoNearOptions) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             return (GeoNearResult)methodInfo.Invoke(this, new object[] { query, x, y, limit, options });
         }
@@ -1126,6 +1152,7 @@ namespace MongoDB.Driver
             {
                 operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
+            operation.Collation = args.Collation;
             operation.FinalizeFunction = args.FinalizeFunction;
             operation.MaxTime = args.MaxTime;
 
@@ -1403,6 +1430,7 @@ namespace MongoDB.Driver
 
                 var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                 {
+                    BypassDocumentValidation = options.BypassDocumentValidation,
                     ContinueOnError = continueOnError,
                     WriteConcern = writeConcern
                 };
@@ -1471,7 +1499,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("nominalType");
             }
 
-            var methodDefinition = typeof(MongoCollection).GetMethod("InsertBatchInvoker", BindingFlags.NonPublic | BindingFlags.Instance);
+            var methodDefinition = typeof(MongoCollection).GetTypeInfo().GetMethod("InsertBatchInvoker", BindingFlags.NonPublic | BindingFlags.Instance);
             var methodInfo = methodDefinition.MakeGenericMethod(nominalType);
             return (IEnumerable<WriteConcernResult>)methodInfo.Invoke(this, new object[] { documents, options });
         }
@@ -1515,6 +1543,7 @@ namespace MongoDB.Driver
                     args.ReduceFunction,
                     messageEncoderSettings)
                 {
+                    Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1541,6 +1570,8 @@ namespace MongoDB.Driver
                     args.ReduceFunction,
                     messageEncoderSettings)
                 {
+                    BypassDocumentValidation = args.BypassDocumentValidation,
+                    Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
@@ -1551,7 +1582,8 @@ namespace MongoDB.Driver
                     Scope = scope,
                     ShardedOutput = args.OutputIsSharded,
                     Sort = sort,
-                    Verbose = args.Verbose
+                    Verbose = args.Verbose,
+                    WriteConcern = _settings.WriteConcern
                 };
 
                 response = ExecuteWriteOperation(operation);
@@ -1582,7 +1614,7 @@ namespace MongoDB.Driver
             };
 
             var cursors = ExecuteReadOperation(operation, args.ReadPreference);
-            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c, CancellationToken.None).GetEnumerator()).ToList();
+            var documentEnumerators = cursors.Select(c => c.ToEnumerable().GetEnumerator()).ToList();
             return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
 
@@ -1613,7 +1645,7 @@ namespace MongoDB.Driver
                 throw new ArgumentException(message, "args");
             }
 
-            var methodDefinition = GetType().GetMethods().Where(m => m.Name == "ParallelScanAs" && m.IsGenericMethodDefinition).Single();
+            var methodDefinition = GetType().GetTypeInfo().GetMethods().Where(m => m.Name == "ParallelScanAs" && m.IsGenericMethodDefinition).Single();
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
@@ -1631,8 +1663,12 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex()
         {
-            var command = new CommandDocument("reIndex", _collectionNamespace.CollectionName);
-            return _database.RunCommandAs<CommandResult>(command, ReadPreference.Primary);
+            var operation = new ReIndexOperation(_collectionNamespace, GetMessageEncoderSettings())
+            {
+                WriteConcern = _settings.WriteConcern
+            };
+            var result = ExecuteWriteOperation(operation);
+            return new CommandResult(result);
         }
 
         /// <summary>
@@ -1642,7 +1678,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query)
         {
-            return Remove(query, RemoveFlags.None, null);
+            return Remove(new RemoveArgs { Query = query });
         }
 
         /// <summary>
@@ -1653,7 +1689,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, WriteConcern writeConcern)
         {
-            return Remove(query, RemoveFlags.None, writeConcern);
+            return Remove(new RemoveArgs { Query = query, WriteConcern = writeConcern });
         }
 
         /// <summary>
@@ -1664,7 +1700,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags)
         {
-            return Remove(query, flags, null);
+            return Remove(new RemoveArgs { Query = query, Flags = flags });
         }
 
         /// <summary>
@@ -1676,12 +1712,26 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var isMulti = (flags & RemoveFlags.Single) != RemoveFlags.Single;
-            writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
+            return Remove(new RemoveArgs { Query = query, Flags = flags, WriteConcern = writeConcern });
+        }
 
-            var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 0 : 1 };
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(RemoveArgs args)
+        {
+            var queryDocument = args.Query == null ? new BsonDocument() : args.Query.ToBsonDocument();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var isMulti = (args.Flags & RemoveFlags.Single) != RemoveFlags.Single;
+            var writeConcern = args.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
+
+            var request = new DeleteRequest(queryDocument)
+            {
+                Collation = args.Collation,
+                Limit = isMulti ? 0 : 1
+            };
             var operation = new DeleteOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
                 WriteConcern = writeConcern
@@ -1696,7 +1746,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult RemoveAll()
         {
-            return Remove(Query.Null, RemoveFlags.None, null);
+            return Remove(new RemoveArgs { Query = new QueryDocument() });
         }
 
         /// <summary>
@@ -1706,7 +1756,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult RemoveAll(WriteConcern writeConcern)
         {
-            return Remove(Query.Null, RemoveFlags.None, writeConcern);
+            return Remove(new RemoveArgs { Query = new QueryDocument(), WriteConcern = writeConcern });
         }
 
         /// <summary>
@@ -1898,11 +1948,13 @@ namespace MongoDB.Driver
 
             var request = new UpdateRequest(UpdateType.Unknown, queryDocument, updateDocument)
             {
+                Collation = options.Collation,
                 IsMulti = isMulti,
                 IsUpsert = isUpsert
             };
             var operation = new UpdateOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
+                BypassDocumentValidation = options.BypassDocumentValidation,
                 WriteConcern = writeConcern
             };
 
@@ -2332,6 +2384,45 @@ namespace MongoDB.Driver
         public virtual WriteConcernResult Save(TDefaultDocument document, WriteConcern writeConcern)
         {
             return Save<TDefaultDocument>(document, writeConcern);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoCollection instance with a different read concern setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoCollection instance with a different read preference setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoCollection instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new MongoCollection instance with a different write concern setting.</returns>
+        public virtual MongoCollection<TDefaultDocument> WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoCollection<TDefaultDocument>(Database, Name, newSettings);
         }
     }
 }

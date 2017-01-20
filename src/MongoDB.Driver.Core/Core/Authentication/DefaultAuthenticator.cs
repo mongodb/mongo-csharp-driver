@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="credential">The credential.</param>
         public DefaultAuthenticator(UsernamePasswordCredential credential)
-            : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
+            : this(credential, new DefaultRandomStringGenerator())
         {
         }
 
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         private IAuthenticator CreateAuthenticator(ConnectionDescription description)
         {
-            if (SupportedFeatures.IsScramSha1AuthenticationSupported(description.ServerVersion))
+            if (Feature.ScramSha1Authentication.IsSupported(description.ServerVersion))
             {
                 return new ScramSha1Authenticator(_credential, _randomStringGenerator);
             }

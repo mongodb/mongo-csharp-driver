@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq
             return Translate(expression).Model;
         }
 
-        private object ExecuteModel(QueryableExecutionModel model)
+        internal object ExecuteModel(QueryableExecutionModel model)
         {
             return model.Execute(_collection, _options);
         }
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Linq
         private QueryableTranslation Translate(Expression expression)
         {
             var pipelineExpression = Prepare(expression);
-            return QueryableTranslator.Translate(pipelineExpression, _collection.Settings.SerializerRegistry);
+            return QueryableTranslator.Translate(pipelineExpression, _collection.Settings.SerializerRegistry, _options.TranslationOptions);
         }
     }
 }

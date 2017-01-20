@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterDescription(
                 clusterId,
                 connectionMode,
-                connectionMode.ToClusterType(),
+                ClusterType.Unknown,
                 Enumerable.Empty<ServerDescription>());
         }
         #endregion

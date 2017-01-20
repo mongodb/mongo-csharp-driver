@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ namespace MongoDB.Driver
     /// Base class for a write model.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     public abstract class WriteModel<TDocument>
     {
         // static methods
@@ -53,10 +55,16 @@ namespace MongoDB.Driver
         {
             if (request.Limit == 1)
             {
-                return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter));
+                return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter))
+                {
+                    Collation = request.Collation
+                };
             }
 
-            return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter));
+            return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter))
+            {
+                Collation = request.Collation
+            };
         }
 
         private static WriteModel<TDocument> ConvertInsertRequest(InsertRequest request)
@@ -71,6 +79,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -80,6 +89,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -93,6 +103,7 @@ namespace MongoDB.Driver
 
             return new ReplaceOneModel<TDocument>(UnwrapFilter(request.Filter), document)
             {
+                Collation = request.Collation,
                 IsUpsert = request.IsUpsert
             };
         }

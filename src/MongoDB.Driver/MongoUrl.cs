@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoUrl : IEquatable<MongoUrl>
     {
         // private static fields
@@ -31,6 +33,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
+        private readonly string _applicationName;
         private readonly string _authenticationMechanism;
         private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
         private readonly string _authenticationSource;
@@ -39,6 +42,8 @@ namespace MongoDB.Driver
         private readonly string _databaseName;
         private readonly bool? _fsync;
         private readonly GuidRepresentation _guidRepresentation;
+        private readonly TimeSpan _heartbeatInterval;
+        private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
         private readonly bool? _journal;
         private readonly TimeSpan _maxConnectionIdleTime;
@@ -71,6 +76,7 @@ namespace MongoDB.Driver
         public MongoUrl(string url)
         {
             var builder = new MongoUrlBuilder(url); // parses url
+            _applicationName = builder.ApplicationName;
             _authenticationMechanism = builder.AuthenticationMechanism;
             _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
             _authenticationSource = builder.AuthenticationSource;
@@ -79,6 +85,8 @@ namespace MongoDB.Driver
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
             _guidRepresentation = builder.GuidRepresentation;
+            _heartbeatInterval = builder.HeartbeatInterval;
+            _heartbeatTimeout = builder.HeartbeatTimeout;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
             _localThreshold = builder.LocalThreshold;
@@ -105,6 +113,14 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+        }
+
         /// <summary>
         /// Gets the authentication mechanism.
         /// </summary>
@@ -185,6 +201,37 @@ namespace MongoDB.Driver
         public GuidRepresentation GuidRepresentation
         {
             get { return _guidRepresentation; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has authentication settings.
+        /// </summary>
+        public bool HasAuthenticationSettings
+        {
+            get
+            {
+                return
+                    _username != null ||
+                    _password != null ||
+                    _authenticationMechanism != null ||
+                    _authenticationSource != null;
+            }              
+        }
+
+        /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        public TimeSpan HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
         }
 
         /// <summary>
@@ -464,6 +511,26 @@ namespace MongoDB.Driver
         public override bool Equals(object obj)
         {
             return Equals(obj as MongoUrl); // works even if obj is null or of a different type
+        }
+
+        /// <summary>
+        /// Gets the credential.
+        /// </summary>
+        /// <returns>The credential (or null if the URL has not authentication settings).</returns>
+        public MongoCredential GetCredential()
+        {
+            if (HasAuthenticationSettings)
+            {
+                return MongoCredential.FromComponents(
+                    _authenticationMechanism,
+                    _authenticationSource ?? _databaseName,
+                    _username,
+                    _password);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

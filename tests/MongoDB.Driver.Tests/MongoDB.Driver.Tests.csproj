@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Driver.Tests</RootNamespace>
+    <AssemblyName>MongoDB.Driver.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Keys\TemporaryKeyPair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization">
+    </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AggregateBucketAutoResultEqualityComparer.cs" />
+    <Compile Include="AggregateBucketResultEqualityComparer.cs" />
+    <Compile Include="AggregateFluentBucketAutoTests.cs" />
+    <Compile Include="AggregateFluentBucketTests.cs" />
+    <Compile Include="AggregateFluentFacetTests.cs" />
+    <Compile Include="AggregateFluentGraphLookupWithEmployeeCollectionTests.cs" />
+    <Compile Include="AggregateFluentTests.cs" />
+    <Compile Include="AggregateFluentGraphLookupWithAirportsCollectionTests.cs" />
+    <Compile Include="AsyncCursorHelperTests.cs" />
+    <Compile Include="BulkWriteErrorTests.cs" />
+    <Compile Include="CreateViewOptionsTests.cs" />
+    <Compile Include="FieldDefinitionTests.cs" />
+    <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntArrayComparedToEnumerableIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderEnumComparedToEnumTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToDoubleWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToDoubleTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="FindFluentTests.cs" />
+    <Compile Include="Linq\MongoQueryableEnumComparedToEnumTests.cs" />
+    <Compile Include="Linq\MongoQueryableEnumComparedToEnumWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\MongoQueryableIntArrayComparedToEnumerableIntTests.cs" />
+    <Compile Include="Linq\MongoQueryableIntComparedToDoubleTests.cs" />
+    <Compile Include="Linq\MongoQueryableIntComparedToNullableIntTests.cs" />
+    <Compile Include="Linq\MongoQueryableIntComparedToDoubleWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\MongoQueryableIntComparedToNullableIntWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\Translators\AggregateGroupTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\AggregateProjectTranslatorTests.cs" />
+    <Compile Include="Linq\IntegrationTestBase.cs" />
+    <Compile Include="Linq\MongoQueryableTests.cs" />
+    <Compile Include="Linq\Processors\PartialEvaluatorTests.cs" />
+    <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
+    <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
+    <Compile Include="OfTypeMongoCollectionTests.cs" />
+    <Compile Include="PipelineDefinitionTests.cs" />
+    <Compile Include="ProjectionDefinitionBuilderTests.cs" />
+    <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
+    <Compile Include="SortDefinitionBuilderTests.cs" />
+    <Compile Include="Specifications\command-monitoring\CountTest.cs" />
+    <Compile Include="Specifications\command-monitoring\BulkWriteTest.cs" />
+    <Compile Include="Specifications\command-monitoring\CrudOperationTestBase.cs" />
+    <Compile Include="Specifications\command-monitoring\DeleteManyTest.cs" />
+    <Compile Include="Specifications\command-monitoring\DeleteOneTest.cs" />
+    <Compile Include="Specifications\command-monitoring\FindTest.cs" />
+    <Compile Include="Specifications\command-monitoring\ICrudOperationTest.cs" />
+    <Compile Include="Specifications\command-monitoring\InsertManyTest.cs" />
+    <Compile Include="Specifications\command-monitoring\InsertOneTest.cs" />
+    <Compile Include="Specifications\command-monitoring\TestRunner.cs" />
+    <Compile Include="Specifications\command-monitoring\UpdateManyTest.cs" />
+    <Compile Include="Specifications\command-monitoring\UpdateOneTest.cs" />
+    <Compile Include="Specifications\crud\CrudOperationTestBase.cs" />
+    <Compile Include="UpdateDefinitionBuilderTests.cs" />
+    <Compile Include="FilterDefinitionBuilderTests.cs" />
+    <Compile Include="IAggregateFluentExtensionsTests.cs" />
+    <Compile Include="IFindFluentExtensionsTests.cs" />
+    <Compile Include="IMongoCollectionExtensionsTests.cs" />
+    <Compile Include="Linq\Translators\FindProjectionTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
+    <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
+    <Compile Include="MongoWriteExceptionTests.cs" />
+    <Compile Include="Samples\AggregationSample.cs" />
+    <Compile Include="Specifications\crud\FindOneAndDeleteTest.cs" />
+    <Compile Include="Specifications\crud\FindOneAndUpdateTest.cs" />
+    <Compile Include="Specifications\crud\FindOneAndReplaceTest.cs" />
+    <Compile Include="Specifications\crud\UpdateManyTest.cs" />
+    <Compile Include="Specifications\crud\UpdateOneTest.cs" />
+    <Compile Include="Specifications\crud\ReplaceOneTest.cs" />
+    <Compile Include="Specifications\crud\InsertOneTest.cs" />
+    <Compile Include="Specifications\crud\InsertManyTest.cs" />
+    <Compile Include="Specifications\crud\DeleteOneTest.cs" />
+    <Compile Include="Specifications\crud\DeleteManyTest.cs" />
+    <Compile Include="Specifications\crud\FindTest.cs" />
+    <Compile Include="Specifications\crud\DistinctTest.cs" />
+    <Compile Include="Specifications\crud\CountTest.cs" />
+    <Compile Include="Specifications\crud\AggregateTest.cs" />
+    <Compile Include="Specifications\crud\ICrudOperationTest.cs" />
+    <Compile Include="WriteModelTests.cs" />
+    <Compile Include="BulkWriteResultTests.cs" />
+    <Compile Include="ClusterKeyTests.cs" />
+    <Compile Include="ClusterRegistryTests.cs" />
+    <Compile Include="Communication\Security\PlainAuthenticationTests.cs" />
+    <Compile Include="Communication\Security\GssapiAuthenticationTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DGeographicCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DProjectedCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DGeographicCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DProjectedCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonFeatureCollectionTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonFeatureTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonGeometryCollectionTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonLineStringTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonLinkedCoordinateReferenceSystemTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonMultiLineStringTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonMultiPointTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonMultiPolygonTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonNamedCoordinateReferenceSystemTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonPointTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
+    <Compile Include="Jira\CSharp624Tests.cs" />
+    <Compile Include="MockOperationExecutor.cs" />
+    <Compile Include="MongoClientSettingsTests.cs" />
+    <Compile Include="MongoCollectionImplTests.cs" />
+    <Compile Include="MongoDatabaseImplTests.cs" />
+    <Compile Include="MongoClientTests.cs" />
+    <Compile Include="MongoCollectionSettingsTests.cs" />
+    <Compile Include="MongoCredentialTests.cs" />
+    <Compile Include="MongoDatabaseSettingsTests.cs" />
+    <Compile Include="MongoDBRefTests.cs" />
+    <Compile Include="MongoServerAddressTests.cs" />
+    <Compile Include="MongoUrlBuilderTests.cs" />
+    <Compile Include="MongoUrlTests.cs" />
+    <Compile Include="SslSettingsTests.cs" />
+    <Compile Include="Support\IndexMapTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MongoBulkWriteExceptionTests.cs" />
+    <Compile Include="Specifications\crud\TestRunner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+      <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
+      <Name>MongoDB.Driver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
+      <Project>{89b92fff-4126-4d9a-93c8-2bd7e0cd82ff}</Project>
+      <Name>MongoDB.Driver.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj">
+      <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
+      <Name>MongoDB.Driver</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\aggregate.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\count.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\distinct.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\find.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteMany.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteOne.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndDelete.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\insertMany.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\insertOne.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateMany.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateOne.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\command.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\command.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\deleteOne.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\deleteOne.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\find.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\find.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\insertOne.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\insertOne.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\updateOne.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\updateOne.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\bulkWrite.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\bulkWrite.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\deleteMany.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\deleteMany.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\insertMany.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\insertMany.yml" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\updateMany.json" />
+    <EmbeddedResource Include="Specifications\command-monitoring\tests\updateMany.yml" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\aggregate-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\aggregate-out.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\count-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\distinct-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\read\find-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteMany-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\deleteOne-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndDelete-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-upsert.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-upsert.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-collation.json" />
+    <None Include="testcert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

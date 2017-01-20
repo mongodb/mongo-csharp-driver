@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Options;
@@ -164,7 +165,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
         IDictionaryRepresentationConfigurable<DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
-            where TDictionary : class, IDictionary<TKey, TValue>, new()
+            where TDictionary : class, IDictionary<TKey, TValue>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionaryInterfaceImplementerSerializer{TDictionary, TKey, TValue}"/> class.
@@ -271,7 +272,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The instance.</returns>
         protected override TDictionary CreateInstance()
         {
-            return new TDictionary();
+            return Activator.CreateInstance<TDictionary>();
         }
 
         // explicit interface implementations

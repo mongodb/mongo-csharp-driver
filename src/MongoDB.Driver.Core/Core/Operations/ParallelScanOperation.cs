@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
 
             return new BsonDocument
             {
@@ -155,33 +155,36 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cursors = new List<AsyncCursor<TDocument>>();
 
-            foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
+            using (var getMoreChannelSource = new ChannelSourceHandle(new ServerChannelSource(channelSource.Server)))
             {
-                var cursorId = cursorDocument["id"].ToInt64();
-                var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v =>
+                foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
                 {
-                    var bsonDocument = (BsonDocument)v;
-                    using (var reader = new BsonDocumentReader(bsonDocument))
+                    var cursorId = cursorDocument["id"].ToInt64();
+                    var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v =>
                     {
-                        var context = BsonDeserializationContext.CreateRoot(reader);
-                        var document = _serializer.Deserialize(context);
-                        return document;
-                    }
-                })
-                    .ToList();
+                        var bsonDocument = (BsonDocument)v;
+                        using (var reader = new BsonDocumentReader(bsonDocument))
+                        {
+                            var context = BsonDeserializationContext.CreateRoot(reader);
+                            var document = _serializer.Deserialize(context);
+                            return document;
+                        }
+                    })
+                        .ToList();
 
-                var cursor = new AsyncCursor<TDocument>(
-                    channelSource.Fork(),
-                    _collectionNamespace,
-                    command,
-                    firstBatch,
-                    cursorId,
-                    _batchSize ?? 0,
-                    0, // limit
-                    _serializer,
-                    _messageEncoderSettings);
+                    var cursor = new AsyncCursor<TDocument>(
+                        getMoreChannelSource.Fork(),
+                        _collectionNamespace,
+                        command,
+                        firstBatch,
+                        cursorId,
+                        _batchSize ?? 0,
+                        0, // limit
+                        _serializer,
+                        _messageEncoderSettings);
 
-                cursors.Add(cursor);
+                    cursors.Add(cursor);
+                }
             }
 
             return cursors;

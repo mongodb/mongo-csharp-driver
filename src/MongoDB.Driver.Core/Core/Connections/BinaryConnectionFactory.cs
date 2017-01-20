@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,18 +26,8 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class BinaryConnectionFactory : IConnectionFactory
     {
-        #region static
-        // static fields
-        private static readonly IConnectionInitializer __connectionInitializer;
-
-        // static constructor
-        static BinaryConnectionFactory()
-        {
-            __connectionInitializer = new ConnectionInitializer();
-        }
-        #endregion
-
         // fields
+        private readonly IConnectionInitializer _connectionInitializer;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
@@ -48,6 +38,7 @@ namespace MongoDB.Driver.Core.Connections
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName);
         }
 
         // methods
@@ -55,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionInitializer, _eventSubscriber);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber);
         }
     }
 }

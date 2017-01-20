@@ -10,8 +10,15 @@ title = "Reading"
 
 ## Counting Documents
 
-The [`CountAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountAsync" >}}) method can be used to count all the documents matching a particular filter.
+The [`Count`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_Count" >}}) and [`CountAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountAsync" >}}) methods can be used to count all the documents matching a particular filter.
 
+```csharp
+var count = collection.Count(new BsonDocument("x", 10));
+
+// or
+
+var count = collection.Count(x => x.Age > 20);
+```
 ```csharp
 var count = await collection.CountAsync(new BsonDocument("x", 10));
 
@@ -23,6 +30,9 @@ var count = await collection.CountAsync(x => x.Age > 20);
 Counting all the documents in a collection requires an empty filter:
 
 ```csharp
+var count = collection.Count(new BsonDocument());
+```
+```csharp
 var count = await collection.CountAsync(new BsonDocument());
 ```
 
@@ -31,6 +41,19 @@ var count = await collection.CountAsync(new BsonDocument());
 
 Finding all the documents in a collection is done with an empty filter and the method [`Find`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_Find__1" >}}). Once we have a cursor (of type [`IAsyncCursor<TDocument>`]({{< apiref "T_MongoDB_Driver_IAsyncCursor_1" >}})), we can iterate it like we manually iterate an [`IEnumerable<TDocument>`]({{< msdnref "9eekhta0" >}}).
 
+```csharp
+var filter = new BsonDocument();
+using (var cursor = collection.Find(filter).ToCursor())
+{
+	while (cursor.MoveNext())
+	{
+		foreach (var doc in cursor.Current)
+		{
+			// do something with the documents
+		}
+	}
+}
+```
 ```csharp
 var filter = new BsonDocument();
 using (var cursor = await collection.Find(filter).ToCursorAsync())
@@ -55,6 +78,14 @@ var options = new FindOptions
 {
 	MaxTime = TimeSpan.FromMilliseconds(20)
 };
+```
+```csharp
+using (var cursor = collection.Find(filter, options).Skip(10).Limit(20).ToCursor())
+{
+	// etc...
+}
+```
+```csharp
 using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20).ToCursorAsync())
 {
 	// etc...
@@ -68,7 +99,13 @@ using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20).To
 
 Other methods of iteration besides using a cursor directly are available.
 
-First, `ToListAsync` is available. This is useful when the list will be small or you simply need them all as a list. If you are returning a large number of documents, then memory should be considered a factor.
+First, the [`ToList`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToList__1" >}}) and [`ToListAsync`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1" >}}) methods are available. These methods are useful when the list will be small or you simply need them all as a list. If you are returning a large number of documents, then memory should be considered a factor.
+
+```csharp
+var list = collection.Find(filter)
+	.Skip(10)
+	.ToList();
+```
 
 ```csharp
 var list = await collection.Find(filter)
@@ -76,7 +113,7 @@ var list = await collection.Find(filter)
 	.ToListAsync();
 ```
 
-Second, `ForEachAsync` is available. This method is useful when you just need to process each document and don't need to keep them around.
+Second, [`ForEachAsync`]({{< apiref "Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync" >}}) is available. This method is useful when you just need to process each document and don't need to keep them around.
 
 ```csharp
 await collection.Find(filter)
@@ -84,7 +121,7 @@ await collection.Find(filter)
 	.ForEachAsync(doc => Console.WriteLine(doc));
 ```
 
-To avoid blocking while processing each document you can use an async lambda:
+To avoid blocking while processing each document you can use an async lambda with `ForEachAsync`:
 
 ```csharp
 await collection.Find(filter)
@@ -92,12 +129,29 @@ await collection.Find(filter)
 	.ForEachAsync(async (doc) => await Console.WriteLineAsync(doc));
 ```
 
+When using the synchronous API you can use the C# foreach statement to iterate over the documents in a cursor.
+
+```csharp
+var cursor = collection.Find(filter)
+	.Skip(10)
+	.ToCursor();
+foreach (var doc in cursor.ToEnumerable())
+{
+	Console.WriteLine(doc);	
+}
+```
+
 {{% note %}}These iteration methods don't require you to dispose of the cursor. That will be handled for you automatically.{{% /note %}}
 
 ### Single Results
 
-When you only want to find one document, the `FirstAsync`, `FirstOrDefaultAsync`, `SingleAsync`, and `SingleOrDefaultAsync` methods are available.
+When you only want to find one document, the [`First`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_First__1" >}}), [`FirstOrDefault`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefault__1" >}}), [`Single`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_Single__1" >}}), [`SingleOrDefault`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefault__1" >}}) methods, and their asynchronous counterparts [`FirstAsync`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstAsync__1" >}}), [`FirstOrDefaultAsync`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefaultAsync__1" >}}), [`SingleAsync`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleAsync__1" >}}), and [`SingleOrDefaultAsync`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefaultAsync__1s" >}}) are available.
 
+```csharp
+var result = collection.Find(filter)
+	.Skip(10)
+	.FirstOrDefault();
+```
 ```csharp
 var result = await collection.Find(filter)
 	.Skip(10)
@@ -126,7 +180,14 @@ class ZipEntry
     [BsonElement("pop")]
     public int Population { get; set; }
 }
-
+```
+```csharp
+var results = db.GetCollection<ZipEntry>.Aggregate()
+	.Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
+	.Match(x => x.TotalPopulation > 20000)
+	.ToList();
+```
+```csharp
 var results = await db.GetCollection<ZipEntry>.Aggregate()
 	.Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
 	.Match(x => x.TotalPopulation > 20000)
@@ -142,7 +203,7 @@ This will result in the following aggregation pipeline getting sent to the serve
 
 {{% note %}}You can call `ToString` on the pipeline to see what would be sent to the server.{{% /note %}}
 
-More samples are located in the [source]({{< srcref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}.
+More samples are located in the [source]({{< testref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}).
 
 ### Stage Operators
 
@@ -241,10 +302,13 @@ There is no method defined for a `$geoNear` stage. However, it can be added usin
 
 #### $out
 
-A `$out` stage is defined using the [`OutAsync`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_OutAsync" >}}) method. It must be the final stage and it triggers execution of the operation.
+A `$out` stage is defined using the [`Out`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Out" >}}) or [`OutAsync`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_OutAsync" >}}) methods. It must be the final stage and it triggers execution of the operation.
 
 ```csharp
-OutAsync("myNewCollection");
+Out("myNewCollection");
+```
+```csharp
+await OutAsync("myNewCollection");
 ```
 ```json
 { $out: 'myNewCollection' }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,44 +16,49 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
     /// Represents a serializer for GridFSFileInfo.
     /// </summary>
-    public class GridFSFileInfoSerializer : BsonDocumentBackedClassSerializer<GridFSFileInfo>
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
+    public class GridFSFileInfoSerializer<TFileId> : BsonDocumentBackedClassSerializer<GridFSFileInfo<TFileId>>, IGridFSFileInfoSerializer<TFileId>
     {
-        private static readonly GridFSFileInfoSerializer __instance = new GridFSFileInfoSerializer();
-
+        // constructors
         /// <summary>
-        /// Gets the pre-created instance.
+        /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer" /> class.
         /// </summary>
-        public static GridFSFileInfoSerializer Instance
+        public GridFSFileInfoSerializer()
+            : this(BsonSerializer.LookupSerializer<TFileId>())
         {
-            get { return __instance; }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer" /> class.
         /// </summary>
-        public GridFSFileInfoSerializer()
+        /// <param name="idSerializer">The id serializer.</param>
+        public GridFSFileInfoSerializer(IBsonSerializer<TFileId> idSerializer)
         {
+            Ensure.IsNotNull(idSerializer, nameof(idSerializer));
+
             RegisterMember("Aliases", "aliases", new ArraySerializer<string>());
             RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
             RegisterMember("ContentType", "contentType", new StringSerializer());
             RegisterMember("Filename", "filename", new StringSerializer());
-            RegisterMember("IdAsBsonValue", "_id", BsonValueSerializer.Instance);
+            RegisterMember("Id", "_id", idSerializer);
             RegisterMember("Length", "length", new Int64Serializer());
             RegisterMember("MD5", "md5", new StringSerializer());
             RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
             RegisterMember("UploadDateTime", "uploadDate", new DateTimeSerializer());
         }
 
+        // protected methods
         /// <inheritdoc/>
-        protected override GridFSFileInfo CreateInstance(BsonDocument backingDocument)
+        protected override GridFSFileInfo<TFileId> CreateInstance(BsonDocument backingDocument)
         {
-            return new GridFSFileInfo(backingDocument);
+            return new GridFSFileInfo<TFileId>(backingDocument, this);
         }
     }
 }

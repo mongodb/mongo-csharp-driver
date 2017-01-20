@@ -104,6 +104,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var bsonDateTime = new BsonDateTime(millisecondsSinceEpoch);
                     return bsonDateTime.ToUniversalTime();
 
+                case BsonType.Decimal128:
+                    return bsonReader.ReadDecimal128();
+
                 case BsonType.Document:
                     return DeserializeDiscriminatedValue(context, args);
 
@@ -190,6 +193,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 return;
 
                             case TypeCode.Object:
+                                if (actualType == typeof(Decimal128))
+                                {
+                                    var decimal128 = (Decimal128)value;
+                                    bsonWriter.WriteDecimal128(decimal128);
+                                    return;
+                                }
                                 if (actualType == typeof(Guid))
                                 {
                                     var guid = (Guid)value;

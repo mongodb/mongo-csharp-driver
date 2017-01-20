@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -23,10 +25,12 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFSChunk exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class GridFSChunkException : GridFSException
     {
-        #region static
+#region static
         private static string FormatMessage(BsonValue id, long n, string reason)
         {
             Ensure.IsNotNull(id, nameof(id));
@@ -34,7 +38,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(reason, nameof(reason));
             return string.Format("GridFS chunk {0} of file id {1} is {2}.", n, id, reason);
         }
-        #endregion
+#endregion
 
         // constructors
         /// <summary>
@@ -48,6 +52,7 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSChunkException"/> class.
         /// </summary>
@@ -57,5 +62,6 @@ namespace MongoDB.Driver.GridFS
             : base(info, context)
         {
         }
+#endif
     }
 }

@@ -31,7 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <CodeAnalysisRuleSet>..\MongoDBLegacy.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\MongoDBLegacy.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TargetFrameworkProfile />
@@ -41,7 +41,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Bson.XML</DocumentationFile>
@@ -51,7 +51,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MongoDB.Bson.XML</DocumentationFile>
@@ -87,6 +87,7 @@
     <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="IO\ByteArrayChunk.cs" />
     <Compile Include="IO\ByteBufferSlice.cs" />
+    <Compile Include="IO\CStringUtf8Encoding.cs" />
     <Compile Include="IO\IBsonChunk.cs" />
     <Compile Include="IO\IBsonChunkSource.cs" />
     <Compile Include="IO\IBsonReader.cs" />
@@ -111,6 +112,8 @@
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
     <Compile Include="IO\Utf8Helper.cs" />
+    <Compile Include="ObjectModel\BsonDecimal128.cs" />
+    <Compile Include="ObjectModel\Decimal128.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
@@ -122,6 +125,7 @@
     <Compile Include="ObjectModel\MaterializedOnDemandBsonDocument.cs" />
     <Compile Include="ObjectModel\RawBsonArray.cs" />
     <Compile Include="ObjectModel\RawBsonDocument.cs" />
+    <Compile Include="ObjectModel\UInt128.cs" />
     <Compile Include="PowerOf2.cs" />
     <Compile Include="Serialization\AttributedSerializationProvider.cs" />
     <Compile Include="Serialization\Attributes\BsonConstructorAttribute.cs" />
@@ -175,6 +179,7 @@
     <Compile Include="Serialization\Conventions\MemberNameElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedIdMemberConvention.cs" />
+    <Compile Include="Serialization\Conventions\ImmutableTypeClassMapConvention.cs" />
     <Compile Include="Serialization\Conventions\NoIdMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\ObjectDiscriminatorConvention.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConvention.cs" />
@@ -215,8 +220,10 @@
     <Compile Include="Serialization\Serializers\BooleanSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonDecimal128Serializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerExtensions.cs" />
+    <Compile Include="Serialization\Serializers\Decimal128Serializer.cs" />
     <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializer.cs" />
     <Compile Include="Serialization\Serializers\ProjectingDeserializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerHelper.cs" />
@@ -406,7 +413,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
+    <Analyzer Include="..\..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

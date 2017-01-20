@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,6 +66,18 @@ namespace MongoDB.Bson.IO
         {
             writer.WriteName(name);
             writer.WriteDateTime(value);
+        }
+
+        /// <summary>
+        /// Writes a BSON Decimal128 element to the writer.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The <see cref="Decimal128"/> value.</param>
+        public static void WriteDecimal128(this IBsonWriter writer, string name, Decimal128 value)
+        {
+            writer.WriteName(name);
+            writer.WriteDecimal128(value);
         }
 
         /// <summary>

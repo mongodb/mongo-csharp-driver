@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Bson.TestHelpers</RootNamespace>
+    <AssemblyName>MongoDB.Bson.TestHelpers</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BsonArrayAssertions.cs" />
+    <Compile Include="BsonAssertionExtensions.cs" />
+    <Compile Include="BsonDocumentAssertions.cs" />
+    <Compile Include="BsonValueAssertions.cs" />
+    <Compile Include="BsonValueEquivalencyComparer.cs" />
+    <Compile Include="CustomEquatable.cs" />
+    <Compile Include="EqualityComparers\EnumerableEqualityComparer.cs" />
+    <Compile Include="EqualityComparers\EnumerableEqualityComparerFactory.cs" />
+    <Compile Include="EqualityComparers\EnumerableSetEqualityComparer.cs" />
+    <Compile Include="EqualityComparers\EqualityComparerRegistry.cs" />
+    <Compile Include="EqualityComparers\EqualsEqualityComparer.cs" />
+    <Compile Include="EqualityComparers\EqualsEqualityComparerFactory.cs" />
+    <Compile Include="EqualityComparers\FieldsEqualityComparer.cs" />
+    <Compile Include="EqualityComparers\FieldsEqualityComparerFactory.cs" />
+    <Compile Include="EqualityComparers\GenericCollectionAssertionsExtensions.cs" />
+    <Compile Include="EqualityComparers\GenericEqualityComparerAdapter.cs" />
+    <Compile Include="EqualityComparers\IEqualityComparerFactory.cs" />
+    <Compile Include="EqualityComparers\IEqualityComparerSource.cs" />
+    <Compile Include="EqualityComparers\NonGenericEqualityComparerAdapter.cs" />
+    <Compile Include="EqualityComparers\ObjectAssertionsExtensions.cs" />
+    <Compile Include="EqualityComparers\ReferenceEqualsEqualityComparer.cs" />
+    <Compile Include="IO\NullBsonStream.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnicodeHelper.cs" />
+    <Compile Include="XunitExtensions\AssertionException.cs" />
+    <Compile Include="XunitExtensions\RequireEnvironment.cs" />
+    <Compile Include="XunitExtensions\RequireProcess.cs" />
+    <Compile Include="XunitExtensions\IValueGeneratorAttribute.cs" />
+    <Compile Include="XunitExtensions\ParameterAttributeDataAttribute.cs" />
+    <Compile Include="XunitExtensions\RangeAttribute.cs" />
+    <Compile Include="XunitExtensions\SkippableFactDiscoverer.cs" />
+    <Compile Include="XunitExtensions\SkippableFactMessageBus.cs" />
+    <Compile Include="XunitExtensions\SkippableFactTestCase.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryDiscoverer.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryTestCase.cs" />
+    <Compile Include="XunitExtensions\SkippableFactAttribute.cs" />
+    <Compile Include="XunitExtensions\SkippableTheoryAttribute.cs" />
+    <Compile Include="XunitExtensions\SkipTestException.cs" />
+    <Compile Include="XunitExtensions\ValuesAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

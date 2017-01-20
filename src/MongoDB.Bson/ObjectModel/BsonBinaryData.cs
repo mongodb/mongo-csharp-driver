@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,13 +21,15 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents BSON binary data.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData>
     {
         // private fields
-        private byte[] _bytes;
-        private BsonBinarySubType _subType;
-        private GuidRepresentation _guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
+        private readonly byte[] _bytes;
+        private readonly BsonBinarySubType _subType;
+        private readonly GuidRepresentation _guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
 
         // constructors
         /// <summary>

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class MapReduceOperationBase
     {
         // fields
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
@@ -59,6 +60,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -210,13 +223,15 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Creates the command.
         /// </summary>
+        /// <param name="serverVersion">The server version.</param>
         /// <returns>The command.</returns>
         protected internal virtual BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+
             return new BsonDocument
             {
-                // all lowercase command name for backwards compatibility
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapreduce", _collectionNamespace.CollectionName }, // all lowercase command name for backwards compatibility
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out" , CreateOutputOptions() },
@@ -227,7 +242,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "scope", _scope, _scope != null },
                 { "jsMode", () => _javaScriptMode.Value, _javaScriptMode.HasValue },
                 { "verbose", () => _verbose.Value, _verbose.HasValue },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }
 

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -159,18 +159,21 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
+
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
                 { "query", _filter },
-                { "sort", _sort, _sort != null },
                 { "update", _replacement },
-                { "new", _returnDocument == ReturnDocument.After },
+                { "new", true, _returnDocument == ReturnDocument.After },
+                { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
-                { "upsert", _isUpsert },
+                { "upsert", true, _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) }
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
+                { "collation", () => Collation.ToBsonDocument(), Collation != null }
             };
         }
 

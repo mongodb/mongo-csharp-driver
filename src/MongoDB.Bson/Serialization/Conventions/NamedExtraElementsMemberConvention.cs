@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -91,9 +91,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="classMap">The class map.</param>
         public void Apply(BsonClassMap classMap)
         {
+            var classTypeInfo = classMap.ClassType.GetTypeInfo();
             foreach (var name in _names)
             {
-                var member = classMap.ClassType.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
+                var member = classTypeInfo.GetMember(name, _memberTypes, _bindingFlags).SingleOrDefault();
 
                 if (member != null)
                 {
@@ -112,7 +113,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         }
                     }
 
-                    if (memberType != null && (memberType == typeof(BsonDocument) || typeof(IDictionary<string, object>).IsAssignableFrom(memberType)))
+                    if (memberType != null && (memberType == typeof(BsonDocument) || typeof(IDictionary<string, object>).GetTypeInfo().IsAssignableFrom(memberType)))
                     {
                         classMap.MapExtraElementsMember(member);
                         return;

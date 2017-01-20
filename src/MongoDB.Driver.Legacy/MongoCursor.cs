@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -25,7 +26,6 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -36,6 +36,7 @@ namespace MongoDB.Driver
     public abstract class MongoCursor : IEnumerable
     {
         // private fields
+        private Collation _collation;
         private readonly MongoCollection _collection;
         private readonly MongoDatabase _database;
         private readonly IMongoQuery _query;
@@ -43,6 +44,7 @@ namespace MongoDB.Driver
         private IMongoFields _fields;
         private BsonDocument _options;
         private QueryFlags _flags;
+        private TimeSpan? _maxAwaitTime;
         private ReadConcern _readConcern = ReadConcern.Default;
         private ReadPreference _readPreference;
         private IBsonSerializer _serializer;
@@ -98,6 +100,14 @@ namespace MongoDB.Driver
         public virtual MongoDatabase Database
         {
             get { return _database; }
+        }
+
+        /// <summary>
+        /// Gets the collation.
+        /// </summary>
+        public virtual Collation Collation
+        {
+            get { return _collation; }
         }
 
         /// <summary>
@@ -162,6 +172,22 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { ThrowFrozen(); }
                 _flags = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        /// <value>
+        /// The maximum await time for TailableAwait cursors.
+        /// </value>
+        public virtual TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _maxAwaitTime = value;
             }
         }
 
@@ -258,7 +284,7 @@ namespace MongoDB.Driver
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer) });
+            var constructorInfo = cursorType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer) });
             return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer });
         }
 
@@ -278,7 +304,7 @@ namespace MongoDB.Driver
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadConcern), typeof(ReadPreference), typeof(IBsonSerializer) });
+            var constructorInfo = cursorType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadConcern), typeof(ReadPreference), typeof(IBsonSerializer) });
             return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readConcern, readPreference, serializer });
         }
 
@@ -328,12 +354,14 @@ namespace MongoDB.Driver
         public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)
         {
             var clone = Create(documentType, _collection, _query, _readConcern, _readPreference, serializer);
-            clone._options = _options == null ? null : (BsonDocument)_options.Clone();
-            clone._flags = _flags;
-            clone._skip = _skip;
-            clone._limit = _limit;
             clone._batchSize = _batchSize;
+            clone._collation = _collation;
             clone._fields = _fields;
+            clone._flags = _flags;
+            clone._limit = _limit;
+            clone._maxAwaitTime = _maxAwaitTime;
+            clone._options = _options == null ? null : (BsonDocument)_options.Clone();
+            clone._skip = _skip;
             return clone;
         }
 
@@ -346,6 +374,7 @@ namespace MongoDB.Driver
             _isFrozen = true;
             var args = new CountArgs
             {
+                Collation = _collation,
                 Query = _query,
                 ReadPreference = _readPreference
             };
@@ -411,6 +440,18 @@ namespace MongoDB.Driver
                 }
             }
             return explanation;
+        }
+
+        /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="collation">The collation.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetCollation(Collation collation)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            _collation = collation;
+            return this;
         }
 
         /// <summary>
@@ -508,6 +549,18 @@ namespace MongoDB.Driver
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$max", max);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the maximum await time for tailable await cursors.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetMaxAwaitTime(TimeSpan? value)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            _maxAwaitTime = value;
             return this;
         }
 
@@ -673,6 +726,7 @@ namespace MongoDB.Driver
             _isFrozen = true;
             var args = new CountArgs
             {
+                Collation = _collation,
                 Query = _query,
                 Limit = (_limit == 0) ? (int?)null : _limit,
                 ReadPreference = _readPreference,
@@ -796,9 +850,11 @@ namespace MongoDB.Driver
             {
                 AllowPartialResults = partialOk,
                 BatchSize = BatchSize,
+                Collation = Collation,
                 CursorType = cursorType,
                 Filter = queryDocument,
                 Limit = Limit,
+                MaxAwaitTime = MaxAwaitTime,
                 Modifiers = Options,
                 NoCursorTimeout = noCursorTimeout,
                 Projection = Fields.ToBsonDocument(),
@@ -809,8 +865,18 @@ namespace MongoDB.Driver
             using (var binding = Server.GetReadBinding(ReadPreference))
             {
                 var cursor = operation.Execute(binding, CancellationToken.None);
-                return new AsyncCursorEnumeratorAdapter<TDocument>(cursor, CancellationToken.None).GetEnumerator();
+                return cursor.ToEnumerable().GetEnumerator();
             }
+        }
+
+        /// <summary>
+        /// Sets the collation.
+        /// </summary>
+        /// <param name="collation">The collation.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetCollation(Collation collation)
+        {
+            return (MongoCursor<TDocument>)base.SetCollation(collation);
         }
 
         /// <summary>
@@ -892,6 +958,16 @@ namespace MongoDB.Driver
         public new virtual MongoCursor<TDocument> SetMax(BsonDocument max)
         {
             return (MongoCursor<TDocument>)base.SetMax(max);
+        }
+
+        /// <summary>
+        /// Sets the maximum await time for tailable await cursors.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor SetMaxAwaitTime(TimeSpan? value)
+        {
+            return (MongoCursor<TDocument>)base.SetMaxAwaitTime(value);
         }
 
         /// <summary>

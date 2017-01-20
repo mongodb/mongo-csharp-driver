@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{10A5FAC2-E26F-4726-B888-26D5B849F805}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Bson.Tests</RootNamespace>
+    <AssemblyName>MongoDB.Bson.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BsonExtensionMethodsTests.cs" />
+    <Compile Include="BsonUtilsTests.cs" />
+    <Compile Include="IO\ArrayElementNameAcceleratorTests.cs" />
+    <Compile Include="IO\BsonBinaryWriterTests.cs" />
+    <Compile Include="IO\BsonChunkPoolTests.cs" />
+    <Compile Include="IO\BsonStreamAdapterTests.cs" />
+    <Compile Include="IO\BsonStreamExtensionsTests.cs" />
+    <Compile Include="IO\BsonWriterTests.cs" />
+    <Compile Include="IO\ByteArrayBufferTests.cs" />
+    <Compile Include="IO\ByteArrayChunkTests.cs" />
+    <Compile Include="IO\ByteBufferFactoryTests.cs" />
+    <Compile Include="IO\ByteBufferSliceTests.cs" />
+    <Compile Include="IO\ByteBufferStreamTests.cs" />
+    <Compile Include="IO\CStringUtf8EncodingTests.cs" />
+    <Compile Include="IO\InputBufferChunkSourceTests.cs" />
+    <Compile Include="IO\MultiChunkBufferTests.cs" />
+    <Compile Include="IO\OutputBufferChunkSourceTests.cs" />
+    <Compile Include="IO\SingleChunkBufferTests.cs" />
+    <Compile Include="IO\TrieNameDecoderTests.cs" />
+    <Compile Include="Jira\CSharp728Tests.cs" />
+    <Compile Include="Jira\CSharp708Tests.cs" />
+    <Compile Include="Jira\CSharp476Tests.cs" />
+    <Compile Include="Jira\CSharp637Tests.cs" />
+    <Compile Include="Jira\CSharp648Tests.cs" />
+    <Compile Include="Jira\CSharp783Tests.cs" />
+    <Compile Include="Jira\CSharp803Tests.cs" />
+    <Compile Include="ObjectModel\BsonBooleanTests.cs" />
+    <Compile Include="ObjectModel\BsonDecimal128Tests.cs" />
+    <Compile Include="ObjectModel\Decimal128Tests.cs" />
+    <Compile Include="ObjectModel\BsonDoubleTests.cs" />
+    <Compile Include="ObjectModel\BsonInt32Tests.cs" />
+    <Compile Include="ObjectModel\BsonInt64Tests.cs" />
+    <Compile Include="ObjectModel\BsonStringTests.cs" />
+    <Compile Include="ObjectModel\BsonTimestampTests.cs" />
+    <Compile Include="ObjectModel\LazyBsonArrayTests.cs" />
+    <Compile Include="ObjectModel\LazyBsonDocumentTests.cs" />
+    <Compile Include="ObjectModel\RawBsonArrayTests.cs" />
+    <Compile Include="ObjectModel\RawBsonDocumentTests.cs" />
+    <Compile Include="Serialization\Attributes\BsonConstructorAttributeTests.cs" />
+    <Compile Include="Serialization\Attributes\BsonRepresentationAttributeTests.cs" />
+    <Compile Include="Serialization\BsonClassMapAutoMappingTests.cs" />
+    <Compile Include="Serialization\BsonClassMapSetOrderTests.cs" />
+    <Compile Include="Serialization\BsonClassMapTests.cs" />
+    <Compile Include="Serialization\BsonMemberMapDefaultValueCreatorTests.cs" />
+    <Compile Include="Serialization\BsonMemberMapTests.cs" />
+    <Compile Include="Serialization\Conventions\AttributeConventionPackTests.cs" />
+    <Compile Include="Serialization\Conventions\CamelCaseElementNameConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\ConventionPackTests.cs" />
+    <Compile Include="Serialization\Conventions\ConventionRunnerTests.cs" />
+    <Compile Include="Serialization\Conventions\DelegateClassMapConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\DelegateMemberMapConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\DelegatePostProcessingConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\ElementNameConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\EnumRepresentationConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\ImmutableTypeClassMapConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\ExtraElementsConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IdGeneratorConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IdMemberConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IgnoreExtraElementsConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IgnoreIfNullConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\MemberDefaultValueConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\MemberNameElementNameConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\NamedExtraElementsConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\NamedIdConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\NamedParameterCreatorMapConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\StandardDiscriminatorConventionTests.cs" />
+    <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />
+    <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
+    <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
+    <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
+    <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
+    <Compile Include="Serialization\Serializers\ExtraElementsWithImmutableClassTests.cs" />
+    <Compile Include="Serialization\Serializers\ExtraElementsWithPartiallyImmutableClassTests.cs" />
+    <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\LazyBsonArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\LazyBsonDocumentSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\RawBsonArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\RawBsonDocumentSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\SerializeFlagsTests.cs" />
+    <Compile Include="Serialization\Serializers\AnimalHierarchyWithAttributesTests.cs" />
+    <Compile Include="Serialization\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
+    <Compile Include="Serialization\Serializers\CircularReferencesTests.cs" />
+    <Compile Include="Serialization\Serializers\JaggedArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ObjectSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ThreeDimensionalArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\TimeSpanSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\TupleSerializersTests.cs" />
+    <Compile Include="Serialization\Serializers\TwoDimensionalArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\DateTimeSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\CollectionSerializerGenericTests.cs" />
+    <Compile Include="Serialization\Serializers\CollectionSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\DictionaryGenericSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\DictionarySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\KnownTypesTests.cs" />
+    <Compile Include="Serialization\Serializers\NullableTypeSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\DiscriminatorTests.cs" />
+    <Compile Include="Serialization\Serializers\StructSerializerTests.cs" />
+    <Compile Include="IO\BsonBufferTests.cs" />
+    <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
+    <Compile Include="IO\BsonDocumentReaderTests.cs" />
+    <Compile Include="IO\BsonDocumentWriterTests.cs" />
+    <Compile Include="IO\JsonReaderTests.cs" />
+    <Compile Include="IO\JsonScannerTests.cs" />
+    <Compile Include="Jira\CSharp595Tests.cs" />
+    <Compile Include="Jira\CSharp102Tests.cs" />
+    <Compile Include="Jira\CSharp104Tests.cs" />
+    <Compile Include="Jira\CSharp116Tests.cs" />
+    <Compile Include="Jira\CSharp120Tests.cs" />
+    <Compile Include="Jira\CSharp121Tests.cs" />
+    <Compile Include="Jira\CSharp122Tests.cs" />
+    <Compile Include="Jira\CSharp133Tests.cs" />
+    <Compile Include="Jira\CSharp146Tests.cs" />
+    <Compile Include="Jira\CSharp147Tests.cs" />
+    <Compile Include="Jira\CSharp151Tests.cs" />
+    <Compile Include="Jira\CSharp170Tests.cs" />
+    <Compile Include="Jira\CSharp238Tests.cs" />
+    <Compile Include="Jira\CSharp239Tests.cs" />
+    <Compile Include="Jira\CSharp260Tests.cs" />
+    <Compile Include="Jira\CSharp261Tests.cs" />
+    <Compile Include="Jira\CSharp263Tests.cs" />
+    <Compile Include="Jira\CSharp270Tests.cs" />
+    <Compile Include="Jira\CSharp275Tests.cs" />
+    <Compile Include="Jira\CSharp276Tests.cs" />
+    <Compile Include="Jira\CSharp293Tests.cs" />
+    <Compile Include="Jira\CSharp301Tests.cs" />
+    <Compile Include="Jira\CSharp311Tests.cs" />
+    <Compile Include="Jira\CSharp313Tests.cs" />
+    <Compile Include="Jira\CSharp338Tests.cs" />
+    <Compile Include="Jira\CSharp310Tests.cs" />
+    <Compile Include="Jira\CSharp350Tests.cs" />
+    <Compile Include="Jira\CSharp351Tests.cs" />
+    <Compile Include="Jira\CSharp357Tests.cs" />
+    <Compile Include="Jira\CSharp369Tests.cs" />
+    <Compile Include="Jira\CSharp400Tests.cs" />
+    <Compile Include="Jira\CSharp446Tests.cs" />
+    <Compile Include="Jira\CSharp452Tests.cs" />
+    <Compile Include="Jira\CSharp460Tests.cs" />
+    <Compile Include="Jira\CSharp467Tests.cs" />
+    <Compile Include="Jira\CSharp479Tests.cs" />
+    <Compile Include="Jira\CSharp515Tests.cs" />
+    <Compile Include="Jira\CSharp564Tests.cs" />
+    <Compile Include="Jira\CSharp70Tests.cs" />
+    <Compile Include="Jira\CSharp71Tests.cs" />
+    <Compile Include="Jira\CSharp74Tests.cs" />
+    <Compile Include="Serialization\Attributes\BsonAttributeTests.cs" />
+    <Compile Include="Jira\CSharp78Tests.cs" />
+    <Compile Include="Jira\CSharp81Tests.cs" />
+    <Compile Include="Jira\CSharp83Tests.cs" />
+    <Compile Include="ObjectModel\BsonArrayTests.cs" />
+    <Compile Include="ObjectModel\BsonBinaryDataTests.cs" />
+    <Compile Include="ObjectModel\BsonDocumentTests.cs" />
+    <Compile Include="ObjectModel\BsonDocumentWrapperTests.cs" />
+    <Compile Include="ObjectModel\BsonElementTests.cs" />
+    <Compile Include="ObjectModel\BsonEqualsTests.cs" />
+    <Compile Include="IO\JsonWriterTests.cs" />
+    <Compile Include="ObjectModel\BsonObjectIdTests.cs" />
+    <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
+    <Compile Include="ObjectModel\BsonValueEqualsTests.cs" />
+    <Compile Include="ObjectModel\BsonValueIConvertibleTests.cs" />
+    <Compile Include="ObjectModel\BsonValueTests.cs" />
+    <Compile Include="ObjectModel\ObjectIdTests.cs" />
+    <Compile Include="IO\BsonBinaryReaderTests.cs" />
+    <Compile Include="IO\BsonRoundTripTests.cs" />
+    <Compile Include="ObjectModel\BsonValueCompareToTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\BsonSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\SerializeEnumTests.cs" />
+    <Compile Include="Serialization\Serializers\GenericEnumerableSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\NetPrimitiveSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\SerializePolymorphicClassTests.cs" />
+    <Compile Include="Serialization\Serializers\BsonValueSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\BsonPrimitiveSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\SerializeInterfaceTests.cs" />
+    <Compile Include="Serialization\IdGenerators\IdGeneratorsTests.cs" />
+    <Compile Include="Serialization\Serializers\VersionSerializerTests.cs" />
+    <Compile Include="PowerOf2Tests.cs" />
+    <Compile Include="Specifications\bson\TestRunner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-1.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-2.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-3.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-4.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-5.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-6.json" />
+    <EmbeddedResource Include="Specifications\bson\tests\decimal128-7.json" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

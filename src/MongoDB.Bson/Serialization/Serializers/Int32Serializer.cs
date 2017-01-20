@@ -57,6 +57,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             switch (representation)
             {
+                case BsonType.Decimal128:
                 case BsonType.Double:
                 case BsonType.Int32:
                 case BsonType.Int64:
@@ -109,6 +110,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
+                case BsonType.Decimal128:
+                    return _converter.ToInt32(bsonReader.ReadDecimal128());
+
                 case BsonType.Double:
                     return _converter.ToInt32(bsonReader.ReadDouble());
 
@@ -138,6 +142,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             switch (_representation)
             {
+                case BsonType.Decimal128:
+                    bsonWriter.WriteDecimal128(_converter.ToDecimal128(value));
+                    break;
+
                 case BsonType.Double:
                     bsonWriter.WriteDouble(_converter.ToDouble(value));
                     break;

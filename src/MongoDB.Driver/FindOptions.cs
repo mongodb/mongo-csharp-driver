@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -31,8 +27,10 @@ namespace MongoDB.Driver
         // fields
         private bool? _allowPartialResults;
         private int? _batchSize;
+        private Collation _collation;
         private string _comment;
         private CursorType _cursorType;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
         private bool? _noCursorTimeout;
@@ -67,6 +65,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the comment.
         /// </summary>
         public string Comment
@@ -82,6 +89,15 @@ namespace MongoDB.Driver
         {
             get { return _cursorType; }
             set { _cursorType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time for TailableAwait cursors.
+        /// </summary>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>

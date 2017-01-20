@@ -10,9 +10,11 @@ type = "index"
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
 
-## What's new in 2.1
+## What's new in 2.4
 
-The [What's New]({{< relref "what_is_new.md" >}}) contains the major new features of the driver.
+The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
+
+The main new feature is support for version 3.4 of the server.
 
 
 ## Upgrading

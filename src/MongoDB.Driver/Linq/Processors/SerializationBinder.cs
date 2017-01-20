@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors.EmbeddedPipeline;
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Linq.Processors
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Type.IsGenericType &&
+            if (node.Type.GetTypeInfo().IsGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
             {
                 var queryable = (IMongoQueryable)node.Value;
@@ -169,6 +170,8 @@ namespace MongoDB.Driver.Linq.Processors
                     return BindElementAt(node);
                 case "get_Item":
                     return BindGetItem(node);
+                case "Inject":
+                    return BindInject(node);
             }
 
             // Select and SelectMany are the only supported client-side projection operators
@@ -185,11 +188,45 @@ namespace MongoDB.Driver.Linq.Processors
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newNode = (UnaryExpression)base.VisitUnary(node);
-            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
+            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked || newNode.NodeType == ExpressionType.TypeAs)
             {
-                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.IsAssignableFrom(newNode.Operand.Type))
+                // handle unnecessary convert expressions
+                if (newNode.Method == null && !newNode.IsLiftedToNull && newNode.Type.GetTypeInfo().IsAssignableFrom(newNode.Operand.Type))
                 {
                     return newNode.Operand;
+                }
+
+                // handle downcast convert expressions
+                if (newNode.Operand.Type.GetTypeInfo().IsAssignableFrom(newNode.Type))
+                {
+                    var serializationExpression = newNode.Operand as SerializationExpression;
+                    if (serializationExpression != null)
+                    {
+                        var serializer = _bindingContext.GetSerializer(newNode.Type, newNode);
+                        switch (serializationExpression.ExtensionType)
+                        {
+                            case ExtensionExpressionType.ArrayIndex:
+                                return new ArrayIndexExpression(
+                                    ((ArrayIndexExpression)serializationExpression).Array,
+                                    ((ArrayIndexExpression)serializationExpression).Index,
+                                    serializer);
+                            case ExtensionExpressionType.Collection:
+                                return new CollectionExpression(
+                                    ((CollectionExpression)serializationExpression).CollectionNamespace,
+                                    serializer);
+                            case ExtensionExpressionType.Document:
+                                return new DocumentExpression(serializer);
+                            case ExtensionExpressionType.Field:
+                                return new FieldExpression(
+                                    ((FieldExpression)serializationExpression).FieldName,
+                                    serializer);
+                            case ExtensionExpressionType.FieldAsDocument:
+                                return new FieldAsDocumentExpression(
+                                    ((FieldAsDocumentExpression)serializationExpression).Expression,
+                                    ((FieldAsDocumentExpression)serializationExpression).FieldName,
+                                    serializer);
+                        }
+                    }
                 }
             }
 
@@ -305,6 +342,28 @@ namespace MongoDB.Driver.Linq.Processors
             }
 
             return node; // return the original node because we can't translate this expression.
+        }
+
+
+        private Expression BindInject(MethodCallExpression node)
+        {
+            if (node.Method.DeclaringType == typeof(LinqExtensions))
+            {
+                var arg = node.Arguments[0] as ConstantExpression;
+                if (arg != null)
+                {
+                    var docType = node.Method.GetGenericArguments()[0];
+                    var serializer = _bindingContext.GetSerializer(node.Method.GetGenericArguments()[0], arg);
+                    var renderedFilter = (BsonDocument)typeof(FilterDefinition<>).MakeGenericType(docType)
+                        .GetTypeInfo()
+                        .GetMethod("Render")
+                        .Invoke(arg.Value, new object[] { serializer, _bindingContext.SerializerRegistry });
+
+                    return new InjectedFilterExpression(renderedFilter);
+                }
+            }
+
+            return node;
         }
 
         private Expression BindClientSideProjector(MethodCallExpression node)

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -77,13 +78,14 @@ namespace MongoDB.Bson.Serialization
         /// </returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType, IBsonSerializerRegistry serializerRegistry)
         {
-            var constructorInfo = serializerType.GetConstructor(new[] { typeof(IBsonSerializerRegistry) });
+            var serializerTypeInfo = serializerType.GetTypeInfo();
+            var constructorInfo = serializerTypeInfo.GetConstructor(new[] { typeof(IBsonSerializerRegistry) });
             if (constructorInfo != null)
             {
                 return (IBsonSerializer)constructorInfo.Invoke(new object[] { serializerRegistry });
             }
 
-            constructorInfo = serializerType.GetConstructor(new Type[0]);
+            constructorInfo = serializerTypeInfo.GetConstructor(new Type[0]);
             if (constructorInfo != null)
             {
                 return (IBsonSerializer)constructorInfo.Invoke(new object[0]);

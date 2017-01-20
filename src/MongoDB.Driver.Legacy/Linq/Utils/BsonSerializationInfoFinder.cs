@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Utils
@@ -218,7 +219,7 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             // if the target conversion type cannot be assigned from the operand, than we are downcasting and we need to get the more specific serializer
-            if (!node.Type.IsAssignableFrom(node.Operand.Type))
+            if (!node.Type.GetTypeInfo().IsAssignableFrom(node.Operand.Type))
             {
                 var conversionSerializer = BsonSerializer.LookupSerializer(node.Type);
                 var conversionSerializationInfo = CreateSerializationInfo(node, conversionSerializer);

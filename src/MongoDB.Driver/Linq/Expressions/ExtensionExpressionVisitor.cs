@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(Visit(node.Argument));
         }
 
+        protected internal virtual Expression VisitAggregateExpression(AggregateExpressionExpression node)
+        {
+            return node.Update(Visit(node.Expression));
+        }
+
         protected internal virtual Expression VisitArrayIndex(ArrayIndexExpression node)
         {
             return node.Update(
@@ -39,6 +44,11 @@ namespace MongoDB.Driver.Linq.Expressions
         }
 
         protected internal virtual Expression VisitCollection(CollectionExpression node)
+        {
+            return node;
+        }
+
+        protected internal virtual Expression VisitInjectedFilter(InjectedFilterExpression node)
         {
             return node;
         }
@@ -165,6 +175,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return resultOperator.Update(this);
         }
 
+        protected internal virtual Expression VisitReverse(ReverseExpression node)
+        {
+            return node.Update(Visit(node.Source));
+        }
+
         protected internal virtual Expression VisitSample(SampleExpression node)
         {
             return node.Update(
@@ -185,6 +200,11 @@ namespace MongoDB.Driver.Linq.Expressions
                 Visit(node.Source),
                 Visit(node.CollectionSelector),
                 Visit(node.ResultSelector));
+        }
+
+        protected internal virtual Expression VisitSerializedConstant(SerializedConstantExpression node)
+        {
+            return node;
         }
 
         protected internal virtual Expression VisitSkip(SkipExpression node)
@@ -213,6 +233,13 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(
                 Visit(node.Source),
                 Visit(node.Predicate));
+        }
+
+        protected internal virtual Expression VisitZip(ZipExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.Other));
         }
     }
 }

@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4F42BA31-AAA3-4BD4-A4F2-7F7A53940D69}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Driver.Legacy.Tests</RootNamespace>
+    <AssemblyName>MongoDB.Driver.Legacy.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Builders\CollectionOptionsBuilderTests.cs" />
+    <Compile Include="Builders\FieldsBuilderTests.cs" />
+    <Compile Include="Builders\FieldsBuilderTypedTests.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilderTests.cs" />
+    <Compile Include="Builders\GroupByBuilderTests.cs" />
+    <Compile Include="Builders\IndexKeysBuilderTests.cs" />
+    <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
+    <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
+    <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
+    <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
+    <Compile Include="Builders\QueryBuilderTests.cs" />
+    <Compile Include="Builders\QueryBuilderTypedTests.cs" />
+    <Compile Include="Builders\SortByBuilderTests.cs" />
+    <Compile Include="Builders\SortByBuilderTypedTests.cs" />
+    <Compile Include="Builders\UpdateBuilderTests.cs" />
+    <Compile Include="CommandResults\CollectionStatsResultTests.cs" />
+    <Compile Include="CommandResults\CommandResultTests.cs" />
+    <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
+    <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="FailPoint.cs" />
+    <Compile Include="Jira\CSharp100Tests.cs" />
+    <Compile Include="Jira\CSharp101Tests.cs" />
+    <Compile Include="Jira\CSharp103Tests.cs" />
+    <Compile Include="Jira\CSharp110Tests.cs" />
+    <Compile Include="Jira\CSharp111Tests.cs" />
+    <Compile Include="Jira\CSharp112Tests.cs" />
+    <Compile Include="Jira\CSharp134Tests.cs" />
+    <Compile Include="Jira\CSharp137Tests.cs" />
+    <Compile Include="Jira\CSharp140Tests.cs" />
+    <Compile Include="Jira\CSharp163Tests.cs" />
+    <Compile Include="Jira\CSharp172Tests.cs" />
+    <Compile Include="Jira\CSharp198Tests.cs" />
+    <Compile Include="Jira\CSharp199Tests.cs" />
+    <Compile Include="Jira\CSharp215Tests.cs" />
+    <Compile Include="Jira\CSharp216Tests.cs" />
+    <Compile Include="Jira\CSharp218Tests.cs" />
+    <Compile Include="Jira\CSharp230Tests.cs" />
+    <Compile Include="Jira\CSharp231Tests.cs" />
+    <Compile Include="Jira\CSharp247Tests.cs" />
+    <Compile Include="Jira\CSharp253Tests.cs" />
+    <Compile Include="Jira\CSharp258Tests.cs" />
+    <Compile Include="Jira\CSharp265Tests.cs" />
+    <Compile Include="Jira\CSharp269Tests.cs" />
+    <Compile Include="Jira\CSharp281Tests.cs" />
+    <Compile Include="Jira\CSharp282Tests.cs" />
+    <Compile Include="Jira\CSharp283Tests.cs" />
+    <Compile Include="Jira\CSharp290Tests.cs" />
+    <Compile Include="Jira\CSharp307Tests.cs" />
+    <Compile Include="Jira\CSharp321Tests.cs" />
+    <Compile Include="Jira\CSharp325Tests.cs" />
+    <Compile Include="Jira\CSharp330Tests.cs" />
+    <Compile Include="Jira\CSharp361Tests.cs" />
+    <Compile Include="Jira\CSharp365Tests.cs" />
+    <Compile Include="Jira\CSharp378Tests.cs" />
+    <Compile Include="Jira\CSharp418Tests.cs" />
+    <Compile Include="Jira\CSharp471Tests.cs" />
+    <Compile Include="Jira\CSharp475Tests.cs" />
+    <Compile Include="Jira\CSharp522Tests.cs" />
+    <Compile Include="Jira\CSharp524Tests.cs" />
+    <Compile Include="Jira\CSharp532Tests.cs" />
+    <Compile Include="Jira\CSharp538Tests.cs" />
+    <Compile Include="Jira\CSharp542Tests.cs" />
+    <Compile Include="Jira\CSharp594Tests.cs" />
+    <Compile Include="Jira\CSharp598Tests.cs" />
+    <Compile Include="Jira\CSharp606Tests.cs" />
+    <Compile Include="Jira\CSharp613Tests.cs" />
+    <Compile Include="Jira\CSharp653Tests.cs" />
+    <Compile Include="Jira\CSharp714Tests.cs" />
+    <Compile Include="Jira\CSharp718Tests.cs" />
+    <Compile Include="Jira\CSharp779Tests.cs" />
+    <Compile Include="Jira\CSharp77Tests.cs" />
+    <Compile Include="Jira\CSharp801Tests.cs" />
+    <Compile Include="Jira\CSharp840Tests.cs" />
+    <Compile Include="Jira\CSharp893Tests.cs" />
+    <Compile Include="Jira\CSharp900Tests.cs" />
+    <Compile Include="Jira\CSharp92Tests.cs" />
+    <Compile Include="Jira\CSharp932Tests.cs" />
+    <Compile Include="Jira\CSharp93Tests.cs" />
+    <Compile Include="Jira\CSharp942Tests.cs" />
+    <Compile Include="Jira\CSharp958Tests.cs" />
+    <Compile Include="Jira\CSharp98Tests.cs" />
+    <Compile Include="GridFS\MongoGridFSExceptionTests.cs" />
+    <Compile Include="GridFS\MongoGridFSFileInfoTests.cs" />
+    <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
+    <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
+    <Compile Include="GridFS\MongoGridFSTests.cs" />
+    <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
+    <Compile Include="Linq\BsonDocumentTests.cs" />
+    <Compile Include="Linq\ExplainTests.cs" />
+    <Compile Include="Linq\MongoQueryableTests.cs" />
+    <Compile Include="Linq\MongoQueryProviderTests.cs" />
+    <Compile Include="Linq\SelectDictionaryTests.cs" />
+    <Compile Include="Linq\SelectNullableTests.cs" />
+    <Compile Include="Linq\SelectOfTypeHierarchicalTests.cs" />
+    <Compile Include="Linq\SelectOfTypeTests.cs" />
+    <Compile Include="Linq\SelectQueryTests.cs" />
+    <Compile Include="Linq\SkipAndTakeTests.cs" />
+    <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
+    <Compile Include="Linq\WithIndexTests.cs" />
+    <Compile Include="MongoClientTests.cs" />
+    <Compile Include="MongoCollectionTests.cs" />
+    <Compile Include="MongoDatabaseTests.cs" />
+    <Compile Include="MongoServerBuildInfoTests.cs" />
+    <Compile Include="MongoServerSettingsTests.cs" />
+    <Compile Include="MongoServerTests.cs" />
+    <Compile Include="MongoUserTests.cs" />
+    <Compile Include="Operations\BulkWriteOperationTests.cs" />
+    <Compile Include="Operations\CurrentOpOperationTests.cs" />
+    <Compile Include="Operations\CurrentOpUsingCommandOperation.cs" />
+    <Compile Include="Operations\CurrentOpUsingFindOperationTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Samples\MagicDiscriminatorTests.cs" />
+    <Compile Include="SystemProfileInfoTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+      <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
+      <Name>MongoDB.Driver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Legacy.TestHelpers\MongoDB.Driver.Legacy.TestHelpers.csproj">
+      <Project>{02ab2e44-785a-4d39-99c0-29f93a02ef84}</Project>
+      <Name>MongoDB.Driver.Legacy.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Legacy\MongoDB.Driver.Legacy.csproj">
+      <Project>{97962946-aa1e-4308-b7a7-6ad92bdbc358}</Project>
+      <Name>MongoDB.Driver.Legacy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
+      <Project>{89b92fff-4126-4d9a-93c8-2bd7e0cd82ff}</Project>
+      <Name>MongoDB.Driver.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj">
+      <Project>{ae5166cd-76b0-4911-bd80-ced9521f37a1}</Project>
+      <Name>MongoDB.Driver</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.IO
                             break;
 
                         default:
-                        _textWriter.Write("new BinData({0}, \"{1}\")", (int)subType, Convert.ToBase64String(bytes));
+                            _textWriter.Write("new BinData({0}, \"{1}\")", (int)subType, Convert.ToBase64String(bytes));
                             break;
                     }
                     break;
@@ -204,6 +204,30 @@ namespace MongoDB.Bson.IO
             State = GetNextState();
         }
 
+        /// <inheritdoc />
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            if (Disposed) { throw new ObjectDisposedException("JsonWriter"); }
+            if (State != BsonWriterState.Value && State != BsonWriterState.Initial)
+            {
+                ThrowInvalidState(nameof(WriteDecimal128), BsonWriterState.Value, BsonWriterState.Initial);
+            }
+
+            WriteNameHelper(Name);
+            switch (_jsonWriterSettings.OutputMode)
+            {
+                case JsonOutputMode.Shell:
+                    _textWriter.Write("NumberDecimal(\"{0}\")", value.ToString());
+                    break;
+
+                default:
+                    _textWriter.Write("{{ \"$numberDecimal\" : \"{0}\" }}", value.ToString());
+                    break;
+            }
+
+            State = GetNextState();
+        }
+
         /// <summary>
         /// Writes a BSON Double to the writer.
         /// </summary>
@@ -217,7 +241,7 @@ namespace MongoDB.Bson.IO
             }
 
             // if string representation looks like an integer add ".0" so that it looks like a double
-            var stringRepresentation = value.ToString("R", NumberFormatInfo.InvariantInfo);
+            var stringRepresentation = JsonConvert.ToString(value);
             if (Regex.IsMatch(stringRepresentation, @"^[+-]?\d+$"))
             {
                 stringRepresentation += ".0";
@@ -693,7 +717,7 @@ namespace MongoDB.Bson.IO
                     case '\r': sb.Append("\\r"); break;
                     case '\t': sb.Append("\\t"); break;
                     default:
-                        switch (char.GetUnicodeCategory(c))
+                        switch (CharUnicodeInfo.GetUnicodeCategory(c))
                         {
                             case UnicodeCategory.UppercaseLetter:
                             case UnicodeCategory.LowercaseLetter:
@@ -799,7 +823,7 @@ namespace MongoDB.Bson.IO
                     return true;
 
                 default:
-                    switch (char.GetUnicodeCategory(c))
+                    switch (CharUnicodeInfo.GetUnicodeCategory(c))
                     {
                         case UnicodeCategory.UppercaseLetter:
                         case UnicodeCategory.LowercaseLetter:

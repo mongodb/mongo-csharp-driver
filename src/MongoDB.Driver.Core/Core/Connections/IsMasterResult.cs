@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -83,6 +83,26 @@ namespace MongoDB.Driver.Core.Connections
         public bool IsReplicaSetMember
         {
             get { return ServerType.IsReplicaSetMember(); }
+        }
+
+        /// <summary>
+        /// Gets the last write timestamp.
+        /// </summary>
+        /// <value>
+        /// The last write timestamp.
+        /// </value>
+        public DateTime? LastWriteTimestamp
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("lastWrite", out value))
+                {
+                    return value["lastWriteDate"].ToUniversalTime();
+                }
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -334,7 +354,7 @@ namespace MongoDB.Driver.Core.Connections
             var members = GetMembers();
             var name = (string)_wrapped.GetValue("setName", null);
             var primary = GetPrimary();
-            var version = _wrapped.Contains("version") ? (int?)_wrapped["version"].ToInt32() : null;
+            var version = _wrapped.Contains("setVersion") ? (int?)_wrapped["setVersion"].ToInt32() : null;
 
             return new ReplicaSetConfig(members, name, primary, version);
         }

@@ -47,12 +47,12 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         // Clusters
         private void Handle(ClusterOpeningEvent @event)
         {
-            Debug(TraceSourceEventHelper.ClusterIdBase, "{0}: opening.", TraceSourceEventHelper.Label(@event.ClusterId));
+            Info(TraceSourceEventHelper.ClusterIdBase, "{0}: opening.", TraceSourceEventHelper.Label(@event.ClusterId));
         }
 
         private void Handle(ClusterOpenedEvent @event)
         {
-            Info(TraceSourceEventHelper.ClusterIdBase + 1, "{0}: opened in {1}ms.", TraceSourceEventHelper.Label(@event.ClusterId), @event.Duration.TotalMilliseconds);
+            Debug(TraceSourceEventHelper.ClusterIdBase + 1, "{0}: opened in {1}ms.", TraceSourceEventHelper.Label(@event.ClusterId), @event.Duration.TotalMilliseconds);
         }
 
         private void Handle(ClusterClosingEvent @event)
@@ -67,12 +67,12 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         private void Handle(ClusterAddingServerEvent @event)
         {
-            Debug(TraceSourceEventHelper.ClusterIdBase + 4, "{0}: adding server at endpoint {1}.", TraceSourceEventHelper.Label(@event.ClusterId), TraceSourceEventHelper.Format(@event.EndPoint));
+            Info(TraceSourceEventHelper.ClusterIdBase + 4, "{0}: adding server at endpoint {1}.", TraceSourceEventHelper.Label(@event.ClusterId), TraceSourceEventHelper.Format(@event.EndPoint));
         }
 
         private void Handle(ClusterAddedServerEvent @event)
         {
-            Info(TraceSourceEventHelper.ClusterIdBase + 5, "{0}: added server {1} in {2}ms.", TraceSourceEventHelper.Label(@event.ServerId.ClusterId), TraceSourceEventHelper.Format(@event.ServerId), @event.Duration.TotalMilliseconds);
+            Debug(TraceSourceEventHelper.ClusterIdBase + 5, "{0}: added server {1} in {2}ms.", TraceSourceEventHelper.Label(@event.ServerId.ClusterId), TraceSourceEventHelper.Format(@event.ServerId), @event.Duration.TotalMilliseconds);
         }
 
         private void Handle(ClusterRemovingServerEvent @event)
@@ -93,12 +93,12 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         // Servers
         private void Handle(ServerOpeningEvent @event)
         {
-            Debug(TraceSourceEventHelper.ServerIdBase, "{0}: opening.", TraceSourceEventHelper.Label(@event.ServerId));
+            Info(TraceSourceEventHelper.ServerIdBase, "{0}: opening.", TraceSourceEventHelper.Label(@event.ServerId));
         }
 
         private void Handle(ServerOpenedEvent @event)
         {
-            Info(TraceSourceEventHelper.ServerIdBase + 1, "{0}: opened in {1}ms.", TraceSourceEventHelper.Label(@event.ServerId), @event.Duration.TotalMilliseconds);
+            Debug(TraceSourceEventHelper.ServerIdBase + 1, "{0}: opened in {1}ms.", TraceSourceEventHelper.Label(@event.ServerId), @event.Duration.TotalMilliseconds);
         }
 
         private void Handle(ServerClosingEvent @event)
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         private void Handle(ServerDescriptionChangedEvent @event)
         {
-            Info(TraceSourceEventHelper.ServerIdBase + 7, "{0}: {1}", TraceSourceEventHelper.Label(@event.OldDescription.ServerId), @event.NewDescription);
+            Debug(TraceSourceEventHelper.ServerIdBase + 7, "{0}: {1}", TraceSourceEventHelper.Label(@event.OldDescription.ServerId), @event.NewDescription);
         }
 
         // Connection Pools

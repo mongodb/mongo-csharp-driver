@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,8 +32,9 @@ namespace MongoDB.Driver.Core.Authentication
     {
         // constants
         private const string __canonicalizeHostNamePropertyName = "CANONICALIZE_HOST_NAME";
+        private const string __realmPropertyName = "REALM";
         private const string __serviceNamePropertyName = "SERVICE_NAME";
-        private const string __serviceRealmPropertyName = "REALM";
+        private const string __serviceRealmPropertyName = "SERVICE_REALM";
 
         // static properties
         /// <summary>
@@ -67,6 +68,18 @@ namespace MongoDB.Driver.Core.Authentication
         public static string MechanismName
         {
             get { return "GSSAPI"; }
+        }
+
+        /// <summary>
+        /// Gets the name of the realm property.
+        /// </summary>
+        /// <value>
+        /// The name of the realm property.
+        /// </value>
+        [Obsolete("Use ServiceRealmPropertyName")]
+        public static string RealmPropertyName
+        {
+            get { return __realmPropertyName; }
         }
 
         /// <summary>
@@ -143,6 +156,7 @@ namespace MongoDB.Driver.Core.Authentication
                             serviceName = (string)pair.Value;
                             break;
                         case __serviceRealmPropertyName:
+                        case __realmPropertyName:
                             realm = (string)pair.Value;
                             break;
                         case __canonicalizeHostNamePropertyName:
@@ -204,7 +218,11 @@ namespace MongoDB.Driver.Core.Authentication
 
                 if (_canonicalizeHostName)
                 {
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+                    var entry = Dns.GetHostEntryAsync(hostName).GetAwaiter().GetResult();
+#else
                     var entry = Dns.GetHostEntry(hostName);
+#endif
                     if (entry != null)
                     {
                         hostName = entry.HostName;

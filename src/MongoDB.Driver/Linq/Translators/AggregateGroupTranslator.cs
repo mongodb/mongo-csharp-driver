@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -27,7 +28,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal static class AggregateGroupTranslator
     {
-        public static RenderedProjectionDefinition<TResult> Translate<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static RenderedProjectionDefinition<TResult> Translate<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             var bindingContext = new PipelineBindingContext(serializerRegistry);
 
@@ -35,12 +36,12 @@ namespace MongoDB.Driver.Linq.Translators
             var boundGroupExpression = BindGroup(bindingContext, groupProjector, parameterSerializer, keySelector);
 
             var projectionSerializer = bindingContext.GetSerializer(boundGroupExpression.Type, boundGroupExpression);
-            var projection = AggregateLanguageTranslator.Translate(boundGroupExpression).AsBsonDocument;
+            var projection = AggregateLanguageTranslator.Translate(boundGroupExpression, translationOptions).AsBsonDocument;
 
             // must have an "_id" in a group document
             if (!projection.Contains("_id"))
             {
-                var idProjection = AggregateLanguageTranslator.Translate(keySelector);
+                var idProjection = AggregateLanguageTranslator.Translate(keySelector, translationOptions);
                 projection.InsertAt(0, new BsonElement("_id", idProjection));
             }
 
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Linq.Translators
             var correlationId = Guid.NewGuid();
             bindingContext.AddCorrelatingId(groupExpression, correlationId);
             bindingContext.AddExpressionMapping(groupProjector.Parameters[0], groupExpression);
-            bindingContext.AddMemberMapping(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), keySelector);
+            bindingContext.AddMemberMapping(typeof(IGrouping<TKey, TDocument>).GetTypeInfo().GetProperty("Key"), keySelector);
 
             var node = PartialEvaluator.Evaluate(groupProjector.Body);
             node = Transformer.Transform(node);

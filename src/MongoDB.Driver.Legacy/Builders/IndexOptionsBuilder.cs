@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -100,6 +100,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetPartialFilterExpression(IMongoQuery value)
+        {
+            return new IndexOptionsBuilder().SetPartialFilterExpression(value);
+        }
+
+        /// <summary>
         /// Sets whether the index is a sparse index.
         /// </summary>
         /// <param name="value">Whether the index is a sparse index.</param>
@@ -176,7 +186,9 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options used when creating an index.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(IndexOptionsBuilder.Serializer))]
     public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions
     {
@@ -258,6 +270,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetName(string value)
         {
             _document["name"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetPartialFilterExpression(IMongoQuery value)
+        {
+            _document["partialFilterExpression"] = value.ToBsonDocument();
             return this;
         }
 
@@ -444,6 +467,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetPartialFilterExpression(IMongoQuery value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetPartialFilterExpression(value);
+        }
+
+        /// <summary>
         /// Sets whether the index is a sparse index.
         /// </summary>
         /// <param name="value">Whether the index is a sparse index.</param>
@@ -524,7 +557,9 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options used when creating an index.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(IndexOptionsBuilder<>.Serializer))]
     public class IndexOptionsBuilder<TDocument> : BuilderBase, IMongoIndexOptions
     {
@@ -607,6 +642,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetName(string value)
         {
             _indexOptionsBuilder.SetName(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the partial filter expression.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetPartialFilterExpression(IMongoQuery value)
+        {
+            _indexOptionsBuilder.SetPartialFilterExpression(value);
             return this;
         }
 

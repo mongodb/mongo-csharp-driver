@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
         private bool? _shardedOutput;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -121,14 +122,30 @@ namespace MongoDB.Driver.Core.Operations
             set { _shardedOutput = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // methods
         /// <inheritdoc/>
         protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             var command = base.CreateCommand(serverVersion);
-            if (_bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion))
+            if (_bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion))
             {
                 command["bypassDocumentValidation"] = _bypassDocumentValidation.Value;
+            }
+            if (Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern))
+            {
+                command["writeConcern"] = _writeConcern.ToBsonDocument();
             }
             return command;
         }
@@ -156,7 +173,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.Execute(channelBinding, cancellationToken);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
@@ -170,7 +189,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 

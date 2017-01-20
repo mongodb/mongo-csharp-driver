@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     public sealed class ReadConcern : IEquatable<ReadConcern>, IConvertibleToBsonDocument
     {
         private static readonly ReadConcern __default = new ReadConcern();
+        private static readonly ReadConcern __linearizable = new ReadConcern(ReadConcernLevel.Linearizable);
         private static readonly ReadConcern __local = new ReadConcern(ReadConcernLevel.Local);
         private static readonly ReadConcern __majority = new ReadConcern(ReadConcernLevel.Majority);
 
@@ -35,12 +36,17 @@ namespace MongoDB.Driver
         public static ReadConcern Default => __default;
 
         /// <summary>
+        /// Gets a linearizable read concern.
+        /// </summary>
+        public static ReadConcern Linearizable => __linearizable;
+
+        /// <summary>
         /// Gets a local read concern.
         /// </summary>
         public static ReadConcern Local => __local;
 
         /// <summary>
-        /// Gets a majority read concern
+        /// Gets a majority read concern.
         /// </summary>
         public static ReadConcern Majority => __majority;
 
@@ -59,6 +65,8 @@ namespace MongoDB.Driver
                 var level = (ReadConcernLevel)Enum.Parse(typeof(ReadConcernLevel), (string)levelValue, true);
                 switch (level)
                 {
+                    case ReadConcernLevel.Linearizable:
+                        return ReadConcern.Linearizable;
                     case ReadConcernLevel.Local:
                         return ReadConcern.Local;
                     case ReadConcernLevel.Majority:
@@ -140,6 +148,9 @@ namespace MongoDB.Driver
             {
                 switch (_level.Value)
                 {
+                    case ReadConcernLevel.Linearizable:
+                        level = "linearizable";
+                        break;
                     case ReadConcernLevel.Local:
                         level = "local";
                         break;
@@ -182,23 +193,6 @@ namespace MongoDB.Driver
             else
             {
                 return this;
-            }
-        }
-
-        internal bool IsSupported(SemanticVersion serverVersion)
-        {
-            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
-
-            return IsServerDefault || SupportedFeatures.IsReadConcernSupported(serverVersion);
-        }
-
-        internal void ThrowIfNotSupported(SemanticVersion serverVersion)
-        {
-            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
-
-            if (!IsSupported(serverVersion))
-            {
-                throw new MongoClientException($"ReadConcern {ToString()} is not supported by server {serverVersion}.");
             }
         }
     }

@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="credential">The credential.</param>
         public ScramSha1Authenticator(UsernamePasswordCredential credential)
-            : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
+            : this(credential, new DefaultRandomStringGenerator())
         {
         }
 
@@ -209,7 +209,11 @@ namespace MongoDB.Driver.Core.Authentication
 
             private static byte[] HMAC(UTF8Encoding encoding, byte[] data, string key)
             {
-                using (var hmac = new HMACSHA1(data, true))
+#if NET45
+                using (var hmac = new HMACSHA1(data, useManagedSha1: true))
+#else
+                using (var hmac = new HMACSHA1(data))
+#endif
                 {
                     return hmac.ComputeHash(encoding.GetBytes(key));
                 }

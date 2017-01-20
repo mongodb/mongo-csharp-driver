@@ -13,7 +13,7 @@ title = "Importing JSON"
 
 The .NET BSON library supports reading JSON documents with the [`JsonReader`]({{< apiref "T_MongoDB_Bson_IO_JsonReader" >}}) class. 
 
-The program below will import all documents from a file with one document per line into the collection.
+The programs below will import all documents from a file with one document per line into the collection. There are two versions of the program, one using the synchronous API and the other using the asynchronous API.
 
 Given the input file's contents:
 
@@ -24,7 +24,35 @@ Given the input file's contents:
 { "_id" : ObjectId("551330712dfd32ffd580e326"), "x" : 4.0 }
 ```
 
-And the program:
+And the synchronous version of the program::
+
+```csharp
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+
+// ...
+
+string inputFileName; // initialize to the input file
+IMongoCollection<BsonDocument> collection; // initialize to the collection to write to.
+
+using (var streamReader = new StreamReader(inputFileName))
+{
+    string line;
+    while ((line = streamReader.ReadLine()) != null)
+    {
+        using (var jsonReader = new JsonReader(line))
+        {
+            var context = BsonDeserializationContext.CreateRoot(jsonReader);
+            var document = collection.DocumentSerializer.Deserialize(context);
+            collection.InsertOne(document);
+        }
+    }
+}
+```
+
+Or the asynchronous version of the program:
 
 ```csharp
 using MongoDB.Bson;

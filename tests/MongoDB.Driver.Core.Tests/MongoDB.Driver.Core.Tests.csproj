@@ -1,0 +1,493 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B7AE6291-4D43-44D8-9FD1-A0D651330927}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Driver</RootNamespace>
+    <AssemblyName>MongoDB.Driver.Core.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CollationTests.cs" />
+    <Compile Include="Core\Clusters\ElectionIdTests.cs" />
+    <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
+    <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
+    <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
+    <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
+    <Compile Include="Core\Connections\BinaryConnection_CommandEventTests.cs" />
+    <Compile Include="Core\Connections\ClientDocumentHelperTests.cs" />
+    <Compile Include="Core\Events\EventAggregatorTests.cs" />
+    <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
+    <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />
+    <Compile Include="Core\Misc\SemaphoreSlimRequestTests.cs" />
+    <Compile Include="Core\Misc\StreamExtensionMethodsTests.cs" />
+    <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\AggregateOperationTests.cs" />
+    <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumeratorTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorTests.cs" />
+    <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
+    <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
+    <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
+    <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
+    <Compile Include="Core\Operations\ReIndexOperationTests.cs" />
+    <Compile Include="Core\Operations\UpdateRequestTests.cs" />
+    <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
+    <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexesUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexesUsingInsertOperationTests.cs" />
+    <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />
+    <Compile Include="Core\Operations\CursorBatchDeserializationHelperTests.cs" />
+    <Compile Include="Core\Operations\DatabaseExistsOperationTests.cs" />
+    <Compile Include="Core\Operations\DropIndexOperationTests.cs" />
+    <Compile Include="Core\Operations\ExplainOperationTests.cs" />
+    <Compile Include="Core\Operations\FindCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOpcodeOperationTests.cs" />
+    <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
+    <Compile Include="Core\Operations\EvalOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOneAndDeleteOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOperationTests.cs" />
+    <Compile Include="Core\Operations\IndexNameHelperTests.cs" />
+    <Compile Include="Core\Operations\InsertOpcodeOperationTests.cs" />
+    <Compile Include="Core\Operations\ListCollectionsOperationTests.cs" />
+    <Compile Include="Core\Operations\ListCollectionsUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\ListCollectionsUsingQueryOperationTests.cs" />
+    <Compile Include="Core\Operations\ListDatabasesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesUsingCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesUsingQueryOperationTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
+    <Compile Include="Core\Operations\MapReduceLegacyOperationTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOutputToCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\ReadCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\OperationTestBase.cs" />
+    <Compile Include="Core\Operations\QueryHelperTests.cs" />
+    <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
+    <Compile Include="Core\Operations\WriteConcernErrorHelperTests.cs" />
+    <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />
+    <Compile Include="Core\Servers\ServerMonitorTests.cs" />
+    <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
+    <Compile Include="Core\WireProtocol\CommandWriteProtocolTests.cs" />
+    <Compile Include="IAsyncCursorExtensionsTests.cs" />
+    <Compile Include="IAsyncCursorSourceExtensionsTests.cs" />
+    <Compile Include="MongoAuthenticationExceptionTests.cs" />
+    <Compile Include="MongoClientExceptionTests.cs" />
+    <Compile Include="MongoConfigurationExceptionTests.cs" />
+    <Compile Include="MongoConnectionExceptionTests.cs" />
+    <Compile Include="MongoCursorNotFoundExceptionTests.cs" />
+    <Compile Include="MongoDuplicateKeyExceptionTests.cs" />
+    <Compile Include="MongoExecutionTimeoutExceptionTests.cs" />
+    <Compile Include="MongoIncompatibleDriverExceptionTests.cs" />
+    <Compile Include="MongoInternalExceptionTests.cs" />
+    <Compile Include="MongoConnectionFailedExceptionTests.cs" />
+    <Compile Include="MongoNodeIsRecoveringExceptionTests.cs" />
+    <Compile Include="MongoNotPrimaryExceptionTests.cs" />
+    <Compile Include="MongoServerExceptionTests.cs" />
+    <Compile Include="MongoWaitQueueFullExceptionTests.cs" />
+    <Compile Include="MongoWriteConcernExceptionTests.cs" />
+    <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />
+    <Compile Include="Core\Bindings\ReadBindingHandleTests.cs" />
+    <Compile Include="Core\Bindings\ReadWriteBindingHandleTests.cs" />
+    <Compile Include="Core\Bindings\ReadPreferenceBindingTests.cs" />
+    <Compile Include="Core\Bindings\WritableServerBindingTests.cs" />
+    <Compile Include="Core\Bindings\SplitReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\ChannelSourceReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\ChannelSourceHandleTests.cs" />
+    <Compile Include="Core\Configuration\SslStreamSettingsTests.cs" />
+    <Compile Include="Core\Configuration\TcpStreamSettingsTests.cs" />
+    <Compile Include="Core\Misc\ExceptionMapperTests.cs" />
+    <Compile Include="Core\Misc\ReferenceCountedTests.cs" />
+    <Compile Include="Core\Bindings\ServerChannelSourceTests.cs" />
+    <Compile Include="Core\Helpers\BlockingMemoryStream.cs" />
+    <Compile Include="Core\Helpers\MessageHelper.cs" />
+    <Compile Include="Core\Helpers\MockClusterableServerFactory.cs" />
+    <Compile Include="Core\Helpers\MockConnection.cs" />
+    <Compile Include="Core\Helpers\RawBsonDocumentHelper.cs" />
+    <Compile Include="Core\Helpers\ServerDescriptionHelper.cs" />
+    <Compile Include="Core\Operations\MongoBulkWriteOperationExceptionTests.cs" />
+    <Compile Include="Core\Misc\BatchableSourceTests.cs" />
+    <Compile Include="Core\Misc\MetronomeTests.cs" />
+    <Compile Include="Core\Async\AsyncQueueTests.cs" />
+    <Compile Include="Core\Authentication\ScramSha1AuthenticatorTests.cs" />
+    <Compile Include="Core\Authentication\PlainAuthenticatorTests.cs" />
+    <Compile Include="Core\Authentication\MongoDBCRAuthenticatorTests.cs" />
+    <Compile Include="Core\Authentication\MongoDBX509AuthenticatorTests.cs" />
+    <Compile Include="Core\Clusters\ClusterDescriptionTests.cs" />
+    <Compile Include="Core\Clusters\ClusterIdTests.cs" />
+    <Compile Include="Core\Clusters\ClusterTests.cs" />
+    <Compile Include="Core\Operations\GroupOperationTests.cs" />
+    <Compile Include="BatchTransformingAsyncCursorTests.cs" />
+    <Compile Include="ReadPreferenceTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\DelegateServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\CompositeServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\ReadPreferenceServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\RandomServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\LatencyLimitingServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\ServerSelectors\EndPointServerSelectorTests.cs" />
+    <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
+    <Compile Include="Specifications\connection-string\TestRunner.cs" />
+    <Compile Include="Specifications\read-write-concern\DocumentTestRunner.cs" />
+    <Compile Include="Specifications\read-write-concern\ConnectionStringTestRunner.cs" />
+    <Compile Include="Specifications\server-discovery-and-monitoring\MonitoringTestRunner.cs" />
+    <Compile Include="Specifications\server-discovery-and-monitoring\TestRunner.cs" />
+    <Compile Include="Specifications\server-selection\ServerSelectionTestRunner.cs" />
+    <Compile Include="Specifications\server-selection\RttTestRunner.cs" />
+    <Compile Include="TagSetTests.cs" />
+    <Compile Include="TagTests.cs" />
+    <Compile Include="Core\Configuration\ConnectionStringTests.cs" />
+    <Compile Include="Core\Configuration\ServerSettingsTests.cs" />
+    <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolFactoryTests.cs" />
+    <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolTests.cs" />
+    <Compile Include="Core\Connections\BinaryConnectionFactoryTests.cs" />
+    <Compile Include="Core\Connections\BinaryConnectionTests.cs" />
+    <Compile Include="Core\Connections\ConnectionInitializerTests.cs" />
+    <Compile Include="Core\Connections\TcpStreamFactoryTests.cs" />
+    <Compile Include="Core\Connections\ConnectionIdTests.cs" />
+    <Compile Include="Core\Connections\ConnectionDescriptionTests.cs" />
+    <Compile Include="Core\Connections\BuildInfoResultTests.cs" />
+    <Compile Include="Core\Connections\IsMasterResultTests.cs" />
+    <Compile Include="MongoCommandExceptionTests.cs" />
+    <Compile Include="Core\Operations\DistinctOperationTests.cs" />
+    <Compile Include="Core\Operations\CountOperationTests.cs" />
+    <Compile Include="Core\Operations\CursorTests.cs" />
+    <Compile Include="CollectionNamespaceTests.cs" />
+    <Compile Include="DatabaseNamespaceTests.cs" />
+    <Compile Include="MongoExceptionTests.cs" />
+    <Compile Include="MongoQueryExceptionTests.cs" />
+    <Compile Include="Core\Misc\ConstantRandomStringGenerator.cs" />
+    <Compile Include="Core\Misc\EndPointHelperTests.cs" />
+    <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverageTests.cs" />
+    <Compile Include="Core\Misc\FrozenClock.cs" />
+    <Compile Include="Core\Misc\RangeTests.cs" />
+    <Compile Include="Core\Misc\SemanticVersionTests.cs" />
+    <Compile Include="Core\Misc\InterlockedInt32Tests.cs" />
+    <Compile Include="Core\Misc\TimeSpanParserTests.cs" />
+    <Compile Include="ReadConcernTests.cs" />
+    <Compile Include="WriteConcernTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\Servers\ServerDescriptionTests.cs" />
+    <Compile Include="Core\Servers\ServerFactoryTests.cs" />
+    <Compile Include="Core\Servers\ServerIdTests.cs" />
+    <Compile Include="Core\Servers\ServerTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\DeleteMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\BinaryMessageEncoderFactoryTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\DeleteMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\GetMoreMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\InsertMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\KillCursorsMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\QueryMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\ReplyMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\UpdateMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\DeleteMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\GetMoreJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\InsertMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\JsonMessageEncoderFactoryTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\KillCursorsMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\QueryMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\ReplyMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\UpdateMessageJsonEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\GetMoreMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\InsertMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\KillCursorsMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\QueryMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\ReplyMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\UpdateMessageTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj">
+      <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
+      <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+      <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
+      <Name>MongoDB.Driver.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\Clusters\MultiServerClusterTests.cs" />
+    <None Include="packages.config" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\invalid-uris.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\invalid-uris.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\Makefile" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-auth.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-auth.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-host_identifiers.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-host_identifiers.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-options.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-options.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-absolute.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-absolute.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-relative.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-unix_socket-relative.yml" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.json" />
+    <EmbeddedResource Include="Specifications\connection-string\tests\valid-warnings.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\read-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\read-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\write-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\connection-string\write-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\read-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\read-concern.yml" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\write-concern.json" />
+    <EmbeddedResource Include="Specifications\read-write-concern\tests\document\write-concern.yml" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\DefaultNoMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\Incompatible.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\LastUpdateTime.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\Nearest.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\Nearest2.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\PrimaryPreferred.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\NoKnownServers.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\PrimaryPreferred_tags.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\Secondary.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\SecondaryPreferred.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\SecondaryPreferred_tags.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\DefaultNoMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetNoPrimary\ZeroMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Incompatible.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\LastUpdateTime.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\MaxStalenessTooSmall.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\MaxStalenessWithModePrimary.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Nearest.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Nearest2.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Nearest_tags.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\PrimaryPreferred.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\PrimaryPreferred_incompatible.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\SecondaryPreferred.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\SecondaryPreferred_tags.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\SecondaryPreferred_tags2.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Secondary_tags.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\Secondary_tags2.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\Sharded\Incompatible.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\LongHeartbeat.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\LongHeartbeat2.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\ReplicaSetWithPrimary\ZeroMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\Sharded\SmallMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\Single\Incompatible.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\Single\SmallMaxStaleness.json" />
+    <EmbeddedResource Include="Specifications\max-staleness\tests\Unknown\SmallMaxStaleness.json" />
+    <None Include="Specifications\read-write-concern\tests\Makefile" />
+    <None Include="Specifications\read-write-concern\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\monitoring\replica_set_with_removal.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\monitoring\standalone.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\monitoring\required_replica_set.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\monitoring\replica_set_with_no_primary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\monitoring\replica_set_with_primary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary_new_setversion.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_disconnect_setversion.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\setversion_without_electionid.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\stepdown_change_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\use_setversion_without_electionid.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\sharded\mongos_disconnect.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_reports_new_member.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_hint_from_secondary_with_mismatched_me.json" />
+    <None Include="Specifications\server-selection\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discovery.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discover_arbiters.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discover_passives.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discover_primary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\discover_secondary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\equal_electionids.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\ghost_discovered.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\hosts_differ_from_seeds.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\member_reconfig.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\member_standalone.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary_new_electionid.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\new_primary_wrong_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\non_rs_member.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\normalize_case.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\null_election_id.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_becomes_standalone.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_changes_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_disconnect.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_disconnect_electionid.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_to_no_primary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\primary_wrong_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\response_from_removed.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\rsother_discovered.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\secondary_mismatched_me.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\secondary_wrong_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\secondary_wrong_set_name_with_primary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\sec_not_auth.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\unexpected_mongos.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\rs\wrong_set_name.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\sharded\multiple_mongoses.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\sharded\non_mongos_removed.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\sharded\normalize_uri_case.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_external_ip.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_mongos.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_rsarbiter.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_rsprimary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_rssecondary.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_slave.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\direct_connection_standalone.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\not_ok_response.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\standalone_removed.json" />
+    <EmbeddedResource Include="Specifications\server-discovery-and-monitoring\tests\single\unavailable_seed.json" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\first_value.json" />
+    <None Include="Specifications\server-selection\tests\rtt\first_value.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\first_value_zero.json" />
+    <None Include="Specifications\server-selection\tests\rtt\first_value_zero.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\value_test_1.json" />
+    <None Include="Specifications\server-selection\tests\rtt\value_test_1.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\value_test_2.json" />
+    <None Include="Specifications\server-selection\tests\rtt\value_test_2.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\value_test_3.json" />
+    <None Include="Specifications\server-selection\tests\rtt\value_test_3.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\value_test_4.json" />
+    <None Include="Specifications\server-selection\tests\rtt\value_test_4.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\rtt\value_test_5.json" />
+    <None Include="Specifications\server-selection\tests\rtt\value_test_5.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest_non_matching.json" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest_multiple.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest_multiple.yml" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Nearest_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Primary.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Primary.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\PrimaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\PrimaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\PrimaryPreferred_non_matching.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\PrimaryPreferred_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\SecondaryPreferred_non_matching.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\SecondaryPreferred_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_non_matching.json" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_multi_tags.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_multi_tags.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_multi_tags2.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_multi_tags2.yml" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\read\Secondary_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\write\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetNoPrimary\write\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest_non_matching.json" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest_multiple.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest_multiple.yml" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Nearest_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Primary.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Primary.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\PrimaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\PrimaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\PrimaryPreferred_non_matching.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\PrimaryPreferred_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Secondary.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Secondary.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred_non_matching.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Secondary_non_matching.json" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred_tags.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\SecondaryPreferred_tags.yml" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\read\Secondary_non_matching.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\write\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\ReplicaSetWithPrimary\write\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Sharded\read\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Sharded\read\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Sharded\write\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Sharded\write\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Single\read\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Single\read\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Single\write\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Single\write\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Unknown\read\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Unknown\read\SecondaryPreferred.yml" />
+    <EmbeddedResource Include="Specifications\server-selection\tests\server_selection\Unknown\write\SecondaryPreferred.json" />
+    <None Include="Specifications\server-selection\tests\server_selection\Unknown\write\SecondaryPreferred.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Specifications\max-staleness\origin.txt" />
+    <Content Include="Specifications\max-staleness\runner.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

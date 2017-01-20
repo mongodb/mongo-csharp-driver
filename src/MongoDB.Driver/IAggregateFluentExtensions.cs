@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Translators;
 
 namespace MongoDB.Driver
 {
@@ -31,6 +30,265 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IAggregateFluentExtensions
     {
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TResult, TValue>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            IEnumerable<TValue> boundaries,
+            AggregateBucketOptions<TValue> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Bucket(groupBy, boundaries, options));
+        }
+
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Bucket<TResult, TValue, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            IEnumerable<TValue> boundaries,
+            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
+            AggregateBucketOptions<TValue> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Bucket(groupBy, boundaries, output, options));
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateBucketAutoResult<TValue>> BucketAuto<TResult, TValue>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            int buckets,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, options));
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> BucketAuto<TResult, TValue, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            int buckets,
+            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, output, options));
+        }
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateFacetResults> Facet<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IEnumerable<AggregateFacet<TResult>> facets)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Facet(facets));
+        }
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<AggregateFacetResults> Facet<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            params AggregateFacet<TResult>[] facets)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Facet(facets));
+        }
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="facets">The facets.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> Facet<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            params AggregateFacet<TResult>[] facets)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Facet<TResult, TNewResult>(facets));
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TConnectTo">The type of the connect to field.</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, TConnectFrom> connectFromField,
+            FieldDefinition<TFrom, TConnectTo> connectToField,
+            AggregateExpressionDefinition<TResult, TStartWith> startWith,
+            FieldDefinition<TNewResult, TAs> @as,
+            AggregateGraphLookupOptions<TFrom, TFrom, TNewResult> options = null)
+                where TAs : IEnumerable<TFrom>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, options));
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> GraphLookup<TResult, TFrom>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, BsonValue> connectFromField,
+            FieldDefinition<TFrom, BsonValue> connectToField,
+            AggregateExpressionDefinition<TResult, BsonValue> startWith,
+            FieldDefinition<BsonDocument, IEnumerable<BsonDocument>> @as,
+            FieldDefinition<BsonDocument, int> depthField = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, depthField));
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TConnectTo">The type of the connect to field.</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            Expression<Func<TFrom, TConnectFrom>> connectFromField,
+            Expression<Func<TFrom, TConnectTo>> connectToField,
+            Expression<Func<TResult, TStartWith>> startWith,
+            Expression<Func<TNewResult, TAs>> @as,
+            AggregateGraphLookupOptions<TFrom, TFrom, TNewResult> options = null)
+                where TAs : IEnumerable<TFrom>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, options, aggregate.Options?.TranslationOptions));
+        }
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TConnectTo">The type of the connect to field.</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GraphLookup<TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TFrom> from,
+            Expression<Func<TFrom, TConnectFrom>> connectFromField,
+            Expression<Func<TFrom, TConnectTo>> connectToField,
+            Expression<Func<TResult, TStartWith>> startWith,
+            Expression<Func<TNewResult, TAs>> @as,
+            Expression<Func<TAsElement, int>> depthField,
+            AggregateGraphLookupOptions<TFrom, TAsElement, TNewResult> options = null)
+                where TAs : IEnumerable<TAsElement>
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, depthField, options, aggregate.Options?.TranslationOptions));
+        }
+
         /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
@@ -43,9 +301,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<BsonDocument> Group<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> group)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(group, nameof(group));
-
-            return aggregate.Group<BsonDocument>(group);
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(group));
         }
 
         /// <summary>
@@ -63,10 +319,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Group<TResult, TKey, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TKey>> id, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> group)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(id, nameof(id));
-            Ensure.IsNotNull(group, nameof(group));
-
-            return aggregate.Group<TNewResult>(new GroupExpressionProjection<TResult, TKey, TNewResult>(id, group));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(id, group));
         }
 
         /// <summary>
@@ -79,7 +332,8 @@ namespace MongoDB.Driver
         /// <param name="foreignField">The foreign field.</param>
         /// <param name="as">The field in the result to place the foreign matches.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        public static IAggregateFluent<BsonDocument> Lookup<TResult>(this IAggregateFluent<TResult> aggregate,
+        public static IAggregateFluent<BsonDocument> Lookup<TResult>(
+            this IAggregateFluent<TResult> aggregate,
             string foreignCollectionName,
             FieldDefinition<TResult> localField,
             FieldDefinition<BsonDocument> foreignField,
@@ -87,23 +341,15 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(foreignCollectionName, nameof(foreignCollectionName));
-            Ensure.IsNotNull(localField, nameof(localField));
-            Ensure.IsNotNull(foreignField, nameof(foreignField));
-            Ensure.IsNotNull(@as, nameof(@as));
-
-            return aggregate.Lookup(
-                foreignCollectionName,
-                localField,
-                foreignField,
-                @as,
-                new AggregateLookupOptions<BsonDocument, BsonDocument>());
+            var foreignCollection = aggregate.Database.GetCollection<BsonDocument>(foreignCollectionName);
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Lookup(foreignCollection, localField, foreignField, @as));
         }
 
         /// <summary>
         /// Appends a lookup stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <typeparam name="TForeignCollection">The type of the foreign collection.</typeparam>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="foreignCollection">The foreign collection.</param>
@@ -112,31 +358,16 @@ namespace MongoDB.Driver
         /// <param name="as">The field in the result to place the foreign matches.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignCollection, TNewResult>(this IAggregateFluent<TResult> aggregate,
-            IMongoCollection<TForeignCollection> foreignCollection,
+        public static IAggregateFluent<TNewResult> Lookup<TResult, TForeignDocument, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            IMongoCollection<TForeignDocument> foreignCollection,
             Expression<Func<TResult, object>> localField,
-            Expression<Func<TForeignCollection, object>> foreignField,
+            Expression<Func<TForeignDocument, object>> foreignField,
             Expression<Func<TNewResult, object>> @as,
-            AggregateLookupOptions<TForeignCollection, TNewResult> options = null)
+            AggregateLookupOptions<TForeignDocument, TNewResult> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
-            Ensure.IsNotNull(localField, nameof(localField));
-            Ensure.IsNotNull(foreignField, nameof(foreignField));
-            Ensure.IsNotNull(@as, nameof(@as));
-
-            options = options ?? new AggregateLookupOptions<TForeignCollection, TNewResult>();
-            if (options.ForeignSerializer == null)
-            {
-                options.ForeignSerializer = foreignCollection.DocumentSerializer;
-            }
-
-            return aggregate.Lookup(
-                foreignCollection.CollectionNamespace.CollectionName,
-                new ExpressionFieldDefinition<TResult>(localField),
-                new ExpressionFieldDefinition<TForeignCollection>(foreignField),
-                new ExpressionFieldDefinition<TNewResult>(@as),
-                options);
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Lookup(foreignCollection, localField, foreignField, @as, options));
         }
 
         /// <summary>
@@ -151,9 +382,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TResult> Match<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, bool>> filter)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return aggregate.Match(new ExpressionFilterDefinition<TResult>(filter));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Match(filter));
         }
 
         /// <summary>
@@ -168,9 +397,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<BsonDocument> Project<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> projection)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(projection, nameof(projection));
-
-            return aggregate.Project<BsonDocument>(projection);
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Project(projection));
         }
 
         /// <summary>
@@ -186,9 +413,25 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Project<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TNewResult>> projection)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(projection, nameof(projection));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Project(projection));
+        }
 
-            return aggregate.Project<TNewResult>(new ProjectExpressionProjection<TResult, TNewResult>(projection));
+        /// <summary>
+        /// Appends a $replaceRoot stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> ReplaceRoot<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TNewResult>> newRoot)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.ReplaceRoot(newRoot));
         }
 
         /// <summary>
@@ -204,9 +447,26 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(field, nameof(field));
+            var sort = Builders<TResult>.Sort.Ascending(field);
+            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(PipelineStageDefinitionBuilder.Sort(sort));
+        }
 
-            return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending));
+        /// <summary>
+        /// Appends a sortByCount stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="id">The id.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<AggregateSortByCountResult<TKey>> SortByCount<TResult, TKey>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TKey>> id)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SortByCount(id));
         }
 
         /// <summary>
@@ -222,9 +482,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(field, nameof(field));
-
-            return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending));
+            var sort = Builders<TResult>.Sort.Descending(field);
+            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(PipelineStageDefinitionBuilder.Sort(sort));
         }
 
         /// <summary>
@@ -239,23 +498,7 @@ namespace MongoDB.Driver
         public static IOrderedAggregateFluent<TResult> ThenBy<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
-
-            // this looks sketchy, but if we get here and this isn't true, then
-            // someone is being a bad citizen.
-            var lastStage = aggregate.Stages.Last();
-            aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
-
-            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
-                "$sort",
-                (s, sr) =>
-                {
-                    var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending).Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
-                });
-
-            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
+            return aggregate.ThenBy(Builders<TResult>.Sort.Ascending(field));
         }
 
         /// <summary>
@@ -270,23 +513,7 @@ namespace MongoDB.Driver
         public static IOrderedAggregateFluent<TResult> ThenByDescending<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
-
-            // this looks sketchy, but if we get here and this isn't true, then
-            // someone is being a bad citizen.
-            var lastStage = aggregate.Stages.Last();
-            aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
-
-            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
-                "$sort",
-                (s, sr) =>
-                {
-                    var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending).Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
-                });
-
-            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
+            return aggregate.ThenBy(Builders<TResult>.Sort.Descending(field));
         }
 
         /// <summary>
@@ -301,11 +528,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, FieldDefinition<TResult> field)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
-
-            return aggregate.Unwind(
-                field,
-                new AggregateUnwindOptions<BsonDocument>());
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Unwind(field));
         }
 
         /// <summary>
@@ -320,11 +543,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
-
-            return aggregate.Unwind(
-                new ExpressionFieldDefinition<TResult>(field),
-                new AggregateUnwindOptions<BsonDocument>());
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Unwind(field));
         }
 
         /// <summary>
@@ -342,11 +561,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
-
-            return aggregate.Unwind(
-                new ExpressionFieldDefinition<TResult>(field),
-                new AggregateUnwindOptions<TNewResult> { ResultSerializer = newResultSerializer });
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Unwind(field, new AggregateUnwindOptions<TNewResult> { ResultSerializer = newResultSerializer }));
         }
 
         /// <summary>
@@ -363,11 +578,23 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, AggregateUnwindOptions<TNewResult> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            Ensure.IsNotNull(field, nameof(field));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Unwind(field, options));
+        }
 
-            return aggregate.Unwind(
-                new ExpressionFieldDefinition<TResult>(field),
-                options);
+        /// <summary>
+        /// Returns the first document of the aggregate result.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult First<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.First(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -383,7 +610,23 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstAsync(aggregate.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first document of the aggregate result, or the default value if the result set is empty.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult FirstOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.FirstOrDefault(aggregate.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -399,7 +642,23 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefaultAsync(aggregate.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result. Throws an exception if the result set does not contain exactly one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult Single<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.Single(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -415,7 +674,23 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleAsync(aggregate.Limit(2), cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the only document of the aggregate result, or the default value if the result set is empty. Throws an exception if the result set contains more than one document.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static TResult SingleOrDefault<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return IAsyncCursorSourceExtensions.SingleOrDefault(aggregate.Limit(2), cancellationToken);
         }
 
         /// <summary>
@@ -431,54 +706,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
-            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
-        }
-
-        private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>
-        {
-            private readonly Expression<Func<TResult, TNewResult>> _expression;
-
-            public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression)
-            {
-                _expression = Ensure.IsNotNull(expression, nameof(expression));
-            }
-
-            public Expression<Func<TResult, TNewResult>> Expression
-            {
-                get { return _expression; }
-            }
-
-            public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-            {
-                return AggregateProjectTranslator.Translate<TResult, TNewResult>(_expression, documentSerializer, serializerRegistry);
-            }
-        }
-
-        private sealed class GroupExpressionProjection<TResult, TKey, TNewResult> : ProjectionDefinition<TResult, TNewResult>
-        {
-            private readonly Expression<Func<TResult, TKey>> _idExpression;
-            private readonly Expression<Func<IGrouping<TKey, TResult>, TNewResult>> _groupExpression;
-
-            public GroupExpressionProjection(Expression<Func<TResult, TKey>> idExpression, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupExpression)
-            {
-                _idExpression = Ensure.IsNotNull(idExpression, nameof(idExpression));
-                _groupExpression = Ensure.IsNotNull(groupExpression, nameof(groupExpression));
-            }
-
-            public Expression<Func<TResult, TKey>> IdExpression
-            {
-                get { return _idExpression; }
-            }
-
-            public Expression<Func<IGrouping<TKey, TResult>, TNewResult>> GroupExpression
-            {
-                get { return _groupExpression; }
-            }
-
-            public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-            {
-                return AggregateGroupTranslator.Translate<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
-            }
+            return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(aggregate.Limit(2), cancellationToken);
         }
     }
 }

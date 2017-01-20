@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0-*",
+  "testRunner": "xunit",
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Bson.TestHelpers.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.TestHelpers.Dotnet": { "target": "project" },
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "FluentAssertions": "4.11.0",
+    "Moq": "4.6.36-alpha"
+  },
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver.Core.Tests/**/*.cs" ]
+    },
+    "embed": {
+      "include": [ "./Specifications/**/*.json" ]
+    }
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      },
+      "buildOptions": {
+        "define": ["NETSTANDARD1_5"]
+      },
+      "imports": ["dnxcore50"]
+    }
+  }
+}

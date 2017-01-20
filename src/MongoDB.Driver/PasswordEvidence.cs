@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
 */
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -72,7 +74,6 @@ namespace MongoDB.Driver
         public override bool Equals(object rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-
             return _digest == ((PasswordEvidence)rhs)._digest;
         }
 
@@ -99,9 +100,8 @@ namespace MongoDB.Driver
             {
                 var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
-                md5.TransformBlock(prefixBytes, 0, prefixBytes.Length, null, 0);
-                TransformFinalBlock(md5, _securePassword);
-                return BsonUtils.ToHexString(md5.Hash);
+                var hash = ComputeHash(md5, prefixBytes, _securePassword);
+                return BsonUtils.ToHexString(hash);
             }
         }
 
@@ -125,49 +125,83 @@ namespace MongoDB.Driver
         /// <summary>
         /// Computes the hash value of the secured string 
         /// </summary>
-        private static string GenerateDigest(SecureString secureString)
+        private static string GenerateDigest(SecureString password)
         {
-            using (var sha256 = new SHA256CryptoServiceProvider())
+            using (var sha256 = SHA256.Create())
             {
-                TransformFinalBlock(sha256, secureString);
-                return BsonUtils.ToHexString(sha256.Hash);
+                var hash = ComputeHash(sha256, new byte[0], password);
+                return BsonUtils.ToHexString(hash);
             }
         }
 
-        private static void TransformFinalBlock(HashAlgorithm hash, SecureString secureString)
+        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, SecureString password)
         {
-            var bstr = Marshal.SecureStringToBSTR(secureString);
-            try
+            if (password.Length == 0)
             {
-                var passwordChars = new char[secureString.Length];
-                var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
+                return ComputeHash(algorithm, prefixBytes, new byte[0]);
+            }
+            else
+            {
+#if NET45
+                var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(password);
+#else
+                var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
+#endif
                 try
                 {
-                    Marshal.Copy(bstr, passwordChars, 0, passwordChars.Length);
-
-                    var passwordBytes = new byte[secureString.Length * 3]; // worst case for UTF16 to UTF8 encoding
-                    var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
+                    var passwordChars = new char[password.Length];
+                    var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
                     try
                     {
-                        var encoding = Utf8Encodings.Strict;
-                        var length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-                        hash.TransformFinalBlock(passwordBytes, 0, length);
+                        Marshal.Copy(passwordIntPtr, passwordChars, 0, password.Length);
+
+                        return ComputeHash(algorithm, prefixBytes, passwordChars);
                     }
                     finally
                     {
-                        Array.Clear(passwordBytes, 0, passwordBytes.Length);
-                        passwordBytesHandle.Free();
+                        Array.Clear(passwordChars, 0, passwordChars.Length);
+                        passwordCharsHandle.Free();
                     }
                 }
                 finally
                 {
-                    Array.Clear(passwordChars, 0, passwordChars.Length);
-                    passwordCharsHandle.Free();
+                    Marshal.ZeroFreeGlobalAllocUnicode(passwordIntPtr);
                 }
+            }
+        }
+
+        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, char[] passwordChars)
+        {
+            var passwordBytes = new byte[Utf8Encodings.Strict.GetByteCount(passwordChars)];
+            var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
+            try
+            {
+                Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
+
+                return ComputeHash(algorithm, prefixBytes, passwordBytes);
             }
             finally
             {
-                Marshal.ZeroFreeBSTR(bstr);
+                Array.Clear(passwordBytes, 0, passwordBytes.Length);
+                passwordBytesHandle.Free();
+            }
+        }
+
+        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, byte[] passwordBytes)
+        {
+            var buffer = new byte[prefixBytes.Length + passwordBytes.Length];
+            var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            try
+            {
+                Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
+                Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordBytes.Length);
+
+                return algorithm.ComputeHash(buffer);
+            }
+            finally
+            {
+                Array.Clear(buffer, 0, buffer.Length);
+                bufferHandle.Free();
             }
         }
     }

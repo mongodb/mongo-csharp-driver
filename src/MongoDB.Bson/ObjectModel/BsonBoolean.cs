@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON boolean value.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
     {
         // private static fields
@@ -29,7 +31,7 @@ namespace MongoDB.Bson
         private static BsonBoolean __trueInstance = new BsonBoolean(true);
 
         // private fields
-        private bool _value;
+        private readonly bool _value;
 
         // constructors
         /// <summary>

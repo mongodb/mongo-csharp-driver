@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,10 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Dotnet")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Tests.Dotnet")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Tests.Dotnet")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.TestHelpers")]

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +24,14 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a Stream used by the application to write data to a GridFS file.
     /// </summary>
-    public abstract class GridFSUploadStream : Stream
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
+    public abstract class GridFSUploadStream<TFileId> : Stream
     {
+        // constructors
+        internal GridFSUploadStream()
+        {
+        }
+
         // public properties
         /// <summary>
         /// Gets the id of the file being added to GridFS.
@@ -32,9 +39,18 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The id of the file being added to GridFS.
         /// </value>
-        public abstract ObjectId Id { get; }
+        public abstract TFileId Id { get; }
 
         // public methods
+        /// <summary>
+        /// Aborts an upload operation.
+        /// </summary>
+        /// <remarks>
+        /// Any partial results already written to the server are deleted when Abort is called.
+        /// </remarks>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Abort(CancellationToken cancellationToken = default(CancellationToken));
+
         /// <summary>
         /// Aborts an upload operation.
         /// </summary>
@@ -44,6 +60,26 @@ namespace MongoDB.Driver.GridFS
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+        /// <summary>
+        /// Closes the GridFS stream.
+        /// </summary>
+        public virtual void Close()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+#endif
+
+        /// <summary>
+        /// Closes the Stream and completes the upload operation.
+        /// </summary>
+        /// <remarks>
+        /// Any data remaining in the Stream is flushed to the server and the GridFS files collection document is written.
+        /// </remarks>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public abstract void Close(CancellationToken cancellationToken);
 
         /// <summary>
         /// Closes the Stream and completes the upload operation.

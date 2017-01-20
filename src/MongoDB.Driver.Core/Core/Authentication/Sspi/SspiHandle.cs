@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.ConstrainedExecution;
+#endif
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -58,7 +60,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <summary>
         /// Sets to invalid.
         /// </summary>
+#if NET45
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         public void SetToInvalid()
         {
             _hi = IntPtr.Zero;

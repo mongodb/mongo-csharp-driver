@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,6 +26,43 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public class JsonReader : BsonReader
     {
+        #region static
+        private static readonly string[] __variableLengthIso8601Formats = new string[]
+        {
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFzz",
+            "yyyyMMddTHHmmss.FFFFFFFK",
+            "yyyyMMddTHHmmss.FFFFFFFzz"
+        };
+
+        private static readonly string[][] __fixedLengthIso8601Formats = new string[][]
+        {
+            null, // length = 0
+            null, // length = 1
+            null, // length = 2
+            null, // length = 3
+            new [] { "yyyy" }, // length = 4
+            null, // length = 5
+            null, // length = 6
+            new [] { "yyyy-MM" }, // length = 7
+            new [] { "yyyyMMdd" }, // length = 8
+            null, // length = 9
+            new [] { "yyyy-MM-dd" }, // length = 10
+            new [] { "yyyyMMddTHH" }, // length = 11
+            new [] { "yyyyMMddTHHZ" }, // length = 12
+            new [] { "yyyy-MM-ddTHH" , "yyyyMMddTHHmm" }, // length = 13
+            new [] { "yyyy-MM-ddTHHZ", "yyyyMMddTHHmmZ", "yyyyMMddTHHzz" }, // length = 14
+            null, // length = 15
+            new [] { "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHHzz", "yyyyMMddTHHmmssZ", "yyyyMMddTHHmmzz" }, // length = 16
+            new [] { "yyyy-MM-ddTHH:mmZ", "yyyyMMddTHHzzz" }, // length = 17
+            new [] { "yyyyMMddTHHmmsszz" }, // length = 18
+            new [] { "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHHzzz", "yyyy-MM-ddTHH:mmzz", "yyyyMMddTHHmmzzz" }, // length = 19
+            null, // length = 20
+            null, // length = 21
+            new [] { "yyyy-MM-ddTHH:mmzzz", "yyyy-MM-ddTHH:mm:sszz" } // length = 22
+        };
+        #endregion
+
         // private fields
         private readonly JsonBuffer _buffer;
         private readonly JsonReaderSettings _jsonReaderSettings; // same value as in base class just declared as derived class
@@ -284,6 +321,10 @@ namespace MongoDB.Bson.IO
                             CurrentBsonType = BsonType.MinKey;
                             _currentValue = BsonMinKey.Value;
                             break;
+                        case "NumberDecimal":
+                            CurrentBsonType = BsonType.Decimal128;
+                            _currentValue = ParseNumberDecimalConstructor();
+                            break;
                         case "Number":
                         case "NumberInt":
                             CurrentBsonType = BsonType.Int32;
@@ -393,6 +434,15 @@ namespace MongoDB.Bson.IO
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             State = GetNextState();
             return _currentValue.AsBsonDateTime.MillisecondsSinceEpoch;
+        }
+
+        /// <inheritdoc />
+        public override Decimal128 ReadDecimal128()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType(nameof(ReadDecimal128), BsonType.Decimal128);
+            State = GetNextState();
+            return _currentValue.AsDecimal128;
         }
 
         /// <summary>
@@ -851,7 +901,7 @@ namespace MongoDB.Bson.IO
                 offset = -offset;
                 offsetSign = "-";
             }
-            var timeZone = TimeZone.CurrentTimeZone;
+            var timeZone = TimeZoneInfo.Local;
             var timeZoneName = local.IsDaylightSavingTime() ? timeZone.DaylightName : timeZone.StandardName;
             var dateTimeString = string.Format(
                 "{0} GMT{1}{2:D2}{3:D2} ({4})",
@@ -1013,8 +1063,17 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             VerifyToken(")");
-            var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
-            var utcDateTime = DateTime.ParseExact(valueToken.StringValue, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+            var value = valueToken.StringValue;
+            string[] formats = null;
+            if (!value.Contains(".") && value.Length < __fixedLengthIso8601Formats.Length)
+            {
+                formats = __fixedLengthIso8601Formats[value.Length];
+            }
+            if (formats == null)
+            {
+                formats = __variableLengthIso8601Formats;
+            }
+            var utcDateTime = DateTime.ParseExact(value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
             return new BsonDateTime(utcDateTime);
         }
 
@@ -1158,6 +1217,7 @@ namespace MongoDB.Bson.IO
                     case "$date": _currentValue = ParseDateTimeExtendedJson(); return BsonType.DateTime;
                     case "$maxkey": case "$maxKey": _currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
                     case "$minkey": case "$minKey": _currentValue = ParseMinKeyExtendedJson(); return BsonType.MinKey;
+                    case "$numberDecimal": _currentValue = ParseNumberDecimalExtendedJson(); return BsonType.Decimal128;
                     case "$numberLong": _currentValue = ParseNumberLongExtendedJson(); return BsonType.Int64;
                     case "$oid": _currentValue = ParseObjectIdExtendedJson(); return BsonType.ObjectId;
                     case "$regex": _currentValue = ParseRegularExpressionExtendedJson(); return BsonType.RegularExpression;
@@ -1364,6 +1424,9 @@ namespace MongoDB.Bson.IO
                 case "ISODate":
                     value = ParseISODateTimeConstructor();
                     return BsonType.DateTime;
+                case "NumberDecimal":
+                    value = ParseNumberDecimalConstructor();
+                    return BsonType.Decimal128;
                 case "NumberInt":
                     value = ParseNumberConstructor();
                     return BsonType.Int32;
@@ -1417,6 +1480,28 @@ namespace MongoDB.Bson.IO
             return (BsonInt32)value;
         }
 
+        private BsonValue ParseNumberDecimalConstructor()
+        {
+            VerifyToken("(");
+            var valueToken = PopToken();
+            Decimal128 value;
+            if (valueToken.Type == JsonTokenType.String)
+            {
+                value = Decimal128.Parse(valueToken.StringValue);
+            }
+            else if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
+            {
+                value = new Decimal128(valueToken.Int64Value);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer or a string but found '{0}'.", valueToken.Lexeme);
+                throw new FormatException(message);
+            }
+            VerifyToken(")");
+            return (BsonDecimal128)value;
+        }
+
         private BsonValue ParseNumberLongConstructor()
         {
             VerifyToken("(");
@@ -1437,6 +1522,30 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken(")");
             return (BsonInt64)value;
+        }
+
+        private BsonValue ParseNumberDecimalExtendedJson()
+        {
+            VerifyToken(":");
+
+            Decimal128 value;
+            var valueToken = PopToken();
+            if (valueToken.Type == JsonTokenType.String)
+            {
+                value = Decimal128.Parse(valueToken.StringValue);
+            }
+            else if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
+            {
+                value = new Decimal128(valueToken.Int64Value);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected a string or an integer but found '{0}'.", valueToken.Lexeme);
+                throw new FormatException(message);
+            }
+
+            VerifyToken("}");
+            return (BsonDecimal128)value;
         }
 
         private BsonValue ParseNumberLongExtendedJson()

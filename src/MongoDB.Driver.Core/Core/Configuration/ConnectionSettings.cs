@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -32,28 +33,43 @@ namespace MongoDB.Driver.Core.Configuration
         #endregion
 
         // fields
+        private readonly string _applicationName;
         private readonly IReadOnlyList<IAuthenticator> _authenticators;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionSettings"/> class.
+        /// Initializes a new instance of the <see cref="ConnectionSettings" /> class.
         /// </summary>
         /// <param name="authenticators">The authenticators.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
+        /// <param name="applicationName">The application name.</param>
         public ConnectionSettings(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
-            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
+            Optional<string> applicationName = default(Optional<string>))
         {
             _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
+            _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }
 
         // properties
+        /// <summary>
+        /// Gets the name of the application.
+        /// </summary>
+        /// <value>
+        /// The name of the application.
+        /// </value>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+        }
+
         /// <summary>
         /// Gets the authenticators.
         /// </summary>
@@ -94,16 +110,19 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="authenticators">The authenticators.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
+        /// <param name="applicationName">The application name.</param>
         /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
-            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
+            Optional<string> applicationName = default(Optional<string>))
         {
             return new ConnectionSettings(
                 authenticators: Optional.Enumerable(authenticators.WithDefault(_authenticators)),
                 maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
-                maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime));
+                maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime),
+                applicationName: applicationName.WithDefault(_applicationName));
         }
     }
 }

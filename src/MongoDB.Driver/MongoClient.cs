@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -47,7 +48,7 @@ namespace MongoDB.Driver
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
         {
-            _settings = settings.FrozenCopy();
+            _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor();
         }
@@ -70,8 +71,8 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(IOperationExecutor operationExecutor)
-            : this()
+        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)
+            : this(settings)
         {
             _operationExecutor = operationExecutor;
         }
@@ -100,10 +101,28 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
+        public sealed override void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
+
+            using (var binding = new WritableServerBinding(_cluster))
+            {
+                _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
         public sealed override async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
 
             using (var binding = new WritableServerBinding(_cluster))
             {
@@ -124,6 +143,18 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
+        public sealed override IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
+
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            {
+                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
         public sealed override async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -133,6 +164,33 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoClient(_operationExecutor, newSettings);
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoClient(_operationExecutor, newSettings);
+        }
+
+        /// <inheritdoc/>
+        public override IMongoClient WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         // private methods

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,11 +32,14 @@ namespace MongoDB.Driver
     public class MongoClientSettings : IEquatable<MongoClientSettings>, IInheritableMongoClientSettings
     {
         // private fields
+        private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
         private GuidRepresentation _guidRepresentation;
+        private TimeSpan _heartbeatInterval;
+        private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
@@ -69,10 +72,13 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoClientSettings()
         {
+            _applicationName = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _guidRepresentation = MongoDefaults.GuidRepresentation;
+            _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
+            _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -96,6 +102,19 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value));
+            }
+        }
+
         /// <summary>
         /// Gets or sets the cluster configurator.
         /// </summary>
@@ -171,6 +190,32 @@ namespace MongoDB.Driver
         public bool IsFrozen
         {
             get { return _isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets the heartbeat interval.
+        /// </summary>
+        public TimeSpan HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _heartbeatInterval = Ensure.IsGreaterThanZero(value, nameof(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _heartbeatTimeout = Ensure.IsGreaterThanZero(value, nameof(value));
+            }
         }
 
         /// <summary>
@@ -497,20 +542,17 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
-            var credential = MongoCredential.FromComponents(
-                url.AuthenticationMechanism,
-                url.AuthenticationSource ?? url.DatabaseName,
-                url.Username,
-                url.Password);
+            var credential = url.GetCredential();
 
             var clientSettings = new MongoClientSettings();
+            clientSettings.ApplicationName = url.ApplicationName;
             clientSettings.ConnectionMode = url.ConnectionMode;
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
                 foreach (var property in url.AuthenticationMechanismProperties)
                 {
-                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.OrdinalIgnoreCase))
                     {
                         credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
                     }
@@ -522,6 +564,8 @@ namespace MongoDB.Driver
                 clientSettings.Credentials = new[] { credential };
             }
             clientSettings.GuidRepresentation = url.GuidRepresentation;
+            clientSettings.HeartbeatInterval = url.HeartbeatInterval;
+            clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
@@ -553,11 +597,14 @@ namespace MongoDB.Driver
         public MongoClientSettings Clone()
         {
             var clone = new MongoClientSettings();
+            clone._applicationName = _applicationName;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._guidRepresentation = _guidRepresentation;
+            clone._heartbeatInterval = _heartbeatInterval;
+            clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
@@ -605,11 +652,14 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoClientSettings)obj;
             return
+                _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
                 _guidRepresentation == rhs._guidRepresentation &&
+                _heartbeatInterval == rhs._heartbeatInterval &&
+                _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -675,11 +725,14 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_applicationName)
                 .Hash(_clusterConfigurator)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
                 .Hash(_guidRepresentation)
+                .Hash(_heartbeatInterval)
+                .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
@@ -715,10 +768,16 @@ namespace MongoDB.Driver
             }
 
             var sb = new StringBuilder();
+            if (_applicationName != null)
+            {
+                sb.AppendFormat("ApplicationName={0};", _applicationName);
+            }
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentials);
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
+            sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
+            sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
@@ -755,10 +814,13 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
+                _applicationName,
                 _clusterConfigurator,
                 _connectionMode,
                 _connectTimeout,
                 _credentials.ToList(),
+                _heartbeatInterval,
+                _heartbeatTimeout,
                 _ipv6,
                 _localThreshold,
                 _maxConnectionIdleTime,

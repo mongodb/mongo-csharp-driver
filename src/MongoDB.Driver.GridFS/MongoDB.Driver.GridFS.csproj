@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\MongoDB.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Driver.GridFS.XML</DocumentationFile>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CODE_ANALYSIS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MongoDB.Driver.GridFS.XML</DocumentationFile>
@@ -47,14 +47,23 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs">
+      <Link>IncrementalMD5.cs</Link>
+    </Compile>
+    <Compile Include="DelegatingStream.cs" />
+    <Compile Include="GridFSBucket.cs" />
     <Compile Include="GridFSChunkException.cs" />
     <Compile Include="GridFSDownloadStreamBase.cs" />
+    <Compile Include="GridFSDownloadStreamCompat.cs" />
     <Compile Include="GridFSException.cs" />
-    <Compile Include="GridFSFileInfoSerializer.cs" />
-    <Compile Include="GridFSFileNotFoundException.cs" />
     <Compile Include="GridFSFileInfo.cs" />
-    <Compile Include="GridFSBucket.cs" />
+    <Compile Include="GridFSFileInfoSerializer.cs" />
+    <Compile Include="GridFSFileInfoSerializerCompat.cs" />
+    <Compile Include="GridFSFileNotFoundException.cs" />
+    <Compile Include="GridFSFileInfoCompat.cs" />
+    <Compile Include="GridFSBucketCompat.cs" />
     <Compile Include="GridFSBucketOptions.cs" />
+    <Compile Include="GridFSFindOptionsCompat.cs" />
     <Compile Include="GridFSFindOptions.cs" />
     <Compile Include="GridFSForwardOnlyDownloadStream.cs" />
     <Compile Include="GridFSForwardOnlyUploadStream.cs" />
@@ -65,7 +74,11 @@
     <Compile Include="GridFSSeekableDownloadStream.cs" />
     <Compile Include="GridFSUploadOptions.cs" />
     <Compile Include="GridFSUploadStream.cs" />
+    <Compile Include="GridFSUploadStreamCompat.cs" />
+    <Compile Include="IGridFSBucketCompat.cs" />
     <Compile Include="IGridFSBucket.cs" />
+    <Compile Include="IGridFSBucketExtensions.cs" />
+    <Compile Include="IGridFSFileInfoSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamExtensions.cs" />
   </ItemGroup>
@@ -87,7 +100,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
+    <Analyzer Include="..\..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

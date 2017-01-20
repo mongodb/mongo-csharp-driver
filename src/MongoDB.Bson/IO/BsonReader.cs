@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -173,6 +173,9 @@ namespace MongoDB.Bson.IO
         /// <returns>The number of milliseconds since the Unix epoch.</returns>
         public abstract long ReadDateTime();
 
+        /// <inheritdoc />
+        public abstract Decimal128 ReadDecimal128();
+
         /// <summary>
         /// Reads a BSON Double from the reader.
         /// </summary>
@@ -275,7 +278,13 @@ namespace MongoDB.Bson.IO
                 var endPosition = memoryStream.Position;
                 bsonWriter.WriteEndDocument();
 
-                var buffer = new ByteArrayBuffer(memoryStream.GetBuffer(), (int)memoryStream.Length, isReadOnly: true);
+                byte[] memoryStreamBuffer;
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+                memoryStreamBuffer = memoryStream.ToArray();
+#else
+                memoryStreamBuffer = memoryStream.GetBuffer();
+#endif
+                var buffer = new ByteArrayBuffer(memoryStreamBuffer, (int)memoryStream.Length, isReadOnly: true);
                 return new ByteBufferSlice(buffer, (int)startPosition, (int)(endPosition - startPosition));
             }
         }

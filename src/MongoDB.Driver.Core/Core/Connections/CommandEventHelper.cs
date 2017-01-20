@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private static readonly string[] __writeConcernIndicators = new[] { "wtimeout", "jnote", "wnote" };
-        private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "authenticate",
             "saslStart",
@@ -200,20 +200,23 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            var pairs = _state.ToList();
-            _state.Clear();
-            foreach (var pair in pairs)
+            var requestIds = _state.Keys;
+            foreach (var requestId in requestIds)
             {
-                pair.Value.Stopwatch.Stop();
-                var @event = new CommandFailedEvent(
-                    pair.Value.CommandName,
-                    exception,
-                    pair.Value.OperationId,
-                    pair.Key,
-                    connectionId,
-                    pair.Value.Stopwatch.Elapsed);
+                CommandState state;
+                if (_state.TryRemove(requestId, out state))
+                {
+                    state.Stopwatch.Stop();
+                    var @event = new CommandFailedEvent(
+                        state.CommandName,
+                        exception,
+                        state.OperationId,
+                        requestId,
+                        connectionId,
+                        state.Stopwatch.Elapsed);
 
-                _failedEvent(@event);
+                    _failedEvent(@event);
+                }
             }
         }
 
@@ -599,7 +602,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             finally
             {
-                if (disposeOfDocuments)
+                if (disposeOfDocuments && replyMessage.Documents != null)
                 {
                     replyMessage.Documents.ForEach(d => d.Dispose());
                 }

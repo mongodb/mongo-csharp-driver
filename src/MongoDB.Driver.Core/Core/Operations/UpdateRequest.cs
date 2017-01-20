@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     public sealed class UpdateRequest : WriteRequest
     {
         // fields
+        private Collation _collation;
         private readonly BsonDocument _filter;
         private bool _isMulti;
         private bool _isUpsert;
@@ -43,9 +45,22 @@ namespace MongoDB.Driver.Core.Operations
             _updateType = updateType;
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _update = Ensure.IsNotNull(update, nameof(update));
+            if (updateType == UpdateType.Update && _update.ElementCount == 0)
+            {
+                throw new ArgumentException("Updates must have at least 1 update operator.", nameof(update));
+            }
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets the filter.
         /// </summary>

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             // public methods
             public void Apply(BsonClassMap classMap)
             {
-                foreach (IBsonClassMapAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonClassMapAttribute), false))
+                foreach (var attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(inherit: false).OfType<IBsonClassMapAttribute>())
                 {
                     attribute.Apply(classMap);
                 }
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 if (creatorMap.MemberInfo != null)
                 {
-                    foreach (IBsonCreatorMapAttribute attribute in creatorMap.MemberInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false))
+                    foreach (var attribute in creatorMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<IBsonCreatorMapAttribute>())
                     {
                         attribute.Apply(creatorMap);
                     }
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             public void Apply(BsonMemberMap memberMap)
             {
-                var attributes = memberMap.MemberInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Cast<IBsonMemberMapAttribute>();
+                var attributes = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>();
                 var groupings = attributes.GroupBy(a => (a is BsonSerializerAttribute) ? 1 : 2);
                 foreach (var grouping in groupings.OrderBy(g => g.Key))
                 {
@@ -102,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             public void PostProcess(BsonClassMap classMap)
             {
-                foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonPostProcessingAttribute), false))
+                foreach (var attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(inherit: false).OfType<IBsonPostProcessingAttribute>())
                 {
                     attribute.PostProcess(classMap);
                 }
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             // private methods
             private bool AllowsDuplicate(Type type)
             {
-                var usageAttribute = type.GetCustomAttributes(typeof(BsonMemberMapAttributeUsageAttribute), true)
+                var usageAttribute = type.GetTypeInfo().GetCustomAttributes(inherit: true)
                     .OfType<BsonMemberMapAttributeUsageAttribute>()
                     .SingleOrDefault();
 
@@ -121,9 +121,9 @@ namespace MongoDB.Bson.Serialization.Conventions
             private void OptInMembersWithBsonCreatorMapModifierAttribute(BsonClassMap classMap)
             {
                 // let other constructors opt-in if they have any IBsonCreatorMapAttribute attributes
-                foreach (var constructorInfo in classMap.ClassType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var constructorInfo in classMap.ClassType.GetTypeInfo().GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    var hasAttribute = constructorInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+                    var hasAttribute = constructorInfo.GetCustomAttributes(inherit: false).OfType<IBsonCreatorMapAttribute>().Any();
                     if (hasAttribute)
                     {
                         classMap.MapConstructor(constructorInfo);
@@ -131,9 +131,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 // let other static factory methods opt-in if they have any IBsonCreatorMapAttribute attributes
-                foreach (var methodInfo in classMap.ClassType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var methodInfo in classMap.ClassType.GetTypeInfo().GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    var hasAttribute = methodInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+                    var hasAttribute = methodInfo.GetCustomAttributes(inherit: false).OfType<IBsonCreatorMapAttribute>().Any();
                     if (hasAttribute)
                     {
                         classMap.MapFactoryMethod(methodInfo);
@@ -144,9 +144,9 @@ namespace MongoDB.Bson.Serialization.Conventions
             private void OptInMembersWithBsonMemberMapModifierAttribute(BsonClassMap classMap)
             {
                 // let other fields opt-in if they have any IBsonMemberMapAttribute attributes
-                foreach (var fieldInfo in classMap.ClassType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var fieldInfo in classMap.ClassType.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    var hasAttribute = fieldInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Any();
+                    var hasAttribute = fieldInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>().Any();
                     if (hasAttribute)
                     {
                         classMap.MapMember(fieldInfo);
@@ -154,9 +154,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 // let other properties opt-in if they have any IBsonMemberMapAttribute attributes
-                foreach (var propertyInfo in classMap.ClassType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var propertyInfo in classMap.ClassType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    var hasAttribute = propertyInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false).Any();
+                    var hasAttribute = propertyInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>().Any();
                     if (hasAttribute)
                     {
                         classMap.MapMember(propertyInfo);
@@ -168,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 foreach (var memberMap in classMap.DeclaredMemberMaps.ToList())
                 {
-                    var ignoreAttribute = (BsonIgnoreAttribute)memberMap.MemberInfo.GetCustomAttributes(typeof(BsonIgnoreAttribute), false).FirstOrDefault();
+                    var ignoreAttribute = (BsonIgnoreAttribute)memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<BsonIgnoreAttribute>().FirstOrDefault();
                     if (ignoreAttribute != null)
                     {
                         classMap.UnmapMember(memberMap.MemberInfo);
@@ -181,7 +181,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 var nonDuplicatesAlreadySeen = new List<Type>();
                 foreach (var memberMap in classMap.DeclaredMemberMaps)
                 {
-                    var attributes = (IBsonMemberMapAttribute[])memberMap.MemberInfo.GetCustomAttributes(typeof(IBsonMemberMapAttribute), false);
+                    var attributes = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>();
                     // combine them only if the modifier isn't already in the attributes list...
                     var attributeTypes = attributes.Select(x => x.GetType());
                     foreach (var attributeType in attributeTypes)

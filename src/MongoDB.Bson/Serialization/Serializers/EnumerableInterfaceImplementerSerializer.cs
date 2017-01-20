@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -153,18 +154,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             // find and call a constructor that we can pass the accumulator to
             var accumulatorType = accumulator.GetType();
-            foreach (var constructorInfo in typeof(TValue).GetConstructors())
+            foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
             {
                 var parameterInfos = constructorInfo.GetParameters();
-                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.IsAssignableFrom(accumulatorType))
+                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
                 {
                     return (TValue)constructorInfo.Invoke(new object[] { accumulator });
                 }
             }
 
             // otherwise try to find a no-argument constructor and an Add method
-            var noArgumentConstructorInfo = typeof(TValue).GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetMethod("Add", new Type[] { typeof(TItem) });
+            var valueTypeInfo = typeof(TValue).GetTypeInfo();
+            var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
+            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {
                 var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });

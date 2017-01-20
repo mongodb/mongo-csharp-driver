@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "FluentAssertions": "4.11.0",
+    "xunit": "2.2.0-beta2-build3300"
+  },
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Bson.TestHelpers/**/*.cs" ]
+    },
+    "define": [ "DEBUG", "TRACE" ]
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      },
+      "imports": ["dnxcore50"]
+    }
+  }
+}

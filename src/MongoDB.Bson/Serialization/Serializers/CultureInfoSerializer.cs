@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Globalization;
 using MongoDB.Bson.IO;
 
@@ -63,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.Document:
                     string name = null;
-                    bool useUserOverride = false;
+                    bool useUserOverride = true;
                     _helper.DeserializeMembers(context, (elementName, flag) =>
                     {
                         switch (flag)
@@ -72,7 +73,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case Flags.UseUserOverride: useUserOverride = _booleanSerializer.Deserialize(context); break;
                         }
                     });
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+                                        if (!useUserOverride)
+                    {
+                        throw new FormatException("CultureInfo does not support useUserOverride on this version of the .NET Framework.");
+                    }
+                    return new CultureInfo(name);
+#else
                     return new CultureInfo(name, useUserOverride);
+#endif
 
                 case BsonType.String:
                     return new CultureInfo(bsonReader.ReadString());
@@ -92,7 +101,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            if (value.UseUserOverride)
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var useUserOverride = true;
+#else
+            var useUserOverride = value.UseUserOverride;
+#endif
+
+            if (useUserOverride)
             {
                 // the default for UseUserOverride is true so we don't need to serialize it
                 bsonWriter.WriteString(value.Name);
@@ -101,7 +116,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("Name", value.Name);
-                bsonWriter.WriteBoolean("UseUserOverride", value.UseUserOverride);
+                bsonWriter.WriteBoolean("UseUserOverride", useUserOverride);
                 bsonWriter.WriteEndDocument();
             }
         }

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _dropTarget;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly CollectionNamespace _newCollectionNamespace;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -98,20 +99,33 @@ namespace MongoDB.Driver.Core.Operations
             get { return _newCollectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             return new BsonDocument
             {
                 { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
-                { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue }
+                { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation()
+        private WriteCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
@@ -119,16 +133,32 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return operation.Execute(binding, cancellationToken);
+
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
+            }
         }
 
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            {
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
+            }
         }
     }
 }

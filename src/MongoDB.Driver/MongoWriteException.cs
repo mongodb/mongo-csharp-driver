@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 
@@ -23,7 +25,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a write exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoWriteException : MongoServerException
     {
         // static
@@ -59,6 +63,7 @@ namespace MongoDB.Driver
             _writeConcernError = writeConcernError;
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -70,6 +75,7 @@ namespace MongoDB.Driver
             _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
             _writeError = (WriteError)info.GetValue("_writeError", typeof(WriteError));
         }
+#endif
 
         // properties
         /// <summary>
@@ -89,6 +95,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <summary>
         /// Gets the object data.
         /// </summary>
@@ -100,6 +107,7 @@ namespace MongoDB.Driver
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeError", _writeError);
         }
+#endif
 
         // private static methods
         private static string FormatMessage(WriteError writeError, WriteConcernError writeConcernError)

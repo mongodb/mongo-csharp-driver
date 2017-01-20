@@ -1,0 +1,37 @@
+﻿{
+  "version": "2.4.2-*",
+
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Dotnet": { "target": "project" }
+  },
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver.GridFS/**/*.cs", "../MongoDB.Shared/IncrementalMD5.cs" ]
+    },
+    "warningsAsErrors": true,
+    "outputName" : "MongoDB.Driver.GridFS",
+    "xmlDoc": true
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  }
+}

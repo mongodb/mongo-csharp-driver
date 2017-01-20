@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -104,15 +99,18 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
+
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
                 { "query", _filter },
-                { "sort", _sort, _sort != null },
                 { "remove", true },
+                { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && SupportedFeatures.IsFindAndModifyWriteConcernSupported(serverVersion) }
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
+                { "collation", () => Collation.ToBsonDocument(), Collation != null }
             };
         }
 

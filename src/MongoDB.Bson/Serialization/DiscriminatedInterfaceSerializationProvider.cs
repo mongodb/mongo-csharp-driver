@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -30,13 +31,14 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
-            if (type.IsGenericType && type.ContainsGenericParameters)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
             }
 
-            if (type.IsInterface)
+            if (typeInfo.IsInterface)
             {
                 var serializerTypeDefinition = typeof(DiscriminatedInterfaceSerializer<>);
                 return CreateGenericSerializer(serializerTypeDefinition, new[] { type }, serializerRegistry);

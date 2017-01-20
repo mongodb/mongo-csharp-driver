@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -23,10 +25,12 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFSFileNotFound exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class GridFSFileNotFoundException : GridFSException
     {
-        #region static
+#region static
         private static string FormatMessage(BsonValue id)
         {
             Ensure.IsNotNull(id, nameof(id));
@@ -38,7 +42,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             return string.Format("GridFS file not found: revision {0} of filename \"{1}\".", revision, filename);
         }
-        #endregion
+#endregion
 
         // constructors
         /// <summary>
@@ -60,6 +64,7 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSFileNotFoundException"/> class.
         /// </summary>
@@ -69,5 +74,6 @@ namespace MongoDB.Driver.GridFS
             : base(info, context)
         {
         }
+#endif
     }
 }

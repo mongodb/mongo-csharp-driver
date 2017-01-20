@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -55,6 +57,102 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IAsyncCursorExtensions
     {
+        /// <summary>
+        /// Determines whether the cursor contains any documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>True if the cursor contains any documents.</returns>
+        public static bool Any<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = GetFirstBatch(cursor, cancellationToken);
+                return batch.Any();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the cursor contains any documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is true if the cursor contains any documents.</returns>
+        public static async Task<bool> AnyAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
+                return batch.Any();
+            }
+        }
+
+        /// <summary>
+        /// Returns the first document of a cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The first document.</returns>
+        public static TDocument First<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = GetFirstBatch(cursor, cancellationToken);
+                return batch.First();
+            }
+        }
+
+        /// <summary>
+        /// Returns the first document of a cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the first document.</returns>
+        public static async Task<TDocument> FirstAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
+                return batch.First();
+            }
+        }
+
+        /// <summary>
+        /// Returns the first document of a cursor, or a default value if the cursor contains no documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The first document of the cursor, or a default value if the cursor contains no documents.</returns>
+        public static TDocument FirstOrDefault<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = GetFirstBatch(cursor, cancellationToken);
+                return batch.FirstOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Returns the first document of the cursor, or a default value if the cursor contains no documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task whose result is the first document of the cursor, or a default value if the cursor contains no documents.</returns>
+        public static async Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
+                return batch.FirstOrDefault();
+            }
+        }
+
         /// <summary>
         /// Calls a delegate for each document returned by the cursor.
         /// </summary>
@@ -150,6 +248,84 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Returns the only document of a cursor. This method throws an exception if the cursor does not contain exactly one document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The only document of a cursor.</returns>
+        public static TDocument Single<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = GetFirstBatch(cursor, cancellationToken);
+                return batch.Single();
+            }
+        }
+
+        /// <summary>
+        /// Returns the only document of a cursor. This method throws an exception if the cursor does not contain exactly one document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the only document of a cursor.</returns>
+        public static async Task<TDocument> SingleAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
+                return batch.Single();
+            }
+        }
+
+        /// <summary>
+        /// Returns the only document of a cursor, or a default value if the cursor contains no documents.
+        /// This method throws an exception if the cursor contains more than one document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The only document of a cursor, or a default value if the cursor contains no documents.</returns>
+        public static TDocument SingleOrDefault<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = GetFirstBatch(cursor, cancellationToken);
+                return batch.SingleOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Returns the only document of a cursor, or a default value if the cursor contains no documents.
+        /// This method throws an exception if the cursor contains more than one document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the only document of a cursor, or a default value if the cursor contains no documents.</returns>
+        public static async Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (cursor)
+            {
+                var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
+                return batch.SingleOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Wraps a cursor in an IEnumerable that can be enumerated one time.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An IEnumerable</returns>
+        public static IEnumerable<TDocument> ToEnumerable<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return new AsyncCursorEnumerableOneTimeAdapter<TDocument>(cursor, cancellationToken);
+        }
+
+        /// <summary>
         /// Returns a list containing all the documents returned by a cursor.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -199,6 +375,31 @@ namespace MongoDB.Driver
                 }
             }
             return list;
+        }
+
+        // private methods
+        private static IEnumerable<TDocument> GetFirstBatch<TDocument>(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
+        {
+            if (cursor.MoveNext(cancellationToken))
+            {
+                return cursor.Current;
+            }
+            else
+            {
+                return Enumerable.Empty<TDocument>();
+            }
+        }
+
+        private static async Task<IEnumerable<TDocument>> GetFirstBatchAsync<TDocument>(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
+        {
+            if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+            {
+                return cursor.Current;
+            }
+            else
+            {
+                return Enumerable.Empty<TDocument>();
+            }
         }
     }
 }

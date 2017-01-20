@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Support;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -527,7 +526,10 @@ namespace MongoDB.Driver
         {
             var databaseNamespace = new DatabaseNamespace(databaseName);
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(databaseNamespace, messageEncoderSettings);
+            var operation = new DropDatabaseOperation(databaseNamespace, messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
         }
@@ -769,6 +771,42 @@ namespace MongoDB.Driver
             var serverSelector = new EndPointServerSelector(endPoint);
             var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? ReadPreference.Primary : ReadPreference.Secondary;
             return RequestStart(serverSelector, coreReadPreference);
+        }
+
+        /// <summary>
+        /// Returns a new MongoServer instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoServer instance with a different read concern setting.</returns>
+        public virtual MongoServer WithReadConcern(ReadConcern readConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoServer(newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoServer instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoServer instance with a different read preference setting.</returns>
+        public virtual MongoServer WithReadPreference(ReadPreference readPreference)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoServer(newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoServer instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new MongoServer instance with a different write concern setting.</returns>
+        public virtual MongoServer WithWriteConcern(WriteConcern writeConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoServer(newSettings);
         }
 
         // internal methods

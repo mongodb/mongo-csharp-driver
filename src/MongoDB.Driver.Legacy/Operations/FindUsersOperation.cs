@@ -27,11 +27,6 @@ namespace MongoDB.Driver.Operations
 {
     internal class FindUsersOperation : IReadOperation<IEnumerable<BsonDocument>>
     {
-        #region static
-        // static fields
-        private static readonly SemanticVersion __serverVersionSupportingUserManagementCommands = new SemanticVersion(2, 6, 0);
-        #endregion
-
         // fields
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -57,7 +52,7 @@ namespace MongoDB.Driver.Operations
             {
                 IReadOperation<IEnumerable<BsonDocument>> operation;
 
-                if (channel.ConnectionDescription.ServerVersion >= __serverVersionSupportingUserManagementCommands)
+                if (Feature.UserManagementCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
                 {
                     operation = new FindUsersUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }

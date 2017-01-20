@@ -1,0 +1,36 @@
+{
+  "version": "2.4.2-*",
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.Dotnet": { "target": "project" }
+  },
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver/**/*.cs", "../MongoDB.Shared/ApplicationNameHelper.cs", "../MongoDB.Shared/Hasher.cs" ]
+    },
+    "warningsAsErrors": true,
+    "outputName" : "MongoDB.Driver",
+    "xmlDoc": true
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Linq.Queryable": "4.0.1"
+      }
+    }
+  }
+}

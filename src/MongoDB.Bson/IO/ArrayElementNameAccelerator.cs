@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,16 +74,17 @@ namespace MongoDB.Bson.IO
 
             const int asciiZero = 48;
 
-            var a = (byte)(asciiZero + index % 10);
-            index = index / 10;
-            var b = (byte)(asciiZero + index % 10);
-            index = index / 10;
-            var c = (byte)(asciiZero + index % 10);
-            index = index / 10;
-            var d = (byte)(asciiZero + index % 10);
-            index = index / 10;
+            var n = index;
+            var a = (byte)(asciiZero + n % 10);
+            n = n / 10;
+            var b = (byte)(asciiZero + n % 10);
+            n = n / 10;
+            var c = (byte)(asciiZero + n % 10);
+            n = n / 10;
+            var d = (byte)(asciiZero + n % 10);
+            n = n / 10;
 
-            if (index == 0)
+            if (n == 0)
             {
                 if (d != (byte)asciiZero) { return new[] { d, c, b, a }; }
                 if (c != (byte)asciiZero) { return new[] { c, b, a }; }
@@ -91,9 +92,9 @@ namespace MongoDB.Bson.IO
                 return new[] { a };
             }
 
-            var e = (byte)(asciiZero + index % 10);
-            index = index / 10;
-            if (index == 0) { return new[] { e, d, c, b, a }; }
+            var e = (byte)(asciiZero + n % 10);
+            n = n / 10;
+            if (n == 0) { return new[] { e, d, c, b, a }; }
 
             // really large indexes should be extremely rare and not worth optimizing further
             return Utf8Encodings.Strict.GetBytes(index.ToString());

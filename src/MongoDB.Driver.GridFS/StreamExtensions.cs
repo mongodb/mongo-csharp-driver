@@ -21,6 +21,20 @@ namespace MongoDB.Driver.GridFS
 {
     internal static class StreamExtensions
     {
+        public static void ReadBytes(this Stream stream, byte[] destination, int offset, int count, CancellationToken cancellationToken)
+        {
+            while (count > 0)
+            {
+                var bytesRead = stream.Read(destination, offset, count); // TODO: honor cancellationToken?
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
         public static async Task ReadBytesAsync(this Stream stream, byte[] destination, int offset, int count, CancellationToken cancellationToken)
         {
             while (count > 0)

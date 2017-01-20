@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (SupportedFeatures.IsListCollectionsCommandSupported(channel.ConnectionDescription.ServerVersion))
+            if (Feature.ListCollectionsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
             {
                 return new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings) { Filter = _filter };
             }

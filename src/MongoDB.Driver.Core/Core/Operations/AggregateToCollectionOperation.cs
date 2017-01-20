@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,10 +34,12 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -78,6 +80,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -125,6 +139,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _pipeline; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         // methods
         /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
@@ -136,7 +162,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.Execute(channelBinding, cancellationToken);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
@@ -150,19 +178,25 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && SupportedFeatures.IsBypassDocumentValidationSupported(serverVersion) },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 

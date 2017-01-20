@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON document.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class BsonDocument : BsonValue, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
         // constants
@@ -37,7 +39,7 @@ namespace MongoDB.Bson
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
-        private List<BsonElement> _elements = new List<BsonElement>();
+        private readonly List<BsonElement> _elements = new List<BsonElement>();
         private Dictionary<string, int> _indexes = null; // maps names to indexes into elements list (not created until there are enough elements to justify it)
         private bool _allowDuplicateNames;
 
@@ -372,10 +374,35 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocument.</returns>
         public static BsonDocument Parse(string json)
         {
-            using (var bsonReader = new JsonReader(json))
+            using (var jsonReader = new JsonReader(json))
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-                return BsonDocumentSerializer.Instance.Deserialize(context);
+                var context = BsonDeserializationContext.CreateRoot(jsonReader);
+                var document = BsonDocumentSerializer.Instance.Deserialize(context);
+                if (!jsonReader.IsAtEndOfFile())
+                {
+                    throw new FormatException("String contains extra non-whitespace characters beyond the end of the document.");
+                }
+                return document;
+            }
+        }
+
+        /// <summary>
+        /// Tries to parse a JSON string and returns a value indicating whether it succeeded or failed.
+        /// </summary>
+        /// <param name="s">The JSON string.</param>
+        /// <param name="result">The result.</param>
+        /// <returns>Whether it succeeded or failed.</returns>
+        public static bool TryParse(string s, out BsonDocument result)
+        {
+            try
+            {
+                result = Parse(s);
+                return true;
+            }
+            catch
+            {
+                result = null;
+                return false;
             }
         }
 

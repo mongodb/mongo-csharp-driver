@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the representation to use when converting a Guid to a BSON binary value.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public enum GuidRepresentation
     {
         /// <summary>

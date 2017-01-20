@@ -12,12 +12,27 @@
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>mongodb mongo nosql gridfs</tags>
     <language>en-US</language>
-    @dependencies@
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
+        <dependency id="MongoDB.Driver.Core" version="[@build.number@, )" />
+        <dependency id="MongoDB.Driver" version="[@build.number@, )" />
+      </group>
+      <group targetFramework=".NETStandard1.5">
+        <dependency id="NETStandard.Library" version="[1.6.0, )" />
+        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
+        <dependency id="MongoDB.Driver.Core" version="[@build.number@, )" />
+        <dependency id="MongoDB.Driver" version="[@build.number@, )" />
+      </group>
+    </dependencies>
   </metadata>
   <files>
     <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.pdb" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.XML" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.GridFS.xml" target="lib\net45" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.GridFS.dll" target="lib\netstandard1.5" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.GridFS.pdb" target="lib\netstandard1.5" />
+    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.GridFS.xml" target="lib\netstandard1.5" />
     <file src="License.rtf" target ="" />
     <file src="src\MongoDB.Driver.GridFS\**\*.cs" target="src\MongoDB.Driver.GridFS" />
     <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />

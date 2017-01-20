@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -85,6 +86,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -212,13 +222,15 @@ namespace MongoDB.Driver.Core.Operations
             return new AggregateExplainOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = _allowDiskUse,
+                Collation = _collation,
                 MaxTime = _maxTime
             };
         }
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
             var command = new BsonDocument
             {
@@ -226,10 +238,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
-            if (SupportedFeatures.IsAggregateCursorResultSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
+            if (Feature.AggregateCursorResult.IsSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
             {
                 command["cursor"] = new BsonDocument
                 {
@@ -248,7 +261,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
-            if (SupportedFeatures.IsAggregateCursorResultSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
+            if (Feature.AggregateCursorResult.IsSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }
@@ -258,8 +271,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
+            var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
             return new AsyncCursor<TResult>(
-                channelSource.Fork(),
+                getMoreChannelSource,
                 CollectionNamespace,
                 command,
                 result.Results,
@@ -288,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (Pipeline.Any(s => s.GetElement(0).Name == "$out"))
             {
-                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.");
+                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.", "pipeline");
             }
         }
 

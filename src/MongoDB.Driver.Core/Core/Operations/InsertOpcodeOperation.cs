@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
         // fields
+        private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
         private readonly BatchableSource<TDocument> _documentSource;
@@ -64,6 +65,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -178,7 +191,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     var result = emulator.Execute(channel, cancellationToken);
@@ -208,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     var result = await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
@@ -234,6 +247,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 ContinueOnError = _continueOnError,
                 MaxBatchCount = _maxBatchCount,
                 MaxDocumentSize = _maxDocumentSize,

@@ -148,11 +148,41 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the first result.</returns>
+        public static TProjection First<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            return IAsyncCursorSourceExtensions.First(find.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Get the first result.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the first result.</returns>
         public static Task<TProjection> FirstAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.FirstAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstAsync(find.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Get the first result or null.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the first result or null.</returns>
+        public static TProjection FirstOrDefault<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            return IAsyncCursorSourceExtensions.FirstOrDefault(find.Limit(1), cancellationToken);
         }
 
         /// <summary>
@@ -167,7 +197,26 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(find, nameof(find));
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(find.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.FirstOrDefaultAsync(find.Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets a single result.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the single result.</returns>
+        public static TProjection Single<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
+            {
+                find = find.Limit(2);
+            }
+            return IAsyncCursorSourceExtensions.Single(find, cancellationToken);
         }
 
         /// <summary>
@@ -186,7 +235,26 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.SingleAsync(find.ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleAsync(find, cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets a single result or null.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the single result or null.</returns>
+        public static TProjection SingleOrDefault<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
+            {
+                find = find.Limit(2);
+            }
+            return IAsyncCursorSourceExtensions.SingleOrDefault(find, cancellationToken);
         }
 
         /// <summary>
@@ -205,7 +273,7 @@ namespace MongoDB.Driver
             {
                 find = find.Limit(2);
             }
-            return AsyncCursorHelper.SingleOrDefaultAsync(find.ToCursorAsync(cancellationToken), cancellationToken);
+            return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(find, cancellationToken);
         }
     }
 }

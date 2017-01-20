@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -31,6 +26,7 @@ namespace MongoDB.Driver
     {
         // fields
         private bool? _bypassDocumentValidation;
+        private Collation _collation;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
@@ -47,6 +43,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.
         /// </summary>

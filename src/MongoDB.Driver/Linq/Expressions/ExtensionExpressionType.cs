@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Intersect,
         Join,
         OrderBy,
+        Reverse,
         Sample,
         Select,
         SelectMany,
@@ -37,15 +38,19 @@ namespace MongoDB.Driver.Linq.Expressions
         Take,
         Union,
         Where,
+        Zip,
 
         // Bindings
         Accumulator,
+        AggregateExpression,
         ArrayIndex,
         Collection,
         Document,
         FieldAsDocument,
         Field,
         GroupingKey,
+        InjectedFilter,
+        SerializedConstant,
 
         // Temporary
         Correlated,

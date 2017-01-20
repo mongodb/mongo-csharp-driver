@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2015 MongoDB Inc.
+﻿/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
+        /// Initializes a new instance of the <see cref="CreateIndexesUsingCommandOperation"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="requests">The requests.</param>
@@ -107,9 +107,14 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation();
-                return operation.Execute(binding, cancellationToken);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = operation.Execute(channelBinding, cancellationToken);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
@@ -117,26 +122,32 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation();
-                return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
             }
         }
 
         // private methods
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
             return new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) }
+                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument(serverVersion))) },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation()
+        private WriteCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand();
+            var command = CreateCommand(serverVersion);
             var resultSerializer = BsonDocumentSerializer.Instance;
             return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
         }

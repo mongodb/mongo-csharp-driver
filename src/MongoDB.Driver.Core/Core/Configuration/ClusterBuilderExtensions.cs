@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,6 +65,14 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureTcp(s => s.With(connectTimeout: connectionString.ConnectTimeout.Value));
             }
+            if (connectionString.HeartbeatInterval.HasValue)
+            {
+                builder = builder.ConfigureServer(s => s.With(heartbeatInterval: connectionString.HeartbeatInterval.Value));
+            }
+            if (connectionString.HeartbeatTimeout.HasValue)
+            {
+                builder = builder.ConfigureServer(s => s.With(heartbeatTimeout: connectionString.HeartbeatTimeout.Value));
+            }
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {
                 builder = builder.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
@@ -97,7 +105,10 @@ namespace MongoDB.Driver.Core.Configuration
                 var authenticator = CreateAuthenticator(connectionString);
                 builder = builder.ConfigureConnection(s => s.With(authenticators: new[] { authenticator }));
             }
-
+            if (connectionString.ApplicationName != null)
+            {
+                builder = builder.ConfigureConnection(s => s.With(applicationName: connectionString.ApplicationName));
+            }
             if (connectionString.MaxIdleTime != null)
             {
                 builder = builder.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));
@@ -210,7 +221,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private static string GetDefaultSource(ConnectionString connectionString)
         {
-            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.InvariantCultureIgnoreCase))
+            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.OrdinalIgnoreCase))
             {
                 return "$external";
             }
@@ -218,6 +229,7 @@ namespace MongoDB.Driver.Core.Configuration
             return "admin";
         }
 
+#if NET45
         /// <summary>
         /// Configures the cluster to write performance counters.
         /// </summary>
@@ -237,6 +249,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subscriber = new PerformanceCounterEventSubscriber(applicationName);
             return builder.Subscribe(subscriber);
         }
+#endif
 
         /// <summary>
         /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.

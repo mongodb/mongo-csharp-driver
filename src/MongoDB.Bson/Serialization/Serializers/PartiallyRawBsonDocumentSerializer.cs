@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -43,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 throw new ArgumentNullException("rawSerializer");
             }
-            if (!typeof(BsonValue).IsAssignableFrom(rawSerializer.ValueType))
+            if (!typeof(BsonValue).GetTypeInfo().IsAssignableFrom(rawSerializer.ValueType))
             {
                 throw new ArgumentException("RawSerializer ValueType must be a BsonValue.", "rawSerializer");
             }

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,10 +27,13 @@ namespace MongoDB.Driver
     /// Model for updating a single document.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     public sealed class UpdateOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
+        private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
         private bool _isUpsert;
         private readonly UpdateDefinition<TDocument> _update;
@@ -48,6 +51,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets the filter.
         /// </summary>

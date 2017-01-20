@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -73,26 +73,21 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            return _wrappedCollection.Aggregate(filteredPipeline, options, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            const string matchOperatorName = "$match";
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            return _wrappedCollection.AggregateAsync(filteredPipeline, options, cancellationToken);
+        }
 
-            var filterStage = new DelegatedPipelineStageDefinition<TDocument, TDocument>(
-                matchOperatorName,
-                (s, sr) =>
-                {
-                    var renderedFilter = _filter.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TDocument>(matchOperatorName, new BsonDocument(matchOperatorName, renderedFilter), s);
-                });
-
-            var filterPipeline = new PipelineStagePipelineDefinition<TDocument, TDocument>(new[] { filterStage });
-            var combinedPipeline = new CombinedPipelineDefinition<TDocument, TDocument, TResult>(
-                filterPipeline,
-                pipeline);
-
-            var optimizedPipeline = new OptimizingPipelineDefinition<TDocument, TResult>(combinedPipeline);
-
-            return _wrappedCollection.AggregateAsync(optimizedPipeline, options, cancellationToken);
+        public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.BulkWrite(CombineModelFilters(requests), options, cancellationToken);
         }
 
         public override Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -100,9 +95,19 @@ namespace MongoDB.Driver
             return _wrappedCollection.BulkWriteAsync(CombineModelFilters(requests), options, cancellationToken);
         }
 
+        public override long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.Count(CombineFilters(filter), options, cancellationToken);
+        }
+
         public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
+        }
+
+        public override IAsyncCursor<TField> Distinct<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.Distinct(field, CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -110,9 +115,19 @@ namespace MongoDB.Driver
             return _wrappedCollection.DistinctAsync(field, CombineFilters(filter), options, cancellationToken);
         }
 
+        public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.FindSync(CombineFilters(filter), options, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.FindAsync(CombineFilters(filter), options, cancellationToken);
+        }
+
+        public override TProjection FindOneAndDelete<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.FindOneAndDelete(CombineFilters(filter), options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -120,14 +135,31 @@ namespace MongoDB.Driver
             return _wrappedCollection.FindOneAndDeleteAsync(CombineFilters(filter), options, cancellationToken);
         }
 
+        public override TProjection FindOneAndReplace<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.FindOneAndReplace(CombineFilters(filter), replacement, options, cancellationToken);
+        }
+
         public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.FindOneAndReplaceAsync(CombineFilters(filter), replacement, options, cancellationToken);
         }
 
+        public override TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _wrappedCollection.FindOneAndUpdate(CombineFilters(filter), update, options, cancellationToken);
+        }
+
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.FindOneAndUpdateAsync(CombineFilters(filter), update, options, cancellationToken);
+        }
+
+        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            options = options ?? new MapReduceOptions<TDocument, TResult>();
+            options.Filter = CombineFilters(options.Filter);
+            return _wrappedCollection.MapReduce(map, reduce, options, cancellationToken);
         }
 
         public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -161,25 +193,50 @@ namespace MongoDB.Driver
                 {
                     case WriteModelType.DeleteMany:
                         var deleteManyModel = (DeleteManyModel<TDocument>)x;
-                        return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter));
+                        return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter))
+                        {
+                            Collation = deleteManyModel.Collation
+                        };
                     case WriteModelType.DeleteOne:
                         var deleteOneModel = (DeleteOneModel<TDocument>)x;
-                        return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter));
+                        return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter))
+                        {
+                            Collation = deleteOneModel.Collation
+                        };
                     case WriteModelType.InsertOne:
                         return x; // InsertOneModel has no filter
                     case WriteModelType.ReplaceOne:
                         var replaceOneModel = (ReplaceOneModel<TDocument>)x;
-                        return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement) { IsUpsert = replaceOneModel.IsUpsert };
+                        return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement)
+                        {
+                            Collation = replaceOneModel.Collation,
+                            IsUpsert = replaceOneModel.IsUpsert
+                        };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
-                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update) { IsUpsert = updateManyModel.IsUpsert };
+                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update)
+                        {
+                            Collation = updateManyModel.Collation,
+                            IsUpsert = updateManyModel.IsUpsert
+                        };
                     case WriteModelType.UpdateOne:
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
-                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update) { IsUpsert = updateOneModel.IsUpsert };
+                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update)
+                        {
+                            Collation = updateOneModel.Collation,
+                            IsUpsert = updateOneModel.IsUpsert
+                        };
                     default:
                         throw new MongoInternalException("Request type is invalid.");
                 }
             });
+        }
+
+        private PipelineDefinition<TDocument, TResult> CreateFilteredPipeline<TResult>(PipelineDefinition<TDocument, TResult> pipeline)
+        {
+            var filterStage = PipelineStageDefinitionBuilder.Match(_filter);
+            var filteredPipeline = new PrependedStagePipelineDefinition<TDocument, TDocument, TResult>(filterStage, pipeline);
+            return new OptimizingPipelineDefinition<TDocument, TResult>(filteredPipeline);
         }
     }
 }

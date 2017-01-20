@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -22,7 +24,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB authentication exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoAuthenticationException : MongoConnectionException
     {
         // constructors
@@ -47,6 +51,7 @@ namespace MongoDB.Driver
         {
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoAuthenticationException"/> class.
         /// </summary>
@@ -56,5 +61,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
+#endif
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 
 namespace MongoDB.Bson
@@ -26,19 +24,21 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
     {
         // private static fields
-        private static ObjectId __emptyInstance = default(ObjectId);
-        private static int __staticMachine = (GetMachineHash() + AppDomain.CurrentDomain.Id) & 0x00ffffff;
-        private static short __staticPid = GetPid();
+        private static readonly ObjectId __emptyInstance = default(ObjectId);
+        private static readonly int __staticMachine = (GetMachineHash() + GetAppDomainId()) & 0x00ffffff;
+        private static readonly short __staticPid = GetPid();
         private static int __staticIncrement = (new Random()).Next();
 
         // private fields
-        private int _a;
-        private int _b;
-        private int _c;
+        private readonly int _a;
+        private readonly int _b;
+        private readonly int _c;
 
         // constructors
         /// <summary>
@@ -375,6 +375,15 @@ namespace MongoDB.Bson
         }
 
         // private static methods
+        private static int GetAppDomainId()
+        {
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            return 1;
+#else
+            return AppDomain.CurrentDomain.Id;
+#endif
+        }
+
         /// <summary>
         /// Gets the current process id.  This method exists because of how CAS operates on the call stack, checking
         /// for permissions before executing the method.  Hence, if we inlined this call, the calling method would not execute
@@ -388,8 +397,14 @@ namespace MongoDB.Bson
 
         private static int GetMachineHash()
         {
-            var hostName = Environment.MachineName; // use instead of Dns.HostName so it will work offline
-            return 0x00ffffff & hostName.GetHashCode(); // use first 3 bytes of hash
+            // use instead of Dns.HostName so it will work offline
+            var machineName = GetMachineName();
+            return 0x00ffffff & machineName.GetHashCode(); // use first 3 bytes of hash
+        }
+
+        private static string GetMachineName()
+        {
+            return Environment.MachineName;
         }
 
         private static short GetPid()

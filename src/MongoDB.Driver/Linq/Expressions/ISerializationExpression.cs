@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -44,11 +45,11 @@ namespace MongoDB.Driver.Linq.Expressions
             return CombineFieldNames(prefix, field == null ? null : field.FieldName);
         }
 
-        public static BsonValue SerializeValue(this ISerializationExpression field, object value)
+        public static BsonValue SerializeValue(this ISerializationExpression field, Type valueType, object value)
         {
             Ensure.IsNotNull(field, nameof(field));
 
-            value = ConvertEnumIfNecessary(field.Serializer.ValueType, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, valueType);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -56,14 +57,20 @@ namespace MongoDB.Driver.Linq.Expressions
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("value");
-                field.Serializer.Serialize(context, value);
+                valueSerializer.Serialize(context, value);
                 bsonWriter.WriteEndDocument();
                 return tempDocument[0];
             }
         }
 
-        public static BsonArray SerializeValues(this ISerializationExpression field, IEnumerable values)
+        public static BsonArray SerializeValues(this ISerializationExpression field, Type itemType, IEnumerable values)
         {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(itemType, nameof(itemType));
+            Ensure.IsNotNull(values, nameof(values));
+
+            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, itemType);
+
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
@@ -73,7 +80,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    field.Serializer.Serialize(context, ConvertEnumIfNecessary(field.Serializer.ValueType, value));
+                    itemSerializer.Serialize(context, value);
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -94,24 +101,6 @@ namespace MongoDB.Driver.Linq.Expressions
             }
 
             return prefix + "." + suffix;
-        }
-
-        private static object ConvertEnumIfNecessary(Type valueType, object value)
-        {
-            if (valueType.IsEnum || valueType.IsNullableEnum())
-            {
-                if (value != null)
-                {
-                    if (valueType.IsNullableEnum())
-                    {
-                        valueType = valueType.GetNullableUnderlyingType();
-                    }
-
-                    value = Enum.ToObject(valueType, value);
-                }
-            }
-
-            return value;
         }
     }
 }

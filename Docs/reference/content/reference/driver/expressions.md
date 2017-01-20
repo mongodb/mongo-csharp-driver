@@ -41,7 +41,7 @@ class Pet
 
 ## Filters
 
-We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/PredicateTranslatorTests.cs" >}}) are also a good reference.
+We'll walk through the supported expressions below. The [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/PredicateTranslatorTests.cs" >}}) are also a good reference.
 
 ### Comparison
 
@@ -130,6 +130,7 @@ Find(p => localNumbers.Any(i => p.FavoriteNumbers.Contains(i));
 ```
 ```json
 { FavoriteNumbers: { $in: [30, 40] } } 
+```
 
 #### $nin
 
@@ -372,7 +373,7 @@ Find(x => x.FavoriteNumbers.Count() == 3);
 
 ## Aggregation Projections
 
-We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs" >}}) are also a good reference.
+We'll walk through the supported expressions below. The [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs" >}}) are also a good reference.
 
 ### Boolean Expressions
 
@@ -816,6 +817,24 @@ p => p.FavoriteNumbers.Concat(new [] { 1, 2, 3 })
 { $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
 ```
 
+#### $filter
+
+```csharp
+p => p.FavoriteNumbers.Where(x => x > 10)
+```
+```json
+{ $filter: { input: '$FavoriteNumbers', as: 'x', cond: { $gt: ['$$x', 10] } } }
+```
+
+#### $map
+
+```csharp
+p => p.FavoriteNumbers.Select(x => x + 10)
+```
+```json
+{ $map: { input: '$FavoriteNumbers', as: 'x', in: { $add: ['$$x', 10] } } }
+```
+
 #### $max
 
 ```csharp
@@ -1051,7 +1070,7 @@ p => p.Name ?? "awesome";
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#accumulators" >}}) for more information on each operator.
 
-Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs" >}}) are a good reference.
+Also, the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs" >}}) are a good reference.
 
 {{% note %}}These are only supported in a grouping expression.{{% /note %}}
 

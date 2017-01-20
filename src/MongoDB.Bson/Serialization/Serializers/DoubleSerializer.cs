@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             switch (representation)
             {
+                case BsonType.Decimal128:
                 case BsonType.Double:
                 case BsonType.Int32:
                 case BsonType.Int64:
@@ -110,6 +111,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
+                case BsonType.Decimal128:
+                    return _converter.ToDouble(bsonReader.ReadDecimal128());
+
                 case BsonType.Double:
                     return bsonReader.ReadDouble();
 
@@ -139,6 +143,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             switch (_representation)
             {
+                case BsonType.Decimal128:
+                    bsonWriter.WriteDecimal128(_converter.ToDecimal128(value));
+                    break;
+
                 case BsonType.Double:
                     bsonWriter.WriteDouble(value);
                     break;
@@ -152,7 +160,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(value.ToString("R", NumberFormatInfo.InvariantInfo));
+                    bsonWriter.WriteString(JsonConvert.ToString(value));
                     break;
 
                 default:

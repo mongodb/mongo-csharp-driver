@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _background;
         private int? _bits;
         private double? _bucketSize;
+        private Collation _collation;
         private string _defaultLanguage;
         private TimeSpan? _expireAfter;
         private string _languageOverride;
@@ -104,6 +105,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _bucketSize; }
             set { _bucketSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -292,13 +302,28 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>The name of the index.</returns>
         public string GetIndexName()
         {
-            var additionalOptionsName = _additionalOptions == null ? null : (string)_additionalOptions.GetValue("name", null);
-            return _name ?? additionalOptionsName ?? IndexNameHelper.GetIndexName(_keys);
+            if (_name != null)
+            {
+                return _name;
+            }
+            
+            if (_additionalOptions != null)
+            {
+                BsonValue name;
+                if (_additionalOptions.TryGetValue("name", out name))
+                {
+                    return name.AsString;
+                }
+            }
+
+            return IndexNameHelper.GetIndexName(_keys);
         }
 
         // methods
-        internal BsonDocument CreateIndexDocument()
+        internal BsonDocument CreateIndexDocument(SemanticVersion serverVersion)
         {
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+
             var document = new BsonDocument
             {
                 { "key", _keys },
@@ -306,6 +331,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "background", () => _background.Value, _background.HasValue },
                 { "bits", () => _bits.Value, _bits.HasValue },
                 { "bucketSize", () => _bucketSize.Value, _bucketSize.HasValue },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "default_language", () => _defaultLanguage, _defaultLanguage != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "language_override", () => _languageOverride, _languageOverride != null },

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -41,12 +42,15 @@ namespace MongoDB.Driver.Core.Configuration
 
         // these are all readonly, but since they are not assigned 
         // from the ctor, they cannot be marked as such.
+        private string _applicationName;
         private string _authMechanism;
         private string _authSource;
         private ClusterConnectionMode _connect;
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
+        private TimeSpan? _heartbeatInterval;
+        private TimeSpan? _heartbeatTimeout;
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
@@ -54,6 +58,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
         private int? _maxPoolSize;
+        private TimeSpan? _maxStaleness;
         private int? _minPoolSize;
         private string _password;
         private ReadConcernLevel? _readConcernLevel;
@@ -81,9 +86,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
 
-            _allOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
-            _unknownOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
-            _authMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            _allOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+            _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+            _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Parse();
         }
 
@@ -102,6 +107,14 @@ namespace MongoDB.Driver.Core.Configuration
         public IEnumerable<string> AllUnknownOptionNames
         {
             get { return _unknownOptions.AllKeys; }
+        }
+
+        /// <summary>
+        /// Gets the application name.
+        /// </summary>
+        public string ApplicationName
+        {
+            get { return _applicationName; }
         }
 
         /// <summary>
@@ -161,6 +174,22 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        public TimeSpan? HeartbeatInterval
+        {
+            get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Gets the heartbeat timeout.
+        /// </summary>
+        public TimeSpan? HeartbeatTimeout
+        {
+            get { return _heartbeatTimeout; }
+        }
+
+        /// <summary>
         /// Gets the hosts.
         /// </summary>
         public IReadOnlyList<EndPoint> Hosts
@@ -214,6 +243,14 @@ namespace MongoDB.Driver.Core.Configuration
         public int? MaxPoolSize
         {
             get { return _maxPoolSize; }
+        }
+
+        /// <summary>
+        /// Gets the max staleness.
+        /// </summary>
+        public TimeSpan? MaxStaleness
+        {
+            get { return _maxStaleness; }
         }
 
         /// <summary>
@@ -453,8 +490,16 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value)
         {
-            switch (name.ToLower())
+            switch (name.ToLowerInvariant())
             {
+                case "appname":
+                    string invalidApplicationNameMessage;
+                    if (!ApplicationNameHelper.IsApplicationNameValid(value, out invalidApplicationNameMessage))
+                    {
+                        throw new MongoConfigurationException(invalidApplicationNameMessage);
+                    }
+                    _applicationName = value;
+                    break;
                 case "authmechanism":
                     _authMechanism = value;
                     break;
@@ -480,6 +525,16 @@ namespace MongoDB.Driver.Core.Configuration
                 case "gssapiservicename":
                     _authMechanismProperties.Add("SERVICE_NAME", value);
                     break;
+                case "heartbeatfrequency":
+                case "heartbeatfrequencyms":
+                case "heartbeatinterval":
+                case "heartbeatintervalms":
+                    _heartbeatInterval = ParseTimeSpan(name, value);
+                    break;
+                case "heartbeattimeout":
+                case "heartbeattimeoutms":
+                    _heartbeatTimeout = ParseTimeSpan(name, value);
+                    break;
                 case "ipv6":
                     _ipv6 = ParseBoolean(name, value);
                     break;
@@ -497,6 +552,14 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "maxpoolsize":
                     _maxPoolSize = ParseInt32(name, value);
+                    break;
+                case "maxstaleness":
+                case "maxstalenessseconds":
+                    _maxStaleness = ParseTimeSpan(name, value);
+                    if (_maxStaleness.Value == TimeSpan.FromSeconds(-1))
+                    {
+                        _maxStaleness = null;
+                    }
                     break;
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);
@@ -657,7 +720,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private static ClusterConnectionMode ParseClusterConnectionMode(string name, string value)
         {
-            if (value.Equals("shardrouter", StringComparison.InvariantCultureIgnoreCase))
+            if (value.Equals("shardrouter", StringComparison.OrdinalIgnoreCase))
             {
                 value = "sharded";
             }
@@ -703,6 +766,10 @@ namespace MongoDB.Driver.Core.Configuration
             if (lowerName.EndsWith("ms", StringComparison.Ordinal))
             {
                 multiplier = 1;
+            }
+            else if (lowerName.EndsWith("seconds", StringComparison.Ordinal))
+            {
+                multiplier = 1000;
             }
             else if (lowerValue.EndsWith("ms", StringComparison.Ordinal))
             {

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.ConstrainedExecution;
+#endif
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
@@ -185,8 +187,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375354(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
+#if NET45
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         public static extern uint DeleteSecurityContext(ref SspiHandle context);
 
         /// <summary>
@@ -200,7 +204,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375211(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
         public static extern uint DecryptMessage(ref SspiHandle context,
             ref SecurityBufferDescriptor pMessage,
             uint sequenceNumber,
@@ -217,7 +221,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375378(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
         public static extern uint EncryptMessage(ref SspiHandle context,
             EncryptQualityOfProtection quality,
             ref SecurityBufferDescriptor pMessage,
@@ -232,7 +236,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/aa375397%28v=VS.85%29.aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
         public static extern uint EnumerateSecurityPackages(ref uint numPackages, ref IntPtr securityPackageInfoArray);
 
         /// <summary>
@@ -243,8 +247,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/aa375416(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.None)]
+        [DllImport("security.dll")]
+#if NET45
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         public static extern uint FreeContextBuffer(IntPtr contextBuffer);
 
         /// <summary>
@@ -255,8 +261,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375417(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.None)]
+        [DllImport("security.dll")]
+#if NET45
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         public static extern int FreeCredentialsHandle(ref SspiHandle sspiHandle);
 
         /// <summary>
@@ -337,7 +345,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <remarks>
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa379326(v=vs.85).aspx
         /// </remarks>
-        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
         public static extern uint QueryContextAttributes(
             ref SspiHandle inContextHandle,
             QueryContextAttributes attribute,

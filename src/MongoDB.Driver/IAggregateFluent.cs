@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ namespace MongoDB.Driver
     public interface IAggregateFluent<TResult> : IAsyncCursorSource<TResult>
     {
         /// <summary>
+        /// Gets the database.
+        /// </summary>
+        IMongoDatabase Database { get; }
+
+        /// <summary>
         /// Gets the options.
         /// </summary>
         AggregateOptions Options { get; }
@@ -51,12 +56,117 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
-        /// Appends a project stage to the pipeline.
+        /// Changes the result type of the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> As<TNewResult>(IBsonSerializer<TNewResult> newResultSerializer = null);
+
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateBucketResult<TValue>> Bucket<TValue>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            AggregateBucketOptions<TValue> options = null);
+
+        /// <summary>
+        /// Appends a $bucket stage to the pipeline with a custom projection.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="boundaries">The bucket boundaries.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> Bucket<TValue, TNewResult>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            IEnumerable<TValue> boundaries,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketOptions<TValue> options = null);
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateBucketAutoResult<TValue>> BucketAuto<TValue>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            AggregateBucketAutoOptions options = null);
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline with a custom projection.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> BucketAuto<TValue, TNewResult>(
+            AggregateExpressionDefinition<TResult, TValue> groupBy,
+            int buckets,
+            ProjectionDefinition<TResult, TNewResult> output,
+            AggregateBucketAutoOptions options = null);
+
+        /// <summary>
+        /// Appends a count stage to the pipeline.
+        /// </summary>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateCountResult> Count();
+
+        /// <summary>
+        /// Appends a $facet stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="facets">The facets.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TNewResult> Facet<TNewResult>(
+            IEnumerable<AggregateFacet<TResult>> facets,
+            AggregateFacetOptions<TNewResult> options = null);
+
+        /// <summary>
+        /// Appends a $graphLookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TFrom">The type of the from documents.</typeparam>
+        /// <typeparam name="TConnectFrom">The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TConnectTo">The type of the connect to field.</typeparam>
+        /// <typeparam name="TStartWith">The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result (must be same as TResult with an additional as field).</typeparam>
+        /// <param name="from">The from collection.</param>
+        /// <param name="connectFromField">The connect from field.</param>
+        /// <param name="connectToField">The connect to field.</param>
+        /// <param name="startWith">The start with value.</param>
+        /// <param name="as">The as field.</param>
+        /// <param name="depthField">The depth field.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
+            IMongoCollection<TFrom> from,
+            FieldDefinition<TFrom, TConnectFrom> connectFromField,
+            FieldDefinition<TFrom, TConnectTo> connectToField,
+            AggregateExpressionDefinition<TResult, TStartWith> startWith,
+            FieldDefinition<TNewResult, TAs> @as,
+            FieldDefinition<TAsElement, int> depthField,
+            AggregateGraphLookupOptions<TFrom, TAsElement, TNewResult> options = null)
+                where TAs : IEnumerable<TAsElement>;
 
         /// <summary>
         /// Appends a group stage to the pipeline.
@@ -106,7 +216,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent aggregate interface.</returns>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
+        /// </summary>
+        /// <param name="collectionName">Name of the collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -118,6 +236,14 @@ namespace MongoDB.Driver
         /// The fluent aggregate interface.
         /// </returns>
         IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
+
+        /// <summary>
+        /// Appends a $replaceRoot stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot);
 
         /// <summary>
         /// Appends a skip stage to the pipeline.
@@ -132,6 +258,14 @@ namespace MongoDB.Driver
         /// <param name="sort">The sort specification.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
+
+        /// <summary>
+        /// Appends a sortByCount stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TId">The type of the identifier.</typeparam>
+        /// <param name="id">The identifier.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id);
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.
@@ -151,10 +285,9 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="options">The options.</param>
-        /// The fluent aggregate interface.
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
     }
-
 
     /// <summary>
     /// Fluent interface for aggregate.
@@ -162,5 +295,11 @@ namespace MongoDB.Driver
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public interface IOrderedAggregateFluent<TResult> : IAggregateFluent<TResult>
     {
+        /// <summary>
+        /// Combines the current sort definition with an additional sort definition.
+        /// </summary>
+        /// <param name="newSort">The new sort.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IOrderedAggregateFluent<TResult> ThenBy(SortDefinition<TResult> newSort);
     }
 }

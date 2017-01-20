@@ -1,3 +1,7 @@
-#!/bin/bash
-mono --runtime=v4.0 Tools/NuGet/NuGet.exe install FAKE -OutputDirectory Tools -ExcludeVersion
-mono --runtime=v4.0 Tools/FAKE/tools/FAKE.exe $@ --fsiargs -d:MONO ./build/build.fsx
+#!/usr/bin/env bash
+
+dotnet test -r netstandard15 tests/MongoDB.Bson.Tests.Dotnet/
+dotnet test -r netstandard15 tests/MongoDB.Driver.Core.Tests.Dotnet/
+dotnet test -r netstandard15 tests/MongoDB.Driver.Tests.Dotnet/
+dotnet test -r netstandard15 tests/MongoDB.Driver.GridFS.Tests.Dotnet/
+dotnet test -r netstandard15 tests/MongoDB.Driver.Legacy.Tests.Dotnet/

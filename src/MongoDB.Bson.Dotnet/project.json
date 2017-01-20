@@ -1,0 +1,35 @@
+{
+  "version": "2.4.2-*",
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Bson/**/*.cs", "../MongoDB.Shared/Hasher.cs" ]
+    },
+    "warningsAsErrors": true,
+    "outputName" : "MongoDB.Bson",
+    "xmlDoc": true
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Collections.NonGeneric": "4.0.1",
+        "System.Diagnostics.Process": "4.1.0",
+        "System.Dynamic.Runtime": "4.0.11",
+        "System.Reflection.Emit.Lightweight": "4.0.1"
+      }
+    }
+  }
+}

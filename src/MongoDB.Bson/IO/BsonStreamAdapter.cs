@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,25 +164,31 @@ namespace MongoDB.Bson.IO
         }
 
         // methods
+#if NET45
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             ThrowIfDisposed();
             return _stream.BeginRead(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             ThrowIfDisposed();
             return _stream.BeginWrite(buffer, offset, count, callback, state);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override void Close()
         {
             base.Close(); // base class will call Dispose
         }
+#endif
 
         /// <inheritdoc/>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
@@ -207,19 +214,23 @@ namespace MongoDB.Bson.IO
             base.Dispose(disposing);
         }
 
+#if NET45
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
             ThrowIfDisposed();
             return _stream.EndRead(asyncResult);
         }
+#endif
 
+#if NET45
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
             ThrowIfDisposed();
             _stream.EndWrite(asyncResult);
         }
+#endif
 
         /// <inheritdoc/>
         public override void Flush()
@@ -285,11 +296,26 @@ namespace MongoDB.Bson.IO
                 }
                 if (b == 0)
                 {
-                    return new ArraySegment<byte>(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
+                    byte[] memoryStreamBuffer;
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+                    memoryStreamBuffer = memoryStream.ToArray();
+#else
+                    memoryStreamBuffer = memoryStream.GetBuffer();
+#endif
+                    return new ArraySegment<byte>(memoryStreamBuffer, 0, (int)memoryStream.Length);
                 }
 
                 memoryStream.WriteByte((byte)b);
             }
+        }
+
+        /// <inheritdoc/>
+        public override Decimal128 ReadDecimal128()
+        {
+            ThrowIfDisposed();
+            var lowBits = (ulong)ReadInt64();
+            var highBits = (ulong)ReadInt64();
+            return Decimal128.FromIEEEBits(highBits, lowBits);
         }
 
         /// <inheritdoc/>
@@ -431,21 +457,19 @@ namespace MongoDB.Bson.IO
             byte[] bytes;
             int length;
 
-            var encoding = Utf8Encodings.Strict;
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
+            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
             {
                 bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
+                length = CStringUtf8Encoding.GetBytes(value, _tempUtf8, 0, Utf8Encodings.Strict);
             }
             else
             {
-                bytes = encoding.GetBytes(value);
+                bytes = Utf8Encodings.Strict.GetBytes(value);
+                if (Array.IndexOf<byte>(bytes, 0) != -1)
+                {
+                    throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                }
                 length = bytes.Length;
-            }
-
-            if (Array.IndexOf<byte>(bytes, 0, 0, length) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
             }
 
             _stream.Write(bytes, 0, length);
@@ -459,14 +483,18 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("value");
             }
-            if (Array.IndexOf<byte>(value, 0) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
-            }
             ThrowIfDisposed();
 
             this.WriteBytes(value, 0, value.Length);
             WriteByte(0);
+        }
+
+        /// <inheritdoc/>
+        public override void WriteDecimal128(Decimal128 value)
+        {
+            ThrowIfDisposed();
+            WriteInt64((long)value.GetIEEELowBits());
+            WriteInt64((long)value.GetIEEEHighBits());
         }
 
         /// <inheritdoc/>

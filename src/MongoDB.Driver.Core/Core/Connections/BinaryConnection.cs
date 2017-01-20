@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         private EndPoint _endPoint;
         private ConnectionDescription _description;
         private readonly Dropbox _dropbox = new Dropbox();
+        private bool _failedEventHasBeenRaised;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
@@ -151,8 +152,18 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         private void ConnectionFailed(Exception exception)
         {
-            if (_state.TryChange(State.Open, State.Failed))
+            if (!_state.TryChange(State.Open, State.Failed))
             {
+                var currentState = _state.Value;
+                if (currentState != State.Failed && currentState != State.Disposed)
+                {
+                    throw new InvalidOperationException($"Invalid BinaryConnection state transition from {currentState} to Failed.");
+                }
+            }
+
+            if (!_failedEventHasBeenRaised)
+            {
+                _failedEventHasBeenRaised = true;
                 if (_failedEventHandler != null)
                 {
                     _failedEventHandler(new ConnectionFailedEvent(_connectionId, exception));
@@ -188,7 +199,6 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         try
                         {
-                            _stream.Close();
                             _stream.Dispose();
                         }
                         catch
@@ -219,12 +229,13 @@ namespace MongoDB.Driver.Core.Connections
                     _openedAtUtc = DateTime.UtcNow;
                     taskCompletionSource = new TaskCompletionSource<bool>();
                     _openTask = taskCompletionSource.Task;
+                    _openTask.IgnoreExceptions();
                     connecting = true;
                 }
             }
 
             if (connecting)
-            { 
+            {
                 try
                 {
                     OpenHelper(cancellationToken);
@@ -599,7 +610,12 @@ namespace MongoDB.Driver.Core.Connections
 
         private Exception WrapException(Exception ex, string action)
         {
-            if (ex is ThreadAbortException || ex is StackOverflowException || ex is OutOfMemoryException)
+            if (
+#if NET45
+                ex is ThreadAbortException ||
+                ex is StackOverflowException ||
+#endif
+                ex is OutOfMemoryException)
             {
                 return ex;
             }
@@ -656,7 +672,14 @@ namespace MongoDB.Driver.Core.Connections
 
             public void FailedOpeningConnection(Exception wrappedException)
             {
-                _connection._state.TryChange(State.Failed);
+                if (!_connection._state.TryChange(State.Connecting, State.Failed) && !_connection._state.TryChange(State.Initializing, State.Failed))
+                {
+                    var currentState = _connection._state.Value;
+                    if (currentState != State.Disposed)
+                    {
+                        throw new InvalidOperationException($"Invalid BinaryConnection state transition from {currentState} to Failed.");
+                    }
+                }
 
                 var handler = _connection._failedOpeningEventHandler;
                 if (handler != null)
@@ -667,14 +690,37 @@ namespace MongoDB.Driver.Core.Connections
 
             public void InitializingConnection()
             {
-                _connection._state.TryChange(State.Initializing);
+                if (!_connection._state.TryChange(State.Connecting, State.Initializing))
+                {
+                    var currentState = _connection._state.Value;
+                    if (currentState == State.Disposed)
+                    {
+                        throw new ObjectDisposedException(typeof(BinaryConnection).Name);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Invalid BinaryConnection state transition from {currentState} to Initializing.");
+                    }
+                }
             }
 
             public void OpenedConnection()
             {
                 _stopwatch.Stop();
                 _connection._connectionId = _connection._description.ConnectionId;
-                _connection._state.TryChange(State.Open);
+
+                if (!_connection._state.TryChange(State.Initializing, State.Open))
+                {
+                    var currentState = _connection._state.Value;
+                    if (currentState == State.Disposed)
+                    {
+                        throw new ObjectDisposedException(typeof(BinaryConnection).Name);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Invalid BinaryConnection state transition from {currentState} to Open.");
+                    }
+                }
 
                 var handler = _connection._openedEventHandler;
                 if (handler != null)
@@ -740,7 +786,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 var handler = _connection._failedReceivingMessageEventHandler;
-                if (handler!= null)
+                if (handler != null)
                 {
                     handler(new ConnectionReceivingMessageFailedEvent(_connection.ConnectionId, _responseTo, exception, EventContext.OperationId));
                 }
@@ -878,6 +924,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private static class State
         {
+            // note: the numeric values matter because sometimes we compare their magnitudes
             public static int Initial = 0;
             public static int Connecting = 1;
             public static int Initializing = 2;

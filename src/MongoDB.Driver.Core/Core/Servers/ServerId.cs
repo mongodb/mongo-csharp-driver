@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -26,8 +28,12 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
+#if NET45
     [Serializable]
     public sealed class ServerId : IEquatable<ServerId>, ISerializable
+#else
+    public sealed class ServerId : IEquatable<ServerId>
+#endif
     {
         // fields
         private readonly ClusterId _clusterId;
@@ -50,6 +56,7 @@ namespace MongoDB.Driver.Core.Servers
                 .GetHashCode();
         }
 
+#if NET45
         private ServerId(SerializationInfo info, StreamingContext context)
         {
             _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
@@ -59,6 +66,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_endPoint)
                 .GetHashCode();
         }
+#endif
 
         // properties
         /// <summary>
@@ -115,10 +123,12 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // explicit interface implementations
+#if NET45
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_clusterId", _clusterId);
             info.AddValue("_endPoint", EndPointHelper.GetObjectData(_endPoint));
         }
+#endif
     }
 }

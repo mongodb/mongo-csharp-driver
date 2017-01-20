@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -34,10 +35,11 @@ namespace MongoDB.Driver
         /// <returns>The MD5 hash.</returns>
         public static string Hash(string text)
         {
-            var md5 = MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            var hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
-            return hash;
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+                return BsonUtils.ToHexString(hash);
+            }
         }
 
         /// <summary>
@@ -73,15 +75,21 @@ namespace MongoDB.Driver
             {
                 return "";
             }
-
-            var bstr = Marshal.SecureStringToBSTR(secureString);
-            try
+            else
             {
-                return Marshal.PtrToStringBSTR(bstr);
-            }
-            finally
-            {
-                Marshal.ZeroFreeBSTR(bstr);
+#if NET45
+                var secureStringIntPtr = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+#else
+                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
+#endif
+                try
+                {
+                    return Marshal.PtrToStringUni(secureStringIntPtr, secureString.Length);
+                }
+                finally
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(secureStringIntPtr);
+                }
             }
         }
     }

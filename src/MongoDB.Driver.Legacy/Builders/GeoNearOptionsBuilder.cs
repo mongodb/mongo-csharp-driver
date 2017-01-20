@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -71,7 +71,9 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [Obsolete("Use GeoNearArgs instead.")]
     [BsonSerializer(typeof(GeoNearOptionsBuilder.Serializer))]
     public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions

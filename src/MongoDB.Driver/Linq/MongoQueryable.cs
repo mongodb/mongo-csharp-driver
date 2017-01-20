@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -486,7 +486,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The first element in <paramref name="source" />.
         /// </returns>
-        public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The first element in <paramref name="source" /> that passes the test in <paramref name="predicate" />.
         /// </returns>
-        public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -524,7 +524,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// default(<typeparamref name="TSource" />) if <paramref name="source" /> is empty; otherwise, the first element in <paramref name="source" />.
         /// </returns>
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// default(<typeparamref name="TSource" />) if <paramref name="source" /> is empty or if no element passes the test specified by <paramref name="predicate" />; otherwise, the first element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
         /// </returns>
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -837,13 +837,13 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// A sample of the elements in the <paramref name="source"/>.
         /// </returns>
-        public static IMongoQueryable<TSource> Sample<TSource>(this IQueryable<TSource> source, long count)
+        public static IMongoQueryable<TSource> Sample<TSource>(this IMongoQueryable<TSource> source, long count)
         {
             return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfo(Sample, source, count),
-                    source.Expression,
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
                     Expression.Constant(count)));
         }
 
@@ -907,7 +907,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The single element of the input sequence.
         /// </returns>
-        public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The single element of the input sequence that satisfies the condition in <paramref name="predicate" />.
         /// </returns>
-        public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -945,7 +945,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The single element of the input sequence, or default(<typeparamref name="TSource" />) if the sequence contains no elements.
         /// </returns>
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -964,7 +964,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The single element of the input sequence that satisfies the condition in <paramref name="predicate" />, or default(<typeparamref name="TSource" />) if no such element is found.
         /// </returns>
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
@@ -2814,12 +2814,12 @@ namespace MongoDB.Driver.Linq
 
         private static MethodInfo GetMethodInfo<T1, T2>(Func<T1, T2> f, T1 unused)
         {
-            return f.Method;
+            return f.GetMethodInfo();
         }
 
         private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2)
         {
-            return f.Method;
+            return f.GetMethodInfo();
         }
     }
 }

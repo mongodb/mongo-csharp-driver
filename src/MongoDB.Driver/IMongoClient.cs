@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,6 +47,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="name">The name of the database to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the database with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the database to drop.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -62,7 +69,35 @@ namespace MongoDB.Driver
         /// Lists the databases on the server.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the databases on the server.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Returns a new IMongoClient instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new IMongoClient instance with a different read concern setting.</returns>
+        IMongoClient WithReadConcern(ReadConcern readConcern);
+
+        /// <summary>
+        /// Returns a new IMongoClient instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new IMongoClient instance with a different read preference setting.</returns>
+        IMongoClient WithReadPreference(ReadPreference readPreference);
+
+        /// <summary>
+        /// Returns a new IMongoClient instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new IMongoClient instance with a different write concern setting.</returns>
+        IMongoClient WithWriteConcern(WriteConcern writeConcern);
     }
 }

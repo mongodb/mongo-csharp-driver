@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -169,6 +169,9 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public abstract void WriteDateTime(long value);
+
+        /// <inheritdoc />
+        public abstract void WriteDecimal128(Decimal128 value);
 
         /// <summary>
         /// Writes a BSON Double to the writer.

@@ -31,19 +31,33 @@ var collection = client.GetCollection<BsonDocument>("bar");
 
 ## List the Databases
 
-You can list all the databases using the [`ListDatabasesAsync`]({{< apiref "M_MongoDB_Driver_IMongoClient_ListDatabasesAsync" >}}) method.
+You can list all the databases using the [`ListDatabases`]({{< apiref "M_MongoDB_Driver_IMongoClient_ListDatabases" >}}) or [`ListDatabasesAsync`]({{< apiref "M_MongoDB_Driver_IMongoClient_ListDatabasesAsync" >}}) methods.
+
+```csharp
+using (var cursor = client.ListDatabases())
+{
+    foreach (var document in cursor.ToEnumerable())
+    {
+        Console.WriteLine(document.ToString()));
+    }
+}
+```
 
 ```csharp
 using (var cursor = await client.ListDatabasesAsync())
 {
-	await cursor.ForEachAsync(d => Console.WriteLine(d.ToString()));
+    await cursor.ForEachAsync(document => Console.WriteLine(document.ToString()));
 }
 ```
 
 
 ## Drop a Database
 
-You can drop a database using the [`DropDatabaseAsync`]({{< apiref "M_MongoDB_Driver_IMongoClient_DropDatabaseAsync" >}}) method.
+You can drop a database using the [`DropDatabase`]({{< apiref "M_MongoDB_Driver_IMongoClient_DropDatabase" >}}) or [`DropDatabaseAsync`]({{< apiref "M_MongoDB_Driver_IMongoClient_DropDatabaseAsync" >}}) methods.
+
+```csharp
+client.DropDatabase("foo");
+```
 
 ```csharp
 await client.DropDatabaseAsync("foo");
@@ -52,19 +66,25 @@ await client.DropDatabaseAsync("foo");
 
 ## Create a Collection
 
-A collections in MongoDB is created automatically simply by inserting a document into it. Using the [`CreateCollectionAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync" >}}) method, you can also create a collection explicitly in order to to customize its configuration. For example, to create a capped collection sized to 1 megabyte:
+A collection in MongoDB is created automatically simply by inserting a document into it. Using the [`CreateCollection`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_CreateCollection" >}}) or [`CreateCollectionAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync" >}}) methods, you can also create a collection explicitly in order to to customize its configuration. For example, to create a capped collection sized to 1 megabyte:
 
 ```csharp
 var options = new CreateCollectionOptions { Capped = true, MaxSize = 1024 * 1024 };
-
+```
+```csharp
+database.CreateCollection("cappedBar", options);
+```
+```csharp
 await database.CreateCollectionAsync("cappedBar", options);
 ```
 
-
 ## Drop a Collection
 
-You can drop a collection with the [`DropCollectionAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync" >}}) method:
+You can drop a collection with the [`DropCollection`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_DropCollection" >}}) or [`DropCollectionAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync" >}}) methods:
 
+```csharp
+database.DropCollection("cappedBar");
+``` 
 ```csharp
 await database.DropCollectionAsync("cappedBar");
 ``` 
@@ -74,6 +94,14 @@ await database.DropCollectionAsync("cappedBar");
 
 MongoDB supports secondary indexes. To create an index, you just specify the field or combination of fields, and for each field specify the direction of the index for that field; `1` for ascending and `-1` for descending. The following creates an ascending index on the `i` field:
 
+```csharp
+collection.Indexes.CreateOne(new BsonDocument("i", 1));
+
+// or
+
+var keys = Builders<BsonDocument>.IndexKeys.Ascending("i");
+collection.Indexes.CreateOne(keys);
+```
 ```csharp
 await collection.Indexes.CreateOneAsync(new BsonDocument("i", 1));
 
@@ -88,12 +116,21 @@ More information about the IndexKeys definition builder is in the [reference sec
 
 ## List the Indexes in a Collection
 
-Use the [`ListAsync`]({{< apiref "M_MongoDB_Driver_IMongoIndexManager_1_ListAsync" >}}) method to list the indexes in a collection:
+Use the [`List`]({{< apiref "M_MongoDB_Driver_IMongoIndexManager_1_List" >}}) or [`ListAsync`]({{< apiref "M_MongoDB_Driver_IMongoIndexManager_1_ListAsync" >}}) methods to list the indexes in a collection:
 
+```csharp
+using (var cursor = collection.Indexes.List())
+{
+    foreach (var document in cursor.ToEnumerable())
+    {
+        Console.WriteLine(document.ToString());
+    }
+}
+``` 
 ```csharp
 using (var cursor = await collection.Indexes.ListAsync())
 {
-	await cursor.ForEachAsync(i => Console.WriteLine(i.ToString()));	
+	await cursor.ForEachAsync(document => Console.WriteLine(document.ToString()));	
 }
 ``` 
 
@@ -110,6 +147,14 @@ The example should print the following indexes:
 MongoDB also provides text indexes to support searching of string content. Text indexes can include any field whose value is a string or an array of string elements. To create a text index specify the string literal “text” in the index document:
 
 ```csharp
+collection.Indexes.CreateOne(new BsonDocument("content", "text"));
+
+// or
+
+var keys = Builders<BsonDocument>.IndexKeys.Text("content");
+collection.Indexes.CreateOne(keys);
+```
+```csharp
 await collection.Indexes.CreateOneAsync(new BsonDocument("content", "text"));
 
 // or
@@ -120,6 +165,30 @@ await collection.Indexes.CreateOneAsync(keys);
 
 As of MongoDB 2.6, text indexes are now integrated into the main query language and enabled by default:
 
+```csharp
+// insert some documents
+collection.InsertMany(new []
+{
+    new BsonDocument("_id", 0).Add("content", "textual content"),
+    new BsonDocument("_id", 1).Add("content", "additional content"),
+    new BsonDocument("_id", 2).Add("content", "irrelevant content"),
+});
+
+// find them using the text index
+var filter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant");
+var matchCount = collection.Count(filter);
+Console.WriteLine("Text search matches: {0}", matchCount);
+
+// find them using the text index with the $language operator
+var englishFilter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant", "english");
+var matchCount = collection.Count(filter);
+Console.WriteLine("Text search matches (english): {0}", matchCount);
+
+// find the highest scoring match
+var projection = Builders<BsonDocument>.Projection.MetaTextScore("score");
+var doc = collection.Find(filter).Project(projection).First();
+Console.WriteLine("Highest scoring document: {0}", doc);
+```
 ```csharp
 // insert some documents
 await collection.InsertManyAsync(new []
@@ -158,9 +227,14 @@ For more information about text search, see the [text index]({{< docsref "core/i
 
 ## Running a Command
 
-Not all commands have a specific helper, however you can run any command by using the [`RunCommandAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1" >}}) method. Here we call the [buildInfo]({{< docsref "reference/command/buildInfo" >}}) command: 
+Not all commands have a specific helper, however you can run any command by using the [`RunCommand`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommand__1" >}}) or [`RunCommandAsync`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1" >}}) methods. Here we call the [buildInfo]({{< docsref "reference/command/buildInfo" >}}) command: 
 
 ```csharp
 var buildInfoCommand = new BsonDocument("buildinfo", 1);
+```
+```csharp
+var result = database.RunCommand(buildInfoCommand);
+```
+```csharp
 var result = await database.RunCommandAsync(buildInfoCommand);
 ```

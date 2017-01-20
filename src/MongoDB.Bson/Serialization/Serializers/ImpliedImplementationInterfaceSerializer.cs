@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -73,7 +74,8 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private ImpliedImplementationInterfaceSerializer(Lazy<IBsonSerializer<TImplementation>> lazyImplementationSerializer)
         {
-            if (!typeof(TInterface).IsInterface)
+            var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
+            if (!interfaceTypeInfo.IsInterface)
             {
                 var message = string.Format("{0} is not an interface.", typeof(TInterface).FullName);
                 throw new ArgumentException(message, "<TInterface>");

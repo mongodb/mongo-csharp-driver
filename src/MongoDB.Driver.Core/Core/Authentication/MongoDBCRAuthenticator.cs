@@ -148,8 +148,8 @@ namespace MongoDB.Driver.Core.Authentication
             using (var md5 = MD5.Create())
             {
                 var bytes = Utf8Encodings.Strict.GetBytes(nonce + username + passwordDigest);
-                bytes = md5.ComputeHash(bytes);
-                return BsonUtils.ToHexString(bytes);
+                var hash = md5.ComputeHash(bytes);
+                return BsonUtils.ToHexString(hash);
             }
         }
     }

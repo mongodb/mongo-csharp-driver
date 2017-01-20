@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,19 +23,31 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal sealed class BatchTransformingAsyncCursor<TFromDocument, TToDocument> : IAsyncCursor<TToDocument>
+    /// <summary>
+    /// Represents a cursor that wraps another cursor with a transformation function on the documents.
+    /// </summary>
+    /// <typeparam name="TFromDocument">The type of from document.</typeparam>
+    /// <typeparam name="TToDocument">The type of to document.</typeparam>
+    /// <seealso cref="MongoDB.Driver.IAsyncCursor{TToDocument}" />
+    public sealed class BatchTransformingAsyncCursor<TFromDocument, TToDocument> : IAsyncCursor<TToDocument>
     {
         private bool _disposed;
         private readonly Func<IEnumerable<TFromDocument>, IEnumerable<TToDocument>> _transformer;
         private readonly IAsyncCursor<TFromDocument> _wrapped;
         private List<TToDocument> _current;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatchTransformingAsyncCursor{TFromDocument, TToDocument}"/> class.
+        /// </summary>
+        /// <param name="wrapped">The wrapped.</param>
+        /// <param name="transformer">The transformer.</param>
         public BatchTransformingAsyncCursor(IAsyncCursor<TFromDocument> wrapped, Func<IEnumerable<TFromDocument>, IEnumerable<TToDocument>> transformer)
         {
             _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
             _transformer = Ensure.IsNotNull(transformer, nameof(transformer));
         }
 
+        /// <inheritdoc/>
         public IEnumerable<TToDocument> Current
         {
             get
@@ -51,6 +63,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+        /// <inheritdoc/>
         public bool MoveNext(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -66,6 +79,7 @@ namespace MongoDB.Driver
             return false;
         }
 
+        /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -81,6 +95,7 @@ namespace MongoDB.Driver
             return false;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             _disposed = true;

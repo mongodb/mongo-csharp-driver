@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization
             _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
-            _memberTypeIsBsonValue = typeof(BsonValue).IsAssignableFrom(_memberType);
+            _memberTypeIsBsonValue = typeof(BsonValue).GetTypeInfo().IsAssignableFrom(_memberType);
 
             Reset();
         }
@@ -144,7 +144,7 @@ namespace MongoDB.Bson.Serialization
             {
                 if (_setter == null)
                 {
-                    if (_memberInfo.MemberType == MemberTypes.Field)
+                    if (_memberInfo is FieldInfo)
                     {
                         _setter = GetFieldSetter();
                     }
@@ -223,20 +223,23 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                switch(_memberInfo.MemberType)
+                if (_memberInfo is FieldInfo)
                 {
-                    case MemberTypes.Field:
-                        var field = (FieldInfo)_memberInfo;
-                        return field.IsInitOnly || field.IsLiteral;
-                    case MemberTypes.Property:
-                        var property = (PropertyInfo)_memberInfo;
-                        return !property.CanWrite;
-                    default:
-                        throw new NotSupportedException(
-                            string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
-                            _memberInfo.Name,
-                            _memberInfo.DeclaringType.Name,
-                            _memberInfo.MemberType));
+                    var field = (FieldInfo)_memberInfo;
+                    return field.IsInitOnly || field.IsLiteral;
+                }
+                else if (_memberInfo is PropertyInfo)
+                {
+                    var property = (PropertyInfo)_memberInfo;
+                    return !property.CanWrite;
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                       string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
+                       _memberInfo.Name,
+                       _memberInfo.DeclaringType.Name,
+                       _memberInfo is FieldInfo ? "field" : "property"));
                 }
             }
         }
@@ -527,7 +530,8 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private static object GetDefaultValue(Type type)
         {
-            if (type.IsEnum)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsEnum)
             {
                 return Enum.ToObject(type, 0);
             }
@@ -535,11 +539,13 @@ namespace MongoDB.Bson.Serialization
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Empty:
+#if NET45
                 case TypeCode.DBNull:
+#endif
                 case TypeCode.String:
                     break;
                 case TypeCode.Object:
-                    if (type.IsValueType)
+                    if (typeInfo.IsValueType)
                     {
                         return Activator.CreateInstance(type);
                     }
@@ -593,7 +599,7 @@ namespace MongoDB.Bson.Serialization
             var propertyInfo = _memberInfo as PropertyInfo;
             if (propertyInfo != null)
             {
-                var getMethodInfo = propertyInfo.GetGetMethod(true);
+                var getMethodInfo = propertyInfo.GetMethod;
                 if (getMethodInfo == null)
                 {
                     var message = string.Format(
@@ -622,7 +628,7 @@ namespace MongoDB.Bson.Serialization
         private Action<object, object> GetPropertySetter()
         {
             var propertyInfo = (PropertyInfo)_memberInfo;
-            var setMethodInfo = propertyInfo.GetSetMethod(true);
+            var setMethodInfo = propertyInfo.SetMethod;
             if (IsReadOnly)
             {
                 var message = string.Format(

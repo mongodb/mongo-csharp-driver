@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2015 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -427,7 +428,7 @@ namespace MongoDB.Driver.GridFS
                 var chunksCollection = GetChunksCollection(database);
 
                 string md5Client = null;
-                using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
+                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalMD5.Create() : null)
                 {
                     var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
                     for (var n = 0L; n < numberOfChunks; n++)
@@ -452,14 +453,13 @@ namespace MongoDB.Driver.GridFS
                         stream.Write(data.Bytes, 0, data.Bytes.Length);
                         if (_settings.VerifyMD5)
                         {
-                            md5Algorithm.TransformBlock(data.Bytes, 0, data.Bytes.Length, null, 0);
+                            md5Algorithm.AppendData(data.Bytes, 0, data.Bytes.Length);
                         }
                     }
 
                     if (_settings.VerifyMD5)
                     {
-                        md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
-                        md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                        md5Client = BsonUtils.ToHexString(md5Algorithm.GetHashAndReset());
                     }
                 }
 
@@ -994,7 +994,7 @@ namespace MongoDB.Driver.GridFS
 
                 var length = 0L;
                 string md5Client = null;
-                using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
+                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalMD5.Create() : null)
                 {
                     for (var n = 0L; true; n++)
                     {
@@ -1035,7 +1035,7 @@ namespace MongoDB.Driver.GridFS
 
                         if (_settings.VerifyMD5)
                         {
-                            md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
+                            md5Algorithm.AppendData(data, 0, data.Length);
                         }
 
                         if (bytesRead < chunkSize)
@@ -1046,8 +1046,7 @@ namespace MongoDB.Driver.GridFS
 
                     if (_settings.VerifyMD5)
                     {
-                        md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
-                        md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                        md5Client = BsonUtils.ToHexString(md5Algorithm.GetHashAndReset());
                     }
                 }
 

@@ -9,6 +9,8 @@ obj
 *.cache
 TestResults
 .vs
+project.lock.json
+.vscode
 
 # CodeReview
 codereview.rc
@@ -58,3 +60,6 @@ src/packages
 artifacts
 packages
 Tools/FAKE
+Tools/FAKE.Dotnet
+Tools/xunit.runner.console
+

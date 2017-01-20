@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Expressions;
@@ -29,14 +31,18 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal sealed class AggregateLanguageTranslator
     {
-        public static BsonValue Translate(Expression node)
+        public static BsonValue Translate(Expression node, ExpressionTranslationOptions translationOptions)
         {
-            var builder = new AggregateLanguageTranslator();
+            var builder = new AggregateLanguageTranslator(translationOptions);
             return builder.TranslateValue(node);
         }
 
-        private AggregateLanguageTranslator()
+        private readonly AggregateStringTranslationMode _stringTranslationMode;
+
+        private AggregateLanguageTranslator(ExpressionTranslationOptions translationOptions)
         {
+            translationOptions = translationOptions ?? ExpressionTranslationOptions.Default;
+            _stringTranslationMode = translationOptions.StringTranslationMode.GetValueOrDefault(AggregateStringTranslationMode.Bytes);
         }
 
         private BsonValue TranslateValue(Expression node)
@@ -85,6 +91,8 @@ namespace MongoDB.Driver.Linq.Translators
                     return TranslateOperation((BinaryExpression)node, "$multiply", true);
                 case ExpressionType.New:
                     return TranslateNew((NewExpression)node);
+                case ExpressionType.NewArrayInit:
+                    return TranslateNewArrayInit((NewArrayExpression)node);
                 case ExpressionType.Not:
                     return TranslateNot((UnaryExpression)node);
                 case ExpressionType.NotEqual:
@@ -103,6 +111,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             case ExtensionExpressionType.Accumulator:
                                 return TranslateAccumulator((AccumulatorExpression)node);
+                            case ExtensionExpressionType.AggregateExpression:
+                                return TranslateAggregateExpression((AggregateExpressionExpression)node);
                             case ExtensionExpressionType.ArrayIndex:
                                 return TranslateArrayIndex((ArrayIndexExpression)node);
                             case ExtensionExpressionType.Concat:
@@ -119,8 +129,12 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateIntersect((IntersectExpression)node);
                             case ExtensionExpressionType.Pipeline:
                                 return TranslatePipeline((PipelineExpression)node);
+                            case ExtensionExpressionType.Reverse:
+                                return TranslateReverse((ReverseExpression)node);
                             case ExtensionExpressionType.Select:
                                 return TranslateSelect((SelectExpression)node);
+                            case ExtensionExpressionType.SerializedConstant:
+                                return TranslateSerializedConstant((SerializedConstantExpression)node);
                             case ExtensionExpressionType.Skip:
                                 return TranslateSkip((SkipExpression)node);
                             case ExtensionExpressionType.Take:
@@ -129,6 +143,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateUnion((UnionExpression)node);
                             case ExtensionExpressionType.Where:
                                 return TranslateWhere((WhereExpression)node);
+                            case ExtensionExpressionType.Zip:
+                                return TranslateZip((ZipExpression)node);
                         }
                     }
                     break;
@@ -180,6 +196,11 @@ namespace MongoDB.Driver.Linq.Translators
             var message = string.Format("Unrecognized aggregation type in the expression tree {0}.",
                 node.ToString());
             throw new MongoInternalException(message);
+        }
+
+        private BsonValue TranslateAggregateExpression(AggregateExpressionExpression node)
+        {
+            return TranslateValue(node.Expression);
         }
 
         private BsonValue TranslateArrayIndex(ArrayIndexExpression node)
@@ -306,9 +327,16 @@ namespace MongoDB.Driver.Linq.Translators
                 return result;
             }
 
+            if (node.Expression.Type == typeof(string)
+                && TryTranslateStringMemberAccess(node, out result))
+            {
+                return result;
+            }
+
+            var expressionType = node.Expression.Type;
             if (node.Expression != null
-                && (node.Expression.Type.ImplementsInterface(typeof(ICollection<>))
-                    || node.Expression.Type.ImplementsInterface(typeof(ICollection)))
+                && (expressionType.ImplementsInterface(typeof(ICollection<>))
+                    || expressionType.ImplementsInterface(typeof(ICollection)))
                 && node.Member.Name == "Count")
             {
                 return new BsonDocument("$size", TranslateValue(node.Expression));
@@ -338,6 +366,12 @@ namespace MongoDB.Driver.Linq.Translators
                 {
                     return result;
                 }
+
+                if (node.Method.DeclaringType == typeof(Enumerable)
+                    && TryTranslateStaticEnumerableMethodCall(node, out result))
+                {
+                    return result;
+                }
             }
             else
             {
@@ -347,7 +381,13 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object.Type.IsGenericType
+                if (node.Object.Type == typeof(DateTime)
+                    && TryTranslateDateTimeCall(node, out result))
+                {
+                    return result;
+                }
+
+                if (node.Object.Type.GetTypeInfo().IsGenericType
                     && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                     && TryTranslateHashSetMethodCall(node, out result))
                 {
@@ -385,6 +425,16 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var mapping = ProjectionMapper.Map(node);
             return TranslateMapping(mapping);
+        }
+
+        private BsonValue TranslateNewArrayInit(NewArrayExpression node)
+        {
+            var bsonArray = new BsonArray();
+            foreach (var item in node.Expressions)
+            {
+                bsonArray.Add(TranslateValue(item));
+            }
+            return bsonArray;
         }
 
         private BsonValue TranslateMapping(ProjectionMapping mapping)
@@ -445,9 +495,10 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             BsonValue result;
-            if (TryTranslateAvgResultOperator(node, out result) ||
+            if (TryTranslateAggregateResultOperator(node, out result) ||
                 TryTranslateAllResultOperator(node, out result) ||
                 TryTranslateAnyResultOperator(node, out result) ||
+                TryTranslateAvgResultOperator(node, out result) ||
                 TryTranslateContainsResultOperator(node, out result) ||
                 TryTranslateCountResultOperator(node, out result) ||
                 TryTranslateFirstResultOperator(node, out result) ||
@@ -457,11 +508,22 @@ namespace MongoDB.Driver.Linq.Translators
                 TryTranslateStdDevResultOperator(node, out result) ||
                 TryTranslateSumResultOperator(node, out result))
             {
+                if (result == null)
+                {
+                    // we successfully translated, but nothing to do.
+                    return TranslateValue(node.Source);
+                }
+
                 return result;
             }
 
             var message = string.Format("The result operation {0} is not supported.", node.ResultOperator.GetType());
             throw new NotSupportedException(message);
+        }
+
+        private BsonValue TranslateReverse(ReverseExpression node)
+        {
+            return new BsonDocument("$reverseArray", TranslateValue(node.Source));
         }
 
         private BsonValue TranslateSelect(SelectExpression node)
@@ -482,6 +544,11 @@ namespace MongoDB.Driver.Linq.Translators
                 { "as", node.ItemName },
                 { "in", inValue}
             });
+        }
+
+        private BsonValue TranslateSerializedConstant(SerializedConstantExpression node)
+        {
+            return node.SerializeValue(node.Type, node.Value);
         }
 
         private BsonValue TranslateSkip(SkipExpression node)
@@ -531,16 +598,42 @@ namespace MongoDB.Driver.Linq.Translators
             });
         }
 
-        private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)
+        private BsonValue TranslateZip(ZipExpression node)
         {
-            var resultOperator = node.ResultOperator as AverageResultOperator;
+            var inputs = new[] { TranslateValue(node.Source), TranslateValue(node.Other) };
+
+            return new BsonDocument("$zip", new BsonDocument("inputs", new BsonArray(inputs)));
+        }
+
+        private bool TryTranslateAggregateResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            result = null;
+            var resultOperator = node.ResultOperator as AggregateResultOperator;
             if (resultOperator != null)
             {
-                result = new BsonDocument("$avg", TranslateValue(node.Source));
+                var input = TranslateValue(node.Source);
+                var initialValue = TranslateValue(resultOperator.Seed);
+                var inValue = TranslateValue(resultOperator.Reducer);
+
+                result = new BsonDocument("$reduce", new BsonDocument
+                {
+                    { "input", input },
+                    { "initialValue", initialValue },
+                    { "in", inValue }
+                });
+
+                if (resultOperator.Finalizer != null)
+                {
+                    inValue = TranslateValue(resultOperator.Finalizer);
+                    result = new BsonDocument("$let", new BsonDocument
+                    {
+                        { "vars", new BsonDocument(resultOperator.ItemName, result) },
+                        { "in", inValue }
+                    });
+                }
                 return true;
             }
 
-            result = null;
             return false;
         }
 
@@ -581,10 +674,10 @@ namespace MongoDB.Driver.Linq.Translators
                 if (whereExpression == null)
                 {
                     result = new BsonDocument("$gt", new BsonArray(new BsonValue[]
-                {
-                    new BsonDocument("$size", TranslateValue(node.Source)),
-                    0
-                }));
+                    {
+                        new BsonDocument("$size", TranslateValue(node.Source)),
+                        0
+                    }));
                     return true;
                 }
                 else
@@ -601,6 +694,19 @@ namespace MongoDB.Driver.Linq.Translators
                     result = new BsonDocument("$anyElementTrue", result);
                     return true;
                 }
+            }
+
+            result = null;
+            return false;
+        }
+
+        private bool TryTranslateAvgResultOperator(PipelineExpression node, out BsonValue result)
+        {
+            var resultOperator = node.ResultOperator as AverageResultOperator;
+            if (resultOperator != null)
+            {
+                result = new BsonDocument("$avg", TranslateValue(node.Source));
+                return true;
             }
 
             result = null;
@@ -638,6 +744,29 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             result = null;
+            return false;
+        }
+
+        private bool TryTranslateDateTimeCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            var field = TranslateValue(node.Object);
+
+            switch (node.Method.Name)
+            {
+                case "ToString":
+                    if (node.Arguments.Count == 1)
+                    {
+                        var format = TranslateValue(node.Arguments[0]);
+                        result = new BsonDocument("$dateToString", new BsonDocument
+                        {
+                            { "format", format },
+                            { "date", field }
+                        });
+                    }
+                    return true;
+            }
+
             return false;
         }
 
@@ -679,6 +808,24 @@ namespace MongoDB.Driver.Linq.Translators
                     return true;
                 case "Year":
                     result = new BsonDocument("$year", field);
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryTranslateStringMemberAccess(MemberExpression node, out BsonValue result)
+        {
+            result = null;
+            var field = TranslateValue(node.Expression);
+            switch (node.Member.Name)
+            {
+                case "Length":
+                    var name = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                        "$strLenCP" :
+                        "$strLenBytes";
+
+                    result = new BsonDocument(name, field);
                     return true;
             }
 
@@ -766,6 +913,28 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             result = null;
+            return false;
+        }
+
+        private bool TryTranslateStaticEnumerableMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            switch (node.Method.Name)
+            {
+                case "Range":
+                    var start = TranslateValue(node.Arguments[0]);
+                    result = new BsonDocument("$range", new BsonArray
+                    {
+                        start,
+                        new BsonDocument("$add", new BsonArray
+                        {
+                            start,
+                            TranslateValue(node.Arguments[1])
+                        })
+                    });
+                    return true;
+            }
+
             return false;
         }
 
@@ -880,10 +1049,99 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                     }
                     break;
+                case "IndexOf":
+                    var indexOfArgs = new BsonArray { field };
+
+                    if (node.Arguments.Count < 1 || node.Arguments.Count > 3)
+                    {
+                        return false;
+                    }
+
+                    if (node.Arguments[0].Type != typeof(char) && node.Arguments[0].Type != typeof(string))
+                    {
+                        return false;
+                    }
+                    var value = TranslateValue(node.Arguments[0]);
+                    if (value.BsonType == BsonType.Int32)
+                    {
+                        value = new BsonString(new string((char)value.AsInt32, 1));
+                    }
+                    indexOfArgs.Add(value);
+
+                    if (node.Arguments.Count > 1)
+                    {
+                        if (node.Arguments[1].Type != typeof(int))
+                        {
+                            return false;
+                        }
+
+                        var startIndex = TranslateValue(node.Arguments[1]);
+                        indexOfArgs.Add(startIndex);
+                    }
+
+                    if (node.Arguments.Count > 2)
+                    {
+                        if (node.Arguments[2].Type != typeof(int))
+                        {
+                            return false;
+                        }
+
+                        var count = TranslateValue(node.Arguments[2]);
+                        var endIndex = new BsonDocument("$add", new BsonArray { indexOfArgs[2], count });
+                        indexOfArgs.Add(endIndex);
+                    }
+
+                    var indexOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                            "$indexOfCP" :
+                            "$indexOfBytes";
+
+                    result = new BsonDocument(indexOpName, indexOfArgs);
+                    return true;
+                case "Split":
+                    if (node.Arguments.Count < 1 || node.Arguments.Count > 2)
+                    {
+                        return false;
+                    }
+                    if (node.Arguments[0].Type != typeof(char[]) && node.Arguments[0].Type != typeof(string[]))
+                    {
+                        return false;
+                    }
+                    var separatorArray = TranslateValue(node.Arguments[0]) as BsonArray;
+                    if (separatorArray == null || separatorArray.Count != 1)
+                    {
+                        return false;
+                    }
+                    var separator = separatorArray[0];
+                    if (separator.BsonType == BsonType.Int32)
+                    {
+                        separator = new BsonString(new string((char)separator.AsInt32, 1));
+                    }
+                    if (node.Arguments.Count == 2)
+                    {
+                        var constantExpression = node.Arguments[1] as ConstantExpression;
+                        if (constantExpression == null || constantExpression.Type != typeof(StringSplitOptions))
+                        {
+                            return false;
+                        }
+                        var options = (StringSplitOptions)constantExpression.Value;
+                        if (options != StringSplitOptions.None)
+                        {
+                            return false;
+                        }
+                    }
+                    result = new BsonDocument("$split", new BsonArray
+                    {
+                        field,
+                        separator
+                    });
+                    return true;
                 case "Substring":
                     if (node.Arguments.Count == 2)
                     {
-                        result = new BsonDocument("$substr", new BsonArray(new[]
+                        var substrOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                            "$substrCP" :
+                            "$substr";
+                        result = new BsonDocument(substrOpName, new BsonArray(new[]
                             {
                                 field,
                                 TranslateValue(node.Arguments[0]),

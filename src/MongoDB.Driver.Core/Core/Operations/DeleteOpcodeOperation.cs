@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     return emulator.Execute(channel, cancellationToken);
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (SupportedFeatures.AreWriteCommandsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
@@ -153,6 +153,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private WriteConcernResult ExecuteProtocol(IChannelHandle channel, CancellationToken cancellationToken)
         {
+            if (_request.Collation != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support collations.");
+            }
+
             return channel.Delete(
                 _collectionNamespace,
                 _request.Filter,
@@ -164,6 +169,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
+            if (_request.Collation != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support collations.");
+            }
+
             return channel.DeleteAsync(
                 _collectionNamespace,
                 _request.Filter,

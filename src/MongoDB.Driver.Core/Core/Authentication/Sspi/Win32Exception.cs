@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,18 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
 {
     /// <summary>
     /// Thrown from a win32 wrapped operation.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class Win32Exception : Exception
     {
         /// <summary>
@@ -44,6 +48,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             HResult = (int)errorCode;
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="Win32Exception" /> class.
         /// </summary>
@@ -53,5 +58,6 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             : base(info, context) 
         { 
         }
+#endif
     }
 }

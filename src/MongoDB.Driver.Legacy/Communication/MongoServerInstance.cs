@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -261,7 +260,11 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var ipAddresses = Dns.GetHostAddressesAsync(_address.Host).GetAwaiter().GetResult();
+#else
             var ipAddresses = Dns.GetHostAddresses(_address.Host);
+#endif
             var ipAddress = ipAddresses.FirstOrDefault(a => a.AddressFamily == (_settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork));
             return new IPEndPoint(ipAddress, _address.Port);
         }

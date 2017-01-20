@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     public class CountOperation : IReadOperation<long>
     {
         // fields
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _filter;
         private BsonValue _hint;
@@ -52,6 +53,17 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -149,7 +161,8 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
             return new BsonDocument
             {
@@ -159,7 +172,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
+                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }
 

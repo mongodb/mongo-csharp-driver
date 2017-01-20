@@ -38,13 +38,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="username">The username.</param>
-        internal MongoIdentity(string source, string username)
+        /// <param name="allowNullUsername">Whether to allow null usernames.</param>
+        internal MongoIdentity(string source, string username, bool allowNullUsername = false)
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (username == null)
+            if (username == null && !allowNullUsername)
             {
                 throw new ArgumentNullException("username");
             }
@@ -129,7 +130,7 @@ namespace MongoDB.Driver
         public override int GetHashCode()
         {
             var hash = 17;
-            hash += 37 * _username.GetHashCode();
+            hash += 37 * (_username == null ? 0 :_username.GetHashCode());
             hash += 37 * _source.GetHashCode();
             return hash;
         }

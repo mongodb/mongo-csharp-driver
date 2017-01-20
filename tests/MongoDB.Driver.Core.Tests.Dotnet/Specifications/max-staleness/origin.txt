@@ -1,0 +1,3 @@
+﻿The tests in the max-staleness\tests folder are copies of the tests in this folder of the specifications repository:
+
+https://github.com/mongodb/specifications/tree/master/source/max-staleness/tests

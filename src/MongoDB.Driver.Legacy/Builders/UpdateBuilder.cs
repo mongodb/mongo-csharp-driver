@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -710,7 +710,9 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for creating update modifiers.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(UpdateBuilder.Serializer))]
     public class UpdateBuilder : BuilderBase, IMongoUpdate
     {
@@ -2265,7 +2267,9 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating update modifiers.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     [BsonSerializer(typeof(UpdateBuilder<>.Serializer))]
     public class UpdateBuilder<TDocument> : BuilderBase, IMongoUpdate
     {

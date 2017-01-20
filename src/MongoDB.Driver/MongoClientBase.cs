@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver
@@ -31,12 +33,42 @@ namespace MongoDB.Driver
         public abstract MongoClientSettings Settings { get; }
 
         /// <inheritdoc />
+        public virtual void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public abstract IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<Bson.BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public virtual IMongoClient WithReadConcern(ReadConcern readConcern)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IMongoClient WithReadPreference(ReadPreference readPreference)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IMongoClient WithWriteConcern(WriteConcern writeConcern)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

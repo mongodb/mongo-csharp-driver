@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))
+            if (!typeof(IQueryable<T>).GetTypeInfo().IsAssignableFrom(expression.Type))
             {
                 throw new ArgumentOutOfRangeException("expression");
             }
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            if (!typeof(TResult).IsAssignableFrom(expression.Type))
+            if (!typeof(TResult).GetTypeInfo().IsAssignableFrom(expression.Type))
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Linq
         {
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
-            return ienum.GetGenericArguments()[0];
+            return ienum.GetTypeInfo().GetGenericArguments()[0];
         }
 
         private static Type FindIEnumerable(Type seqType)
@@ -167,24 +167,25 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            if (seqType.IsArray)
+            var seqTypeInfo = seqType.GetTypeInfo();
+            if (seqTypeInfo.IsArray)
             {
-                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+                return typeof(IEnumerable<>).MakeGenericType(seqTypeInfo.GetElementType());
             }
 
-            if (seqType.IsGenericType)
+            if (seqTypeInfo.IsGenericType)
             {
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (Type arg in seqTypeInfo.GetGenericArguments())
                 {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
+                    if (ienum.GetTypeInfo().IsAssignableFrom(seqType))
                     {
                         return ienum;
                     }
                 }
             }
 
-            Type[] ifaces = seqType.GetInterfaces();
+            Type[] ifaces = seqTypeInfo.GetInterfaces();
             if (ifaces != null && ifaces.Length > 0)
             {
                 foreach (Type iface in ifaces)
@@ -194,9 +195,9 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            if (seqTypeInfo.BaseType != null && seqTypeInfo.BaseType != typeof(object))
             {
-                return FindIEnumerable(seqType.BaseType);
+                return FindIEnumerable(seqTypeInfo.BaseType);
             }
 
             return null;

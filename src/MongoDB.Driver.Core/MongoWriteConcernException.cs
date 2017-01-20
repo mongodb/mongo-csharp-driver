@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
@@ -26,7 +28,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB write concern exception.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public class MongoWriteConcernException : MongoCommandException
     {
         // fields
@@ -45,6 +49,7 @@ namespace MongoDB.Driver
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, nameof(writeConcernResult));
         }
 
+#if NET45
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
@@ -55,6 +60,7 @@ namespace MongoDB.Driver
         {
             _writeConcernResult = (WriteConcernResult)info.GetValue("_writeConcernResult", typeof(WriteConcernResult));
         }
+#endif
 
         // properties
         /// <summary>
@@ -69,11 +75,13 @@ namespace MongoDB.Driver
         }
 
         // methods
+#if NET45
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("_writeConcernResult", _writeConcernResult);
         }
+#endif
     }
 }

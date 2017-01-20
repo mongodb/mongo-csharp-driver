@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal static class AggregateProjectTranslator
     {
-        public static RenderedProjectionDefinition<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static RenderedProjectionDefinition<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             var bindingContext = new PipelineBindingContext(serializerRegistry);
             var parameterExpression = new DocumentExpression(parameterSerializer);
@@ -36,14 +36,14 @@ namespace MongoDB.Driver.Linq.Translators
             node = bindingContext.Bind(node);
 
             var projectionSerializer = bindingContext.GetSerializer(node.Type, node);
-            var projection = TranslateProject(node);
+            var projection = TranslateProject(node, translationOptions);
 
             return new RenderedProjectionDefinition<TResult>(projection, (IBsonSerializer<TResult>)projectionSerializer);
         }
 
-        public static BsonDocument TranslateProject(Expression expression)
+        public static BsonDocument TranslateProject(Expression expression, ExpressionTranslationOptions translationOptions)
         {
-            var projection = (BsonDocument)AggregateLanguageTranslator.Translate(expression);
+            var projection = (BsonDocument)AggregateLanguageTranslator.Translate(expression, translationOptions);
             if (!projection.Contains("_id"))
             {
                 projection.Add("_id", 0);

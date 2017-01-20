@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -101,7 +101,12 @@ namespace MongoDB.Driver.Linq
         // private static methods
         private static IQueryable<TSource> WithIndex<TSource>(IQueryable<TSource> query, BsonValue indexHint)
         {
-            var method = ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(typeof(TSource));
+            var methodDefinition = typeof(LinqToMongo).GetTypeInfo().GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(m => m.Name == "WithIndex")
+                .Where(m => { var ga = m.GetGenericArguments(); return ga.Length == 1 && ga[0].Name == "TSource"; })
+                .Where(m => { var p = m.GetParameters(); return p.Length == 2 && p[1].ParameterType == typeof(BsonValue); })
+                .Single();
+            var method = methodDefinition.MakeGenericMethod(typeof(TSource));
             var args = new[] { query.Expression, Expression.Constant(indexHint) };
             var expression = Expression.Call(null, method, args);
             return query.Provider.CreateQuery<TSource>(expression);

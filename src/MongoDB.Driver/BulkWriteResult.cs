@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+#if NET45
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -25,7 +27,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
+#if NET45
     [Serializable]
+#endif
     public abstract class BulkWriteResult
     {
         // fields
@@ -93,7 +97,9 @@ namespace MongoDB.Driver
     /// Represents the result of a bulk write operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#if NET45
     [Serializable]
+#endif
     public abstract class BulkWriteResult<TDocument> : BulkWriteResult
     {
         // private fields
@@ -165,7 +171,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an acknowledged write concern.
         /// </summary>
-        [Serializable]
+#if NET45
+    [Serializable]
+#endif
         public class Acknowledged : BulkWriteResult<TDocument>
         {
             // private fields
@@ -257,7 +265,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an unacknowledged write concern.
         /// </summary>
-        [Serializable]
+#if NET45
+    [Serializable]
+#endif
         public class Unacknowledged : BulkWriteResult<TDocument>
         {
             // constructors

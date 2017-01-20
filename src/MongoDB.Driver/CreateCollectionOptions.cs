@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -27,9 +26,11 @@ namespace MongoDB.Driver
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private Collation _collation;
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
+        private bool? _noPadding;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
@@ -37,6 +38,15 @@ namespace MongoDB.Driver
         private DocumentValidationLevel? _validationLevel;
 
         // properties
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to automatically create an index on the _id.
         /// </summary>
@@ -83,6 +93,15 @@ namespace MongoDB.Driver
         {
             get { return _maxSize; }
             set { _maxSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether padding should not be used.
+        /// </summary>
+        public bool? NoPadding
+        {
+            get { return _noPadding; }
+            set { _noPadding = value; }
         }
 
         /// <summary>
@@ -163,13 +182,16 @@ namespace MongoDB.Driver
                 {
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
+                    Collation = options.Collation,
+                    IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
+                    NoPadding = options.NoPadding,
                     SerializerRegistry = options.SerializerRegistry,
                     StorageEngine = options.StorageEngine,
                     UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                     ValidationAction = options.ValidationAction,
-                    ValidationLevel = options.ValidationLevel                  
+                    ValidationLevel = options.ValidationLevel
                 };
             }
 

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ namespace MongoDB.Driver
     public class FindAndModifyArgs
     {
         // private fields
+        private bool? _bypassDocumentValidation;
+        private Collation _collation;
         private IMongoFields _fields;
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
@@ -47,6 +49,30 @@ namespace MongoDB.Driver
         private FindAndModifyDocumentVersion? _versionReturned;
 
         // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        /// <value>
+        /// The collation.
+        /// </value>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
+        }
+
         /// <summary>
         /// Gets or sets the fields specification.
         /// </summary>

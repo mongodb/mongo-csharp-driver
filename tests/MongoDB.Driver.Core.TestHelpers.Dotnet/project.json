@@ -1,0 +1,25 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "MongoDB.Bson.Dotnet": { "target": "project" },
+    "MongoDB.Bson.TestHelpers.Dotnet": { "target": "project" },
+    "MongoDB.Driver.Core.Dotnet": { "target": "project" }
+  },
+  "buildOptions": {
+    "compile": {
+      "include": [ "../MongoDB.Driver.Core.TestHelpers/**/*.cs" ]
+    },
+    "define": [ "DEBUG", "TRACE" ]
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Diagnostics.StackTrace": "4.0.1",
+        "System.Diagnostics.TextWriterTraceListener": "4.0.0"
+      },
+      "imports": ["dnxcore50"]
+    }
+  }
+}

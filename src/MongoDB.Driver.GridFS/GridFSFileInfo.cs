@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,16 +27,18 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents information about a stored GridFS file (backed by a files collection document).
     /// </summary>
-    [BsonSerializer(typeof(GridFSFileInfoSerializer))]
-    public class GridFSFileInfo : BsonDocumentBackedClass
+    /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
+    [BsonSerializer(typeof(GridFSFileInfoSerializer<>))]
+    public sealed class GridFSFileInfo<TFileId> : BsonDocumentBackedClass
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSFileInfo"/> class.
+        /// Initializes a new instance of the <see cref="GridFSFileInfo" /> class.
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
-        public GridFSFileInfo(BsonDocument backingDocument)
-            : base(backingDocument, GridFSFileInfoSerializer.Instance)
+        /// <param name="fileInfoSerializer">The fileInfo serializer.</param>
+        public GridFSFileInfo(BsonDocument backingDocument, IGridFSFileInfoSerializer<TFileId> fileInfoSerializer)
+            : base(backingDocument, fileInfoSerializer)
         {
         }
 
@@ -104,23 +106,12 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The identifier.
         /// </value>
-        public ObjectId Id
+        public TFileId Id
         {
-            get { return GetValue<BsonValue>("IdAsBsonValue").AsObjectId; }
+            get { return GetValue<TFileId>("Id"); }
         }
 
-        /// <summary>
-        /// Gets the identifier as a BsonValue.
-        /// </summary>
-        /// <value>
-        /// The identifier as a BsonValue.
-        /// </value>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public BsonValue IdAsBsonValue
-        {
-            get { return GetValue<BsonValue>("IdAsBsonValue"); }
-        }
-
+        // public properties
         /// <summary>
         /// Gets the length.
         /// </summary>

@@ -33,7 +33,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\MongoDB.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -41,7 +41,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Driver.XML</DocumentationFile>
@@ -51,7 +51,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CODE_ANALYSIS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MongoDB.Driver.XML</DocumentationFile>
@@ -68,17 +68,38 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs">
+      <Link>ApplicationNameHelper.cs</Link>
+    </Compile>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Support\Hasher.cs</Link>
     </Compile>
+    <Compile Include="AggregateBucketAutoGranularity.cs" />
+    <Compile Include="AggregateBucketAutoOptions.cs" />
+    <Compile Include="AggregateBucketAutoResult.cs" />
+    <Compile Include="AggregateBucketAutoResultId.cs" />
+    <Compile Include="AggregateBucketOptions.cs" />
+    <Compile Include="AggregateBucketResult.cs" />
+    <Compile Include="AggregateCountResult.cs" />
+    <Compile Include="AggregateExpressionDefinition.cs" />
+    <Compile Include="AggregateFacet.cs" />
+    <Compile Include="AggregateFacetOptions.cs" />
+    <Compile Include="AggregateFacetResult.cs" />
+    <Compile Include="AggregateFacetResults.cs" />
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateGraphLookupOptions.cs" />
     <Compile Include="AggregateLookupOptions.cs" />
+    <Compile Include="AggregateSortByCountResult.cs" />
+    <Compile Include="AggregateStringTranslationMode.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
     <Compile Include="CreateIndexModel.cs" />
+    <Compile Include="CreateViewOptions.cs" />
+    <Compile Include="DeleteOptions.cs" />
+    <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
@@ -88,6 +109,9 @@
     <Compile Include="Linq\ExpressionHelper.cs" />
     <Compile Include="Linq\Expressions\AccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\AccumulatorType.cs" />
+    <Compile Include="Linq\Expressions\AggregateExpressionExpression.cs" />
+    <Compile Include="Linq\Expressions\SerializedValueExpression.cs" />
+    <Compile Include="Linq\Expressions\InjectedFilterExpression.cs" />
     <Compile Include="Linq\Expressions\CollectionExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedExpression.cs" />
     <Compile Include="Linq\Expressions\ConcatExpression.cs" />
@@ -106,6 +130,7 @@
     <Compile Include="Linq\Expressions\JoinExpression.cs" />
     <Compile Include="Linq\Expressions\GroupJoinExpression.cs" />
     <Compile Include="Linq\Expressions\OrderByExpression.cs" />
+    <Compile Include="Linq\Expressions\ResultOperators\AggregateResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\HashSetResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\ContainsResultOperator.cs" />
     <Compile Include="Linq\Expressions\ResultOperators\ListResultOperator.cs" />
@@ -122,6 +147,8 @@
     <Compile Include="Linq\Expressions\ExceptExpression.cs" />
     <Compile Include="Linq\Expressions\IntersectExpression.cs" />
     <Compile Include="Linq\Expressions\SampleExpression.cs" />
+    <Compile Include="Linq\Expressions\ReverseExpression.cs" />
+    <Compile Include="Linq\Expressions\ZipExpression.cs" />
     <Compile Include="Linq\Expressions\UnionExpression.cs" />
     <Compile Include="Linq\Expressions\WhereExpression.cs" />
     <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
@@ -143,6 +170,7 @@
     <Compile Include="Linq\IMongoQueryable.cs" />
     <Compile Include="Linq\IMongoQueryProvider.cs" />
     <Compile Include="Linq\IResultTransformer.cs" />
+    <Compile Include="Linq\LinqExtensions.cs" />
     <Compile Include="Linq\MethodHelper.cs" />
     <Compile Include="Linq\MongoEnumerable.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
@@ -155,12 +183,17 @@
     <Compile Include="Linq\Processors\AccumulatorBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\EmbeddedPipelineBindingContext.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AggregateBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AllBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AsQueryableBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ConcatBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\OfTypeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\SkipBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\StandardDeviationBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\TakeBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ToHashSetBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ReverseBinder.cs" />
+    <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ZipBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\UnionBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\IntersectBinder.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\ExceptBinder.cs" />
@@ -180,6 +213,7 @@
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\AnyBinder.cs" />
     <Compile Include="Linq\Processors\IBindingContext.cs" />
     <Compile Include="Linq\Processors\MethodInfoMethodCallBinder.cs" />
+    <Compile Include="Linq\Processors\MultipleWhereMerger.cs" />
     <Compile Include="Linq\Processors\NameBasedMethodCallBinder.cs" />
     <Compile Include="Linq\Processors\PartialEvaluator.cs" />
     <Compile Include="Linq\Processors\EmbeddedPipeline\MethodCallBinders\DefaultIfEmptyBinder.cs" />
@@ -222,6 +256,7 @@
     <Compile Include="Linq\Processors\Transformers\FirstLastNormalizingTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\IExpressionTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\CollectionConstructorTransformer.cs" />
+    <Compile Include="Linq\Processors\Transformers\EqualsAnyBooleanTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\SelectSelectCombiningTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\VBCoalesceTransformer.cs" />
@@ -231,10 +266,11 @@
     <Compile Include="Linq\Processors\Transformers\VBStringIndexComparisonTransformer.cs" />
     <Compile Include="Linq\QueryableExecutionModel.cs" />
     <Compile Include="Linq\SerializerHelper.cs" />
+    <Compile Include="Linq\Translators\AggregateExpressionTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateGroupTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslator.cs" />
-    <Compile Include="Linq\Translators\FieldExpressionFlattener.cs" />
+    <Compile Include="Linq\FieldExpressionFlattener.cs" />
     <Compile Include="Linq\Translators\FieldNamePrefixer.cs" />
     <Compile Include="Linq\QueryableTranslation.cs" />
     <Compile Include="Linq\Translators\FindProjectionTranslator.cs" />
@@ -242,13 +278,17 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\QueryableTranslator.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
+    <Compile Include="ExpressionTranslationOptions.cs" />
+    <Compile Include="MongoX509Identity.cs" />
     <Compile Include="OfTypeSerializer.cs" />
+    <Compile Include="PipelineDefinitionBuilder.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="FilterDefinition.cs" />
     <Compile Include="AggregateFluentBase.cs" />
+    <Compile Include="PipelineStageDefinitionBuilder.cs" />
     <Compile Include="ProjectionDefinitionBuilder.cs" />
     <Compile Include="IndexKeysDefinitionBuilder.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
@@ -276,8 +316,6 @@
     <Compile Include="FindFluentBase.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Support\ReflectionExtensions.cs" />
-    <Compile Include="Sync\AsyncCursorEnumerableAdapter.cs" />
-    <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="AggregateUnwindOptions.cs" />
     <Compile Include="TextSearchOptions.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />
@@ -437,7 +475,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
+    <Analyzer Include="..\..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

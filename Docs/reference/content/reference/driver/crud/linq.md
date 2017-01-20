@@ -11,7 +11,7 @@ title = "LINQ"
 
 ## LINQ
 
-The driver contains an implementation of [LINQ]({{< msdnref "bb397926" >}}) that targets the [aggregation framework]({{< docsref "aggregation" >}}). The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the [AggregationSample]({{< srcref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}) source code.
+The driver contains an implementation of [LINQ]({{< msdnref "bb397926" >}}) that targets the [aggregation framework]({{< docsref "aggregation" >}}). The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the [AggregationSample]({{< testref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}) source code.
 
 For the rest of this page, we'll use the following class:
 
@@ -320,7 +320,7 @@ var query = from p in collection.AsQueryable()
 
 ### Supported Methods
 
-The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the [MongoQueryableTests]({{< srcref "MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs" >}}).
+The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the [MongoQueryableTests]({{< testref "MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs" >}}).
 
 
 #### Any

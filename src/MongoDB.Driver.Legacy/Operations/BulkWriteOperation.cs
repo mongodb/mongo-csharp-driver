@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -32,6 +31,7 @@ namespace MongoDB.Driver
     public sealed class BulkWriteOperation<TDocument>
     {
         // private fields
+        private bool? _bypassDocumentValidation;
         private readonly MongoCollection _collection;
         private readonly bool _isOrdered;
         private readonly List<WriteRequest> _requests = new List<WriteRequest>();
@@ -42,6 +42,19 @@ namespace MongoDB.Driver
         {
             _collection = collection;
             _isOrdered = isOrdered;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether to bypass document validation.
+        /// </value>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
         }
 
         // public methods
@@ -72,8 +85,9 @@ namespace MongoDB.Driver
         /// Creates a builder for a new write request (either a remove or an update).
         /// </summary>
         /// <param name="query">The query.</param>
+        /// <param name="collation">The collation.</param>
         /// <returns>A FluentWriteRequestBuilder.</returns>
-        public BulkWriteRequestBuilder<TDocument> Find(IMongoQuery query)
+        public BulkWriteRequestBuilder<TDocument> Find(IMongoQuery query, Collation collation = null)
         {
             if (query == null)
             {
@@ -83,7 +97,7 @@ namespace MongoDB.Driver
             {
                 throw new InvalidOperationException("The bulk write operation has already been executed.");
             }
-            return new BulkWriteRequestBuilder<TDocument>(AddRequest, query);
+            return new BulkWriteRequestBuilder<TDocument>(AddRequest, query, collation);
         }
 
         /// <summary>
@@ -151,6 +165,7 @@ namespace MongoDB.Driver
 
             var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
             {
+                BypassDocumentValidation = _bypassDocumentValidation,
                 IsOrdered = _isOrdered,
                 WriteConcern = writeConcern
             };

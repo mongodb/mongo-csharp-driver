@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -122,6 +122,18 @@ namespace MongoDB.Bson.IO
         {
             VerifyName(reader, name);
             return reader.ReadDateTime();
+        }
+
+        /// <summary>
+        /// Reads a BSON Decimal128 element from the reader.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>A <see cref="Decimal128"/>.</returns>
+        public static Decimal128 ReadDecimal128(this IBsonReader reader, string name)
+        {
+            VerifyName(reader, name);
+            return reader.ReadDecimal128();
         }
 
         /// <summary>

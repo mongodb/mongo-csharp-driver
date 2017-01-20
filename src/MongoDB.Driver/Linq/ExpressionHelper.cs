@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ namespace MongoDB.Driver.Linq
     {
         public static LambdaExpression GetLambda(Expression node)
         {
+            if (node.NodeType == ExpressionType.Constant && ((ConstantExpression)node).Value is LambdaExpression)
+            {
+                return (LambdaExpression)((ConstantExpression)node).Value;
+            }
+
             return (LambdaExpression)StripQuotes(node);
         }
 

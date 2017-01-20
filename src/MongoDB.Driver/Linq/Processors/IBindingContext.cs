@@ -22,6 +22,8 @@ namespace MongoDB.Driver.Linq.Processors
 {
     internal interface IBindingContext
     {
+        IBsonSerializerRegistry SerializerRegistry { get; }
+
         void AddCorrelatingId(Expression node, Guid correlatingId);
 
         void AddExpressionMapping(Expression original, Expression replacement);

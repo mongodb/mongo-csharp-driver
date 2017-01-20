@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,20 +21,19 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.GridFS
 {
-    internal abstract class GridFSDownloadStreamBase : GridFSDownloadStream
+    internal abstract class GridFSDownloadStreamBase<TFileId> : GridFSDownloadStream<TFileId>
     {
         // private fields
         private readonly IReadBinding _binding;
-        private readonly GridFSBucket _bucket;
-        private bool _closed;
+        private readonly IGridFSBucket<TFileId> _bucket;
         private bool _disposed;
-        private readonly GridFSFileInfo _fileInfo;
+        private readonly GridFSFileInfo<TFileId> _fileInfo;
 
         // constructors
         protected GridFSDownloadStreamBase(
-            GridFSBucket bucket,
+            IGridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo fileInfo)
+            GridFSFileInfo<TFileId> fileInfo)
         {
             _bucket = bucket;
             _binding = binding;
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.GridFS
             get { return false; }
         }
 
-        public override GridFSFileInfo FileInfo
+        public override GridFSFileInfo<TFileId> FileInfo
         {
             get { return _fileInfo; }
         }
@@ -68,21 +67,26 @@ namespace MongoDB.Driver.GridFS
             get { return _binding; }
         }
 
-        protected GridFSBucket Bucket
+        protected IGridFSBucket<TFileId> Bucket
         {
             get { return _bucket; }
         }
 
         // public methods
-        public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override void Close()
         {
-            _closed = true;
-            return Task.FromResult(true);
+            Close(CancellationToken.None);
         }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        public override void Close(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            base.Close();
+        }
+
+        public override Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            base.Close();
+            return Task.FromResult(true);
         }
 
         public override void Flush()
@@ -91,11 +95,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         public override Task FlushAsync(CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();
         }
@@ -122,15 +121,6 @@ namespace MongoDB.Driver.GridFS
             {
                 if (disposing)
                 {
-                    try
-                    {
-                        CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-
                     _binding.Dispose();
                 }
 
@@ -138,15 +128,6 @@ namespace MongoDB.Driver.GridFS
             }
 
             base.Dispose(disposing);
-        }
-
-        protected void ThrowIfClosedOrDisposed()
-        {
-            if (_closed)
-            {
-                throw new InvalidOperationException("Stream is closed.");
-            }
-            ThrowIfDisposed();
         }
 
         protected virtual void ThrowIfDisposed()

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,7 +85,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             var descriptor = new SecurityBufferDescriptor(buffers);
             bool contextAddRefSuccess = false;
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -134,7 +136,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             bool contextAddRefSuccess = false;
             SecurityPackageContextSizes sizes;
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -175,7 +179,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             };
 
             var descriptor = new SecurityBufferDescriptor(buffers);
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 DangerousAddRef(ref contextAddRefSuccess);
@@ -227,8 +233,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
-            
+
+#if NET45
             RuntimeHelpers.PrepareConstrainedRegions();
+#endif
             try
             {
                 _credential.DangerousAddRef(ref credentialAddRefSuccess);
@@ -341,11 +349,19 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
 
                 var current = new IntPtr(array.ToInt64());
+#if NET45
                 var size = Marshal.SizeOf(typeof(SecurityPackageInfo));
+#else
+                var size = Marshal.SizeOf<SecurityPackageInfo>();
+#endif
                 for (int i = 0; i < count; i++)
                 {
+#if NET45
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
-                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.InvariantCultureIgnoreCase))
+#else
+                    var package = Marshal.PtrToStructure< SecurityPackageInfo>(current);
+#endif
+                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {
                         return (int)package.MaxTokenSize;
                     }

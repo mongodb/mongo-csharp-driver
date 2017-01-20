@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,8 +29,10 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
         static EmbeddedPipelineBinder()
         {
             var infoBinder = new MethodInfoMethodCallBinder<EmbeddedPipelineBindingContext>();
+            infoBinder.Register(new AggregateBinder(), AggregateBinder.GetSupportedMethods());
             infoBinder.Register(new AllBinder(), AllBinder.GetSupportedMethods());
             infoBinder.Register(new AnyBinder(), AnyBinder.GetSupportedMethods());
+            infoBinder.Register(new AsQueryableBinder(), AsQueryableBinder.GetSupportedMethods());
             infoBinder.Register(new AverageBinder(), AverageBinder.GetSupportedMethods());
             infoBinder.Register(new ConcatBinder(), ConcatBinder.GetSupportedMethods());
             infoBinder.Register(new DefaultIfEmptyBinder(), DefaultIfEmptyBinder.GetSupportedMethods());
@@ -41,6 +43,8 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new LastBinder(), LastBinder.GetSupportedMethods());
             infoBinder.Register(new MaxBinder(), MaxBinder.GetSupportedMethods());
             infoBinder.Register(new MinBinder(), MinBinder.GetSupportedMethods());
+            infoBinder.Register(new OfTypeBinder(), OfTypeBinder.GetSupportedMethods());
+            infoBinder.Register(new ReverseBinder(), ReverseBinder.GetSupportedMethods());
             infoBinder.Register(new SelectBinder(), SelectBinder.GetSupportedMethods());
             infoBinder.Register(new SkipBinder(), SkipBinder.GetSupportedMethods());
             infoBinder.Register(new StandardDeviationBinder(), StandardDeviationBinder.GetSupportedMethods());
@@ -51,6 +55,7 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
             infoBinder.Register(new ToListBinder(), ToListBinder.GetSupportedMethods());
             infoBinder.Register(new UnionBinder(), UnionBinder.GetSupportedMethods());
             infoBinder.Register(new WhereBinder(), WhereBinder.GetSupportedMethods());
+            infoBinder.Register(new ZipBinder(), ZipBinder.GetSupportedMethods());
 
             var nameBinder = new NameBasedMethodCallBinder<EmbeddedPipelineBindingContext>();
             nameBinder.Register(new ContainsBinder(), ContainsBinder.IsSupported, ContainsBinder.SupportedMethodNames);
@@ -73,7 +78,8 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
 
             var bound = binder.Bind(node);
             bound = AccumulatorBinder.Bind(bound, bindingContext);
-            return CorrelatedGroupRewriter.Rewrite(bound);
+            bound = CorrelatedGroupRewriter.Rewrite(bound);
+            return MultipleWhereMerger.Merge(bound);
         }
 
         public EmbeddedPipelineBinder(EmbeddedPipelineBindingContext bindingContext)
@@ -90,9 +96,18 @@ namespace MongoDB.Driver.Linq.Processors.EmbeddedPipeline
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    return new PipelineExpression(
-                        node,
-                        new DocumentExpression(itemSerializationInfo.Serializer));
+                    if (itemSerializationInfo.ElementName == null)
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new DocumentExpression(itemSerializationInfo.Serializer));
+                    }
+                    else
+                    {
+                        return new PipelineExpression(
+                            node,
+                            new FieldExpression(itemSerializationInfo.ElementName, itemSerializationInfo.Serializer));
+                    }
                 }
             }
             else if (node.NodeType == ExpressionType.Constant)

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
@@ -23,11 +24,11 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -207,10 +208,16 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             bool? autoIndexId = null;
             bool? capped = null;
+            Collation collation = null;
+            BsonDocument indexOptionDefaults = null;
             int? maxDocuments = null;
             long? maxSize = null;
+            bool? noPadding = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
+            DocumentValidationAction? validationAction = null;
+            DocumentValidationLevel? validationLevel = null;
+            BsonDocument validator = null;
 
             if (options != null)
             {
@@ -225,9 +232,21 @@ namespace MongoDB.Driver
                 {
                     capped = value.ToBoolean();
                 }
+                if (optionsDocument.TryGetValue("collation", out value))
+                {
+                    collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                }
+                if (optionsDocument.TryGetValue("indexOptionDefaults", out value))
+                {
+                    indexOptionDefaults = value.AsBsonDocument;
+                }
                 if (optionsDocument.TryGetValue("max", out value))
                 {
                     maxDocuments = value.ToInt32();
+                }
+                if (optionsDocument.TryGetValue("flags", out value))
+                {
+                    noPadding = ((CollectionUserFlags)value.ToInt32() & CollectionUserFlags.NoPadding) != 0;
                 }
                 if (optionsDocument.TryGetValue("size", out value))
                 {
@@ -239,7 +258,19 @@ namespace MongoDB.Driver
                 }
                 if (optionsDocument.TryGetValue("flags", out value))
                 {
-                    usePowerOf2Sizes = value.ToInt32() == 1;
+                    usePowerOf2Sizes = ((CollectionUserFlags)value.ToInt32() & CollectionUserFlags.UsePowerOf2Sizes) != 0;
+                }
+                if (optionsDocument.TryGetValue("validationAction", out value))
+                {
+                    validationAction = (DocumentValidationAction)Enum.Parse(typeof(DocumentValidationAction), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validationLevel", out value))
+                {
+                    validationLevel = (DocumentValidationLevel)Enum.Parse(typeof(DocumentValidationLevel), value.AsString, ignoreCase: true);
+                }
+                if (optionsDocument.TryGetValue("validator", out value))
+                {
+                    validator = value.AsBsonDocument;
                 }
             }
 
@@ -247,10 +278,63 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = autoIndexId,
                 Capped = capped,
+                Collation = collation,
+                IndexOptionDefaults = indexOptionDefaults,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
+                NoPadding = noPadding,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = usePowerOf2Sizes
+                UsePowerOf2Sizes = usePowerOf2Sizes,
+                ValidationAction = validationAction,
+                ValidationLevel = validationLevel,
+                Validator = validator,
+                WriteConcern = _settings.WriteConcern
+            };
+
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
+        }
+
+        /// <summary>
+        /// Creates a view.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="viewOn">The name of the collection that the view is on.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult CreateView(string viewName, string viewOn, IEnumerable<BsonDocument> pipeline, IMongoCreateViewOptions options)
+        {
+            if (viewName == null)
+            {
+                throw new ArgumentNullException(nameof(viewName));
+            }
+            if (viewOn == null)
+            {
+                throw new ArgumentNullException(nameof(viewOn));
+            }
+            if (pipeline == null)
+            {
+                throw new ArgumentNullException(nameof(pipeline));
+            }
+
+            Collation collation = null;
+
+            if (options != null)
+            {
+                var optionsDocument = options.ToBsonDocument();
+
+                BsonValue value;
+                if (optionsDocument.TryGetValue("collation", out value))
+                {
+                    collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                }
+            }
+
+            var operation = new CreateViewOperation(_namespace, viewName, viewOn, pipeline, GetMessageEncoderSettings())
+            {
+                Collation = collation,
+                WriteConcern = _settings.WriteConcern
             };
 
             var response = ExecuteWriteOperation(operation);
@@ -275,7 +359,10 @@ namespace MongoDB.Driver
             var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                WriteConcern = _settings.WriteConcern
+            };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
         }
@@ -500,7 +587,7 @@ namespace MongoDB.Driver
         {
             var collectionDefinition = typeof(MongoCollection<>);
             var collectionType = collectionDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
+            var constructorInfo = collectionType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
             return (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionName, collectionSettings });
         }
 
@@ -699,7 +786,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new RenameCollectionOperation(oldCollectionNamespace, newCollectionNamespace, messageEncoderSettings)
             {
-                DropTarget = dropTarget
+                DropTarget = dropTarget,
+                WriteConcern = _settings.WriteConcern
             };
             var response = ExecuteWriteOperation(operation);
             return new CommandResult(response);
@@ -776,7 +864,7 @@ namespace MongoDB.Driver
         /// <returns>A TCommandResult</returns>
         public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
         {
-            var methodDefinition = GetType().GetMethod("RunCommandAs", new Type[] { typeof(IMongoCommand) });
+            var methodDefinition = GetType().GetTypeInfo().GetMethod("RunCommandAs", new Type[] { typeof(IMongoCommand) });
             var methodInfo = methodDefinition.MakeGenericMethod(commandResultType);
             return (CommandResult)methodInfo.Invoke(this, new object[] { command });
         }
@@ -826,6 +914,45 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return _namespace.DatabaseName;
+        }
+
+        /// <summary>
+        /// Returns a new MongoDatabase instance with a different read concern setting.
+        /// </summary>
+        /// <param name="readConcern">The read concern.</param>
+        /// <returns>A new MongoDatabase instance with a different read concern setting.</returns>
+        public virtual MongoDatabase WithReadConcern(ReadConcern readConcern)
+        {
+            Ensure.IsNotNull(readConcern, nameof(readConcern));
+            var newSettings = Settings.Clone();
+            newSettings.ReadConcern = readConcern;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoDatabase instance with a different read preference setting.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A new MongoDatabase instance with a different read preference setting.</returns>
+        public virtual MongoDatabase WithReadPreference(ReadPreference readPreference)
+        {
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            var newSettings = Settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
+        }
+
+        /// <summary>
+        /// Returns a new MongoDatabase instance with a different write concern setting.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns>A new MongoDatabase instance with a different write concern setting.</returns>
+        public virtual MongoDatabase WithWriteConcern(WriteConcern writeConcern)
+        {
+            Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            var newSettings = Settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoDatabase(_server, _namespace.DatabaseName, newSettings);
         }
 
         // private methods

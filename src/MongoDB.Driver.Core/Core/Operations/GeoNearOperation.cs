@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2016 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public sealed class GeoNearOperation<TResult> : IReadOperation<TResult>
     {
+        private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private double? _distanceMultiplier;
         private BsonDocument _filter;
@@ -57,6 +58,15 @@ namespace MongoDB.Driver.Core.Operations
             _near = Ensure.IsNotNull(near, nameof(near));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+        }
+
+        /// <summary>
+        /// Gets or sets the collation.
+        /// </summary>
+        public Collation Collation
+        {
+            get { return _collation; }
+            set { _collation = value; }
         }
 
         /// <summary>
@@ -200,12 +210,13 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
         {
-            _readConcern.ThrowIfNotSupported(serverVersion);
+            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
             return new BsonDocument
             {
                 { "geoNear", _collectionNamespace.CollectionName },
-                { "near", _near, _near != null },
+                { "near", _near },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "maxDistance", () => _maxDistance.Value, _maxDistance.HasValue },
                 { "query", _filter, _filter != null },
@@ -214,7 +225,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "includeLocs", () => _includeLocs.Value, _includeLocs.HasValue },
                 { "uniqueDocs", () => _uniqueDocs.Value, _uniqueDocs.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
+                { "readConcern", _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }
 

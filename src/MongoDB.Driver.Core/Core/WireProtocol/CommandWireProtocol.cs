@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -154,7 +155,14 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
-                    var materializedDocument = new BsonDocument(rawDocument);
+                    var binaryReaderSettings = new BsonBinaryReaderSettings();
+                    if (_messageEncoderSettings != null)
+                    {
+                        binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
+                        binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                    };
+                    var materializedDocument = rawDocument.Materialize(binaryReaderSettings);
+
                     var commandName = _command.GetElement(0).Name;
                     if (commandName == "$query")
                     {
