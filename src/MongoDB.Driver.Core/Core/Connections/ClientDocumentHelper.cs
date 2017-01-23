@@ -76,7 +76,6 @@ namespace MongoDB.Driver.Core.Connections
 #if NET45
             if (Type.GetType("Mono.Runtime") != null)
             {
-                Console.WriteLine("Hello Mono!!!");
                 switch (Environment.OSVersion.Platform)
                 {
                     case PlatformID.Win32S:
