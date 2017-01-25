@@ -348,7 +348,6 @@ namespace MongoDB.Bson.Serialization
                 {
                     var elementName = memberMap.ElementName;
                     var serializer = memberMap.GetSerializer();
-                    var nominalType = memberMap.MemberType;
                     serializationInfo = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
                     return true;
                 }
