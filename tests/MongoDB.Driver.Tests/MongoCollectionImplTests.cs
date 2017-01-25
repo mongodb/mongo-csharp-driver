@@ -619,7 +619,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void Distinct_should_execute_the_DistinctOperation_when_type_parameter_is_string_instead_of_ennum(
+        public void Distinct_should_execute_the_DistinctOperation_when_type_parameter_is_string_instead_of_enum(
             [Values(false, true)] bool async)
         {
             var fieldName = "A";

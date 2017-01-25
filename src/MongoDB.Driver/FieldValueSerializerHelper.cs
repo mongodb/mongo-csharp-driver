@@ -27,6 +27,11 @@ namespace MongoDB.Driver
     {
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType)
         {
+            return GetSerializerForValueType(fieldSerializer, valueType, 0);
+        }
+
+        private static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, int recursionLevel)
+        {
             var fieldType = fieldSerializer.ValueType;
 
             // these will normally be equal unless we've removed some Convert(s) that the compiler put in
@@ -102,8 +107,11 @@ namespace MongoDB.Driver
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var itemSerializer = itemSerializationInfo.Serializer;
-                    return GetSerializerForValueType(itemSerializer, valueType);
+                    if (recursionLevel == 0)
+                    {
+                        var itemSerializer = itemSerializationInfo.Serializer;
+                        return GetSerializerForValueType(itemSerializer, valueType, recursionLevel + 1);
+                    }
                 }
             }
 
@@ -162,7 +170,16 @@ namespace MongoDB.Driver
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
             {
-                _serializer.Serialize(context, args, (TTo)Enum.ToObject(typeof(TTo), (object)value));
+                TTo convertedValue;
+                if (typeof(TFrom) == typeof(string))
+                {
+                    convertedValue = (TTo)Enum.Parse(typeof(TTo), (string)(object)value);
+                }
+                else
+                {
+                    convertedValue = (TTo)Enum.ToObject(typeof(TTo), (object)value);
+                }
+                _serializer.Serialize(context, args, convertedValue);
             }
         }
 

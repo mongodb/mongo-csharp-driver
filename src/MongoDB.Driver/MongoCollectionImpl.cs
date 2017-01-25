@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -563,9 +563,31 @@ namespace MongoDB.Driver
         {
             var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry);
 
+            IBsonSerializer<TField> valueSerializer = null;
+            if (renderedField.UnderlyingSerializer != null)
+            {
+                IBsonArraySerializer arraySerializer;
+                BsonSerializationInfo itemSerializationInfo;
+                if (renderedField.UnderlyingSerializer.ValueType == typeof(TField))
+                {
+                    valueSerializer = (IBsonSerializer<TField>)renderedField.UnderlyingSerializer;
+                }
+                else if (
+                    (arraySerializer = renderedField.UnderlyingSerializer as IBsonArraySerializer) != null &&
+                    arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo) &&
+                    itemSerializationInfo.Serializer.ValueType == typeof(TField))
+                {
+                    valueSerializer = (IBsonSerializer<TField>)itemSerializationInfo.Serializer;
+                }
+            }
+            if (valueSerializer == null)
+            {
+                valueSerializer = _settings.SerializerRegistry.GetSerializer<TField>();
+            }
+
             return new DistinctOperation<TField>(
                 _collectionNamespace,
-                renderedField.FieldSerializer,
+                valueSerializer,
                 renderedField.FieldName,
                 _messageEncoderSettings)
             {

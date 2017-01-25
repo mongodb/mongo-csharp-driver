@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1448,7 +1448,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
-                renderedField.FieldSerializer.Serialize(context, _value);
+                renderedField.ValueSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
@@ -1503,7 +1503,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteName(_operatorName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
-                renderedField.FieldSerializer.Serialize(context, _value);
+                renderedField.ValueSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }

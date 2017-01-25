@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,7 +38,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(new StringSerializer(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("test");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeNull();
+            renderedField.FieldSerializer.Should().BeNull();
+            renderedField.ValueSerializer.Should().BeOfType<StringSerializer>();
         }
 
         [Fact]
@@ -49,7 +51,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("test");
-            renderedField.FieldSerializer.Should().BeOfType<BsonValueSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeNull();
+            renderedField.FieldSerializer.Should().BeNull();
+            renderedField.ValueSerializer.Should().BeOfType<BsonValueSerializer>();
         }
 
         [Fact]
@@ -60,7 +64,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("test.one.two.three");
-            renderedField.FieldSerializer.Should().BeOfType<BsonValueSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeNull();
+            renderedField.FieldSerializer.Should().BeNull();
+            renderedField.ValueSerializer.Should().BeOfType<BsonValueSerializer>();
         }
 
         [Fact]
@@ -71,7 +77,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("name");
-            renderedField.FieldSerializer.Should().BeOfType<BsonClassMapSerializer<Name>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<BsonClassMapSerializer<Name>>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -82,7 +90,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("name.fn");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -93,7 +103,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("name.NoExisty");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeNull();
+            renderedField.FieldSerializer.Should().BeNull();
+            renderedField.ValueSerializer.Should().BeOfType<StringSerializer>();
         }
 
         [Fact]
@@ -104,7 +116,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.type");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -115,7 +129,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.name.fn");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -126,7 +142,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.3.type");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -137,7 +155,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.42.type");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -148,7 +168,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.$.type");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -159,7 +181,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.$.name.ln");
-            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<StringSerializer>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
@@ -170,7 +194,9 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("g");
-            renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]

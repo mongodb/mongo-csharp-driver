@@ -85,7 +85,8 @@ namespace MongoDB.Driver.Support
                 type == typeof(ushort) ||
                 type == typeof(uint) ||
                 type == typeof(ulong) ||
-                type == typeof(Enum);
+                type == typeof(Enum) ||
+                type == typeof(string);
         }
 
         public static Type GetNullableUnderlyingType(this Type type)
