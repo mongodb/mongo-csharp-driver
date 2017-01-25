@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Misc
             if (!value.Equals(comparand))
             {
                 var message = string.Format("Value is not equal to {1}: {0}.", value, comparand);
-                throw new ArgumentException(paramName, message);
+                throw new ArgumentException(message, paramName);
             }
             return value;
         }
