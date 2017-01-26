@@ -78,6 +78,16 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">The field name.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
+        public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer)
+            : this(fieldName, fieldSerializer, fieldSerializer, fieldSerializer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderedFieldDefinition{TField}" /> class.
+        /// </summary>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fieldSerializer">The field serializer.</param>
         /// <param name="valueSerializer">The value serializer.</param>
         /// <param name="underlyingSerializer">The underlying serializer.</param>
         public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer, IBsonSerializer<TField> valueSerializer, IBsonSerializer underlyingSerializer)

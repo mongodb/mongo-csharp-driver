@@ -32,6 +32,11 @@ namespace MongoDB.Driver
 
         private static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, int recursionLevel)
         {
+            if (recursionLevel > 1)
+            {
+                throw new ArgumentException("Unexpectedly high recursion level.", nameof(recursionLevel));
+            }
+
             var fieldType = fieldSerializer.ValueType;
 
             // these will normally be equal unless we've removed some Convert(s) that the compiler put in

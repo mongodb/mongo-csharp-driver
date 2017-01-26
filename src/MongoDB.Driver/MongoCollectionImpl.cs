@@ -562,28 +562,7 @@ namespace MongoDB.Driver
         private DistinctOperation<TField> CreateDistinctOperation<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options)
         {
             var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry);
-
-            IBsonSerializer<TField> valueSerializer = null;
-            if (renderedField.UnderlyingSerializer != null)
-            {
-                IBsonArraySerializer arraySerializer;
-                BsonSerializationInfo itemSerializationInfo;
-                if (renderedField.UnderlyingSerializer.ValueType == typeof(TField))
-                {
-                    valueSerializer = (IBsonSerializer<TField>)renderedField.UnderlyingSerializer;
-                }
-                else if (
-                    (arraySerializer = renderedField.UnderlyingSerializer as IBsonArraySerializer) != null &&
-                    arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo) &&
-                    itemSerializationInfo.Serializer.ValueType == typeof(TField))
-                {
-                    valueSerializer = (IBsonSerializer<TField>)itemSerializationInfo.Serializer;
-                }
-            }
-            if (valueSerializer == null)
-            {
-                valueSerializer = _settings.SerializerRegistry.GetSerializer<TField>();
-            }
+            var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializerRegistry);
 
             return new DistinctOperation<TField>(
                 _collectionNamespace,
@@ -757,6 +736,32 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
             };
+        }
+
+        private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
+        {
+            if (renderedField.UnderlyingSerializer != null)
+            {
+                if (renderedField.UnderlyingSerializer.ValueType == typeof(TField))
+                {
+                    return (IBsonSerializer<TField>)renderedField.UnderlyingSerializer;
+                }
+
+                var arraySerializer = renderedField.UnderlyingSerializer as IBsonArraySerializer;
+                if (arraySerializer != null)
+                {
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                    {
+                        if (itemSerializationInfo.Serializer.ValueType == typeof(TField))
+                        {
+                            return (IBsonSerializer<TField>)itemSerializationInfo.Serializer;
+                        }
+                    }
+                }
+            }
+
+            return serializerRegistry.GetSerializer<TField>();
         }
 
         private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
