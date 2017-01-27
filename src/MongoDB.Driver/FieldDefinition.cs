@@ -78,6 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">The field name.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
+        [Obsolete("Use the constructor that takes 4 arguments instead.")]
         public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer)
             : this(fieldName, fieldSerializer, fieldSerializer, fieldSerializer)
         {
