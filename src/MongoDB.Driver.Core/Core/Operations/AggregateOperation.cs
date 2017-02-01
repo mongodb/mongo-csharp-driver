@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -242,13 +242,18 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
-            if (Feature.AggregateCursorResult.IsSupported(serverVersion) && _useCursor.GetValueOrDefault(true))
+            if (Feature.AggregateCursorResult.IsSupported(serverVersion))
             {
-                command["cursor"] = new BsonDocument
+                var useCursor = _useCursor.GetValueOrDefault(true) || serverVersion >= new SemanticVersion(3, 5, 0);
+                if (useCursor)
                 {
-                    { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
-                };
+                    command["cursor"] = new BsonDocument
+                    {
+                        { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
+                    };
+                }
             }
+
             return command;
         }
 
