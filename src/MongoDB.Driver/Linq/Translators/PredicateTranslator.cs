@@ -972,13 +972,36 @@ namespace MongoDB.Driver.Linq.Translators
             IFieldExpression field;
             if (constantExpression != null)
             {
-                field = value as IFieldExpression;
-                if (field != null)
+                if (value is IFieldExpression)
                 {
+                    field = value as IFieldExpression;
                     var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
                     var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
                     var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
                     return __builder.In(field.FieldName, serializedValues);
+                }
+                else if (value is MethodCallExpression)
+                {
+                    var methodExpression = value as MethodCallExpression;
+                    var methodName = methodExpression.Method.Name;
+                    if ((methodName == "ToLower" || methodName == "ToUpper" || methodName == "ToLowerInvariant" || methodName == "ToUpperInvariant") &&
+                        methodExpression.Object != null &&
+                        methodExpression.Type == typeof(string) &&
+                        methodExpression.Arguments.Count == 0)
+                    {
+                        field = GetFieldExpression(methodExpression.Object);
+                        var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
+                        var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                        var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value)
+                            .Select(serializedValue =>
+                            {
+                                string pattern = string.Format("/^{0}$/i", Regex.Escape(serializedValue.AsString));
+                                var regex = new BsonRegularExpression(pattern);
+                                return regex;
+                            });
+                        
+                        return __builder.In(field.FieldName, serializedValues);
+                    }
                 }
             }
             else
