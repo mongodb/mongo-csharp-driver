@@ -404,7 +404,7 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var json = obj.ToJson();
             var expected = __expectedTemplate;
-            var milliseconds = (long)(utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
@@ -457,7 +457,7 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var json = obj.ToJson();
             var expected = __expectedTemplate;
-            var milliseconds = (long)(utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
@@ -509,7 +509,7 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var json = obj.ToJson();
             var expected = __expectedTemplate;
-            var milliseconds = (long)(utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
