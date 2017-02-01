@@ -332,6 +332,64 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void LocalStringArrayContainsCaseInsensitive()
+        {
+            var local = new[] { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A.ToLower()),
+                2,
+                "{A: {$in: [/^awesome$/i, /^amazing$/i, /^cool$/i]}}");
+        }
+
+        [Fact]
+        public void LocalStringListContainsCaseInsensitive()
+        {
+            var local = new List<string>() { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A.ToLower()),
+                2,
+                "{A: {$in: [/^awesome$/i, /^amazing$/i, /^cool$/i]}}");
+        }
+
+        [Fact]
+        public void LocalStringIListContainsCaseInsensitive()
+        {
+            IList<string> local = new[] { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A.ToLower()),
+                2,
+                "{A: {$in: [/^awesome$/i, /^amazing$/i, /^cool$/i]}}");
+        }
+
+        [Fact]
+        public void LocalStringArrayContainsCaseSensitive()
+        {
+            var local = new[] { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A),
+                0,
+                "{A: {$in: [\"awesome\", \"amazing\", \"cool\"]}}");
+        }
+
+        [Fact]
+        public void LocalStringListContainsCaseSensitive() {
+            var local = new List<string>() { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A),
+                0,
+                "{A: {$in: [\"awesome\", \"amazing\", \"cool\"]}}");
+        }
+
+        [Fact]
+        public void LocalStringIListContainsCaseSensitive() {
+            IList<string> local = new[] { "awesome", "amazing", "cool" };
+            Assert(
+                x => local.Contains(x.A),
+                0,
+                "{A: {$in: [\"awesome\", \"amazing\", \"cool\"]}}");
+        }
+
+        [Fact]
         public void ArrayLengthEquals()
         {
             Assert(
