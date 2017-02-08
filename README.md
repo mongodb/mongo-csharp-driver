@@ -23,11 +23,11 @@ var collection = database.GetCollection<BsonDocument>("bar");
 await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
 
 var list = await collection.Find(new BsonDocument("Name", "Jack"))
-	.ToListAsync();
+    .ToListAsync();
 
 foreach(var document in list)
 {
-	Console.WriteLine(document["Name"]);
+    Console.WriteLine(document["Name"]);
 }
 ```
 
@@ -54,11 +54,11 @@ var collection = database.GetCollection<Person>("bar");
 await collection.InsertOneAsync(new Person { Name = "Jack" });
 
 var list = await collection.Find(x => x.Name == "Jack")
-	.ToListAsync();
+    .ToListAsync();
 
 foreach(var person in list)
 {
-	Console.WriteLine(person.Name);
+    Console.WriteLine(person.Name);
 }
 ```
 
@@ -115,6 +115,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Alexey Skalozub           pieceofsummer@gmail.com
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
+* Vyacheslav Stroy          https://github.com/kreig
 * Testo                     test1@doramail.com   
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
