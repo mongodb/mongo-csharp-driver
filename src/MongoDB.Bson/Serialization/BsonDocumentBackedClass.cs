@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Serialization
             if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
             {
                 var message = string.Format("The member {0} does not exist.", memberName);
-                throw new ArgumentException("memberName", message);
+                throw new ArgumentException(message, "memberName");
             }
 
             var bsonValue = info.SerializeValue(value);

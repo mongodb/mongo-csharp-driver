@@ -537,7 +537,6 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = ReadConcern.Majority
             };
 
-            async = false;
             var exception = Record.Exception(() => { ExecuteOperation(subject, async); });
 
             exception.Should().BeOfType<MongoClientException>();

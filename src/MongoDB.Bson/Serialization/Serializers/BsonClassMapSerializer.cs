@@ -48,6 +48,10 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Must be a BsonClassMap for the type {0}.", typeof(TClass));
                 throw new ArgumentException(message, "classMap");
             }
+            if (!classMap.IsFrozen)
+            {
+                throw new ArgumentException("Class map is not frozen.", nameof(classMap));
+            }
 
             _classMap = classMap;
         }
@@ -344,7 +348,6 @@ namespace MongoDB.Bson.Serialization
                 {
                     var elementName = memberMap.ElementName;
                     var serializer = memberMap.GetSerializer();
-                    var nominalType = memberMap.MemberType;
                     serializationInfo = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
                     return true;
                 }

@@ -481,6 +481,7 @@ namespace MongoDB.Bson.Serialization
                             {
                                 _baseClassMap = LookupClassMap(baseType);
                             }
+                            _baseClassMap.Freeze();
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
                             _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);

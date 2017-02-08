@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,6 +28,16 @@ namespace MongoDB.Driver
     {
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType)
         {
+            return GetSerializerForValueType(fieldSerializer, valueType, 0);
+        }
+
+        private static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, int recursionLevel)
+        {
+            if (recursionLevel > 1)
+            {
+                throw new ArgumentException("Unexpectedly high recursion level.", nameof(recursionLevel));
+            }
+
             var fieldType = fieldSerializer.ValueType;
 
             // these will normally be equal unless we've removed some Convert(s) that the compiler put in
@@ -60,7 +70,7 @@ namespace MongoDB.Driver
             }
 
             // synthesize an EnumConvertingSerializer using the field serializer
-            if (fieldTypeInfo.IsEnum)
+            if (fieldTypeInfo.IsEnum && valueType.IsConvertibleToEnum())
             {
                 var enumConvertingSerializerType = typeof(EnumConvertingSerializer<,>).MakeGenericType(valueType, fieldType);
                 var enumConvertingSerializerConstructor = enumConvertingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
@@ -96,15 +106,35 @@ namespace MongoDB.Driver
                 return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
             }
 
-            // otherwise assume that the value can be cast to the right type for the field serializer
-            var castingSerializerType = typeof(CastingSerializer<,>).MakeGenericType(valueType, fieldType);
-            var castingSerializerConstructor = castingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
-            return (IBsonSerializer)castingSerializerConstructor.Invoke(new object[] { fieldSerializer });
+            // if the fieldSerializer is an array serializer try to adapt its itemSerializer for valueType
+            IBsonArraySerializer arraySerializer;
+            if ((arraySerializer = fieldSerializer as IBsonArraySerializer) != null)
+            {
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                {
+                    if (recursionLevel == 0)
+                    {
+                        var itemSerializer = itemSerializationInfo.Serializer;
+                        return GetSerializerForValueType(itemSerializer, valueType, recursionLevel + 1);
+                    }
+                }
+            }
+
+            // if we can't return a valid value serializer based on the field serializer return null
+            return null;
         }
 
-        public static IBsonSerializer<TValue> GetSerializerForValueType<TField, TValue>(IBsonSerializer<TField> fieldSerializer)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, object value)
         {
-            return (IBsonSerializer<TValue>)GetSerializerForValueType(fieldSerializer, typeof(TValue));
+            if (!valueType.GetTypeInfo().IsValueType && value == null)
+            {
+                return fieldSerializer;
+            }
+            else
+            {
+                return GetSerializerForValueType(fieldSerializer, valueType);
+            }
         }
 
         // private static methods
@@ -135,47 +165,6 @@ namespace MongoDB.Driver
         }
 
         // nested types
-        private class CastingSerializer<TFrom, TTo> : SerializerBase<TFrom>
-        {
-            private readonly IBsonSerializer<TTo> _serializer;
-
-            public CastingSerializer(IBsonSerializer<TTo> serializer)
-            {
-                _serializer = serializer;
-            }
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
-            {
-                _serializer.Serialize(context, args, CastValue(value));
-            }
-
-            private TTo CastValue(TFrom value)
-            {
-#if NETSTANDARD1_5
-                if (ReferenceEquals(value, null) || typeof(TTo).GetTypeInfo().IsAssignableFrom(value.GetType()))                
-#else
-                if (ReferenceEquals(value, null) || typeof(TTo).IsAssignableFrom(value.GetType()))
-#endif
-                {
-                    //direct cast with boxing
-                    return (TTo)(object)value;
-                }
-                //cast using TypeDescriptor
-                var converter = TypeDescriptor.GetConverter(value.GetType());
-                if (converter.CanConvertTo(typeof(TTo)))
-                {
-                    return (TTo)converter.ConvertTo(value, typeof(TTo));
-                }
-                converter = TypeDescriptor.GetConverter(typeof(TTo));
-                if (converter.CanConvertFrom(value.GetType()))
-                {
-                    return (TTo)converter.ConvertFrom(value);
-                }
-                //cast with Convert.ChangeType() - last chance
-                return (TTo)Convert.ChangeType(value, typeof(TTo));
-            }
-        }
-
         private class EnumConvertingSerializer<TFrom, TTo> : SerializerBase<TFrom>
         {
             private readonly IBsonSerializer<TTo> _serializer;
@@ -187,7 +176,16 @@ namespace MongoDB.Driver
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
             {
-                _serializer.Serialize(context, args, (TTo)Enum.ToObject(typeof(TTo), (object)value));
+                TTo convertedValue;
+                if (typeof(TFrom) == typeof(string))
+                {
+                    convertedValue = (TTo)Enum.Parse(typeof(TTo), (string)(object)value);
+                }
+                else
+                {
+                    convertedValue = (TTo)Enum.ToObject(typeof(TTo), (object)value);
+                }
+                _serializer.Serialize(context, args, convertedValue);
             }
         }
 

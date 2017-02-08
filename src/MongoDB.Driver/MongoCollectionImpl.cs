@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -562,10 +562,11 @@ namespace MongoDB.Driver
         private DistinctOperation<TField> CreateDistinctOperation<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options)
         {
             var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry);
+            var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializerRegistry);
 
             return new DistinctOperation<TField>(
                 _collectionNamespace,
-                renderedField.FieldSerializer,
+                valueSerializer,
                 renderedField.FieldName,
                 _messageEncoderSettings)
             {
@@ -735,6 +736,32 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
             };
+        }
+
+        private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
+        {
+            if (renderedField.UnderlyingSerializer != null)
+            {
+                if (renderedField.UnderlyingSerializer.ValueType == typeof(TField))
+                {
+                    return (IBsonSerializer<TField>)renderedField.UnderlyingSerializer;
+                }
+
+                var arraySerializer = renderedField.UnderlyingSerializer as IBsonArraySerializer;
+                if (arraySerializer != null)
+                {
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                    {
+                        if (itemSerializationInfo.Serializer.ValueType == typeof(TField))
+                        {
+                            return (IBsonSerializer<TField>)itemSerializationInfo.Serializer;
+                        }
+                    }
+                }
+            }
+
+            return serializerRegistry.GetSerializer<TField>();
         }
 
         private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)

@@ -272,6 +272,33 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Eq_with_enums()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Eq("E", EnumForClassWithEnums.A), "{ E : 0 }");
+            Assert(subject.AnyEq("A", EnumForClassWithEnums.A), "{ A : 0 }");
+        }
+
+        [Fact]
+        public void Eq_with_enums_typed()
+        {
+            var subject = CreateSubject<ClassWithEnums>();
+
+            Assert(subject.Eq("E", 0), "{ E : \"A\" }");
+            Assert(subject.Eq("A", 0), "{ A : \"A\" }");
+            Assert(subject.AnyEq("A", 0), "{ A : \"A\" }");
+
+            Assert(subject.Eq("E", "A"), "{ E : \"A\" }");
+            Assert(subject.Eq("A", "A"), "{ A : \"A\" }");
+            Assert(subject.AnyEq("A", "A"), "{ A : \"A\" }");
+
+            Assert(subject.Eq("E", EnumForClassWithEnums.A), "{ E : \"A\" }");
+            Assert(subject.Eq("A", EnumForClassWithEnums.A), "{ A : \"A\" }");
+            Assert(subject.AnyEq("A", EnumForClassWithEnums.A), "{ A : \"A\" }");
+        }
+
+        [Fact]
         public void Exists()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -489,6 +516,33 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.AnyIn(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
             Assert(subject.AnyIn("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
+        }
+
+        [Fact]
+        public void In_with_enum()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.In("E", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ E : { $in : [ 0, 1 ] } }");
+            Assert(subject.AnyIn("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ 0, 1 ] } }");
+        }
+
+        [Fact]
+        public void In_with_enum_typed()
+        {
+            var subject = CreateSubject<ClassWithEnums>();
+
+            Assert(subject.In("E", new[] { 0, 1 }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { 0, 1 }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+
+            Assert(subject.In("E", new[] { "A", "B" }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { "A", "B" }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+
+            Assert(subject.In("E", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ E : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.In("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ \"A\", \"B\" ] } }");
+            Assert(subject.AnyIn("A", new[] { EnumForClassWithEnums.A, EnumForClassWithEnums.B }), "{ A : { $in : [ \"A\", \"B\" ] } }");
         }
 
         [Fact]
@@ -983,6 +1037,17 @@ namespace MongoDB.Driver.Tests
         private FilterDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
             return new FilterDefinitionBuilder<TDocument>();
+        }
+
+        private enum EnumForClassWithEnums { A, B }
+
+        private class ClassWithEnums
+        {
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public EnumForClassWithEnums E { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public EnumForClassWithEnums[] A { get; set; }
         }
 
         private class Person

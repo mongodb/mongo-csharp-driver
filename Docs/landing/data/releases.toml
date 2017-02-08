@@ -1,6 +1,6 @@
-current = "2.4.1"
+current = "2.4.2"
 [[versions]]
-  version = "2.4.1"
+  version = "2.4.2"
   status = "current"
   docs = "./2.4/"
   api = "./2.4/apidocs"
@@ -35,32 +35,32 @@ current = "2.4.1"
   package = "MongoDB.Driver"
   description = "The driver."
   dependencies = ".NET Core Driver,.NET BSON Library"
-  versions = "2.4.1,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.4.2,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET GridFS"
   package = "MongoDB.Driver.GridFS"
   description = "The GridFS library."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.4.1,2.3.0,2.2.4,2.1.1"
+  versions = "2.4.2,2.3.0,2.2.4,2.1.1"
 
 [[drivers]]
   name = ".NET Core Driver"
   package = "MongoDB.Driver.Core"
   description = "The core driver."
   dependencies = ".NET BSON Library"
-  versions = "2.4.1,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.4.2,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET BSON Library"
   package = "MongoDB.Bson"
   description = "The BSON library."
   dependencies = ""
-  versions = "2.4.1,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.4.2,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET Legacy Driver"
   package = "mongocsharpdriver"
   description = "The legacy driver."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.4.1,2.3.0,2.2.4,2.1.1,2.0.2,1.11"
+  versions = "2.4.2,2.3.0,2.2.4,2.1.1,2.0.2,1.11"

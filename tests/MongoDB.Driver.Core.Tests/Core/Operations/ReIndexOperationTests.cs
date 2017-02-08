@@ -113,13 +113,18 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            var actualVersion = CoreTestConfiguration.ServerVersion;
+            if (actualVersion.Major == 3 && actualVersion.Minor == 5 && actualVersion.Patch == 2)
+            {
+                // skip test on any version of 3.5.2
+                return; // TODO: remove later
+            }
             EnsureCollectionExists();
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 WriteConcern = new WriteConcern(9)
             };
 
-            async = false;
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<MongoWriteConcernException>();

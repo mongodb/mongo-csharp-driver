@@ -669,7 +669,7 @@ namespace MongoDB.Bson
             {
                 if (entry.Key == null)
                 {
-                    throw new ArgumentException("keys", "A key passed to BsonDocument.AddRange is null.");
+                    throw new ArgumentException("A key passed to BsonDocument.AddRange is null.", "keys");
                 }
                 if (entry.Key.GetType() != typeof(string))
                 {

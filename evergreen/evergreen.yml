@@ -2,12 +2,13 @@ tasks:
 - name: compile
   commands:
   - command: git.get_project
-    params: 
+    params:
       directory: mongo-csharp-driver
   - command: shell.exec
-    params: 
+    params:
       working_dir: mongo-csharp-driver
       script: |
+        for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do setx $var z:\\data\\tmp; export $var=z:\\data\\tmp; done
         powershell.exe .\\build.ps1 -target Build
 
 buildvariants:

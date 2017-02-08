@@ -1585,7 +1585,7 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            IBsonSerializer itemSerializer;
+            IBsonSerializer itemSerializer = null;
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
@@ -1595,9 +1595,9 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = itemSerializationInfo.Serializer;
+                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, typeof(TItem));
             }
-            else
+            if (itemSerializer == null)
             {
                 itemSerializer = serializerRegistry.GetSerializer<TItem>();
             }
@@ -2029,7 +2029,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
-                renderedField.FieldSerializer.Serialize(context, _value);
+                renderedField.ValueSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
@@ -2115,7 +2115,7 @@ namespace MongoDB.Driver
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
-                renderedField.FieldSerializer.Serialize(context, _value);
+                renderedField.ValueSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
             }
 
@@ -2151,7 +2151,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartArray();
                 foreach (var value in _values)
                 {
-                    renderedField.FieldSerializer.Serialize(context, value);
+                    renderedField.ValueSerializer.Serialize(context, value);
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();
@@ -2179,7 +2179,7 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            IBsonSerializer itemSerializer;
+            IBsonSerializer itemSerializer = null;
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
@@ -2189,9 +2189,9 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = itemSerializationInfo.Serializer;
+                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, typeof(TItem));
             }
-            else
+            if (itemSerializer == null)
             {
                 itemSerializer = serializerRegistry.GetSerializer<TItem>();
             }
@@ -2228,7 +2228,7 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            IBsonSerializer<TItem> itemSerializer;
+            IBsonSerializer<TItem> itemSerializer = null;
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
@@ -2238,9 +2238,9 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
+                itemSerializer = (IBsonSerializer<TItem>)FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, typeof(TItem));
             }
-            else
+            if (itemSerializer == null)
             {
                 itemSerializer = serializerRegistry.GetSerializer<TItem>();
             }
@@ -2296,7 +2296,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+            var serializedValue = renderedField.ValueSerializer.ToBsonValue(_value);
 
             if (serializedValue.BsonType != BsonType.Int32)
             {
@@ -2348,7 +2348,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+            var serializedValue = renderedField.ValueSerializer.ToBsonValue(_value);
 
             if (serializedValue.BsonType != BsonType.Int32)
             {
@@ -2400,7 +2400,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+            var serializedValue = renderedField.ValueSerializer.ToBsonValue(_value);
 
             if (serializedValue.BsonType != BsonType.Int64)
             {
@@ -2452,7 +2452,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            var serializedValue = renderedField.FieldSerializer.ToBsonValue(_value);
+            var serializedValue = renderedField.ValueSerializer.ToBsonValue(_value);
 
             if (serializedValue.BsonType != BsonType.Int64)
             {
