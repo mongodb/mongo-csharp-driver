@@ -20,7 +20,6 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Fact]
         public void Implicit_Type_Casting_Primitive_Types()
         {
-            TypeDescriptor.AddAttributes(typeof(C), new TypeConverterAttribute(typeof(CExampleTypeCoverter)));
             Assert(
                 x => x.B == (object)10,
                 0,
@@ -32,6 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             //register custom type converter for C type
             TypeDescriptor.AddAttributes(typeof(C), new TypeConverterAttribute(typeof(CExampleTypeCoverter)));
+            //cast string to object so it can be used in predicate
             var objectToCast = (object)"Dexter";
             Assert(
                 x => x.C == objectToCast,
@@ -50,6 +50,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             list.Count.Should().Be(expectedCount);
         }
 
+        /// <summary>
+        /// Custom type converter for <see cref="C"/> test class.
+        /// </summary>
         public class CExampleTypeCoverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
@@ -66,20 +69,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-#if NETSTANDARD1_5
                 return (typeof(C).GetTypeInfo().IsAssignableFrom(destinationType));
-#else
-                return (typeof(C).IsAssignableFrom(destinationType));
-#endif
             }
 
             public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             {
-#if NETSTANDARD1_5
                 if (typeof(C).GetTypeInfo().IsAssignableFrom(destinationType))
-#else
-                if (typeof(C).IsAssignableFrom(destinationType))
-#endif
                 {
                     if (value is string)
                     {
@@ -89,6 +84,10 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 return base.ConvertTo(context, culture, value, destinationType);
             }
 
+            /// <summary>
+            /// Creates new <see cref="C"/> instance from string.
+            /// </summary>
+            /// <param name="value">String value used for conversion.</param>
             private C CreateFromString(object value)
             {
                 return new C { D = (string)value };

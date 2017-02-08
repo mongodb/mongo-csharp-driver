@@ -121,8 +121,10 @@ namespace MongoDB.Driver
                 }
             }
 
-            // if we can't return a valid value serializer based on the field serializer return null
-            return null;
+            // if we can't return a valid value serializer based on the field serializer return casting serializer
+            var castingSerializerType = typeof(CastingSerializer<,>).MakeGenericType(valueType, fieldType);
+            var castingSerializerConstructor = castingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
+            return (IBsonSerializer)castingSerializerConstructor.Invoke(new object[] { fieldSerializer });
         }
 
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, Type valueType, object value)
@@ -236,6 +238,44 @@ namespace MongoDB.Driver
                 {
                     _nonNullableEnumSerializer.Serialize(context, args, (TTo)Enum.ToObject(typeof(TTo), (object)value.Value));
                 }
+            }
+        }
+
+        //unbound type casting
+        private class CastingSerializer<TFrom, TTo> : SerializerBase<TFrom>
+        {
+            private readonly IBsonSerializer<TTo> _serializer;
+
+            public CastingSerializer(IBsonSerializer<TTo> serializer)
+            {
+                _serializer = serializer;
+            }
+
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
+            {
+                _serializer.Serialize(context, args, CastValue(value));
+            }
+
+            private TTo CastValue(TFrom value)
+            {
+                if (ReferenceEquals(value, null) || typeof(TTo).GetTypeInfo().IsAssignableFrom(value.GetType()))
+                {
+                    //direct cast with boxing
+                    return (TTo)(object)value;
+                }
+                //cast using TypeDescriptor
+                var converter = TypeDescriptor.GetConverter(value.GetType());
+                if (converter.CanConvertTo(typeof(TTo)))
+                {
+                    return (TTo)converter.ConvertTo(value, typeof(TTo));
+                }
+                converter = TypeDescriptor.GetConverter(typeof(TTo));
+                if (converter.CanConvertFrom(value.GetType()))
+                {
+                    return (TTo)converter.ConvertFrom(value);
+                }
+                //cast with Convert.ChangeType() - last chance
+                return (TTo)Convert.ChangeType(value, typeof(TTo));
             }
         }
     }
