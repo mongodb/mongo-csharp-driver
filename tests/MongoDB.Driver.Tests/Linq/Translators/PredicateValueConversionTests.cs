@@ -1,42 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/* Copyright 2017 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
 using FluentAssertions;
-using Xunit;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Translators;
-using System.ComponentModel;
-using System.Linq.Expressions;
-using MongoDB.Bson;
-using System.Globalization;
-using System.Reflection;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    public class PredicateImplicitTypeCastTests : IntegrationTestBase
+    public class PredicateValueConversionTests : IntegrationTestBase
     {
         [Fact]
-        public void Implicit_Type_Casting_Primitive_Types()
+        public void Value_conversion_with_primitive_types()
         {
             Assert(
                 x => x.B == (object)10,
                 0,
-                "{B: '10'}");
+                "{ B : '10' }");
         }
 
         [Fact]
-        public void Implicit_Type_Casting_With_Custom_TypeConverter()
+        public void Value_conversion_with_custom_type_converter()
         {
-            //register custom type converter for C type
-            TypeDescriptor.AddAttributes(typeof(C), new TypeConverterAttribute(typeof(CExampleTypeCoverter)));
-            //cast string to object so it can be used in predicate
-            var objectToCast = (object)"Dexter";
+            TypeDescriptor.AddAttributes(typeof(C), new TypeConverterAttribute(typeof(CExampleTypeConverter)));
+
+            var objectToConvert = (object)"Dexter";
             Assert(
-                x => x.C == objectToCast,
+                x => x.C == objectToConvert,
                 0,
-                "{C: { '_t' : 'C', D: 'Dexter', E: null, S: null, X: null}}");
+                "{ C : { '_t' : 'C', D : 'Dexter', E : null, S : null, X : null } }");
         }
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
@@ -53,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         /// <summary>
         /// Custom type converter for <see cref="C"/> test class.
         /// </summary>
-        public class CExampleTypeCoverter : TypeConverter
+        private class CExampleTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {

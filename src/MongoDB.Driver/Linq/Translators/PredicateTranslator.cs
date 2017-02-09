@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var fieldExpression = GetFieldExpression(variableExpression);
 
-            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, constantExpression.Type, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, BsonSerializer.SerializerRegistry, constantExpression.Type, value);
             var serializedValue = valueSerializer.ToBsonValue(value);
 
             switch (operatorType)

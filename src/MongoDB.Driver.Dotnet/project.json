@@ -29,6 +29,7 @@
     "netstandard1.5": {
       "dependencies": {
         "NETStandard.Library": "1.6.0",
+        "System.ComponentModel.TypeConverter": "4.1.0",
         "System.Linq.Queryable": "4.0.1"
       }
     }

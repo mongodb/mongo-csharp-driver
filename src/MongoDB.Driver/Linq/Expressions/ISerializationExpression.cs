@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Expressions
         {
             Ensure.IsNotNull(field, nameof(field));
 
-            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, valueType, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, valueType, value);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Expressions
             Ensure.IsNotNull(itemType, nameof(itemType));
             Ensure.IsNotNull(values, nameof(values));
 
-            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, itemType);
+            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, itemType);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))

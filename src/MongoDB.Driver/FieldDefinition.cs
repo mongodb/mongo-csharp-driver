@@ -308,11 +308,7 @@ namespace MongoDB.Driver
 
             var underlyingSerializer = field.Serializer;
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, typeof(TField));
-            if (valueSerializer == null)
-            {
-                valueSerializer = serializerRegistry.GetSerializer<TField>();
-            }
+            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField));
 
             return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer, valueSerializer, underlyingSerializer);
         }
@@ -376,12 +372,16 @@ namespace MongoDB.Driver
 
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
 
-            var valueSerializer = _fieldSerializer;
-            if (valueSerializer == null && underlyingSerializer != null)
+            IBsonSerializer<TField> valueSerializer;
+            if (_fieldSerializer != null)
             {
-                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, typeof(TField));
+                valueSerializer = _fieldSerializer;
             }
-            if (valueSerializer == null)
+            else if (underlyingSerializer != null)
+            {
+                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField));
+            }
+            else
             {
                 valueSerializer = serializerRegistry.GetSerializer<TField>();
             }
