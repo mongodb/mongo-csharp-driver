@@ -615,7 +615,7 @@ In this case, the serializer will convert the [`ObjectId`]({{< apiref "T_MongoDB
 BsonClassMap.RegisterClassMap<Employee>(cm => 
 {
     cm.AutoMap();
-    cm.IdMemberMap.SetRepresentation(BsonType.ObjectId);
+    cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
 });
 ```
 
