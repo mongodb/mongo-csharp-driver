@@ -1492,6 +1492,11 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            if (_filters.Count == 0)
+            {
+                return new BsonDocument("$and", new BsonArray(0));
+            }
+
             var document = new BsonDocument();
 
             foreach (var filter in _filters)
@@ -1501,11 +1506,6 @@ namespace MongoDB.Driver
                 {
                     AddClause(document, clause);
                 }
-            }
-
-            if (document.ElementCount == 0)
-            {
-                document = new BsonDocument("$and", new BsonArray(0));
             }
 
             return document;

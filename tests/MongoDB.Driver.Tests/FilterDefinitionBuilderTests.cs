@@ -142,6 +142,28 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void And_with_one_empty_clause()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var empty = Builders<BsonDocument>.Filter.Empty;
+
+            var filter = subject.And(empty);
+
+            Assert(filter, "{ }");
+        }
+
+        [Fact]
+        public void And_with_two_empty_clauses()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var empty = Builders<BsonDocument>.Filter.Empty;
+
+            var filter = subject.And(empty, empty);
+
+            Assert(filter, "{ }");
+        }
+
+        [Fact]
         public void BitsAllClear()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -902,6 +924,28 @@ namespace MongoDB.Driver.Tests
             var filter = subject.Or();
 
             Assert(filter, "{ $or : [] }");
+        }
+
+        [Fact]
+        public void Or_with_one_empty_clause()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var empty = Builders<BsonDocument>.Filter.Empty;
+
+            var filter = subject.Or(empty);
+
+            Assert(filter, "{ $or : [{}] }");
+        }
+
+        [Fact]
+        public void Or_with_two_empty_clauses()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var empty = Builders<BsonDocument>.Filter.Empty;
+
+            var filter = subject.Or(empty, empty);
+
+            Assert(filter, "{ $or : [{}, {}] }");
         }
 
         [Fact]
