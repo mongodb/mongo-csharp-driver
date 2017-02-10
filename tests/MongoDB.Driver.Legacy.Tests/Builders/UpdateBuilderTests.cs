@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -168,6 +169,14 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var update = Update<Test>.BitwiseAnd(t => t.X, 1);
             var expected = "{ '$bit' : { 'x' : { 'and' : 1 } } }".Replace("'", "\"");
+            Assert.Equal(expected, update.ToJson());
+        }
+
+        [Fact]
+        public void TestSetPositional_Typed()
+        {
+            var update = Update<Test>.Set(t => t.B.ElementAt(-1).C, 1);
+            var expected = "{ '$set' : { 'b.$.c' : 1 } }".Replace("'", "\"");
             Assert.Equal(expected, update.ToJson());
         }
 

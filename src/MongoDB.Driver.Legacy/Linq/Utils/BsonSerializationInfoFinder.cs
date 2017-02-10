@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             itemSerializationInfo = new BsonSerializationInfo(
-                index.ToString(),
+                index >= 0 ? index.ToString() : "$",
                 itemSerializationInfo.Serializer,
                 itemSerializationInfo.NominalType);
 
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Linq.Utils
 
             var index = (int)((ConstantExpression)node.Arguments[1]).Value;
             itemSerializationInfo = new BsonSerializationInfo(
-                index.ToString(),
+                index >= 0 ? index.ToString() : "$",
                 itemSerializationInfo.Serializer,
                 itemSerializationInfo.NominalType);
 
