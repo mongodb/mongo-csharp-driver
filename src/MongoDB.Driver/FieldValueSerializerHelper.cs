@@ -70,11 +70,26 @@ namespace MongoDB.Driver
             }
 
             // synthesize an EnumConvertingSerializer using the field serializer
-            if (fieldTypeInfo.IsEnum && valueType.IsConvertibleToEnum())
+            if (fieldTypeInfo.IsEnum)
             {
-                var enumConvertingSerializerType = typeof(EnumConvertingSerializer<,>).MakeGenericType(valueType, fieldType);
-                var enumConvertingSerializerConstructor = enumConvertingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
-                return (IBsonSerializer)enumConvertingSerializerConstructor.Invoke(new object[] { fieldSerializer });
+                if (valueType.IsConvertibleToEnum())
+                {
+                    var enumConvertingSerializerType = typeof(EnumConvertingSerializer<,>).MakeGenericType(valueType, fieldType);
+                    var enumConvertingSerializerConstructor = enumConvertingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
+                    return (IBsonSerializer)enumConvertingSerializerConstructor.Invoke(new object[] { fieldSerializer });
+                }
+
+                if (valueType.IsNullable() && valueType.GetNullableUnderlyingType().IsConvertibleToEnum())
+                {
+                    var underlyingValueType = valueType.GetNullableUnderlyingType();
+                    var underlyingValueSerializerInterfaceType = typeof(IBsonSerializer<>).MakeGenericType(underlyingValueType);
+                    var enumConvertingSerializerType = typeof(EnumConvertingSerializer<,>).MakeGenericType(underlyingValueType, fieldType);
+                    var enumConvertingSerializerConstructor = enumConvertingSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType });
+                    var enumConvertingSerializer = enumConvertingSerializerConstructor.Invoke(new object[] { fieldSerializer });
+                    var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(underlyingValueType);
+                    var nullableSerializerConstructor = nullableSerializerType.GetTypeInfo().GetConstructor(new[] { underlyingValueSerializerInterfaceType });
+                    return (IBsonSerializer)nullableSerializerConstructor.Invoke(new object[] { enumConvertingSerializer });
+                }
             }
 
             // synthesize a NullableEnumConvertingSerializer using the field serializer

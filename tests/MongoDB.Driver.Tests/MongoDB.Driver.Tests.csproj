@@ -110,11 +110,15 @@
     <Compile Include="CreateViewOptionsTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumTests.cs" />
+    <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntArrayComparedToEnumerableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToDoubleWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableEnumComparedToEnumTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableEnumComparedToEnumWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToDoubleTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
