@@ -203,7 +203,8 @@ namespace MongoDB.Driver
 
         private static ConnectionString GetConnectionString()
         {
-            return new ConnectionString(Environment.GetEnvironmentVariable("MONGO_URI") ?? "mongodb://localhost");
+            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI") ?? "mongodb://localhost";
+            return new ConnectionString(uri);
         }
 
         private static DatabaseNamespace GetDatabaseNamespace()

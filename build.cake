@@ -1,5 +1,6 @@
 #addin "nuget:?package=Cake.Git"
 #tool "nuget:?package=GitVersion.CommandLine"
+#tool "nuget:?package=xunit.runner.console"
 #load buildhelpers.cake
 
 var target = Argument("target", "Default");
@@ -60,7 +61,24 @@ Task("Build")
     .IsDependentOn("BuildNet45")
     .IsDependentOn("BuildNetStandard15");
 
+Task("TestNet45")
+    .IsDependentOn("BuildNet45")
+    .Does(() =>
+    {
+        var testAssemblies = GetFiles("./tests/**/bin/" + configuration + "/*Tests.dll");
+        Console.WriteLine(string.Join("\n", testAssemblies));
+        XUnit2(testAssemblies);
+    });
+
+Task("TestNetCore10")
+    .IsDependentOn("BuildNetStandard15")
+    .Does(() =>
+    {
+        Console.WriteLine("Run tests on .NET Core 1.0 here");
+    });
+
 Task("Default")
-    .IsDependentOn("Build");
+    .IsDependentOn("Build")
+    .IsDependentOn("TestNet45");
 
 RunTarget(target);
