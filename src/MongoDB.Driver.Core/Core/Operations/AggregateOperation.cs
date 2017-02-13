@@ -266,12 +266,14 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
-            if (Feature.AggregateCursorResult.IsSupported(channel.ConnectionDescription.ServerVersion) && _useCursor.GetValueOrDefault(true))
+            if (result.CursorId.HasValue)
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }
-
-            return CreateCursorFromInlineResult(command, result);
+            else
+            {
+                return CreateCursorFromInlineResult(command, result);
+            }
         }
 
         private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
