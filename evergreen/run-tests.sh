@@ -16,30 +16,6 @@ MONGODB_URI=${MONGODB_URI:-}
 TOPOLOGY=${TOPOLOGY:-server}
 
 ############################################
-#            Functions                     #
-############################################
-
-provision_ssl () {
-  echo "SSL !"
-
-  # We generate the keystore and truststore on every run with the certs in the drivers-tools repo
-  if [ ! -f client.pkc ]; then
-    openssl pkcs12 -CAfile ${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem -export -in ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem -out client.pkc -password pass:bithere
-  fi
-
-  # We add extra gradle arguments for SSL
-  export GRADLE_EXTRA_VARS="-Pssl.enabled=true -Pssl.keyStoreType=pkcs12 -Pssl.keyStore=`pwd`/client.pkc -Pssl.keyStorePassword=bithere -Pssl.trustStoreType=jks -Pssl.trustStore=`pwd`/mongo-truststore -Pssl.trustStorePassword=hithere"
-  export ASYNC_TYPE="-Dorg.mongodb.async.type=netty"
-
-  # Arguments for auth + SSL
-  if [ "$AUTH" != "noauth" ] || [ "$TOPOLOGY" == "replica_set" ]; then
-    export MONGODB_URI="${MONGODB_URI}&ssl=true&sslInvalidHostNameAllowed=true"
-  else
-    export MONGODB_URI="${MONGODB_URI}/?ssl=true&sslInvalidHostNameAllowed=true"
-  fi
-}
-
-############################################
 #            Main Program                  #
 ############################################
 
@@ -53,9 +29,6 @@ if [ "$TOPOLOGY" == "sharded_cluster" ]; then
      fi
 fi
 
-if [ "$SSL" != "nossl" ]; then
-   provision_ssl
-fi
 echo "Running $AUTH tests over $SSL for $TOPOLOGY and connecting to $MONGODB_URI"
 
 if [ "$FRAMEWORK" == "netcore10" ]; then
