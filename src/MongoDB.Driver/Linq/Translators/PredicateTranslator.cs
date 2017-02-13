@@ -34,12 +34,15 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal sealed class PredicateTranslator
     {
+        #region static
+        // private static fields
         private static readonly FilterDefinitionBuilder<BsonDocument> __builder = new FilterDefinitionBuilder<BsonDocument>();
 
+        // public static methods
         public static BsonDocument Translate<TDocument>(Expression<Func<TDocument, bool>> predicate, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var parameterExpression = new DocumentExpression(parameterSerializer);
-            var context = new PipelineBindingContext(BsonSerializer.SerializerRegistry);
+            var context = new PipelineBindingContext(serializerRegistry);
             context.AddExpressionMapping(predicate.Parameters[0], parameterExpression);
 
             var node = PartialEvaluator.Evaluate(predicate.Body);
@@ -51,16 +54,23 @@ namespace MongoDB.Driver.Linq.Translators
 
         public static BsonDocument Translate(Expression node, IBsonSerializerRegistry serializerRegistry)
         {
-            var translator = new PredicateTranslator();
+            var translator = new PredicateTranslator(serializerRegistry);
             node = FieldExpressionFlattener.FlattenFields(node);
             return translator.Translate(node)
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
         }
+        #endregion
 
-        private PredicateTranslator()
+        // private fields
+        private readonly IBsonSerializerRegistry _serializerRegistry;
+
+        // constructors
+        private PredicateTranslator(IBsonSerializerRegistry serializerRegistry)
         {
+            _serializerRegistry = serializerRegistry;
         }
 
+        // private methods
         private FilterDefinition<BsonDocument> Translate(Expression node)
         {
             FilterDefinition<BsonDocument> filter = null;
@@ -443,7 +453,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var fieldExpression = GetFieldExpression(variableExpression);
 
-            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, BsonSerializer.SerializerRegistry, constantExpression.Type, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, _serializerRegistry, constantExpression.Type, value);
             var serializedValue = valueSerializer.ToBsonValue(value);
 
             switch (operatorType)
@@ -1627,6 +1637,7 @@ namespace MongoDB.Driver.Linq.Translators
             return fieldExpression;
         }
 
+        // nested types
         private class DocumentToFieldConverter : ExtensionExpressionVisitor
         {
             public static Expression Convert(Expression node)
