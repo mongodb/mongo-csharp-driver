@@ -320,9 +320,12 @@
     <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-upsert.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate-collation.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-collation.json" />
-    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-upsert.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-collation.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-collation.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndReplace-upsert_pre_2.6.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-pre_2.6.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-pre_2.6.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-pre_2.6.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

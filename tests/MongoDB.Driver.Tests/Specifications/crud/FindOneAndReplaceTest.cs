@@ -62,10 +62,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             if (expectedResult.IsBsonNull)
             {
-                if (ClusterDescription.Servers[0].Version < new SemanticVersion(3, 0, 0) && _options.IsUpsert)
-                {
-                    return new BsonDocument();
-                }
                 return null;
             }
 
