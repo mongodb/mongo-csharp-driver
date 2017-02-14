@@ -70,15 +70,23 @@ Task("TestNet45")
         XUnit2(testAssemblies);
     });
 
-Task("TestNetCore10")
-    .IsDependentOn("BuildNetStandard15")
+Task("TestNetStandard15")
     .Does(() =>
     {
         Console.WriteLine("Run tests on .NET Core 1.0 here");
     });
 
+Task("TestWindows")
+    .IsDependentOn("TestNet45")
+    .IsDependentOn("TestNetStandard15");
+
+Task("TestLinux")
+    .IsDependentOn("TestNetStandard15");
+
+Task("Test")
+    .IsDependentOn("TestWindows");
+
 Task("Default")
-    .IsDependentOn("Build")
-    .IsDependentOn("TestNet45");
+    .IsDependentOn("Build");
 
 RunTarget(target);

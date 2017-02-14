@@ -215,7 +215,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} JDK="${JDK}" evergreen/run-tests.sh
+          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} evergreen/run-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
@@ -224,7 +224,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          JDK="jdk8" MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
+          MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
 
   publish-snapshot:
     - command: shell.exec
@@ -415,18 +415,6 @@ axes:
         variables:
            SSL: "nossl"
 
-  - id: framework 
-    display_name: .NET Framework
-    values:
-      - id: "net45"
-        display_name: .NET Framework 4.5 
-        variables:
-           FRAMEWORK: "net45"
-   #   - id: "netcore10"
-   #     display_name: .NET Core 1.0 
-   #     variables:
-   #        FRAMEWORK: "netcore10"
-
 buildvariants:
 
 - name: windows-64-compile
@@ -437,9 +425,9 @@ buildvariants:
     - name: compile
 
 - matrix_name: "tests"
-  matrix_spec: { version: "*", topology: "*", auth: "*", ssl: "*", os: "*", framework: "*" }
-  exclude_spec: { version: "2.4", topology: "*", auth: "*", ssl: "ssl", os: "*", framework: "*" }
-  display_name: "${version} ${topology} ${auth} ${ssl} ${os} ${framework}"
+  matrix_spec: { version: "*", topology: "*", auth: "*", ssl: "*", os: "*" }
+  exclude_spec: { version: "2.4", topology: "*", auth: "*", ssl: "ssl", os: "*" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
      - name: test
