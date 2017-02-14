@@ -114,6 +114,8 @@
     <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntArrayComparedToEnumerableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderIntComparedToIntWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToDoubleWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToNullableIntTests.cs" />
@@ -122,6 +124,10 @@
     <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToDoubleTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableIntComparedToIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableIntComparedToIntWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntTests.cs" />
+    <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FindFluentTests.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumTests.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumWithStringRepresentationTests.cs" />
