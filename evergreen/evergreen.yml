@@ -363,10 +363,10 @@ axes:
         display_name: "2.6"
         variables:
            VERSION: "2.6"
-      # - id: "2.4"
-      #   display_name: "2.4"
-      #   variables:
-      #      VERSION: "2.4"
+      - id: "2.4"
+        display_name: "2.4"
+        variables:
+          VERSION: "2.4"
 
   - id: os
     display_name: OS
@@ -422,10 +422,10 @@ axes:
         display_name: .NET Framework 4.5 
         variables:
            FRAMEWORK: "net45"
-      - id: "netcore10"
-        display_name: .NET Core 1.0 
-        variables:
-           FRAMEWORK: "netcore10"
+   #   - id: "netcore10"
+   #     display_name: .NET Core 1.0 
+   #     variables:
+   #        FRAMEWORK: "netcore10"
 
 buildvariants:
 
@@ -437,7 +437,8 @@ buildvariants:
     - name: compile
 
 - matrix_name: "tests"
-  matrix_spec: { auth: "*", framework: "*", os: "*", version: "*", ssl: "nossl", topology: "*" }
+  matrix_spec: { version: "*", topology: "*", auth: "*", ssl: "*", os: "*", framework: "*" }
+  exclude_spec: { version: "2.4", topology: "*", auth: "*", ssl: "ssl", os: "*", framework: "*" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os} ${framework}"
   tags: ["tests-variant"]
   tasks:
