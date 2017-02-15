@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Builders
@@ -254,23 +257,18 @@ namespace MongoDB.Driver.Tests.Builders
             Assert.Equal(expected, keys.ToJson());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestTextIndexCreation()
         {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
-            {
-                if (_primary.Supports(FeatureId.TextSearchCommand))
-                {
-                    var collection = _database.GetCollection<Test>("test_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                    var indexes = collection.GetIndexes();
-                    var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
-                    Assert.Equal("idioma", index["language_override"].AsString);
-                    Assert.Equal("spanish", index["default_language"].AsString);
-                    Assert.Equal(1, index["key"]["c"].AsInt32);
-                }
-            }
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            var collection = _database.GetCollection<Test>("test_text");
+            collection.Drop();
+            collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+            var indexes = collection.GetIndexes();
+            var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+            Assert.Equal("idioma", index["language_override"].AsString);
+            Assert.Equal("spanish", index["default_language"].AsString);
+            Assert.Equal(1, index["key"]["c"].AsInt32);
         }
     }
 }
