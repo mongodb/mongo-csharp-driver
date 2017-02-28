@@ -11,7 +11,7 @@ title = "Quick Tour"
 
 ## MongoDB Driver Quick Tour
 
-This is the first part of the MongoDB driver quick tour. In this part, we will look at how to perform basic CRUD (create, read, update, delete) operations. In the [next part]({{< relref "getting_started\admin_quick_tour.md" >}}), we'll look at performing some adminstrative functions.
+This is the first part of the MongoDB driver quick tour. In this part, we will look at how to perform basic CRUD (create, read, update, delete) operations. In the [next part]({{< relref "getting_started\admin_quick_tour.md" >}}), we'll look at performing some administrative functions.
 
 {{% note %}}See the [installation guide]({{< relref "getting_started\installation.md" >}}) for instructions on how to install the MongoDB Driver.{{% /note %}}
 
