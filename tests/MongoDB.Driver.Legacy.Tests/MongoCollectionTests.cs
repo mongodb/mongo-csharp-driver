@@ -478,14 +478,17 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCountWithReadPreferenceFromFind()
         {
-            RequireServer.Check();
-            _collection.Drop();
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var all = LegacyTestConfiguration.Server.Secondaries.Length + 1;
-            var options = new MongoInsertOptions { WriteConcern = new WriteConcern(w: all) };
-            _collection.Insert(new BsonDocument("x", 1), options);
-            _collection.Insert(new BsonDocument("x", 2), options);
-            var count = _collection.Find(Query.EQ("x", 1)).SetReadPreference(ReadPreference.Secondary).Count();
-            Assert.Equal(1, count);
+            if (all > 1)
+            {
+                _collection.Drop();
+                var options = new MongoInsertOptions { WriteConcern = new WriteConcern(w: all) };
+                _collection.Insert(new BsonDocument("x", 1), options);
+                _collection.Insert(new BsonDocument("x", 2), options);
+                var count = _collection.Find(Query.EQ("x", 1)).SetReadPreference(ReadPreference.Secondary).Count();
+                Assert.Equal(1, count);
+            }
         }
 
         [SkippableFact]
