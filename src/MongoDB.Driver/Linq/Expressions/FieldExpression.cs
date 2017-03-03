@@ -50,6 +50,15 @@ namespace MongoDB.Driver.Linq.Expressions
             _original = original;
         }
 
+        public FieldExpression(FieldExpression other, IBsonSerializer serializer)
+        {
+            Ensure.IsNotNull(other, nameof(other));
+            _document = other.Document;
+            _fieldName = other.FieldName;
+            _original = other.Original;
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+        }
+
         public Expression Document
         {
             get { return _document; }
