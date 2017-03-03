@@ -112,6 +112,7 @@
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="FilterDefinitionBuilderEnumerableNullableEnumContainsNullableEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntArrayComparedToEnumerableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumTests.cs" />
     <Compile Include="FilterDefinitionBuilderIntComparedToIntTests.cs" />

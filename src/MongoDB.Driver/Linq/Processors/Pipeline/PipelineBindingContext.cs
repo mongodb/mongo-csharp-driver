@@ -1,4 +1,4 @@
-/* Copyright 2015 MongoDB Inc.
+/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -92,11 +92,16 @@ namespace MongoDB.Driver.Linq.Processors
                 serializer = _serializerRegistry.GetSerializer(type);
                 if (node != null)
                 {
-                    var childConfigurable = serializer as IChildSerializerConfigurable;
-                    if (childConfigurable != null)
+                    var childConfigurableSerializer = serializer as IChildSerializerConfigurable;
+                    if (childConfigurableSerializer != null)
                     {
-                        var childSerializer = GetSerializer(node.Type, node);
-                        serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurable, childSerializer);
+                        var nodeSerializer = GetSerializer(node.Type, node);
+                        var deepestChildSerializer = SerializerHelper.GetDeepestChildSerializer(childConfigurableSerializer);
+
+                        if (nodeSerializer.ValueType == deepestChildSerializer.ValueType)
+                        {
+                            serializer = SerializerHelper.RecursiveConfigureChildSerializer(childConfigurableSerializer, nodeSerializer);
+                        }
                     }
                 }
             }
