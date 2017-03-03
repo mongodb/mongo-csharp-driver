@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -71,11 +71,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the write concern.
+        /// Gets or sets the write concern (ignored and will eventually be deprecated and later removed).
         /// </summary>
         /// <value>
         /// The write concern.
         /// </value>
+        // TODO: deprecate in 2.5 and remove in 3.0
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -120,8 +121,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "reIndex", _collectionNamespace.CollectionName },
-                { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
+                { "reIndex", _collectionNamespace.CollectionName }
             };
         }
 

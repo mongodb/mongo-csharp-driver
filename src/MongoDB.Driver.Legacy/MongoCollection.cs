@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1663,10 +1663,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex()
         {
-            var operation = new ReIndexOperation(_collectionNamespace, GetMessageEncoderSettings())
-            {
-                WriteConcern = _settings.WriteConcern
-            };
+            var operation = new ReIndexOperation(_collectionNamespace, GetMessageEncoderSettings());
             var result = ExecuteWriteOperation(operation);
             return new CommandResult(result);
         }

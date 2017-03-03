@@ -106,30 +106,6 @@ namespace MongoDB.Driver.Core.Operations
             });
         }
 
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_a_write_concern_error_occurs(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            var actualVersion = CoreTestConfiguration.ServerVersion;
-            if (actualVersion.Major == 3 && actualVersion.Minor == 5 && actualVersion.Patch == 2)
-            {
-                // skip test on any version of 3.5.2
-                return; // TODO: remove later
-            }
-            EnsureCollectionExists();
-            var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                WriteConcern = new WriteConcern(9)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoWriteConcernException>();
-        }
-
         [Fact]
         public void CreateCommand_should_return_expected_result()
         {
@@ -140,31 +116,6 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "reIndex", _collectionNamespace.CollectionName }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
-            [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
-        {
-            var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
-            var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
-
-            var result = subject.CreateCommand(serverVersion);
-
-            var expectedResult = new BsonDocument
-            {
-                { "reIndex", _collectionNamespace.CollectionName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
             };
             result.Should().Be(expectedResult);
         }

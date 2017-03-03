@@ -2945,18 +2945,6 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
-        public void TestReIndexWriteConcern()
-        {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            EnsureCollectionExists(_collection.Name);
-            var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
-
-            var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).ReIndex());
-
-            exception.Should().BeOfType<MongoWriteConcernException>();
-        }
-
         [Fact]
         public void TestRemove()
         {
