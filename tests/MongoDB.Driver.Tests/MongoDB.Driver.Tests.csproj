@@ -137,6 +137,7 @@
     <Compile Include="Linq\MongoQueryableIntComparedToDoubleWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\MongoQueryableWithDotNotationTests.cs" />
     <Compile Include="Linq\Translators\AggregateGroupTranslatorTests.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslatorTests.cs" />
     <Compile Include="Linq\IntegrationTestBase.cs" />

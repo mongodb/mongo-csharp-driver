@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,15 +50,6 @@ namespace MongoDB.Driver.Linq.Expressions
             _original = original;
         }
 
-        public FieldExpression(FieldExpression other, IBsonSerializer serializer)
-        {
-            Ensure.IsNotNull(other, nameof(other));
-            _document = other.Document;
-            _fieldName = other.FieldName;
-            _original = other.Original;
-            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
-        }
-
         public Expression Document
         {
             get { return _document; }
@@ -102,6 +93,16 @@ namespace MongoDB.Driver.Linq.Expressions
             }
 
             return this;
+        }
+
+        public FieldExpression WithSerializer(IBsonSerializer serializer)
+        {
+            Ensure.IsNotNull(serializer, nameof(serializer));
+            return new FieldExpression(
+                _document,
+                _fieldName,
+                serializer,
+                _original);
         }
 
         protected internal override Expression Accept(ExtensionExpressionVisitor visitor)
