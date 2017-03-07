@@ -63,11 +63,11 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<X509Certificate> ClientCertificates
         {
-            get { return (_clientCertificateCollection == null) ? null : ((IEnumerable)_clientCertificateCollection).Cast<X509Certificate>().Select(c => CloneCertificate(c)); }
+            get { return (_clientCertificateCollection == null) ? null : ((IEnumerable)_clientCertificateCollection).Cast<X509Certificate>(); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("SslSettings is frozen."); }
-                _clientCertificateCollection = (value == null) ? null : new X509CertificateCollection(value.Select(c => CloneCertificate(c)).ToArray());
+                _clientCertificateCollection = (value == null) ? null : new X509CertificateCollection(value.ToArray());
             }
         }
 
@@ -250,21 +250,7 @@ namespace MongoDB.Driver
 
             return string.Format("{{{0}}}", string.Join(",", parts.ToArray()));
         }
-
-        // private methods
-        private X509Certificate CloneCertificate(X509Certificate certificate)
-        {
-            var certificate2 = certificate as X509Certificate2;
-            if (certificate2 != null)
-            {
-                return new X509Certificate2(certificate2.RawData);
-            }
-            else
-            {
-                return new X509Certificate(certificate.Export(X509ContentType.Cert));
-            }
-        }
-
+        
         // nested classes
         private class X509CertificateCollectionEqualityComparer : IEqualityComparer<X509CertificateCollection>
         {

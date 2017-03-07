@@ -69,11 +69,11 @@ namespace MongoDB.Driver.Tests
 
             var certificateFileName = GetTestCertificateFileName();
             var clientCertificates = new[] { new X509Certificate2(certificateFileName, "password"), new X509Certificate2(certificateFileName, "password") };
+            Assert.True(clientCertificates.All(cert => cert.HasPrivateKey));
             settings.ClientCertificates = clientCertificates;
             Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
-            Assert.NotSame(clientCertificates[0], settings.ClientCertificates.ElementAt(0));
-            Assert.NotSame(clientCertificates[1], settings.ClientCertificates.ElementAt(1));
-
+            Assert.True(settings.ClientCertificates.Cast<X509Certificate2>().All(cert => cert.HasPrivateKey));
+            
             settings.Freeze();
             Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.Throws<InvalidOperationException>(() => { settings.ClientCertificates = clientCertificates; });
