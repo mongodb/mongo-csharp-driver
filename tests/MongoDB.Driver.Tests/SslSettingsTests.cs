@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -69,11 +69,11 @@ namespace MongoDB.Driver.Tests
 
             var certificateFileName = GetTestCertificateFileName();
             var clientCertificates = new[] { new X509Certificate2(certificateFileName, "password"), new X509Certificate2(certificateFileName, "password") };
-            Assert.True(clientCertificates.All(cert => cert.HasPrivateKey));
             settings.ClientCertificates = clientCertificates;
+
             Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.True(settings.ClientCertificates.Cast<X509Certificate2>().All(cert => cert.HasPrivateKey));
-            
+
             settings.Freeze();
             Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.Throws<InvalidOperationException>(() => { settings.ClientCertificates = clientCertificates; });
