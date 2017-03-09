@@ -1,5 +1,5 @@
 {
-  "version": "2.4.3-*",
+  "version": "2.4.4-*",
   "dependencies": {
     "MongoDB.Bson.Dotnet": { "target": "project" },
     "MongoDB.Driver.Core.Dotnet": { "target": "project" }

@@ -9,7 +9,7 @@ open Fake.Dotnet
 open Fake.Testing.XUnit2
 
 let config = getBuildParamOrDefault "config" "Release"
-let baseVersion = getBuildParamOrDefault "baseVersion" "2.4.3"
+let baseVersion = getBuildParamOrDefault "baseVersion" "2.4.4"
 let preRelease = getBuildParamOrDefault "preRelease" "local"
 let getComputedBuildNumber() = 
     let result = Git.CommandHelper.runSimpleGitCommand currentDirectory "describe HEAD^1 --tags --long --match \"v[0-9].[0-9].[0-9]\""
