@@ -2509,7 +2509,7 @@ DateTime values in MongoDB are always saved as UTC.
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; 
 {
     cm.AutoMap();
-    cm.IdMemberMap.SetRepresentation(BsonType.ObjectId);
+    cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
 });
 </code></pre>
 
