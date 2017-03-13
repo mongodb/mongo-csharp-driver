@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests
         [InlineData("-79228162514264337593543950335", "-79228162514264337593543950335")]
         public void Decimal(string valueString, string s)
         {
-            var value = decimal.Parse(valueString);
+            var value = decimal.Parse(valueString, CultureInfo.InvariantCulture);
             var subject = new Decimal128(value);
 
             subject.ToString().Should().Be(s);
