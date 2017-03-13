@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
+        private readonly Func<Type, IBsonSerializer> _createSerializer;
 
         // constructors
         /// <summary>
@@ -36,6 +37,7 @@ namespace MongoDB.Bson.Serialization
         {
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
+            _createSerializer = CreateSerializer;
         }
 
         // public methods
@@ -60,7 +62,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
-            return _cache.GetOrAdd(type, CreateSerializer);
+            return _cache.GetOrAdd(type, _createSerializer);
         }
 
         /// <summary>
