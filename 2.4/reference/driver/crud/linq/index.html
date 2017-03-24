@@ -2782,7 +2782,7 @@ var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
 
 <p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.oftype.aspx"><code>OfType</code></a> are supported.</p>
 
-<pre><code class="language-csharp">// assuSumg Customer inherits from Person
+<pre><code class="language-csharp">// Assuming Customer inherits from Person
 var result = collection.AsQueryable().OfType&lt;Customer&gt;();
 </code></pre>
 
