@@ -69,44 +69,116 @@ namespace MongoDB.Driver.Core.Connections
         internal static BsonDocument CreateOSDocument()
         {
             string osType;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                osType = "Windows";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                osType = "Linux";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                osType = "macOS";
-            }
-            else
-            {
-                osType = "unknown";
-            }
-
-            var osName = RuntimeInformation.OSDescription.Trim();
-
             string architecture;
-            switch (RuntimeInformation.ProcessArchitecture)
-            {
-                case Architecture.Arm: architecture = "arm"; break;
-                case Architecture.Arm64: architecture = "arm64"; break;
-                case Architecture.X64: architecture = "x86_64"; break;
-                case Architecture.X86: architecture = "x86_32"; break;
-                default: architecture = null; break;
-            }
-
+            string osName;
             string osVersion;
-            var match = Regex.Match(osName, @" (?<version>\d+\.\d[^ ]*)");
-            if (match.Success)
+
+#if NET45
+            if (Type.GetType("Mono.Runtime") != null)
             {
-                osVersion = match.Groups["version"].Value;
+                switch (Environment.OSVersion.Platform)
+                {
+                    case PlatformID.Win32S:
+                    case PlatformID.Win32Windows:
+                    case PlatformID.Win32NT:
+                    case PlatformID.WinCE:
+                        osType = "Windows";
+                        break;
+
+                    case PlatformID.Unix:
+                        osType = "Linux";
+                        break;
+
+                    case PlatformID.Xbox:
+                        osType = "XBox";
+                        break;
+
+                    case PlatformID.MacOSX:
+                        osType = "macOS";
+                        break;
+
+                    default:
+                        osType = "Unknown";
+                        break;
+                }
+
+
+                PortableExecutableKinds peKind;
+                ImageFileMachine machine;
+                typeof(object).Module.GetPEKind(out peKind, out machine);
+                switch (machine)
+                {
+                    case ImageFileMachine.I386:
+                        architecture = "x86_32";
+                        break;
+                    case ImageFileMachine.IA64:
+                    case ImageFileMachine.AMD64:
+                        architecture = "x86_64";
+                        break;
+                    case ImageFileMachine.ARM:
+                        architecture = "arm" + (Environment.Is64BitProcess ? "64" : "");
+                        break;
+                    default:
+                        architecture = null;
+                        break;
+                }
+
+                osName = Environment.OSVersion.VersionString;
+
+                osVersion = Environment.OSVersion.Version.ToString();
+
+                return CreateOSDocument(osType, osName, architecture, osVersion);
             }
             else
+#endif
             {
-                osVersion = null;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    osType = "Windows";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    osType = "Linux";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    osType = "macOS";
+                }
+                else
+                {
+                    osType = "unknown";
+                }
+
+                osName = RuntimeInformation.OSDescription.Trim();
+
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.Arm:
+                        architecture = "arm";
+                        break;
+                    case Architecture.Arm64:
+                        architecture = "arm64";
+                        break;
+                    case Architecture.X64:
+                        architecture = "x86_64";
+                        break;
+                    case Architecture.X86:
+                        architecture = "x86_32";
+                        break;
+                    default:
+                        architecture = null;
+                        break;
+                }
+
+                var match = Regex.Match(osName, @" (?<version>\d+\.\d[^ ]*)");
+                if (match.Success)
+                {
+                    osVersion = match.Groups["version"].Value;
+                }
+                else
+                {
+                    osVersion = null;
+                }
             }
 
             return CreateOSDocument(osType, osName, architecture, osVersion);
@@ -172,7 +244,7 @@ namespace MongoDB.Driver.Core.Connections
 
             return clientDocument;
         }
-        #endregion
+#endregion
 
     }
 }
