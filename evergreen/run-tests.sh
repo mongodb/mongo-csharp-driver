@@ -16,6 +16,21 @@ MONGODB_URI=${MONGODB_URI:-}
 TOPOLOGY=${TOPOLOGY:-server}
 
 ############################################
+#            Functions                     #
+############################################
+
+provision_ssl () {
+  echo "SSL !"
+
+  # Arguments for auth + SSL
+  if [ "$AUTH" != "noauth" ] || [ "$TOPOLOGY" == "replica_set" ]; then
+    export MONGODB_URI="${MONGODB_URI}&ssl=true&sslVerifyCertificate=false"
+  else
+    export MONGODB_URI="${MONGODB_URI}/?ssl=true&sslVerifyCertificate=false"
+  fi
+}
+
+############################################
 #            Main Program                  #
 ############################################
 
@@ -27,6 +42,10 @@ if [ "$TOPOLOGY" == "sharded_cluster" ]; then
      else
        export MONGODB_URI="mongodb://localhost:27017"
      fi
+fi
+
+if [ "$SSL" != "nossl" ]; then
+   provision_ssl
 fi
 
 echo "Running $AUTH tests over $SSL for $TOPOLOGY and connecting to $MONGODB_URI"
