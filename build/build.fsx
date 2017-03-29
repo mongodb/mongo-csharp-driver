@@ -148,16 +148,16 @@ Target "BuildNet45" (fun _ ->
 )
 
 Target "InstallDotnet" (fun _ ->
-    DotnetCliInstall Preview2ToolingOptions
+    DotnetSdkInstall SdkVersions.NetCore101
 )
 
 Target "BuildNetStandard15" (fun _ ->
     for project in dotNetProjects do
         DotnetRestore id project
-        DotnetCompile (fun c ->
+        DotnetBuild (fun c ->
             { c with
                 Configuration = BuildConfiguration.Release
-                Common = {DotnetOptions.Default with CustomParams = Some ("--version-suffix " + versionSuffix)}
+                CommonOptions = fun options -> { options with CustomParams = Some ("--version-suffix " + versionSuffix) }
             })
             project
 
@@ -201,7 +201,7 @@ Target "TestNetStandard15" (fun _ ->
             | "" -> ""
             | category -> sprintf "-trait \"Category=%s\"" category
         let args = sprintf "test %s %s" project traitArg
-        let result = Dotnet DotnetOptions.Default args
+        let result = Dotnet (fun o -> o)  args
         if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
 )
 
