@@ -136,7 +136,10 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
-            result["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+            if (result.Contains("ns"))
+            {
+                result["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+            }
         }
 
         [SkippableTheory]
