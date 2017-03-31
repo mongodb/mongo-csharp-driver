@@ -1,4 +1,5 @@
 #addin "nuget:?package=Cake.Git"
+#addin "nuget:?package=Cake.Incubator"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #load buildhelpers.cake
@@ -66,14 +67,39 @@ Task("TestNet45")
     .Does(() =>
     {
         var testAssemblies = GetFiles("./tests/**/bin/" + configuration + "/*Tests.dll");
-        Console.WriteLine(string.Join("\n", testAssemblies));
-        XUnit2(testAssemblies);
+        var testSettings = new XUnit2Settings
+        {
+            Parallelism = ParallelismOption.None,
+            ToolTimeout = TimeSpan.FromMinutes(30)
+        };
+        XUnit2(testAssemblies, testSettings);
     });
 
 Task("TestNetStandard15")
+    .IsDependentOn("BuildNetStandard15")
     .Does(() =>
     {
-        Console.WriteLine("Run tests on .NET Core 1.0 here");
+        var testsDirectory = solutionDirectory + Directory("tests");
+        var testProjectNames = new []
+        {
+            "MongoDB.Bson.Tests.Dotnet",
+            "MongoDB.Driver.Core.Tests.Dotnet",
+            "MongoDB.Driver.Tests.Dotnet",
+            "MongoDB.Driver.GridFS.Tests.Dotnet",
+            "MongoDB.Driver.Legacy.Tests.Dotnet"
+        };
+        foreach (var testProjectName in testProjectNames)
+        {
+            var testProjectDirectory = testsDirectory + Directory(testProjectName);
+            var testProjectFile = testProjectDirectory + File("project.json");
+            var testSettings = new DotNetCoreTestSettings();
+            var xunitSettings = new XUnit2Settings
+            {
+                Parallelism = ParallelismOption.None,
+                ToolTimeout = TimeSpan.FromMinutes(30)
+            };
+            DotNetCoreTest(testSettings, testProjectFile, xunitSettings);
+        }
     });
 
 Task("TestWindows")

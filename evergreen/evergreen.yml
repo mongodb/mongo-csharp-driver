@@ -215,7 +215,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} evergreen/run-tests.sh
+          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} evergreen/run-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
@@ -375,6 +375,8 @@ axes:
     values:
       - id: "windows-64"
         display_name: "Windows 64-bit"
+        variables:
+          OS: "windows-64"
         run_on: windows-64-vs2015-small
 
   - id: topology

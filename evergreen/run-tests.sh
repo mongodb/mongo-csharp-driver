@@ -50,10 +50,10 @@ fi
 
 echo "Running $AUTH tests over $SSL for $TOPOLOGY and connecting to $MONGODB_URI"
 
-if [ "$FRAMEWORK" == "netcore10" ]; then
-  export TARGET="TestNetCore10"
+if [ "$OS" == "windows-64" ]; then
+  export TARGET="TestWindows"
 else
-  export TARGET="TestNet45"
+  export TARGET="TestLinux"
 fi
 
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do setx $var z:\\data\\tmp; export $var=z:\\data\\tmp; done
