@@ -503,6 +503,28 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Set_field_type_D_Set_type_D_value_type_D()
+        {
+            var subject = CreateSubject<C>();
+            var value = new D { X = "X" };
+
+            var update = subject.Set<D>("D", value);
+
+            Assert(update, "{ $set : { D : { X : \"X\" } } }");
+        }
+
+        [Fact]
+        public void Set_field_type_D_Set_type_D_value_type_E()
+        {
+            var subject = CreateSubject<C>();
+            var value = new E { X = "X", Y = "Y" };
+
+            var update = subject.Set<D>("D", value);
+
+            Assert(update, "{ $set : { D : { _t : \"E\", X : \"X\", Y : \"Y\" } } }");
+        }
+
+        [Fact]
         public void Set_field_type_D_Set_type_object_value_type_D()
         {
             var subject = CreateSubject<C>();
