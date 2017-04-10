@@ -198,6 +198,7 @@ namespace MongoDB.Driver
                 TTo convertedValue;
                 if (TryConvertValue(value, out convertedValue))
                 {
+                    args.NominalType = typeof(TTo);
                     _serializer.Serialize(context, args, convertedValue);
                 }
                 else

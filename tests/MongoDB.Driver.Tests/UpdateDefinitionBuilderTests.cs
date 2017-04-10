@@ -503,6 +503,28 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Set_field_type_D_Set_type_object_value_type_D()
+        {
+            var subject = CreateSubject<C>();
+            var value = new D { X = "X" };
+
+            var update = subject.Set<object>("D", value);
+
+            Assert(update, "{ $set : { D : { X : \"X\" } } }");
+        }
+
+        [Fact]
+        public void Set_field_type_D_Set_type_object_value_type_E()
+        {
+            var subject = CreateSubject<C>();
+            var value = new E { Y = "Y" };
+
+            var update = subject.Set<object>("D", value);
+
+            Assert(update, "{ $set : { D : { _t : \"E\", Y : \"Y\" } } }");
+        }
+
+        [Fact]
         public void Set_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -621,6 +643,22 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("pn")]
             public string PhoneNumber { get; set; }
+        }
+
+        public class C
+        {
+            public int Id { get; set; }
+            public D D { get; set; }
+        }
+
+        public class D
+        {
+            public string X { get; set; }
+        }
+
+        public class E
+        {
+            public string Y { get; set; }
         }
     }
 }
