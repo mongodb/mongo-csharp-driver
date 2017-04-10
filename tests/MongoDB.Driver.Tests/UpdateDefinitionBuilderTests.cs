@@ -517,11 +517,22 @@ namespace MongoDB.Driver.Tests
         public void Set_field_type_D_Set_type_object_value_type_E()
         {
             var subject = CreateSubject<C>();
-            var value = new E { Y = "Y" };
+            var value = new E { X = "X", Y = "Y" };
 
             var update = subject.Set<object>("D", value);
 
-            Assert(update, "{ $set : { D : { _t : \"E\", Y : \"Y\" } } }");
+            Assert(update, "{ $set : { D : { _t : \"E\", X : \"X\", Y : \"Y\" } } }");
+        }
+
+        [Fact]
+        public void Set_field_type_D_Set_type_object_value_type_F()
+        {
+            var subject = CreateSubject<C>();
+            var value = new F { Z = "Z" };
+
+            var update = subject.Set<object>("D", value);
+
+            Assert(update, "{ $set : { D : { _t : \"F\", Z : \"Z\" } } }");
         }
 
         [Fact]
@@ -656,9 +667,14 @@ namespace MongoDB.Driver.Tests
             public string X { get; set; }
         }
 
-        public class E
+        public class E : D
         {
             public string Y { get; set; }
+        }
+
+        public class F
+        {
+            public string Z { get; set; }
         }
     }
 }
