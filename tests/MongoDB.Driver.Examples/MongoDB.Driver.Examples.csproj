@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregatePrimer.cs" />
+    <Compile Include="DocumentationExamples.cs" />
     <Compile Include="IndexesPrimer.cs" />
     <Compile Include="InsertPrimer.cs" />
     <Compile Include="PrimerTestFixture.cs" />
