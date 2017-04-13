@@ -65,8 +65,7 @@ namespace MongoDB.Driver.Examples
             // db.inventory.find( { item: "canvas" } )
 
             // Start Example 2
-            var builder = Builders<BsonDocument>.Filter;
-            var filter = builder.Eq("item", "canvas");
+            var filter = Builders<BsonDocument>.Filter.Eq("item", "canvas");
             var result = collection.Find(filter).ToList();
             // End Example 2
 
@@ -275,11 +274,40 @@ namespace MongoDB.Driver.Examples
             // Start Example 14
             var documents = new[]
             {
-                new BsonDocument { { "item", "journal" }, { "qty", 25 }, { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "notebook" }, { "qty", 50 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "paper" }, { "qty", 100 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "planner" }, { "qty", 75 }, { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "postcard" }, { "qty", 45 }, { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } }, { "status", "A" } },
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "qty", 25 },
+                    { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "qty", 50 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "qty", 100 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "qty", 75 },
+                    { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "qty", 45 },
+                    { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } },
+                    { "status", "A" } },
             };
             collection.InsertMany(documents);
             // End Example 14
@@ -373,11 +401,41 @@ namespace MongoDB.Driver.Examples
             // Start Example 20
             var documents = new[]
             {
-                new BsonDocument { { "item", "journal" }, { "qty", 25 }, { "tags", new BsonArray { "blank", "red" } }, { "dim_cm", new BsonArray { 14, 21 } } },
-                new BsonDocument { { "item", "notebook" }, { "qty", 50 }, { "tags", new BsonArray { "red", "blank" } }, { "dim_cm", new BsonArray { 14, 21 } } },
-                new BsonDocument { { "item", "paper" }, { "qty", 100 }, { "tags", new BsonArray { "red", "blank", "plain" } }, { "dim_cm", new BsonArray { 14, 21 } } },
-                new BsonDocument { { "item", "planner" }, { "qty", 75 }, { "tags", new BsonArray { "blank", "red" } }, { "dim_cm", new BsonArray { 22.85, 30 } } },
-                new BsonDocument { { "item", "postcard" }, { "qty", 45 }, { "tags", new BsonArray { "blue" } }, { "dim_cm", new BsonArray { 10, 15.25 } } },
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "qty", 25 },
+                    { "tags", new BsonArray { "blank", "red" } },
+                    { "dim_cm", new BsonArray { 14, 21 } }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "qty", 50 },
+                    { "tags", new BsonArray { "red", "blank" } },
+                    { "dim_cm", new BsonArray { 14, 21 } }
+                },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "qty", 100 },
+                    { "tags", new BsonArray { "red", "blank", "plain" } },
+                    { "dim_cm", new BsonArray { 14, 21 } }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "qty", 75 },
+                    { "tags", new BsonArray { "blank", "red" } },
+                    { "dim_cm", new BsonArray { 22.85, 30 } }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "qty", 45 },
+                    { "tags", new BsonArray { "blue" } },
+                    { "dim_cm", new BsonArray { 10, 15.25 } }
+                }
             };
             collection.InsertMany(documents);
             // End Example 20
@@ -464,8 +522,7 @@ namespace MongoDB.Driver.Examples
             // db.inventory.find( { dim_cm: { $elemMatch: { $gt: 22, $lt: 30 } } } )
 
             // Start Example 26
-            var builder = Builders<BsonDocument>.Filter;
-            var filter = builder.ElemMatch<double>("dim_cm", new BsonDocument { { "$gt", 22 }, { "$lt", 30 } });
+            var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("dim_cm", new BsonDocument { { "$gt", 22 }, { "$lt", 30 } });
             var result = collection.Find(filter).ToList();
             // End Example 26
 
@@ -511,11 +568,50 @@ namespace MongoDB.Driver.Examples
             // Start Example 29
             var documents = new[]
             {
-                new BsonDocument { { "item", "journal" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 5 } }, new BsonDocument { { "warehouse", "C" }, { "qty", 15 } } } } },
-                new BsonDocument { { "item", "notebook" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "C" }, { "qty", 5 } } } } },
-                new BsonDocument { { "item", "paper" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 60 } }, new BsonDocument { { "warehouse", "B" }, { "qty", 15 } } } } },
-                new BsonDocument { { "item", "planner" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 40 } }, new BsonDocument { { "warehouse", "B" }, { "qty", 5 } } } } },
-                new BsonDocument { { "item", "postcard" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "B" }, { "qty", 15 } }, new BsonDocument { { "warehouse", "C" }, { "qty", 35 } } } } }
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 5 } },
+                            new BsonDocument { { "warehouse", "C" }, { "qty", 15 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "C" }, { "qty", 5 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 60 } },
+                            new BsonDocument { { "warehouse", "B" }, { "qty", 15 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 40 } },
+                            new BsonDocument { { "warehouse", "B" }, { "qty", 5 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "B" }, { "qty", 15 } },
+                            new BsonDocument { { "warehouse", "C" }, { "qty", 35 } } }
+                        }
+                }
             };
             collection.InsertMany(documents);
             // End Example 29
@@ -588,7 +684,7 @@ namespace MongoDB.Driver.Examples
             // db.inventory.find( { "instock": { $elemMatch: { qty: 5, warehouse: "A" } } } )
 
             // Start Example 34
-            var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonDocument>("instock", new BsonDocument { { "qty", 5 }, { "warehouse", "A" } });
+            var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("instock", new BsonDocument { { "qty", 5 }, { "warehouse", "A" } });
             var result = collection.Find(filter).ToList();
             // End Example 34
 
@@ -601,7 +697,7 @@ namespace MongoDB.Driver.Examples
             // db.inventory.find( { "instock": { $elemMatch: { qty: { $gt: 10, $lte: 20 } } } } )
 
             // Start Example 35
-            var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonDocument>("instock", new BsonDocument { { "qty", new BsonDocument { { "$gt", 10 }, { "$lte", 20 } } } });
+            var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("instock", new BsonDocument { { "qty", new BsonDocument { { "$gt", 10 }, { "$lte", 20 } } } });
             var result = collection.Find(filter).ToList();
             // End Example 35
 
@@ -708,11 +804,57 @@ namespace MongoDB.Driver.Examples
             // Start Example 42
             var documents = new[]
             {
-                new BsonDocument { { "item", "journal" }, { "status", "A" }, { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 5 } } } } },
-                new BsonDocument { { "item", "notebook" }, { "status", "A" }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "C" }, { "qty", 5 } } } } },
-                new BsonDocument { { "item", "paper" }, { "status", "D" }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 60 } } } } },
-                new BsonDocument { { "item", "planner" }, { "status", "D" }, { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 40 } } } } },
-                new BsonDocument { { "item", "postcard" }, { "status", "A" }, { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "B" }, { "qty", 15 } }, new BsonDocument { { "warehouse", "C" }, { "qty", 35 } } } } },
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "status", "A" },
+                    { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 5 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "status", "A" },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "C" }, { "qty", 5 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "status", "D" },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 60 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "status", "D" },
+                    { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "A" }, { "qty", 40 } } }
+                        }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "status", "A" },
+                    { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } },
+                    { "instock", new BsonArray
+                        {
+                            new BsonDocument { { "warehouse", "B" }, { "qty", 15 } },
+                            new BsonDocument { { "warehouse", "C" }, { "qty", 35 } } }
+                        }
+                }
             };
             collection.InsertMany(documents);
             // End Example 42
@@ -864,16 +1006,73 @@ namespace MongoDB.Driver.Examples
             // Start Example 51
             var documents = new[]
             {
-                new BsonDocument { { "item", "canvas" }, { "qty", 100 }, { "size", new BsonDocument { { "h", 28 }, { "w", 35.5 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "journal" }, { "qty", 25 }, { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "mat" }, { "qty", 85 }, { "size", new BsonDocument { { "h", 27.9 }, { "w", 35.5 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "mousepad" }, { "qty", 25 }, { "size", new BsonDocument { { "h", 19 }, { "w", 22.85 }, { "uom", "cm" } } }, { "status", "P" } },
-                new BsonDocument { { "item", "notebook" }, { "qty", 50 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "P" } },
-                new BsonDocument { { "item", "paper" }, { "qty", 100 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "planner" }, { "qty", 75 }, { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "postcard" }, { "qty", 45 }, { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "sketchbook" }, { "qty", 80 }, { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "sketch pad" }, { "qty", 95 }, { "size", new BsonDocument { { "h", 22.85 }, { "w", 30.5 }, { "uom", "cm" } } }, { "status", "A" } },
+                new BsonDocument
+                {
+                    { "item", "canvas" },
+                    { "qty", 100 },
+                    { "size", new BsonDocument { { "h", 28 }, { "w", 35.5 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "qty", 25 },
+                    { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "mat" },
+                    { "qty", 85 },
+                    { "size", new BsonDocument { { "h", 27.9 }, { "w", 35.5 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "mousepad" },
+                    { "qty", 25 },
+                    { "size", new BsonDocument { { "h", 19 }, { "w", 22.85 }, { "uom", "cm" } } },
+                    { "status", "P" }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "qty", 50 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "P" } },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "qty", 100 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "qty", 75 },
+                    { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "qty", 45 },
+                    { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "sketchbook" },
+                    { "qty", 80 },
+                    { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "sketch pad" },
+                    { "qty", 95 },
+                    { "size", new BsonDocument { { "h", 22.85 }, { "w", 30.5 }, { "uom", "cm" } } }, { "status", "A" } },
             };
             collection.InsertMany(documents);
             // End Example 51
@@ -930,7 +1129,15 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 54
             var filter = Builders<BsonDocument>.Filter.Eq("item", "paper");
-            var replacement = new BsonDocument { { "item", "paper" }, { "instock", new BsonArray { new BsonDocument { { "warehouse", "A" }, { "qty", 60 } }, new BsonDocument { { "warehouse", "B" }, { "qty", 40 } } } } };
+            var replacement = new BsonDocument
+            {
+                { "item", "paper" },
+                { "instock", new BsonArray
+                    {
+                        new BsonDocument { { "warehouse", "A" }, { "qty", 60 } },
+                        new BsonDocument { { "warehouse", "B" }, { "qty", 40 } } }
+                    }
+            };
             var result = collection.ReplaceOne(filter, replacement);
             // End Example 54
 
@@ -951,11 +1158,41 @@ namespace MongoDB.Driver.Examples
             // Start Example 55
             var documents = new[]
             {
-                new BsonDocument { { "item", "journal" }, { "qty", 25 }, { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } }, { "status", "A" } },
-                new BsonDocument { { "item", "notebook" }, { "qty", 50 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "P" } },
-                new BsonDocument { { "item", "paper" }, { "qty", 100 }, { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "planner" }, { "qty", 75 }, { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } }, { "status", "D" } },
-                new BsonDocument { { "item", "postcard" }, { "qty", 45 }, { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } }, { "status", "A" } },
+                new BsonDocument
+                {
+                    { "item", "journal" },
+                    { "qty", 25 },
+                    { "size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                },
+                new BsonDocument
+                {
+                    { "item", "notebook" },
+                    { "qty", 50 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "P" }
+                },
+                new BsonDocument
+                {
+                    { "item", "paper" },
+                    { "qty", 100 },
+                    { "size", new BsonDocument { { "h", 8.5 }, { "w", 11 }, { "uom", "in" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "planner" },
+                    { "qty", 75 },
+                    { "size", new BsonDocument { { "h", 22.85 }, { "w", 30 }, { "uom", "cm" } } },
+                    { "status", "D" }
+                },
+                new BsonDocument
+                {
+                    { "item", "postcard" },
+                    { "qty", 45 },
+                    { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } },
+                    { "status", "A" }
+                }
             };
             collection.InsertMany(documents);
             // End Example 55
