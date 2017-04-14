@@ -456,7 +456,7 @@ namespace MongoDB.Driver.Examples
             // db.inventory.find( { tags: ["red", "blank"] } )
 
             // Start Example 21
-            var filter = Builders<BsonDocument>.Filter.Eq("tags", new BsonArray { "red", "blank" });
+            var filter = Builders<BsonDocument>.Filter.Eq("tags", new[] { "red", "blank" });
             var result = collection.Find(filter).ToList();
             // End Example 21
 
