@@ -72,7 +72,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets the current state of the writer.
         /// </summary>
-        public BsonWriterState State
+        public virtual BsonWriterState State
         {
             get { return _state; }
             protected set { _state = value; }

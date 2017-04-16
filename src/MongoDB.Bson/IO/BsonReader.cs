@@ -53,7 +53,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets the current BsonType.
         /// </summary>
-        public BsonType CurrentBsonType
+        public virtual BsonType CurrentBsonType
         {
             get { return _currentBsonType; }
             protected set { _currentBsonType = value; }
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets the current state of the reader.
         /// </summary>
-        public BsonReaderState State
+        public virtual BsonReaderState State
         {
             get { return _state; }
             protected set { _state = value; }
