@@ -649,5 +649,15 @@ namespace MongoDB.Bson
         {
             throw new InvalidCastException();
         }
+        
+        public static implicit operator string (ObjectId value)
+        {
+            return value.ToString();
+        } 
+
+        public static implicit operator ObjectId(string value)
+        {
+            return new ObjectId(value);
+        }
     }
 }
