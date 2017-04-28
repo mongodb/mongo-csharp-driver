@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -244,19 +244,33 @@ namespace MongoDB.Driver.GridFS
 
         private void GetNextBatch(CancellationToken cancellationToken)
         {
-            var hasMore = _cursor.MoveNext(cancellationToken);
-            GetNextBatchFromCursor(hasMore);
+            List<BsonDocument> batch;
+            do
+            {
+                var hasMore = _cursor.MoveNext(cancellationToken);
+                batch = hasMore ? _cursor.Current.ToList() : null;
+            }
+            while (batch != null && batch.Count == 0);
+
+            ProcessNextBatch(batch);
         }
 
         private async Task GetNextBatchAsync(CancellationToken cancellationToken)
         {
-            var hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
-            GetNextBatchFromCursor(hasMore);
+            List<BsonDocument> batch;
+            do
+            {
+                var hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                batch = hasMore ? _cursor.Current.ToList() : null;
+            }
+            while (batch != null && batch.Count == 0);
+
+            ProcessNextBatch(batch);
         }
 
-        private void GetNextBatchFromCursor(bool hasMore)
+        private void ProcessNextBatch(List<BsonDocument> batch)
         {
-            if (!hasMore)
+            if (batch == null)
             {
 #pragma warning disable 618
                 throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "missing");
@@ -264,7 +278,7 @@ namespace MongoDB.Driver.GridFS
             }
 
             var previousBatch = _batch;
-            _batch = _cursor.Current.ToList();
+            _batch = batch;
 
             if (previousBatch != null)
             {
