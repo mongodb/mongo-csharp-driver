@@ -44,16 +44,27 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the ObjectId class.
         /// </summary>
+        /// <param name="a">First 32 bits</param>
+        /// <param name="b">Second 32 bits</param>
+        /// <param name="c">Third 32 bits</param>
+        private ObjectId(int a, int b, int c)
+        {
+            _a = a; _b = b; _c = c;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
         /// <param name="bytes">The bytes.</param>
         public ObjectId(byte[] bytes)
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
+                throw new ArgumentException("Byte array must be 12 bytes long", nameof(bytes));
             }
 
             FromByteArray(bytes, 0, out _a, out _b, out _c);
@@ -92,16 +103,16 @@ namespace MongoDB.Bson
         {
             if ((machine & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(machine), "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
             if ((increment & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(increment), "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
 
             _a = timestamp;
-            _b = (machine << 8) | (((int)pid >> 8) & 0xff);
-            _c = ((int)pid << 24) | increment;
+            _b = (machine << 8) | ((pid >> 8) & 0xff);
+            _c = (pid << 24) | increment;
         }
 
         /// <summary>
@@ -112,11 +123,13 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
-            var bytes = BsonUtils.ParseHexString(value);
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            if (!TryParse(value, out _a, out _b, out _c))
+            {
+                throw new ArgumentException("String value is not valid.", nameof(value));
+            }
         }
 
         // public static properties
@@ -279,11 +292,11 @@ namespace MongoDB.Bson
         {
             if ((machine & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(machine), "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
             if ((increment & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(increment), "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
 
             byte[] bytes = new byte[12];
@@ -311,7 +324,7 @@ namespace MongoDB.Bson
         {
             if (s == null)
             {
-                throw new ArgumentNullException("s");
+                throw new ArgumentNullException(nameof(s));
             }
 
             ObjectId objectId;
@@ -335,14 +348,11 @@ namespace MongoDB.Bson
         public static bool TryParse(string s, out ObjectId objectId)
         {
             // don't throw ArgumentNullException if s is null
-            if (s != null && s.Length == 24)
+            int a, b, c;
+            if (TryParse(s, out a, out b, out c))
             {
-                byte[] bytes;
-                if (BsonUtils.TryParseHexString(s, out bytes))
-                {
-                    objectId = new ObjectId(bytes);
-                    return true;
-                }
+                objectId = new ObjectId(a, b, c);
+                return true;
             }
 
             objectId = default(ObjectId);
@@ -361,11 +371,11 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentOutOfRangeException("bytes", "Byte array must be 12 bytes long.");
+                throw new ArgumentOutOfRangeException(nameof(bytes), "Byte array must be 12 bytes long.");
             }
 
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
@@ -429,6 +439,38 @@ namespace MongoDB.Bson
             return (int)secondsSinceEpoch;
         }
 
+        private static bool TryParse(string value, out int a, out int b, out int c)
+        {
+            a = 0; b = 0; c = 0;
+
+            if (value == null || value.Length != 24)
+            {
+                return false;
+            }
+
+            var err = 0;
+
+            for (int i = 0; i < 8 && err == 0; i++)
+            {
+                var ch = value[i] | 0x20;
+                var r = (ch >= '0' && ch <= '9') ? (ch - '0') : (ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10) : 16;
+                a = (a << 4) | (r & 0x0F);
+                err |= (r & 0xF0);
+
+                ch = value[i + 8] | 0x20;
+                r = (ch >= '0' && ch <= '9') ? (ch - '0') : (ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10) : 16;
+                b = (b << 4) | (r & 0x0F);
+                err |= (r & 0xF0);
+
+                ch = value[i + 16] | 0x20;
+                r = (ch >= '0' && ch <= '9') ? (ch - '0') : (ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10) : 16;
+                c = (c << 4) | (r & 0x0F);
+                err |= (r & 0xF0);
+            }
+
+            return err == 0;
+        }
+
         private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
         {
             a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
@@ -471,14 +513,7 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is an ObjectId and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            if (obj is ObjectId)
-            {
-                return Equals((ObjectId)obj);
-            }
-            else
-            {
-                return false;
-            }
+            return obj is ObjectId && Equals((ObjectId)obj);
         }
 
         /// <summary>
@@ -514,11 +549,11 @@ namespace MongoDB.Bson
         {
             if (destination == null)
             {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentNullException(nameof(destination));
             }
             if (offset + 12 > destination.Length)
             {
-                throw new ArgumentException("Not enough room in destination buffer.", "offset");
+                throw new ArgumentException("Not enough room in destination buffer.", nameof(offset));
             }
 
             destination[offset + 0] = (byte)(_a >> 24);
@@ -541,7 +576,24 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return BsonUtils.ToHexString(ToByteArray());
+            var buffer = new char[24];
+
+            for (int i = 7, a = _a, b = _b, c = _c; i >= 0; i--)
+            {
+                var r = (a & 0x0F);
+                buffer[i] = (char)(r < 10 ? (r + '0') : (r - 10 + 'a'));
+                a >>= 4;
+
+                r = (b & 0x0F);
+                buffer[i + 8] = (char)(r < 10 ? (r + '0') : (r - 10 + 'a'));
+                b >>= 4;
+
+                r = (c & 0x0F);
+                buffer[i + 16] = (char)(r < 10 ? (r + '0') : (r - 10 + 'a'));
+                c >>= 4;
+            }
+
+            return new string(buffer);
         }
 
         // explicit IConvertible implementation
