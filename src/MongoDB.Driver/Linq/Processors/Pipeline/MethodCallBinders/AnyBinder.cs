@@ -40,11 +40,24 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                     ExpressionHelper.GetLambda(arguments.Single()));
             }
 
-            source = new TakeExpression(source, Expression.Constant(1));
+            var serializer = bindingContext.GetSerializer(node.Type, null);
+
+            var accumulator = new AccumulatorExpression(
+                node.Type,
+                "__result",
+                serializer,
+                AccumulatorType.Sum,
+                Expression.Constant(1));
+
+            source = new GroupByExpression(
+                node.Type,
+                source,
+                Expression.Constant(1),
+                new[] { accumulator });
 
             return new PipelineExpression(
                 source,
-                pipeline.Projector,
+                new FieldExpression(accumulator.FieldName, accumulator.Serializer),
                 new AnyResultOperator());
         }
     }
