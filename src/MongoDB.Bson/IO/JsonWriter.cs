@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -491,18 +491,16 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteObjectId", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
-            var bytes = objectId.ToByteArray();
-
             WriteNameHelper(Name);
             switch (_jsonWriterSettings.OutputMode)
             {
                 case JsonOutputMode.Strict:
-                    _textWriter.Write("{{ \"$oid\" : \"{0}\" }}", BsonUtils.ToHexString(bytes));
+                    _textWriter.Write("{{ \"$oid\" : \"{0}\" }}", objectId.ToString());
                     break;
 
                 case JsonOutputMode.Shell:
                 default:
-                    _textWriter.Write("ObjectId(\"{0}\")", BsonUtils.ToHexString(bytes));
+                    _textWriter.Write("ObjectId(\"{0}\")", objectId.ToString());
                     break;
             }
 

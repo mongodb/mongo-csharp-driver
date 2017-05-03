@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonUtils
     {
-
         // public static methods
         /// <summary>
         /// Gets a friendly class name suitable for use in error messages.
@@ -121,6 +120,16 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts a value to a hex character.
+        /// </summary>
+        /// <param name="value">The value (assumed to be between 0 and 15).</param>
+        /// <returns>The hex character.</returns>
+        public static char ToHexChar(int value)
+        {
+            return (char)(value + (value < 10 ? '0' : 'a' - 10));
+        }
+
+        /// <summary>
         /// Converts a byte array to a hex string.
         /// </summary>
         /// <param name="bytes">The byte array.</param>
@@ -131,12 +140,18 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("bytes");
             }
-            var sb = new StringBuilder(bytes.Length * 2);
-            foreach (var b in bytes)
+
+            var length = bytes.Length;
+            var c = new char[length * 2];
+
+            for (int i = 0, j = 0; i < length; i++)
             {
-                sb.AppendFormat("{0:x2}", b);
+                var b = bytes[i];
+                c[j++] = ToHexChar(b >> 4);
+                c[j++] = ToHexChar(b & 0x0f);
             }
-            return sb.ToString();
+
+            return new string(c);
         }
 
         /// <summary>
