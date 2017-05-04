@@ -8,6 +8,9 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
 var solutionDirectory = Directory("./");
+var artifactsDirectory = solutionDirectory + Directory("artifacts");
+var toolsDirectory = solutionDirectory + Directory("Tools");
+
 var solutionFile = solutionDirectory + File("CSharpDriver.sln");
 var gitVersion = GitVersion();
 
@@ -111,6 +114,50 @@ Task("TestLinux")
 
 Task("Test")
     .IsDependentOn("TestWindows");
+
+Task("RefDocs")
+    .Does(() =>
+    {
+        var hugoDirectory = toolsDirectory + Directory("Hugo");
+        EnsureDirectoryExists(hugoDirectory);
+        CleanDirectory(hugoDirectory);
+
+        var url = "https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_windows_amd64.zip";
+        var zipFile = hugoDirectory + File("hugo_0.13_windows_amd64.zip");
+        DownloadFile(url, zipFile);
+        Unzip(zipFile, hugoDirectory);
+        var hugoExe = hugoDirectory + File("hugo_0.13_windows_amd64.exe");
+
+        var landingDirectory = solutionDirectory + Directory("docs") + Directory("landing");
+        var processSettings = new ProcessSettings
+        {
+            WorkingDirectory = landingDirectory
+        };
+        StartProcess(hugoExe, processSettings);
+
+        var referenceDirectory = solutionDirectory + Directory("docs") + Directory("reference");
+        processSettings = new ProcessSettings
+        {
+            WorkingDirectory = referenceDirectory
+        };
+        StartProcess(hugoExe, processSettings);
+
+        var tempDirectory = artifactsDirectory + Directory("tmp");
+        EnsureDirectoryExists(tempDirectory);
+        CleanDirectory(tempDirectory);
+
+        var landingPublicDirectory = landingDirectory + Directory("public");
+        CopyDirectory(landingPublicDirectory, tempDirectory);
+
+        var referencePublicDirectory = referenceDirectory + Directory("public");
+        var referencePublicDestinationDirectory = tempDirectory + Directory(gitVersion.Major + "." + gitVersion.Minor);
+        CopyDirectory(referencePublicDirectory, referencePublicDestinationDirectory);
+
+        var referenceDocsZipFile = artifactsDirectory + File("RefDocs-" + gitVersion.SemVer + "-html.zip");
+        Zip(tempDirectory, referenceDocsZipFile);
+
+        DeleteDirectory(tempDirectory, recursive: true);
+    });
 
 Task("Default")
     .IsDependentOn("Build");
