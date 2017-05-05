@@ -115,6 +115,30 @@ Task("TestLinux")
 Task("Test")
     .IsDependentOn("TestWindows");
 
+Task("ApiDocs")
+    .Does(() =>
+    {
+        var tempDirectory = artifactsDirectory + Directory("tmp");
+        EnsureDirectoryExists(tempDirectory);
+        CleanDirectory(tempDirectory);
+
+        var apiDocsDirectory = solutionDirectory + Directory("Docs") + Directory("Api");
+        var shfbprojFile = apiDocsDirectory + File("CSharpDriverDocs.shfbproj");
+        var preliminary = true;
+        var helpFileVersion = "2.4.4"; // should have build number?
+        MSBuild(shfbprojFile, new MSBuildSettings
+            {
+                Configuration = "Release"
+            }
+            .WithProperty("OutputPath", tempDirectory)
+            .WithProperty("CleanIntermediate", "True")
+            .WithProperty("Preliminary", preliminary ? "True" : "False")
+            .WithProperty("HelpFileVersion", helpFileVersion)
+        );
+
+        // DeleteDirectory(tempDirectory, recursive: true);
+    });
+
 Task("RefDocs")
     .Does(() =>
     {
