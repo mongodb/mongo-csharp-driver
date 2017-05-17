@@ -21,4 +21,9 @@ http://mongodb.github.io/mongo-csharp-driver/
 
 Upgrading
 
-There are no known backwards breaking changes in this release.
+There are no known backwards breaking code changes in this release.
+
+There is a minor backward breaking change in how the filter builders serialize values when the specified field type does
+not match the actual field type. See:
+
+https://jira.mongodb.org/browse/CSHARP-1975
