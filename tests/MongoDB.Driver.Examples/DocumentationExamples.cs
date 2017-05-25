@@ -364,14 +364,14 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_18()
         {
-            // db.inventory.find( { "size.uom": "in" } )
+            // db.inventory.find( { "size.h": { $lt: 15 } } )
 
             // Start Example 18
-            var filter = Builders<BsonDocument>.Filter.Eq("size.uom", "in");
+            var filter = Builders<BsonDocument>.Filter.Lt("size.h", 15);
             var result = collection.Find(filter).ToList();
             // End Example 18
 
-            Render(filter).Should().Be("{ \"size.uom\": \"in\" }");
+            Render(filter).Should().Be("{ \"size.h\": { $lt: 15 } }");
         }
 
         [Fact]
@@ -1236,11 +1236,11 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_58()
         {
-            // db.inventory.deleteMany({ status : "D" })
+            // db.inventory.deleteOne({ status : "D" })
 
             // Start Example 58
             var filter = Builders<BsonDocument>.Filter.Eq("status", "D");
-            var result = collection.DeleteMany(filter);
+            var result = collection.DeleteOne(filter);
             // End Example 58
 
             Render(filter).Should().Be("{ status : \"D\" }");
