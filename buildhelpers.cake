@@ -45,6 +45,6 @@ public class GlobalAssemblyInfo
 
     private static FilePath GetGlobalAssemblyInfoFile(DirectoryPath solutionDirectory)
     {
-        return solutionDirectory + "src/MongoDB.Shared/GlobalAssemblyInfo.cs";
+        return solutionDirectory.CombineWithFilePath("src/MongoDB.Shared/GlobalAssemblyInfo.cs");
     }
 }

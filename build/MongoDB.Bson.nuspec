@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MongoDB.Bson</id>
-    <version>@build.number@</version>
+    <version>@driverPackageVersion@</version>
     <authors>MongoDB, Inc.</authors>
     <owners>rstam, craiggwilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
@@ -24,14 +24,14 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="artifacts\bin\net45\MongoDB.Bson.dll" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Bson.pdb" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Bson.dll" target="lib\netstandard1.5" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Bson.pdb" target="lib\netstandard1.5" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Bson.xml" target="lib\netstandard1.5" />
-    <file src="License.rtf" target="" />
-    <file src="src\MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
-    <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Bson.dll" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Bson.pdb" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Bson.dll" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Bson.pdb" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Bson.xml" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\License.rtf" target="" />
+    <file src="@solutionDirectory@\src\MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
+    <file src="@solutionDirectory@\src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
   </files>
 </package>

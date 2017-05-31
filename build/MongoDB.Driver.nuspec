@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MongoDB.Driver</id>
-    <version>@build.number@</version>
+    <version>@driverPackageVersion@</version>
     <authors>MongoDB, Inc.</authors>
     <owners>rstam, craiggwilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
@@ -14,26 +14,26 @@
     <language>en-US</language>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
-        <dependency id="MongoDB.Driver.Core" version="[@build.number@, )" />
+        <dependency id="MongoDB.Bson" version="[@driverPackageVersion@, )" />
+        <dependency id="MongoDB.Driver.Core" version="[@driverPackageVersion@, )" />
       </group>
       <group targetFramework=".NETStandard1.5">
         <dependency id="NETStandard.Library" version="[1.6.0, )" />
         <dependency id="System.Linq.Queryable" version="[4.0.1, )" />
-        <dependency id="MongoDB.Bson" version="[@build.number@, )" />
-        <dependency id="MongoDB.Driver.Core" version="[@build.number@, )" />
+        <dependency id="MongoDB.Bson" version="[@driverPackageVersion@, )" />
+        <dependency id="MongoDB.Driver.Core" version="[@driverPackageVersion@, )" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="artifacts\bin\net45\MongoDB.Driver.dll" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Driver.pdb" target="lib\net45" />
-    <file src="artifacts\bin\net45\MongoDB.Driver.xml" target="lib\net45" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.dll" target="lib\netstandard1.5" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.pdb" target="lib\netstandard1.5" />
-    <file src="artifacts\bin\netstandard1.5\MongoDB.Driver.xml" target="lib\netstandard1.5" />
-    <file src="License.rtf" target ="" />
-    <file src="src\MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
-    <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Driver.dll" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Driver.pdb" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\net45\MongoDB.Driver.xml" target="lib\net45" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Driver.dll" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Driver.pdb" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\artifacts\bin\netstandard1.5\MongoDB.Driver.xml" target="lib\netstandard1.5" />
+    <file src="@solutionDirectory@\License.rtf" target ="" />
+    <file src="@solutionDirectory@\src\MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
+    <file src="@solutionDirectory@\src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
   </files>
 </package>

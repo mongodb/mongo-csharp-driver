@@ -1,36 +1,50 @@
+#addin "nuget:?package=Cake.FileHelpers"
 #addin "nuget:?package=Cake.Git"
 #addin "nuget:?package=Cake.Incubator"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #load buildhelpers.cake
 
+using System.Text.RegularExpressions;
+
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
-var solutionDirectory = Directory("./");
-var artifactsDirectory = solutionDirectory + Directory("artifacts");
-var toolsDirectory = solutionDirectory + Directory("Tools");
+var solutionDirectory = MakeAbsolute(Directory("./"));
+var artifactsDirectory = solutionDirectory.Combine("artifacts");
+var artifactsBinDirectory = artifactsDirectory.Combine("bin");
+var artifactsBinNet45Directory = artifactsBinDirectory.Combine("net45");
+var artifactsBinNetStandard15Directory = artifactsBinDirectory.Combine("netstandard1.5");
+var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
+var docsDirectory = solutionDirectory.Combine("Docs");
+var docsApiDirectory = docsDirectory.Combine("Api");
+var docsApiOutputDirectory = docsApiDirectory.Combine("output");
+var srcDirectory = solutionDirectory.Combine("src");
+var testsDirectory = solutionDirectory.Combine("tests");
+var toolsDirectory = solutionDirectory.Combine("Tools");
 
-var solutionFile = solutionDirectory + File("CSharpDriver.sln");
+var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
+var srcProjectNames = new[]
+{
+    "MongoDB.Bson",
+    "MongoDB.Driver.Core",
+    "MongoDB.Driver",
+    "MongoDB.Driver.Legacy",
+    "MongoDB.Driver.GridFS"
+};
+
 var gitVersion = GitVersion();
 
-Task("EchoGitVersion")
-    .Does(() =>
-    {
-        Information("AssemblySemVer = {0}", gitVersion.AssemblySemVer);
-        Information("CommitsSinceVersionSource = {0}", gitVersion.CommitsSinceVersionSource);
-        Information("FullSemVer = {0}", gitVersion.FullSemVer);
-        Information("InformationalVersion = {0}", gitVersion.InformationalVersion);
-        Information("LegacySemVer = {0}", gitVersion.LegacySemVer);
-        Information("NuGetVersion = {0}", gitVersion.NuGetVersion);
-        Information("NuGetVersionV2 = {0}", gitVersion.NuGetVersionV2);
-        Information("Patch = {0}", gitVersion.Patch);
-        Information("PreReleaseLabel = {0}", gitVersion.PreReleaseLabel);
-        Information("PreReleaseNumber = {0}", gitVersion.PreReleaseNumber);
-        Information("PreReleaseTag = {0}", gitVersion.PreReleaseTag);
-        Information("PreReleaseTagWithDash = {0}", gitVersion.PreReleaseTagWithDash);
-        Information("SemVer = {0}", gitVersion.SemVer);
-    });
+Task("Default")
+    .IsDependentOn("TestAndPublish");
+
+Task("TestAndPublish")
+    .IsDependentOn("Test")
+    .IsDependentOn("Publish");
+
+Task("Build")
+    .IsDependentOn("BuildNet45")
+    .IsDependentOn("BuildNetStandard15");
 
 Task("BuildNet45")
     .Does(() =>
@@ -39,7 +53,22 @@ Task("BuildNet45")
         GlobalAssemblyInfo.OverwriteGlobalAssemblyInfoFile(Context, solutionDirectory, configuration, gitVersion);
         DotNetBuild(solutionFile, settings => settings
             .SetConfiguration(configuration)
-            .SetVerbosity(Verbosity.Minimal));
+            .SetVerbosity(Verbosity.Minimal)
+            .WithProperty("TargetFrameworkVersion", "v4.5"));
+
+        EnsureDirectoryExists(artifactsBinNet45Directory);
+        foreach (var projectName in srcProjectNames)
+        {
+            var projectDirectory = srcDirectory.Combine(projectName);
+            var outputDirectory = projectDirectory.Combine("bin").Combine(configuration);
+            foreach (var extension in new [] { ".dll", ".pdb", ".xml" })
+            {
+                var outputFileName = projectName + extension;
+                var outputFile = outputDirectory.CombineWithFilePath(outputFileName);
+                var artifactFile = artifactsBinNet45Directory.CombineWithFilePath(outputFileName);
+                CopyFile(outputFile, artifactFile);
+            }
+        }
     })
     .Finally(() =>
     {
@@ -55,15 +84,35 @@ Task("BuildNetStandard15")
         {
             Configuration = configuration
         });
+ 
+        EnsureDirectoryExists(artifactsBinNetStandard15Directory);
+        foreach (var projectName in srcProjectNames)
+        {
+            var projectDirectory = srcDirectory.Combine(projectName + ".Dotnet");
+            var outputDirectory = projectDirectory.Combine("bin").Combine(configuration).Combine("netstandard1.5");
+            foreach (var extension in new [] { ".dll", ".pdb", ".xml" })
+            {
+                var outputFileName = projectName + extension;
+                var outputFile = outputDirectory.CombineWithFilePath(outputFileName);
+                var artifactFile = artifactsBinNetStandard15Directory.CombineWithFilePath(outputFileName);
+                CopyFile(outputFile, artifactFile);
+            }
+        }
     })
     .Finally(() =>
     {
         GlobalAssemblyInfo.RestoreGlobalAssemblyInfoFile(Context, solutionDirectory);
     });
 
-Task("Build")
-    .IsDependentOn("BuildNet45")
-    .IsDependentOn("BuildNetStandard15");
+Task("Test")
+    .IsDependentOn("TestWindows");
+
+Task("TestWindows")
+    .IsDependentOn("TestNet45")
+    .IsDependentOn("TestNetStandard15");
+
+Task("TestLinux")
+    .IsDependentOn("TestNetStandard15");
 
 Task("TestNet45")
     .IsDependentOn("BuildNet45")
@@ -82,7 +131,7 @@ Task("TestNetStandard15")
     .IsDependentOn("BuildNetStandard15")
     .Does(() =>
     {
-        var testsDirectory = solutionDirectory + Directory("tests");
+        var testsDirectory = solutionDirectory.Combine("tests");
         var testProjectNames = new []
         {
             "MongoDB.Bson.Tests.Dotnet",
@@ -93,8 +142,8 @@ Task("TestNetStandard15")
         };
         foreach (var testProjectName in testProjectNames)
         {
-            var testProjectDirectory = testsDirectory + Directory(testProjectName);
-            var testProjectFile = testProjectDirectory + File("project.json");
+            var testProjectDirectory = testsDirectory.Combine(testProjectName);
+            var testProjectFile = testProjectDirectory.CombineWithFilePath("project.json");
             var testSettings = new DotNetCoreTestSettings();
             var xunitSettings = new XUnit2Settings
             {
@@ -105,85 +154,174 @@ Task("TestNetStandard15")
         }
     });
 
-Task("TestWindows")
-    .IsDependentOn("TestNet45")
-    .IsDependentOn("TestNetStandard15");
-
-Task("TestLinux")
-    .IsDependentOn("TestNetStandard15");
-
-Task("Test")
-    .IsDependentOn("TestWindows");
+Task("Docs")
+    .IsDependentOn("ApiDocs")
+    .IsDependentOn("RefDocs");
 
 Task("ApiDocs")
+    .IsDependentOn("BuildNet45")
     .Does(() =>
     {
-        var tempDirectory = artifactsDirectory + Directory("tmp");
-        EnsureDirectoryExists(tempDirectory);
-        CleanDirectory(tempDirectory);
+        EnsureDirectoryExists(docsApiOutputDirectory);
+        CleanDirectory(docsApiOutputDirectory);
 
-        var apiDocsDirectory = solutionDirectory + Directory("Docs") + Directory("Api");
-        var shfbprojFile = apiDocsDirectory + File("CSharpDriverDocs.shfbproj");
-        var preliminary = true;
-        var helpFileVersion = "2.4.4"; // should have build number?
+        var shfbprojFile = docsApiDirectory.CombineWithFilePath("CSharpDriverDocs.shfbproj");
+        var preliminary = false; // TODO: compute
         MSBuild(shfbprojFile, new MSBuildSettings
             {
                 Configuration = "Release"
             }
-            .WithProperty("OutputPath", tempDirectory)
+            .WithProperty("OutputPath", docsApiOutputDirectory.ToString())
             .WithProperty("CleanIntermediate", "True")
             .WithProperty("Preliminary", preliminary ? "True" : "False")
-            .WithProperty("HelpFileVersion", helpFileVersion)
+            .WithProperty("HelpFileVersion", gitVersion.MajorMinorPatch)
         );
 
-        // DeleteDirectory(tempDirectory, recursive: true);
+        // DeleteDirectory(docsApiOutputDirectory, recursive: true);
     });
 
 Task("RefDocs")
     .Does(() =>
     {
-        var hugoDirectory = toolsDirectory + Directory("Hugo");
+        var hugoDirectory = toolsDirectory.Combine("Hugo");
         EnsureDirectoryExists(hugoDirectory);
         CleanDirectory(hugoDirectory);
 
         var url = "https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_windows_amd64.zip";
-        var zipFile = hugoDirectory + File("hugo_0.13_windows_amd64.zip");
+        var zipFile = hugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.zip");
         DownloadFile(url, zipFile);
         Unzip(zipFile, hugoDirectory);
-        var hugoExe = hugoDirectory + File("hugo_0.13_windows_amd64.exe");
+        var hugoExe = hugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.exe");
 
-        var landingDirectory = solutionDirectory + Directory("docs") + Directory("landing");
+        var landingDirectory = solutionDirectory.Combine("docs").Combine("landing");
         var processSettings = new ProcessSettings
         {
             WorkingDirectory = landingDirectory
         };
         StartProcess(hugoExe, processSettings);
 
-        var referenceDirectory = solutionDirectory + Directory("docs") + Directory("reference");
+        var referenceDirectory = solutionDirectory.Combine("docs").Combine("reference");
         processSettings = new ProcessSettings
         {
             WorkingDirectory = referenceDirectory
         };
         StartProcess(hugoExe, processSettings);
 
-        var tempDirectory = artifactsDirectory + Directory("tmp");
+        var tempDirectory = artifactsDirectory.Combine("RefDocs");
         EnsureDirectoryExists(tempDirectory);
         CleanDirectory(tempDirectory);
 
-        var landingPublicDirectory = landingDirectory + Directory("public");
+        var landingPublicDirectory = landingDirectory.Combine("public");
         CopyDirectory(landingPublicDirectory, tempDirectory);
 
-        var referencePublicDirectory = referenceDirectory + Directory("public");
-        var referencePublicDestinationDirectory = tempDirectory + Directory(gitVersion.Major + "." + gitVersion.Minor);
-        CopyDirectory(referencePublicDirectory, referencePublicDestinationDirectory);
+        var referencePublicDirectory = referenceDirectory.Combine("public");
+        var referencePublicVersionDirectory = tempDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
+        CopyDirectory(referencePublicDirectory, referencePublicVersionDirectory);
 
-        var referenceDocsZipFile = artifactsDirectory + File("RefDocs-" + gitVersion.SemVer + "-html.zip");
+        var referenceDocsZipFile = artifactsDirectory.CombineWithFilePath("RefDocs-" + gitVersion.SemVer + "-html.zip");
         Zip(tempDirectory, referenceDocsZipFile);
 
         DeleteDirectory(tempDirectory, recursive: true);
     });
 
-Task("Default")
-    .IsDependentOn("Build");
+Task("Package")
+    .IsDependentOn("PackageReleaseZipFile")
+    .IsDependentOn("PackageNugetPackages");
+
+Task("PackageReleaseZipFile")
+    .IsDependentOn("BuildNet45")
+    .IsDependentOn("BuildNetStandard15")
+    .IsDependentOn("ApiDocs")
+    .Does(() =>
+    {
+        var assemblySemVer = gitVersion.AssemblySemVer; // e.g. 2.4.4.0
+        var majorMinorBuild = Regex.Replace(assemblySemVer, @"\.\d+$", ""); // e.g. 2.4.4
+
+        var stagingDirectoryName = "CSharpDriver-" + majorMinorBuild;
+        var stagingDirectory = artifactsDirectory.Combine(stagingDirectoryName);
+        EnsureDirectoryExists(stagingDirectory);
+        CleanDirectory(stagingDirectory);
+
+        var stagingNet45Directory = stagingDirectory.Combine("net45");
+        CopyDirectory(artifactsBinNet45Directory, stagingNet45Directory);
+
+        var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
+        CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);
+
+        var chmFile = docsApiOutputDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
+        var stagingChmFileName = stagingDirectoryName + ".chm";
+        var stagingChmFile = stagingDirectory.CombineWithFilePath(stagingChmFileName);
+        CopyFile(chmFile, stagingChmFile);
+
+        var licenseFile = solutionDirectory.CombineWithFilePath("license.txt");
+        var stagingLicenseFile = stagingDirectory.CombineWithFilePath("license.txt");
+        CopyFile(licenseFile, stagingLicenseFile);
+
+        var releaseNotesFileName = "Release Notes v" + majorMinorBuild + ".md";
+        var releaseNotesDirectory = solutionDirectory.Combine("Release Notes");
+        var releaseNotesFile =  releaseNotesDirectory.CombineWithFilePath(releaseNotesFileName);
+        var stagingDirectoryReleaseNotesFile = stagingDirectory.CombineWithFilePath(releaseNotesFileName);
+        CopyFile(releaseNotesFile, stagingDirectoryReleaseNotesFile);
+
+        var zipFileName = stagingDirectoryName + ".zip";
+        var zipFile = artifactsDirectory.CombineWithFilePath(zipFileName);
+        Zip(stagingDirectory, zipFile);
+
+        DeleteDirectory(stagingDirectory, recursive: true);
+    });
+
+Task("PackageNugetPackages")
+    .IsDependentOn("BuildNet45")
+    .IsDependentOn("BuildNetStandard15")
+    .Does(() =>
+    {
+        EnsureDirectoryExists(artifactsPackagesDirectory);
+        CleanDirectory(artifactsPackagesDirectory);
+
+        var packageVersion = gitVersion.MajorMinorPatch;
+
+        var nuspecFiles = GetFiles("./Build/*.nuspec");
+        foreach (var nuspecFile in nuspecFiles)
+        {
+            var tempNuspecFilename = nuspecFile.GetFilenameWithoutExtension().ToString() + "." + packageVersion + ".nuspec";
+            var tempNuspecFile = artifactsPackagesDirectory.CombineWithFilePath(tempNuspecFilename);
+
+            CopyFile(nuspecFile, tempNuspecFile);
+            ReplaceTextInFiles(tempNuspecFile.ToString(), "@driverPackageVersion@", packageVersion);
+            ReplaceTextInFiles(tempNuspecFile.ToString(), "@solutionDirectory@", solutionDirectory.FullPath);
+
+            NuGetPack(tempNuspecFile, new NuGetPackSettings
+            {
+                OutputDirectory = artifactsPackagesDirectory,
+                Symbols = true
+            });
+
+            // DeleteFile(tempNuspecFile);
+        }
+    });
+
+Task("Publish")
+    .IsDependentOn("PublishToGithub") 
+    .IsDependentOn("PublishToMyget");
+
+Task("PublishToGithub")
+    .IsDependentOn("PackageReleaseZipFile")
+    .Does(() =>
+    {
+        // publishing to github is done manually
+    });
+
+Task("PublishToMyget")
+    .IsDependentOn("PackageNugetPackages")
+    .Does(() =>
+    {
+        Console.WriteLine("PublishToMyget is not implemented.");
+    });
+
+Task("DumpGitVersion")
+    .Does(() =>
+    {
+        Information(gitVersion.Dump());
+    });
 
 RunTarget(target);
