@@ -625,10 +625,11 @@ namespace MongoDB.Bson
         public static bool IsSNaN(Decimal128 d) => Flags.IsSNaN(d._highBits);
 
         /// <summary>
-        /// Gets a value indicating whether this instance is zero.
+        /// Returns a value indicating whether the specified number is zero.
         /// </summary>
+        /// <param name="d">A 128-bit decimal.</param>
         /// <returns>
-        ///   <c>true</c> if this instance is zero; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified number is zero; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsZero(Decimal128 d)
         {
