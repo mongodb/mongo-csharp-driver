@@ -36,11 +36,11 @@ var srcProjectNames = new[]
 var gitVersion = GitVersion();
 
 Task("Default")
-    .IsDependentOn("TestAndPublish");
+    .IsDependentOn("TestAndPackage");
 
-Task("TestAndPublish")
+Task("TestAndPackage")
     .IsDependentOn("Test")
-    .IsDependentOn("Publish");
+    .IsDependentOn("Package");
 
 Task("Build")
     .IsDependentOn("BuildNet45")
@@ -300,22 +300,30 @@ Task("PackageNugetPackages")
         }
     });
 
-Task("Publish")
-    .IsDependentOn("PublishToGithub") 
-    .IsDependentOn("PublishToMyget");
-
-Task("PublishToGithub")
-    .IsDependentOn("PackageReleaseZipFile")
+Task("PushToMyget")
     .Does(() =>
     {
-        // publishing to github is done manually
-    });
+        var mygetApiKey = EnvironmentVariable("MYGETAPIKEY");
+        if (mygetApiKey == null)
+        {
+            throw new Exception("MYGETAPIKEY environment variable missing");
+        }
 
-Task("PublishToMyget")
-    .IsDependentOn("PackageNugetPackages")
-    .Does(() =>
-    {
-        Console.WriteLine("PublishToMyget is not implemented.");
+        var packageFiles = new List<FilePath>();
+
+        var nuspecFiles = GetFiles("./artifacts/packages/*.nuspec");
+        foreach (var nuspecFile in nuspecFiles)
+        {
+            var packageFileName = nuspecFile.GetFilenameWithoutExtension() + ".nupkg";
+            var packageFile = artifactsPackagesDirectory.CombineWithFilePath(packageFileName);
+            packageFiles.Add(packageFile);
+        }
+
+        NuGetPush(packageFiles, new NuGetPushSettings
+        {
+            ApiKey = mygetApiKey,
+            Source = "https://www.myget.org/F/mongodb/api/v2/package"
+        });
     });
 
 Task("DumpGitVersion")
