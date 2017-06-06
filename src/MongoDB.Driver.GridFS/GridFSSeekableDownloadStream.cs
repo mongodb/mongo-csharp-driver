@@ -125,12 +125,16 @@ namespace MongoDB.Driver.GridFS
             {
                 case SeekOrigin.Begin: newPosition = offset; break;
                 case SeekOrigin.Current: newPosition = _position + offset; break;
-                case SeekOrigin.End: newPosition = _position + offset; break;
+                case SeekOrigin.End: newPosition = FileInfo.Length + offset; break;
                 default: throw new ArgumentException("Invalid origin.", "origin");
             }
             if (newPosition < 0)
             {
                 throw new IOException("Position must be greater than or equal to zero.");
+            }
+            if (FileInfo.Length <= newPosition)
+            {
+                throw new IOException("Position must be less than to length of stream.");
             }
             Position = newPosition;
             return newPosition;
