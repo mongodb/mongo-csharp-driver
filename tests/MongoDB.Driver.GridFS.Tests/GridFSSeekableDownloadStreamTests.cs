@@ -191,15 +191,21 @@ namespace MongoDB.Driver.GridFS.Tests
 
         [Theory]
         [InlineData(0, 1, SeekOrigin.Begin, 1)]
-        [InlineData(1, 1, SeekOrigin.Current, 2)]
-        [InlineData(2, -1, SeekOrigin.End, 1)]
+        [InlineData(5, 1, SeekOrigin.Begin, 1)]
+        [InlineData(9, 1, SeekOrigin.Begin, 1)]
+        [InlineData(0, 1, SeekOrigin.Current, 1)]
+        [InlineData(5, 1, SeekOrigin.Current, 6)]
+        [InlineData(8, 1, SeekOrigin.Current, 9)]
+        [InlineData(0, -1, SeekOrigin.End, 9)]
+        [InlineData(5, -1, SeekOrigin.End, 9)]
+        [InlineData(9, -1, SeekOrigin.End, 9)]
         public void Seek_should_return_expected_result(
             long position,
             long offset,
             SeekOrigin origin,
             long expectedResult)
         {
-            var subject = CreateSubject();
+            var subject = CreateSubject(10);
             subject.Position = position;
 
             var result = subject.Seek(offset, origin);
@@ -207,12 +213,25 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void Seek_should_throw_when_new_position_is_negative()
+        [Theory]
+        [InlineData(0, -1, SeekOrigin.Begin)]
+        [InlineData(5, -1, SeekOrigin.Begin)]
+        [InlineData(9, 10, SeekOrigin.Begin)]
+        [InlineData(0, -1, SeekOrigin.Current)]
+        [InlineData(5, -6, SeekOrigin.Current)]
+        [InlineData(8, 3, SeekOrigin.Current)]
+        [InlineData(0, 0, SeekOrigin.End)]
+        [InlineData(5, 1, SeekOrigin.End)]
+        [InlineData(9, -11, SeekOrigin.End)]
+        public void Seek_should_throw_when_new_position_is_out_of_range(
+            long position,
+            long offset,
+            SeekOrigin origin)
         {
-            var subject = CreateSubject();
+            var subject = CreateSubject(10);
+            subject.Position = position;
 
-            Action action = () => subject.Seek(-1, SeekOrigin.Begin);
+            Action action = () => subject.Seek(offset, origin);
 
             action.ShouldThrow<IOException>();
         }
