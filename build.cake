@@ -10,18 +10,23 @@ using System.Text.RegularExpressions;
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
+var gitVersion = GitVersion();
+
 var solutionDirectory = MakeAbsolute(Directory("./"));
 var artifactsDirectory = solutionDirectory.Combine("artifacts");
 var artifactsBinDirectory = artifactsDirectory.Combine("bin");
 var artifactsBinNet45Directory = artifactsBinDirectory.Combine("net45");
 var artifactsBinNetStandard15Directory = artifactsBinDirectory.Combine("netstandard1.5");
+var artifactsDocsDirectory = artifactsDirectory.Combine("docs");
+var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.SemVer);
+var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.SemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var docsDirectory = solutionDirectory.Combine("Docs");
 var docsApiDirectory = docsDirectory.Combine("Api");
-var docsApiOutputDirectory = docsApiDirectory.Combine("output");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
 var toolsDirectory = solutionDirectory.Combine("Tools");
+var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
 var srcProjectNames = new[]
@@ -32,8 +37,6 @@ var srcProjectNames = new[]
     "MongoDB.Driver.Legacy",
     "MongoDB.Driver.GridFS"
 };
-
-var gitVersion = GitVersion();
 
 Task("Default")
     .IsDependentOn("TestAndPackage");
@@ -131,7 +134,6 @@ Task("TestNetStandard15")
     .IsDependentOn("BuildNetStandard15")
     .Does(() =>
     {
-        var testsDirectory = solutionDirectory.Combine("tests");
         var testProjectNames = new []
         {
             "MongoDB.Bson.Tests.Dotnet",
@@ -162,8 +164,8 @@ Task("ApiDocs")
     .IsDependentOn("BuildNet45")
     .Does(() =>
     {
-        EnsureDirectoryExists(docsApiOutputDirectory);
-        CleanDirectory(docsApiOutputDirectory);
+        EnsureDirectoryExists(artifactsDocsApiDocsDirectory);
+        CleanDirectory(artifactsDocsApiDocsDirectory);
 
         var shfbprojFile = docsApiDirectory.CombineWithFilePath("CSharpDriverDocs.shfbproj");
         var preliminary = false; // TODO: compute
@@ -171,57 +173,69 @@ Task("ApiDocs")
             {
                 Configuration = "Release"
             }
-            .WithProperty("OutputPath", docsApiOutputDirectory.ToString())
+            .WithProperty("OutputPath", artifactsDocsApiDocsDirectory.ToString())
             .WithProperty("CleanIntermediate", "True")
             .WithProperty("Preliminary", preliminary ? "True" : "False")
             .WithProperty("HelpFileVersion", gitVersion.MajorMinorPatch)
         );
 
-        // DeleteDirectory(docsApiOutputDirectory, recursive: true);
+        var lowerCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("index.html");
+        var upperCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("Index.html");
+        MoveFile(lowerCaseIndexFile, upperCaseIndexFile);
+
+        var apiDocsZipFileName = artifactsDocsApiDocsDirectory.GetDirectoryName() + "-html.zip";
+        var apiDocsZipFile = artifactsDocsDirectory.CombineWithFilePath(apiDocsZipFileName);
+        Console.WriteLine(apiDocsZipFile.FullPath);
+        Zip(artifactsDocsApiDocsDirectory, apiDocsZipFile);
+
+        var chmFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
+        var artifactsDocsChmFile = artifactsDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
+        CopyFile(chmFile, artifactsDocsChmFile);
+
+        DeleteDirectory(artifactsDocsApiDocsDirectory, recursive: true);
     });
 
 Task("RefDocs")
     .Does(() =>
     {
-        var hugoDirectory = toolsDirectory.Combine("Hugo");
-        EnsureDirectoryExists(hugoDirectory);
-        CleanDirectory(hugoDirectory);
+        EnsureDirectoryExists(toolsHugoDirectory);
+        CleanDirectory(toolsHugoDirectory);
 
         var url = "https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_windows_amd64.zip";
-        var zipFile = hugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.zip");
-        DownloadFile(url, zipFile);
-        Unzip(zipFile, hugoDirectory);
-        var hugoExe = hugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.exe");
+        var hugoZipFile = toolsHugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.zip");
+        DownloadFile(url, hugoZipFile);
+        Unzip(hugoZipFile, toolsHugoDirectory);
+        var hugoExe = toolsHugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.exe");
 
-        var landingDirectory = solutionDirectory.Combine("docs").Combine("landing");
+        var landingDirectory = docsDirectory.Combine("landing");
         var processSettings = new ProcessSettings
         {
             WorkingDirectory = landingDirectory
         };
         StartProcess(hugoExe, processSettings);
 
-        var referenceDirectory = solutionDirectory.Combine("docs").Combine("reference");
+        var referenceDirectory = docsDirectory.Combine("reference");
         processSettings = new ProcessSettings
         {
             WorkingDirectory = referenceDirectory
         };
         StartProcess(hugoExe, processSettings);
 
-        var tempDirectory = artifactsDirectory.Combine("RefDocs");
-        EnsureDirectoryExists(tempDirectory);
-        CleanDirectory(tempDirectory);
+        EnsureDirectoryExists(artifactsDocsRefDocsDirectory);
+        CleanDirectory(artifactsDocsRefDocsDirectory);
 
         var landingPublicDirectory = landingDirectory.Combine("public");
-        CopyDirectory(landingPublicDirectory, tempDirectory);
+        CopyDirectory(landingPublicDirectory, artifactsDocsRefDocsDirectory);
 
         var referencePublicDirectory = referenceDirectory.Combine("public");
-        var referencePublicVersionDirectory = tempDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
-        CopyDirectory(referencePublicDirectory, referencePublicVersionDirectory);
+        var artifactsReferencePublicDirectory = artifactsDocsRefDocsDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
+        CopyDirectory(referencePublicDirectory, artifactsReferencePublicDirectory);
 
-        var referenceDocsZipFile = artifactsDirectory.CombineWithFilePath("RefDocs-" + gitVersion.SemVer + "-html.zip");
-        Zip(tempDirectory, referenceDocsZipFile);
+        var refDocsZipFileName = artifactsDocsRefDocsDirectory.GetDirectoryName() + "-html.zip";
+        var refDocsZipFile = artifactsDocsDirectory.CombineWithFilePath(refDocsZipFileName);
+        Zip(artifactsDocsRefDocsDirectory, refDocsZipFile);
 
-        DeleteDirectory(tempDirectory, recursive: true);
+        DeleteDirectory(artifactsDocsRefDocsDirectory, recursive: true);
     });
 
 Task("Package")
@@ -248,7 +262,7 @@ Task("PackageReleaseZipFile")
         var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
         CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);
 
-        var chmFile = docsApiOutputDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
+        var chmFile = artifactsDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
         var stagingChmFileName = stagingDirectoryName + ".chm";
         var stagingChmFile = stagingDirectory.CombineWithFilePath(stagingChmFileName);
         CopyFile(chmFile, stagingChmFile);
