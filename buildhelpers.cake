@@ -26,7 +26,7 @@ public class GlobalAssemblyInfo
             new AssemblyInfoSettings
             {
                 Company = "MongoDB Inc.",
-                Copyright = "Copyright © 2010-2016 MongoDB Inc.",
+                Copyright = "Copyright © 2010-2017 MongoDB Inc.",
                 Version = gitVersion.AssemblySemVer,
                 InformationalVersion = gitVersion.InformationalVersion,
                 FileVersion = gitVersion.AssemblySemVer,
