@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [InlineData(9, 1, SeekOrigin.Begin, 1)]
         [InlineData(0, 1, SeekOrigin.Current, 1)]
         [InlineData(5, 1, SeekOrigin.Current, 6)]
-        [InlineData(8, 1, SeekOrigin.Current, 9)]
+        [InlineData(9, 1, SeekOrigin.Current, 10)]
         [InlineData(0, -1, SeekOrigin.End, 9)]
         [InlineData(5, -1, SeekOrigin.End, 9)]
         [InlineData(9, -1, SeekOrigin.End, 9)]
@@ -216,13 +216,22 @@ namespace MongoDB.Driver.GridFS.Tests
         [Theory]
         [InlineData(0, -1, SeekOrigin.Begin)]
         [InlineData(5, -1, SeekOrigin.Begin)]
-        [InlineData(9, 10, SeekOrigin.Begin)]
+        [InlineData(10, -1, SeekOrigin.Begin)]
+        [InlineData(0, 11, SeekOrigin.Begin)]
+        [InlineData(5, 11, SeekOrigin.Begin)]
+        [InlineData(10, 11, SeekOrigin.Begin)]
         [InlineData(0, -1, SeekOrigin.Current)]
         [InlineData(5, -6, SeekOrigin.Current)]
-        [InlineData(8, 3, SeekOrigin.Current)]
-        [InlineData(0, 0, SeekOrigin.End)]
+        [InlineData(10, -11, SeekOrigin.Current)]
+        [InlineData(0, 11, SeekOrigin.Current)]
+        [InlineData(5, 6, SeekOrigin.Current)]
+        [InlineData(10, 1, SeekOrigin.Current)]
+        [InlineData(0, 1, SeekOrigin.End)]
         [InlineData(5, 1, SeekOrigin.End)]
-        [InlineData(9, -11, SeekOrigin.End)]
+        [InlineData(10, 1, SeekOrigin.End)]
+        [InlineData(0, -11, SeekOrigin.End)]
+        [InlineData(5, -11, SeekOrigin.End)]
+        [InlineData(10, -11, SeekOrigin.End)]
         public void Seek_should_throw_when_new_position_is_out_of_range(
             long position,
             long offset,

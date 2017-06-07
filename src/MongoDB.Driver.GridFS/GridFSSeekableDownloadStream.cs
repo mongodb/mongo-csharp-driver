@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -125,16 +125,16 @@ namespace MongoDB.Driver.GridFS
             {
                 case SeekOrigin.Begin: newPosition = offset; break;
                 case SeekOrigin.Current: newPosition = _position + offset; break;
-                case SeekOrigin.End: newPosition = FileInfo.Length + offset; break;
+                case SeekOrigin.End: newPosition = Length + offset; break;
                 default: throw new ArgumentException("Invalid origin.", "origin");
             }
             if (newPosition < 0)
             {
                 throw new IOException("Position must be greater than or equal to zero.");
             }
-            if (FileInfo.Length <= newPosition)
+            if (newPosition > Length)
             {
-                throw new IOException("Position must be less than to length of stream.");
+                throw new IOException("Position must be less than or equal to the length of the stream.");
             }
             Position = newPosition;
             return newPosition;
