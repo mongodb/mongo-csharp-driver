@@ -192,6 +192,7 @@
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
     <Compile Include="Serialization\BsonSerializerRegistry.cs" />
+    <Compile Include="Serialization\ForceAsBsonClassMapSerializationProvider.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerRegistry.cs" />
