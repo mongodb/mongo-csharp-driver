@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using FluentAssertions;
 using MongoDB.Bson;
 using Xunit;
 
@@ -101,123 +102,102 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(expected, actual);
         }
 
-        [Fact]
-        public void TestToHexString()
+        [Theory]
+        [InlineData("", new byte[0])]
+        [InlineData("1", new byte[] { 0x01 })]
+        [InlineData("12", new byte[] { 0x12 })]
+        [InlineData("123", new byte[] { 0x01, 0x23 })]
+        [InlineData("1234", new byte[] { 0x12, 0x34 })]
+        [InlineData("12345", new byte[] { 0x01, 0x23, 0x45 })]
+        [InlineData("123456", new byte[] { 0x12, 0x34, 0x56 })]
+        [InlineData("0123456789abcdefABCDEF", new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xab, 0xcd, 0xef })]
+        public void ParseHexString_should_return_expected_result(string s, byte[] expectedResult)
         {
-            var value = new byte[] { 0, 1,2, 3, 4, 5 ,6 ,7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
-            var expected = "000102030405060708090a0b0c0d0e0f10ff";
-            var actual = BsonUtils.ToHexString(value);
-            Assert.Equal(expected, actual);
+            var result = BsonUtils.ParseHexString(s);
+
+            result.Should().Equal(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("x")]
+        [InlineData("/")] // character just before "0"
+        [InlineData(":")] // character just after "9"
+        [InlineData("`")] // character just before "a"
+        [InlineData("g")] // character just after "f"
+        [InlineData("@")] // character just before "A"
+        [InlineData("G")] // character just after "F"
+        public void ParseHexString_should_throw_when_string_is_invalid(string s)
+        {
+            var exception = Record.Exception(() => BsonUtils.ParseHexString(s));
+
+            exception.Should().BeOfType<FormatException>();
         }
 
         [Fact]
-        public void TestToHexStringNull()
+        public void ParseHexString_should_throw_when_string_is_null()
         {
-            Assert.Throws<ArgumentNullException>(() => BsonUtils.ToHexString(null));
+            var exception = Record.Exception(() => BsonUtils.ParseHexString(null));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("s");
+        }
+
+        [Theory]
+        [InlineData(new byte[0], "")]
+        [InlineData(new byte[] { 0x01 }, "01")]
+        [InlineData(new byte[] { 0x01, 0x23 }, "0123")]
+        [InlineData(new byte[] { 0x01, 0x23, 0x45 }, "012345")]
+        [InlineData(new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }, "0123456789abcdef")]
+        public void ToHexString_should_return_expected_result(byte[] value, string expectedResult)
+        {
+            var result = BsonUtils.ToHexString(value);
+
+            result.Should().Be(expectedResult);
         }
 
         [Fact]
-        public void TestParseHexStringNull()
+        public void ToHexString_should_throw_when_bytes_is_null()
         {
-            Assert.Throws<ArgumentNullException>(() => BsonUtils.ParseHexString(null));
+            var exception = Record.Exception(() => BsonUtils.ToHexString(null));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("bytes");
         }
 
-        [Fact]
-        public void TestParseHexStringEmpty()
+        [Theory]
+        [InlineData("", new byte[0])]
+        [InlineData("1", new byte[] { 0x01 })]
+        [InlineData("12", new byte[] { 0x12 })]
+        [InlineData("123", new byte[] { 0x01, 0x23 })]
+        [InlineData("1234", new byte[] { 0x12, 0x34 })]
+        [InlineData("12345", new byte[] { 0x01, 0x23, 0x45 })]
+        [InlineData("123456", new byte[] { 0x12, 0x34, 0x56 })]
+        [InlineData("0123456789abcdefABCDEF", new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xab, 0xcd, 0xef })]
+        public void TryParseHexString_should_return_expected_result(string s, byte[] expectedBytes)
         {
-            byte[] expected = new byte[0];
-            var actual = BsonUtils.ParseHexString(string.Empty);
-            Assert.Equal(expected, actual);
+            byte[] bytes;
+            var result = BsonUtils.TryParseHexString(s, out bytes);
+
+            result.Should().BeTrue();
+            bytes.Should().Equal(expectedBytes);
         }
 
-        [Fact]
-        public void TestParseHexString()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("x")]
+        [InlineData("/")] // character just before "0"
+        [InlineData(":")] // character just after "9"
+        [InlineData("`")] // character just before "a"
+        [InlineData("g")] // character just after "f"
+        [InlineData("@")] // character just before "A"
+        [InlineData("G")] // character just after "F"
+        public void TryParseHexString_should_return_expected_result_when_string_is_invalid(string s)
         {
-            var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
-            var value = "000102030405060708090a0b0c0d0e0f10ff";
-            var actual = BsonUtils.ParseHexString(value);
-            Assert.Equal(expected, actual);
-        }
+            byte[] bytes;
+            var result = BsonUtils.TryParseHexString(s, out bytes);
 
-        [Fact]
-        public void TestParseHexStringOdd()
-        {
-            var expected = new byte[] { 0, 15 };
-            var value = "00f";
-            var actual = BsonUtils.ParseHexString(value);
-            Assert.Equal(expected, actual);
+            result.Should().BeFalse();
+            bytes.Should().BeNull();
         }
-
-        [Fact]
-        public void TestParseHexStringInvalid()
-        {
-            Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("1G"));
-        }
-
-        [Fact]
-        public void TestParseHexStringInvalid2()
-        {
-            Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("00 1"));
-        }
-
-        [Fact]
-        public void TestTryParseHexStringNull()
-        {
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString(null, out actual);
-            Assert.False(result);
-            Assert.Null(actual);
-        }
-
-        [Fact]
-        public void TestTryParseHexStringEmpty()
-        {
-            byte[] expected = new byte[0];
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString(string.Empty, out actual);
-            Assert.True(result);
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void TestTryParseHexString()
-        {
-            var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
-            var value = "000102030405060708090a0b0c0d0e0f10ff";
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString(value, out actual);
-            Assert.True(result);
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void TestTryParseHexStringOdd()
-        {
-            var expected = new byte[] { 0, 15 };
-            var value = "00f";
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString(value, out actual);
-            Assert.True(result);
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void TestTryParseHexStringInvalid()
-        {
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString("1G", out actual);
-            Assert.False(result);
-            Assert.Null(actual);
-        }
-
-        [Fact]
-        public void TestTryParseHexStringInvalid2()
-        {
-            byte[] actual;
-            var result = BsonUtils.TryParseHexString("00 1", out actual);
-            Assert.False(result);
-            Assert.Null(actual);
-        }
-
     }
 }
