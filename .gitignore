@@ -56,6 +56,9 @@ src/packages
 # Fake Artifacts
 .fake
 
+# Cake Artifacts
+.dotnet
+
 # Other
 artifacts
 packages
