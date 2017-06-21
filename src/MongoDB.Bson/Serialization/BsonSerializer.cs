@@ -25,7 +25,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -301,11 +300,12 @@ namespace MongoDB.Bson.Serialization
                 Type actualType = null;
 
                 HashSet<Type> hashSet;
+                var nominalTypeInfo = nominalType.GetTypeInfo();
                 if (__discriminators.TryGetValue(discriminator, out hashSet))
                 {
                     foreach (var type in hashSet)
                     {
-                        if (nominalType.GetTypeInfo().IsAssignableFrom(type))
+                        if (nominalTypeInfo.IsAssignableFrom(type))
                         {
                             if (actualType == null)
                             {
@@ -318,9 +318,15 @@ namespace MongoDB.Bson.Serialization
                             }
                         }
                     }
+
+                    // no need for additional checks, we found the right type
+                    if (actualType != null)
+                    {
+                        return actualType;
+                    }
                 }
 
-                if (actualType == null && discriminator.IsString)
+                if (discriminator.IsString)
                 {
                     actualType = TypeNameDiscriminator.GetActualType(discriminator.AsString); // see if it's a Type name
                 }
@@ -331,7 +337,7 @@ namespace MongoDB.Bson.Serialization
                     throw new BsonSerializationException(message);
                 }
 
-                if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
+                if (!nominalTypeInfo.IsAssignableFrom(actualType))
                 {
                     string message = string.Format(
                         "Actual type {0} is not assignable to expected type {1}.",
@@ -354,8 +360,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A discriminator convention.</returns>
         public static IDiscriminatorConvention LookupDiscriminatorConvention(Type type)
         {
-            var typeInfo = type.GetTypeInfo();
-
             __configLock.EnterReadLock();
             try
             {
@@ -376,6 +380,7 @@ namespace MongoDB.Bson.Serialization
                 IDiscriminatorConvention convention;
                 if (!__discriminatorConventions.TryGetValue(type, out convention))
                 {
+                    var typeInfo = type.GetTypeInfo();
                     if (type == typeof(object))
                     {
                         // if there is no convention registered for object register the default one
@@ -392,8 +397,8 @@ namespace MongoDB.Bson.Serialization
                     {
                         // inherit the discriminator convention from the closest parent (that isn't object) that has one
                         // otherwise default to the standard hierarchical convention
-                        Type parentType = type.GetTypeInfo().BaseType;
-                        while (convention == null)
+                        Type parentType = typeInfo.BaseType;
+                        while (true)
                         {
                             if (parentType == typeof(object))
                             {
@@ -432,7 +437,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An IdGenerator for the Id type.</returns>
         public static IIdGenerator LookupIdGenerator(Type type)
         {
-            var typeInfo = type.GetTypeInfo();
             __configLock.EnterReadLock();
             try
             {
@@ -453,6 +457,7 @@ namespace MongoDB.Bson.Serialization
                 IIdGenerator idGenerator;
                 if (!__idGenerators.TryGetValue(type, out idGenerator))
                 {
+                    var typeInfo = type.GetTypeInfo();
                     if (typeInfo.IsValueType && __useZeroIdChecker)
                     {
                         var iEquatableDefinition = typeof(IEquatable<>);
@@ -533,7 +538,7 @@ namespace MongoDB.Bson.Serialization
                     hashSet.Add(type);
 
                     // mark all base types as discriminated (so we know that it's worth reading a discriminator)
-                    for (var baseType = type.GetTypeInfo().BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
+                    for (var baseType = typeInfo.BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
                     {
                         __discriminatedTypes.Add(baseType);
                     }

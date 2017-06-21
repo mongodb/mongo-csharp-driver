@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Serialization
             if (typeInfo.IsGenericType)
             {
                 var typeArgumentNames = "";
-                foreach (var typeArgument in type.GetTypeInfo().GetGenericArguments())
+                foreach (var typeArgument in typeInfo.GetGenericArguments())
                 {
                     var typeArgumentName = GetDiscriminator(typeArgument);
                     if (typeArgumentName.IndexOf(',') != -1)
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.Serialization
                 typeName = type.FullName;
             }
 
-            var assembly = type.GetTypeInfo().Assembly;
+            var assembly = typeInfo.Assembly;
             string assemblyName = null;
             if (!__wellKnownAssemblies.Contains(assembly))
             {

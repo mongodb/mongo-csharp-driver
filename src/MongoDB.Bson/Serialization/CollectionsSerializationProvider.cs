@@ -76,7 +76,7 @@ namespace MongoDB.Bson.Serialization
                 Type serializerTypeDefinition;
                 if (__serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerTypeDefinition, type.GetTypeInfo().GetGenericArguments(), serializerRegistry);
+                    return CreateGenericSerializer(serializerTypeDefinition, typeInfo.GetGenericArguments(), serializerRegistry);
                 }
             }
 
@@ -253,9 +253,10 @@ namespace MongoDB.Bson.Serialization
 
         private List<Type> GetImplementedInterfaces(Type type)
         {
-            return type.GetTypeInfo().IsInterface
-                ? type.GetTypeInfo().GetInterfaces().Concat(new Type[] { type }).ToList()
-                : type.GetTypeInfo().GetInterfaces().ToList();
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsInterface
+                ? typeInfo.GetInterfaces().Concat(new Type[] { type }).ToList()
+                : typeInfo.GetInterfaces().ToList();
         }
 
         private IBsonSerializer GetReadOnlyDictionarySerializer(Type type, IBsonSerializerRegistry serializerRegistry)
