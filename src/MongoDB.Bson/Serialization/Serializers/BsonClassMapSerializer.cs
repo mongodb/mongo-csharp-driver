@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private BsonClassMap _classMap;
+        private bool _isValueType;
 
         // constructors
         /// <summary>
@@ -54,6 +55,8 @@ namespace MongoDB.Bson.Serialization
             }
 
             _classMap = classMap;
+
+            _isValueType = _classMap.ClassType.GetTypeInfo().IsValueType;
         }
 
         // public properties
@@ -79,7 +82,7 @@ namespace MongoDB.Bson.Serialization
         {
             var bsonReader = context.Reader;
 
-            if (_classMap.ClassType.GetTypeInfo().IsValueType)
+            if (_isValueType)
             {
                 var message = string.Format("Value class {0} cannot be deserialized.", _classMap.ClassType.FullName);
                 throw new BsonSerializationException(message);
