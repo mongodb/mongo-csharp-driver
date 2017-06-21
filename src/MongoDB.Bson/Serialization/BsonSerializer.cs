@@ -25,7 +25,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -318,9 +317,15 @@ namespace MongoDB.Bson.Serialization
                             }
                         }
                     }
+
+                    // no need for additional checks, we found the right type
+                    if (actualType != null)
+                    {
+                        return actualType;
+                    }
                 }
 
-                if (actualType == null && discriminator.IsString)
+                if (discriminator.IsString)
                 {
                     actualType = TypeNameDiscriminator.GetActualType(discriminator.AsString); // see if it's a Type name
                 }
