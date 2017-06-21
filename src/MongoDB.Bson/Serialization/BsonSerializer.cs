@@ -300,11 +300,12 @@ namespace MongoDB.Bson.Serialization
                 Type actualType = null;
 
                 HashSet<Type> hashSet;
+                var nominalTypeInfo = nominalType.GetTypeInfo();
                 if (__discriminators.TryGetValue(discriminator, out hashSet))
                 {
                     foreach (var type in hashSet)
                     {
-                        if (nominalType.GetTypeInfo().IsAssignableFrom(type))
+                        if (nominalTypeInfo.IsAssignableFrom(type))
                         {
                             if (actualType == null)
                             {
@@ -336,7 +337,7 @@ namespace MongoDB.Bson.Serialization
                     throw new BsonSerializationException(message);
                 }
 
-                if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
+                if (!nominalTypeInfo.IsAssignableFrom(actualType))
                 {
                     string message = string.Format(
                         "Actual type {0} is not assignable to expected type {1}.",
