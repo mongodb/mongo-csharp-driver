@@ -14,18 +14,83 @@
 */
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
 {
-
     /// <summary>
     /// A static class containing BSON utility methods.
     /// </summary>
     public static class BsonUtils
     {
+        // private static fields
+        private static readonly uint[] __lookupByteToHex = CreateLookupByteToHex();
+        private static readonly byte[] __lookupCharToByte = CreateLookupHexCharToByte();
+        private static readonly char[] __lookupNibbleToHexChar = CreateLookupNibbleToHexChar();
+
+        private const byte InvalidByte = byte.MaxValue;
+
+        // private static methods
+        /// <summary>
+        /// Precalculates a lookup array that will help the performance of any byte to hex char conversion.
+        /// </summary>
+        /// <returns>An array that maps all potential byte values (0-255) to a uint that represents the two hex chars for each byte key.</returns>
+        private static uint[] CreateLookupByteToHex()
+        {
+            var result = new uint[256];
+            for (var b = 0; b < 256; b++)
+            {
+                // first we convert each byte into a hex string...
+                var s = b.ToString("x2");
+                // ...then we store the hex representation of the byte in a uint such that
+                // every uint in our array consists of 2x2 bytes
+                // each of which will represent a single char, e.g.:
+                //         b: 181
+                //         s: "b5" --> two chars: 'b': 98 (01100010) and '5': 53 (00110101)
+                // result[i]:  3473506 (00000000 01100010 00000000 00110101) (little endian notation)
+                //               this is 'b' ----^     and '5' ----^
+                result[b] = ((uint)s[0] << 16) | s[1];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Precalculates a lookup array that will help the performance of any hex char to byte conversion.
+        /// </summary>
+        /// <returns>An array that maps all potential hex char values (0-F) to their respective byte representation or <see cref="InvalidByte"/> for invalid hex chars.</returns>
+        private static byte[] CreateLookupHexCharToByte()
+        {
+            // initialization: all bytes invalid
+            var result = Enumerable.Repeat(InvalidByte, byte.MaxValue + 1).ToArray();
+            
+            const string hexChars = "0123456789abcdefABCDEF";
+
+            // path valid bytes
+            foreach (var c in hexChars)
+            {
+                result[c] = Convert.ToByte(c.ToString(), 16);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Precalculates a lookup array that will help the performance of any nibble to char conversion.
+        /// </summary>
+        /// <returns>An array that maps all potential hex characters (0-F) to the byte values (0-255) to a uint that represents the two hex chars for each byte key.</returns>
+        private static char[] CreateLookupNibbleToHexChar()
+        {
+            var lookup = new char[15];
+            for (var i = 0; i < 15; i++)
+            {
+                lookup[i] = (char)(i + (i < 10 ? '0' : 'a' - 10));
+            }
+
+            return lookup;
+        }
+
         // public static methods
         /// <summary>
         /// Gets a friendly class name suitable for use in error messages.
@@ -72,6 +137,19 @@ namespace MongoDB.Bson
             return bytes;
         }
 
+        private static bool TryParseHexChars(char left, char right, out byte b)
+        {
+            var l = __lookupCharToByte[left];
+            var r = __lookupCharToByte[right];
+            if (l == InvalidByte || r == InvalidByte)
+            {
+                b = 0;
+                return false;
+            }
+            b = (byte) ((l << 4) | r);
+            return true;
+        }
+
         /// <summary>
         /// Converts from number of milliseconds since Unix epoch to DateTime.
         /// </summary>
@@ -86,7 +164,7 @@ namespace MongoDB.Bson
                     "The value {0} for the BsonDateTime MillisecondsSinceEpoch is outside the"+
                     "range that can be converted to a .NET DateTime.",
                     millisecondsSinceEpoch);
-                throw new ArgumentOutOfRangeException("millisecondsSinceEpoch", message);
+                throw new ArgumentOutOfRangeException(nameof(millisecondsSinceEpoch), message);
             }
 
             // MaxValue has to be handled specially to avoid rounding errors
@@ -107,7 +185,7 @@ namespace MongoDB.Bson
         /// <returns>The hex character.</returns>
         public static char ToHexChar(int value)
         {
-            return (char)(value + (value < 10 ? '0' : 'a' - 10));
+            return __lookupNibbleToHexChar[value];
         }
 
         /// <summary>
@@ -119,17 +197,17 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
 
             var length = bytes.Length;
             var c = new char[length * 2];
 
-            for (int i = 0, j = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
-                var b = bytes[i];
-                c[j++] = ToHexChar(b >> 4);
-                c[j++] = ToHexChar(b & 0x0f);
+                var val = __lookupByteToHex[bytes[i]];
+                c[2 * i] = (char)(val >> 16);
+                c[2 * i + 1] = (char)val;
             }
 
             return new string(c);
@@ -203,63 +281,29 @@ namespace MongoDB.Bson
                 return false;
             }
 
-            var buffer = new byte[(s.Length + 1) / 2];
-
-            var i = 0;
-            var j = 0;
-
-            if ((s.Length % 2) == 1)
+            // some magic in order to avoid creating a new string with a "0" glued to the start in case of an odd string
+            var stringLength = s.Length;
+            var offset = stringLength & 1; // the offset will hold either 1 or zero depending on if we need to shift character processing by one or not
+            var buffer = new byte[(stringLength + offset) / 2];
+            if (offset == 1)
             {
-                // if s has an odd length assume an implied leading "0"
-                int y;
-                if (!TryParseHexChar(s[i++], out y))
+                // process first character separately, prefixed with a '0'
+                if (!TryParseHexChars('0', s[0], out buffer[0]))
                 {
                     return false;
                 }
-                buffer[j++] = (byte)y;
             }
-
-            while (i < s.Length)
+            for (var i = offset; i < buffer.Length; i++)
             {
-                int x, y;
-                if (!TryParseHexChar(s[i++], out x))
+                var startIndex = 2 * i - offset;
+                if(!TryParseHexChars(s[startIndex], s[startIndex + 1], out buffer[i]))
                 {
                     return false;
                 }
-                if (!TryParseHexChar(s[i++], out y))
-                {
-                    return false;
-                }
-                buffer[j++] = (byte)((x << 4) | y);
             }
 
             bytes = buffer;
             return true;
-        }
-
-        // private static methods
-        private static bool TryParseHexChar(char c, out int value)
-        {
-            if (c >= '0' && c <= '9')
-            {
-                value = c - '0';
-                return true;
-            }
-
-            if (c >= 'a' && c <= 'f')
-            {
-                value = 10 + (c - 'a');
-                return true;
-            }
-
-            if (c >= 'A' && c <= 'F')
-            {
-                value = 10 + (c - 'A');
-                return true;
-            }
-
-            value = 0;
-            return false;
         }
     }
 }
