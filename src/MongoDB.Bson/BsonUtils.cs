@@ -82,8 +82,8 @@ namespace MongoDB.Bson
         /// <returns>An array that maps all potential hex characters (0-F) to the byte values (0-255) to a uint that represents the two hex chars for each byte key.</returns>
         private static char[] CreateLookupNibbleToHexChar()
         {
-            var lookup = new char[15];
-            for (var i = 0; i < 15; i++)
+            var lookup = new char[16];
+            for (var i = 0; i < 16; i++)
             {
                 lookup[i] = (char)(i + (i < 10 ? '0' : 'a' - 10));
             }
