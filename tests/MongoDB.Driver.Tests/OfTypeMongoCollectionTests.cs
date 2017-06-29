@@ -16,16 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using Moq;
 using Xunit;
 
@@ -34,6 +30,7 @@ namespace MongoDB.Driver.Tests
     public class OfTypeMongoCollectionTests
     {
         private BsonDocument _ofTypeFilter;
+        private BsonDocument _derivedUpdate;
         private BsonDocument _expectedFilter;
         private BsonDocument _providedFilter;
         private Mock<IMongoCollection<A>> _mockRootCollection;
@@ -44,6 +41,7 @@ namespace MongoDB.Driver.Tests
         public OfTypeMongoCollectionTests()
         {
             _ofTypeFilter = new BsonDocument("_t", "B");
+            _derivedUpdate = new BsonDocument("$setOnInsert", new BsonDocument("_t", new BsonArray(new[] { "A", "B" })));
             _providedFilter = new BsonDocument("PropB", 4);
             _expectedFilter = new BsonDocument("_t", "B").Add("PropB", 4);
 
@@ -242,6 +240,11 @@ namespace MongoDB.Driver.Tests
             var collation = new Collation("en_US");
             var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}") { Collation = collation, IsUpsert = true };
             var options = new BulkWriteOptions();
+            Func<UpdateManyModel<B>, bool> where = m =>
+                RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{ $setOnInsert : { _t : ['A', 'B'] }, $set : { x : 1 } }")) &&
+                m.Collation == model.Collation &&
+                m.IsUpsert == model.IsUpsert;
 
             if (async)
             {
@@ -250,10 +253,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                            .Where(where).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -265,10 +265,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                            .Where(where).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -284,6 +281,11 @@ namespace MongoDB.Driver.Tests
             var collation = new Collation("en_US");
             var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}") { Collation = collation, IsUpsert = true };
             var options = new BulkWriteOptions();
+            Func<UpdateOneModel<B>, bool> where = m => 
+                RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{ $setOnInsert : { _t : ['A', 'B'] }, $set : { x : 1 } }")) &&
+                m.Collation == model.Collation &&
+                m.IsUpsert == model.IsUpsert;
 
             if (async)
             {
@@ -292,10 +294,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                            .Where(where).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -307,10 +306,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                            .Where(where).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -600,7 +596,7 @@ namespace MongoDB.Driver.Tests
 
         private OfTypeMongoCollection<A, B> CreateSubject()
         {
-            return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter);
+            return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter, _derivedUpdate);
         }
 
         private string RenderField<TDocument, TField>(FieldDefinition<TDocument, TField> field)

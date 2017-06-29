@@ -369,7 +369,16 @@ namespace MongoDB.Driver
             var renderedOfTypeFilter = rootOfTypeFilter.Render(_documentSerializer, _settings.SerializerRegistry);
             var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(renderedOfTypeFilter);
 
-            return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
+            UpdateDefinition<TDerivedDocument> derivedUpdate = null;
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
+            var discriminatorValue = discriminatorConvention?.GetDiscriminator(typeof(TDocument), typeof(TDerivedDocument));
+            if (discriminatorValue?.IsBsonArray == true)
+            {
+                var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
+                derivedUpdate = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
+            }
+
+            return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter, derivedUpdate);
         }
 
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)

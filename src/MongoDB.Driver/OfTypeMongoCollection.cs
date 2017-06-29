@@ -27,8 +27,9 @@ namespace MongoDB.Driver
         public OfTypeMongoCollection(
             IMongoCollection<TRootDocument> rootDocumentCollection,
             IMongoCollection<TDerivedDocument> derivedDocumentCollection,
-            FilterDefinition<TDerivedDocument> ofTypeFilter)
-            : base(derivedDocumentCollection, ofTypeFilter)
+            FilterDefinition<TDerivedDocument> ofTypeFilter,
+            UpdateDefinition<TDerivedDocument> derivedUpdate)
+            : base(derivedDocumentCollection, ofTypeFilter, derivedUpdate)
         {
             _rootDocumentCollection = rootDocumentCollection;
         }
@@ -41,17 +42,17 @@ namespace MongoDB.Driver
 
         public override IMongoCollection<TDerivedDocument> WithReadConcern(ReadConcern readConcern)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadConcern(readConcern), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadConcern(readConcern), Filter, Update);
         }
 
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter, Update);
         }
 
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter, Update);
         }
     }
 }

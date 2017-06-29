@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -27,13 +26,15 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly FilterDefinition<TDocument> _filter;
+        private readonly UpdateDefinition<TDocument> _update;
         private readonly IMongoCollection<TDocument> _wrappedCollection;
 
         // constructors
-        public FilteredMongoCollectionBase(IMongoCollection<TDocument> wrappedCollection, FilterDefinition<TDocument> filter)
+        public FilteredMongoCollectionBase(IMongoCollection<TDocument> wrappedCollection, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update)
         {
             _wrappedCollection = wrappedCollection;
             _filter = filter;
+            _update = update;
         }
 
         // public properties
@@ -55,6 +56,11 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
+        }
+
+        public UpdateDefinition<TDocument> Update
+        {
+            get { return _update; }
         }
 
         public override IMongoIndexManager<TDocument> Indexes
@@ -88,12 +94,12 @@ namespace MongoDB.Driver
 
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.BulkWrite(CombineModelFilters(requests), options, cancellationToken);
+            return _wrappedCollection.BulkWrite(CombineModels(requests), options, cancellationToken);
         }
 
         public override Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.BulkWriteAsync(CombineModelFilters(requests), options, cancellationToken);
+            return _wrappedCollection.BulkWriteAsync(CombineModels(requests), options, cancellationToken);
         }
 
         public override long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -186,23 +192,23 @@ namespace MongoDB.Driver
             return _filter & filter;
         }
 
-        private UpdateDefinition<TDocument> CombineUpdates(UpdateDefinition<TDocument> update, bool isUpsert)
+        private UpdateDefinition<TDocument> CombineUpdates(UpdateDefinition<TDocument> update)
         {
-            if (isUpsert)
+            if (_update == null)
             {
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
-                var discriminatorValue = discriminatorConvention?.GetDiscriminator(typeof(TDocument), typeof(TDocument));
-                if (discriminatorValue?.IsBsonArray == true)
-                {
-                    var builder = new UpdateDefinitionBuilder<TDocument>();
-                    return builder.Combine(update, builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue));
-                }
+                return update;
             }
-            return update;
+
+            if (update == null)
+            {
+                return _update;
+            }
+
+            var builder = new UpdateDefinitionBuilder<TDocument>();
+            return builder.Combine(_update, update);
         }
 
-
-        private IEnumerable<WriteModel<TDocument>> CombineModelFilters(IEnumerable<WriteModel<TDocument>> models)
+        private IEnumerable<WriteModel<TDocument>> CombineModels(IEnumerable<WriteModel<TDocument>> models)
         {
             return models.Select<WriteModel<TDocument>, WriteModel<TDocument>>(x =>
             {
@@ -231,14 +237,14 @@ namespace MongoDB.Driver
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
-                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), CombineUpdates(updateManyModel.Update, updateManyModel.IsUpsert))
+                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), CombineUpdates(updateManyModel.Update))
                         {
                             Collation = updateManyModel.Collation,
                             IsUpsert = updateManyModel.IsUpsert
                         };
                     case WriteModelType.UpdateOne:
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
-                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), CombineUpdates(updateOneModel.Update, updateOneModel.IsUpsert))
+                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), CombineUpdates(updateOneModel.Update))
                         {
                             Collation = updateOneModel.Collation,
                             IsUpsert = updateOneModel.IsUpsert
