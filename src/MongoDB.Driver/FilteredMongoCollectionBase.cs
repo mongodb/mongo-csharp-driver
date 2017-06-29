@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -185,6 +186,22 @@ namespace MongoDB.Driver
             return _filter & filter;
         }
 
+        private UpdateDefinition<TDocument> CombineUpdates(UpdateDefinition<TDocument> update, bool isUpsert)
+        {
+            if (isUpsert)
+            {
+                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
+                var discriminatorValue = discriminatorConvention?.GetDiscriminator(typeof(TDocument), typeof(TDocument));
+                if (discriminatorValue?.IsBsonArray == true)
+                {
+                    var builder = new UpdateDefinitionBuilder<TDocument>();
+                    return builder.Combine(update, builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue));
+                }
+            }
+            return update;
+        }
+
+
         private IEnumerable<WriteModel<TDocument>> CombineModelFilters(IEnumerable<WriteModel<TDocument>> models)
         {
             return models.Select<WriteModel<TDocument>, WriteModel<TDocument>>(x =>
@@ -214,14 +231,14 @@ namespace MongoDB.Driver
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
-                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update)
+                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), CombineUpdates(updateManyModel.Update, updateManyModel.IsUpsert))
                         {
                             Collation = updateManyModel.Collation,
                             IsUpsert = updateManyModel.IsUpsert
                         };
                     case WriteModelType.UpdateOne:
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
-                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update)
+                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), CombineUpdates(updateOneModel.Update, updateOneModel.IsUpsert))
                         {
                             Collation = updateOneModel.Collation,
                             IsUpsert = updateOneModel.IsUpsert

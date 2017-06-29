@@ -1922,7 +1922,10 @@ namespace MongoDB.Driver
             {
                 throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
             }
-
+            if (discriminatorValue.IsBsonArray)
+            {
+                discriminatorValue = discriminatorValue.AsBsonArray.Last();
+            }
             var renderedOfTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
 
             if (_derivedDocumentFilter == null)
