@@ -808,6 +808,50 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void UpsertOne_should_include_discriminator_when_document_is_of_type_B(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var update = Builders<B>.Update.Set(d => d.PropB, 10);
+            var options = new UpdateOptions {IsUpsert = true};
+
+            if (async)
+            {
+                subject.UpdateOneAsync(d => d.PropA == 0, update, options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UpdateOne(d => d.PropA == 0, update, options);
+            }
+
+            var insertedB = _docsCollection.FindSync("{PropB: 10}").Single();
+            insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void UpsertOne_should_include_discriminator_when_document_is_of_type_C(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var update = Builders<C>.Update.Set(d => d.PropC, 10);
+            var options = new UpdateOptions { IsUpsert = true };
+
+            if (async)
+            {
+                subject.OfType<C>().UpdateOneAsync(d => d.PropA == 0, update, options).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.OfType<C>().UpdateOne(d => d.PropA == 0, update, options);
+            }
+
+            var insertedC = _docsCollection.FindSync("{PropC: 10}").Single();
+            insertedC["_t"].Should().Be(new BsonArray(new[] { "A", "B", "C" }));
+        }
+
         private IMongoCollection<B> CreateSubject()
         {
             return _rootCollection.OfType<B>();
