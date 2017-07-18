@@ -103,7 +103,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Brian Knight              brianknight10@gmail.com  
 * Anatoly Koperin           https://github.com/ExM
 * Nik Kolev                 nkolev@gmail.com
-* Oleg Kosmakov             kosmakoff@gmail.com
+* Oleg Kosmakov             https://github.com/kosmakoff
 * Maksim Krautsou           https://github.com/MaKCbIMKo
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
