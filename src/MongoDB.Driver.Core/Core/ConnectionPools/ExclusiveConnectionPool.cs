@@ -86,8 +86,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             eventSubscriber.TryGetEventHandler(out _openedEventHandler);
             eventSubscriber.TryGetEventHandler(out _closingEventHandler);
             eventSubscriber.TryGetEventHandler(out _closedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addingConnectionEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addedConnectionEventHandler);
         }
 
         // properties
@@ -243,12 +241,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     await PrunePoolAsync(maintenanceCancellationToken).ConfigureAwait(false);
                     await EnsureMinSizeAsync(maintenanceCancellationToken).ConfigureAwait(false);
-                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
                     // do nothing, this is called in the background and, quite frankly, should never
                     // result in an error
+                }
+                
+                try
+                {
+                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken).ConfigureAwait(false);
+                }
+                catch(TaskCanceledException)
+                {
                 }
             }
         }
