@@ -495,6 +495,24 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual ChangeStream<TResult> Watch<TResult>(
+            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<ChangeStream<TResult>> WatchAsync<TResult>(
+            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
             throw new NotImplementedException();

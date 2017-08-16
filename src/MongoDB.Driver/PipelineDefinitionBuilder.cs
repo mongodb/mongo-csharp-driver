@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -269,6 +269,24 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, output, options, translationOptions));
+        }
+
+        /// <summary>
+        /// Appends a $changeStream stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static PipelineDefinition<TInput, ChangeStreamOutput<TIntermediate>> ChangeStream<TInput, TIntermediate>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            ChangeStreamOptions options = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.ChangeStream<TIntermediate>(options));
         }
 
         /// <summary>

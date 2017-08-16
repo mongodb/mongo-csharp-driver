@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -318,6 +318,43 @@ namespace MongoDB.Driver
                 buckets,
                 new ExpressionBucketOutputProjection<TInput, TValue, TOutput>(x => default(TValue), output, translationOptions),
                 options);
+        }
+
+        /// <summary>
+        /// Creates a $changeStream stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, ChangeStreamOutput<TInput>> ChangeStream<TInput>(
+            ChangeStreamOptions options = null)
+        {
+            const string operatorName = "$changeStream";
+            var stage = new DelegatedPipelineStageDefinition<TInput, ChangeStreamOutput<TInput>>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var renderedOptions = new BsonDocument();
+                    if (options != null)
+                    {
+                        if (options.FullDocument.HasValue)
+                        {
+                            renderedOptions.Add("fullDocument", MongoUtils.ToCamelCase(options.FullDocument.Value.ToString()));
+                        }
+                        if (options.ResumeAfter != null)
+                        {
+                            renderedOptions.Add("resumeAfter", options.ResumeAfter);
+                        }
+                    }
+                    var document = new BsonDocument(operatorName, renderedOptions);
+                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s, options);
+                    return new RenderedPipelineStageDefinition<ChangeStreamOutput<TInput>>(
+                        operatorName,
+                        document,
+                        outputSerializer);
+                });
+
+            return stage;
         }
 
         /// <summary>

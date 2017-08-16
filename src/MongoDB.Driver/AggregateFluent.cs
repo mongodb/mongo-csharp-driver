@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -96,6 +96,11 @@ namespace MongoDB.Driver
             AggregateBucketAutoOptions options = null)
         {
             return WithPipeline(_pipeline.BucketAuto(groupBy, buckets, output, options));
+        }
+
+        public override IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamOptions options = null)
+        {
+            return WithPipeline(_pipeline.ChangeStream(options));
         }
 
         public override IAggregateFluent<AggregateCountResult> Count()

@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -120,6 +120,13 @@ namespace MongoDB.Driver
             int buckets,
             ProjectionDefinition<TResult, TNewResult> output,
             AggregateBucketAutoOptions options = null);
+
+        /// <summary>
+        /// Appends a $changeStream stage to the pipeline.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamOptions options = null);
 
         /// <summary>
         /// Appends a count stage to the pipeline.

@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1020,6 +1020,44 @@ namespace MongoDB.Driver
                 update,
                 options,
                 cancellationToken);
+        }
+
+        /// <summary>
+        /// Watches changes on the collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A change stream.
+        /// </returns>
+        public static ChangeStream<ChangeStreamOutput<TDocument>> Watch<TDocument>(
+            this IMongoCollection<TDocument> collection,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamOutput<TDocument>>();
+            return collection.Watch(emptyPipeline, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Watches changes on the collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A change stream.
+        /// </returns>
+        public static Task<ChangeStream<ChangeStreamOutput<TDocument>>> WatchAsync<TDocument>(
+            this IMongoCollection<TDocument> collection,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamOutput<TDocument>>();
+            return collection.WatchAsync(emptyPipeline, options, cancellationToken);
         }
     }
 }

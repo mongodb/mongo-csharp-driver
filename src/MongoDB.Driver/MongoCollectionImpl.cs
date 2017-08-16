@@ -372,6 +372,28 @@ namespace MongoDB.Driver
             return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
         }
 
+        public override ChangeStream<TResult> Watch<TResult>(
+            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            var operation = CreateWatchOperation(pipeline, options);
+            var cursor = ExecuteReadOperation(operation, cancellationToken);
+            return new ChangeStream<TResult>(cursor, operation.Pipeline, options, _settings.ReadPreference);
+        }
+
+        public override async Task<ChangeStream<TResult>> WatchAsync<TResult>(
+            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            var operation = CreateWatchOperation(pipeline, options);
+            var cursor = await ExecuteReadOperationAsync(operation, cancellationToken).ConfigureAwait(false);
+            return new ChangeStream<TResult>(cursor, operation.Pipeline, options, _settings.ReadPreference);
+        }
+
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
             var newSettings = _settings.Clone();
@@ -739,6 +761,35 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
             };
+        }
+
+        private AggregateOperation<TResult> CreateWatchOperation<TResult>(
+           PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+           ChangeStreamOptions options = null)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            IBsonSerializer<TResult> resultSerializer;
+            if (typeof(TResult) == typeof(TDocument))
+            {
+                resultSerializer = (IBsonSerializer<TResult>)_documentSerializer;
+            }
+            else
+            {
+                resultSerializer = serializerRegistry.GetSerializer<TResult>();
+            }
+
+            var combinedPipeline = new PrependedStagePipelineDefinition<TDocument, ChangeStreamOutput<TDocument>, TResult>(
+                PipelineStageDefinitionBuilder.ChangeStream<TDocument>(options),
+                pipeline);
+            var renderedPipeline = combinedPipeline.Render(_documentSerializer, serializerRegistry);
+
+            var aggregateOperation = new AggregateOperation<TResult>(
+                _collectionNamespace,
+                renderedPipeline.Documents,
+                resultSerializer,
+                _messageEncoderSettings);
+
+            return aggregateOperation;
         }
 
         private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
