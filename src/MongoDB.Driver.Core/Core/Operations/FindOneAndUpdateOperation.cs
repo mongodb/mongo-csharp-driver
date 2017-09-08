@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneAndUpdateOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
+        private IEnumerable<BsonDocument> _arrayFilters;
         private bool? _bypassDocumentValidation;
         private readonly BsonDocument _filter;
         private bool _isUpsert;
@@ -66,6 +67,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the array filters.
+        /// </summary>
+        /// <value>
+        /// The array filters.
+        /// </value>
+        public IEnumerable<BsonDocument> ArrayFilters
+        {
+            get { return _arrayFilters; }
+            set { _arrayFilters = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.
         /// </summary>
@@ -177,7 +190,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
-                { "collation", () => Collation.ToBsonDocument(), Collation != null }
+                { "collation", () => Collation.ToBsonDocument(), Collation != null },
+                { "arrayFilters", () => new BsonArray(_arrayFilters), _arrayFilters != null }
             };
         }
 

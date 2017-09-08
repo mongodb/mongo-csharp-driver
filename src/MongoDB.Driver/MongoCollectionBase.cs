@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -319,6 +319,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
+            if (options?.ArrayFilters != null)
+            {
+                throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(options));
+            }
 
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
@@ -347,6 +351,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
+            if (options?.ArrayFilters != null)
+            {
+                throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(options));
+            }
 
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
@@ -379,6 +387,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
+                ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
@@ -407,6 +416,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
+                ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
@@ -435,6 +445,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
+                ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };
@@ -463,6 +474,7 @@ namespace MongoDB.Driver
             options = options ?? new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
+                ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 IsUpsert = options.IsUpsert
             };

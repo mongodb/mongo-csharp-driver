@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
+using MongoDB.Driver.Core.Misc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -33,6 +29,7 @@ namespace MongoDB.Driver
     public sealed class UpdateManyModel<TDocument> : WriteModel<TDocument>
     {
         // fields
+        private IEnumerable<ArrayFilterDefinition> _arrayFilters;
         private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
         private bool _isUpsert;
@@ -51,6 +48,18 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the array filters.
+        /// </summary>
+        /// <value>
+        /// The array filters.
+        /// </value>
+        public IEnumerable<ArrayFilterDefinition> ArrayFilters
+        {
+            get { return _arrayFilters; }
+            set { _arrayFilters = value; }
+        }
+
         /// <summary>
         /// Gets or sets the collation.
         /// </summary>

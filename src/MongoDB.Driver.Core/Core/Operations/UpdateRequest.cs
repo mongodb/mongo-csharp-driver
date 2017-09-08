@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     public sealed class UpdateRequest : WriteRequest
     {
         // fields
+        private IEnumerable<BsonDocument> _arrayFilters;
         private Collation _collation;
         private readonly BsonDocument _filter;
         private bool _isMulti;
@@ -52,6 +54,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the array filters.
+        /// </summary>
+        /// <value>
+        /// The array filters.
+        /// </value>
+        public IEnumerable<BsonDocument> ArrayFilters
+        {
+            get { return _arrayFilters; }
+            set { _arrayFilters = value; }
+        }
+
         /// <summary>
         /// Gets or sets the collation.
         /// </summary>

@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var updateRequest = (UpdateRequest)request;
                 Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.Collation);
+                Feature.ArrayFilters.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.ArrayFilters);
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
                 bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxWireDocumentSize);
@@ -115,6 +116,11 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         bsonWriter.WriteName("collation");
                         BsonDocumentSerializer.Instance.Serialize(context, updateRequest.Collation.ToBsonDocument());
+                    }
+                    if (updateRequest.ArrayFilters != null)
+                    {
+                        bsonWriter.WriteName("arrayFilters");
+                        BsonArraySerializer.Instance.Serialize(context, new BsonArray(updateRequest.ArrayFilters));
                     }
                     bsonWriter.WriteEndDocument();
                 }

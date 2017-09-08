@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
@@ -40,6 +41,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     return true;
                 case "collation":
                     _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
+                case "arrayFilters":
+                    var arrayFilters = new List<ArrayFilterDefinition>();
+                    foreach (BsonDocument arrayFilterDocument in value.AsBsonArray)
+                    {
+                        var arrayFilter = new BsonDocumentArrayFilterDefinition<BsonDocument>(arrayFilterDocument);
+                        arrayFilters.Add(arrayFilter);
+                    }
+                    _options.ArrayFilters = arrayFilters;
                     return true;
             }
 

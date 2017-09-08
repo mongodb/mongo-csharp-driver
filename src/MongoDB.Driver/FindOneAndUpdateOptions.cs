@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver
 {
@@ -25,6 +27,7 @@ namespace MongoDB.Driver
     public class FindOneAndUpdateOptions<TDocument, TProjection>
     {
         // fields
+        private IEnumerable<ArrayFilterDefinition> _arrayFilters;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
         private bool _isUpsert;
@@ -43,6 +46,18 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the array filters.
+        /// </summary>
+        /// <value>
+        /// The array filters.
+        /// </value>
+        public IEnumerable<ArrayFilterDefinition> ArrayFilters
+        {
+            get { return _arrayFilters; }
+            set { _arrayFilters = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.
         /// </summary>

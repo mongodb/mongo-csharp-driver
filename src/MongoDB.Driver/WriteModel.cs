@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver
 {
@@ -79,6 +81,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    ArrayFilters = request.ArrayFilters == null ? null : new List<ArrayFilterDefinition>(request.ArrayFilters.Select(f => new BsonDocumentArrayFilterDefinition<BsonValue>(f))),
                     Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
@@ -89,6 +92,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
+                    ArrayFilters = request.ArrayFilters == null ? null : new List<ArrayFilterDefinition>(request.ArrayFilters.Select(f => new BsonDocumentArrayFilterDefinition<BsonValue>(f))),
                     Collation = request.Collation,
                     IsUpsert = request.IsUpsert
                 };
@@ -100,6 +104,10 @@ namespace MongoDB.Driver
         private static WriteModel<TDocument> ConvertToReplaceOne(UpdateRequest request)
         {
             var document = (TDocument)Unwrap(request.Update);
+            if (request.ArrayFilters != null)
+            {
+                throw new ArgumentException("ReplaceOne does not support arrayFilters.", nameof(request));
+            }
 
             return new ReplaceOneModel<TDocument>(UnwrapFilter(request.Filter), document)
             {

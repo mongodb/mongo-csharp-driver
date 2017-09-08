@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -216,6 +216,7 @@ namespace MongoDB.Driver
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
                         return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update)
                         {
+                            ArrayFilters = updateManyModel.ArrayFilters,
                             Collation = updateManyModel.Collation,
                             IsUpsert = updateManyModel.IsUpsert
                         };
@@ -223,6 +224,7 @@ namespace MongoDB.Driver
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
                         return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update)
                         {
+                            ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,
                             IsUpsert = updateOneModel.IsUpsert
                         };

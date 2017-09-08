@@ -462,6 +462,7 @@ namespace MongoDB.Driver
                         updateManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         updateManyModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
+                        ArrayFilters = RenderArrayFilters(updateManyModel.ArrayFilters),
                         Collation = updateManyModel.Collation,
                         CorrelationId = index,
                         IsMulti = true,
@@ -474,6 +475,7 @@ namespace MongoDB.Driver
                         updateOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         updateOneModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
+                        ArrayFilters = RenderArrayFilters(updateOneModel.ArrayFilters),
                         Collation = updateOneModel.Collation,
                         CorrelationId = index,
                         IsMulti = false,
@@ -631,6 +633,7 @@ namespace MongoDB.Driver
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
+                ArrayFilters = RenderArrayFilters(options.ArrayFilters),
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
                 IsUpsert = options.IsUpsert,
@@ -804,6 +807,23 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)
+        {
+            if (arrayFilters == null)
+            {
+                return null;
+            }
+
+            var renderedArrayFilters = new List<BsonDocument>();
+            foreach (var arrayFilter in arrayFilters)
+            {
+                var renderedArrayFilter = arrayFilter.Render(null, _settings.SerializerRegistry);
+                renderedArrayFilters.Add(renderedArrayFilter);
+            }
+
+            return renderedArrayFilters;
         }
 
         private IBsonSerializer<TResult> ResolveResultSerializer<TResult>(IBsonSerializer<TResult> resultSerializer)

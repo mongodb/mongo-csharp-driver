@@ -77,6 +77,7 @@
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
+    <Compile Include="Core\Misc\ArrayFiltersFeature.cs" />
     <Compile Include="Core\Misc\CachedEnumerable.cs" />
     <Compile Include="Core\Misc\CollationFeature.cs" />
     <Compile Include="Core\Misc\CommandsThatWriteAcceptWriteConcernFeature.cs" />

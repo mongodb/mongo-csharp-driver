@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new NotSupportedException("BulkUpdateOperationEmulator does not support collations.");
             }
+            if (updateRequest.ArrayFilters != null)
+            {
+                throw new NotSupportedException("BulkUpdateOperationEmulator does not support arrayFilters.");
+            }
 
             return channel.Update(
                 CollectionNamespace,
@@ -67,6 +71,10 @@ namespace MongoDB.Driver.Core.Operations
             if (updateRequest.Collation != null)
             {
                 throw new NotSupportedException("BulkUpdateOperationEmulator does not support collations.");
+            }
+            if (updateRequest.ArrayFilters != null)
+            {
+                throw new NotSupportedException("BulkUpdateOperationEmulator does not support arrayFilters.");
             }
 
             return channel.UpdateAsync(

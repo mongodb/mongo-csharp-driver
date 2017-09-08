@@ -328,6 +328,9 @@
     <EmbeddedResource Include="Specifications\crud\tests\write\replaceOne-pre_2.6.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-pre_2.6.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-pre_2.6.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate-arrayFilters.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-arrayFilters.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-arrayFilters.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
