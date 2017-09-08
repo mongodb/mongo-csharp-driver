@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -127,12 +127,12 @@ namespace MongoDB.Driver.Tests.Operations
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
-            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
+            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("_id", n)));
 
             var bulk = _collection.InitializeOrderedBulkOperation();
             for (var n = 0; n < count; n++)
             {
-                bulk.Find(Query.EQ("n", n)).RemoveOne();
+                bulk.Find(Query.EQ("_id", n)).RemoveOne();
             }
             var result = bulk.Execute();
 
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Operations
             var bulk = _collection.InitializeOrderedBulkOperation();
             for (var n = 0; n < count; n++)
             {
-                bulk.Insert(new BsonDocument("n", n));
+                bulk.Insert(new BsonDocument("_id", n));
             }
             var result = bulk.Execute();
 
@@ -168,12 +168,12 @@ namespace MongoDB.Driver.Tests.Operations
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
-            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
+            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument { { "_id", n },  { "n", 0 } }));
 
             var bulk = _collection.InitializeOrderedBulkOperation();
             for (var n = 0; n < count; n++)
             {
-                bulk.Find(Query.EQ("n", n)).UpdateOne(Update.Set("n", -1));
+                bulk.Find(Query.EQ("_id", n)).UpdateOne(Update.Set("n", 1));
             }
             var result = bulk.Execute();
 
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Tests.Operations
                 Assert.Equal(false, result.IsModifiedCountAvailable);
             }
             Assert.Equal(count, _collection.Count());
-            Assert.Equal(count, _collection.Count(Query.EQ("n", -1)));
+            Assert.Equal(count, _collection.Count(Query.EQ("n", 1)));
         }
 
         [Theory]

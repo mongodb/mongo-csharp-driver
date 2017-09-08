@@ -2456,7 +2456,7 @@ namespace MongoDB.Driver.Tests
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
-            var documents = Enumerable.Range(0, count).Select(n => new BsonDocument("n", n));
+            var documents = Enumerable.Range(0, count).Select(n => new BsonDocument("_id", n));
             var expectedNumberOfResults = maxBatchCountDelta == 1 ? 2 : 1;
             if (_server.Primary.BuildInfo.Version >= new Version(2, 6, 0))
             {
