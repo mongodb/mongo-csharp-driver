@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             _tests = new Dictionary<string, Func<ICrudOperationTest>>
             {
                 { "aggregate", () => new AggregateTest() },
+                { "bulkWrite", () => new BulkWriteTest() },
                 { "count", () => new CountTest() },
                 { "deleteMany", () => new DeleteManyTest() },
                 { "deleteOne", () => new DeleteOneTest() },

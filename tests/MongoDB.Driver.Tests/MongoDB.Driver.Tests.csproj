@@ -165,6 +165,7 @@
     <Compile Include="Specifications\command-monitoring\TestRunner.cs" />
     <Compile Include="Specifications\command-monitoring\UpdateManyTest.cs" />
     <Compile Include="Specifications\command-monitoring\UpdateOneTest.cs" />
+    <Compile Include="Specifications\crud\BulkWriteTest.cs" />
     <Compile Include="Specifications\crud\CrudOperationTestBase.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
     <Compile Include="FilterDefinitionBuilderTests.cs" />
@@ -331,6 +332,7 @@
     <EmbeddedResource Include="Specifications\crud\tests\write\findOneAndUpdate-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-arrayFilters.json" />
+    <EmbeddedResource Include="Specifications\crud\tests\write\bulkWrite-arrayFilters.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
