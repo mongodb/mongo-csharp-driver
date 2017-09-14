@@ -110,6 +110,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
+* Chuck Lu                  https://github.com/chucklu
 * Alex Lyman                mail.alex.lyman@gmail.com
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn
