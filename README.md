@@ -108,6 +108,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Oleg Kosmakov             https://github.com/kosmakoff
 * Maksim Krautsou           https://github.com/MaKCbIMKo
 * Richard Kreuter           richard@10gen.com
+* Daniel Lee                https://github.com/dlee148
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
 * Chuck Lu                  https://github.com/chucklu
