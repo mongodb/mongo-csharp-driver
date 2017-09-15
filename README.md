@@ -119,6 +119,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Sam558                    https://github.com/Sam558
+* Sergey Shushlyapin        https://github.com/sergeyshushlyapin
 * Alexey Skalozub           pieceofsummer@gmail.com
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
