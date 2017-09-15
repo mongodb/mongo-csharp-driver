@@ -89,6 +89,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bar Arnon                 https://github.com/I3arnon
 * Bit Diffusion Limited     code@bitdiff.com
 * Alex Brown                https://github.com/alexjamesbrown
+* Adam Avery Cole           https://github.com/adamaverycole
 * Alex Dawes                https://github.com/alexdawes
 * Justin Dearing            zippy1981@gmail.com
 * Dan DeBilt                dan.debilt@gmail.com
