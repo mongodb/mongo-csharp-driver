@@ -43,12 +43,12 @@ BsonClassMap.RegisterClassMap<MyClass>(cm => {
 When deserializing polymorphic classes, it is important that the serializer know about all the classes in the hierarchy before deserialization begins. If you ever see an error message about an “Unknown discriminator”, it is because the deserializer can’t figure out the class for that discriminator. If you are mapping your classes programmatically simply make sure that all classes in the hierarchy have been mapped before beginning deserialization. When using attributes and [automapping]({{< relref "reference\bson\mapping\index.md#automap" >}}), you will need to inform the serializer about known types (i.e. subclasses) it should create class maps for. Here is an example of how to do this:
 
 ```csharp
-[BsonKnownTypes(typeof(Cat), typeof(Dog)]
+[BsonKnownTypes(typeof(Cat), typeof(Dog))]
 public class Animal 
 {
 }
 
-[BsonKnownTypes(typeof(Lion), typeof(Tiger)]
+[BsonKnownTypes(typeof(Lion), typeof(Tiger))]
 public class Cat : Animal 
 {
 }
