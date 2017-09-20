@@ -1,7 +1,8 @@
 Addins/
 Cake*/
-GitVersion.CommandLine/
+GitVersion.CommandLine.*/
 Hugo/
 packages/
+xunit.runner.console.*/
 nuget.exe
 packages.config.md5sum
