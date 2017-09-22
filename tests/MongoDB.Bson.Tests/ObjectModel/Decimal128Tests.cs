@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,6 +57,58 @@ namespace MongoDB.Bson.Tests
 
             result = (decimal)subject;
             result.Should().Be(value);
+        }
+
+        [Theory]
+        [InlineData("0", "0")]
+        [InlineData("79228162514264337593543950335", "79228162514264337593543950335")]
+        [InlineData("1E1", "10")]
+        [InlineData("1E2", "100")]
+        [InlineData("1E28", "10000000000000000000000000000")]
+        [InlineData("1E-28", "0.0000000000000000000000000001")]
+        [InlineData("1E-29", "0")]
+        [InlineData("10E-29", "0.0000000000000000000000000001")]
+        [InlineData("10E-30", "0")]
+        [InlineData("100E-30", "0.0000000000000000000000000001")]
+        [InlineData("100E-31", "0")]
+        [InlineData("1E-55", "0")]
+        [InlineData("1E-56", "0")]
+        [InlineData("1E-57", "0")]
+        [InlineData("1E-99", "0")]
+        [InlineData("1E-6111", "0")]
+        [InlineData("10000.0000000000000000000000001", "10000")] // see: CSHARP-2001
+        public void ToDecimal_should_return_expected_result(string valueString, string expectedResultString)
+        {
+            var subject = Decimal128.Parse(valueString);
+            var expectedResult = decimal.Parse(expectedResultString);
+
+            var result = Decimal128.ToDecimal(subject);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("1E29")]
+        [InlineData("79228162514264337593543950336")]
+        [InlineData("79228162514264337593543950340")]
+        [InlineData("792281625142643375935439503351E-1")]
+        [InlineData("7922816251426433759354395033511E-2")]
+        [InlineData("9999999999999999999999999999999999")]
+        [InlineData("9999999999999999999999999999999999E+6111")]
+        [InlineData("-79228162514264337593543950336")]
+        [InlineData("-79228162514264337593543950340")]
+        [InlineData("-9999999999999999999999999999999999")]
+        [InlineData("-9999999999999999999999999999999999E+6111")]
+        [InlineData("Infinity")]
+        [InlineData("-Infinity")]
+        [InlineData("NaN")]
+        public void ToDecimal_should_throw_when_value_is_out_of_range(string valueString)
+        {
+            var subject = Decimal128.Parse(valueString);
+
+            var exception = Record.Exception(() => Decimal128.ToDecimal(subject));
+
+            exception.Should().BeOfType<OverflowException>();
         }
 
         [Theory]
