@@ -58,6 +58,10 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             public string Required { get; set; }
             public string NotRequired { get; set; }
 
+            [BsonUseExistingInstance]
+            public string UseExistingInstance { get; set; }
+            public string DoNotUseExistingInstance { get; set; }
+
             [BsonElement("notordered")]
             public string NotOrdered { get; set; }
             [BsonElement("ordered", Order = 1)]
@@ -162,6 +166,18 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var notRequired = classMap.GetMemberMap("NotRequired");
             Assert.Equal(false, notRequired.IsRequired);
+        }
+
+        [Fact]
+        public void TestUseExistingInstance()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(Test));
+
+            var useExistingInstance = classMap.GetMemberMap("UseExistingInstance");
+            Assert.Equal(true, useExistingInstance.UseExistingInstance);
+
+            var doNotUseExistingInstance = classMap.GetMemberMap("DoNotUseExistingInstance");
+            Assert.Equal(false, doNotUseExistingInstance.UseExistingInstance);
         }
 
         [Fact]

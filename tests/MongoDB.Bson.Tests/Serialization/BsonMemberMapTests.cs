@@ -273,6 +273,7 @@ namespace MongoDB.Bson.Tests.Serialization
             memberMap.SetIdGenerator(new GuidGenerator());
             memberMap.SetIgnoreIfDefault(true);
             memberMap.SetIsRequired(true);
+            memberMap.SetUseExistingInstance(true);
             memberMap.SetOrder(21);
             memberMap.SetSerializer(originalSerializer);
             memberMap.SetShouldSerializeMethod(o => false);
@@ -285,6 +286,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.False(memberMap.IgnoreIfDefault);
             Assert.False(memberMap.IgnoreIfNull);
             Assert.False(memberMap.IsRequired);
+            Assert.False(memberMap.UseExistingInstance);
             Assert.Equal(int.MaxValue, memberMap.Order);
             Assert.NotSame(originalSerializer, memberMap.GetSerializer());
             Assert.Null(memberMap.ShouldSerializeMethod);

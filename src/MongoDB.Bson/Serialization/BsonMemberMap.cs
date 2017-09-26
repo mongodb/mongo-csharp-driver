@@ -40,6 +40,7 @@ namespace MongoDB.Bson.Serialization
         private volatile IBsonSerializer _serializer;
         private IIdGenerator _idGenerator;
         private bool _isRequired;
+        private bool _useExistingInstance;
         private Func<object, bool> _shouldSerializeMethod;
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
@@ -179,6 +180,14 @@ namespace MongoDB.Bson.Serialization
         public bool IsRequired
         {
             get { return _isRequired; }
+        }
+
+        /// <summary>
+        /// Gets whether an existing instance on the target member will get populated during deserialization (true) or whether a new instance will be created (false, default).
+        /// </summary>
+        public bool UseExistingInstance
+        {
+            get { return _useExistingInstance; }
         }
 
         /// <summary>
@@ -326,6 +335,7 @@ namespace MongoDB.Bson.Serialization
             _ignoreIfDefault = false;
             _ignoreIfNull = false;
             _isRequired = false;
+            _useExistingInstance = false;
             _order = int.MaxValue;
             _serializer = null;
             _shouldSerializeMethod = null;
@@ -441,6 +451,18 @@ namespace MongoDB.Bson.Serialization
         {
             if (_frozen) { ThrowFrozenException(); }
             _isRequired = isRequired;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether an existing instance on the target member will get populated during deserialization (true) or whether a new instance will be created (false, default).
+        /// </summary>
+        /// <param name="useExistingInstance">Whether an existing instance on the target member will get populated during deserialization (true) or whether a new instance will be created (false, default).</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap SetUseExistingInstance(bool useExistingInstance)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _useExistingInstance = useExistingInstance;
             return this;
         }
 
