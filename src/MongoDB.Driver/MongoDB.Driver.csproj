@@ -97,15 +97,8 @@
     <Compile Include="ArrayFilterDefinition.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
-    <Compile Include="ChangeStream.cs" />
-    <Compile Include="ChangeStreamFullDocumentOption.cs" />
-    <Compile Include="ChangeStreamOperationType.cs" />
-    <Compile Include="ChangeStreamOperationTypeSerializer.cs" />
     <Compile Include="ChangeStreamOptions.cs" />
-    <Compile Include="ChangeStreamOutput.cs" />
-    <Compile Include="ChangeStreamOutputSerializer.cs" />
-    <Compile Include="ChangeStreamUpdateDescription.cs" />
-    <Compile Include="ChangeStreamUpdateDescriptionSerializer.cs" />
+    <Compile Include="ChangeStreamStageOptions.cs" />
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="CreateViewOptions.cs" />
     <Compile Include="DeleteOptions.cs" />

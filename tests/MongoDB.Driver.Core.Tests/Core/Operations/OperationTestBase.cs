@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,6 +55,18 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected void Delete(BsonDocument filter)
+        {
+            var requests = new[] { new DeleteRequest(filter) };
+            var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            ExecuteOperation(operation);
+        }
+
+        protected void Delete(string filter)
+        {
+            Delete(BsonDocument.Parse(filter));
+        }
+
         protected void DropDatabase()
         {
             var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
@@ -82,8 +94,9 @@ namespace MongoDB.Driver.Core.Operations
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = CoreTestConfiguration.GetReadBinding())
+            using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return operation.Execute(bindingHandle, CancellationToken.None);
             }
         }
 
@@ -115,16 +128,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cluster = CoreTestConfiguration.Cluster;
             using (var binding = new ReadPreferenceBinding(cluster, readPreference))
+            using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return ExecuteOperation(operation, binding, async);
+                return ExecuteOperation(operation, bindingHandle, async);
             }
         }
 
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return operation.Execute(bindingHandle, CancellationToken.None);
             }
         }
 
@@ -155,8 +170,9 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = CoreTestConfiguration.GetReadBinding())
+            using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return await ExecuteOperationAsync(operation, binding);
+                return await ExecuteOperationAsync(operation, bindingHandle);
             }
         }
 
@@ -168,8 +184,9 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await operation.ExecuteAsync(binding, CancellationToken.None);
+                return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
             }
         }
 
@@ -191,6 +208,11 @@ namespace MongoDB.Driver.Core.Operations
         protected void Insert(params BsonDocument[] documents)
         {
             Insert((IEnumerable<BsonDocument>)documents);
+        }
+
+        protected void Insert(params string[] documents)
+        {
+            Insert(documents.Select(d => BsonDocument.Parse(d)));
         }
 
         protected void Insert(IEnumerable<BsonDocument> documents)
@@ -298,6 +320,18 @@ namespace MongoDB.Driver.Core.Operations
                 act();
                 _hasOncePerFixtureRun = true;
             }
+        }
+
+        protected void Update(BsonDocument filter, BsonDocument update)
+        {
+            var requests = new[] { new UpdateRequest(UpdateType.Update, filter, update) };
+            var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            ExecuteOperation(operation);
+        }
+
+        protected void Update(string filter, string update)
+        {
+            Update(BsonDocument.Parse(filter), BsonDocument.Parse(update));
         }
     }
 }

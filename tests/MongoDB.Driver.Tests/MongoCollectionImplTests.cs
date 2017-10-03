@@ -97,6 +97,7 @@ namespace MongoDB.Driver
                 AllowDiskUse = true,
                 Collation = new Collation("en_US"),
                 BatchSize = 10,
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
             };
@@ -123,6 +124,7 @@ namespace MongoDB.Driver
             operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);
+            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.UseCursor.Should().Be(options.UseCursor);
@@ -1800,6 +1802,134 @@ namespace MongoDB.Driver
             }
 
             action.ShouldThrow<MongoWriteException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Watch_should_execute_a_ChangeStreamOperation(
+            [Values(null, 1)] int? batchSize,
+            [Values(null, "a")] string locale,
+            [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.UpdateLookup)] ChangeStreamFullDocumentOption fullDocument,
+            [Values(null, 1)] int? maxAwaitTimeMS,
+            [Values(null, ReadConcernLevel.Local)] ReadConcernLevel? readConcernLevel,
+            [Values(null, "{ a : 1 }")] string resumeAferString,
+            [Values(false, true)] bool async)
+        {
+            var collation = locale == null ? null : new Collation(locale);
+            var maxAwaitTime = maxAwaitTimeMS == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(maxAwaitTimeMS.Value);
+            var readConcern = readConcernLevel == null ? null : new ReadConcern(readConcernLevel);
+            var resumeAfter = resumeAferString == null ? null : BsonDocument.Parse(resumeAferString);
+            IMongoCollection<BsonDocument> subject = CreateSubject<BsonDocument>();
+            if (readConcern != null)
+            {
+                subject = subject.WithReadConcern(readConcern);
+            }
+            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>>(new[]
+            {
+                new BsonDocument("$match", new BsonDocument("operationType", "insert"))
+            });
+            var options = new ChangeStreamOptions
+            {
+                BatchSize = batchSize,
+                Collation = collation,
+                FullDocument = fullDocument,
+                MaxAwaitTime = maxAwaitTime,
+                ResumeAfter = resumeAfter
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var mockCursor = new Mock<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
+
+            IAsyncCursor<ChangeStreamOutput<BsonDocument>> cursor;
+            if (async)
+            {
+                cursor = subject.WatchAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                cursor = subject.Watch(pipeline, options, cancellationToken);
+            }
+
+            cursor.Should().BeSameAs(mockCursor.Object);
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>>();
+            var operation = (ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>)call.Operation;
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Collation.Should().Be(options.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.FullDocument.Should().Be(options.FullDocument);
+            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+            operation.MessageEncoderSettings.Should().NotBeNull();
+            operation.Pipeline.Should().HaveCount(1);
+            operation.Pipeline[0].Should().Be("{ $match : { operationType : \"insert\" } }");
+            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
+            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamOutput<BsonDocument>));
+            operation.ResumeAfter.Should().Be(options.ResumeAfter);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Watch_should_execute_a_ChangeStreamOperation_with_default_options_when_options_is_null(
+            [Values(false, true)] bool async)
+        {
+            IMongoCollection<BsonDocument> subject = CreateSubject<BsonDocument>();
+            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>>(new[]
+            {
+                new BsonDocument("$match", new BsonDocument("operationType", "insert"))
+            });
+            ChangeStreamOptions options = null;
+            var cancellationToken = new CancellationTokenSource().Token;
+            var mockCursor = new Mock<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
+
+            IAsyncCursor<ChangeStreamOutput<BsonDocument>> cursor;
+            if (async)
+            {
+                cursor = subject.WatchAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                cursor = subject.Watch(pipeline, options, cancellationToken);
+            }
+
+            cursor.Should().BeSameAs(mockCursor.Object);
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>>();
+            var operation = (ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>)call.Operation;
+            var defaultOptions = new ChangeStreamOptions();
+            operation.BatchSize.Should().Be(defaultOptions.BatchSize);
+            operation.Collation.Should().Be(defaultOptions.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.FullDocument.Should().Be(defaultOptions.FullDocument);
+            operation.MaxAwaitTime.Should().Be(defaultOptions.MaxAwaitTime);
+            operation.MessageEncoderSettings.Should().NotBeNull();
+            operation.Pipeline.Should().HaveCount(1);
+            operation.Pipeline[0].Should().Be("{ $match : { operationType : \"insert\" } }");
+            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
+            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamOutput<BsonDocument>));
+            operation.ResumeAfter.Should().Be(defaultOptions.ResumeAfter);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Watch_should_throw_when_pipeline_is_null(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            PipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>> pipeline = null;
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => subject.WatchAsync(pipeline).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception = Record.Exception(() => subject.Watch(pipeline));
+            }
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver.Tests
 {
@@ -74,6 +75,49 @@ namespace MongoDB.Driver.Tests
                         CancellationToken.None),
                     Times.Once);
             }
+        }
+
+        [Theory]
+        [InlineData(ChangeStreamFullDocumentOption.Default, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Default, "{ a : 1 }", "{ $changeStream : { fullDocument : \"default\", resumeAfter : { a : 1 } } }")]
+        [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, "{ a : 1 }", "{ $changeStream : { fullDocument : \"updateLookup\", resumeAfter : { a : 1 } } }")]
+        public void ChangeStream_should_add_the_expected_stage(
+            ChangeStreamFullDocumentOption fullDocument,
+            string resumeAfterString,
+            string expectedStage)
+        {
+            var resumeAfter = resumeAfterString == null ? null : BsonDocument.Parse(resumeAfterString);
+
+            var subject = CreateSubject();
+            var options = new ChangeStreamStageOptions
+            {
+                FullDocument = fullDocument,
+                ResumeAfter = resumeAfter
+            };
+
+            var result = subject.ChangeStream(options);
+
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<C>();
+            var stages = RenderStages(result.Stages, inputSerializer, serializerRegistry);
+            stages.Count.Should().Be(1);
+            stages[0].Document.Should().Be(expectedStage);
+        }
+
+        [Fact]
+        public void ChangeStream_should_add_the_expected_stage_when_options_is_null()
+        {
+            var subject = CreateSubject();
+            ChangeStreamStageOptions options = null;
+
+            var result = subject.ChangeStream(options);
+
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<C>();
+            var stages = RenderStages(result.Stages, inputSerializer, serializerRegistry);
+            stages.Count.Should().Be(1);
+            stages[0].Document.Should().Be("{ $changeStream : { fullDocument : \"default\" } }");
         }
 
         [Theory]
@@ -405,6 +449,23 @@ namespace MongoDB.Driver.Tests
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
             return pipeline.Render(inputSerializer, serializerRegistry);
+        }
+
+        private List<IRenderedPipelineStageDefinition> RenderStages(
+            IList<IPipelineStageDefinition> stages, 
+            IBsonSerializer inputSerializer, 
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedStages = new List<IRenderedPipelineStageDefinition>();
+
+            foreach (var stage in stages)
+            {
+                var renderedStage = stage.Render(inputSerializer, serializerRegistry);
+                renderedStages.Add(renderedStage);
+                inputSerializer = renderedStage.OutputSerializer;
+            }
+
+            return renderedStages;
         }
 
         // nested types

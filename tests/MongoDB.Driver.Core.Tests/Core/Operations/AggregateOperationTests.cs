@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
+using System.Reflection;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -44,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AllowDiskUse.Should().NotHaveValue();
             subject.BatchSize.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
+            subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
             subject.UseCursor.Should().NotHaveValue();
@@ -117,6 +119,18 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Collation;
 
             result.Should().BeSameAs(collation);
+        }
+
+        [Fact]
+        public void MaxAwaitTime_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = TimeSpan.FromSeconds(2);
+
+            subject.MaxAwaitTime = value;
+            var result = subject.MaxAwaitTime;
+
+            result.Should().Be(value);
         }
 
         [Fact]
@@ -490,6 +504,30 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_MaxAwaitTime_is_set(
+            [Values(null, 1000)]
+            int? milliseconds,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.ChangeStreamStage);
+            EnsureTestData();
+            var maxAwaitTime = milliseconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliseconds.Value);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                MaxAwaitTime = maxAwaitTime
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+
+            cursor.Should().BeOfType<AsyncCursor<BsonDocument>>();
+            var cursorMaxTimeInfo = typeof(AsyncCursor<BsonDocument>).GetField("_maxTime", BindingFlags.NonPublic | BindingFlags.Instance);
+            var cursorMaxTime = (TimeSpan?)cursorMaxTimeInfo.GetValue(cursor);
+            cursorMaxTime.Should().Be(maxAwaitTime);
         }
 
         [SkippableTheory]

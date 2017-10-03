@@ -149,7 +149,9 @@
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
     <Compile Include="OfTypeMongoCollectionTests.cs" />
+    <Compile Include="PipelineDefinitionBuilderTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
+    <Compile Include="PipelineStageDefinitionBuilderTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />

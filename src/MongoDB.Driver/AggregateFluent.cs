@@ -98,7 +98,7 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.BucketAuto(groupBy, buckets, output, options));
         }
 
-        public override IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamOptions options = null)
+        public override IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamStageOptions options = null)
         {
             return WithPipeline(_pipeline.ChangeStream(options));
         }

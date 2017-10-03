@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Linq;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -372,26 +373,24 @@ namespace MongoDB.Driver
             return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
         }
 
-        public override ChangeStream<TResult> Watch<TResult>(
+        public override IAsyncCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateWatchOperation(pipeline, options);
-            var cursor = ExecuteReadOperation(operation, cancellationToken);
-            return new ChangeStream<TResult>(cursor, operation.Pipeline, options, _settings.ReadPreference);
+            var operation = CreateChangeStreamOperation(pipeline, options);
+            return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override async Task<ChangeStream<TResult>> WatchAsync<TResult>(
+        public override async Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateWatchOperation(pipeline, options);
-            var cursor = await ExecuteReadOperationAsync(operation, cancellationToken).ConfigureAwait(false);
-            return new ChangeStream<TResult>(cursor, operation.Pipeline, options, _settings.ReadPreference);
+            var operation = CreateChangeStreamOperation(pipeline, options);
+            return await ExecuteReadOperationAsync(operation, cancellationToken).ConfigureAwait(false);
         }
 
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
@@ -519,6 +518,7 @@ namespace MongoDB.Driver
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
+                MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 UseCursor = options.UseCursor
@@ -567,6 +567,33 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 WriteConcern = _settings.WriteConcern
             };
+        }
+
+        private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
+            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options)
+        {
+            options = options ?? new ChangeStreamOptions();
+
+            var changeStreamOutputSerializer = new ChangeStreamOutputSerializer<TDocument>(_documentSerializer, options.FullDocument);
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var renderedPipeline = pipeline.Render(changeStreamOutputSerializer, serializerRegistry);
+
+            var aggregateOperation = new ChangeStreamOperation<TResult>(
+                _collectionNamespace,
+                renderedPipeline.Documents,
+                renderedPipeline.OutputSerializer,
+                _messageEncoderSettings)
+            {
+                BatchSize = options.BatchSize,
+                Collation = options.Collation,
+                FullDocument = options.FullDocument,
+                MaxAwaitTime = options.MaxAwaitTime,
+                ReadConcern = _settings.ReadConcern,
+                ResumeAfter = options.ResumeAfter
+            };
+
+            return aggregateOperation;
         }
 
         private CountOperation CreateCountOperation(FilterDefinition<TDocument> filter, CountOptions options)
@@ -763,35 +790,6 @@ namespace MongoDB.Driver
             };
         }
 
-        private AggregateOperation<TResult> CreateWatchOperation<TResult>(
-           PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
-           ChangeStreamOptions options = null)
-        {
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            IBsonSerializer<TResult> resultSerializer;
-            if (typeof(TResult) == typeof(TDocument))
-            {
-                resultSerializer = (IBsonSerializer<TResult>)_documentSerializer;
-            }
-            else
-            {
-                resultSerializer = serializerRegistry.GetSerializer<TResult>();
-            }
-
-            var combinedPipeline = new PrependedStagePipelineDefinition<TDocument, ChangeStreamOutput<TDocument>, TResult>(
-                PipelineStageDefinitionBuilder.ChangeStream<TDocument>(options),
-                pipeline);
-            var renderedPipeline = combinedPipeline.Render(_documentSerializer, serializerRegistry);
-
-            var aggregateOperation = new AggregateOperation<TResult>(
-                _collectionNamespace,
-                renderedPipeline.Documents,
-                resultSerializer,
-                _messageEncoderSettings);
-
-            return aggregateOperation;
-        }
-
         private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
         {
             if (renderedField.UnderlyingSerializer != null)
@@ -826,8 +824,9 @@ namespace MongoDB.Driver
         private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
+            using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
+                return _operationExecutor.ExecuteReadOperation(bindingHandle, operation, cancellationToken);
             }
         }
 
@@ -839,24 +838,27 @@ namespace MongoDB.Driver
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
+            using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(bindingHandle, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
         private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
+            using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
+                return _operationExecutor.ExecuteWriteOperation(bindingHandle, operation, cancellationToken);
             }
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
+            using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteWriteOperationAsync(bindingHandle, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 

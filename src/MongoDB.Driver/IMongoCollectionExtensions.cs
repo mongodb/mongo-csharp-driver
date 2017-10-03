@@ -1032,7 +1032,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static ChangeStream<ChangeStreamOutput<TDocument>> Watch<TDocument>(
+        public static IAsyncCursor<ChangeStreamOutput<TDocument>> Watch<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -1051,7 +1051,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static Task<ChangeStream<ChangeStreamOutput<TDocument>>> WatchAsync<TDocument>(
+        public static Task<IAsyncCursor<ChangeStreamOutput<TDocument>>> WatchAsync<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))

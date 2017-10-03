@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         private int? _batchSize;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private ExpressionTranslationOptions _translationOptions;
         private bool? _useCursor;
@@ -67,6 +68,15 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time.
+        /// </summary>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>

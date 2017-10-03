@@ -86,6 +86,7 @@
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
+    <Compile Include="Core\Operations\ChangeStreamOperationTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
     <Compile Include="Core\Operations\ReIndexOperationTests.cs" />

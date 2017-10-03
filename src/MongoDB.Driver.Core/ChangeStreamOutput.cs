@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         {
             _id = Ensure.IsNotNull(id, nameof(id));
             _operationType = operationType;
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _collectionNamespace = collectionNamespace; // can be null when operationType is Invalidate
             _documentKey = documentKey; // can be null
             _updateDescription = updateDescription; // can be null
             _fullDocument = fullDocument; // can be null

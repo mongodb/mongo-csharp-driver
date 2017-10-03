@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly IBsonSerializer<ChangeStreamOperationType> _operationTypeSerializer;
-        private readonly ChangeStreamOptions _options;
+        private readonly ChangeStreamFullDocumentOption _fullDocument;
         private readonly ChangeStreamUpdateDescriptionSerializer _updateDescriptionSerializer;
 
         // constructors
@@ -40,13 +40,13 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="ChangeStreamOutputSerializer{TDocument}"/> class.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="options">The options.</param>
+        /// <param name="fullDocument">The options.</param>
         public ChangeStreamOutputSerializer(
             IBsonSerializer<TDocument> documentSerializer,
-            ChangeStreamOptions options)
+            ChangeStreamFullDocumentOption fullDocument)
         {
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-            _options = options;
+            _fullDocument = fullDocument;
 
             _operationTypeSerializer = new ChangeStreamOperationTypeSerializer();
             _updateDescriptionSerializer = new ChangeStreamUpdateDescriptionSerializer();
@@ -65,6 +65,7 @@ namespace MongoDB.Driver
             ChangeStreamOperationType? operationType = null;
             ChangeStreamUpdateDescription updateDescription = null;
 
+            reader.ReadStartDocument();
             while (reader.ReadBsonType() != 0)
             {
                 var fieldName = reader.ReadName();
@@ -83,21 +84,30 @@ namespace MongoDB.Driver
                         break;
 
                     case "fullDocument":
-                        fullDocument = _documentSerializer.Deserialize(context);
+                        if (reader.CurrentBsonType == BsonType.Null)
+                        {
+                            reader.ReadNull();
+                            fullDocument = default(TDocument);
+                        }
+                        else
+                        {
+                            fullDocument = _documentSerializer.Deserialize(context);
+                        }
                         break;
 
                     case "operationType":
                         operationType = _operationTypeSerializer.Deserialize(context);
                         break;
 
-                    case "udpateDescription":
-                        _updateDescriptionSerializer.Deserialize(context);
+                    case "updateDescription":
+                        updateDescription = _updateDescriptionSerializer.Deserialize(context);
                         break;
 
                     default:
                         throw new FormatException($"Invalid field name: \"{fieldName}\".");
                 }
             }
+            reader.ReadEndDocument();
 
             return new ChangeStreamOutput<TDocument>(
                 id,
@@ -186,7 +196,7 @@ namespace MongoDB.Driver
                     return true;
 
                 case ChangeStreamOperationType.Update:
-                    return _options == null || _options.FullDocument.HasValue && _options.FullDocument.Value == ChangeStreamFullDocumentOption.Lookup;
+                    return _fullDocument == ChangeStreamFullDocumentOption.UpdateLookup;
 
                 default:
                     return false;

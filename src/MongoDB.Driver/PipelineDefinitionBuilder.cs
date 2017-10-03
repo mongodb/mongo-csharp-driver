@@ -283,7 +283,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static PipelineDefinition<TInput, ChangeStreamOutput<TIntermediate>> ChangeStream<TInput, TIntermediate>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
-            ChangeStreamOptions options = null)
+            ChangeStreamStageOptions options = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.ChangeStream<TIntermediate>(options));

@@ -495,21 +495,21 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual ChangeStream<TResult> Watch<TResult>(
+        public virtual IAsyncCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); // implemented by subclasses
         }
 
         /// <inheritdoc />
-        public virtual Task<ChangeStream<TResult>> WatchAsync<TResult>(
+        public virtual Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); // implemented by subclasses
         }
 
         /// <inheritdoc />

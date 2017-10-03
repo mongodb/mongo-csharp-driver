@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 5, 11));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 5, 11));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
@@ -110,6 +111,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the bypass document validation feature.
         /// </summary>
         public static Feature BypassDocumentValidation => __bypassDocumentValidation;
+
+        /// <summary>
+        /// Gets the aggregate $changeStream stage feature.
+        /// </summary>
+        public static Feature ChangeStreamStage => __changeStreamStage;
 
         /// <summary>
         /// Gets the collation feature.

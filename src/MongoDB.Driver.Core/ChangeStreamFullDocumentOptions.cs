@@ -23,10 +23,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Do not return the full document.
         /// </summary>
-        None = 0,
+        Default = 0,
         /// <summary>
         /// Lookup the full document and return it.
         /// </summary>
-        Lookup
+        UpdateLookup
     }
 }

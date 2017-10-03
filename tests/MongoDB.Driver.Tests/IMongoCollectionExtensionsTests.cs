@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
+using System.Linq;
 
 namespace MongoDB.Driver.Tests
 {
@@ -596,6 +597,41 @@ namespace MongoDB.Driver.Tests
                         It.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
                         null,
                         default(CancellationToken)),
+                    Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Watch_with_no_pipeline_should_call_Watch_with_an_empty_pipeline(
+            [Values(false, true)] bool isOptionsNull,
+            [Values(false, true)] bool async)
+        {
+            var mockSubject = CreateMockSubject();
+            var subject = mockSubject.Object;
+            var options = isOptionsNull ? null : new ChangeStreamOptions();
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                subject.WatchAsync(options, cancellationToken).GetAwaiter().GetResult();
+
+                mockSubject.Verify(
+                    s => s.WatchAsync(
+                        It.Is<PipelineDefinition<ChangeStreamOutput<Person>, ChangeStreamOutput<Person>>>(p => p.Stages.Count() == 0),
+                        options,
+                        cancellationToken),
+                    Times.Once);
+            }
+            else
+            {
+                subject.Watch(options, cancellationToken);
+
+                mockSubject.Verify(
+                    s => s.Watch(
+                        It.Is<PipelineDefinition<ChangeStreamOutput<Person>, ChangeStreamOutput<Person>>>(p => p.Stages.Count() == 0),
+                        options,
+                        cancellationToken),
                     Times.Once);
             }
         }

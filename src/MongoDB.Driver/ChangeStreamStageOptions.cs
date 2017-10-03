@@ -14,48 +14,19 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using System;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for a change stream operation.
+    /// Options for a $changeStream stage.
     /// </summary>
-    public class ChangeStreamOptions
+    public class ChangeStreamStageOptions
     {
         // private fields
-        private int? _batchSize;
-        private Collation _collation;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
-        private TimeSpan? _maxAwaitTime;
         private BsonDocument _resumeAfter;
 
         // public properties
-        /// <summary>
-        /// Gets or sets the size of the batch.
-        /// </summary>
-        /// <value>
-        /// The size of the batch.
-        /// </value>
-        public int? BatchSize
-        {
-            get { return _batchSize; }
-            set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
-        }
-
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
         /// <summary>
         /// Gets or sets the full document.
         /// </summary>
@@ -66,18 +37,6 @@ namespace MongoDB.Driver
         {
             get { return _fullDocument; }
             set { _fullDocument = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum await time.
-        /// </summary>
-        /// <value>
-        /// The maximum await time.
-        /// </value>
-        public TimeSpan? MaxAwaitTime
-        {
-            get { return _maxAwaitTime; }
-            set { _maxAwaitTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>

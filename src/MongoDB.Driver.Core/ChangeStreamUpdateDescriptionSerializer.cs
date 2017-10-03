@@ -45,6 +45,7 @@ namespace MongoDB.Driver
             BsonDocument updatedFields = null;
             string[] removedFields = null;
 
+            reader.ReadStartDocument();
             while (reader.ReadBsonType() != 0)
             {
                 var fieldName = reader.ReadName();
@@ -62,6 +63,7 @@ namespace MongoDB.Driver
                         throw new FormatException($"Invalid field name: \"{fieldName}\".");
                 }
             }
+            reader.ReadEndDocument();
 
             return new ChangeStreamUpdateDescription(updatedFields, removedFields);
         }

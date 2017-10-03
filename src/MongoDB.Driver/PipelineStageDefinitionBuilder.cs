@@ -327,27 +327,23 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, ChangeStreamOutput<TInput>> ChangeStream<TInput>(
-            ChangeStreamOptions options = null)
+            ChangeStreamStageOptions options = null)
         {
+            options = options ?? new ChangeStreamStageOptions();
+
             const string operatorName = "$changeStream";
             var stage = new DelegatedPipelineStageDefinition<TInput, ChangeStreamOutput<TInput>>(
                 operatorName,
                 (s, sr) =>
                 {
                     var renderedOptions = new BsonDocument();
-                    if (options != null)
+                    renderedOptions.Add("fullDocument", MongoUtils.ToCamelCase(options.FullDocument.ToString()));
+                    if (options.ResumeAfter != null)
                     {
-                        if (options.FullDocument.HasValue)
-                        {
-                            renderedOptions.Add("fullDocument", MongoUtils.ToCamelCase(options.FullDocument.Value.ToString()));
-                        }
-                        if (options.ResumeAfter != null)
-                        {
-                            renderedOptions.Add("resumeAfter", options.ResumeAfter);
-                        }
+                        renderedOptions.Add("resumeAfter", options.ResumeAfter);
                     }
                     var document = new BsonDocument(operatorName, renderedOptions);
-                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s, options);
+                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s, options.FullDocument);
                     return new RenderedPipelineStageDefinition<ChangeStreamOutput<TInput>>(
                         operatorName,
                         document,

@@ -51,6 +51,13 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
+    <Compile Include="ChangeStreamFullDocumentOptions.cs" />
+    <Compile Include="ChangeStreamOperationType.cs" />
+    <Compile Include="ChangeStreamOperationTypeSerializer.cs" />
+    <Compile Include="ChangeStreamOutput.cs" />
+    <Compile Include="ChangeStreamOutputSerializer.cs" />
+    <Compile Include="ChangeStreamUpdateDescription.cs" />
+    <Compile Include="ChangeStreamUpdateDescriptionSerializer.cs" />
     <Compile Include="Collation.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
@@ -86,6 +93,8 @@
     <Compile Include="Core\Misc\ReadAheadEnumerable.cs" />
     <Compile Include="Core\Misc\ReadConcernFeature.cs" />
     <Compile Include="Core\Misc\TaskExtensions.cs" />
+    <Compile Include="Core\Operations\ChangeStreamCursor.cs" />
+    <Compile Include="Core\Operations\ChangeStreamOperation.cs" />
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Operations\ReIndexOperation.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelper.cs" />

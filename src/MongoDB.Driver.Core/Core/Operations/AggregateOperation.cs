@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
@@ -106,6 +107,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum await time.
+        /// </summary>
+        /// <value>
+        /// The maximum await time.
+        /// </value>
+        public TimeSpan? MaxAwaitTime
+        {
+            get { return _maxAwaitTime; }
+            set { _maxAwaitTime = value; }
         }
 
         /// <summary>
@@ -288,7 +301,8 @@ namespace MongoDB.Driver.Core.Operations
                 _batchSize,
                 null, // limit
                 _resultSerializer,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                _maxAwaitTime);
         }
 
         private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result)
@@ -302,7 +316,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // batchSize
                 null, // limit
                 _resultSerializer,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                _maxAwaitTime);
         }
 
         private void EnsureIsReadOnlyPipeline()
