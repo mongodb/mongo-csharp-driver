@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// An UpdateDescription in a ChangeStreamOutput instance.
+    /// An UpdateDescription in a ChangeStreamDocument instance.
     /// </summary>
     public sealed class ChangeStreamUpdateDescription
     {

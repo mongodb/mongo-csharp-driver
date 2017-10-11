@@ -1824,7 +1824,7 @@ namespace MongoDB.Driver
             {
                 subject = subject.WithReadConcern(readConcern);
             }
-            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>>(new[]
+            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>>(new[]
             {
                 new BsonDocument("$match", new BsonDocument("operationType", "insert"))
             });
@@ -1837,10 +1837,10 @@ namespace MongoDB.Driver
                 ResumeAfter = resumeAfter
             };
             var cancellationToken = new CancellationTokenSource().Token;
-            var mockCursor = new Mock<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            var mockCursor = new Mock<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
             _operationExecutor.EnqueueResult(mockCursor.Object);
 
-            IAsyncCursor<ChangeStreamOutput<BsonDocument>> cursor;
+            IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor;
             if (async)
             {
                 cursor = subject.WatchAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
@@ -1851,9 +1851,9 @@ namespace MongoDB.Driver
             }
 
             cursor.Should().BeSameAs(mockCursor.Object);
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
-            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>>();
-            var operation = (ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>)call.Operation;
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>();
+            var operation = (ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>)call.Operation;
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().Be(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
@@ -1863,7 +1863,7 @@ namespace MongoDB.Driver
             operation.Pipeline.Should().HaveCount(1);
             operation.Pipeline[0].Should().Be("{ $match : { operationType : \"insert\" } }");
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamOutput<BsonDocument>));
+            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamDocument<BsonDocument>));
             operation.ResumeAfter.Should().Be(options.ResumeAfter);
         }
 
@@ -1873,16 +1873,16 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             IMongoCollection<BsonDocument> subject = CreateSubject<BsonDocument>();
-            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>>(new[]
+            var pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>>(new[]
             {
                 new BsonDocument("$match", new BsonDocument("operationType", "insert"))
             });
             ChangeStreamOptions options = null;
             var cancellationToken = new CancellationTokenSource().Token;
-            var mockCursor = new Mock<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
+            var mockCursor = new Mock<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
             _operationExecutor.EnqueueResult(mockCursor.Object);
 
-            IAsyncCursor<ChangeStreamOutput<BsonDocument>> cursor;
+            IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor;
             if (async)
             {
                 cursor = subject.WatchAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
@@ -1893,9 +1893,9 @@ namespace MongoDB.Driver
             }
 
             cursor.Should().BeSameAs(mockCursor.Object);
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamOutput<BsonDocument>>>();
-            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>>();
-            var operation = (ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>)call.Operation;
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>();
+            var operation = (ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>)call.Operation;
             var defaultOptions = new ChangeStreamOptions();
             operation.BatchSize.Should().Be(defaultOptions.BatchSize);
             operation.Collation.Should().Be(defaultOptions.Collation);
@@ -1906,7 +1906,7 @@ namespace MongoDB.Driver
             operation.Pipeline.Should().HaveCount(1);
             operation.Pipeline[0].Should().Be("{ $match : { operationType : \"insert\" } }");
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamOutput<BsonDocument>));
+            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamDocument<BsonDocument>));
             operation.ResumeAfter.Should().Be(defaultOptions.ResumeAfter);
         }
 
@@ -1916,7 +1916,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            PipelineDefinition<ChangeStreamOutput<BsonDocument>, ChangeStreamOutput<BsonDocument>> pipeline = null;
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> pipeline = null;
 
             Exception exception;
             if (async)

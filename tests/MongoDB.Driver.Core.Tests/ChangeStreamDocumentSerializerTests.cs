@@ -28,7 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver
 {
-    public class ChangeStreamOutputSerializerTests
+    public class ChangeStreamDocumentSerializerTests
     {
         [Theory]
         [InlineData("{ _id : { id : 1 }, operationType : \"delete\", ns : { db : \"db\", coll : \"collection\" }, documentKey : { k : 1 } }", "{ id : 1 }", ChangeStreamOperationType.Delete, "db", "collection", "{ k : 1 }", null, null)]
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
             var expectedResumeToken = ParseBsonDocument(expectedResumeTokenJson);
             var expectedUpdateDescription = ParseUpdateDescription(expectedUpdateDescriptionJson);
 
-            ChangeStreamOutput<BsonDocument> result;
+            ChangeStreamDocument<BsonDocument> result;
             using (var reader = new JsonReader(json))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader);
@@ -77,7 +77,7 @@ namespace MongoDB.Driver
             var subject = CreateSubject();
             var json = "null";
 
-            ChangeStreamOutput<BsonDocument> result;
+            ChangeStreamDocument<BsonDocument> result;
             using (var reader = new JsonReader(json))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader);
@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             string expectedJson)
         {
             var subject = CreateSubject();
-            var value = new ChangeStreamOutput<BsonDocument>(
+            var value = new ChangeStreamDocument<BsonDocument>(
                 ParseBsonDocument(resumeTokenJson),
                 operationType,
                 CreateCollectionNamespace(databaseName, collectionName),
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         public void Serialize_should_have_expected_result_when_value_is_null()
         {
             var subject = CreateSubject();
-            ChangeStreamOutput<BsonDocument> value = null;
+            ChangeStreamDocument<BsonDocument> value = null;
 
             string json;
             using (var textWriter = new StringWriter())
@@ -174,9 +174,9 @@ namespace MongoDB.Driver
             }
         }
 
-        private ChangeStreamOutputSerializer<BsonDocument> CreateSubject()
+        private ChangeStreamDocumentSerializer<BsonDocument> CreateSubject()
         {
-            return new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            return new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
         }
 
         private BsonDocument ParseBsonDocument(string json)

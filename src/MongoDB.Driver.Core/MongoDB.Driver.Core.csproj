@@ -54,8 +54,8 @@
     <Compile Include="ChangeStreamFullDocumentOptions.cs" />
     <Compile Include="ChangeStreamOperationType.cs" />
     <Compile Include="ChangeStreamOperationTypeSerializer.cs" />
-    <Compile Include="ChangeStreamOutput.cs" />
-    <Compile Include="ChangeStreamOutputSerializer.cs" />
+    <Compile Include="ChangeStreamDocument.cs" />
+    <Compile Include="ChangeStreamDocumentSerializer.cs" />
     <Compile Include="ChangeStreamUpdateDescription.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializer.cs" />
     <Compile Include="Collation.cs" />

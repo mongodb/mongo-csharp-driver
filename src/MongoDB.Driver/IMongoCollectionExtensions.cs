@@ -1032,12 +1032,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static IAsyncCursor<ChangeStreamOutput<TDocument>> Watch<TDocument>(
+        public static IAsyncCursor<ChangeStreamDocument<TDocument>> Watch<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamOutput<TDocument>>();
+            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<TDocument>>();
             return collection.Watch(emptyPipeline, options, cancellationToken);
         }
 
@@ -1051,12 +1051,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static Task<IAsyncCursor<ChangeStreamOutput<TDocument>>> WatchAsync<TDocument>(
+        public static Task<IAsyncCursor<ChangeStreamDocument<TDocument>>> WatchAsync<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamOutput<TDocument>>();
+            var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<TDocument>>();
             return collection.WatchAsync(emptyPipeline, options, cancellationToken);
         }
     }

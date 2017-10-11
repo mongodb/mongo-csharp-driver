@@ -618,7 +618,7 @@ namespace MongoDB.Driver.Tests
 
                 mockSubject.Verify(
                     s => s.WatchAsync(
-                        It.Is<PipelineDefinition<ChangeStreamOutput<Person>, ChangeStreamOutput<Person>>>(p => p.Stages.Count() == 0),
+                        It.Is<PipelineDefinition<ChangeStreamDocument<Person>, ChangeStreamDocument<Person>>>(p => p.Stages.Count() == 0),
                         options,
                         cancellationToken),
                     Times.Once);
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.Tests
 
                 mockSubject.Verify(
                     s => s.Watch(
-                        It.Is<PipelineDefinition<ChangeStreamOutput<Person>, ChangeStreamOutput<Person>>>(p => p.Stages.Count() == 0),
+                        It.Is<PipelineDefinition<ChangeStreamDocument<Person>, ChangeStreamDocument<Person>>>(p => p.Stages.Count() == 0),
                         options,
                         cancellationToken),
                     Times.Once);

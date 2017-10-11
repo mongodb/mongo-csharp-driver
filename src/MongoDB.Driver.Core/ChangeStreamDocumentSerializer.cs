@@ -24,10 +24,10 @@ namespace MongoDB.Driver
 {
 
     /// <summary>
-    /// A serializer for ChangeStreamOutput instances.
+    /// A serializer for ChangeStreamDocument instances.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class ChangeStreamOutputSerializer<TDocument> : SealedClassSerializerBase<ChangeStreamOutput<TDocument>>
+    public class ChangeStreamDocumentSerializer<TDocument> : SealedClassSerializerBase<ChangeStreamDocument<TDocument>>
     {
         #region static
         // private static fields
@@ -40,10 +40,10 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOutputSerializer{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ChangeStreamDocumentSerializer{TDocument}"/> class.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
-        public ChangeStreamOutputSerializer(
+        public ChangeStreamDocumentSerializer(
             IBsonSerializer<TDocument> documentSerializer)
         {
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
-        protected override ChangeStreamOutput<TDocument> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
+        protected override ChangeStreamDocument<TDocument> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var reader = context.Reader;
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver
             }
             reader.ReadEndDocument();
 
-            return new ChangeStreamOutput<TDocument>(
+            return new ChangeStreamDocument<TDocument>(
                 resumeToken,
                 operationType.Value,
                 collectionNamespace,
@@ -116,7 +116,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, ChangeStreamOutput<TDocument> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, ChangeStreamDocument<TDocument> value)
         {
             var writer = context.Writer;
             writer.WriteStartDocument();

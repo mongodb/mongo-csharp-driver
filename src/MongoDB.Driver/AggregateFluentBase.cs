@@ -86,7 +86,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamStageOptions options = null)
+        public virtual IAggregateFluent<ChangeStreamDocument<TResult>> ChangeStream(ChangeStreamStageOptions options = null)
         {
             throw new NotImplementedException(); // implemented by subclasses
         }

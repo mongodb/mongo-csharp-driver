@@ -496,7 +496,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAsyncCursor<TResult> Watch<TResult>(
-            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -505,7 +505,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
-            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {

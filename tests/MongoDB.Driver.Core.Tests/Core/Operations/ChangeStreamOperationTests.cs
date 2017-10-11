@@ -259,20 +259,20 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_for_drop_collection(
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"invalidate\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
 
             var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamOutput<BsonDocument>>(cursor, CancellationToken.None);
+            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
 
             Insert("{ _id : 1, x : 1 }");
             DropCollection();
@@ -287,20 +287,20 @@ namespace MongoDB.Driver.Core.Operations
             change.UpdateDescription.Should().BeNull();
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_for_deletes(
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"delete\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
 
             var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamOutput<BsonDocument>>(cursor, CancellationToken.None);
+            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
 
             Insert("{ _id : 1, x : 1 }");
             Delete("{ _id : 1 }");
@@ -315,21 +315,21 @@ namespace MongoDB.Driver.Core.Operations
             change.UpdateDescription.Should().BeNull();
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_for_inserts(
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
             Insert("{ _id : 1, x : 1 }");
 
             var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamOutput<BsonDocument>>(cursor, CancellationToken.None);
+            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
 
             Update("{ _id : 1 }", "{ $set : { x : 2  } }");
             Insert("{ _id : 2, x : 2 }");
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
             change.UpdateDescription.Should().BeNull();
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_for_updates(
             [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.UpdateLookup)] ChangeStreamFullDocumentOption fullDocument,
@@ -352,16 +352,16 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"update\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
             {
                 FullDocument = fullDocument
             };
             DropCollection();
 
             var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamOutput<BsonDocument>>(cursor, CancellationToken.None);
+            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
 
             Insert("{ _id : 1, x : 1 }");
             Update("{ _id : 1 }", "{ $set : { x : 2  } }");

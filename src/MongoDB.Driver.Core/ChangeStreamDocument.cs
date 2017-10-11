@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// An output document from a $changeStream pipeline stage.
     /// </summary>
-    public sealed class ChangeStreamOutput<TDocument>
+    public sealed class ChangeStreamDocument<TDocument>
     {
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOutput{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="ChangeStreamDocument{TDocument}" /> class.
         /// </summary>
         /// <param name="resumeToken">The resume token.</param>
         /// <param name="operationType">Type of the operation.</param>
@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         /// <param name="documentKey">The document key.</param>
         /// <param name="updateDescription">The update description.</param>
         /// <param name="fullDocument">The full document.</param>
-        public ChangeStreamOutput(
+        public ChangeStreamDocument(
             BsonDocument resumeToken,
             ChangeStreamOperationType operationType,
             CollectionNamespace collectionNamespace,

@@ -374,7 +374,7 @@ namespace MongoDB.Driver
         }
 
         public override IAsyncCursor<TResult> Watch<TResult>(
-            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -384,7 +384,7 @@ namespace MongoDB.Driver
         }
 
         public override async Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
-            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -570,14 +570,14 @@ namespace MongoDB.Driver
         }
 
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
-            PipelineDefinition<ChangeStreamOutput<TDocument>, TResult> pipeline,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
             options = options ?? new ChangeStreamOptions();
 
-            var changeStreamOutputSerializer = new ChangeStreamOutputSerializer<TDocument>(_documentSerializer);
+            var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(_documentSerializer);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedPipeline = pipeline.Render(changeStreamOutputSerializer, serializerRegistry);
+            var renderedPipeline = pipeline.Render(changeStreamDocumentSerializer, serializerRegistry);
 
             var changeStreamOperation = new ChangeStreamOperation<TResult>(
                 _collectionNamespace,

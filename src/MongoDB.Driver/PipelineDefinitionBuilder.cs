@@ -284,7 +284,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static PipelineDefinition<TInput, ChangeStreamOutput<TIntermediate>> ChangeStream<TInput, TIntermediate>(
+        public static PipelineDefinition<TInput, ChangeStreamDocument<TIntermediate>> ChangeStream<TInput, TIntermediate>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             ChangeStreamStageOptions options = null)
         {

@@ -65,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeStreamOperationTypeSerializerTests.cs" />
-    <Compile Include="ChangeStreamOutputSerializerTests.cs" />
+    <Compile Include="ChangeStreamDocumentSerializerTests.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializerTests.cs" />
     <Compile Include="CollationTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />

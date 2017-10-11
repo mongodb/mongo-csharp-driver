@@ -25,7 +25,9 @@ namespace MongoDB.Driver
         /// </summary>
         Default = 0,
         /// <summary>
-        /// Lookup the full document and return it.
+        /// The change stream for partial updates will include both a delta describing the
+        /// changes to the document as well as a copy of the entire document that was
+        /// changed from some time after the change occurred.
         /// </summary>
         UpdateLookup
     }

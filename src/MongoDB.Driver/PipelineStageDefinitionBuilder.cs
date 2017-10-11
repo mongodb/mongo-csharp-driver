@@ -329,13 +329,13 @@ namespace MongoDB.Driver
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <param name="options">The options.</param>
         /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, ChangeStreamOutput<TInput>> ChangeStream<TInput>(
+        public static PipelineStageDefinition<TInput, ChangeStreamDocument<TInput>> ChangeStream<TInput>(
             ChangeStreamStageOptions options = null)
         {
             options = options ?? new ChangeStreamStageOptions();
 
             const string operatorName = "$changeStream";
-            var stage = new DelegatedPipelineStageDefinition<TInput, ChangeStreamOutput<TInput>>(
+            var stage = new DelegatedPipelineStageDefinition<TInput, ChangeStreamDocument<TInput>>(
                 operatorName,
                 (s, sr) =>
                 {
@@ -346,8 +346,8 @@ namespace MongoDB.Driver
                         renderedOptions.Add("resumeAfter", options.ResumeAfter);
                     }
                     var document = new BsonDocument(operatorName, renderedOptions);
-                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s);
-                    return new RenderedPipelineStageDefinition<ChangeStreamOutput<TInput>>(
+                    var outputSerializer = new ChangeStreamDocumentSerializer<TInput>(s);
+                    return new RenderedPipelineStageDefinition<ChangeStreamDocument<TInput>>(
                         operatorName,
                         document,
                         outputSerializer);

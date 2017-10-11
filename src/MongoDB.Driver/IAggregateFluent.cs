@@ -129,7 +129,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<ChangeStreamOutput<TResult>> ChangeStream(ChangeStreamStageOptions options = null);
+        IAggregateFluent<ChangeStreamDocument<TResult>> ChangeStream(ChangeStreamStageOptions options = null);
 
         /// <summary>
         /// Appends a count stage to the pipeline.
